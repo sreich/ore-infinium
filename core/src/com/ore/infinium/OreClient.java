@@ -34,6 +34,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
 	private OreServer m_server;
 	private Thread m_serverThread;
+	private double m_accumulator;
+	private double m_currentTime;
+	private double m_step = 1.0 / 60.0;
 
 	@Override
 	public void create() {
@@ -113,6 +116,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
 		m_serverThread = new Thread(m_server);
 		m_serverThread.start();
 
+		try {
+			m_server.latch.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		m_clientKryo = new Client();
 		m_clientKryo.start();
 
@@ -133,34 +142,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 }.start();
 	}
 
-	class ClientListener extends Listener {
-		    public void connected (Connection connection) {
-                                Network.RegisterName registerName = new Network.RegisterName();
-                                registerName.name = "testname";
-                                m_clientKryo.sendTCP(registerName);
-                        }
-
-                        public void received (Connection connection, Object object) {
-                               // if (object instanceof ChatMessage) {
-                               //         ChatMessage chatMessage = (ChatMessage)object;
-                               //         chatFrame.addMessage(chatMessage.text);
-                               //         return;
-                               // }
-                        }
-
-                        public void disconnected (Connection connection) {
-
-						}
-	}
-
 	@Override
 	public void dispose() {
 		m_world.dispose();
 	}
-
-	private double m_accumulator;
-	private double m_currentTime;
-	private double m_step = 1.0 / 60.0;
 
 	@Override
 	public void render() {
@@ -198,11 +183,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 //		m_viewport.apply();
 
 		m_world.render(frameTime);
-			m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+		m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
 		m_stage.draw();
 	}
-
-
 
 	@Override
 	public void resize(int width, int height) {
@@ -219,16 +202,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
 	@Override
 	public boolean keyDown(int keycode) {
-		if(keycode == Input.Keys.ESCAPE) {
+		if (keycode == Input.Keys.ESCAPE) {
 			Gdx.app.exit();
 		}
 
-		if(keycode == Input.Keys.MINUS) {
+		if (keycode == Input.Keys.MINUS) {
 			//zoom out
 			m_world.zoom(1.1f);
 		}
 
-		if(keycode == Input.Keys.EQUALS) {
+		if (keycode == Input.Keys.EQUALS) {
 			m_world.zoom(0.9f);
 		}
 
@@ -268,5 +251,25 @@ public class OreClient implements ApplicationListener, InputProcessor {
 	@Override
 	public boolean scrolled(int amount) {
 		return false;
+	}
+
+	class ClientListener extends Listener {
+		public void connected(Connection connection) {
+			Network.RegisterName registerName = new Network.RegisterName();
+			registerName.name = "testname";
+			m_clientKryo.sendTCP(registerName);
+		}
+
+		public void received(Connection connection, Object object) {
+			// if (object instanceof ChatMessage) {
+			//         ChatMessage chatMessage = (ChatMessage)object;
+			//         chatFrame.addMessage(chatMessage.text);
+			//         return;
+			// }
+		}
+
+		public void disconnected(Connection connection) {
+
+		}
 	}
 }

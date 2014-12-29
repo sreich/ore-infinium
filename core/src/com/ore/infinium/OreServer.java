@@ -7,6 +7,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * ***************************************************************************
@@ -27,14 +28,13 @@ import java.io.IOException;
  * ***************************************************************************
  */
 public class OreServer implements Runnable {
+    public CountDownLatch latch = new CountDownLatch(1);
     private Server m_serverKryo;
     private double m_accumulator;
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
     private boolean m_running = true;
-
     public OreServer() {
-
     }
 
     public void run() {
@@ -53,11 +53,12 @@ public class OreServer implements Runnable {
 
         try {
             m_serverKryo.bind(Network.port);
+            //notify our local client we've started hosting our server, so he can connect now.
+            latch.countDown();
         } catch (IOException e) {
             e.printStackTrace();
             Gdx.app.exit();
         }
-
 
         serverLoop();
     }
@@ -70,14 +71,7 @@ public class OreServer implements Runnable {
 
             m_accumulator += frameTime;
 
-            //Gdx.app.log("", "server loop");
             m_currentTime = newTime;
-
-//            try {
-//                m_serverKryo.update(0);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
 
             while (m_accumulator >= m_step) {
                 m_accumulator -= m_step;
