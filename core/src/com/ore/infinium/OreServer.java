@@ -42,7 +42,7 @@ public class OreServer implements Runnable {
             protected Connection newConnection() {
                 // By providing our own connection implementation, we can store per
                 // connection state without a connection ID to state look up.
-                return new ChatConnection();
+                return new PlayerConnection();
             }
         };
 
@@ -82,41 +82,47 @@ public class OreServer implements Runnable {
         }
     }
 
-    static class ChatConnection extends Connection {
-        public String name;
+    static class PlayerConnection extends Connection {
+        public String playerName;
+        public int playerId;
     }
 
     class ServerListener extends Listener {
         public void received(Connection c, Object obj) {
-            ChatConnection connection = (ChatConnection) c;
+            PlayerConnection connection = (PlayerConnection) c;
 
-            if (obj instanceof Network.RegisterName) {
-                // Ignore the object if a client has already registered a name. This is
+            if (obj instanceof Network.InitialClientData) {
+                // Ignore the object if a client has already registered a playerName. This is
                 // impossible with our client, but a hacker could send messages at any time.
-                if (connection.name != null) return;
+                if (connection.playerName != null) return;
 
-                // Ignore the object if the name is invalid.
-                String name = ((Network.RegisterName) obj).name;
+                // Ignore the object if the playerName is invalid.
+                String name = ((Network.InitialClientData) obj).playerName;
+
                 if (name == null) return;
+
                 name = name.trim();
+
                 if (name.length() == 0) return;
-                // Store the name on the connection.
-                connection.name = name;
-                // Send a "connected" message to everyone except the new client.
-                Network.ChatMessage chatMessage = new Network.ChatMessage();
-                chatMessage.text = name + " connected.";
-                m_serverKryo.sendToAllExceptTCP(connection.getID(), chatMessage);
-                // Send everyone a new list of connection names.
+
+                // Store the playerName on the connection.
+                connection.playerName = name;
+
+                //// Send a "connected" message to everyone except the new client.
+                //Network.ChatMessage chatMessage = new Network.ChatMessage();
+                //chatMessage.text = name + " connected.";
+                //m_serverKryo.sendToAllExceptTCP(connection.getID(), chatMessage);
+                //// Send everyone a new list of connection names.
                 return;
             }
         }
 
         public void disconnected(Connection c) {
-            ChatConnection connection = (ChatConnection) c;
-            if (connection.name != null) {
-                // Announce to everyone that someone (with a registered name) has left.
+            PlayerConnection connection = (PlayerConnection) c;
+            if (connection.playerName != null) {
+                // Announce to everyone that someone (with a registered playerName) has left.
                 Network.ChatMessage chatMessage = new Network.ChatMessage();
-                chatMessage.text = connection.name + " disconnected.";
+                chatMessage.text = connection.playerName + " disconnected.";
                 m_serverKryo.sendToAllTCP(chatMessage);
             }
         }

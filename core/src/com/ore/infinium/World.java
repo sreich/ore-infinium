@@ -1,5 +1,7 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -7,6 +9,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
+import com.ore.infinium.components.SpriteComponent;
 
 /**
  * ***************************************************************************
@@ -35,18 +38,24 @@ public class World implements Disposable {
 
     private SpriteBatch m_batch;
     private Texture m_texture;
+
     private Sprite m_mainPlayer;
     private Sprite m_sprite2;
+
     private TileRenderer m_tileRenderer;
     private OrthographicCamera m_camera;
-    private char[] m_blocks;
+    private Block[] m_blocks;
+
+    private PooledEngine m_engine;
 
     public World() {
         float w = Gdx.graphics.getWidth();
         float h = Gdx.graphics.getHeight();
         m_batch = new SpriteBatch();
 
-        m_blocks = new char[50];
+        m_blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
+
+        m_engine = new PooledEngine(2000, 2000, 2000, 2000);
 
         m_texture = new Texture(Gdx.files.internal("badlogic.jpg"));
 
@@ -64,6 +73,14 @@ public class World implements Disposable {
         m_camera.update();
 
         m_tileRenderer = new TileRenderer(m_camera, this, m_mainPlayer);
+    }
+
+    public Entity createPlayer() {
+        Entity player = m_engine.createEntity();
+        SpriteComponent sprite = m_engine.createComponent(SpriteComponent.class);
+        player.add(sprite);
+
+        return player;
     }
 
     public Block blockAt(int column, int row) {

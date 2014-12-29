@@ -59,10 +59,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
 		pixmap.fill();
 		m_skin.add("white", new Texture(pixmap));
 
-		// Store the default libgdx font under the name "default".
+		// Store the default libgdx font under the playerName "default".
 		m_skin.add("default", new BitmapFont());
 
-		// Configure a TextButtonStyle and name it "default". Skin resources are stored by type, so this doesn't overwrite the font.
+		// Configure a TextButtonStyle and playerName it "default". Skin resources are stored by type, so this doesn't overwrite the font.
 		TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
 		textButtonStyle.up = m_skin.newDrawable("white", Color.DARK_GRAY);
 		textButtonStyle.down = m_skin.newDrawable("white", Color.DARK_GRAY);
@@ -76,7 +76,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 		table.setFillParent(true);
 		m_stage.addActor(table);
 
-		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
+		// Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a playerName other than "default".
 		final TextButton button = new TextButton("Click me!", m_skin);
 		table.add(button);
 
@@ -129,17 +129,17 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
 		m_clientKryo.addListener(new ClientListener());
 
-   new Thread("Connect") {
-                        public void run () {
-                                try {
-                                        m_clientKryo.connect(5000, "127.0.0.1", Network.port);
-                                        // Server communication after connection can go here, or in Listener#connected().
-                                } catch (IOException ex) {
-                                        ex.printStackTrace();
-                                        System.exit(1);
-                                }
-                        }
-                }.start();
+		new Thread("Connect") {
+			public void run() {
+				try {
+					m_clientKryo.connect(5000, "127.0.0.1", Network.port);
+					// Server communication after connection can go here, or in Listener#connected().
+				} catch (IOException ex) {
+					ex.printStackTrace();
+					System.exit(1);
+				}
+			}
+		}.start();
 	}
 
 	@Override
@@ -166,21 +166,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
 		double alpha = m_accumulator / m_step;
 
-//		try {
-//			m_clientKryo.update(0);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-
 		//Gdx.app.log("frametime", Double.toString(frameTime));
 		//Gdx.app.log("alpha", Double.toString(alpha));
 
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-//		m_camera
-
-//		m_viewport.apply();
 
 		m_world.render(frameTime);
 		m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -255,9 +245,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
 	class ClientListener extends Listener {
 		public void connected(Connection connection) {
-			Network.RegisterName registerName = new Network.RegisterName();
-			registerName.name = "testname";
-			m_clientKryo.sendTCP(registerName);
+			Network.InitialClientData initialClientData = new Network.InitialClientData();
+			initialClientData.playerName = "testname";
+			m_clientKryo.sendTCP(initialClientData);
 		}
 
 		public void received(Connection connection, Object object) {
