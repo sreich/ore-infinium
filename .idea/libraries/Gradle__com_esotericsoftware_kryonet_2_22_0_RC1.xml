@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.esotericsoftware:kryonet:2.22.0-RC1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.esotericsoftware/kryonet/2.22.0-RC1/2f25f7250a3096a8d1b8182946f6572d90d280d0/kryonet-2.22.0-RC1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.esotericsoftware/kryonet/2.22.0-RC1/8ee2b983164bf6b9d194004c84b11b7397079d32/kryonet-2.22.0-RC1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

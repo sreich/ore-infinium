@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.esotericsoftware:jsonbeans:0.7">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.esotericsoftware/jsonbeans/0.7/de977f0875708eddd154f2a4c3a3f58a13ef297/jsonbeans-0.7.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.esotericsoftware/jsonbeans/0.7/5ddae466293fa27293a4eb341deffabc4d013564/jsonbeans-0.7-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
