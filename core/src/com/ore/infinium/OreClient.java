@@ -117,7 +117,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         hostAndJoin();
 
-        m_world = new World();
+        m_world = new World(this, m_server);
     }
 
     private void hostAndJoin() {

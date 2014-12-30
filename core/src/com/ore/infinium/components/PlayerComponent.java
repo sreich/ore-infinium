@@ -26,6 +26,9 @@ import com.ore.infinium.LoadedViewport;
  */
 public class PlayerComponent extends Component implements Pool.Poolable {
 
+    public final static float movementUnits = 1.0f / 100f;
+    public final static float movementSpeed = .8f * movementUnits;
+    public final static float maxMovementSpeed = movementSpeed * 1;
     public String playerName;
     /**
      * Unique and utilized only by players, is not global or related to generic entity id's
@@ -45,5 +48,6 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public Inventory inventory = new Inventory();
 
     public void reset() {
+
     }
 }

@@ -52,10 +52,15 @@ public class World implements Disposable {
     private OreServer m_server;
     private OreClient m_client;
 
-    public World() {
-        float w = Gdx.graphics.getWidth();
-        float h = Gdx.graphics.getHeight();
-        m_batch = new SpriteBatch();
+    public World(OreClient client, OreServer server) {
+        m_client = client;
+        m_server = server;
+
+        if (isClient()) {
+            float w = Gdx.graphics.getWidth();
+            float h = Gdx.graphics.getHeight();
+            m_batch = new SpriteBatch();
+        }
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
 
@@ -65,12 +70,11 @@ public class World implements Disposable {
 
         engine = new PooledEngine(2000, 2000, 2000, 2000);
 
-        m_texture = new Texture(Gdx.files.internal("badlogic.jpg"));
 
-        m_mainPlayer = new Sprite(m_texture);
+        m_mainPlayer = new Sprite();
         m_mainPlayer.setPosition(50, 50);
 
-        m_sprite2 = new Sprite(m_texture);
+        m_sprite2 = new Sprite();
         m_sprite2.setPosition(90, 90);
 
         m_camera = new OrthographicCamera(1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
@@ -80,7 +84,12 @@ public class World implements Disposable {
         m_camera.position.set(m_mainPlayer.getX(), m_mainPlayer.getY(), 0);
         m_camera.update();
 
-        m_tileRenderer = new TileRenderer(m_camera, this, m_mainPlayer);
+        if (isClient()) {
+            m_texture = new Texture(Gdx.files.internal("badlogic.jpg"));
+            m_mainPlayer.setTexture(m_texture);
+            m_sprite2.setTexture(m_texture);
+            m_tileRenderer = new TileRenderer(m_camera, this, m_mainPlayer);
+        }
     }
 
     public boolean isServer() {
@@ -134,31 +143,34 @@ public class World implements Disposable {
 
         engine.update((float) elapsed);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                m_mainPlayer.translateX(-1f);
-            else
-                m_mainPlayer.translateX(-10.0f);
+        if (isClient()) {
+
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                    m_mainPlayer.translateX(-PlayerComponent.movementSpeed);
+                else
+                    m_mainPlayer.translateX(-10.0f);
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                    m_mainPlayer.translateX(PlayerComponent.movementSpeed);
+                else
+                    m_mainPlayer.translateX(10.0f);
+            }
+
+            m_camera.position.set(m_mainPlayer.getX(), m_mainPlayer.getY(), 0);
+            m_camera.update();
+
+            m_batch.setProjectionMatrix(m_camera.combined);
+
+            m_tileRenderer.render(elapsed);
+
+            m_batch.begin();
+            //m_batch.draw
+            m_mainPlayer.draw(m_batch);
+            m_sprite2.draw(m_batch);
+            m_batch.end();
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                m_mainPlayer.translateX(1f);
-            else
-                m_mainPlayer.translateX(10.0f);
-        }
-
-        m_camera.position.set(m_mainPlayer.getX(), m_mainPlayer.getY(), 0);
-        m_camera.update();
-
-        m_batch.setProjectionMatrix(m_camera.combined);
-
-        m_tileRenderer.render(elapsed);
-
-        m_batch.begin();
-        //m_batch.draw
-        m_mainPlayer.draw(m_batch);
-        m_sprite2.draw(m_batch);
-        m_batch.end();
     }
 
     public int seaLevel() {

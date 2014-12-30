@@ -72,7 +72,7 @@ public class OreServer implements Runnable {
             Gdx.app.exit();
         }
 
-        m_world = new World();
+        m_world = new World(null, this);
 
         serverLoop();
     }
