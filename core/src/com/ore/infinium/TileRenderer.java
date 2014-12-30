@@ -10,17 +10,17 @@ import com.badlogic.gdx.math.Vector3;
 /**
  * ***************************************************************************
  * Copyright (C) 2014 by Shaun Reich <sreich@kde.org>                        *
- *                                                                           *
+ * *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU General Public License as            *
  * published by the Free Software Foundation; either version 2 of            *
  * the License, or (at your option) any later version.                       *
- *                                                                           *
+ * *
  * This program is distributed in the hope that it will be useful,           *
  * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             *
  * GNU General Public License for more details.                              *
- *                                                                           *
+ * *
  * You should have received a copy of the GNU General Public License         *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.     *
  * ***************************************************************************
@@ -53,7 +53,7 @@ public class TileRenderer {
         int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
         int tilesBeforeY = (int) (playerPosition.y / World.BLOCK_SIZE);
 
-   //     m_camera.position.set(0, 0, 0);
+        //     m_camera.position.set(0, 0, 0);
 
         // determine what the size of the tiles are but convert that to our zoom level
 //        final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
@@ -87,7 +87,6 @@ public class TileRenderer {
         m_batch.begin();
 
 
-
         int count = 0;
         for (int currentColumn = startColumn; currentColumn < endColumn; ++currentColumn) {
             for (int currentRow = startRow; currentRow < endRow; ++currentRow) {
@@ -100,7 +99,7 @@ public class TileRenderer {
                 float tileX = World.BLOCK_SIZE * currentColumn;
                 float tileY = World.BLOCK_SIZE * currentRow;
                 if (count == 1) {
-            //        break;
+                    //        break;
                 }
 
                 m_batch.setColor(1, 0, 0, 1);
@@ -112,7 +111,7 @@ public class TileRenderer {
             }
         }
 
-             //Gdx.app.log("", "drew tiles: " + count);
+        //Gdx.app.log("", "drew tiles: " + count);
 
         m_batch.end();
     }

@@ -40,9 +40,9 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public boolean mouseRightButtonHeld;
     public int ping;
     public boolean noClip;
-    LoadedViewport loadedViewport = new LoadedViewport();
-    Inventory hotbarInventory = new Inventory();
-    Inventory inventory = new Inventory();
+    public LoadedViewport loadedViewport = new LoadedViewport();
+    public Inventory hotbarInventory = new Inventory();
+    public Inventory inventory = new Inventory();
 
     public void reset() {
     }

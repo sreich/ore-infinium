@@ -2,6 +2,7 @@ package com.ore.infinium.components;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool;
+import com.ore.infinium.Block;
 
 /**
  * ***************************************************************************
@@ -23,7 +24,7 @@ import com.badlogic.gdx.utils.Pool;
  */
 public class BlockComponent extends Component implements Pool.Poolable {
 
-    public int blockType;
+    public Block.BlockType blockType;
 
     public void reset() {
 
