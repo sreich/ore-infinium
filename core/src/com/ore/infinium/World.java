@@ -47,7 +47,10 @@ public class World implements Disposable {
     private Texture m_texture;
     private Sprite m_mainPlayer;
     private Sprite m_sprite2;
+
     private TileRenderer m_tileRenderer;
+    private SpriteRenderer m_spriteRenderer;
+
     private OrthographicCamera m_camera;
     private OreServer m_server;
     private OreClient m_client;
@@ -60,6 +63,7 @@ public class World implements Disposable {
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
             m_batch = new SpriteBatch();
+            m_spriteRenderer = new SpriteRenderer();
         }
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
@@ -85,11 +89,26 @@ public class World implements Disposable {
         m_camera.update();
 
         if (isClient()) {
-            m_texture = new Texture(Gdx.files.internal("badlogic.jpg"));
+            m_texture = new Texture(Gdx.files.internal("crap.png"));
             m_mainPlayer.setTexture(m_texture);
             m_sprite2.setTexture(m_texture);
             m_tileRenderer = new TileRenderer(m_camera, this, m_mainPlayer);
         }
+
+        generateWorld();
+    }
+
+    private void generateWorld() {
+        generateNoise();
+    }
+
+    private void generateNoise() {
+//        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+//            for (int y = seaLevel(); y < WORLD_ROWCOUNT; ++y) {
+//                Block block = blockAt(x, y);
+//                block.blockType = Block.BlockType.DirtBlockType;
+//            }
+//        }
     }
 
     public boolean isServer() {
@@ -135,42 +154,64 @@ public class World implements Disposable {
     }
 
     public void zoom(float factor) {
+
         m_camera.zoom *= factor;
+    }
+
+    public void update(double elapsed) {
+
+        engine.update((float) elapsed);
     }
 
     public void render(double elapsed) {
 //        m_camera.zoom *= 0.9;
+        //m_lightRenderer->renderToFBO();
 
-        engine.update((float) elapsed);
+        m_tileRenderer.render(elapsed);
 
-        if (isClient()) {
+        //FIXME: incorporate entities into the pre-lit gamescene FBO, then render lighting as last pass
+        //m_lightRenderer->renderToBackbuffer();
 
-            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                    m_mainPlayer.translateX(-PlayerComponent.movementSpeed);
-                else
-                    m_mainPlayer.translateX(-10.0f);
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
-                    m_mainPlayer.translateX(PlayerComponent.movementSpeed);
-                else
-                    m_mainPlayer.translateX(10.0f);
-            }
+        m_spriteRenderer.renderEntities(elapsed);
+        m_spriteRenderer.renderCharacters(elapsed);
+        m_spriteRenderer.renderDroppedEntities(elapsed);
+        m_spriteRenderer.renderDroppedBlocks(elapsed);
 
-            m_camera.position.set(m_mainPlayer.getX(), m_mainPlayer.getY(), 0);
-            m_camera.update();
 
-            m_batch.setProjectionMatrix(m_camera.combined);
+        //FIXME: take lighting into account, needs access to fbos though.
+        //   m_fluidRenderer->render();
+//    m_particleRenderer->render();
+//FIXME unused    m_quadTreeRenderer->render();
 
-            m_tileRenderer.render(elapsed);
+        updateCrosshair();
+        updateItemPlacementGhost();
 
-            m_batch.begin();
-            //m_batch.draw
-            m_mainPlayer.draw(m_batch);
-            m_sprite2.draw(m_batch);
-            m_batch.end();
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            m_mainPlayer.translateX(-PlayerComponent.movementSpeed);
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            m_mainPlayer.translateX(PlayerComponent.movementSpeed);
+        }
+
+        m_camera.position.set(m_mainPlayer.getX(), m_mainPlayer.getY(), 0);
+        m_camera.update();
+
+        m_batch.setProjectionMatrix(m_camera.combined);
+
+        m_tileRenderer.render(elapsed);
+
+        m_batch.begin();
+        //m_batch.draw
+        m_mainPlayer.draw(m_batch);
+        m_sprite2.draw(m_batch);
+        m_batch.end();
+    }
+
+    private void updateCrosshair() {
+    }
+
+    private void updateItemPlacementGhost() {
+
     }
 
     public int seaLevel() {
