@@ -1,5 +1,8 @@
 package com.ore.infinium;
 
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.IntArray;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
@@ -34,6 +37,64 @@ public class Network {
 
     static public class InitialClientData {
         public String playerName;
+        public int versionMajor, versionMinor, playerId;
+    }
+
+    static public class ChatMessageFromClient {
+        public String message;
+    }
+
+    static public class ChatMessageFromServer {
+        public String timestamp;
+        public String playerName;
+        public String message;
+    }
+
+    static public class LoadedViewportMovedFromServer {
+        public Rectangle rect;
+    }
+
+    static public class DestroyEntitiesFromServer {
+        public IntArray entityId;
+    }
+
+    static public class WorldTimeChangedFromServer {
+        public int hour;
+        public int minute;
+        public int second;
+    }
+
+    static public class PlayerDisconnectedFromServer {
+        public int playerId;
+    }
+
+    static public class PlayerMoveFromClient {
+        public Vector2 position;
+    }
+
+    static public class EntityMovedFromServer {
+        public Vector2 position;
+    }
+
+    /**
+     */
+    static public class PlayerBlockPickRequestFromClient {
+        public int x, y;
+    }
+
+    static public class HotbarDropItemRequestFromClient {
+        public int index;
+    }
+
+    static public class InventoryMoveFromClient {
+        public int from, to;
+        public InventoryType source;
+        public InventoryType dest;
+
+        public enum InventoryType {
+            HotbarInventory,
+            Inventory // main inventory
+        }
     }
 
     static public class ChatMessage {
