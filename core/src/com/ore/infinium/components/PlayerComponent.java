@@ -38,9 +38,9 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public int playerId = -1;
     public boolean killed;
     public Vector2 lastLoadedChunk;
-    public Vector2 mousePositionWorldCoords;
-    public boolean mouseLeftButtonHeld;
-    public boolean mouseRightButtonHeld;
+    //    public Vector2 mousePositionWorldCoords;
+//    public boolean mouseLeftButtonHeld;
+//    public boolean mouseRightButtonHeld;
     public int ping;
     public boolean noClip;
     public LoadedViewport loadedViewport = new LoadedViewport();

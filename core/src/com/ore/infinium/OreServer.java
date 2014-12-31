@@ -90,6 +90,8 @@ public class OreServer implements Runnable {
             while (m_accumulator >= m_step) {
                 m_accumulator -= m_step;
                 //entityManager.update();
+                Network.InventoryMoveFromClient msg = new Network.InventoryMoveFromClient();
+                m_serverKryo.sendToAllTCP(msg);
             }
 
             double alpha = m_accumulator / m_step;

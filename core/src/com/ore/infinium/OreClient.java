@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.minlog.Log;
 
 import java.io.IOException;
 
@@ -38,9 +40,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
 
+    private SpriteBatch m_batch;
+    private BitmapFont m_font;
+
     @Override
     public void create() {
-        //Log.set(Log.LEVEL_DEBUG);
+        Log.set(Log.LEVEL_DEBUG);
+        m_batch = new SpriteBatch();
+        m_font = new BitmapFont();
+
         m_stage = new Stage(new StretchViewport(1600, 900));
         m_fpsLogger = new FPSLogger();
 
@@ -181,9 +189,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+
         m_world.render(frameTime);
         m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         m_stage.draw();
+
+        m_batch.begin();
+        m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight());
+        m_batch.end();
     }
 
     @Override

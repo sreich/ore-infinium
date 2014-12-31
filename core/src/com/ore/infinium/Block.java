@@ -26,10 +26,10 @@ public class Block {
      * 0-15.
      * For example, @sa primitiveType
      * which does not generally depend on the surroundings.
-     * <p>
+     * <p/>
      * meshType however, is determined by calculating the surrounding tiles and if they are of a simlar type or similar
      * blendType, then it will change the overall look of it.
-     * <p>
+     * <p/>
      * Bottom line: use meshType ONLY for rendering, use primitiveType for everything else. meshType is only a displaying
      * niche of a detail, not a gameplay mechanic
      */

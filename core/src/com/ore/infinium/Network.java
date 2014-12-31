@@ -33,7 +33,10 @@ public class Network {
         kryo.register(InitialClientData.class);
         kryo.register(String[].class);
         kryo.register(ChatMessage.class);
+        kryo.register(InventoryMoveFromClient.class);
+        kryo.register(InventoryMoveFromClient.InventoryType.class);
     }
+
 
     static public class InitialClientData {
         public String playerName;
@@ -50,6 +53,7 @@ public class Network {
         public String message;
     }
 
+    //hack: unneeded??
     static public class LoadedViewportMovedFromServer {
         public Rectangle rect;
     }
