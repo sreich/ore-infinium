@@ -39,10 +39,12 @@ public class World implements Disposable {
     public static final int WORLD_COLUMNCOUNT = 2400;
     public static final int WORLD_ROWCOUNT = 8400;
     public static final int WORLD_SEA_LEVEL = 50;
+
     public Block[] blocks;
     public PooledEngine engine;
     public AssetManager assetManager;
-    public Array<Entity> m_players;
+    public Array<Entity> m_players = new Array<Entity>();
+
     private SpriteBatch m_batch;
     private Texture m_texture;
     private Sprite m_mainPlayer;
@@ -67,6 +69,11 @@ public class World implements Disposable {
         }
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
+        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+                blocks[x * WORLD_ROWCOUNT + y] = new Block();
+            }
+        }
 
 //        assetManager = new AssetManager();
 //        TextureAtlas atlas = assetManager.get("data/", TextureAtlas.class);
@@ -96,6 +103,9 @@ public class World implements Disposable {
         }
 
         generateWorld();
+    }
+
+    public void initServer() {
     }
 
     private void generateWorld() {

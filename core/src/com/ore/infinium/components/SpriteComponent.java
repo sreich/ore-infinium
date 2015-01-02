@@ -24,7 +24,7 @@ import com.badlogic.gdx.utils.Pool;
  */
 public class SpriteComponent extends Component implements Pool.Poolable {
 
-    public Sprite sprite;
+    public Sprite sprite = new Sprite();
     public EntityCategory category;
     //HACK yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
     public String texture;

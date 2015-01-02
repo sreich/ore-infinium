@@ -1,8 +1,12 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -74,6 +78,8 @@ public class OreServer implements Runnable {
 
         m_world = new World(null, this);
 
+        createPlayer("crapholes");
+
         serverLoop();
     }
 
@@ -92,6 +98,11 @@ public class OreServer implements Runnable {
                 //entityManager.update();
                 Network.InventoryMoveFromClient msg = new Network.InventoryMoveFromClient();
                 m_serverKryo.sendToAllTCP(msg);
+
+                if (m_hostingPlayer != null) {
+                    //HACK
+                    sendSpawnEntity(m_hostingPlayer, 0);
+                }
             }
 
             double alpha = m_accumulator / m_step;
@@ -102,7 +113,7 @@ public class OreServer implements Runnable {
         Entity player = m_world.engine.createEntity();
 
         //the first player in the world
-        if (m_hostingPlayer.getId() == 0) {
+        if (m_hostingPlayer == null) {
             m_hostingPlayer = player;
         }
 
@@ -143,7 +154,9 @@ public class OreServer implements Runnable {
         playerComponent.noClip = m_worldViewingEnabled;
 
         playerComponent.playerName = playerName;
+        playerComponent.loadedViewport.setRect(new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
         playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY()));
+        player.add(playerComponent);
 
         //load players main inventory
         loadInventory(player);
@@ -256,7 +269,7 @@ public class OreServer implements Runnable {
         spriteComponent.texture = "pickaxeWooden1";
         player.add(spriteComponent);
 
-        ItemComponent toolItemComponent = tool.getComponent(ItemComponent.class);
+        ItemComponent toolItemComponent = m_world.engine.createComponent(ItemComponent.class);
         toolItemComponent.stackSize = 62132;
         toolItemComponent.maxStackSize = 62132;
         toolItemComponent.inventoryIndex = 0;
@@ -264,6 +277,34 @@ public class OreServer implements Runnable {
 
         PlayerComponent playerComponent = player.getComponent(PlayerComponent.class);
         playerComponent.inventory.setSlot(0, tool);
+    }
+
+    private void sendSpawnEntity(Entity e, int connectionId) {
+        Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
+        spawn.components = new Array<Component>();
+
+        ImmutableArray<Component> components = e.getComponents();
+
+        for (int i = 0; i < components.size(); i++) {
+            Component comp = components.get(i);
+            if (comp instanceof PlayerComponent) {
+                PlayerComponent c = e.getComponent(PlayerComponent.class);
+                Gdx.app.log("", "skip");
+            } else if (comp instanceof SpriteComponent) {
+                SpriteComponent sprite = e.getComponent(SpriteComponent.class);
+
+                spawn.pos.pos = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
+                spawn.size.size = new Vector2(sprite.sprite.getWidth(), sprite.sprite.getHeight());
+            } else if (comp instanceof ControllableComponent) {
+                //do nothing, don't want/need on clients, me thinks
+            } else {
+                Gdx.app.log("", "add");
+                spawn.components.add(comp);
+            }
+        }
+
+        //FIXME, HACK: m_serverKryo.sendToTCP(connectionId, spawn);
+        m_serverKryo.sendToAllTCP(spawn);
     }
 
     static class PlayerConnection extends Connection {
@@ -276,21 +317,47 @@ public class OreServer implements Runnable {
             PlayerConnection connection = (PlayerConnection) c;
 
             if (obj instanceof Network.InitialClientData) {
-                // Ignore the object if a client has already registered a playerName. This is
-                // impossible with our client, but a hacker could send messages at any time.
-                if (connection.playerName != null) return;
+                Network.InitialClientData data = ((Network.InitialClientData) obj);
+                String name = data.playerName;
 
-                // Ignore the object if the playerName is invalid.
-                String name = ((Network.InitialClientData) obj).playerName;
-
-                if (name == null) return;
+                if (name == null) {
+                    c.close();
+                    return;
+                }
 
                 name = name.trim();
 
-                if (name.length() == 0) return;
+                if (name.length() == 0) {
+                    c.close();
+                    return;
+                }
 
                 // Store the playerName on the connection.
                 connection.playerName = name;
+
+                String uuid = data.playerUUID;
+                if (uuid == null) {
+                    c.close();
+                    return;
+                }
+
+                if (data.versionMajor != OreClient.ORE_VERSION_MAJOR ||
+                        data.versionMinor != OreClient.ORE_VERSION_MINOR ||
+                        data.versionRevision != OreClient.ORE_VERSION_MINOR) {
+                    Network.KickReason reason = new Network.KickReason();
+                    reason.reason = Network.KickReason.Reason.VersionMismatch;
+
+                    c.sendTCP(reason);
+                    c.close();
+                }
+
+                //okay, send player spawned to connecting client.
+                Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
+                spawn.pos.pos.set(5, 5);
+                c.sendTCP(spawn);
+
+
+                //now notify all clients she spawned
 
                 //// Send a "connected" message to everyone except the new client.
                 //Network.ChatMessage chatMessage = new Network.ChatMessage();

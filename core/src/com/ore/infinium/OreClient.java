@@ -9,10 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -20,11 +17,15 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.minlog.Log;
 
 import java.io.IOException;
+import java.util.UUID;
 
 public class OreClient implements ApplicationListener, InputProcessor {
+    public final static int ORE_VERSION_MAJOR = 0;
+    public final static int ORE_VERSION_MINOR = 1;
+    public final static int ORE_VERSION_REVISION = 1;
+
     private World m_world;
     private Stage m_stage;
     private Table m_table;
@@ -42,24 +43,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private SpriteBatch m_batch;
     private BitmapFont m_font;
+    private Dialog dialog;
 
     @Override
     public void create() {
-        Log.set(Log.LEVEL_DEBUG);
+//        Log.set(Log.LEVEL_DEBUG);
         m_batch = new SpriteBatch();
         m_font = new BitmapFont();
 
         m_stage = new Stage(new StretchViewport(1600, 900));
         m_fpsLogger = new FPSLogger();
-
-//		TexturePacker.Settings settings = new TexturePacker.Settings();
-//        settings.maxWidth = 512;
-//        settings.maxHeight = 512;
-////		TexturePacker.process(settings, "assets", "");
-//        String inputDir = Gdx.files.internal("/").path();
-//        String outputDir = Gdx.files.internal("").path();
-//        String packFileName = "crapshitjunk";
-//        TexturePacker.process(inputDir,outputDir,packFileName);
 
         m_viewport = new ScreenViewport();
         m_viewport.setScreenBounds(0, 0, 1600, 900);
@@ -87,6 +80,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textButtonStyle.over = m_skin.newDrawable("white", Color.LIGHT_GRAY);
         textButtonStyle.font = m_skin.getFont("default");
         m_skin.add("default", textButtonStyle);
+
+        Window.WindowStyle ws = new Window.WindowStyle();
+        ws.titleFont = m_font;
+        m_skin.add("dialog", ws);
 
         // Create a table that fills the screen. Everything else will go inside this table.
         Table table = new Table();
@@ -151,12 +148,26 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 try {
                     m_clientKryo.connect(5000, "127.0.0.1", Network.port);
                     // Server communication after connection can go here, or in Listener#connected().
+
+                    Network.InitialClientData initialClientData = new Network.InitialClientData();
+
+                    initialClientData.playerName = "testname";
+
+                    //TODO generate some random thing
+                    initialClientData.playerUUID = UUID.randomUUID().toString();
+                    initialClientData.versionMajor = ORE_VERSION_MAJOR;
+                    initialClientData.versionMinor = ORE_VERSION_MINOR;
+                    initialClientData.versionRevision = ORE_VERSION_REVISION;
+
+                    m_clientKryo.sendTCP(initialClientData);
                 } catch (IOException ex) {
+
                     ex.printStackTrace();
                     System.exit(1);
                 }
             }
         }.start();
+        showFailToConnectDialog();
     }
 
     @Override
@@ -170,7 +181,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         double newTime = TimeUtils.millis() / 1000.0;
         double frameTime = Math.min(newTime - m_currentTime, 0.25);
-        double deltaTime = frameTime;
 
         m_accumulator += frameTime;
 
@@ -179,6 +189,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         while (m_accumulator >= m_step) {
             m_accumulator -= m_step;
             //entityManager.update();
+            m_world.update(frameTime);
         }
 
         double alpha = m_accumulator / m_step;
@@ -191,12 +202,43 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
 
         m_world.render(frameTime);
+
         m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         m_stage.draw();
 
         m_batch.begin();
         m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight());
         m_batch.end();
+
+        //try {
+        //    int sleep = (int)Math.max(newTime + m_step - TimeUtils.millis()/1000.0, 0.0);
+        //    Gdx.app.log("", "sleep amnt: " + sleep);
+        //    Thread.sleep(sleep);
+        //} catch (InterruptedException e) {
+        //    e.printStackTrace();
+        //}
+    }
+
+    private void showFailToConnectDialog() {
+        dialog =
+                new Dialog("", m_skin, "dialog") {
+                    protected void result(Object object) {
+                        System.out.println("Chosen: " + object);
+                    }
+
+                };
+        TextButton dbutton = new TextButton("Yes", m_skin, "default");
+        dialog.button(dbutton, true);
+
+        dbutton = new TextButton("No", m_skin, "default");
+        dialog.button(dbutton, false);
+        dialog.key(Input.Keys.ENTER, true).key(Input.Keys.ESCAPE, false);
+        dialog.invalidateHierarchy();
+        dialog.invalidate();
+        dialog.layout();
+        //m_stage.addActor(dialog);
+        dialog.show(m_stage);
+
     }
 
     @Override
@@ -267,12 +309,20 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     class ClientListener extends Listener {
         public void connected(Connection connection) {
-            Network.InitialClientData initialClientData = new Network.InitialClientData();
-            initialClientData.playerName = "testname";
-            m_clientKryo.sendTCP(initialClientData);
+
         }
 
         public void received(Connection connection, Object object) {
+            if (object instanceof Network.PlayerSpawnedFromServer) {
+                Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
+                spawn.pos.pos.add(2, 2);
+            }
+
+
+            if (object instanceof Network.KickReason) {
+                Network.KickReason reason = (Network.KickReason) object;
+            }
+
             // if (object instanceof ChatMessage) {
             //         ChatMessage chatMessage = (ChatMessage)object;
             //         chatFrame.addMessage(chatMessage.text);
@@ -281,7 +331,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         public void disconnected(Connection connection) {
-
         }
     }
 }

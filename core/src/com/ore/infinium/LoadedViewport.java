@@ -25,12 +25,20 @@ import java.util.HashSet;
  * ***************************************************************************
  */
 public class LoadedViewport {
+    //the amount of tiles able to be seen by any client
+    //(aka we sync only things like blocks, entities, within this region)
+    public final static int MAX_VIEWPORT_WIDTH = 200;
+    public final static int MAX_VIEWPORT_HEIGHT = 200;
 
     public final float buffer = 50.0f / World.PIXELS_PER_METER;
     public Vector2 halfSize;
     public Rectangle rect;
     public boolean init = false;
     HashSet<Entity> loadedEntities;
+
+    public void setRect(Rectangle _rect) {
+        rect = _rect;
+    }
 
     public boolean exists(Entity e) {
         return loadedEntities.contains(e);
