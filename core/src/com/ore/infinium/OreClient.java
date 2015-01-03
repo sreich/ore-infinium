@@ -326,8 +326,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 SpriteComponent spriteComp = m_mainPlayer.getComponent(SpriteComponent.class);
 
                 spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+                m_world.addPlayer(m_mainPlayer);
+                m_world.initClient(m_mainPlayer);
             }
-
 
             if (object instanceof Network.KickReason) {
                 Network.KickReason reason = (Network.KickReason) object;

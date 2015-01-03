@@ -43,10 +43,10 @@ public class World implements Disposable {
     public PooledEngine engine;
     public AssetManager assetManager;
     public Array<Entity> m_players = new Array<Entity>();
+    public Entity m_mainPlayer;
     private boolean m_noClipEnabled;
     private SpriteBatch m_batch;
     private Texture m_texture;
-    private Entity m_mainPlayer;
     private Sprite m_sprite2;
 
     private TileRenderer m_tileRenderer;
@@ -91,13 +91,18 @@ public class World implements Disposable {
         if (isClient()) {
             m_texture = new Texture(Gdx.files.internal("crap.png"));
             m_sprite2.setTexture(m_texture);
-            m_tileRenderer = new TileRenderer(m_camera, this, m_mainPlayer);
         }
 
         generateWorld();
     }
 
     public void initServer() {
+    }
+
+    public void initClient(Entity mainPlayer) {
+        m_mainPlayer = mainPlayer;
+
+        m_tileRenderer = new TileRenderer(m_camera, this);
     }
 
     public Entity createPlayer(String playerName, int connectionId) {

@@ -137,6 +137,7 @@ public class OreServer implements Runnable {
 
         SpriteComponent playerSprite = player.getComponent(SpriteComponent.class);
         playerSprite.sprite.setPosition(posX, posY);
+        playerSprite.sprite.setPosition(posX, posY);
 
         //load players main inventory
         loadInventory(player);
@@ -236,16 +237,16 @@ public class OreServer implements Runnable {
      */
     private void loadInventory(Entity player) {
         Entity tool = m_world.engine.createEntity();
-        player.add(m_world.engine.createComponent(VelocityComponent.class));
+        tool.add(m_world.engine.createComponent(VelocityComponent.class));
 
         ToolComponent toolComponent = m_world.engine.createComponent(ToolComponent.class);
-        player.add(toolComponent);
+        tool.add(toolComponent);
         toolComponent.type = ToolComponent.ToolType.Pickaxe;
 
         SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
         spriteComponent.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
         spriteComponent.texture = "pickaxeWooden1";
-        player.add(spriteComponent);
+        tool.add(spriteComponent);
 
         ItemComponent toolItemComponent = m_world.engine.createComponent(ItemComponent.class);
         toolItemComponent.stackSize = 62132;
