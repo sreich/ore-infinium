@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -47,9 +46,6 @@ public class OreServer implements Runnable {
     private double m_step = 1.0 / 60.0;
     private boolean m_running = true;
 
-    private boolean m_worldViewingEnabled;
-    private int m_freePlayerId;
-
     public OreServer() {
     }
 
@@ -69,6 +65,8 @@ public class OreServer implements Runnable {
 
         try {
             m_serverKryo.bind(Network.port);
+            m_world = new World(null, this);
+
             //notify our local client we've started hosting our server, so he can connect now.
             latch.countDown();
         } catch (IOException e) {
@@ -76,9 +74,6 @@ public class OreServer implements Runnable {
             Gdx.app.exit();
         }
 
-        m_world = new World(null, this);
-
-        createPlayer("crapholes");
 
         serverLoop();
     }
@@ -87,7 +82,6 @@ public class OreServer implements Runnable {
         while (m_running) {
             double newTime = TimeUtils.millis() / 1000.0;
             double frameTime = Math.min(newTime - m_currentTime, 0.25);
-            double deltaTime = frameTime;
 
             m_accumulator += frameTime;
 
@@ -96,21 +90,15 @@ public class OreServer implements Runnable {
             while (m_accumulator >= m_step) {
                 m_accumulator -= m_step;
                 //entityManager.update();
-                Network.InventoryMoveFromClient msg = new Network.InventoryMoveFromClient();
-                m_serverKryo.sendToAllTCP(msg);
-
-                if (m_hostingPlayer != null) {
-                    //HACK
-                    sendSpawnEntity(m_hostingPlayer, 0);
-                }
+                m_world.update(frameTime);
             }
 
             double alpha = m_accumulator / m_step;
         }
     }
 
-    private Entity createPlayer(String playerName) {
-        Entity player = m_world.engine.createEntity();
+    private Entity createPlayer(String playerName, int connectionId) {
+        Entity player = m_world.createPlayer(playerName, connectionId);
 
         //the first player in the world
         if (m_hostingPlayer == null) {
@@ -128,7 +116,7 @@ public class OreServer implements Runnable {
         int tilex = (int) (posX / World.BLOCK_SIZE);
         int tiley = (int) (posY / World.BLOCK_SIZE);
 
-        int seaLevel = m_world.seaLevel();
+        final int seaLevel = m_world.seaLevel();
 
         //left
         for (int y = 0; y < seaLevel; y++) {
@@ -144,38 +132,33 @@ public class OreServer implements Runnable {
             m_world.blockAt(x, tiley).blockType = Block.BlockType.StoneBlockType;
         }
 
-        SpriteComponent playerSprite = m_world.engine.createComponent(SpriteComponent.class);
+        SpriteComponent playerSprite = player.getComponent(SpriteComponent.class);
         playerSprite.sprite.setPosition(posX, posY);
-        player.add(playerSprite);
-
-        player.add(m_world.engine.createComponent(VelocityComponent.class));
-        PlayerComponent playerComponent = m_world.engine.createComponent(PlayerComponent.class);
-        playerComponent.playerId = m_freePlayerId;
-        playerComponent.noClip = m_worldViewingEnabled;
-
-        playerComponent.playerName = playerName;
-        playerComponent.loadedViewport.setRect(new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
-        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY()));
-        player.add(playerComponent);
 
         //load players main inventory
         loadInventory(player);
+        loadHotbarInventory(player);
 
-        playerSprite.sprite.setSize(World.BLOCK_SIZE * 2, World.BLOCK_SIZE * 3);
-        player.add(m_world.engine.createComponent(ControllableComponent.class));
 
-        playerSprite.texture = "player1Standing1";
-        playerSprite.category = SpriteComponent.EntityCategory.Character;
-        player.add(m_world.engine.createComponent(JumpComponent.class));
+        m_world.addPlayer(player);
 
-        HealthComponent healthComponent = m_world.engine.createComponent(HealthComponent.class);
-        healthComponent.health = healthComponent.maxHealth;
-        player.add(healthComponent);
+//FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
-        AirComponent airComponent = m_world.engine.createComponent(AirComponent.class);
-        airComponent.air = airComponent.maxAir;
-        player.add(airComponent);
+        //tell all players including himself, that he joined
+        sendSpawnPlayerBroadcast(player);
 
+        //tell this player all the current players
+        for (Entity e : m_world.m_players) {
+            //exclude himself, though. he already knows.
+            if (e != player) {
+                sendSpawnPlayer(e, connectionId);
+            }
+        }
+
+        return player;
+    }
+
+    private void loadHotbarInventory(Entity player) {
         //TODO: load the player's inventory and hotbarinventory from file..for now, initialize *the whole thing* with bullshit
         Entity tool = m_world.engine.createEntity();
         tool.add(m_world.engine.createComponent(VelocityComponent.class));
@@ -185,7 +168,6 @@ public class OreServer implements Runnable {
         tool.add(toolComponent);
 
         SpriteComponent toolSprite = m_world.engine.createComponent(SpriteComponent.class);
-        toolSprite.sprite.setPosition(posX, posY);
         toolSprite.texture = "pickaxeWooden1";
 
 //warning fixme size is fucked
@@ -202,6 +184,7 @@ public class OreServer implements Runnable {
 
         tool.add(itemComponent);
 
+        PlayerComponent playerComponent = player.getComponent(PlayerComponent.class);
         playerComponent.hotbarInventory.setSlot(0, tool);
 
         Entity block = m_world.engine.createEntity();
@@ -228,9 +211,7 @@ public class OreServer implements Runnable {
             torchComponent.radius = 5.0f;
             torch.add(torchComponent);
 
-
             SpriteComponent torchSprite = m_world.engine.createComponent(SpriteComponent.class);
-            torchSprite.sprite.setPosition(posX, posY);
             torchSprite.texture = "torch1Ground1";
             torchSprite.sprite.setSize(9 / World.PIXELS_PER_METER, 24 / World.PIXELS_PER_METER);
             tool.add(torchSprite);
@@ -243,12 +224,6 @@ public class OreServer implements Runnable {
 
             playerComponent.hotbarInventory.setSlot(i, torch);
         }
-
-        m_world.addPlayer(player);
-
-        ++m_freePlayerId;
-
-        return player;
     }
 
     /**
@@ -279,6 +254,32 @@ public class OreServer implements Runnable {
         playerComponent.inventory.setSlot(0, tool);
     }
 
+    private void sendSpawnPlayerBroadcast(Entity e) {
+        PlayerComponent playerComp = e.getComponent(PlayerComponent.class);
+        SpriteComponent spriteComp = e.getComponent(SpriteComponent.class);
+
+        Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
+        spawn.connectionId = playerComp.connectionId;
+        spawn.playerName = playerComp.playerName;
+        spawn.pos.pos = new Vector2(spriteComp.sprite.getX(), spriteComp.sprite.getY());
+        m_serverKryo.sendToAllTCP(spawn);
+    }
+
+    /**
+     * @param e            player to send
+     * @param connectionId client to send to
+     */
+    private void sendSpawnPlayer(Entity e, int connectionId) {
+        PlayerComponent playerComp = e.getComponent(PlayerComponent.class);
+        SpriteComponent spriteComp = e.getComponent(SpriteComponent.class);
+
+        Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
+        spawn.connectionId = playerComp.connectionId;
+        spawn.playerName = playerComp.playerName;
+        spawn.pos.pos = new Vector2(spriteComp.sprite.getX(), spriteComp.sprite.getY());
+        m_serverKryo.sendToTCP(connectionId, spawn);
+    }
+
     private void sendSpawnEntity(Entity e, int connectionId) {
         Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
         spawn.components = new Array<Component>();
@@ -289,7 +290,6 @@ public class OreServer implements Runnable {
             Component comp = components.get(i);
             if (comp instanceof PlayerComponent) {
                 PlayerComponent c = e.getComponent(PlayerComponent.class);
-                Gdx.app.log("", "skip");
             } else if (comp instanceof SpriteComponent) {
                 SpriteComponent sprite = e.getComponent(SpriteComponent.class);
 
@@ -298,7 +298,6 @@ public class OreServer implements Runnable {
             } else if (comp instanceof ControllableComponent) {
                 //do nothing, don't want/need on clients, me thinks
             } else {
-                Gdx.app.log("", "add");
                 spawn.components.add(comp);
             }
         }
@@ -309,7 +308,6 @@ public class OreServer implements Runnable {
 
     static class PlayerConnection extends Connection {
         public String playerName;
-        public int playerId;
     }
 
     class ServerListener extends Listener {
@@ -351,19 +349,8 @@ public class OreServer implements Runnable {
                     c.close();
                 }
 
-                //okay, send player spawned to connecting client.
-                Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
-                spawn.pos.pos.set(5, 5);
-                c.sendTCP(spawn);
+                createPlayer(name, c.getID());
 
-
-                //now notify all clients she spawned
-
-                //// Send a "connected" message to everyone except the new client.
-                //Network.ChatMessage chatMessage = new Network.ChatMessage();
-                //chatMessage.text = name + " connected.";
-                //m_serverKryo.sendToAllExceptTCP(connection.getID(), chatMessage);
-                //// Send everyone a new list of connection names.
                 return;
             }
         }

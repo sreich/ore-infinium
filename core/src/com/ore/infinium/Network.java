@@ -124,10 +124,10 @@ public class Network {
     }
 
     static public class PlayerSpawnedFromServer {
-        public int playerId; // session local id, to be displayed
-        public int playerName; // not stored for
+        public int connectionId; // session local id, to be displayed
+        public String playerName;
         public PositionPacket pos = new PositionPacket();
-        public SizePacket size = new SizePacket();
+        //we don't need a size packet for player. we know how big one will be, always.
     }
 
     static public class PlayerSpawnInventoryItemFromServer {

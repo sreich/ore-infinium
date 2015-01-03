@@ -1,5 +1,6 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.minlog.Log;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -32,6 +34,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private Skin m_skin;
     private ScreenViewport m_viewport;
     private FPSLogger m_fpsLogger;
+    private Entity m_mainPlayer;
 
     private Client m_clientKryo;
 
@@ -47,7 +50,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void create() {
-//        Log.set(Log.LEVEL_DEBUG);
+        Log.set(Log.LEVEL_DEBUG);
         m_batch = new SpriteBatch();
         m_font = new BitmapFont();
 
@@ -220,8 +223,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     }
 
     private void showFailToConnectDialog() {
-        dialog =
-                new Dialog("", m_skin, "dialog") {
+        dialog = new Dialog("", m_skin, "dialog") {
                     protected void result(Object object) {
                         System.out.println("Chosen: " + object);
                     }
@@ -315,7 +317,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         public void received(Connection connection, Object object) {
             if (object instanceof Network.PlayerSpawnedFromServer) {
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
-                spawn.pos.pos.add(2, 2);
+//                if (m_)
+                m_mainPlayer = m_world.createPlayer(spawn.playerName, connection.getID());
+
+                spawn.pos.pos = spawn.pos.pos;
             }
 
 

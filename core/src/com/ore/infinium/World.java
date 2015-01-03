@@ -3,12 +3,12 @@ package com.ore.infinium;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -39,15 +39,14 @@ public class World implements Disposable {
     public static final int WORLD_COLUMNCOUNT = 2400;
     public static final int WORLD_ROWCOUNT = 8400;
     public static final int WORLD_SEA_LEVEL = 50;
-
     public Block[] blocks;
     public PooledEngine engine;
     public AssetManager assetManager;
     public Array<Entity> m_players = new Array<Entity>();
-
+    private boolean m_noClipEnabled;
     private SpriteBatch m_batch;
     private Texture m_texture;
-    private Sprite m_mainPlayer;
+    private Entity m_mainPlayer;
     private Sprite m_sprite2;
 
     private TileRenderer m_tileRenderer;
@@ -81,10 +80,6 @@ public class World implements Disposable {
 
         engine = new PooledEngine(2000, 2000, 2000, 2000);
 
-
-        m_mainPlayer = new Sprite();
-        m_mainPlayer.setPosition(50, 50);
-
         m_sprite2 = new Sprite();
         m_sprite2.setPosition(90, 90);
 
@@ -92,12 +87,9 @@ public class World implements Disposable {
         m_camera.setToOrtho(true, 1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);
 
 //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
-        m_camera.position.set(m_mainPlayer.getX(), m_mainPlayer.getY(), 0);
-        m_camera.update();
 
         if (isClient()) {
             m_texture = new Texture(Gdx.files.internal("crap.png"));
-            m_mainPlayer.setTexture(m_texture);
             m_sprite2.setTexture(m_texture);
             m_tileRenderer = new TileRenderer(m_camera, this, m_mainPlayer);
         }
@@ -106,6 +98,39 @@ public class World implements Disposable {
     }
 
     public void initServer() {
+    }
+
+    public Entity createPlayer(String playerName, int connectionId) {
+        Entity player = engine.createEntity();
+        SpriteComponent playerSprite = engine.createComponent(SpriteComponent.class);
+        player.add(playerSprite);
+
+        player.add(engine.createComponent(VelocityComponent.class));
+        PlayerComponent playerComponent = engine.createComponent(PlayerComponent.class);
+        playerComponent.connectionId = connectionId;
+        playerComponent.noClip = m_noClipEnabled;
+
+        playerComponent.playerName = playerName;
+        playerComponent.loadedViewport.setRect(new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
+        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY()));
+        player.add(playerComponent);
+
+        playerSprite.sprite.setSize(World.BLOCK_SIZE * 2, World.BLOCK_SIZE * 3);
+        player.add(engine.createComponent(ControllableComponent.class));
+
+        playerSprite.texture = "player1Standing1";
+        playerSprite.category = SpriteComponent.EntityCategory.Character;
+        player.add(engine.createComponent(JumpComponent.class));
+
+        HealthComponent healthComponent = engine.createComponent(HealthComponent.class);
+        healthComponent.health = healthComponent.maxHealth;
+        player.add(healthComponent);
+
+        AirComponent airComponent = engine.createComponent(AirComponent.class);
+        airComponent.air = airComponent.maxAir;
+        player.add(airComponent);
+
+        return player;
     }
 
     private void generateWorld() {
@@ -196,14 +221,15 @@ public class World implements Disposable {
         updateCrosshair();
         updateItemPlacementGhost();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            m_mainPlayer.translateX(-PlayerComponent.movementSpeed);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            m_mainPlayer.translateX(PlayerComponent.movementSpeed);
-        }
-
-        m_camera.position.set(m_mainPlayer.getX(), m_mainPlayer.getY(), 0);
+//        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+//            m_mainPlayer.translateX(-PlayerComponent.movementSpeed);
+//        }
+//        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+//            m_mainPlayer.translateX(PlayerComponent.movementSpeed);
+//        }
+//
+        SpriteComponent playerSprite = m_mainPlayer.getComponent(SpriteComponent.class);
+        m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
         m_camera.update();
 
         m_batch.setProjectionMatrix(m_camera.combined);
@@ -212,7 +238,7 @@ public class World implements Disposable {
 
         m_batch.begin();
         //m_batch.draw
-        m_mainPlayer.draw(m_batch);
+//        m_mainPlayer.draw(m_batch);
         m_sprite2.draw(m_batch);
         m_batch.end();
     }

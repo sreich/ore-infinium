@@ -35,7 +35,7 @@ public class PlayerComponent extends Component implements Pool.Poolable {
      * Is used to identify the players, for knowing which one the network is talking about,
      * and is also very useful for kicking/banning.
      */
-    public int playerId = -1;
+    public int connectionId = -1;
     public boolean killed;
     public Vector2 lastLoadedChunk;
     //    public Vector2 mousePositionWorldCoords;
