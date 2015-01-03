@@ -199,6 +199,9 @@ public class World implements Disposable {
     }
 
     public void render(double elapsed) {
+        if (m_mainPlayer == null) {
+            return;
+        }
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
@@ -280,7 +283,6 @@ public class World implements Disposable {
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
         air.add(itemComponent);
-
 
         SpriteComponent airSprite = engine.createComponent(SpriteComponent.class);
         airSprite.texture = "airGenerator1";

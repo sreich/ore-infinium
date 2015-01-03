@@ -13,6 +13,7 @@ import com.esotericsoftware.kryonet.Server;
 import com.ore.infinium.components.*;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -36,11 +37,10 @@ import java.util.concurrent.CountDownLatch;
 public class OreServer implements Runnable {
 
     public CountDownLatch latch = new CountDownLatch(1);
+    public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
     private World m_world;
     private Server m_serverKryo;
-
     private Entity m_hostingPlayer;
-
     private double m_accumulator;
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
@@ -89,6 +89,9 @@ public class OreServer implements Runnable {
 
             while (m_accumulator >= m_step) {
                 m_accumulator -= m_step;
+
+                processNetworkQueue();
+
                 //entityManager.update();
                 m_world.update(frameTime);
             }
@@ -306,36 +309,30 @@ public class OreServer implements Runnable {
         m_serverKryo.sendToAllTCP(spawn);
     }
 
-    static class PlayerConnection extends Connection {
-        public String playerName;
-    }
-
-    class ServerListener extends Listener {
-        public void received(Connection c, Object obj) {
-            PlayerConnection connection = (PlayerConnection) c;
-
-            if (obj instanceof Network.InitialClientData) {
-                Network.InitialClientData data = ((Network.InitialClientData) obj);
+    private void processNetworkQueue() {
+        for (NetworkJob job = m_netQueue.poll(); job != null; job = m_netQueue.poll()) {
+            if (job.object instanceof Network.InitialClientData) {
+                Network.InitialClientData data = ((Network.InitialClientData) job.object);
                 String name = data.playerName;
 
                 if (name == null) {
-                    c.close();
+                    job.connection.close();
                     return;
                 }
 
                 name = name.trim();
 
                 if (name.length() == 0) {
-                    c.close();
+                    job.connection.close();
                     return;
                 }
 
                 // Store the playerName on the connection.
-                connection.playerName = name;
+                job.connection.playerName = name;
 
                 String uuid = data.playerUUID;
                 if (uuid == null) {
-                    c.close();
+                    job.connection.close();
                     return;
                 }
 
@@ -345,14 +342,36 @@ public class OreServer implements Runnable {
                     Network.KickReason reason = new Network.KickReason();
                     reason.reason = Network.KickReason.Reason.VersionMismatch;
 
-                    c.sendTCP(reason);
-                    c.close();
+                    job.connection.sendTCP(reason);
+                    job.connection.close();
                 }
 
-                createPlayer(name, c.getID());
+                createPlayer(name, job.connection.getID());
 
-                return;
+                m_netQueue.poll();
             }
+        }
+    }
+
+    static class PlayerConnection extends Connection {
+        public String playerName;
+    }
+
+    public class NetworkJob {
+        PlayerConnection connection;
+        Object object;
+
+        NetworkJob(PlayerConnection c, Object o) {
+            connection = c;
+            object = o;
+        }
+    }
+
+    class ServerListener extends Listener {
+        //FIXME: do sanity checking (null etc) on both client, server
+        public void received(Connection c, Object obj) {
+            PlayerConnection connection = (PlayerConnection) c;
+            m_netQueue.add(new NetworkJob(connection, obj));
         }
 
         public void disconnected(Connection c) {

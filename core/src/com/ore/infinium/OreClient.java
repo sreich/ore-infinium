@@ -19,15 +19,17 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
+import com.ore.infinium.components.SpriteComponent;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
     public final static int ORE_VERSION_REVISION = 1;
-
+    public ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     private World m_world;
     private Stage m_stage;
     private Table m_table;
@@ -35,9 +37,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private ScreenViewport m_viewport;
     private FPSLogger m_fpsLogger;
     private Entity m_mainPlayer;
-
     private Client m_clientKryo;
-
     private OreServer m_server;
     private Thread m_serverThread;
     private double m_accumulator;
@@ -124,8 +124,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Gdx.input.setInputProcessor(this);
 
         hostAndJoin();
-
-        m_world = new World(this, m_server);
     }
 
     private void hostAndJoin() {
@@ -144,7 +142,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         Network.register(m_clientKryo);
 
-        m_clientKryo.addListener(new ClientListener());
+        m_clientKryo.addListener(new ClientListener(this));
 
         new Thread("Connect") {
             public void run() {
@@ -192,7 +190,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
         while (m_accumulator >= m_step) {
             m_accumulator -= m_step;
             //entityManager.update();
-            m_world.update(frameTime);
+            processNetworkQueue();
+
+            if (m_world != null) {
+                m_world.update(frameTime);
+            }
         }
 
         double alpha = m_accumulator / m_step;
@@ -204,7 +206,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
-        m_world.render(frameTime);
+        if (m_world != null) {
+            m_world.render(frameTime);
+        }
 
         m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         m_stage.draw();
@@ -309,18 +313,19 @@ public class OreClient implements ApplicationListener, InputProcessor {
         return false;
     }
 
-    class ClientListener extends Listener {
-        public void connected(Connection connection) {
-
-        }
-
-        public void received(Connection connection, Object object) {
+    private void processNetworkQueue() {
+        for (Object object = m_netQueue.poll(); object != null; object = m_netQueue.poll()) {
             if (object instanceof Network.PlayerSpawnedFromServer) {
-                Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
-//                if (m_)
-                m_mainPlayer = m_world.createPlayer(spawn.playerName, connection.getID());
 
-                spawn.pos.pos = spawn.pos.pos;
+                Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
+                assert m_world == null;
+
+                m_world = new World(this, m_server);
+
+                m_mainPlayer = m_world.createPlayer(spawn.playerName, m_clientKryo.getID());
+                SpriteComponent spriteComp = m_mainPlayer.getComponent(SpriteComponent.class);
+
+                spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
             }
 
 
@@ -333,6 +338,22 @@ public class OreClient implements ApplicationListener, InputProcessor {
             //         chatFrame.addMessage(chatMessage.text);
             //         return;
             // }
+        }
+    }
+
+    class ClientListener extends Listener {
+        private OreClient m_client;
+
+        ClientListener(OreClient client) {
+            m_client = client;
+
+        }
+        public void connected(Connection connection) {
+        }
+
+        //FIXME: do sanity checking (null etc) on both client, server
+        public void received(Connection connection, Object object) {
+            m_netQueue.add(object);
         }
 
         public void disconnected(Connection connection) {
