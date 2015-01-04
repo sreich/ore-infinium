@@ -64,7 +64,6 @@ public class World implements Disposable {
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
             m_batch = new SpriteBatch();
-            m_spriteRenderer = new SpriteRenderer();
         }
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
@@ -103,6 +102,8 @@ public class World implements Disposable {
         m_mainPlayer = mainPlayer;
 
         m_tileRenderer = new TileRenderer(m_camera, this);
+        m_spriteRenderer = new SpriteRenderer();
+        m_mainPlayer.getComponent(SpriteComponent.class).sprite.setTexture(m_texture);
     }
 
     public Entity createPlayer(String playerName, int connectionId) {
@@ -245,6 +246,7 @@ public class World implements Disposable {
         m_tileRenderer.render(elapsed);
 
         m_batch.begin();
+        playerSprite.sprite.draw(m_batch);
         //m_batch.draw
 //        m_mainPlayer.draw(m_batch);
         m_sprite2.draw(m_batch);

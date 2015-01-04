@@ -31,6 +31,7 @@ public class SpriteComponent extends Component implements Pool.Poolable {
 
     public void reset() {
         // eh?, may have to set everything like alpha etc back to normal..
+
     }
 
     public enum EntityCategory {
