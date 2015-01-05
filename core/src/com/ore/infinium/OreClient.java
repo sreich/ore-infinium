@@ -5,7 +5,10 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -35,7 +38,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private Table m_table;
     private Skin m_skin;
     private ScreenViewport m_viewport;
-    private FPSLogger m_fpsLogger;
     private Entity m_mainPlayer;
     private Client m_clientKryo;
     private OreServer m_server;
@@ -53,9 +55,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Log.set(Log.LEVEL_DEBUG);
         m_batch = new SpriteBatch();
         m_font = new BitmapFont();
+        m_font.setColor(0, 1, 0, 1);
 
         m_stage = new Stage(new StretchViewport(1600, 900));
-        m_fpsLogger = new FPSLogger();
 
         m_viewport = new ScreenViewport();
         m_viewport.setScreenBounds(0, 0, 1600, 900);
@@ -178,7 +180,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void render() {
-        m_fpsLogger.log();
 
         double newTime = TimeUtils.millis() / 1000.0;
         double frameTime = Math.min(newTime - m_currentTime, 0.25);
@@ -267,11 +268,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         if (keycode == Input.Keys.MINUS) {
             //zoom out
-            m_world.zoom(1.1f);
+            m_world.zoom(1.01f);
         }
 
         if (keycode == Input.Keys.EQUALS) {
-            m_world.zoom(0.9f);
+            m_world.zoom(0.99f);
         }
 
         return true;

@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector3;
 import com.ore.infinium.components.SpriteComponent;
 
@@ -33,18 +34,23 @@ public class TileRenderer {
 
     private Texture t;
 
+    private TextureAtlas m_atlas;
+
     public TileRenderer(OrthographicCamera camera, World world) {
         m_camera = camera;
         m_world = world;
         m_batch = new SpriteBatch(5000);
 
-        t = new Texture(Gdx.files.internal("stone.png"));
+        m_atlas = new TextureAtlas(Gdx.files.internal("blocks-packed/pack.atlas"));
     }
 
     public void render(double elapsed) {
         if (m_world.m_mainPlayer == null) {
             return;
         }
+
+        TextureAtlas.AtlasRegion region = m_atlas.findRegion("dirt");
+        TextureAtlas.AtlasRegion region2 = m_atlas.findRegion("stone");
 
         m_batch.setProjectionMatrix(m_camera.combined);
         //auto positionComponent = m_mainPlayer->component<PositionComponent>();
@@ -79,6 +85,7 @@ public class TileRenderer {
           throw new IndexOutOfBoundsException("went into negative world row");
       }
       */
+
         m_batch.begin();
         int count = 0;
         for (int currentColumn = startColumn; currentColumn < endColumn; ++currentColumn) {
@@ -87,16 +94,16 @@ public class TileRenderer {
                 assert (blockIndex >= 0);
                 assert (blockIndex < World.WORLD_ROWCOUNT * World.WORLD_COLUMNCOUNT);
                 Block block = m_world.blockAt(currentColumn, currentRow);
-                float tileX = World.BLOCK_SIZE * currentColumn;
-                float tileY = World.BLOCK_SIZE * currentRow;
-                if (count == 1) {
-                    //        break;
-                }
-                m_batch.setColor(1, 0, 0, 1);
+
+                float tileX = World.BLOCK_SIZE * (float) currentColumn;
+                float tileY = World.BLOCK_SIZE * (float) currentRow;
+
                 if (count % 2 == 1) {
-                    m_batch.setColor(0, 1, 0, 1);
+                    m_batch.draw(region2, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                } else {
+                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
                 }
-                m_batch.draw(t, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+
                 count++;
             }
         }
