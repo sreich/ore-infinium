@@ -8,11 +8,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.RandomXS128;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.ore.infinium.components.*;
+
+import java.util.HashMap;
 
 /**
  * ***************************************************************************
@@ -39,6 +42,14 @@ public class World implements Disposable {
     public static final int WORLD_COLUMNCOUNT = 2400;
     public static final int WORLD_ROWCOUNT = 8400;
     public static final int WORLD_SEA_LEVEL = 50;
+    public static final HashMap<Block.BlockType, BlockStruct> blockTypes = new HashMap<>();
+
+    static {
+        blockTypes.put(Block.BlockType.NullBlockType, new BlockStruct("", false));
+        blockTypes.put(Block.BlockType.DirtBlockType, new BlockStruct("dirt", true));
+        blockTypes.put(Block.BlockType.StoneBlockType, new BlockStruct("stone", true));
+    }
+
     public Block[] blocks;
     public PooledEngine engine;
     public AssetManager assetManager;
@@ -48,10 +59,8 @@ public class World implements Disposable {
     private SpriteBatch m_batch;
     private Texture m_texture;
     private Sprite m_sprite2;
-
     private TileRenderer m_tileRenderer;
     private SpriteRenderer m_spriteRenderer;
-
     private OrthographicCamera m_camera;
     private OreServer m_server;
     private OreClient m_client;
@@ -67,9 +76,25 @@ public class World implements Disposable {
         }
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
+
+        RandomXS128 random = new RandomXS128();
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
-                blocks[x * WORLD_ROWCOUNT + y] = new Block();
+                int index = x * WORLD_ROWCOUNT + y;
+                blocks[index] = new Block();
+
+                switch (random.nextInt(3)) {
+                    case 0:
+                        blocks[index].blockType = Block.BlockType.NullBlockType;
+                        break;
+
+                    case 1:
+                        blocks[index].blockType = Block.BlockType.DirtBlockType;
+                        break;
+                    case 2:
+                        blocks[index].blockType = Block.BlockType.StoneBlockType;
+                        break;
+                }
             }
         }
 
@@ -307,5 +332,15 @@ public class World implements Disposable {
 
     public void addPlayer(Entity player) {
         m_players.add(player);
+    }
+
+    public static class BlockStruct {
+        String textureName; //e.g. "dirt", "stone", etc.
+        boolean collides;
+
+        BlockStruct(String _textureName, boolean _collides) {
+            textureName = _textureName;
+            collides = _collides;
+        }
     }
 }

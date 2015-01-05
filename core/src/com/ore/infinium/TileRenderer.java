@@ -98,11 +98,13 @@ public class TileRenderer {
                 float tileX = World.BLOCK_SIZE * (float) currentColumn;
                 float tileY = World.BLOCK_SIZE * (float) currentRow;
 
-                if (count % 2 == 1) {
-                    m_batch.draw(region2, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
-                } else {
-                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                if (block.blockType == Block.BlockType.NullBlockType) {
+                    continue;
                 }
+
+                String textureName = m_world.blockTypes.get(block.blockType).textureName;
+
+                m_batch.draw(m_atlas.findRegion(textureName), tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
 
                 count++;
             }

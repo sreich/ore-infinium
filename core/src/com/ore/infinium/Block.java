@@ -88,7 +88,6 @@ public class Block {
 
     /**
      * Determines the health and texture of the Block.
-     * NOTE: MUST be in sync with index of m_blockTextures
      */
     public enum BlockType {
         NullBlockType,
