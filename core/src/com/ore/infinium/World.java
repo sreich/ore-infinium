@@ -3,6 +3,7 @@ package com.ore.infinium;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -225,8 +226,28 @@ public class World implements Disposable {
     }
 
     public void update(double elapsed) {
+        ControllableComponent controllableComponent = m_mainPlayer.getComponent(ControllableComponent.class);
+
+        if (isClient()) {
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
+                controllableComponent.desiredDirection.x = -1;
+            }
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
+                controllableComponent.desiredDirection.x = 1;
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.UP) || Gdx.input.isKeyPressed(Input.Keys.W)) {
+
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
+
+            }
+        }
 
         engine.update((float) elapsed);
+
+        m_client.sendPlayerMoved();
     }
 
     public void render(double elapsed) {
@@ -255,13 +276,7 @@ public class World implements Disposable {
         updateCrosshair();
         updateItemPlacementGhost();
 
-//        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-//            m_mainPlayer.translateX(-PlayerComponent.movementSpeed);
-//        }
-//        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-//            m_mainPlayer.translateX(PlayerComponent.movementSpeed);
-//        }
-//
+
         SpriteComponent playerSprite = m_mainPlayer.getComponent(SpriteComponent.class);
         m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
         m_camera.update();

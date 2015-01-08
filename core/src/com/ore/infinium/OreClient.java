@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -22,6 +23,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.minlog.Log;
+import com.ore.infinium.components.ControllableComponent;
 import com.ore.infinium.components.SpriteComponent;
 
 import java.io.IOException;
@@ -313,6 +315,27 @@ public class OreClient implements ApplicationListener, InputProcessor {
         return false;
     }
 
+    /**
+     * Send the command indicating (main) player moved to position
+     */
+    public void sendPlayerMoved() {
+        SpriteComponent sprite = m_mainPlayer.getComponent(SpriteComponent.class);
+
+        Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
+        move.position = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
+
+        m_clientKryo.sendTCP(move);
+    }
+
+    private Entity createPlayer(String playerName, int connectionId) {
+        Entity player = m_world.createPlayer(playerName, connectionId);
+        ControllableComponent controllableComponent = m_world.engine.createComponent(ControllableComponent.class);
+        controllableComponent.desiredDirection = new Vector2();
+        player.add(controllableComponent);
+
+        return player;
+    }
+
     private void processNetworkQueue() {
         for (Object object = m_netQueue.poll(); object != null; object = m_netQueue.poll()) {
             if (object instanceof Network.PlayerSpawnedFromServer) {
@@ -322,7 +345,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 m_world = new World(this, m_server);
 
-                m_mainPlayer = m_world.createPlayer(spawn.playerName, m_clientKryo.getID());
+                m_mainPlayer = createPlayer(spawn.playerName, m_clientKryo.getID());
                 SpriteComponent spriteComp = m_mainPlayer.getComponent(SpriteComponent.class);
 
                 spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);

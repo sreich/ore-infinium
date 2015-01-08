@@ -40,6 +40,7 @@ public class Network {
         kryo.register(KickReason.class);
         kryo.register(KickReason.Reason.class);
         kryo.register(PlayerSpawnedFromServer.class);
+        kryo.register(PlayerMoveFromClient.class);
         kryo.register(EntitySpawnFromServer.class);
         kryo.register(Array.class);
         kryo.register(Component.class);

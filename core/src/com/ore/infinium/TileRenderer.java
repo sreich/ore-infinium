@@ -49,8 +49,6 @@ public class TileRenderer {
             return;
         }
 
-        TextureAtlas.AtlasRegion region = m_atlas.findRegion("dirt");
-        TextureAtlas.AtlasRegion region2 = m_atlas.findRegion("stone");
 
         m_batch.setProjectionMatrix(m_camera.combined);
         //auto positionComponent = m_mainPlayer->component<PositionComponent>();
@@ -86,6 +84,8 @@ public class TileRenderer {
       }
       */
 
+        //FIXME: this needs to be cached..it's supposedly very slow.
+        TextureAtlas.AtlasRegion region;
         m_batch.begin();
         int count = 0;
         for (int currentColumn = startColumn; currentColumn < endColumn; ++currentColumn) {

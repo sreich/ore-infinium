@@ -328,8 +328,6 @@ public class OreServer implements Runnable {
                     return;
                 }
 
-                // Store the playerName on the connection.
-                job.connection.playerName = name;
 
                 String uuid = data.playerUUID;
                 if (uuid == null) {
@@ -347,14 +345,20 @@ public class OreServer implements Runnable {
                     job.connection.close();
                 }
 
-                createPlayer(name, job.connection.getID());
-
-                m_netQueue.poll();
+                // Store the player on the connection.
+                job.connection.player = createPlayer(name, job.connection.getID());
+                job.connection.playerName = name;
+            } else if (job.object instanceof Network.PlayerMoveFromClient) {
+                Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
+                SpriteComponent sprite = job.connection.player.getComponent(SpriteComponent.class);
+                sprite.sprite.setPosition(data.position.x, data.position.y);
+                Gdx.app.log("server player pos at", data.position.x + "," + data.position.y);
             }
         }
     }
 
     static class PlayerConnection extends Connection {
+        public Entity player;
         public String playerName;
     }
 
@@ -377,7 +381,7 @@ public class OreServer implements Runnable {
 
         public void disconnected(Connection c) {
             PlayerConnection connection = (PlayerConnection) c;
-            if (connection.playerName != null) {
+            if (connection.player != null) {
                 // Announce to everyone that someone (with a registered playerName) has left.
                 Network.ChatMessage chatMessage = new Network.ChatMessage();
                 chatMessage.text = connection.playerName + " disconnected.";
