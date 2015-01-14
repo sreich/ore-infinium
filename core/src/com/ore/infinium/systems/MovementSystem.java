@@ -97,7 +97,6 @@ public class MovementSystem extends EntitySystem {
         jumpComponent.canJump = false;
         jumpComponent.shouldJump = false;
 
-        //NOTE: acceleration is now truncated, unused
         newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta);
 
         final float epsilon = 0.00001f;
@@ -113,8 +112,8 @@ public class MovementSystem extends EntitySystem {
 
         //clamp both axes between some max/min values..
         Vector2 dt = new Vector2(delta, delta);
-        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.jumpVelocity);
-        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.maxMovementSpeed, World.GRAVITY_ACCEL_CLAMP);
+        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.maxMovementSpeed);
+        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World.GRAVITY_ACCEL_CLAMP);
 
         ///////// velocity verlet integration
         // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games

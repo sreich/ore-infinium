@@ -271,9 +271,12 @@ public class World implements Disposable {
         if (isClient()) {
             ControllableComponent controllableComponent = m_mainPlayer.getComponent(ControllableComponent.class);
 
+            controllableComponent.desiredDirection.setZero();
+
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
                 controllableComponent.desiredDirection.x = -1;
             }
+
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
                 controllableComponent.desiredDirection.x = 1;
             }
