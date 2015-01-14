@@ -102,12 +102,16 @@ public class World implements Disposable {
 
 //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
 
+        assert isClient() ^ isServer();
         if (isClient()) {
             m_texture = new Texture(Gdx.files.internal("crap.png"));
             m_sprite2.setTexture(m_texture);
+            initializeWorld();
         }
 
-        generateWorld();
+        if (isServer()) {
+            generateWorld();
+        }
     }
 
     public void initServer() {
@@ -164,6 +168,17 @@ public class World implements Disposable {
 
     private void generateWorld() {
         generateOres();
+    }
+
+    private void initializeWorld() {
+        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+
+                int index = x * WORLD_ROWCOUNT + y;
+                blocks[index] = new Block();
+                blocks[index].blockType = Block.BlockType.StoneBlockType;
+            }
+        }
     }
 
     private void generateOres() {
