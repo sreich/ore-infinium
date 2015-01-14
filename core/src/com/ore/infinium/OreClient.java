@@ -177,7 +177,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void dispose() {
-        m_world.dispose();
+        if (m_world != null) {
+            m_world.dispose();
+        }
     }
 
     @Override

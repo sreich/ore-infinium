@@ -15,18 +15,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="core" exported="" />
-    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-backend-lwjgl:1.5.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-platform:1.5.0:natives-desktop" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-freetype-platform:1.5.0:natives-desktop" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-tools:1.5.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx:1.5.0" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl:2.9.1" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl_util:2.9.1" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.jlayer:jlayer:1.0.1-gdx" level="project" />
     <orderEntry type="library" exported="" name="Gradle: org.jcraft:jorbis:0.0.17" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-windows" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-linux" level="project" />
-    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.1:natives-osx" level="project" />
     <orderEntry type="library" exported="" name="Gradle: net.java.jinput:jinput:2.0.5" level="project" />
     <orderEntry type="library" exported="" name="Gradle: net.java.jutils:jutils:1.0.0" level="project" />
     <orderEntry type="library" exported="" name="Gradle: net.java.jinput:jinput-platform:2.0.5:natives-linux" level="project" />
@@ -37,5 +27,15 @@
     <orderEntry type="library" exported="" name="Gradle: com.esotericsoftware:jsonbeans:0.7" level="project" />
     <orderEntry type="library" exported="" name="Gradle: com.esotericsoftware.minlog:minlog:1.2" level="project" />
     <orderEntry type="library" exported="" name="Gradle: org.objenesis:objenesis:2.1" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-backend-lwjgl:1.5.2" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-platform:1.5.2:natives-desktop" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-freetype-platform:1.5.2:natives-desktop" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx-tools:1.5.2" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: com.badlogicgames.gdx:gdx:1.5.2" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl:2.9.2" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl_util:2.9.2" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.2:natives-windows" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.2:natives-linux" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: org.lwjgl.lwjgl:lwjgl-platform:2.9.2:natives-osx" level="project" />
   </component>
 </module>

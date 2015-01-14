@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.ore.infinium.components.*;
+import com.ore.infinium.systems.MovementSystem;
 
 import java.util.HashMap;
 
@@ -38,11 +39,16 @@ import java.util.HashMap;
  */
 public class World implements Disposable {
     public static final float PIXELS_PER_METER = 50.0f;
+    public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 30.0f;
+    public static final float GRAVITY_ACCEL_CLAMP = 9.8f / PIXELS_PER_METER / 20.0f;
+
     public static final float BLOCK_SIZE = (16.0f / PIXELS_PER_METER);
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
+
     public static final int WORLD_COLUMNCOUNT = 2400;
     public static final int WORLD_ROWCOUNT = 8400;
     public static final int WORLD_SEA_LEVEL = 50;
+
     public static final HashMap<Block.BlockType, BlockStruct> blockTypes = new HashMap<>();
 
     static {
@@ -65,6 +71,8 @@ public class World implements Disposable {
     private OrthographicCamera m_camera;
     private OreServer m_server;
     private OreClient m_client;
+
+    private MovementSystem m_movementSystem;
 
     public World(OreClient client, OreServer server) {
         m_client = client;
@@ -102,8 +110,9 @@ public class World implements Disposable {
 //        assetManager = new AssetManager();
 //        TextureAtlas atlas = assetManager.get("data/", TextureAtlas.class);
 //        assetManager.finishLoading();
-
         engine = new PooledEngine(2000, 2000, 2000, 2000);
+
+        engine.addSystem(m_movementSystem = new MovementSystem(this));
 
         m_sprite2 = new Sprite();
         m_sprite2.setPosition(90, 90);
@@ -126,6 +135,7 @@ public class World implements Disposable {
 
     public void initClient(Entity mainPlayer) {
         m_mainPlayer = mainPlayer;
+//        Mappers.velocity.get(m_mainPlayer);
 
         m_tileRenderer = new TileRenderer(m_camera, this);
         m_spriteRenderer = new SpriteRenderer();
@@ -216,8 +226,8 @@ public class World implements Disposable {
     }
 
     public void dispose() {
-        m_batch.dispose();
-        m_texture.dispose();
+//        m_batch.dispose();
+//        m_texture.dispose();
     }
 
     public void zoom(float factor) {
@@ -226,9 +236,9 @@ public class World implements Disposable {
     }
 
     public void update(double elapsed) {
-        ControllableComponent controllableComponent = m_mainPlayer.getComponent(ControllableComponent.class);
-
         if (isClient()) {
+            ControllableComponent controllableComponent = m_mainPlayer.getComponent(ControllableComponent.class);
+
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
                 controllableComponent.desiredDirection.x = -1;
             }
@@ -247,7 +257,9 @@ public class World implements Disposable {
 
         engine.update((float) elapsed);
 
-        m_client.sendPlayerMoved();
+        if (isClient()) {
+            m_client.sendPlayerMoved();
+        }
     }
 
     public void render(double elapsed) {

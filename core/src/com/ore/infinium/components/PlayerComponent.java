@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
+import com.ore.infinium.World;
 
 /**
  * ***************************************************************************
@@ -26,6 +27,7 @@ import com.ore.infinium.LoadedViewport;
  */
 public class PlayerComponent extends Component implements Pool.Poolable {
 
+    public final static float jumpVelocity = -9.8f / World.PIXELS_PER_METER * 1.0f * 0.8f;
     public final static float movementUnits = 1.0f / 100f;
     public final static float movementSpeed = .8f * movementUnits;
     public final static float maxMovementSpeed = movementSpeed * 1;
