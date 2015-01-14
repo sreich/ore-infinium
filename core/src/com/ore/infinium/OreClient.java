@@ -22,7 +22,6 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.minlog.Log;
 import com.ore.infinium.components.ControllableComponent;
 import com.ore.infinium.components.SpriteComponent;
 
@@ -54,7 +53,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void create() {
-        Log.set(Log.LEVEL_DEBUG);
+//        Log.set(Log.LEVEL_DEBUG);
+
         m_batch = new SpriteBatch();
         m_font = new BitmapFont();
         m_font.setColor(0, 1, 0, 1);
@@ -147,11 +147,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Network.register(m_clientKryo);
 
         m_clientKryo.addListener(new ClientListener(this));
+        m_clientKryo.setKeepAliveTCP(999999);
 
         new Thread("Connect") {
             public void run() {
                 try {
-                    m_clientKryo.connect(5000, "127.0.0.1", Network.port);
+                    m_clientKryo.connect(99999999 /*HACK, debug*/, "127.0.0.1", Network.port);
                     // Server communication after connection can go here, or in Listener#connected().
 
                     Network.InitialClientData initialClientData = new Network.InitialClientData();
@@ -332,8 +333,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private Entity createPlayer(String playerName, int connectionId) {
         Entity player = m_world.createPlayer(playerName, connectionId);
         ControllableComponent controllableComponent = m_world.engine.createComponent(ControllableComponent.class);
-        controllableComponent.desiredDirection = new Vector2();
         player.add(controllableComponent);
+
+        m_world.engine.addEntity(player);
 
         return player;
     }
@@ -345,7 +347,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
                 assert m_world == null;
 
-                m_world = new World(this, m_server);
+                m_world = new World(this, null);
 
                 m_mainPlayer = createPlayer(spawn.playerName, m_clientKryo.getID());
                 SpriteComponent spriteComp = m_mainPlayer.getComponent(SpriteComponent.class);
@@ -375,6 +377,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         }
         public void connected(Connection connection) {
+            connection.setTimeout(999999999);
         }
 
         //FIXME: do sanity checking (null etc) on both client, server

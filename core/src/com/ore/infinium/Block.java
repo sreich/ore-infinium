@@ -38,7 +38,8 @@ public class Block {
      * The type of tile this is, 0-255 is valid and can be compared with the world's definition of tile types
      * (an enum)
      */
-    BlockType blockType;
+    BlockType blockType;// = Block.BlockType.NullBlockType;
+
 
     /**
      * 1:1 correspondence to the primitive type. just that it's rendered in the background with a darker color.

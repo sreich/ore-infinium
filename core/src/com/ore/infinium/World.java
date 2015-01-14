@@ -86,26 +86,6 @@ public class World implements Disposable {
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
 
-        RandomXS128 random = new RandomXS128();
-        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
-            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
-                int index = x * WORLD_ROWCOUNT + y;
-                blocks[index] = new Block();
-
-                switch (random.nextInt(3)) {
-                    case 0:
-                        blocks[index].blockType = Block.BlockType.NullBlockType;
-                        break;
-
-                    case 1:
-                        blocks[index].blockType = Block.BlockType.DirtBlockType;
-                        break;
-                    case 2:
-                        blocks[index].blockType = Block.BlockType.StoneBlockType;
-                        break;
-                }
-            }
-        }
 
 //        assetManager = new AssetManager();
 //        TextureAtlas atlas = assetManager.get("data/", TextureAtlas.class);
@@ -142,6 +122,13 @@ public class World implements Disposable {
         m_mainPlayer.getComponent(SpriteComponent.class).sprite.setTexture(m_texture);
     }
 
+    /**
+     * adding entity to the world is callers responsibility
+     *
+     * @param playerName
+     * @param connectionId
+     * @return
+     */
     public Entity createPlayer(String playerName, int connectionId) {
         Entity player = engine.createEntity();
         SpriteComponent playerSprite = engine.createComponent(SpriteComponent.class);
@@ -176,10 +163,40 @@ public class World implements Disposable {
     }
 
     private void generateWorld() {
-        generateNoise();
+        generateOres();
     }
 
-    private void generateNoise() {
+    private void generateOres() {
+        RandomXS128 random = new RandomXS128();
+
+        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+
+                int index = x * WORLD_ROWCOUNT + y;
+                blocks[index] = new Block();
+                blocks[index].blockType = Block.BlockType.DirtBlockType;
+
+                //java wants me to go through each and every block and initialize them..
+                if (y <= seaLevel()) {
+                    continue;
+                }
+
+                switch (random.nextInt(3)) {
+                    case 0:
+                        blocks[index].blockType = Block.BlockType.NullBlockType;
+                        break;
+
+                    case 1:
+                        blocks[index].blockType = Block.BlockType.DirtBlockType;
+                        break;
+                    case 2:
+                        blocks[index].blockType = Block.BlockType.StoneBlockType;
+                        break;
+                }
+
+//                blocks[index].wallType = Block::Wall
+            }
+        }
 //        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
 //            for (int y = seaLevel(); y < WORLD_ROWCOUNT; ++y) {
 //                Block block = blockAt(x, y);

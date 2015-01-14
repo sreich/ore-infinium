@@ -137,13 +137,12 @@ public class OreServer implements Runnable {
 
         SpriteComponent playerSprite = player.getComponent(SpriteComponent.class);
         playerSprite.sprite.setPosition(posX, posY);
-        playerSprite.sprite.setPosition(posX, posY);
 
         //load players main inventory
         loadInventory(player);
         loadHotbarInventory(player);
 
-
+        m_world.engine.addEntity(player);
         m_world.addPlayer(player);
 
 //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
@@ -377,6 +376,9 @@ public class OreServer implements Runnable {
         public void received(Connection c, Object obj) {
             PlayerConnection connection = (PlayerConnection) c;
             m_netQueue.add(new NetworkJob(connection, obj));
+            //HACK, debug
+            c.setTimeout(999999999);
+            c.setKeepAliveTCP(9999999);
         }
 
         public void disconnected(Connection c) {

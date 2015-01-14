@@ -48,10 +48,11 @@ public class MovementSystem extends EntitySystem {
     }
 
     public void update(float delta) {
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, VelocityComponent.class).get());
         if (m_world.isServer()) {
             return;
         }
+
+        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, VelocityComponent.class).get());//HACK HACK HACK, VelocityComponent.class).get());
 
         //clients, for now, do their own collision stuff. mostly.
         //FIXME: clients should simulate their own player's collision with everything and tell the server its position so it can broadcast.
@@ -95,7 +96,6 @@ public class MovementSystem extends EntitySystem {
 
         jumpComponent.canJump = false;
         jumpComponent.shouldJump = false;
-
 
         //NOTE: acceleration is now truncated, unused
         newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta);
@@ -168,6 +168,7 @@ public class MovementSystem extends EntitySystem {
             for (int y = topY; y <= bottomY - 1; ++y) {
                 if (m_world.isBlockSolid(rightX, y)) {
                     velocity.x = 0.0f;
+                    collision = true;
 
                     float tileRight = World.BLOCK_SIZE * (rightX - 0);
 
@@ -184,6 +185,7 @@ public class MovementSystem extends EntitySystem {
                 if (m_world.isBlockSolid(leftX, y)) {
 
                     velocity.x = 0.0f;
+                    collision = true;
 
                     float tileLeft = World.BLOCK_SIZE * (leftX + 1);
                     desiredPosition.x = tileLeft + (sizeMeters.x * 0.5f) + epsilon;
@@ -209,6 +211,7 @@ public class MovementSystem extends EntitySystem {
 
                     //collision occured, stop here
                     velocity.y = 0.0f;
+                    collision = true;
 
                     //indexes are top-left remember, due to how it's rendered and such.
                     float tileTop = World.BLOCK_SIZE * (bottomY);
@@ -222,6 +225,7 @@ public class MovementSystem extends EntitySystem {
                 if (m_world.isBlockSolid(x, topY - 1)) {
                     //collision occured, stop here
                     velocity.y = 0.0f;
+                    collision = true;
 
                     //indexes are top-left remember, due to how it's rendered and such.
                     float tileBottom = World.BLOCK_SIZE * (topY + 3);/// oh yeah btw this is a fucking hack, just in case this entire fucking function didn't seem like it, this + 3 definitely is.

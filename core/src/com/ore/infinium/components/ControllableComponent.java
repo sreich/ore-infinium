@@ -24,7 +24,7 @@ import com.badlogic.gdx.utils.Pool;
  */
 public class ControllableComponent extends Component implements Pool.Poolable {
 
-    public Vector2 desiredDirection;
+    public Vector2 desiredDirection = new Vector2();
 
     public void reset() {
 

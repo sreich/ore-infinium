@@ -24,7 +24,7 @@ import com.badlogic.gdx.utils.Pool;
  */
 public class VelocityComponent extends Component implements Pool.Poolable {
 
-    public Vector2 velocity;
+    public Vector2 velocity = new Vector2();
 
     public void reset() {
 
