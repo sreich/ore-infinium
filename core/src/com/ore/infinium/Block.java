@@ -83,7 +83,6 @@ public class Block {
      *
      * @sa WallType
      */
-    byte permanentWallType;
     /// NOTE: block ownership is stored in the Player class, which just stores a list of indices of tiles which the player 'owns'.
     byte flags;
 

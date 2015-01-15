@@ -219,7 +219,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        m_stage.draw();
+        //m_stage.draw();
 
         m_batch.begin();
         m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight());
@@ -272,15 +272,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
             Gdx.app.exit();
-        }
-
-        if (keycode == Input.Keys.MINUS) {
-            //zoom out
-            m_world.zoom(1.01f);
-        }
-
-        if (keycode == Input.Keys.EQUALS) {
-            m_world.zoom(0.99f);
         }
 
         return true;

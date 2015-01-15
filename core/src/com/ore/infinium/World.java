@@ -58,6 +58,9 @@ public class World implements Disposable {
         blockTypes.put(Block.BlockType.StoneBlockType, new BlockStruct("stone", true));
     }
 
+    private static final int zoomInterval = 50; //ms
+    private static OreTimer m_zoomTimer = new OreTimer();
+
     public Block[] blocks;
     public PooledEngine engine;
     public AssetManager assetManager;
@@ -188,10 +191,12 @@ public class World implements Disposable {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
 
                 int index = x * WORLD_ROWCOUNT + y;
-                blocks[index] = new Block();
-                blocks[index].blockType = Block.BlockType.DirtBlockType;
 
                 //java wants me to go through each and every block and initialize them..
+                blocks[index] = new Block();
+                blocks[index].blockType = Block.BlockType.NullBlockType;
+
+                //create some sky
                 if (y <= seaLevel()) {
                     continue;
                 }
@@ -287,6 +292,22 @@ public class World implements Disposable {
 
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
 
+            }
+
+            final float zoomAmount = 0.004f;
+            if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
+                if (m_zoomTimer.milliseconds() >= zoomInterval) {
+                    //zoom out
+                    zoom(1.0f + zoomAmount);
+                    m_zoomTimer.reset();
+                }
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
+                if (m_zoomTimer.milliseconds() >= zoomInterval) {
+                    zoom(1.0f - zoomAmount);
+                    m_zoomTimer.reset();
+                }
             }
         }
 
