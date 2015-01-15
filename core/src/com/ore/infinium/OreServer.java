@@ -142,7 +142,6 @@ public class OreServer implements Runnable {
         loadInventory(player);
         loadHotbarInventory(player);
 
-        m_world.engine.addEntity(player);
         m_world.addPlayer(player);
 
 //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
@@ -157,6 +156,9 @@ public class OreServer implements Runnable {
                 sendSpawnPlayer(e, connectionId);
             }
         }
+
+        //add it to the engine after client knows it has spawned
+        m_world.engine.addEntity(player);
 
         return player;
     }
@@ -351,9 +353,40 @@ public class OreServer implements Runnable {
                 Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
                 SpriteComponent sprite = job.connection.player.getComponent(SpriteComponent.class);
                 sprite.sprite.setPosition(data.position.x, data.position.y);
-                Gdx.app.log("server player pos at", data.position.x + "," + data.position.y);
             }
         }
+    }
+
+    public void sendPlayerLoadedViewportMoved(Entity player) {
+        //fixme: decide if we do or do not want to send the entire rect...perhaps just a simple reposition would be nice.
+        //surely it won't be getting resized that often?
+
+        PlayerComponent playerComponent = Mappers.player.get(player);
+
+        Network.LoadedViewportMovedFromServer v = new Network.LoadedViewportMovedFromServer();
+        v.rect = playerComponent.loadedViewport.rect;
+
+        m_serverKryo.sendToTCP(playerComponent.connectionId, v);
+    }
+
+    public void sendPlayerBlockRegion(Entity player, int x, int y, int x2, int y2) {
+        //FIXME: avoid array realloc
+        Network.BlockRegion region = new Network.BlockRegion(x, y, x2, y2);
+        for (int row = y; row < y2; ++row) {
+            for (int col = x; col < x2; ++col) {
+
+                Network.SingleBlock block = new Network.SingleBlock();
+
+                Block origBlock = m_world.blockAt(col, row);
+                block.blockType = origBlock.blockType;
+                //fixme wall type as well
+
+                region.blocks.add(block);
+            }
+        }
+
+        PlayerComponent playerComponent = Mappers.player.get(player);
+        m_serverKryo.sendToTCP(playerComponent.connectionId, region);
     }
 
     static class PlayerConnection extends Connection {
@@ -376,6 +409,7 @@ public class OreServer implements Runnable {
         public void received(Connection c, Object obj) {
             PlayerConnection connection = (PlayerConnection) c;
             m_netQueue.add(new NetworkJob(connection, obj));
+
             //HACK, debug
             c.setTimeout(999999999);
             c.setKeepAliveTCP(9999999);

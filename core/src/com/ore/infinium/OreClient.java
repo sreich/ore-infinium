@@ -22,7 +22,9 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.minlog.Log;
 import com.ore.infinium.components.ControllableComponent;
+import com.ore.infinium.components.PlayerComponent;
 import com.ore.infinium.components.SpriteComponent;
 
 import java.io.IOException;
@@ -53,7 +55,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void create() {
-//        Log.set(Log.LEVEL_DEBUG);
+        Log.set(Log.LEVEL_DEBUG);
+//        Log.set(Log.LEVEL_INFO);
 
         m_batch = new SpriteBatch();
         m_font = new BitmapFont();
@@ -141,7 +144,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             e.printStackTrace();
         }
 
-        m_clientKryo = new Client();
+        m_clientKryo = new Client(8192, 32768);
         m_clientKryo.start();
 
         Network.register(m_clientKryo);
@@ -355,10 +358,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
                 m_world.addPlayer(m_mainPlayer);
                 m_world.initClient(m_mainPlayer);
-            }
-
-            if (object instanceof Network.KickReason) {
+            } else if (object instanceof Network.KickReason) {
                 Network.KickReason reason = (Network.KickReason) object;
+            } else if (object instanceof Network.BlockRegion) {
+                Network.BlockRegion region = (Network.BlockRegion) object;
+                m_world.loadBlockRegion(region);
+            } else if (object instanceof Network.LoadedViewportMovedFromServer) {
+                Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
+                PlayerComponent c = Mappers.player.get(m_mainPlayer);
+                c.loadedViewport.rect = v.rect;
             }
 
             // if (object instanceof ChatMessage) {

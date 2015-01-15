@@ -52,7 +52,7 @@ public class MovementSystem extends EntitySystem {
             return;
         }
 
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, VelocityComponent.class).get());//HACK HACK HACK, VelocityComponent.class).get());
+        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, VelocityComponent.class).get());
 
         //clients, for now, do their own collision stuff. mostly.
         //FIXME: clients should simulate their own player's collision with everything and tell the server its position so it can broadcast.

@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.MovementSystem;
+import com.ore.infinium.systems.PlayerSystem;
 
 import java.util.HashMap;
 
@@ -62,6 +63,7 @@ public class World implements Disposable {
     public AssetManager assetManager;
     public Array<Entity> m_players = new Array<Entity>();
     public Entity m_mainPlayer;
+    public OreServer m_server;
     private boolean m_noClipEnabled;
     private SpriteBatch m_batch;
     private Texture m_texture;
@@ -69,10 +71,7 @@ public class World implements Disposable {
     private TileRenderer m_tileRenderer;
     private SpriteRenderer m_spriteRenderer;
     private OrthographicCamera m_camera;
-    private OreServer m_server;
     private OreClient m_client;
-
-    private MovementSystem m_movementSystem;
 
     public World(OreClient client, OreServer server) {
         m_client = client;
@@ -92,7 +91,8 @@ public class World implements Disposable {
 //        assetManager.finishLoading();
         engine = new PooledEngine(2000, 2000, 2000, 2000);
 
-        engine.addSystem(m_movementSystem = new MovementSystem(this));
+        engine.addSystem(new MovementSystem(this));
+        engine.addSystem(new PlayerSystem(this));
 
         m_sprite2 = new Sprite();
         m_sprite2.setPosition(90, 90);
@@ -290,6 +290,10 @@ public class World implements Disposable {
             }
         }
 
+        if (isServer()) {
+
+        }
+
         engine.update((float) elapsed);
 
         if (isClient()) {
@@ -390,6 +394,23 @@ public class World implements Disposable {
         air.add(airComponent);
 
         return air;
+    }
+
+    public void loadBlockRegion(Network.BlockRegion region) {
+        int sourceIndex = 0;
+        for (int row = region.y; row < region.y2; ++row) {
+            for (int col = region.x; col < region.x2; ++col) {
+                int index = col * WORLD_ROWCOUNT + row;
+
+                Block origBlock = blocks[index];
+                Network.SingleBlock srcBlock = region.blocks.get(sourceIndex);
+                origBlock.blockType = srcBlock.blockType;
+
+                //fixme wall type as well
+
+                ++sourceIndex;
+            }
+        }
     }
 
     public void addPlayer(Entity player) {

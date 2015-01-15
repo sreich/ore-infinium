@@ -41,14 +41,18 @@ public class Network {
         kryo.register(KickReason.Reason.class);
         kryo.register(PlayerSpawnedFromServer.class);
         kryo.register(PlayerMoveFromClient.class);
+        kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
-        kryo.register(Array.class);
         kryo.register(Component.class);
 
         //modular components. some components are too fucking huge to serialize,
         //so we split up only what we need.
         kryo.register(PositionPacket.class);
         kryo.register(SizePacket.class);
+
+        kryo.register(BlockRegion.class);
+        kryo.register(SingleBlock.class);
+        kryo.register(Block.BlockType.class);
 
         //components
         kryo.register(AirComponent.class);
@@ -71,12 +75,14 @@ public class Network {
         kryo.register(String[].class);
         kryo.register(Object[].class);
         kryo.register(Vector2.class);
+        kryo.register(Array.class);
+        kryo.register(Rectangle.class);
     }
 
     static public class InitialClientData {
         /**
          * The desired player name, which corresponds with the ID.
-         * <p/>
+         * <p>
          * If we do not know our ID yet (none stored, then -1).
          * If the
          */
@@ -85,7 +91,7 @@ public class Network {
         /**
          * UUID of player associated with this name. used as a "password" of sorts.
          * so that another cannot log on with the same name and impersonate without that info.
-         * <p/>
+         * <p>
          * Past this point, the server refers to players by id instead. Which is just session-persistent,
          * whereas UUID is world persistent.
          */
@@ -196,6 +202,35 @@ public class Network {
         public enum Reason {
             VersionMismatch,
             InvalidPlayerName
+        }
+    }
+
+    /**
+     * Tiny(er) class to wrap a Block and send over the wire
+     */
+    static public class SingleBlock {
+        Block.BlockType blockType;
+        byte wallType;
+
+        //mesh type is not passed, but recalculated as each chunk is merged with the running world
+    }
+
+    static public class BlockRegion {
+        public Array<Network.SingleBlock> blocks = new Array<>();
+        //start and end indices, inclusive
+        public int x;
+        public int y;
+        public int x2;
+        public int y2;
+
+        public BlockRegion() {
+        }
+
+        public BlockRegion(int _x, int _y, int _x2, int _y2) {
+            x = _x;
+            y = _y;
+            x2 = _x2;
+            y2 = _y2;
         }
     }
 }
