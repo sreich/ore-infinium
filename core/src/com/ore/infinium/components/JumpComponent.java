@@ -31,7 +31,7 @@ public class JumpComponent extends Component implements Pool.Poolable {
     public boolean jumpRequested;
     //ms, interval between allowed jumps
     public int jumpInterval = 400;
-    public OreTimer jumpTimer;
+    public OreTimer jumpTimer = new OreTimer();
 
     public void reset() {
 

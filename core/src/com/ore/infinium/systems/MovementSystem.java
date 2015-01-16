@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
@@ -97,7 +96,7 @@ public class MovementSystem extends EntitySystem {
         jumpComponent.canJump = false;
         jumpComponent.shouldJump = false;
 
-        newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta);
+        newVelocity = newVelocity.add(acceleration.x /** delta*/, acceleration.y /** delta*/);
 
         final float epsilon = 0.00001f;
         if (Math.abs(newVelocity.x) < epsilon && Math.abs(newVelocity.y) < epsilon) {
@@ -112,8 +111,8 @@ public class MovementSystem extends EntitySystem {
 
         //clamp both axes between some max/min values..
         Vector2 dt = new Vector2(delta, delta);
-        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.maxMovementSpeed);
-        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World.GRAVITY_ACCEL_CLAMP);
+//        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.maxMovementSpeed);
+//        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World.GRAVITY_ACCEL_CLAMP);
 
         ///////// velocity verlet integration
         // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
@@ -161,7 +160,7 @@ public class MovementSystem extends EntitySystem {
 
         int oldTopY = topY;
 
-        if ((velocity.y > 0.0f)) {
+        if (velocity.y > 0.0f) {
             //we are not falling/moving up
             topY += 1;
         }

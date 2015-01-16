@@ -274,7 +274,7 @@ public class World implements Disposable {
 
     public void update(double elapsed) {
         if (isClient()) {
-            ControllableComponent controllableComponent = m_mainPlayer.getComponent(ControllableComponent.class);
+            ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
 
             controllableComponent.desiredDirection.setZero();
 
@@ -292,6 +292,11 @@ public class World implements Disposable {
 
             if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || Gdx.input.isKeyPressed(Input.Keys.S)) {
 
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                JumpComponent jumpComponent = Mappers.jump.get(m_mainPlayer);
+                jumpComponent.shouldJump = true;
             }
 
             final float zoomAmount = 0.004f;
