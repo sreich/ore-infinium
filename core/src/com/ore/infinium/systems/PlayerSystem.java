@@ -58,7 +58,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
             PlayerComponent playerComponent = Mappers.player.get(e);
 
             if (Vector2.dst(spriteComponent.sprite.getX(), spriteComponent.sprite.getY(), playerComponent.lastLoadedRegion.x, playerComponent.lastLoadedRegion.y)
-                    > 20.0f) {
+                    > 10.0f) {
                 //HACK, dunno why 20. need something sane.
                 calculateLoadedViewport(e);
             }
@@ -77,6 +77,19 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
         playerComponent.lastLoadedRegion = center;
 
         m_world.m_server.sendPlayerLoadedViewportMoved(entity);
+        sendPlayerBlockRegion(entity);
+    }
+
+    private void sendPlayerBlockRegion(Entity entity) {
+        PlayerComponent playerComponent = Mappers.player.get(entity);
+        LoadedViewport loadedViewport = playerComponent.loadedViewport;
+
+        int x = (int) (Math.max(0.0f, loadedViewport.rect.x - loadedViewport.rect.width) / World.BLOCK_SIZE);
+        int y = (int) (Math.max(0.0f, loadedViewport.rect.y - loadedViewport.rect.height) / World.BLOCK_SIZE);
+        int x2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_COLUMNCOUNT, loadedViewport.rect.x + loadedViewport.rect.width) / World.BLOCK_SIZE);
+        int y2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_ROWCOUNT, loadedViewport.rect.y + loadedViewport.rect.height) / World.BLOCK_SIZE);
+
+        m_world.m_server.sendPlayerBlockRegion(entity, x, y, x2, y2);
     }
 
     @Override
@@ -87,16 +100,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
 
         //initial spawn, send region
         calculateLoadedViewport(entity);
-
-        PlayerComponent playerComponent = Mappers.player.get(entity);
-        LoadedViewport loadedViewport = playerComponent.loadedViewport;
-
-        int x = (int) (Math.max(0.0f, loadedViewport.rect.x - loadedViewport.rect.width) / World.BLOCK_SIZE);
-        int y = (int) (Math.max(0.0f, loadedViewport.rect.y - loadedViewport.rect.height) / World.BLOCK_SIZE);
-        int x2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_COLUMNCOUNT, loadedViewport.rect.x + loadedViewport.rect.width) / World.BLOCK_SIZE);
-        int y2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_ROWCOUNT, loadedViewport.rect.y + loadedViewport.rect.height) / World.BLOCK_SIZE);
-
-        m_world.m_server.sendPlayerBlockRegion(entity, x, y, x2, y2);
+        sendPlayerBlockRegion(entity);
     }
 
     @Override
