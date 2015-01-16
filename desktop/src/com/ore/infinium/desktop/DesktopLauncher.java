@@ -11,6 +11,9 @@ public class DesktopLauncher {
 		config.height = 900;
 		config.resizable = false;
 		config.title = "Ore Infinium";
+		config.vSyncEnabled = false;
+		//config.foregroundFPS = 0;
+		//config.backgroundFPS = 0;
 		new LwjglApplication(new OreClient(), config);
 	}
 }

@@ -88,7 +88,6 @@ public class World implements Disposable {
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
 
-
 //        assetManager = new AssetManager();
 //        TextureAtlas atlas = assetManager.get("data/", TextureAtlas.class);
 //        assetManager.finishLoading();

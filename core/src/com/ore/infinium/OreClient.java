@@ -27,6 +27,7 @@ import com.ore.infinium.components.PlayerComponent;
 import com.ore.infinium.components.SpriteComponent;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -34,16 +35,24 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
     public final static int ORE_VERSION_REVISION = 1;
+    static OreTimer timer = new OreTimer();
+    static String frameTimeString = "0";
+    static DecimalFormat decimalFormat = new DecimalFormat("#.");
+
     public ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     private World m_world;
     private Stage m_stage;
     private Table m_table;
     private Skin m_skin;
+
     private ScreenViewport m_viewport;
+
     private Entity m_mainPlayer;
+
     private Client m_clientKryo;
     private OreServer m_server;
     private Thread m_serverThread;
+
     private double m_accumulator;
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
@@ -56,6 +65,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public void create() {
         //    Log.set(Log.LEVEL_DEBUG);
 //        Log.set(Log.LEVEL_INFO);
+
+        decimalFormat.setMaximumFractionDigits(7);
 
         m_batch = new SpriteBatch();
         m_font = new BitmapFont();
@@ -201,7 +212,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             processNetworkQueue();
 
             if (m_world != null) {
-                m_world.update(frameTime);
+                m_world.update(m_step);
             }
         }
 
@@ -214,14 +225,25 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (m_world != null) {
-            m_world.render(frameTime);
+            m_world.render(m_step);
         }
 
         m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         //m_stage.draw();
+//        try {
+//            Thread.sleep(1);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+        if (timer.milliseconds() > 2000) {
+            frameTimeString = "Frametime: " + decimalFormat.format(frameTime);
+            timer.reset();
+        }
 
         m_batch.begin();
         m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight());
+
+        m_font.draw(m_batch, frameTimeString, 0, Gdx.graphics.getHeight() - 20);
         m_batch.end();
 
         //try {
@@ -235,11 +257,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private void showFailToConnectDialog() {
         dialog = new Dialog("", m_skin, "dialog") {
-                    protected void result(Object object) {
-                        System.out.println("Chosen: " + object);
-                    }
+            protected void result(Object object) {
+                System.out.println("Chosen: " + object);
+            }
 
-                };
+        };
         TextButton dbutton = new TextButton("Yes", m_skin, "default");
         dialog.button(dbutton, true);
 
@@ -374,6 +396,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_client = client;
 
         }
+
         public void connected(Connection connection) {
             connection.setTimeout(999999999);
         }
