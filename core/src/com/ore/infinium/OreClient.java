@@ -189,7 +189,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public void render() {
 
         double newTime = TimeUtils.millis() / 1000.0;
-        double frameTime = Math.min(newTime - m_currentTime, 0.25);
+        double frameTime = Math.min(newTime - m_currentTime, 1.0 / 15.0);
 
         m_accumulator += frameTime;
 

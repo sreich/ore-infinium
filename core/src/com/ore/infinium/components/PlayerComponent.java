@@ -28,9 +28,10 @@ import com.ore.infinium.World;
 public class PlayerComponent extends Component implements Pool.Poolable {
 
     public final static float jumpVelocity = -9.8f / World.PIXELS_PER_METER * 1.0f * 0.8f;
-    public final static float movementUnits = 1.0f / 100f;
-    public final static float movementSpeed = .8f * movementUnits;
+
+    public final static float movementSpeed = .8f;
     public final static float maxMovementSpeed = movementSpeed * 1;
+
     public String playerName;
     /**
      * Unique and utilized only by players, is not global or related to generic entity id's

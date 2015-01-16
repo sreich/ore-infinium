@@ -74,9 +74,12 @@ public class MovementSystem extends EntitySystem {
         //fixme handle noclip
         final SpriteComponent spriteComponent = Mappers.sprite.get(entity);
         final Vector2 origPosition = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+
         final VelocityComponent velocityComponent = Mappers.velocity.get(entity);
-        final Vector2 oldVelocity = velocityComponent.velocity;
-        Vector2 newVelocity = oldVelocity;
+
+        final Vector2 oldVelocity = new Vector2(velocityComponent.velocity);
+        Vector2 newVelocity = new Vector2(oldVelocity);
+
         final Vector2 desiredDirection = Mappers.control.get(entity).desiredDirection;
 
         //acceleration due to gravity
@@ -96,7 +99,7 @@ public class MovementSystem extends EntitySystem {
         jumpComponent.canJump = false;
         jumpComponent.shouldJump = false;
 
-        newVelocity = newVelocity.add(acceleration.x /** delta*/, acceleration.y /** delta*/);
+        newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta);
 
         final float epsilon = 0.00001f;
         if (Math.abs(newVelocity.x) < epsilon && Math.abs(newVelocity.y) < epsilon) {
@@ -119,13 +122,14 @@ public class MovementSystem extends EntitySystem {
 
         //HACK if i do 0.5f * delta, it doesn't move at all??
         // * delta
-        Vector2 desiredPosition = origPosition.add(oldVelocity.add(newVelocity).scl(0.5f));
         //OLD CODE desiredPosition = ((origPosition.xy() + (oldVelocity + newVelocity)) * glm::vec2(0.5f) * dt);
 
         //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
 
-        // newVelocity will be adjusted according to the result of collisions
-        velocityComponent.velocity.set(newVelocity);
+        velocityComponent.velocity.set(newVelocity.x, newVelocity.y);
+
+        // newVelocity is now invalid, note.
+        Vector2 desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)));
         final Vector2 finalPosition = performCollision(desiredPosition, entity);
 
         spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);

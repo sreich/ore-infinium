@@ -40,7 +40,7 @@ import java.util.HashMap;
  */
 public class World implements Disposable {
     public static final float PIXELS_PER_METER = 50.0f;
-    public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 30.0f;
+    public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 20.0f;
     public static final float GRAVITY_ACCEL_CLAMP = 9.8f / PIXELS_PER_METER / 20.0f;
 
     public static final float BLOCK_SIZE = (16.0f / PIXELS_PER_METER);
