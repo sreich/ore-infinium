@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.RandomXS128;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -40,7 +40,7 @@ import java.util.HashMap;
  */
 public class World implements Disposable {
     public static final float PIXELS_PER_METER = 50.0f;
-    public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 20.0f;
+    public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 3.0f;
     public static final float GRAVITY_ACCEL_CLAMP = 9.8f / PIXELS_PER_METER / 20.0f;
 
     public static final float BLOCK_SIZE = (16.0f / PIXELS_PER_METER);
@@ -64,7 +64,7 @@ public class World implements Disposable {
     public Block[] blocks;
     public PooledEngine engine;
     public AssetManager assetManager;
-    public Array<Entity> m_players = new Array<Entity>();
+    public Array<Entity> m_players = new Array<>();
     public Entity m_mainPlayer;
     public OreServer m_server;
     private boolean m_noClipEnabled;
@@ -126,7 +126,7 @@ public class World implements Disposable {
 
         m_tileRenderer = new TileRenderer(m_camera, this);
         m_spriteRenderer = new SpriteRenderer();
-        m_mainPlayer.getComponent(SpriteComponent.class).sprite.setTexture(m_texture);
+        Mappers.sprite.get(m_mainPlayer).sprite.setTexture(m_texture);
     }
 
     /**
@@ -185,8 +185,6 @@ public class World implements Disposable {
     }
 
     private void generateOres() {
-        RandomXS128 random = new RandomXS128();
-
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
 
@@ -201,7 +199,7 @@ public class World implements Disposable {
                     continue;
                 }
 
-                switch (random.nextInt(3)) {
+                switch (MathUtils.random(0, 3)) {
                     case 0:
                         blocks[index].blockType = Block.BlockType.NullBlockType;
                         break;
@@ -354,7 +352,10 @@ public class World implements Disposable {
         updateItemPlacementGhost();
 
 
-        SpriteComponent playerSprite = m_mainPlayer.getComponent(SpriteComponent.class);
+        SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
+        playerSprite.sprite.setOriginCenter();
+
+//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
         m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
         m_camera.update();
 
@@ -363,9 +364,10 @@ public class World implements Disposable {
         m_tileRenderer.render(elapsed);
 
         m_batch.begin();
-        playerSprite.sprite.draw(m_batch);
-        //m_batch.draw
-//        m_mainPlayer.draw(m_batch);
+        m_batch.draw(playerSprite.sprite, playerSprite.sprite.getX() - playerSprite.sprite.getWidth() * 0.5f,
+                playerSprite.sprite.getY() - playerSprite.sprite.getHeight() * 0.5f,
+                playerSprite.sprite.getWidth(), playerSprite.sprite.getHeight());
+
         m_sprite2.draw(m_batch);
         m_batch.end();
     }

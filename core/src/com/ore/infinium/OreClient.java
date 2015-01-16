@@ -315,7 +315,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
      * Send the command indicating (main) player moved to position
      */
     public void sendPlayerMoved() {
-        SpriteComponent sprite = m_mainPlayer.getComponent(SpriteComponent.class);
+        SpriteComponent sprite = Mappers.sprite.get(m_mainPlayer);
 
         Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
         move.position = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
@@ -343,7 +343,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_world = new World(this, null);
 
                 m_mainPlayer = createPlayer(spawn.playerName, m_clientKryo.getID());
-                SpriteComponent spriteComp = m_mainPlayer.getComponent(SpriteComponent.class);
+                SpriteComponent spriteComp = Mappers.sprite.get(m_mainPlayer);
 
                 spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
                 m_world.addPlayer(m_mainPlayer);

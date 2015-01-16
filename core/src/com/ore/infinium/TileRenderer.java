@@ -53,7 +53,7 @@ public class TileRenderer {
         m_batch.setProjectionMatrix(m_camera.combined);
         //auto positionComponent = m_mainPlayer->component<PositionComponent>();
 
-        SpriteComponent sprite = m_world.m_mainPlayer.getComponent(SpriteComponent.class);
+        SpriteComponent sprite = Mappers.sprite.get(m_world.m_mainPlayer);
 
         Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0); //new Vector3(100, 200, 0);//positionComponent->position();
         int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
@@ -95,8 +95,8 @@ public class TileRenderer {
                 assert (blockIndex < World.WORLD_ROWCOUNT * World.WORLD_COLUMNCOUNT);
                 Block block = m_world.blockAt(currentColumn, currentRow);
 
-                float tileX = World.BLOCK_SIZE * (float) currentColumn;
-                float tileY = World.BLOCK_SIZE * (float) currentRow;
+                float tileX = World.BLOCK_SIZE * currentColumn;
+                float tileY = World.BLOCK_SIZE * currentRow;
 
                 if (block.blockType == Block.BlockType.NullBlockType) {
                     continue;

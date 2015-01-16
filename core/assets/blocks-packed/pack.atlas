@@ -1,26 +1,26 @@
 
 pack.png
-size: 64,32
+size: 64,16
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 copper
   rotate: false
-  xy: 1, 1
+  xy: 0, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 dirt
   rotate: false
-  xy: 19, 1
+  xy: 16, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 stone
   rotate: false
-  xy: 37, 1
+  xy: 32, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

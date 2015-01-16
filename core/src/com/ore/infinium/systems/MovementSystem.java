@@ -92,7 +92,7 @@ public class MovementSystem extends EntitySystem {
                 //good to jump, actually do it now.
                 jumpComponent.jumpTimer.reset();
 
-                acceleration.y = PlayerComponent.jumpVelocity / 2.0f;
+                acceleration.y = -PlayerComponent.jumpVelocity;
             }
         }
 
