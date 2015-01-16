@@ -50,7 +50,7 @@ public class OreServer implements Runnable {
     }
 
     public void run() {
-        m_serverKryo = new Server(32768, 2048) {
+        m_serverKryo = new Server(65536, 2048) {
             protected Connection newConnection() {
                 // By providing our own connection implementation, we can store per
                 // connection state without a connection ID to state look up.
@@ -113,11 +113,12 @@ public class OreServer implements Runnable {
         float posX = 2600.0f / World.PIXELS_PER_METER;
         float posY = 2 * World.BLOCK_SIZE; //start at the overground
 
-        //HACK for collision test
-        posY = 10 * World.BLOCK_SIZE;
 
         int tilex = (int) (posX / World.BLOCK_SIZE);
         int tiley = (int) (posY / World.BLOCK_SIZE);
+
+        //HACK for collision test
+        posY = 24 * World.BLOCK_SIZE;
 
         final int seaLevel = m_world.seaLevel();
 

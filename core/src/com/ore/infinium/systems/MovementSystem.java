@@ -117,7 +117,10 @@ public class MovementSystem extends EntitySystem {
 
         ///////// velocity verlet integration
         // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
-        Vector2 desiredPosition = origPosition.add(oldVelocity.add(newVelocity).scl(0.5f * delta));
+
+        //HACK if i do 0.5f * delta, it doesn't move at all??
+        // * delta
+        Vector2 desiredPosition = origPosition.add(oldVelocity.add(newVelocity).scl(0.5f));
         //OLD CODE desiredPosition = ((origPosition.xy() + (oldVelocity + newVelocity)) * glm::vec2(0.5f) * dt);
 
         //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
@@ -127,6 +130,8 @@ public class MovementSystem extends EntitySystem {
         final Vector2 finalPosition = performCollision(desiredPosition, entity);
 
         spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
+//        Gdx.app.log("player pos", finalPosition.toString());
+
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
     }
 

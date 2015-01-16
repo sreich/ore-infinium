@@ -22,7 +22,6 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.minlog.Log;
 import com.ore.infinium.components.ControllableComponent;
 import com.ore.infinium.components.PlayerComponent;
 import com.ore.infinium.components.SpriteComponent;
@@ -55,7 +54,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void create() {
-        Log.set(Log.LEVEL_DEBUG);
+        //    Log.set(Log.LEVEL_DEBUG);
 //        Log.set(Log.LEVEL_INFO);
 
         m_batch = new SpriteBatch();
@@ -144,7 +143,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             e.printStackTrace();
         }
 
-        m_clientKryo = new Client(8192, 32768);
+        m_clientKryo = new Client(8192, 65536);
         m_clientKryo.start();
 
         Network.register(m_clientKryo);
