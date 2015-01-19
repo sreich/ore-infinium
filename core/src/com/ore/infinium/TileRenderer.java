@@ -41,7 +41,7 @@ public class TileRenderer {
         m_world = world;
         m_batch = new SpriteBatch(5000);
 
-        m_atlas = new TextureAtlas(Gdx.files.internal("blocks-packed/pack.atlas"));
+        m_atlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
     }
 
     public void render(double elapsed) {

@@ -1,20 +1,17 @@
 package com.ore.infinium;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -45,6 +42,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private Table m_table;
     private Skin m_skin;
 
+    private InputMultiplexer m_multiplexer;
+
+    private ChatBox m_chat;
+
     private ScreenViewport m_viewport;
 
     private Entity m_mainPlayer;
@@ -60,6 +61,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private SpriteBatch m_batch;
     private BitmapFont m_font;
     private Dialog dialog;
+    private boolean m_guiDebug;
 
     @Override
     public void create() {
@@ -73,46 +75,19 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_font.setColor(0, 1, 0, 1);
 
         m_stage = new Stage(new StretchViewport(1600, 900));
+        m_multiplexer = new InputMultiplexer(this, m_stage);
 
         m_viewport = new ScreenViewport();
         m_viewport.setScreenBounds(0, 0, 1600, 900);
 
-        Gdx.input.setInputProcessor(m_stage);
+        Gdx.input.setInputProcessor(m_multiplexer);
 
-        // A skin can be loaded via JSON or defined programmatically, either is fine. Using a skin is optional but strongly
-        // recommended solely for the convenience of getting a texture, region, etc as a drawable, tinted drawable, etc.
-        m_skin = new Skin();
+        m_skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        // Generate a 1x1 white texture and store it in the skin named "white".
-        Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE);
-        pixmap.fill();
-        m_skin.add("white", new Texture(pixmap));
+        m_chat = new ChatBox(m_stage, m_skin);
 
-        // Store the default libgdx font under the playerName "default".
-        m_skin.add("default", new BitmapFont());
-
-        // Configure a TextButtonStyle and playerName it "default". Skin resources are stored by type, so this doesn't overwrite the font.
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = m_skin.newDrawable("white", Color.DARK_GRAY);
-        textButtonStyle.down = m_skin.newDrawable("white", Color.DARK_GRAY);
-        textButtonStyle.checked = m_skin.newDrawable("white", Color.BLUE);
-        textButtonStyle.over = m_skin.newDrawable("white", Color.LIGHT_GRAY);
-        textButtonStyle.font = m_skin.getFont("default");
-        m_skin.add("default", textButtonStyle);
-
-        Window.WindowStyle ws = new Window.WindowStyle();
-        ws.titleFont = m_font;
-        m_skin.add("dialog", ws);
-
-        // Create a table that fills the screen. Everything else will go inside this table.
-        Table table = new Table();
-        table.setFillParent(true);
-        m_stage.addActor(table);
-
-        // Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a playerName other than "default".
-        final TextButton button = new TextButton("Click me!", m_skin);
-        table.add(button);
+        TextButton button = new TextButton("click me", m_skin, "default");
+        TextButton button2 = new TextButton("click me2", m_skin, "default");
 
         // Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
         // Button#setChecked() is called, via a key press, etc. If the event.cancel() is called, the checked state will be reverted.
@@ -126,19 +101,34 @@ public class OreClient implements ApplicationListener, InputProcessor {
         });
 
         // Add an image actor. Have to set the size, else it would be the size of the drawable (which is the 1x1 texture).
-        table.add(new Image(m_skin.newDrawable("white", Color.RED))).size(64);
+//        table.add(new Image(m_skin.newDrawable("white", Color.RED))).size(64);
 
-        m_table = new Table();
-        m_stage.addActor(m_table);
-        m_table.setFillParent(true);
+//
+//        m_table = new Table();
+//        m_stage.addActor(m_table);
+//        m_table.setFillParent(true);
+//
+//        final ScrollPane scroll = new ScrollPane(m_table, m_skin);
+//
+//        m_table.debug();
+//        m_table.add(button);
+//        m_table.row();
+//        m_table.add(button2);
+//
+//        m_table.row();
+//        Label label1 = new Label("crap crap crap crap crap crap", m_skin, "default");
+//        label1.setWrap(true);
+//        m_table.add(label1);
+//
+//        m_table.row();
+//        Label label2 = new Label("crap crap crap crap crap crapssssssssssssssssssssssssssssssssssssssssssss", m_skin, "default");
+//        label2.setWrap(true);
+//        label2.setWidth(100);
+//        m_table.add(label2).width(100f);
+//
 
-        m_table.debug();
-        m_table.defaults().space(6);
-//		m_table.add(label);
-        m_table.add(button);
 
-
-        Gdx.input.setInputProcessor(this);
+//        Gdx.input.setInputProcessor(this);
 
         hostAndJoin();
     }
@@ -186,7 +176,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 }
             }
         }.start();
-        showFailToConnectDialog();
+        //showFailToConnectDialog();
     }
 
     @Override
@@ -229,7 +219,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        //m_stage.draw();
+        m_stage.draw();
 //        try {
 //            Thread.sleep(1);
 //        } catch (InterruptedException e) {
@@ -293,6 +283,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
             Gdx.app.exit();
+        }
+
+        if (keycode == Input.Keys.F12) {
+            m_guiDebug = !m_guiDebug;
+            m_stage.setDebugAll(m_guiDebug);
         }
 
         return true;

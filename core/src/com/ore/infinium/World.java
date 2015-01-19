@@ -46,8 +46,8 @@ public class World implements Disposable {
     public static final float BLOCK_SIZE = (16.0f / PIXELS_PER_METER);
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
-    public static final int WORLD_COLUMNCOUNT = 2400;
-    public static final int WORLD_ROWCOUNT = 8400;
+    public static final int WORLD_COLUMNCOUNT = 1400; //2400
+    public static final int WORLD_ROWCOUNT = 3400; //8400
     public static final int WORLD_SEA_LEVEL = 50;
 
     public static final HashMap<Block.BlockType, BlockStruct> blockTypes = new HashMap<>();
