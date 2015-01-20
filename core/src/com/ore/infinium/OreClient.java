@@ -45,6 +45,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private InputMultiplexer m_multiplexer;
 
     private ChatBox m_chat;
+    private HotbarInventoryView m_hotbarView;
 
     private ScreenViewport m_viewport;
 
@@ -68,11 +69,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
         //    Log.set(Log.LEVEL_DEBUG);
 //        Log.set(Log.LEVEL_INFO);
 
-        decimalFormat.setMaximumFractionDigits(7);
+        decimalFormat.setMaximumFractionDigits(9);
 
         m_batch = new SpriteBatch();
         m_font = new BitmapFont();
-        m_font.setColor(0, 1, 0, 1);
+        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
 
         m_stage = new Stage(new StretchViewport(1600, 900));
         m_multiplexer = new InputMultiplexer(this, m_stage);
@@ -85,6 +86,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_skin = new Skin(Gdx.files.internal("uiskin.json"));
 
         m_chat = new ChatBox(m_stage, m_skin);
+        m_hotbarView = new HotbarInventoryView(m_stage, m_skin);
 
         TextButton button = new TextButton("click me", m_skin, "default");
         TextButton button2 = new TextButton("click me2", m_skin, "default");
@@ -231,9 +233,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         m_batch.begin();
-        m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight());
+        m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight() - 150);
 
-        m_font.draw(m_batch, frameTimeString, 0, Gdx.graphics.getHeight() - 20);
+        m_font.draw(m_batch, frameTimeString, 0, Gdx.graphics.getHeight() - 170);
         m_batch.end();
 
         //try {
