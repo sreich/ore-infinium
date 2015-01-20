@@ -7,8 +7,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -63,18 +63,22 @@ public class World implements Disposable {
 
     public Block[] blocks;
     public PooledEngine engine;
-    public AssetManager assetManager;
+
+
     public Array<Entity> m_players = new Array<>();
     public Entity m_mainPlayer;
+
     public OreServer m_server;
+    public AssetManager assetManager;
+    private OreClient m_client;
     private boolean m_noClipEnabled;
     private SpriteBatch m_batch;
     private Texture m_texture;
-    private Sprite m_sprite2;
     private TileRenderer m_tileRenderer;
     private SpriteRenderer m_spriteRenderer;
     private OrthographicCamera m_camera;
-    private OreClient m_client;
+
+    private TextureAtlas m_atlas;
 
     public World(OreClient client, OreServer server) {
         m_client = client;
@@ -96,9 +100,6 @@ public class World implements Disposable {
         engine.addSystem(new MovementSystem(this));
         engine.addSystem(new PlayerSystem(this));
 
-        m_sprite2 = new Sprite();
-        m_sprite2.setPosition(90, 90);
-
         m_camera = new OrthographicCamera(1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
         m_camera.setToOrtho(true, 1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);
 
@@ -107,7 +108,7 @@ public class World implements Disposable {
         assert isClient() ^ isServer();
         if (isClient()) {
             m_texture = new Texture(Gdx.files.internal("crap.png"));
-            m_sprite2.setTexture(m_texture);
+            m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
             initializeWorld();
         }
 
@@ -125,7 +126,9 @@ public class World implements Disposable {
 
         m_tileRenderer = new TileRenderer(m_camera, this);
         m_spriteRenderer = new SpriteRenderer();
-        Mappers.sprite.get(m_mainPlayer).sprite.setTexture(m_texture);
+        SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
+        playerSprite.sprite.setRegion(m_atlas.findRegion("player"));
+        playerSprite.sprite.flip(false, true);
     }
 
     /**
@@ -352,7 +355,7 @@ public class World implements Disposable {
 
 
         SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
-        playerSprite.sprite.setOriginCenter();
+//        playerSprite.sprite.setOriginCenter();
 
 //        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
         m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
@@ -367,7 +370,7 @@ public class World implements Disposable {
                 playerSprite.sprite.getY() - playerSprite.sprite.getHeight() * 0.5f,
                 playerSprite.sprite.getWidth(), playerSprite.sprite.getHeight());
 
-        m_sprite2.draw(m_batch);
+//        m_sprite2.draw(m_batch);
         m_batch.end();
     }
 
