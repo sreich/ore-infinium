@@ -3,7 +3,6 @@ package com.ore.infinium.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglInput;
-import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.ore.infinium.OreClient;
 
 public class DesktopLauncher {
@@ -15,14 +14,14 @@ public class DesktopLauncher {
 		config.title = "Ore Infinium";
 		config.vSyncEnabled = false;
 
-		TexturePacker.Settings settings = new TexturePacker.Settings();
-		settings.maxWidth = 512;
-		settings.maxHeight = 512;
-		settings.fast = true; //hack just to speed up debugging, overrides local settings(probably??)
-		TexturePacker.process(settings, "blocks", "../assets/packed", "blocks");
-		TexturePacker.process(settings, "ui", "../assets/packed", "ui");
-
-		LwjglInput.keyRepeatTime = 0.09f;
+//		TexturePacker.Settings settings = new TexturePacker.Settings();
+//		settings.maxWidth = 512;
+//		settings.maxHeight = 512;
+//		settings.fast = true; //hack just to speed up debugging, overrides local settings(probably??)
+//		TexturePacker.process(settings, "blocks", "../assets/packed", "blocks");
+//		TexturePacker.process(settings, "ui", "../assets/packed", "ui");
+//
+		LwjglInput.keyRepeatTime = 0.08f;
 		LwjglInput.keyRepeatInitialTime = 0.15f;
 
 		//config.foregroundFPS = 0;

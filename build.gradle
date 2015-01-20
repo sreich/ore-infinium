@@ -6,11 +6,18 @@ buildscript {
     }
 }
 
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}
+
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '1.0'
+    version = '0.1-build-' + getDate()
+
     ext {
         appName = 'ore-infinium'
         gdxVersion = '1.5.2'

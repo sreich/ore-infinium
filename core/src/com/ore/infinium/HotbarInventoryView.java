@@ -1,9 +1,14 @@
 package com.ore.infinium;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Scaling;
 
 /**
  * ***************************************************************************
@@ -43,6 +48,9 @@ public class HotbarInventoryView {
 
         stage.addActor(container);
 
+        //HACK tmp, use assetmanager
+        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
+
         m_slots = new SlotElement[maxSlots];
         for (int i = 0; i < maxSlots; ++i) {
             SlotElement element = new SlotElement();
@@ -50,7 +58,9 @@ public class HotbarInventoryView {
 
 
 //            TextButton button = new TextButton("button", m_skin);
-            Image image = new Image(m_skin, "default-round-down");
+            Image image = new Image();
+            image.setDrawable(new TextureRegionDrawable(atlas.findRegion("stone")));
+            image.setScaling(Scaling.fit);
 
             element.itemImage = image;
 
@@ -58,6 +68,12 @@ public class HotbarInventoryView {
             element.table = table;
             table.add(image).fill().center();
             table.background("default-pane");
+
+            table.row();
+
+            Label itemName = new Label("213", m_skin);//, "bitmapFont_8pt");
+//            itemName.setFontScale(.6f);
+            table.add(itemName).bottom().fill();
 
             container.add(table).fill().size(50, 50);//.expand();
         }

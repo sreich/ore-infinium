@@ -5,6 +5,8 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -34,35 +36,33 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_REVISION = 1;
     static OreTimer timer = new OreTimer();
     static String frameTimeString = "0";
+    static String debugString1 = "F12 - gui debug";
+
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
 
     public ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
+    FreeTypeFontGenerator m_fontGenerator;
     private World m_world;
     private Stage m_stage;
     private Table m_table;
     private Skin m_skin;
-
     private InputMultiplexer m_multiplexer;
-
     private ChatBox m_chat;
     private HotbarInventoryView m_hotbarView;
-
     private ScreenViewport m_viewport;
-
     private Entity m_mainPlayer;
-
     private Client m_clientKryo;
     private OreServer m_server;
     private Thread m_serverThread;
-
     private double m_accumulator;
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
-
     private SpriteBatch m_batch;
     private BitmapFont m_font;
     private Dialog dialog;
     private boolean m_guiDebug;
+
+    private BitmapFont bitmapFont_8pt;
 
     @Override
     public void create() {
@@ -83,13 +83,22 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         Gdx.input.setInputProcessor(m_multiplexer);
 
-        m_skin = new Skin(Gdx.files.internal("uiskin.json"));
+        m_fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 13;
+        bitmapFont_8pt = m_fontGenerator.generateFont(parameter);
+
+        m_skin = new Skin();
+        m_skin.addRegions(new TextureAtlas(Gdx.files.internal("packed/ui.atlas")));
+        m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
+        m_skin.load(Gdx.files.internal("ui/ui.json"));
+
 
         m_chat = new ChatBox(m_stage, m_skin);
         m_hotbarView = new HotbarInventoryView(m_stage, m_skin);
 
-        TextButton button = new TextButton("click me", m_skin, "default");
-        TextButton button2 = new TextButton("click me2", m_skin, "default");
+        TextButton button = new TextButton("click me", m_skin);
+        TextButton button2 = new TextButton("click me2", m_skin);
 
         // Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
         // Button#setChecked() is called, via a key press, etc. If the event.cancel() is called, the checked state will be reverted.
@@ -233,9 +242,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         m_batch.begin();
-        m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, Gdx.graphics.getHeight() - 150);
 
-        m_font.draw(m_batch, frameTimeString, 0, Gdx.graphics.getHeight() - 170);
+        int textY = Gdx.graphics.getHeight() - 150;
+        m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, frameTimeString, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, debugString1, 0, textY);
+        textY -= 15;
         m_batch.end();
 
         //try {
