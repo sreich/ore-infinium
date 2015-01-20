@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
@@ -46,8 +45,8 @@ public class World implements Disposable {
     public static final float BLOCK_SIZE = (16.0f / PIXELS_PER_METER);
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
-    public static final int WORLD_COLUMNCOUNT = 1400; //2400
-    public static final int WORLD_ROWCOUNT = 3400; //8400
+    public static final int WORLD_COLUMNCOUNT = 1000; //2400
+    public static final int WORLD_ROWCOUNT = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
 
     public static final HashMap<Block.BlockType, BlockStruct> blockTypes = new HashMap<>();
@@ -73,7 +72,6 @@ public class World implements Disposable {
     private OreClient m_client;
     private boolean m_noClipEnabled;
     private SpriteBatch m_batch;
-    private Texture m_texture;
     private TileRenderer m_tileRenderer;
     private SpriteRenderer m_spriteRenderer;
     private OrthographicCamera m_camera;
@@ -107,7 +105,6 @@ public class World implements Disposable {
 
         assert isClient() ^ isServer();
         if (isClient()) {
-            m_texture = new Texture(Gdx.files.internal("crap.png"));
             m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
             initializeWorld();
         }
