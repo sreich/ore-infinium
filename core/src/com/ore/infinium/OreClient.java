@@ -73,8 +73,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         decimalFormat.setMaximumFractionDigits(9);
 
         m_batch = new SpriteBatch();
-        m_font = new BitmapFont();
-        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
 
         m_stage = new Stage(new StretchViewport(1600, 900));
         m_multiplexer = new InputMultiplexer(this, m_stage);
@@ -91,11 +89,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
         parameter.size = 13;
         bitmapFont_8pt = m_fontGenerator.generateFont(parameter);
 
+        parameter.size = 9;
+        m_font = m_fontGenerator.generateFont(parameter);
+        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
+
+        m_fontGenerator.dispose();
+
         m_skin = new Skin();
         m_skin.addRegions(new TextureAtlas(Gdx.files.internal("packed/ui.atlas")));
         m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
         m_skin.load(Gdx.files.internal("ui/ui.json"));
-
 
         m_chat = new ChatBox(m_stage, m_skin);
         m_hotbarView = new HotbarInventoryView(m_stage, m_skin);

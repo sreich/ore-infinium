@@ -6,7 +6,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
@@ -77,6 +79,7 @@ public class HotbarInventoryView {
 
             Table slotTable = new Table(m_skin);
             element.table = slotTable;
+            slotTable.setTouchable(Touchable.enabled);
 
             //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
             slotTable.add(slotImage).maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
@@ -84,8 +87,8 @@ public class HotbarInventoryView {
 
             slotTable.row();
 
-//            Label itemName = new Label("213", m_skin);
-//            slotTable.add(itemName).bottom().fill();
+            Label itemName = new Label("213", m_skin);
+            slotTable.add(itemName).bottom().fill();
 
 //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50, 50);
