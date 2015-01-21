@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -77,6 +78,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_stage = new Stage(new StretchViewport(1600, 900));
         m_multiplexer = new InputMultiplexer(this, m_stage);
+
+        GLProfiler.enable();
 
         m_viewport = new ScreenViewport();
         m_viewport.setScreenBounds(0, 0, 1600, 900);
@@ -250,7 +253,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, debugString1, 0, textY);
         textY -= 15;
+        m_font.draw(m_batch, "Texture switches: " + GLProfiler.textureBindings, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, "Shader switches: " + GLProfiler.shaderSwitches, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, "Draw calls: " + GLProfiler.drawCalls, 0, textY);
         m_batch.end();
+        GLProfiler.reset();
 
         //try {
         //    int sleep = (int)Math.max(newTime + m_step - TimeUtils.millis()/1000.0, 0.0);
