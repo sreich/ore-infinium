@@ -43,6 +43,8 @@ public class Network {
         kryo.register(PlayerMoveFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
+        kryo.register(PlayerSpawnHotbarInventoryItemFromServer.class);
+        kryo.register(ItemComponent.State.class);
         kryo.register(Component.class);
 
         //modular components. some components are too fucking huge to serialize,
@@ -137,7 +139,18 @@ public class Network {
         //we don't need a size packet for player. we know how big one will be, always.
     }
 
-    static public class PlayerSpawnInventoryItemFromServer {
+    //is that needed????
+//    static public class PlayerHotbarInventoryItemCountChanged {
+//        int index;
+//        int newCount;
+//    }
+
+    static public class PlayerSpawnHotbarInventoryItemFromServer {
+        public SizePacket size = new SizePacket();
+        //pos not sent
+
+        public int id;
+        public Array<Component> components;
     }
 
     static public class EntitySpawnFromServer {
@@ -155,7 +168,7 @@ public class Network {
     }
 
     static public class SizePacket {
-        public Vector2 size;
+        public Vector2 size = new Vector2();
     }
     ///
 

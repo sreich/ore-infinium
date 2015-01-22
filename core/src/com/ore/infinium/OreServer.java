@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -103,7 +104,7 @@ public class OreServer implements Runnable {
     private Entity createPlayer(String playerName, int connectionId) {
         Entity player = m_world.createPlayer(playerName, connectionId);
 
-        //the first player in the world
+        //the first player in the world, if server is hosted by the client (same machine & process)
         if (m_hostingPlayer == null) {
             m_hostingPlayer = player;
         }
@@ -139,9 +140,10 @@ public class OreServer implements Runnable {
         SpriteComponent playerSprite = Mappers.sprite.get(player);
         playerSprite.sprite.setPosition(posX, posY);
 
-        //load players main inventory
-        loadInventory(player);
-        loadHotbarInventory(player);
+        PlayerComponent playerComponent = Mappers.player.get(player);
+        playerComponent.hotbarInventory = new Inventory(player);
+        playerComponent.hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
+        playerComponent.hotbarInventory.addListener(new HotbarInventorySlotListener());
 
         m_world.addPlayer(player);
 
@@ -153,10 +155,15 @@ public class OreServer implements Runnable {
         //tell this player all the current players
         for (Entity e : m_world.m_players) {
             //exclude himself, though. he already knows.
-            if (e.equals(player)) {
+            if (!e.equals(player)) {
                 sendSpawnPlayer(e, connectionId);
             }
         }
+
+        //load players main inventory and hotbar, but be sure to do it after he's been told
+        //to have spawned in the world
+        loadInventory(player);
+        loadHotbarInventory(player);
 
         //add it to the engine after client knows it has spawned
         m_world.engine.addEntity(player);
@@ -209,7 +216,7 @@ public class OreServer implements Runnable {
 
         playerComponent.hotbarInventory.setSlot(2, airGen);
 
-        for (int i = 4; i < 8; ++i) {
+        for (int i = 4; i < 7; ++i) {
             Entity torch = m_world.engine.createEntity();
             torch.add(m_world.engine.createComponent(VelocityComponent.class));
 
@@ -220,12 +227,13 @@ public class OreServer implements Runnable {
             SpriteComponent torchSprite = m_world.engine.createComponent(SpriteComponent.class);
             torchSprite.texture = "torch1Ground1";
             torchSprite.sprite.setSize(9 / World.PIXELS_PER_METER, 24 / World.PIXELS_PER_METER);
-            tool.add(torchSprite);
+            torch.add(torchSprite);
 
             ItemComponent torchItemComponent = m_world.engine.createComponent(ItemComponent.class);
-            torchItemComponent.stackSize = 64000;
+            torchItemComponent.stackSize = MathUtils.random(10, 5000);
             torchItemComponent.maxStackSize = 64000;
             torchItemComponent.state = ItemComponent.State.InInventoryState;
+            torchItemComponent.inventoryIndex = i;
             torch.add(torchItemComponent);
 
             playerComponent.hotbarInventory.setSlot(i, torch);
@@ -238,6 +246,7 @@ public class OreServer implements Runnable {
      * @param player
      */
     private void loadInventory(Entity player) {
+        /*
         Entity tool = m_world.engine.createEntity();
         tool.add(m_world.engine.createComponent(VelocityComponent.class));
 
@@ -258,6 +267,7 @@ public class OreServer implements Runnable {
 
         PlayerComponent playerComponent = Mappers.player.get(player);
         playerComponent.inventory.setSlot(0, tool);
+        */
     }
 
     private void sendSpawnPlayerBroadcast(Entity e) {
@@ -288,12 +298,10 @@ public class OreServer implements Runnable {
 
     private void sendSpawnEntity(Entity e, int connectionId) {
         Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
-        spawn.components = new Array<>();
+        spawn.components = serializeComponents(e);
 
-        ImmutableArray<Component> components = e.getComponents();
-
-        for (int i = 0; i < components.size(); i++) {
-            Component comp = components.get(i);
+        for (int i = 0; i < spawn.components.size; i++) {
+            Component comp = spawn.components.get(i);
             if (comp instanceof PlayerComponent) {
                 PlayerComponent c = Mappers.player.get(e);
             } else if (comp instanceof SpriteComponent) {
@@ -301,15 +309,54 @@ public class OreServer implements Runnable {
 
                 spawn.pos.pos = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
                 spawn.size.size = new Vector2(sprite.sprite.getWidth(), sprite.sprite.getHeight());
-            } else if (comp instanceof ControllableComponent) {
-                //do nothing, don't want/need on clients, me thinks
-            } else {
-                spawn.components.add(comp);
             }
         }
 
         //FIXME, HACK: m_serverKryo.sendToTCP(connectionId, spawn);
         m_serverKryo.sendToAllTCP(spawn);
+    }
+
+    /**
+     * does not serialize at all some bigger or useless things, like SpriteComponent,
+     * PlayerComponent
+     *
+     * @param e
+     * @return
+     */
+    private Array<Component> serializeComponents(Entity e) {
+        Array<Component> copyComponents = new Array<>();
+        ImmutableArray<Component> components = e.getComponents();
+
+        for (Component component : components) {
+            if (component instanceof PlayerComponent) {
+                //skip
+            } else if (component instanceof SpriteComponent) {
+                //skip
+            } else if (component instanceof ControllableComponent) {
+                //skip
+            } else {
+                copyComponents.add(component);
+            }
+        }
+
+        return copyComponents;
+    }
+
+    public void sendSpawnHotbarInventoryItem(Entity item, int index, Entity owningPlayer) {
+        Network.PlayerSpawnHotbarInventoryItemFromServer spawn = new Network.PlayerSpawnHotbarInventoryItemFromServer();
+        spawn.components = serializeComponents(item);
+
+        SpriteComponent spriteComponent = Mappers.sprite.get(item);
+        spawn.size = new Network.SizePacket();
+        spawn.size.size.set(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+        //FIXME: HACK, we need to spawn it with a texture...and figure out how to do this exactly.
+
+        m_serverKryo.sendToTCP(Mappers.player.get(owningPlayer).connectionId, spawn);
+    }
+
+    //fixme even needed???
+    public void sendPlayerHotbarItemChanged() {
+
     }
 
     private void processNetworkQueue() {
@@ -329,7 +376,6 @@ public class OreServer implements Runnable {
                     job.connection.close();
                     return;
                 }
-
 
                 String uuid = data.playerUUID;
                 if (uuid == null) {
@@ -426,5 +472,31 @@ public class OreServer implements Runnable {
             }
         }
 
+    }
+
+    private class HotbarInventorySlotListener implements Inventory.SlotListener {
+        @Override
+        public void countChanged(int index, Inventory inventory) {
+
+        }
+
+        @Override
+        public void set(int index, Inventory inventory) {
+            PlayerComponent playerComponent = Mappers.player.get(inventory.owningPlayer);
+
+            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
+                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
+            }
+        }
+
+        @Override
+        public void removed(int index, Inventory inventory) {
+
+        }
+
+        @Override
+        public void selected(int index, Inventory inventory) {
+
+        }
     }
 }

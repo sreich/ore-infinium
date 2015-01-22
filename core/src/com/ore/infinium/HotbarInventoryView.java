@@ -1,5 +1,6 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -14,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
+import com.ore.infinium.components.ItemComponent;
 
 /**
  * ***************************************************************************
@@ -33,17 +35,19 @@ import com.badlogic.gdx.utils.Scaling;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class HotbarInventoryView {
-    private static byte maxSlots = 7;
+public class HotbarInventoryView implements Inventory.SlotListener {
+    TextureAtlas atlas;
     private Stage m_stage;
     private Skin m_skin;
     private Table container;
-    private SlotElement[] m_slots;
+    private SlotElement[] m_slots = new SlotElement[Inventory.maxHotbarSlots];
+    private Inventory m_hotbarInventory;
 
-    public HotbarInventoryView(Stage stage, Skin skin) {
+    public HotbarInventoryView(Stage stage, Skin skin, Inventory inventory) {
         m_stage = stage;
         m_skin = skin;
-
+        m_hotbarInventory = inventory;
+        m_hotbarInventory.addListener(this);
 
         container = new Table(m_skin);
         container.setFillParent(true);
@@ -53,23 +57,18 @@ public class HotbarInventoryView {
         container.defaults().space(4);
 
         //HACK tmp, use assetmanager
-        TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
+        atlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
 
         stage.addActor(container);
 
-        Image dragImage = new Image(atlas.findRegion("dirt"));
+        Image dragImage = new Image();
         dragImage.setSize(32, 32);
 
         DragAndDrop dragAndDrop = new DragAndDrop();
 
-        m_slots = new SlotElement[maxSlots];
-        for (int i = 0; i < maxSlots; ++i) {
+        for (int i = 0; i < Inventory.maxHotbarSlots; ++i) {
 
             Image slotImage = new Image();
-            TextureRegion region = atlas.findRegion("stone");
-            slotImage.setDrawable(new TextureRegionDrawable(region));
-            slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
-            slotImage.setScaling(Scaling.fit);
 
             SlotElement element = new SlotElement();
             m_slots[i] = element;
@@ -81,14 +80,14 @@ public class HotbarInventoryView {
             element.table = slotTable;
             slotTable.setTouchable(Touchable.enabled);
 
-            //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
-            slotTable.add(slotImage).maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
+            slotTable.add(slotImage);
             slotTable.background("default-pane");
 
             slotTable.row();
 
-            Label itemName = new Label("213", m_skin);
+            Label itemName = new Label(null, m_skin);
             slotTable.add(itemName).bottom().fill();
+            element.itemCountLabel = itemName;
 
 //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50, 50);
@@ -125,8 +124,42 @@ public class HotbarInventoryView {
         }
     }
 
+    @Override
+    public void countChanged(int index, Inventory inventory) {
+
+    }
+
+    @Override
+    public void set(int index, Inventory inventory) {
+        TextureRegion region = atlas.findRegion("stone");
+        SlotElement slot = m_slots[index];
+        Image slotImage = slot.itemImage;
+        slotImage.setDrawable(new TextureRegionDrawable(region));
+        slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
+        slotImage.setScaling(Scaling.fit);
+
+        Entity item = inventory.item(index);
+        ItemComponent itemComponent = Mappers.item.get(item);
+        m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
+
+        //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
+        //.maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
+
+    }
+
+    @Override
+    public void removed(int index, Inventory inventory) {
+
+    }
+
+    @Override
+    public void selected(int index, Inventory inventory) {
+
+    }
+
     private class SlotElement {
         public Image itemImage;
+        public Label itemCountLabel;
         public Table table;
     }
 }

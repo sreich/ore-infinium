@@ -49,8 +49,8 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public int ping;
     public boolean noClip;
     public LoadedViewport loadedViewport = new LoadedViewport();
-    public Inventory hotbarInventory = new Inventory();
-    public Inventory inventory = new Inventory();
+    public Inventory hotbarInventory;
+    public Inventory inventory;
 
     public void reset() {
 

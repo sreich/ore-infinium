@@ -1,5 +1,6 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,13 +10,11 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -23,6 +22,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.ore.infinium.components.ControllableComponent;
+import com.ore.infinium.components.ItemComponent;
 import com.ore.infinium.components.PlayerComponent;
 import com.ore.infinium.components.SpriteComponent;
 
@@ -50,6 +50,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private InputMultiplexer m_multiplexer;
     private ChatBox m_chat;
     private HotbarInventoryView m_hotbarView;
+    private Inventory m_hotbarInventory;
     private ScreenViewport m_viewport;
     private Entity m_mainPlayer;
     private Client m_clientKryo;
@@ -91,7 +92,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         parameter.size = 9;
         m_font = m_fontGenerator.generateFont(parameter);
-        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
+//        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
+        m_font.setColor(234f / 255f, 28f / 255f, 164f / 255f, 1);
 
         m_fontGenerator.dispose();
 
@@ -101,49 +103,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_skin.load(Gdx.files.internal("ui/ui.json"));
 
         m_chat = new ChatBox(m_stage, m_skin);
-        m_hotbarView = new HotbarInventoryView(m_stage, m_skin);
-
-        TextButton button = new TextButton("click me", m_skin);
-        TextButton button2 = new TextButton("click me2", m_skin);
-
-        // Add a listener to the button. ChangeListener is fired when the button's checked state changes, eg when clicked,
-        // Button#setChecked() is called, via a key press, etc. If the event.cancel() is called, the checked state will be reverted.
-        // ClickListener could have been used, but would only fire when clicked. Also, canceling a ClickListener event won't
-        // revert the checked state.
-        button.addListener(new ChangeListener() {
-            public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                System.out.println("Clicked! Is checked: " + button.isChecked());
-                button.setText("Good job!");
-            }
-        });
-
-        // Add an image actor. Have to set the size, else it would be the size of the drawable (which is the 1x1 texture).
-//        table.add(new Image(m_skin.newDrawable("white", Color.RED))).size(64);
-
-//
-//        m_table = new Table();
-//        m_stage.addActor(m_table);
-//        m_table.setFillParent(true);
-//
-//        final ScrollPane scroll = new ScrollPane(m_table, m_skin);
-//
-//        m_table.debug();
-//        m_table.add(button);
-//        m_table.row();
-//        m_table.add(button2);
-//
-//        m_table.row();
-//        Label label1 = new Label("crap crap crap crap crap crap", m_skin, "default");
-//        label1.setWrap(true);
-//        m_table.add(label1);
-//
-//        m_table.row();
-//        Label label2 = new Label("crap crap crap crap crap crapssssssssssssssssssssssssssssssssssssssssssss", m_skin, "default");
-//        label2.setWrap(true);
-//        label2.setWidth(100);
-//        m_table.add(label2).width(100f);
-//
-
 
 //        Gdx.input.setInputProcessor(this);
 
@@ -373,6 +332,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         ControllableComponent controllableComponent = m_world.engine.createComponent(ControllableComponent.class);
         player.add(controllableComponent);
 
+        m_hotbarInventory = new Inventory(player);
+        m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
+        m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory);
+
         m_world.engine.addEntity(player);
 
         return player;
@@ -383,16 +346,21 @@ public class OreClient implements ApplicationListener, InputProcessor {
             if (object instanceof Network.PlayerSpawnedFromServer) {
 
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
-                assert m_world == null;
 
-                m_world = new World(this, null);
+                if (m_mainPlayer == null) {
 
-                m_mainPlayer = createPlayer(spawn.playerName, m_clientKryo.getID());
-                SpriteComponent spriteComp = Mappers.sprite.get(m_mainPlayer);
+                    m_world = new World(this, null);
 
-                spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
-                m_world.addPlayer(m_mainPlayer);
-                m_world.initClient(m_mainPlayer);
+                    m_mainPlayer = createPlayer(spawn.playerName, m_clientKryo.getID());
+                    SpriteComponent spriteComp = Mappers.sprite.get(m_mainPlayer);
+
+                    spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+                    m_world.addPlayer(m_mainPlayer);
+                    m_world.initClient(m_mainPlayer);
+                } else {
+                    //FIXME cover other players joining case
+                    assert false;
+                }
             } else if (object instanceof Network.KickReason) {
                 Network.KickReason reason = (Network.KickReason) object;
             } else if (object instanceof Network.BlockRegion) {
@@ -402,6 +370,23 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
                 PlayerComponent c = Mappers.player.get(m_mainPlayer);
                 c.loadedViewport.rect = v.rect;
+            } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
+                Network.PlayerSpawnHotbarInventoryItemFromServer spawn = (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
+
+                //HACK spawn.id
+                Entity e = m_world.engine.createEntity();
+                for (Component c : spawn.components) {
+                    e.add(c);
+                }
+
+                ItemComponent itemComponent = Mappers.item.get(e);
+                m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
+
+                //TODO i wonder if i can implement my own serializer (trivially!) and make it use the entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
+
+            } else {
+                Gdx.app.log("client network", "unhandled network receiving class");
+                assert false;
             }
 
             // if (object instanceof ChatMessage) {
