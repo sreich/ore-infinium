@@ -8,7 +8,7 @@ buildscript {
 
 def getDate() {
     def date = new Date()
-    def formattedDate = date.format("yyyy-MM-dd-'time'-hh-mm");
+    def formattedDate = date.format("yyyy-MM-dd-'time'-HH-mm");
     return formattedDate
 }
 

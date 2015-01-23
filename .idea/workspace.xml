@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="hotbar inventory now allows rearrangment of items&#10;&#10;couple bugs in it, needs some better indicator hints too. doesn't yet tell the server anything happened, though. very neat, too. the code is clean, concise..has way better indication on dropping (like a drag icon, droppable areas will highlight a color), all stuff we get For Free, far better than the other ui was capable of..&#10;&#10;infrastructure is getting there to make it generic and drag &amp; droppable between the hotbar and the main inventory (which is yet to be written). i'm really happy with this listener approach to notifying inventory changes from the model, to the view. anything can just sign up for it, get notifications in a very discrete manner, and do exactly what they need to do(as evidenced by the server, inventoryview code), it's really quite nice.">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileHashes.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileSnapshots.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/outputFileStates.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/outputFileStates.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/taskArtifacts.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/taskArtifacts.bin" />
+    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="fix build name generation (last commit made the 'dist' task fail oddly), forgot that colons aren't probably good in most pathnames.&#10;&#10;use yyyy-MM-dd-time-hh-mm instead..maybe a bit more legible.">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -54,7 +52,11 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="432" max-vertical-offset="1926">
               <caret line="53" column="27" selection-start-line="53" selection-start-column="27" selection-end-line="53" selection-end-column="27" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#1542#1543#0" expanded="false" />
+                <element signature="e#1573#1574#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -64,7 +66,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="7251" max-vertical-offset="8874">
               <caret line="452" column="0" selection-start-line="452" selection-start-column="0" selection-end-line="452" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -74,7 +78,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="1080">
               <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -84,7 +90,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="810" max-vertical-offset="4608">
               <caret line="220" column="0" selection-start-line="220" selection-start-column="0" selection-end-line="220" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -104,7 +112,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="486" max-vertical-offset="2070">
               <caret line="43" column="76" selection-start-line="43" selection-start-column="76" selection-end-line="43" selection-end-column="76" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -114,7 +124,9 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="414" max-vertical-offset="1332">
               <caret line="41" column="4" selection-start-line="41" selection-start-column="4" selection-end-line="41" selection-end-column="4" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -122,30 +134,10 @@
       <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1764" max-vertical-offset="7776">
-              <caret line="99" column="0" selection-start-line="99" selection-start-column="0" selection-end-line="99" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1098" max-vertical-offset="7416">
+              <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#9011#9012#0" expanded="true" />
-                <element signature="e#9076#9077#0" expanded="true" />
-                <element signature="e#9704#9705#0" expanded="true" />
-                <element signature="e#9732#9733#0" expanded="true" />
-                <element signature="e#9793#9794#0" expanded="true" />
-                <element signature="e#9821#9822#0" expanded="true" />
-                <element signature="e#9918#9919#0" expanded="true" />
-                <element signature="e#9946#9947#0" expanded="true" />
-                <element signature="e#10041#10042#0" expanded="true" />
-                <element signature="e#10069#10070#0" expanded="true" />
-                <element signature="e#10157#10158#0" expanded="true" />
-                <element signature="e#10185#10186#0" expanded="true" />
-                <element signature="e#10258#10259#0" expanded="true" />
-                <element signature="e#10286#10287#0" expanded="true" />
-                <element signature="e#10343#10344#0" expanded="true" />
-                <element signature="e#10371#10372#0" expanded="true" />
-                <element signature="e#14273#14274#0" expanded="true" />
-                <element signature="e#14329#14330#0" expanded="true" />
-                <element signature="e#14469#14470#0" expanded="true" />
-                <element signature="e#14515#14516#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -173,34 +165,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="HotbarInventoryView.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="HotbarInventoryView.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1830" max-vertical-offset="3870">
-              <caret line="119" column="59" selection-start-line="119" selection-start-column="59" selection-end-line="119" selection-end-column="59" />
+            <state vertical-scroll-proportion="0.3487621" vertical-offset="3042" max-vertical-offset="4230">
+              <caret line="187" column="0" selection-start-line="187" selection-start-column="0" selection-end-line="187" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/desktop/build.gradle">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="936">
-              <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/build.gradle">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="306">
-              <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -227,11 +199,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="true">
+      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5480769" vertical-offset="0" max-vertical-offset="1296">
-              <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1296">
+              <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -242,7 +214,19 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="5454" max-vertical-offset="7848">
               <caret line="343" column="0" selection-start-line="343" selection-start-column="0" selection-end-line="343" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#6785#6786#0" expanded="false" />
+                <element signature="e#6815#6816#0" expanded="false" />
+                <element signature="e#8575#8576#0" expanded="false" />
+                <element signature="e#8614#8615#0" expanded="false" />
+                <element signature="e#8647#8648#0" expanded="false" />
+                <element signature="e#8686#8687#0" expanded="false" />
+                <element signature="e#13273#13274#0" expanded="false" />
+                <element signature="e#13311#13312#0" expanded="false" />
+                <element signature="e#15466#15467#0" expanded="false" />
+                <element signature="e#15503#15504#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -263,6 +247,20 @@
     </option>
     <option name="recentTasks">
       <list>
+        <ExternalTaskExecutionInfo>
+          <option name="executorId" value="Debug" />
+          <option name="settings">
+            <ExternalSystemSettings>
+              <option name="externalProjectPath" value="$PROJECT_DIR$" />
+              <option name="externalSystemIdString" value="GRADLE" />
+              <option name="taskNames">
+                <list>
+                  <option value="dist" />
+                </list>
+              </option>
+            </ExternalSystemSettings>
+          </option>
+        </ExternalTaskExecutionInfo>
         <ExternalTaskExecutionInfo>
           <option name="executorId" value="Run" />
           <option name="settings">
@@ -342,20 +340,6 @@
               <option name="taskNames">
                 <list>
                   <option value="clean" />
-                </list>
-              </option>
-            </ExternalSystemSettings>
-          </option>
-        </ExternalTaskExecutionInfo>
-        <ExternalTaskExecutionInfo>
-          <option name="executorId" value="Run" />
-          <option name="settings">
-            <ExternalSystemSettings>
-              <option name="externalProjectPath" value="$PROJECT_DIR$/desktop" />
-              <option name="externalSystemIdString" value="GRADLE" />
-              <option name="taskNames">
-                <list>
-                  <option value="jar" />
                 </list>
               </option>
             </ExternalSystemSettings>
@@ -1043,11 +1027,11 @@
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/InventorySlotDragWrapper.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
       </list>
     </option>
   </component>
@@ -1363,7 +1347,7 @@
       <recent name="com.ore.infinium.systems" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.ore-infinium [dist]">
+  <component name="RunManager" selected="Application.Unnamed">
     <configuration default="false" name="ore-infinium:desktop [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1466,7 +1450,13 @@
         </option>
         <option name="vmOptions" />
       </ExternalSystemSettings>
+      <RunnerSettings RunnerId="ExternalSystemTaskDebugRunner">
+        <option name="DEBUG_PORT" value="" />
+        <option name="TRANSPORT" value="0" />
+        <option name="LOCAL" value="true" />
+      </RunnerSettings>
       <RunnerSettings RunnerId="ExternalSystemTaskRunner" />
+      <ConfigurationWrapper RunnerId="ExternalSystemTaskDebugRunner" />
       <ConfigurationWrapper RunnerId="ExternalSystemTaskRunner" />
       <method />
     </configuration>
@@ -1933,7 +1923,13 @@
       <option name="project" value="LOCAL" />
       <updated>1421993306726</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="fix build name generation (last commit made the 'dist' task fail oddly), forgot that colons aren't probably good in most pathnames.&#10;&#10;use yyyy-MM-dd-time-hh-mm instead..maybe a bit more legible.">
+      <created>1421994135593</created>
+      <option name="number" value="00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1421994135593</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1970,10 +1966,10 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32817337" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32817337" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2662407" sideWeight="0.5674847" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19382322" sideWeight="0.5674847" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Problems" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="CodotaView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960597" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47265223" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -2007,7 +2003,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="tilemap rendering proper texture of each Block&#10;&#10;and generates a random (proof of concept of course), world map" />
     <MESSAGE value="movement system beginnings.." />
     <MESSAGE value="port most of movement system (probably)&#10;&#10;update gdx and friends" />
     <MESSAGE value="fix spawning, timeouts(for debug), several null refs..player spawns and physics..physics&#10;&#10;but it seems to keep moving to the right, assuming due to no velocity bleed off" />
@@ -2032,7 +2027,8 @@
     <MESSAGE value="hotbarinventory serialization over network and loading etc..&#10;&#10;caught a few bugs along the way, big ones especially one that was hidden but could cause a player to try and spawn twice..&#10;left to do is drag &amp; drop of items and the network backing for that rearrangement. that's just for the hotbar for now.&#10;&#10;the hotbar items server-side, stack size gets randomized as well, just to make it different." />
     <MESSAGE value="add F10, f11 etc keys to disable tile and gui rendering.&#10;&#10;this tipped me off on the fact that i was accidentally calling render() twice on the tile renderer, hah. that explains that odd effect when you move, the tiles subtly bend/stretch. kind of interesting how that happened. maybe it integrated position after the first call but before the second.." />
     <MESSAGE value="hotbar inventory now allows rearrangment of items&#10;&#10;couple bugs in it, needs some better indicator hints too. doesn't yet tell the server anything happened, though. very neat, too. the code is clean, concise..has way better indication on dropping (like a drag icon, droppable areas will highlight a color), all stuff we get For Free, far better than the other ui was capable of..&#10;&#10;infrastructure is getting there to make it generic and drag &amp; droppable between the hotbar and the main inventory (which is yet to be written). i'm really happy with this listener approach to notifying inventory changes from the model, to the view. anything can just sign up for it, get notifications in a very discrete manner, and do exactly what they need to do(as evidenced by the server, inventoryview code), it's really quite nice." />
-    <option name="LAST_COMMIT_MESSAGE" value="hotbar inventory now allows rearrangment of items&#10;&#10;couple bugs in it, needs some better indicator hints too. doesn't yet tell the server anything happened, though. very neat, too. the code is clean, concise..has way better indication on dropping (like a drag icon, droppable areas will highlight a color), all stuff we get For Free, far better than the other ui was capable of..&#10;&#10;infrastructure is getting there to make it generic and drag &amp; droppable between the hotbar and the main inventory (which is yet to be written). i'm really happy with this listener approach to notifying inventory changes from the model, to the view. anything can just sign up for it, get notifications in a very discrete manner, and do exactly what they need to do(as evidenced by the server, inventoryview code), it's really quite nice." />
+    <MESSAGE value="fix build name generation (last commit made the 'dist' task fail oddly), forgot that colons aren't probably good in most pathnames.&#10;&#10;use yyyy-MM-dd-time-hh-mm instead..maybe a bit more legible." />
+    <option name="LAST_COMMIT_MESSAGE" value="fix build name generation (last commit made the 'dist' task fail oddly), forgot that colons aren't probably good in most pathnames.&#10;&#10;use yyyy-MM-dd-time-hh-mm instead..maybe a bit more legible." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2102,7 +2098,19 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="180" max-vertical-offset="7920">
           <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#6785#6786#0" expanded="false" />
+            <element signature="e#6815#6816#0" expanded="false" />
+            <element signature="e#8575#8576#0" expanded="false" />
+            <element signature="e#8614#8615#0" expanded="false" />
+            <element signature="e#8647#8648#0" expanded="false" />
+            <element signature="e#8686#8687#0" expanded="false" />
+            <element signature="e#13273#13274#0" expanded="false" />
+            <element signature="e#13311#13312#0" expanded="false" />
+            <element signature="e#15466#15467#0" expanded="false" />
+            <element signature="e#15503#15504#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2302,15 +2310,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="486" max-vertical-offset="2070">
           <caret line="43" column="76" selection-start-line="43" selection-start-column="76" selection-end-line="43" selection-end-column="76" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="660" max-vertical-offset="1602">
-          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2326,7 +2328,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="90" max-vertical-offset="1080">
           <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2334,7 +2338,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="414" max-vertical-offset="1332">
           <caret line="41" column="4" selection-start-line="41" selection-start-column="4" selection-end-line="41" selection-end-column="4" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2349,7 +2355,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="432" max-vertical-offset="1926">
           <caret line="53" column="27" selection-start-line="53" selection-start-column="27" selection-end-line="53" selection-end-column="27" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1542#1543#0" expanded="false" />
+            <element signature="e#1573#1574#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2357,7 +2367,19 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="5454" max-vertical-offset="7848">
           <caret line="343" column="0" selection-start-line="343" selection-start-column="0" selection-end-line="343" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#6785#6786#0" expanded="false" />
+            <element signature="e#6815#6816#0" expanded="false" />
+            <element signature="e#8575#8576#0" expanded="false" />
+            <element signature="e#8614#8615#0" expanded="false" />
+            <element signature="e#8647#8648#0" expanded="false" />
+            <element signature="e#8686#8687#0" expanded="false" />
+            <element signature="e#13273#13274#0" expanded="false" />
+            <element signature="e#13311#13312#0" expanded="false" />
+            <element signature="e#15466#15467#0" expanded="false" />
+            <element signature="e#15503#15504#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2365,36 +2387,8 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="7251" max-vertical-offset="8874">
           <caret line="452" column="0" selection-start-line="452" selection-start-column="0" selection-end-line="452" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1764" max-vertical-offset="7776">
-          <caret line="99" column="0" selection-start-line="99" selection-start-column="0" selection-end-line="99" selection-end-column="0" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#9011#9012#0" expanded="true" />
-            <element signature="e#9076#9077#0" expanded="true" />
-            <element signature="e#9704#9705#0" expanded="true" />
-            <element signature="e#9732#9733#0" expanded="true" />
-            <element signature="e#9793#9794#0" expanded="true" />
-            <element signature="e#9821#9822#0" expanded="true" />
-            <element signature="e#9918#9919#0" expanded="true" />
-            <element signature="e#9946#9947#0" expanded="true" />
-            <element signature="e#10041#10042#0" expanded="true" />
-            <element signature="e#10069#10070#0" expanded="true" />
-            <element signature="e#10157#10158#0" expanded="true" />
-            <element signature="e#10185#10186#0" expanded="true" />
-            <element signature="e#10258#10259#0" expanded="true" />
-            <element signature="e#10286#10287#0" expanded="true" />
-            <element signature="e#10343#10344#0" expanded="true" />
-            <element signature="e#10371#10372#0" expanded="true" />
-            <element signature="e#14273#14274#0" expanded="true" />
-            <element signature="e#14329#14330#0" expanded="true" />
-            <element signature="e#14469#14470#0" expanded="true" />
-            <element signature="e#14515#14516#0" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -2403,7 +2397,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3438" max-vertical-offset="4608">
           <caret line="220" column="0" selection-start-line="220" selection-start-column="0" selection-end-line="220" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2433,28 +2429,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/InventorySlotDragWrapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="576">
-          <caret line="20" column="13" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="1746">
           <caret line="64" column="18" selection-start-line="64" selection-start-column="18" selection-end-line="64" selection-end-column="18" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1830" max-vertical-offset="3870">
-          <caret line="119" column="59" selection-start-line="119" selection-start-column="59" selection-end-line="119" selection-end-column="59" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -2472,11 +2450,47 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/InventorySlotDragWrapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="576">
+          <caret line="20" column="13" selection-start-line="20" selection-start-column="13" selection-end-line="20" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1098" max-vertical-offset="7416">
+          <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5480769" vertical-offset="0" max-vertical-offset="1296">
-          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1296">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="660" max-vertical-offset="1602">
+          <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3487621" vertical-offset="3042" max-vertical-offset="4230">
+          <caret line="187" column="0" selection-start-line="187" selection-start-column="0" selection-end-line="187" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

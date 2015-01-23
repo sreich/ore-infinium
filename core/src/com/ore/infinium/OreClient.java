@@ -73,7 +73,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public void create() {
         //    Log.set(Log.LEVEL_DEBUG);
-//        Log.set(Log.LEVEL_INFO);
+//        Log.set(Log.LEVEL_INF
 
         decimalFormat.setMaximumFractionDigits(9);
 

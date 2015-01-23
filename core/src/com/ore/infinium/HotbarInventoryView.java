@@ -173,14 +173,34 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         }
 
         public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
-            payload.getDragActor().setColor(0, 1, 0, 1);
+            if (isValidDrop(payload)) {
+                getActor().setColor(Color.GREEN);
+                payload.getDragActor().setColor(0, 1, 0, 1);
 
-            getActor().setColor(Color.GREEN);
-            return true;
+                return true;
+            } else {
+                getActor().setColor(Color.RED);
+                payload.getDragActor().setColor(1, 0, 0, 1);
+            }
+
+            return false;
+        }
+
+        private boolean isValidDrop(DragAndDrop.Payload payload) {
+
+            InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
+            if (dragWrapper.dragSourceIndex != index) {
+                //maybe make it green? the source/dest is not the same
+                if (inventory.item(index) == null) {
+                    //only make it green if the slot is empty
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void reset(DragAndDrop.Source source, DragAndDrop.Payload payload) {
-
             payload.getDragActor().setColor(1, 1, 1, 1);
             getActor().setColor(Color.WHITE);
         }
