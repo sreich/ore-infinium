@@ -331,7 +331,16 @@ public class World implements Disposable {
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
-        m_tileRenderer.render(elapsed);
+        SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
+//        playerSprite.sprite.setOriginCenter();
+
+//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
+        m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
+        m_camera.update();
+
+        if (m_client.m_renderTiles) {
+            m_tileRenderer.render(elapsed);
+        }
 
         //FIXME: incorporate entities into the pre-lit gamescene FBO, then render lighting as last pass
         //m_lightRenderer->renderToBackbuffer();
@@ -351,16 +360,8 @@ public class World implements Disposable {
         updateItemPlacementGhost();
 
 
-        SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
-//        playerSprite.sprite.setOriginCenter();
-
-//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
-        m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
-        m_camera.update();
-
         m_batch.setProjectionMatrix(m_camera.combined);
 
-        m_tileRenderer.render(elapsed);
 
         m_batch.begin();
         m_batch.draw(playerSprite.sprite, playerSprite.sprite.getX() - playerSprite.sprite.getWidth() * 0.5f,

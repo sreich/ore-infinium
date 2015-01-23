@@ -35,13 +35,17 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
     public final static int ORE_VERSION_REVISION = 1;
+
+    static final String debugString1 = "F12 - gui debug";
+    static final String debugString2 = "F11 - gui render toggle";
+    static final String debugString3 = "F10 - tile render toggle";
+
     static OreTimer timer = new OreTimer();
     static String frameTimeString = "0";
-    static String debugString1 = "F12 - gui debug";
-
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
 
     public ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
+    public boolean m_renderTiles = true;
     FreeTypeFontGenerator m_fontGenerator;
     private World m_world;
     private Stage m_stage;
@@ -63,8 +67,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private BitmapFont m_font;
     private Dialog dialog;
     private boolean m_guiDebug;
-
     private BitmapFont bitmapFont_8pt;
+    private boolean m_renderGui = true;
 
     @Override
     public void create() {
@@ -194,13 +198,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_world.render(m_step);
         }
 
-        m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-        m_stage.draw();
-//        try {
-//            Thread.sleep(1);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        if (m_renderGui) {
+            m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            m_stage.draw();
+        }
+
         if (timer.milliseconds() > 2000) {
             frameTimeString = "Frametime: " + decimalFormat.format(frameTime);
             timer.reset();
@@ -215,12 +217,17 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, debugString1, 0, textY);
         textY -= 15;
+        m_font.draw(m_batch, debugString2, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, debugString3, 0, textY);
+        textY -= 15;
         m_font.draw(m_batch, "Texture switches: " + GLProfiler.textureBindings, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, "Shader switches: " + GLProfiler.shaderSwitches, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, "Draw calls: " + GLProfiler.drawCalls, 0, textY);
         m_batch.end();
+
         GLProfiler.reset();
 
         //try {
@@ -270,9 +277,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
             Gdx.app.exit();
-        }
-
-        if (keycode == Input.Keys.F12) {
+        } else if (keycode == Input.Keys.F10) {
+            m_renderTiles = !m_renderTiles;
+        } else if (keycode == Input.Keys.F11) {
+            m_renderGui = !m_renderGui;
+        } else if (keycode == Input.Keys.F12) {
             m_guiDebug = !m_guiDebug;
             m_stage.setDebugAll(m_guiDebug);
         }
