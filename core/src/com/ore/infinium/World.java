@@ -211,7 +211,7 @@ public class World implements Disposable {
                         break;
                 }
 
-//                blocks[index].wallType = Block::Wall
+//                blocks[dragSourceIndex].wallType = Block::Wall
             }
         }
 //        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {

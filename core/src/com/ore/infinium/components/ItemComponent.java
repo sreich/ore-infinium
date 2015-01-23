@@ -32,7 +32,7 @@ public class ItemComponent extends Component implements Pool.Poolable {
     public int playerIdWhoDropped;
     public State state = State.InWorldState;
     /**
-     * If this item resides in an inventory of some kind, the index of where it is at will be stored here
+     * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
     public int inventoryIndex;
     public boolean justDropped;

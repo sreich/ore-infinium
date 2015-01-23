@@ -141,9 +141,10 @@ public class Network {
 
     //is that needed????
 //    static public class PlayerHotbarInventoryItemCountChanged {
-//        int index;
+//        int dragSourceIndex;
 //        int newCount;
 //    }
+
 
     static public class PlayerSpawnHotbarInventoryItemFromServer {
         public SizePacket size = new SizePacket();
@@ -216,6 +217,13 @@ public class Network {
             VersionMismatch,
             InvalidPlayerName
         }
+    }
+
+    static public class PlayerMoveInventoryItemFromClient {
+        public Inventory.InventoryType sourceType;
+        public Inventory.InventoryType destType;
+        public int sourceIndex;
+        public int destIndex;
     }
 
     /**
