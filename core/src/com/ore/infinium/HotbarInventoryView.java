@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
@@ -37,6 +38,7 @@ import com.ore.infinium.components.ItemComponent;
  */
 public class HotbarInventoryView implements Inventory.SlotListener {
     TextureAtlas atlas;
+    private int m_previousSelectedSlot;
     private Stage m_stage;
     private Skin m_skin;
     private Table container;
@@ -73,12 +75,12 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             SlotElement element = new SlotElement();
             m_slots[i] = element;
 
-
             element.itemImage = slotImage;
 
             Table slotTable = new Table(m_skin);
             element.table = slotTable;
             slotTable.setTouchable(Touchable.enabled);
+            slotTable.addListener(new SlotClickListener(this, slotTable, i));
 
             slotTable.add(slotImage);
             slotTable.background("default-pane");
@@ -94,8 +96,12 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
             dragAndDrop.addSource(new HotbarDragSource(slotTable, i, dragImage));
 
-            dragAndDrop.addTarget(new HotbarDragTarget(slotTable, i, m_hotbarInventory));
+            dragAndDrop.addTarget(new HotbarDragTarget(slotTable, i, this));
         }
+    }
+
+    private void deselectPreviousSlot() {
+        m_slots[m_previousSelectedSlot].table.setColor(Color.WHITE);
     }
 
     @Override
@@ -131,7 +137,9 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
     @Override
     public void selected(int index, Inventory inventory) {
-
+        deselectPreviousSlot();
+        m_previousSelectedSlot = index;
+        m_slots[index].table.setColor(0, 0, 1, 1);
     }
 
     private static class HotbarDragSource extends DragAndDrop.Source {
@@ -164,9 +172,9 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
     private static class HotbarDragTarget extends DragAndDrop.Target {
         private final int index;
-        private Inventory inventory;
+        private HotbarInventoryView inventory;
 
-        public HotbarDragTarget(Table slotTable, int index, Inventory inventory) {
+        public HotbarDragTarget(Table slotTable, int index, HotbarInventoryView inventory) {
             super(slotTable);
             this.index = index;
             this.inventory = inventory;
@@ -191,7 +199,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.item(index) == null) {
+                if (inventory.m_hotbarInventory.item(index) == null) {
                     //only make it green if the slot is empty
                     return true;
                 }
@@ -210,14 +218,34 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.item(this.index) == null) {
+            if (inventory.m_hotbarInventory.item(this.index) == null) {
                 //move the item from the source to the dest
-                inventory.setSlot(this.index, inventory.item(dragWrapper.dragSourceIndex));
+                inventory.m_hotbarInventory.setSlot(this.index, inventory.m_hotbarInventory.item(dragWrapper.dragSourceIndex));
+                inventory.m_previousSelectedSlot = index;
 
                 //remove the source item
-                inventory.takeItem(dragWrapper.dragSourceIndex);
+                inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex);
             }
 
+        }
+    }
+
+    private static class SlotClickListener extends ClickListener {
+        private int index;
+        private Table slotTable;
+        private HotbarInventoryView inventory;
+
+        public SlotClickListener(HotbarInventoryView inventory, Table slotTable, int index) {
+            this.slotTable = slotTable;
+            this.inventory = inventory;
+            this.index = index;
+        }
+
+        @Override
+        public void clicked(InputEvent event, float x, float y) {
+            inventory.deselectPreviousSlot();
+            inventory.m_hotbarInventory.selectSlot(index);
+            inventory.m_previousSelectedSlot = index;
         }
     }
 

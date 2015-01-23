@@ -321,7 +321,20 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean scrolled(int amount) {
-        return false;
+        if (m_mainPlayer == null) {
+            return false;
+        }
+
+        int index = m_hotbarInventory.m_selectedSlot;
+        if (amount > 0) {
+            //right, inventory selection scrolling does not wrap around.
+            m_hotbarInventory.selectSlot(Math.min(index + 1, m_hotbarInventory.maxHotbarSlots - 1));
+        } else {
+            //left
+            m_hotbarInventory.selectSlot(Math.max(index - 1, 0));
+        }
+
+        return true;
     }
 
     /**

@@ -36,13 +36,15 @@ public class ChatBox {
         m_stage = stage;
         m_skin = skin;
 
-        container = new Table(m_skin);
+        container = new Table();
+
         stage.addActor(container);
         container.bottom().left().setSize(600, 300);
 
         Table table = new Table();
 
-        final ScrollPane scroll = new ScrollPane(table, skin);
+        ScrollPane scroll = new ScrollPane(table, skin);
+        //scroll.setColor(1, 1, 1, 0.6f);
 
         for (int i = 0; i < 100; i++) {
             table.row().left();
@@ -63,7 +65,7 @@ public class ChatBox {
         container.add(scroll).expand().fill().colspan(4);
         container.row().space(2);
 
-        TextField textField = new TextField("heres test text", m_skin);
+        TextField textField = new TextField("", m_skin);
         container.add(textField).expand().fill();
 
         TextButton send = new TextButton("send", m_skin);
@@ -78,7 +80,7 @@ public class ChatBox {
 
         container.add(send).right();
 
-        container.background("default-window");
+//        container.background("default-window");
 
         container.layout();
         table.layout();
