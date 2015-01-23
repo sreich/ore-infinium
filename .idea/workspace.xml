@@ -1,18 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="add F10, f11 etc keys to disable tile and gui rendering.&#10;&#10;this tipped me off on the fact that i was accidentally calling render() twice on the tile renderer, hah. that explains that odd effect when you move, the tiles subtly bend/stretch. kind of interesting how that happened. maybe it integrated position after the first call but before the second..">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/InventorySlotDragWrapper.java" />
+    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="hotbar inventory now allows rearrangment of items&#10;&#10;couple bugs in it, needs some better indicator hints too. doesn't yet tell the server anything happened, though. very neat, too. the code is clean, concise..has way better indication on dropping (like a drag icon, droppable areas will highlight a color), all stuff we get For Free, far better than the other ui was capable of..&#10;&#10;infrastructure is getting there to make it generic and drag &amp; droppable between the hotbar and the main inventory (which is yet to be written). i'm really happy with this listener approach to notifying inventory changes from the model, to the view. anything can just sign up for it, get notifications in a very discrete manner, and do exactly what they need to do(as evidenced by the server, inventoryview code), it's really quite nice.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileHashes.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileSnapshots.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/outputFileStates.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/outputFileStates.bin" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/taskArtifacts.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/taskArtifacts.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ItemComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ItemComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/gradle.xml" afterPath="$PROJECT_DIR$/.idea/gradle.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ore-infinium.iws" />
@@ -115,16 +109,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SpriteRenderer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/SpriteRenderer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="288" max-vertical-offset="702">
-              <caret line="16" column="76" selection-start-line="16" selection-start-column="76" selection-end-line="16" selection-end-column="76" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ItemComponent.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/ItemComponent.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -189,11 +173,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="HotbarInventoryView.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="HotbarInventoryView.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6178344" vertical-offset="1722" max-vertical-offset="3870">
-              <caret line="128" column="39" selection-start-line="128" selection-start-column="39" selection-end-line="128" selection-end-column="39" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1830" max-vertical-offset="3870">
+              <caret line="119" column="59" selection-start-line="119" selection-start-column="59" selection-end-line="119" selection-end-column="59" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -243,11 +227,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
+      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="270" max-vertical-offset="1296">
-              <caret line="66" column="0" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.5480769" vertical-offset="0" max-vertical-offset="1296">
+              <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -283,11 +267,39 @@
           <option name="executorId" value="Run" />
           <option name="settings">
             <ExternalSystemSettings>
+              <option name="externalProjectPath" value="$PROJECT_DIR$" />
+              <option name="externalSystemIdString" value="GRADLE" />
+              <option name="taskNames">
+                <list>
+                  <option value="dist" />
+                </list>
+              </option>
+            </ExternalSystemSettings>
+          </option>
+        </ExternalTaskExecutionInfo>
+        <ExternalTaskExecutionInfo>
+          <option name="executorId" value="Run" />
+          <option name="settings">
+            <ExternalSystemSettings>
               <option name="externalProjectPath" value="$PROJECT_DIR$/desktop" />
               <option name="externalSystemIdString" value="GRADLE" />
               <option name="taskNames">
                 <list>
                   <option value="dist" />
+                </list>
+              </option>
+            </ExternalSystemSettings>
+          </option>
+        </ExternalTaskExecutionInfo>
+        <ExternalTaskExecutionInfo>
+          <option name="executorId" value="Run" />
+          <option name="settings">
+            <ExternalSystemSettings>
+              <option name="externalProjectPath" value="$PROJECT_DIR$/desktop" />
+              <option name="externalSystemIdString" value="GRADLE" />
+              <option name="taskNames">
+                <list>
+                  <option value="clean" />
                 </list>
               </option>
             </ExternalSystemSettings>
@@ -344,34 +356,6 @@
               <option name="taskNames">
                 <list>
                   <option value="jar" />
-                </list>
-              </option>
-            </ExternalSystemSettings>
-          </option>
-        </ExternalTaskExecutionInfo>
-        <ExternalTaskExecutionInfo>
-          <option name="executorId" value="Debug" />
-          <option name="settings">
-            <ExternalSystemSettings>
-              <option name="externalProjectPath" value="$PROJECT_DIR$" />
-              <option name="externalSystemIdString" value="GRADLE" />
-              <option name="taskNames">
-                <list>
-                  <option value="buildDependents" />
-                </list>
-              </option>
-            </ExternalSystemSettings>
-          </option>
-        </ExternalTaskExecutionInfo>
-        <ExternalTaskExecutionInfo>
-          <option name="executorId" value="Run" />
-          <option name="settings">
-            <ExternalSystemSettings>
-              <option name="externalProjectPath" value="$PROJECT_DIR$" />
-              <option name="externalSystemIdString" value="GRADLE" />
-              <option name="taskNames">
-                <list>
-                  <option value="buildDependents" />
                 </list>
               </option>
             </ExternalSystemSettings>
@@ -1062,8 +1046,8 @@
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/InventorySlotDragWrapper.java" />
-        <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
+        <option value="$PROJECT_DIR$/build.gradle" />
       </list>
     </option>
   </component>
@@ -1361,7 +1345,7 @@
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="restartRequiresConfirmation" value="true" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.4283019" />
     <property name="LayoutCode.rearrangeEntriesJava" value="true" />
@@ -1379,53 +1363,7 @@
       <recent name="com.ore.infinium.systems" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.Unnamed">
-    <configuration default="false" name="ore-infinium [buildDependents]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="buildDependents" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <RunnerSettings RunnerId="ExternalSystemTaskDebugRunner">
-        <option name="DEBUG_PORT" value="" />
-        <option name="TRANSPORT" value="0" />
-        <option name="LOCAL" value="true" />
-      </RunnerSettings>
-      <RunnerSettings RunnerId="ExternalSystemTaskRunner" />
-      <ConfigurationWrapper RunnerId="ExternalSystemTaskDebugRunner" />
-      <ConfigurationWrapper RunnerId="ExternalSystemTaskRunner" />
-      <method />
-    </configuration>
-    <configuration default="false" name="ore-infinium [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value="build" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <RunnerSettings RunnerId="ExternalSystemTaskRunner" />
-      <ConfigurationWrapper RunnerId="ExternalSystemTaskRunner" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="Gradle.ore-infinium [dist]">
     <configuration default="false" name="ore-infinium:desktop [jar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -1484,6 +1422,46 @@
         <option name="taskNames">
           <list>
             <option value="run" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <RunnerSettings RunnerId="ExternalSystemTaskRunner" />
+      <ConfigurationWrapper RunnerId="ExternalSystemTaskRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ore-infinium:desktop [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/desktop" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <RunnerSettings RunnerId="ExternalSystemTaskRunner" />
+      <ConfigurationWrapper RunnerId="ExternalSystemTaskRunner" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ore-infinium [dist]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="dist" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -1685,19 +1663,19 @@
     </configuration>
     <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Application.Unnamed" />
-      <item index="1" class="java.lang.String" itemvalue="Gradle.ore-infinium [buildDependents]" />
-      <item index="2" class="java.lang.String" itemvalue="Gradle.ore-infinium [build]" />
-      <item index="3" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [jar]" />
-      <item index="4" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [dist]" />
-      <item index="5" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [run]" />
+      <item index="1" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [jar]" />
+      <item index="2" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [dist]" />
+      <item index="3" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [run]" />
+      <item index="4" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [clean]" />
+      <item index="5" class="java.lang.String" itemvalue="Gradle.ore-infinium [dist]" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [dist]" />
-        <item index="1" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [run]" />
-        <item index="2" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [jar]" />
-        <item index="3" class="java.lang.String" itemvalue="Gradle.ore-infinium [buildDependents]" />
-        <item index="4" class="java.lang.String" itemvalue="Gradle.ore-infinium [build]" />
+        <item index="0" class="java.lang.String" itemvalue="Gradle.ore-infinium [dist]" />
+        <item index="1" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [dist]" />
+        <item index="2" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [clean]" />
+        <item index="3" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [run]" />
+        <item index="4" class="java.lang.String" itemvalue="Gradle.ore-infinium:desktop [jar]" />
       </list>
     </recent_temporary>
   </component>
@@ -1949,7 +1927,13 @@
       <option name="project" value="LOCAL" />
       <updated>1421980460001</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="hotbar inventory now allows rearrangment of items&#10;&#10;couple bugs in it, needs some better indicator hints too. doesn't yet tell the server anything happened, though. very neat, too. the code is clean, concise..has way better indication on dropping (like a drag icon, droppable areas will highlight a color), all stuff we get For Free, far better than the other ui was capable of..&#10;&#10;infrastructure is getting there to make it generic and drag &amp; droppable between the hotbar and the main inventory (which is yet to be written). i'm really happy with this listener approach to notifying inventory changes from the model, to the view. anything can just sign up for it, get notifications in a very discrete manner, and do exactly what they need to do(as evidenced by the server, inventoryview code), it's really quite nice.">
+      <created>1421993306726</created>
+      <option name="number" value="00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1421993306726</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1986,14 +1970,14 @@
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32817337" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32817337" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2662407" sideWeight="0.5674847" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Problems" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="CodotaView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960597" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47265223" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.15335463" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.15335463" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2284345" sideWeight="0.49923196" order="4" side_tool="false" content_ui="tabs" x="2927" y="247" width="441" height="712" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24973376" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -2023,7 +2007,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="actually add the assets -_-" />
     <MESSAGE value="tilemap rendering proper texture of each Block&#10;&#10;and generates a random (proof of concept of course), world map" />
     <MESSAGE value="movement system beginnings.." />
     <MESSAGE value="port most of movement system (probably)&#10;&#10;update gdx and friends" />
@@ -2048,7 +2031,8 @@
     <MESSAGE value="dragging and dropping of hotbarinventory *looks* well behaved now&#10;&#10;doesn't yet drag...or use any of its information, that'll be a whole thing to get that working. and the backend(s) for the inventory" />
     <MESSAGE value="hotbarinventory serialization over network and loading etc..&#10;&#10;caught a few bugs along the way, big ones especially one that was hidden but could cause a player to try and spawn twice..&#10;left to do is drag &amp; drop of items and the network backing for that rearrangement. that's just for the hotbar for now.&#10;&#10;the hotbar items server-side, stack size gets randomized as well, just to make it different." />
     <MESSAGE value="add F10, f11 etc keys to disable tile and gui rendering.&#10;&#10;this tipped me off on the fact that i was accidentally calling render() twice on the tile renderer, hah. that explains that odd effect when you move, the tiles subtly bend/stretch. kind of interesting how that happened. maybe it integrated position after the first call but before the second.." />
-    <option name="LAST_COMMIT_MESSAGE" value="add F10, f11 etc keys to disable tile and gui rendering.&#10;&#10;this tipped me off on the fact that i was accidentally calling render() twice on the tile renderer, hah. that explains that odd effect when you move, the tiles subtly bend/stretch. kind of interesting how that happened. maybe it integrated position after the first call but before the second.." />
+    <MESSAGE value="hotbar inventory now allows rearrangment of items&#10;&#10;couple bugs in it, needs some better indicator hints too. doesn't yet tell the server anything happened, though. very neat, too. the code is clean, concise..has way better indication on dropping (like a drag icon, droppable areas will highlight a color), all stuff we get For Free, far better than the other ui was capable of..&#10;&#10;infrastructure is getting there to make it generic and drag &amp; droppable between the hotbar and the main inventory (which is yet to be written). i'm really happy with this listener approach to notifying inventory changes from the model, to the view. anything can just sign up for it, get notifications in a very discrete manner, and do exactly what they need to do(as evidenced by the server, inventoryview code), it's really quite nice." />
+    <option name="LAST_COMMIT_MESSAGE" value="hotbar inventory now allows rearrangment of items&#10;&#10;couple bugs in it, needs some better indicator hints too. doesn't yet tell the server anything happened, though. very neat, too. the code is clean, concise..has way better indication on dropping (like a drag icon, droppable areas will highlight a color), all stuff we get For Free, far better than the other ui was capable of..&#10;&#10;infrastructure is getting there to make it generic and drag &amp; droppable between the hotbar and the main inventory (which is yet to be written). i'm really happy with this listener approach to notifying inventory changes from the model, to the view. anything can just sign up for it, get notifications in a very discrete manner, and do exactly what they need to do(as evidenced by the server, inventoryview code), it's really quite nice." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2066,7 +2050,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="137" />
+      <option name="time" value="139" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -2081,36 +2065,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1494" max-vertical-offset="7380">
-          <caret line="116" column="23" selection-start-line="116" selection-start-column="23" selection-end-line="116" selection-end-column="23" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#9011#9012#0" expanded="true" />
-            <element signature="e#9076#9077#0" expanded="true" />
-            <element signature="e#9704#9705#0" expanded="true" />
-            <element signature="e#9732#9733#0" expanded="true" />
-            <element signature="e#9793#9794#0" expanded="true" />
-            <element signature="e#9821#9822#0" expanded="true" />
-            <element signature="e#9918#9919#0" expanded="true" />
-            <element signature="e#9946#9947#0" expanded="true" />
-            <element signature="e#10041#10042#0" expanded="true" />
-            <element signature="e#10069#10070#0" expanded="true" />
-            <element signature="e#10157#10158#0" expanded="true" />
-            <element signature="e#10185#10186#0" expanded="true" />
-            <element signature="e#10258#10259#0" expanded="true" />
-            <element signature="e#10286#10287#0" expanded="true" />
-            <element signature="e#10343#10344#0" expanded="true" />
-            <element signature="e#10371#10372#0" expanded="true" />
-            <element signature="e#14273#14274#0" expanded="true" />
-            <element signature="e#14329#14330#0" expanded="true" />
-            <element signature="e#14469#14470#0" expanded="true" />
-            <element signature="e#14515#14516#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="738" max-vertical-offset="1692">
@@ -2463,14 +2417,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="270" max-vertical-offset="1296">
-          <caret line="66" column="0" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/desktop/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="936">
@@ -2507,11 +2453,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6178344" vertical-offset="1722" max-vertical-offset="3870">
-          <caret line="128" column="39" selection-start-line="128" selection-start-column="39" selection-end-line="128" selection-end-column="39" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1830" max-vertical-offset="3870">
+          <caret line="119" column="59" selection-start-line="119" selection-start-column="59" selection-end-line="119" selection-end-column="59" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/wrapper/dists/gradle-2.2-all/3qtuormg932jiupng16e79muug/gradle-2.2/lib/groovy-all-2.3.6.jar!/org/codehaus/groovy/runtime/DateGroovyMethods.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.31569967" vertical-offset="2839" max-vertical-offset="5022">
+          <caret line="197" column="0" selection-start-line="197" selection-start-column="0" selection-end-line="197" selection-end-column="0" />
+          <folding>
+            <element signature="e#5784#5785#0" expanded="true" />
+            <element signature="e#5850#5851#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5480769" vertical-offset="0" max-vertical-offset="1296">
+          <caret line="19" column="0" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2536,7 +2501,7 @@
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.2" />
+                <option value="0.4283019" />
               </list>
             </option>
           </splitter-proportions>
@@ -2559,7 +2524,7 @@
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.4283019" />
+                <option value="0.2" />
               </list>
             </option>
           </splitter-proportions>
@@ -2567,11 +2532,12 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>ore-infinium</last-edited>
+          <last-edited>core</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
                 <option value="0.4283019" />
+                <option value="0.6" />
               </list>
             </option>
           </splitter-proportions>
@@ -2591,7 +2557,7 @@
       </state>
       <state key="ProjectLibrariesConfigurable.UI">
         <settings>
-          <last-edited>Gradle: org.lwjgl.lwjgl:lwjgl:2.9.2</last-edited>
+          <last-edited>Gradle: com.badlogicgames.gdx:gdx-freetype-platform:1.5.2:natives-desktop</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
