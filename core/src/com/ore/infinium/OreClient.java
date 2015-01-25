@@ -119,7 +119,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_serverThread.start();
 
         try {
-            m_server.latch.await();
+            m_server.connectHostLatch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -260,6 +260,18 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     }
 
+    private void shutdown() {
+        if (m_server != null) {
+            m_server.shutdownLatch.countDown();
+            try {
+                m_serverThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Gdx.app.exit();
+    }
+
     @Override
     public void resize(int width, int height) {
         m_stage.getViewport().update(width, height, true);
@@ -276,7 +288,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
-            Gdx.app.exit();
+            shutdown();
         } else if (keycode == Input.Keys.F10) {
             m_renderTiles = !m_renderTiles;
         } else if (keycode == Input.Keys.F11) {

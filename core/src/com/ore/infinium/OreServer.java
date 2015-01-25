@@ -37,7 +37,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class OreServer implements Runnable {
 
-    public CountDownLatch latch = new CountDownLatch(1);
+    public CountDownLatch connectHostLatch = new CountDownLatch(1);
+    public CountDownLatch shutdownLatch = new CountDownLatch(1);
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
     private World m_world;
     private Server m_serverKryo;
@@ -69,7 +70,7 @@ public class OreServer implements Runnable {
             m_world = new World(null, this);
 
             //notify our local client we've started hosting our server, so he can connect now.
-            latch.countDown();
+            connectHostLatch.countDown();
         } catch (IOException e) {
             e.printStackTrace();
             Gdx.app.exit();
@@ -95,6 +96,13 @@ public class OreServer implements Runnable {
 
                 //entityManager.update();
                 m_world.update(frameTime);
+            }
+
+            if (shutdownLatch.getCount() == 0) {
+                //client told us to shutdown by triggering latch to 0, this should kill thread..
+                //m_serverKryo.stop(); needed?
+                m_serverKryo.close();
+                return;
             }
 
             double alpha = m_accumulator / m_step;
@@ -460,6 +468,16 @@ public class OreServer implements Runnable {
             //HACK, debug
             c.setTimeout(999999999);
             c.setKeepAliveTCP(9999999);
+        }
+
+        @Override
+        public void connected(Connection connection) {
+            super.connected(connection);
+        }
+
+        @Override
+        public void idle(Connection connection) {
+            super.idle(connection);
         }
 
         public void disconnected(Connection c) {

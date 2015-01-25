@@ -45,10 +45,10 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     private SlotElement[] m_slots = new SlotElement[Inventory.maxHotbarSlots];
     private Inventory m_hotbarInventory;
 
-    public HotbarInventoryView(Stage stage, Skin skin, Inventory inventory) {
+    public HotbarInventoryView(Stage stage, Skin skin, Inventory hotbarInventory) {
         m_stage = stage;
         m_skin = skin;
-        m_hotbarInventory = inventory;
+        m_hotbarInventory = hotbarInventory;
         m_hotbarInventory.addListener(this);
 
         container = new Table(m_skin);
@@ -94,7 +94,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50, 50);
 
-            dragAndDrop.addSource(new HotbarDragSource(slotTable, i, dragImage));
+            dragAndDrop.addSource(new HotbarDragSource(slotTable, i, dragImage, this));
 
             dragAndDrop.addTarget(new HotbarDragTarget(slotTable, i, this));
         }
@@ -145,16 +145,22 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     private static class HotbarDragSource extends DragAndDrop.Source {
         private final int index;
         private Image dragImage;
+        private HotbarInventoryView inventory;
 
-        public HotbarDragSource(Table slotTable, int index, Image dragImage) {
+        public HotbarDragSource(Table slotTable, int index, Image dragImage, HotbarInventoryView inventory) {
             super(slotTable);
             this.index = index;
             this.dragImage = dragImage;
-
+            this.inventory = inventory;
             //    dragImage.set
         }
 
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
+            //invalid drag start, ignore.
+            if (inventory.m_hotbarInventory.item(index) == null) {
+                return null;
+            }
+
             DragAndDrop.Payload payload = new DragAndDrop.Payload();
 
             InventorySlotDragWrapper dragWrapper = new InventorySlotDragWrapper();
@@ -181,6 +187,10 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         }
 
         public boolean drag(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
+            if (payload == null) {
+                return false;
+            }
+
             if (isValidDrop(payload)) {
                 getActor().setColor(Color.GREEN);
                 payload.getDragActor().setColor(0, 1, 0, 1);
