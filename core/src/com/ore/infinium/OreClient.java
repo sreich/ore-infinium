@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.ore.infinium.components.ControllableComponent;
 import com.ore.infinium.components.ItemComponent;
@@ -442,8 +443,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 //TODO i wonder if i can implement my own serializer (trivially!) and make it use the entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
 
             } else {
-                Gdx.app.log("client network", "unhandled network receiving class");
-                assert false;
+                if (!(object instanceof FrameworkMessage.KeepAlive)) {
+                    Gdx.app.log("client network", "unhandled network receiving class");
+                    assert false;
+                }
             }
 
             // if (object instanceof ChatMessage) {

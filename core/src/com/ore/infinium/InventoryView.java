@@ -54,11 +54,12 @@ public class InventoryView implements Inventory.SlotListener {
         Table container = new Table(m_skin);
         container.setFillParent(true);
         container.center(); //top().right().setSize(800, 100);
-//        container.padLeft(10).padTop(10);
+        container.defaults().space(4);
+        container.padLeft(10).padTop(10);
 
         Window window = new Window("Inventory", m_skin);
         //FIXME not centering or anythign
-        window.top().right().setSize(500, 500);
+        window.top().right().setSize(400, 500);
 //        window.defaults().space(4);
         //window.pack();
         window.add(container).fill().expand();
