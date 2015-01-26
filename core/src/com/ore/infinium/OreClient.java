@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -54,7 +55,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private InputMultiplexer m_multiplexer;
     private ChatBox m_chat;
     private HotbarInventoryView m_hotbarView;
+    private InventoryView m_inventoryView;
     private Inventory m_hotbarInventory;
+    private Inventory m_inventory;
     private ScreenViewport m_viewport;
     private Entity m_mainPlayer;
     private Client m_clientKryo;
@@ -70,11 +73,19 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private BitmapFont bitmapFont_8pt;
     private boolean m_renderGui = true;
 
+    private DragAndDrop m_dragAndDrop;
+
     @Override
     public void create() {
         //    Log.set(Log.LEVEL_DEBUG);
 //        Log.set(Log.LEVEL_INF
+//        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, m_skin);
+//        progressBar.setValue(50);
+//        progressBar.getStyle().knobBefore = progressBar.getStyle().knob;
+//        progressBar.getStyle().knob.setMinHeight(50);
+//        container.add(progressBar);
 
+        m_dragAndDrop = new DragAndDrop();
         decimalFormat.setMaximumFractionDigits(9);
 
         m_batch = new SpriteBatch();
@@ -366,9 +377,21 @@ public class OreClient implements ApplicationListener, InputProcessor {
         ControllableComponent controllableComponent = m_world.engine.createComponent(ControllableComponent.class);
         player.add(controllableComponent);
 
-        m_hotbarInventory = new Inventory(player);
-        m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
-        m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory);
+        //only do this for the main player! each other player that gets spawned will not need this information, ever.
+        if (m_mainPlayer == null) {
+            PlayerComponent playerComponent = Mappers.player.get(player);
+
+            m_hotbarInventory = new Inventory(player);
+            m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
+            playerComponent.hotbarInventory = m_hotbarInventory;
+
+            m_inventory = new Inventory(player);
+            m_inventory.inventoryType = Inventory.InventoryType.Inventory;
+            playerComponent.inventory = m_inventory;
+
+            m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop);
+            m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop);
+        }
 
         m_world.engine.addEntity(player);
 

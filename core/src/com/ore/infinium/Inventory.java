@@ -23,14 +23,24 @@ import com.badlogic.gdx.utils.Array;
  */
 public class Inventory {
     public static final byte maxHotbarSlots = 8;
+    public static final byte maxSlots = 32;
+
+    //selection is hotbar only
     public int m_selectedSlot;
-    public Entity owningPlayer;
+
+    public Entity owningPlayer; //HACK? unneeded?
+
     public InventoryType inventoryType;
     Array<SlotListener> m_listeners = new Array<>();
     private Entity[] m_slots;
 
     public Inventory(Entity _owningPlayer) {
-        m_slots = new Entity[maxHotbarSlots];
+        if (inventoryType == InventoryType.Hotbar) {
+            m_slots = new Entity[maxHotbarSlots];
+        } else {
+            m_slots = new Entity[maxSlots];
+        }
+
         owningPlayer = _owningPlayer;
     }
 
