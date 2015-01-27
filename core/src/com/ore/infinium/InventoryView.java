@@ -42,6 +42,7 @@ public class InventoryView implements Inventory.SlotListener {
 
     //the hotbar inventory, for drag and drop
     private Inventory m_hotbarInventory;
+    private Window m_window;
 
     public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory, DragAndDrop dragAndDrop) {
         m_skin = skin;
@@ -57,12 +58,13 @@ public class InventoryView implements Inventory.SlotListener {
         container.defaults().space(4);
         container.padLeft(10).padTop(10);
 
-        Window window = new Window("Inventory", m_skin);
-        //FIXME not centering or anythign
-        window.top().right().setSize(400, 500);
+        m_window = new Window("Inventory", m_skin);
+        //HACK;not centering or anythign, all hardcoded :(
+        m_window.setPosition(900, 100);
+        m_window.top().right().setSize(400, 500);
 //        window.defaults().space(4);
         //window.pack();
-        window.add(container).fill().expand();
+        m_window.add(container).fill().expand();
 
 
         //HACK tmp, use assetmanager
@@ -105,7 +107,16 @@ public class InventoryView implements Inventory.SlotListener {
             container.row();
         }
 
-        stage.addActor(window);
+        stage.addActor(m_window);
+    }
+
+    public void setVisible(boolean visible) {
+        m_window.setVisible(visible);
+    }
+
+    private void setSlotVisible(int index, boolean visible) {
+        m_slots[index].itemCountLabel.setVisible(visible);
+        m_slots[index].itemImage.setVisible(visible);
     }
 
     @Override

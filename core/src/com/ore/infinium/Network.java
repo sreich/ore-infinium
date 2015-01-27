@@ -34,7 +34,9 @@ public class Network {
     static public void register(EndPoint endPoint) {
         Kryo kryo = endPoint.getKryo();
         kryo.register(InitialClientData.class);
-        kryo.register(ChatMessage.class);
+        kryo.register(ChatMessageFromClient.class);
+        kryo.register(ChatMessageFromServer.class);
+        kryo.register(Chat.ChatSender.class);
         kryo.register(InventoryMoveFromClient.class);
         kryo.register(InventoryMoveFromClient.InventoryType.class);
         kryo.register(KickReason.class);
@@ -115,6 +117,7 @@ public class Network {
         public String timestamp;
         public String playerName;
         public String message;
+        public Chat.ChatSender sender;
     }
 
     //hack: unneeded??
@@ -204,10 +207,6 @@ public class Network {
             HotbarInventory,
             Inventory // main inventory
         }
-    }
-
-    static public class ChatMessage {
-        public String text;
     }
 
     static public class KickReason {

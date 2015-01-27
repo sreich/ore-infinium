@@ -23,10 +23,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
-import com.ore.infinium.components.ControllableComponent;
-import com.ore.infinium.components.ItemComponent;
-import com.ore.infinium.components.PlayerComponent;
-import com.ore.infinium.components.SpriteComponent;
+import com.ore.infinium.components.*;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -42,37 +39,50 @@ public class OreClient implements ApplicationListener, InputProcessor {
     static final String debugString2 = "F11 - gui render toggle";
     static final String debugString3 = "F10 - tile render toggle";
 
-    static OreTimer timer = new OreTimer();
-    static String frameTimeString = "0";
+    static OreTimer frameTimer = new OreTimer();
+    static String frameTimeString = "";
+    static String fpsString = "";
+    static String textureSwitchesString = "";
+    static String shaderSwitchesString = "";
+    static String drawCallsString = "";
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
 
-    public ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     public boolean m_renderTiles = true;
+    private boolean m_guiDebug;
+    private boolean m_renderGui = true;
+    private boolean m_inventoryVisible = true;
+
+    public ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     FreeTypeFontGenerator m_fontGenerator;
-    private World m_world;
     private Stage m_stage;
     private Table m_table;
     private Skin m_skin;
+
+    private ChatBox m_chatBox;
+    private Chat m_chat;
+
     private InputMultiplexer m_multiplexer;
-    private ChatBox m_chat;
+
     private HotbarInventoryView m_hotbarView;
     private InventoryView m_inventoryView;
     private Inventory m_hotbarInventory;
     private Inventory m_inventory;
+
     private ScreenViewport m_viewport;
+    private World m_world;
     private Entity m_mainPlayer;
     private Client m_clientKryo;
     private OreServer m_server;
     private Thread m_serverThread;
+
     private double m_accumulator;
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
+
     private SpriteBatch m_batch;
     private BitmapFont m_font;
-    private Dialog dialog;
-    private boolean m_guiDebug;
     private BitmapFont bitmapFont_8pt;
-    private boolean m_renderGui = true;
+    private Dialog dialog;
 
     private DragAndDrop m_dragAndDrop;
 
@@ -92,7 +102,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_batch = new SpriteBatch();
 
         m_stage = new Stage(new StretchViewport(1600, 900));
-        m_multiplexer = new InputMultiplexer(this, m_stage);
+        m_multiplexer = new InputMultiplexer(m_stage, this);
 
         GLProfiler.enable();
 
@@ -118,7 +128,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
         m_skin.load(Gdx.files.internal("ui/ui.json"));
 
-        m_chat = new ChatBox(m_stage, m_skin);
+        m_chatBox = new ChatBox(this, m_stage, m_skin);
+        m_chat = new Chat();
+        m_chat.addListener(m_chatBox);
+
+        m_chat.addChatLine("09:03", "poopiename", "here's some neat stuff!", Chat.ChatSender.Player);
+        m_chat.addChatLine("09:03", "poopiename2", "here's some neat stuff2!", Chat.ChatSender.Player);
+        m_chat.addChatLine("09:03", "poopiename3", "here's some neat stuff3!", Chat.ChatSender.Player);
 
 //        Gdx.input.setInputProcessor(this);
 
@@ -203,7 +219,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         //Gdx.app.log("frametime", Double.toString(frameTime));
         //Gdx.app.log("alpha", Double.toString(alpha));
 
-        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (m_world != null) {
@@ -215,15 +231,20 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_stage.draw();
         }
 
-        if (timer.milliseconds() > 2000) {
+        if (frameTimer.milliseconds() > 2000) {
             frameTimeString = "Frametime: " + decimalFormat.format(frameTime);
-            timer.reset();
+            fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
+            textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
+            shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;
+            drawCallsString = "Draw calls: " + GLProfiler.drawCalls;
+
+            frameTimer.reset();
         }
 
         m_batch.begin();
 
         int textY = Gdx.graphics.getHeight() - 150;
-        m_font.draw(m_batch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 0, textY);
+        m_font.draw(m_batch, fpsString, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, frameTimeString, 0, textY);
         textY -= 15;
@@ -233,11 +254,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, debugString3, 0, textY);
         textY -= 15;
-        m_font.draw(m_batch, "Texture switches: " + GLProfiler.textureBindings, 0, textY);
+        m_font.draw(m_batch, textureSwitchesString, 0, textY);
         textY -= 15;
-        m_font.draw(m_batch, "Shader switches: " + GLProfiler.shaderSwitches, 0, textY);
+        m_font.draw(m_batch, shaderSwitchesString, 0, textY);
         textY -= 15;
-        m_font.draw(m_batch, "Draw calls: " + GLProfiler.drawCalls, 0, textY);
+        m_font.draw(m_batch, drawCallsString, 0, textY);
         m_batch.end();
 
         GLProfiler.reset();
@@ -308,6 +329,35 @@ public class OreClient implements ApplicationListener, InputProcessor {
         } else if (keycode == Input.Keys.F12) {
             m_guiDebug = !m_guiDebug;
             m_stage.setDebugAll(m_guiDebug);
+        } else if (keycode == Input.Keys.I) {
+            if (m_inventoryView != null) {
+                m_inventoryVisible = !m_inventoryVisible;
+                m_inventoryView.setVisible(m_inventoryVisible);
+            }
+        }
+
+        ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
+        controllableComponent.desiredDirection.setZero();
+
+        if (keycode == Input.Keys.LEFT) {
+            controllableComponent.desiredDirection.x = -1;
+        }
+
+        if (keycode == Input.Keys.RIGHT) {
+
+            controllableComponent.desiredDirection.x = 1;
+        }
+
+        if (keycode == Input.Keys.UP) {
+
+        }
+        if (keycode == Input.Keys.DOWN) {
+
+        }
+
+        if (keycode == Input.Keys.SPACE) {
+            JumpComponent jumpComponent = Mappers.jump.get(m_mainPlayer);
+            jumpComponent.shouldJump = true;
         }
 
         return true;
@@ -315,6 +365,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
+        ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
+        controllableComponent.desiredDirection.setZero();
+
         return false;
     }
 
@@ -371,6 +424,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         move.position = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
 
         m_clientKryo.sendTCP(move);
+    }
+
+    public void sendChatMessage(String message) {
+        Network.ChatMessageFromClient chatMessageFromClient = new Network.ChatMessageFromClient();
+        chatMessageFromClient.message = message;
+
+        m_clientKryo.sendTCP(chatMessageFromClient);
     }
 
     private Entity createPlayer(String playerName, int connectionId) {
@@ -442,6 +502,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 //TODO i wonder if i can implement my own serializer (trivially!) and make it use the entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
 
+            } else if (object instanceof Network.ChatMessageFromServer) {
+                Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) object;
+                m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
             } else {
                 if (!(object instanceof FrameworkMessage.KeepAlive)) {
                     Gdx.app.log("client network", "unhandled network receiving class");

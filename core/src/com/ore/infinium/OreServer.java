@@ -14,6 +14,9 @@ import com.esotericsoftware.kryonet.Server;
 import com.ore.infinium.components.*;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 
@@ -48,6 +51,8 @@ public class OreServer implements Runnable {
     private double m_step = 1.0 / 60.0;
     private boolean m_running = true;
 
+    private Chat m_chat;
+
     public OreServer() {
     }
 
@@ -68,6 +73,24 @@ public class OreServer implements Runnable {
         try {
             m_serverKryo.bind(Network.port);
             m_world = new World(null, this);
+            m_chat = new Chat();
+            m_chat.addListener(new Chat.ChatListener() {
+                @Override
+                public void lineAdded(Chat.ChatLine line) {
+                    Network.ChatMessageFromServer message = new Network.ChatMessageFromServer();
+                    message.message = line.chatText;
+                    message.playerName = line.playerName;
+                    message.sender = line.chatSender;
+                    message.timestamp = line.timestamp;
+
+                    m_serverKryo.sendToAllTCP(message);
+                }
+
+                @Override
+                public void cleared() {
+
+                }
+            });
 
             //notify our local client we've started hosting our server, so he can connect now.
             connectHostLatch.countDown();
@@ -408,6 +431,12 @@ public class OreServer implements Runnable {
                 Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
                 SpriteComponent sprite = Mappers.sprite.get(job.connection.player);
                 sprite.sprite.setPosition(data.position.x, data.position.y);
+            } else if (job.object instanceof Network.ChatMessageFromClient) {
+                Network.ChatMessageFromClient data = ((Network.ChatMessageFromClient) job.object);
+                DateFormat date = new SimpleDateFormat("HH:mm:ss");
+                //FIXME: do some verification stuff, make sure strings are safe
+
+                m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message, Chat.ChatSender.Player);
             }
         }
     }
@@ -484,8 +513,9 @@ public class OreServer implements Runnable {
             PlayerConnection connection = (PlayerConnection) c;
             if (connection.player != null) {
                 // Announce to everyone that someone (with a registered playerName) has left.
-                Network.ChatMessage chatMessage = new Network.ChatMessage();
-                chatMessage.text = connection.playerName + " disconnected.";
+                Network.ChatMessageFromServer chatMessage = new Network.ChatMessageFromServer();
+                chatMessage.message = connection.playerName + " disconnected.";
+                chatMessage.sender = Chat.ChatSender.Server;
                 m_serverKryo.sendToAllTCP(chatMessage);
             }
         }
@@ -517,4 +547,5 @@ public class OreServer implements Runnable {
 
         }
     }
+
 }

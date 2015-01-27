@@ -91,12 +91,13 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
             slotTable.row();
 
-            Label itemName = new Label(null, m_skin);
-            slotTable.add(itemName).bottom().fill();
-            element.itemCountLabel = itemName;
+            Label itemCount = new Label(null, m_skin);
+            slotTable.add(itemCount).bottom().fill();
+            element.itemCountLabel = itemCount;
 
 //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50, 50);
+            setHotbarSlotVisible(i, false);
 
             dragAndDrop.addSource(new HotbarDragSource(slotTable, i, dragImage, this));
 
@@ -128,6 +129,8 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         ItemComponent itemComponent = Mappers.item.get(item);
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
 
+        setHotbarSlotVisible(index, true);
+
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
         //.maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
 
@@ -136,8 +139,9 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     @Override
     public void removed(int index, Inventory inventory) {
         SlotElement slot = m_slots[index];
-        slot.itemImage.setDrawable(null);
-        slot.itemCountLabel.setText(null);
+        //       slot.itemImage.setDrawable(null);
+//        slot.itemCountLabel.setText(null);
+        setHotbarSlotVisible(index, false);
     }
 
     @Override
@@ -145,6 +149,16 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         deselectPreviousSlot();
         m_previousSelectedSlot = index;
         m_slots[index].table.setColor(0, 0, 1, 1);
+    }
+
+    //FIXME: do the same for InventoryView
+    private void setHotbarSlotVisible(int index, boolean visible) {
+        if (!visible) {
+            m_slots[index].itemImage.setDrawable(null);
+            m_slots[index].itemCountLabel.setText(null);
+        }
+        m_slots[index].itemCountLabel.setVisible(visible);
+        m_slots[index].itemImage.setVisible(visible);
     }
 
     private static class HotbarDragSource extends DragAndDrop.Source {
