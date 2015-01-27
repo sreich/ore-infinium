@@ -132,12 +132,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_chat = new Chat();
         m_chat.addListener(m_chatBox);
 
-        m_chat.addChatLine("09:03", "poopiename", "here's some neat stuff!", Chat.ChatSender.Player);
-        m_chat.addChatLine("09:03", "poopiename2", "here's some neat stuff2!", Chat.ChatSender.Player);
-        m_chat.addChatLine("09:03", "poopiename3", "here's some neat stuff3!", Chat.ChatSender.Player);
-
-//        Gdx.input.setInputProcessor(this);
-
         hostAndJoin();
     }
 

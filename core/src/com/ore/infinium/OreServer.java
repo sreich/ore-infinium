@@ -269,6 +269,14 @@ public class OreServer implements Runnable {
 
             playerComponent.hotbarInventory.setSlot(i, torch);
         }
+
+        sendServerMessage("Player " + playerComponent.playerName + " has joined the server.");
+    }
+
+    private void sendServerMessage(String message) {
+        DateFormat date = new SimpleDateFormat("HH:mm:ss");
+        String timestamp = date.format(new Date());
+        m_chat.addChatLine(timestamp, "", message, Chat.ChatSender.Server);
     }
 
     /**
@@ -433,9 +441,9 @@ public class OreServer implements Runnable {
                 sprite.sprite.setPosition(data.position.x, data.position.y);
             } else if (job.object instanceof Network.ChatMessageFromClient) {
                 Network.ChatMessageFromClient data = ((Network.ChatMessageFromClient) job.object);
-                DateFormat date = new SimpleDateFormat("HH:mm:ss");
                 //FIXME: do some verification stuff, make sure strings are safe
 
+                DateFormat date = new SimpleDateFormat("HH:mm:ss");
                 m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message, Chat.ChatSender.Player);
             }
         }
