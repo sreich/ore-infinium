@@ -136,7 +136,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     }
 
     public void toggleChatVisible() {
-        if (m_chatBox.chatVisible) {
+        if (m_chatBox.chatVisibilityState == ChatBox.ChatVisibility.Normal) {
             m_chatBox.closeChatDialog();
         } else {
             m_chatBox.openChatDialog();
@@ -341,6 +341,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
+        if (m_mainPlayer == null) {
+            return false;
+        }
+
         ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
@@ -352,7 +356,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         if (keycode == Input.Keys.UP) {
-
+            //hack
+            m_chat.addChatLine("0932", "penisguy", "chat line", Chat.ChatSender.Player);
         }
         if (keycode == Input.Keys.DOWN) {
 

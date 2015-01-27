@@ -1,13 +1,11 @@
 package com.ore.infinium;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Timer;
 
 /**
  * ***************************************************************************
@@ -34,12 +32,16 @@ public class ChatBox implements Chat.ChatListener {
 
     private Table container;
 
-    private ScrollPane m_scroll;
     private Array<ChatElement> m_elements = new Array<>();
+
+    private ScrollPane m_scroll;
     private Table m_scrollPaneTable;
     private TextField m_messageField;
+    private TextButton m_send;
 
-    public boolean chatVisible = false;
+    public ChatVisibility chatVisibilityState;
+
+    Timer m_notificationTimer;
 
     private class ChatElement {
         Label timestampLabel;
@@ -51,6 +53,8 @@ public class ChatBox implements Chat.ChatListener {
         m_client = client;
         m_stage = stage;
         m_skin = skin;
+
+        m_notificationTimer = new Timer();
 
         container = new Table();
 
@@ -67,17 +71,17 @@ public class ChatBox implements Chat.ChatListener {
         m_messageField = new TextField("", m_skin);
         container.add(m_messageField).expandX().fill();
 
-        TextButton send = new TextButton("send", m_skin);
+        m_send = new TextButton("send", m_skin);
 
-        send.addListener(new ChangeListener() {
+        m_send.addListener(new ChangeListener() {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                 sendChat();
             }
         });
 
-        container.add(send).right();
+        container.add(m_send).right();
 
-        stage.setKeyboardFocus(send);
+        stage.setKeyboardFocus(m_send);
 //        container.background("default-window");
 
         container.layout();
@@ -88,14 +92,12 @@ public class ChatBox implements Chat.ChatListener {
             @Override
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ENTER) {
-                    if (chatVisible) {
-                        sendChat();
+                    if (chatVisibilityState == ChatVisibility.Normal) {
                         closeChatDialog();
+                        sendChat();
                     } else {
                         openChatDialog();
                     }
-
-                    chatVisible = !chatVisible;
 
                     return true;
                 }
@@ -107,7 +109,7 @@ public class ChatBox implements Chat.ChatListener {
                 }
 
                 //ignore all keys if we're in non-focused mode
-                if (!chatVisible) {
+                if (chatVisibilityState != ChatVisibility.Normal) {
                     return false;
                 }
 
@@ -115,7 +117,46 @@ public class ChatBox implements Chat.ChatListener {
             }
         });
 
-//        closeChatDialog();
+        closeChatDialog();
+        showForNotification();
+    }
+
+    private void showForNotification() {
+        openChatDialog();
+
+        switchInteractionMode(ChatVisibility.Notification);
+
+        m_notificationTimer.scheduleTask(new Timer.Task() {
+            @Override
+            public void run() {
+                //hide after a timeout of it being shown in notification mode
+                closeChatDialog();
+            }
+        }, 3);
+
+        m_notificationTimer.start();
+    }
+
+    public enum ChatVisibility {
+        Notification,
+        Normal,
+        Hidden
+    }
+
+    //notification mode
+    private void switchInteractionMode(ChatVisibility chatVisibility) {
+
+        boolean notification = chatVisibility == ChatVisibility.Notification;
+
+//        m_messageField.setVisible(!notification);
+        m_messageField.setDisabled(notification);
+        m_send.setVisible(!notification);
+        m_scroll.setScrollingDisabled(notification, notification);
+
+        Touchable touchable = notification ? Touchable.disabled : Touchable.enabled;
+//        m_scrollPaneTable.setTouchable(touchable);
+//        m_scroll.setTouchable(touchable);
+        chatVisibilityState = chatVisibility;
     }
 
     private void sendChat() {
@@ -131,16 +172,18 @@ public class ChatBox implements Chat.ChatListener {
     }
 
     public void openChatDialog() {
+        switchInteractionMode(ChatVisibility.Normal);
         container.setVisible(true);
         m_messageField.setDisabled(false);
         m_stage.setKeyboardFocus(m_messageField);
-        chatVisible = true;
+        m_notificationTimer.clear();
+        m_notificationTimer.stop();
     }
 
     public void closeChatDialog() {
+        switchInteractionMode(ChatVisibility.Hidden);
         container.setVisible(false);
         m_messageField.setDisabled(true);
-        chatVisible = false;
     }
 
     @Override
@@ -168,6 +211,8 @@ public class ChatBox implements Chat.ChatListener {
         m_scrollPaneTable.layout();
         m_scroll.layout();
         m_scroll.setScrollPercentY(100f);
+
+        showForNotification();
     }
 
     @Override
