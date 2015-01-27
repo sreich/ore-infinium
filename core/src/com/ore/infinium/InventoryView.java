@@ -33,6 +33,8 @@ import com.ore.infinium.components.ItemComponent;
  * ***************************************************************************
  */
 public class InventoryView implements Inventory.SlotListener {
+    public boolean inventoryVisible;
+
     TextureAtlas atlas;
     private Skin m_skin;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxSlots];
@@ -107,11 +109,14 @@ public class InventoryView implements Inventory.SlotListener {
             container.row();
         }
 
+
         stage.addActor(m_window);
+        setVisible(false);
     }
 
     public void setVisible(boolean visible) {
         m_window.setVisible(visible);
+        inventoryVisible = visible;
     }
 
     private void setSlotVisible(int index, boolean visible) {

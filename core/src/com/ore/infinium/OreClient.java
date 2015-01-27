@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -50,18 +49,18 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean m_renderTiles = true;
     private boolean m_guiDebug;
     private boolean m_renderGui = true;
-    private boolean m_inventoryVisible = true;
 
-    public ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
+    private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     FreeTypeFontGenerator m_fontGenerator;
     private Stage m_stage;
-    private Table m_table;
     private Skin m_skin;
+
+    private InputMultiplexer m_multiplexer;
 
     private ChatBox m_chatBox;
     private Chat m_chat;
-
-    private InputMultiplexer m_multiplexer;
+    private Dialog dialog;
+    private Sidebar m_sidebar;
 
     private HotbarInventoryView m_hotbarView;
     private InventoryView m_inventoryView;
@@ -82,7 +81,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private SpriteBatch m_batch;
     private BitmapFont m_font;
     private BitmapFont bitmapFont_8pt;
-    private Dialog dialog;
 
     private DragAndDrop m_dragAndDrop;
 
@@ -132,7 +130,21 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_chat = new Chat();
         m_chat.addListener(m_chatBox);
 
+        m_sidebar = new Sidebar(m_stage, m_skin, this);
+
         hostAndJoin();
+    }
+
+    public void toggleChatVisible() {
+        if (m_chatBox.chatVisible) {
+            m_chatBox.closeChatDialog();
+        } else {
+            m_chatBox.openChatDialog();
+        }
+    }
+
+    public void toggleInventoryVisible() {
+        m_inventoryView.setVisible(!m_inventoryView.inventoryVisible);
     }
 
     private void hostAndJoin() {
@@ -325,8 +337,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_stage.setDebugAll(m_guiDebug);
         } else if (keycode == Input.Keys.I) {
             if (m_inventoryView != null) {
-                m_inventoryVisible = !m_inventoryVisible;
-                m_inventoryView.setVisible(m_inventoryVisible);
+                m_inventoryView.setVisible(!m_inventoryView.inventoryVisible);
             }
         }
 
@@ -539,4 +550,5 @@ public class OreClient implements ApplicationListener, InputProcessor {
         public void disconnected(Connection connection) {
         }
     }
+
 }

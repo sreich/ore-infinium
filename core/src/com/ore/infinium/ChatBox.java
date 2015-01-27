@@ -134,11 +134,13 @@ public class ChatBox implements Chat.ChatListener {
         container.setVisible(true);
         m_messageField.setDisabled(false);
         m_stage.setKeyboardFocus(m_messageField);
+        chatVisible = true;
     }
 
     public void closeChatDialog() {
         container.setVisible(false);
         m_messageField.setDisabled(true);
+        chatVisible = false;
     }
 
     @Override
