@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="create chat messages of type 'server', and handle those properly">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
+    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="fix player movement input regression, was acting really weird/keys sticking">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ore-infinium.iws" />
@@ -104,11 +104,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.40688914" vertical-offset="5580" max-vertical-offset="9810">
-              <caret line="333" column="0" selection-start-line="333" selection-start-column="0" selection-end-line="333" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="5526" max-vertical-offset="9810">
+              <caret line="331" column="0" selection-start-line="331" selection-start-column="0" selection-end-line="331" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#10200#10201#0" expanded="true" />
@@ -155,12 +155,15 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChatBox.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ChatBox.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2046" max-vertical-offset="2988">
-              <caret line="139" column="0" selection-start-line="139" selection-start-column="0" selection-end-line="139" selection-end-column="0" />
-              <folding />
+            <state vertical-scroll-proportion="0.82165605" vertical-offset="1260" max-vertical-offset="3150">
+              <caret line="120" column="12" selection-start-line="120" selection-start-column="12" selection-end-line="120" selection-end-column="12" />
+              <folding>
+                <element signature="e#2720#2721#0" expanded="true" />
+                <element signature="e#2762#2763#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -1064,9 +1067,9 @@
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Chat.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" />
       </list>
     </option>
   </component>
@@ -2059,7 +2062,13 @@
       <option name="project" value="LOCAL" />
       <updated>1422335419198</updated>
     </task>
-    <option name="localTasksCounter" value="48" />
+    <task id="LOCAL-00048" summary="fix player movement input regression, was acting really weird/keys sticking">
+      <created>1422335672792</created>
+      <option name="number" value="00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1422335672792</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2133,7 +2142,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="create a zoom timer so we don't have to keep pressing it, and so that holding it doesn't go too fast/slow" />
     <MESSAGE value="fix player spawning. physics seems to..move a bit&#10;&#10;somehow the movement/accel is really slow. vector was scaled by delta which seems to have made it none" />
     <MESSAGE value="jump is entirely implemented now, and the errors therein uncovered...&#10;&#10;collision is off by a block or two. more likely, the rendering of the sprite is.&#10;&#10;have not yet figured out why movement speed..and everything physicy is so slow..&#10;timestep interval is identical, delta seems to be passed properly..." />
     <MESSAGE value="fix movement speed a lot, and gravity slightly." />
@@ -2158,7 +2166,8 @@
     <MESSAGE value="add some inventory spacing, don't assert on KeepAlive packets" />
     <MESSAGE value="chat is hooked up to the network now, craft some neat logic to hide/show the chat on enter (required a good amount of input modifications)" />
     <MESSAGE value="create chat messages of type 'server', and handle those properly" />
-    <option name="LAST_COMMIT_MESSAGE" value="create chat messages of type 'server', and handle those properly" />
+    <MESSAGE value="fix player movement input regression, was acting really weird/keys sticking" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix player movement input regression, was acting really weird/keys sticking" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2573,14 +2582,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2046" max-vertical-offset="2988">
-          <caret line="139" column="0" selection-start-line="139" selection-start-column="0" selection-end-line="139" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Chat.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="282" max-vertical-offset="1224">
@@ -2604,8 +2605,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.40688914" vertical-offset="5580" max-vertical-offset="9810">
-          <caret line="333" column="0" selection-start-line="333" selection-start-column="0" selection-end-line="333" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="5526" max-vertical-offset="9810">
+          <caret line="331" column="0" selection-start-line="331" selection-start-column="0" selection-end-line="331" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#10200#10201#0" expanded="true" />
@@ -2624,6 +2625,17 @@
             <element signature="e#18446#18447#0" expanded="true" />
             <element signature="e#18586#18587#0" expanded="true" />
             <element signature="e#18632#18633#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.82165605" vertical-offset="1260" max-vertical-offset="3150">
+          <caret line="120" column="12" selection-start-line="120" selection-start-column="12" selection-end-line="120" selection-end-column="12" />
+          <folding>
+            <element signature="e#2720#2721#0" expanded="true" />
+            <element signature="e#2762#2763#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -28,8 +28,9 @@ import com.badlogic.gdx.utils.Array;
  * ***************************************************************************
  */
 public class ChatBox implements Chat.ChatListener {
-    private Stage m_stage;
-    private Skin m_skin;
+    private final Stage m_stage;
+    private final Skin m_skin;
+    private final OreClient m_client;
 
     private Table container;
 
@@ -47,6 +48,7 @@ public class ChatBox implements Chat.ChatListener {
     }
 
     public ChatBox(OreClient client, Stage stage, Skin skin) {
+        m_client = client;
         m_stage = stage;
         m_skin = skin;
 
@@ -69,8 +71,7 @@ public class ChatBox implements Chat.ChatListener {
 
         send.addListener(new ChangeListener() {
             public void changed(ChangeListener.ChangeEvent event, Actor actor) {
-                client.sendChatMessage(m_messageField.getText());
-                m_messageField.setText("");
+                sendChat();
             }
         });
 
@@ -88,6 +89,7 @@ public class ChatBox implements Chat.ChatListener {
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ENTER) {
                     if (chatVisible) {
+                        sendChat();
                         closeChatDialog();
                     } else {
                         openChatDialog();
@@ -114,6 +116,13 @@ public class ChatBox implements Chat.ChatListener {
         });
 
 //        closeChatDialog();
+    }
+
+    private void sendChat() {
+        if (m_messageField.getText().length() > 0) {
+            m_client.sendChatMessage(m_messageField.getText());
+            m_messageField.setText("");
+        }
     }
 
     private void scrollToBottom() {
