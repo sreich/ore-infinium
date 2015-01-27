@@ -331,14 +331,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
-        controllableComponent.desiredDirection.setZero();
 
-        if (keycode == Input.Keys.LEFT) {
+        if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             controllableComponent.desiredDirection.x = -1;
         }
 
-        if (keycode == Input.Keys.RIGHT) {
-
+        if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
             controllableComponent.desiredDirection.x = 1;
         }
 
@@ -360,7 +358,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public boolean keyUp(int keycode) {
         ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
-        controllableComponent.desiredDirection.setZero();
+
+        if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
+            controllableComponent.desiredDirection.x = 0;
+        }
+
+        if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
+            controllableComponent.desiredDirection.x = 0;
+        }
 
         return false;
     }

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="chat is hooked up to the network now, craft some neat logic to hide/show the chat on enter (required a good amount of input modifications)">
+    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="create chat messages of type 'server', and handle those properly">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ore-infinium.iws" />
@@ -108,26 +107,26 @@
       <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-5.076426" vertical-offset="6462" max-vertical-offset="9720">
-              <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.40688914" vertical-offset="5580" max-vertical-offset="9810">
+              <caret line="333" column="0" selection-start-line="333" selection-start-column="0" selection-end-line="333" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#10200#10201#0" expanded="true" />
                 <element signature="e#10265#10266#0" expanded="true" />
-                <element signature="e#12002#12003#0" expanded="true" />
-                <element signature="e#12030#12031#0" expanded="true" />
-                <element signature="e#12127#12128#0" expanded="true" />
-                <element signature="e#12155#12156#0" expanded="true" />
-                <element signature="e#12250#12251#0" expanded="true" />
-                <element signature="e#12278#12279#0" expanded="true" />
-                <element signature="e#12366#12367#0" expanded="true" />
-                <element signature="e#12394#12395#0" expanded="true" />
-                <element signature="e#12467#12468#0" expanded="true" />
-                <element signature="e#12495#12496#0" expanded="true" />
-                <element signature="e#18176#18177#0" expanded="true" />
-                <element signature="e#18232#18233#0" expanded="true" />
-                <element signature="e#18372#18373#0" expanded="true" />
-                <element signature="e#18418#18419#0" expanded="true" />
+                <element signature="e#12216#12217#0" expanded="true" />
+                <element signature="e#12244#12245#0" expanded="true" />
+                <element signature="e#12341#12342#0" expanded="true" />
+                <element signature="e#12369#12370#0" expanded="true" />
+                <element signature="e#12464#12465#0" expanded="true" />
+                <element signature="e#12492#12493#0" expanded="true" />
+                <element signature="e#12580#12581#0" expanded="true" />
+                <element signature="e#12608#12609#0" expanded="true" />
+                <element signature="e#12681#12682#0" expanded="true" />
+                <element signature="e#12709#12710#0" expanded="true" />
+                <element signature="e#18390#18391#0" expanded="true" />
+                <element signature="e#18446#18447#0" expanded="true" />
+                <element signature="e#18586#18587#0" expanded="true" />
+                <element signature="e#18632#18633#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -2054,7 +2053,13 @@
       <option name="project" value="LOCAL" />
       <updated>1422334523204</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="create chat messages of type 'server', and handle those properly">
+      <created>1422335419198</created>
+      <option name="number" value="00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1422335419198</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2128,7 +2133,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="center loaded region around player now" />
     <MESSAGE value="create a zoom timer so we don't have to keep pressing it, and so that holding it doesn't go too fast/slow" />
     <MESSAGE value="fix player spawning. physics seems to..move a bit&#10;&#10;somehow the movement/accel is really slow. vector was scaled by delta which seems to have made it none" />
     <MESSAGE value="jump is entirely implemented now, and the errors therein uncovered...&#10;&#10;collision is off by a block or two. more likely, the rendering of the sprite is.&#10;&#10;have not yet figured out why movement speed..and everything physicy is so slow..&#10;timestep interval is identical, delta seems to be passed properly..." />
@@ -2153,7 +2157,8 @@
     <MESSAGE value="add inventory window, drag &amp; drop between it and hotbar works *beautifully*" />
     <MESSAGE value="add some inventory spacing, don't assert on KeepAlive packets" />
     <MESSAGE value="chat is hooked up to the network now, craft some neat logic to hide/show the chat on enter (required a good amount of input modifications)" />
-    <option name="LAST_COMMIT_MESSAGE" value="chat is hooked up to the network now, craft some neat logic to hide/show the chat on enter (required a good amount of input modifications)" />
+    <MESSAGE value="create chat messages of type 'server', and handle those properly" />
+    <option name="LAST_COMMIT_MESSAGE" value="create chat messages of type 'server', and handle those properly" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2163,7 +2168,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java</url>
-          <line>503</line>
+          <line>508</line>
           <properties />
           <option name="timeStamp" value="130" />
         </line-breakpoint>
@@ -2599,26 +2604,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-5.076426" vertical-offset="6462" max-vertical-offset="9720">
-          <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.40688914" vertical-offset="5580" max-vertical-offset="9810">
+          <caret line="333" column="0" selection-start-line="333" selection-start-column="0" selection-end-line="333" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#10200#10201#0" expanded="true" />
             <element signature="e#10265#10266#0" expanded="true" />
-            <element signature="e#12002#12003#0" expanded="true" />
-            <element signature="e#12030#12031#0" expanded="true" />
-            <element signature="e#12127#12128#0" expanded="true" />
-            <element signature="e#12155#12156#0" expanded="true" />
-            <element signature="e#12250#12251#0" expanded="true" />
-            <element signature="e#12278#12279#0" expanded="true" />
-            <element signature="e#12366#12367#0" expanded="true" />
-            <element signature="e#12394#12395#0" expanded="true" />
-            <element signature="e#12467#12468#0" expanded="true" />
-            <element signature="e#12495#12496#0" expanded="true" />
-            <element signature="e#18176#18177#0" expanded="true" />
-            <element signature="e#18232#18233#0" expanded="true" />
-            <element signature="e#18372#18373#0" expanded="true" />
-            <element signature="e#18418#18419#0" expanded="true" />
+            <element signature="e#12216#12217#0" expanded="true" />
+            <element signature="e#12244#12245#0" expanded="true" />
+            <element signature="e#12341#12342#0" expanded="true" />
+            <element signature="e#12369#12370#0" expanded="true" />
+            <element signature="e#12464#12465#0" expanded="true" />
+            <element signature="e#12492#12493#0" expanded="true" />
+            <element signature="e#12580#12581#0" expanded="true" />
+            <element signature="e#12608#12609#0" expanded="true" />
+            <element signature="e#12681#12682#0" expanded="true" />
+            <element signature="e#12709#12710#0" expanded="true" />
+            <element signature="e#18390#18391#0" expanded="true" />
+            <element signature="e#18446#18447#0" expanded="true" />
+            <element signature="e#18586#18587#0" expanded="true" />
+            <element signature="e#18632#18633#0" expanded="true" />
           </folding>
         </state>
       </provider>
