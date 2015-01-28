@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="make sidebar buttons for various gui action things">
+    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="make chat enter a notification kind of mode when it receives something..this was very tricky to get right&#10;&#10;it has 3 states, hidden, notification, which is when it's super transparent, textbox is hidden, can't be scrollable etc, and normal...took a while to get the input to handle properly, pretty sure there's a couple dupe'd state changes here that i may be able to condense without issue.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
@@ -81,31 +81,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="4482" max-vertical-offset="10116">
-              <caret line="282" column="12" selection-start-line="282" selection-start-column="12" selection-end-line="282" selection-end-column="12" />
+            <state vertical-scroll-proportion="0.4843918" vertical-offset="5940" max-vertical-offset="10116">
+              <caret line="357" column="38" selection-start-line="357" selection-start-column="38" selection-end-line="357" selection-end-column="38" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#5184#5185#0" expanded="true" />
                 <element signature="e#5261#5262#0" expanded="true" />
                 <element signature="e#10518#10519#0" expanded="true" />
                 <element signature="e#10583#10584#0" expanded="true" />
-                <element signature="e#12671#12672#0" expanded="true" />
-                <element signature="e#12699#12700#0" expanded="true" />
-                <element signature="e#12796#12797#0" expanded="true" />
-                <element signature="e#12824#12825#0" expanded="true" />
-                <element signature="e#12919#12920#0" expanded="true" />
-                <element signature="e#12947#12948#0" expanded="true" />
-                <element signature="e#13035#13036#0" expanded="true" />
-                <element signature="e#13063#13064#0" expanded="true" />
-                <element signature="e#13136#13137#0" expanded="true" />
-                <element signature="e#13164#13165#0" expanded="true" />
-                <element signature="e#18845#18846#0" expanded="true" />
-                <element signature="e#18901#18902#0" expanded="true" />
-                <element signature="e#19041#19042#0" expanded="true" />
-                <element signature="e#19087#19088#0" expanded="true" />
+                <element signature="e#12565#12566#0" expanded="true" />
+                <element signature="e#12593#12594#0" expanded="true" />
+                <element signature="e#12690#12691#0" expanded="true" />
+                <element signature="e#12718#12719#0" expanded="true" />
+                <element signature="e#12813#12814#0" expanded="true" />
+                <element signature="e#12841#12842#0" expanded="true" />
+                <element signature="e#12929#12930#0" expanded="true" />
+                <element signature="e#12957#12958#0" expanded="true" />
+                <element signature="e#13030#13031#0" expanded="true" />
+                <element signature="e#13058#13059#0" expanded="true" />
+                <element signature="e#18739#18740#0" expanded="true" />
+                <element signature="e#18795#18796#0" expanded="true" />
+                <element signature="e#18935#18936#0" expanded="true" />
+                <element signature="e#18981#18982#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -131,11 +131,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChatBox.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ChatBox.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.29723993" vertical-offset="2600" max-vertical-offset="4032">
-              <caret line="165" column="8" selection-start-line="165" selection-start-column="8" selection-end-line="165" selection-end-column="8" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1476" max-vertical-offset="4176">
+              <caret line="188" column="0" selection-start-line="188" selection-start-column="0" selection-end-line="188" selection-end-column="0" />
               <folding>
                 <element signature="e#2710#2711#0" expanded="true" />
                 <element signature="e#2752#2753#0" expanded="true" />
@@ -1060,8 +1060,8 @@
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Sidebar.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
       </list>
     </option>
   </component>
@@ -1772,12 +1772,6 @@
       <option name="number" value="Default" />
       <updated>1419979788259</updated>
     </task>
-    <task id="LOCAL-00002" summary="more idea libraries">
-      <created>1419979973054</created>
-      <option name="number" value="00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1419979973054</updated>
-    </task>
     <task id="LOCAL-00003" summary="add some packets">
       <created>1419988167044</created>
       <option name="number" value="00003" />
@@ -2066,7 +2060,13 @@
       <option name="project" value="LOCAL" />
       <updated>1422339098116</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="make chat enter a notification kind of mode when it receives something..this was very tricky to get right&#10;&#10;it has 3 states, hidden, notification, which is when it's super transparent, textbox is hidden, can't be scrollable etc, and normal...took a while to get the input to handle properly, pretty sure there's a couple dupe'd state changes here that i may be able to condense without issue.">
+      <created>1422394368688</created>
+      <option name="number" value="00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1422394368688</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2140,7 +2140,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="fix movement speed a lot, and gravity slightly." />
     <MESSAGE value="sprite rendering/origin is proper now. physics looks to be working well." />
     <MESSAGE value="actually fix the timestep, apparently. probably will need improvements later on&#10;&#10;but at least now it doesn't slow down as your cpu speeds up ;)" />
     <MESSAGE value="fix periodic loaded region sending&#10;&#10;it'll need a lot of tweaking, but it's basically back to where it was...and much simpler. yet still need to do entity spawning/loading...among other things..&#10;" />
@@ -2165,7 +2164,8 @@
     <MESSAGE value="fix player movement input regression, was acting really weird/keys sticking" />
     <MESSAGE value="don't try to send chat, client side if text is null. also send it when enter is pressed, as well as close it.&#10;&#10;need to show an animation though when ones are received." />
     <MESSAGE value="make sidebar buttons for various gui action things" />
-    <option name="LAST_COMMIT_MESSAGE" value="make sidebar buttons for various gui action things" />
+    <MESSAGE value="make chat enter a notification kind of mode when it receives something..this was very tricky to get right&#10;&#10;it has 3 states, hidden, notification, which is when it's super transparent, textbox is hidden, can't be scrollable etc, and normal...took a while to get the input to handle properly, pretty sure there's a couple dupe'd state changes here that i may be able to condense without issue." />
+    <option name="LAST_COMMIT_MESSAGE" value="make chat enter a notification kind of mode when it receives something..this was very tricky to get right&#10;&#10;it has 3 states, hidden, notification, which is when it's super transparent, textbox is hidden, can't be scrollable etc, and normal...took a while to get the input to handle properly, pretty sure there's a couple dupe'd state changes here that i may be able to condense without issue." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2179,17 +2179,11 @@
           <properties />
           <option name="timeStamp" value="130" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java</url>
-          <line>141</line>
-          <properties />
-          <option name="timeStamp" value="174" />
-        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="175" />
+      <option name="time" value="185" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -2608,47 +2602,47 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4302">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#1688#1689#0" expanded="true" />
-            <element signature="e#1729#1730#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4482" max-vertical-offset="10116">
-          <caret line="282" column="12" selection-start-line="282" selection-start-column="12" selection-end-line="282" selection-end-column="12" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#5184#5185#0" expanded="true" />
-            <element signature="e#5261#5262#0" expanded="true" />
-            <element signature="e#10518#10519#0" expanded="true" />
-            <element signature="e#10583#10584#0" expanded="true" />
-            <element signature="e#12671#12672#0" expanded="true" />
-            <element signature="e#12699#12700#0" expanded="true" />
-            <element signature="e#12796#12797#0" expanded="true" />
-            <element signature="e#12824#12825#0" expanded="true" />
-            <element signature="e#12919#12920#0" expanded="true" />
-            <element signature="e#12947#12948#0" expanded="true" />
-            <element signature="e#13035#13036#0" expanded="true" />
-            <element signature="e#13063#13064#0" expanded="true" />
-            <element signature="e#13136#13137#0" expanded="true" />
-            <element signature="e#13164#13165#0" expanded="true" />
-            <element signature="e#18845#18846#0" expanded="true" />
-            <element signature="e#18901#18902#0" expanded="true" />
-            <element signature="e#19041#19042#0" expanded="true" />
-            <element signature="e#19087#19088#0" expanded="true" />
+            <element signature="e#1688#1689#0" expanded="false" />
+            <element signature="e#1729#1730#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.29723993" vertical-offset="2600" max-vertical-offset="4032">
-          <caret line="165" column="8" selection-start-line="165" selection-start-column="8" selection-end-line="165" selection-end-column="8" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1476" max-vertical-offset="4176">
+          <caret line="188" column="0" selection-start-line="188" selection-start-column="0" selection-end-line="188" selection-end-column="0" />
           <folding>
             <element signature="e#2710#2711#0" expanded="true" />
             <element signature="e#2752#2753#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4843918" vertical-offset="5940" max-vertical-offset="10116">
+          <caret line="357" column="38" selection-start-line="357" selection-start-column="38" selection-end-line="357" selection-end-column="38" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#5184#5185#0" expanded="true" />
+            <element signature="e#5261#5262#0" expanded="true" />
+            <element signature="e#10518#10519#0" expanded="true" />
+            <element signature="e#10583#10584#0" expanded="true" />
+            <element signature="e#12565#12566#0" expanded="true" />
+            <element signature="e#12593#12594#0" expanded="true" />
+            <element signature="e#12690#12691#0" expanded="true" />
+            <element signature="e#12718#12719#0" expanded="true" />
+            <element signature="e#12813#12814#0" expanded="true" />
+            <element signature="e#12841#12842#0" expanded="true" />
+            <element signature="e#12929#12930#0" expanded="true" />
+            <element signature="e#12957#12958#0" expanded="true" />
+            <element signature="e#13030#13031#0" expanded="true" />
+            <element signature="e#13058#13059#0" expanded="true" />
+            <element signature="e#18739#18740#0" expanded="true" />
+            <element signature="e#18795#18796#0" expanded="true" />
+            <element signature="e#18935#18936#0" expanded="true" />
+            <element signature="e#18981#18982#0" expanded="true" />
           </folding>
         </state>
       </provider>

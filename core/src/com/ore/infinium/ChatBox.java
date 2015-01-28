@@ -135,6 +135,7 @@ public class ChatBox implements Chat.ChatListener {
         }, 3);
 
         m_notificationTimer.start();
+        m_scroll.setScrollingDisabled(true, true);
     }
 
     public enum ChatVisibility {
@@ -151,8 +152,9 @@ public class ChatBox implements Chat.ChatListener {
 //        m_messageField.setVisible(!notification);
         m_messageField.setDisabled(notification);
         m_send.setVisible(!notification);
-        m_scroll.setScrollingDisabled(notification, notification);
+//        m_scroll.setScrollingDisabled(notification, notification);
 
+        scrollToBottom();
         Touchable touchable = notification ? Touchable.disabled : Touchable.enabled;
 //        m_scrollPaneTable.setTouchable(touchable);
 //        m_scroll.setTouchable(touchable);
@@ -172,16 +174,22 @@ public class ChatBox implements Chat.ChatListener {
     }
 
     public void openChatDialog() {
-        switchInteractionMode(ChatVisibility.Normal);
         container.setVisible(true);
         m_messageField.setDisabled(false);
         m_stage.setKeyboardFocus(m_messageField);
         m_notificationTimer.clear();
         m_notificationTimer.stop();
+        //HACK: here be dragons. here and there and over there.
+        //scroll pane seems to not want to scroll until it gets layout() called and some other voodoo stuff
+        //after scrolling has been disabled and re-enabled..very odd indeed.
+        scrollToBottom();
+        m_scroll.setScrollingDisabled(false, false);
+        switchInteractionMode(ChatVisibility.Normal);
     }
 
     public void closeChatDialog() {
         switchInteractionMode(ChatVisibility.Hidden);
+        scrollToBottom();
         container.setVisible(false);
         m_messageField.setDisabled(true);
     }

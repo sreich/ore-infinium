@@ -356,9 +356,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         if (keycode == Input.Keys.UP) {
-            //hack
-            m_chat.addChatLine("0932", "penisguy", "chat line", Chat.ChatSender.Player);
+
         }
+
         if (keycode == Input.Keys.DOWN) {
 
         }
