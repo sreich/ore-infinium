@@ -37,8 +37,8 @@ public class Network {
         kryo.register(ChatMessageFromClient.class);
         kryo.register(ChatMessageFromServer.class);
         kryo.register(Chat.ChatSender.class);
-        kryo.register(InventoryMoveFromClient.class);
-        kryo.register(InventoryMoveFromClient.InventoryType.class);
+        kryo.register(PlayerMoveInventoryItemFromClient.class);
+        kryo.register(Inventory.InventoryType.class);
         kryo.register(KickReason.class);
         kryo.register(KickReason.Reason.class);
         kryo.register(PlayerSpawnedFromServer.class);
@@ -196,17 +196,6 @@ public class Network {
 
     static public class HotbarDropItemRequestFromClient {
         public int index;
-    }
-
-    static public class InventoryMoveFromClient {
-        public int from, to;
-        public InventoryType source;
-        public InventoryType dest;
-
-        public enum InventoryType {
-            HotbarInventory,
-            Inventory // main inventory
-        }
     }
 
     static public class KickReason {

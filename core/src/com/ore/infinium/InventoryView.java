@@ -42,13 +42,17 @@ public class InventoryView implements Inventory.SlotListener {
     //the model for this view
     private Inventory m_inventory;
 
+    private OreClient m_client;
+
     //the hotbar inventory, for drag and drop
     private Inventory m_hotbarInventory;
     private Window m_window;
 
-    public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory, DragAndDrop dragAndDrop) {
+    public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory, DragAndDrop dragAndDrop, OreClient client) {
         m_skin = skin;
         m_inventory = inventory;
+        m_client = client;
+
         //attach to the inventory model
         m_inventory.addListener(this);
 
@@ -250,6 +254,7 @@ public class InventoryView implements Inventory.SlotListener {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
                     //move the item from the source to the dest (from main inventory to main inventory)
                     inventory.m_inventory.setSlot(this.index, inventory.m_inventory.item(dragWrapper.dragSourceIndex));
+                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex);
@@ -258,6 +263,7 @@ public class InventoryView implements Inventory.SlotListener {
 
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
                     inventory.m_inventory.setSlot(this.index, inventory.m_hotbarInventory.item(dragWrapper.dragSourceIndex));
+                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex);

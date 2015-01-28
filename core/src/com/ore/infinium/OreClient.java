@@ -429,6 +429,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
         return true;
     }
 
+    public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, int sourceIndex, Inventory.InventoryType destInventoryType, int destIndex) {
+        Network.PlayerMoveInventoryItemFromClient inventoryItemFromClient = new Network.PlayerMoveInventoryItemFromClient();
+        inventoryItemFromClient.sourceType = sourceInventoryType;
+        inventoryItemFromClient.sourceIndex = sourceIndex;
+        inventoryItemFromClient.destType = destInventoryType;
+        inventoryItemFromClient.destIndex = destIndex;
+
+        m_clientKryo.sendTCP(inventoryItemFromClient);
+    }
+
     /**
      * Send the command indicating (main) player moved to position
      */
@@ -465,8 +475,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_inventory.inventoryType = Inventory.InventoryType.Inventory;
             playerComponent.inventory = m_inventory;
 
-            m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop);
-            m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop);
+            m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
+            m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
         }
 
         m_world.engine.addEntity(player);

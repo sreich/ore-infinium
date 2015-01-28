@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="make chat enter a notification kind of mode when it receives something..this was very tricky to get right&#10;&#10;it has 3 states, hidden, notification, which is when it's super transparent, textbox is hidden, can't be scrollable etc, and normal...took a while to get the input to handle properly, pretty sure there's a couple dupe'd state changes here that i may be able to condense without issue.">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" />
+    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="add some minor hacks to get chat scrolling not being a pita">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ore-infinium.iws" />
@@ -59,13 +62,13 @@
       <file leaf-file-name="OreServer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="4392" max-vertical-offset="9846">
-              <caret line="312" column="0" selection-start-line="312" selection-start-column="0" selection-end-line="312" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="6405" max-vertical-offset="10458">
+              <caret line="390" column="0" selection-start-line="390" selection-start-column="0" selection-end-line="390" selection-end-column="0" />
               <folding>
-                <element signature="e#19824#19825#0" expanded="true" />
-                <element signature="e#19875#19876#0" expanded="true" />
-                <element signature="e#19944#19945#0" expanded="true" />
-                <element signature="e#19990#19991#0" expanded="true" />
+                <element signature="e#21371#21372#0" expanded="true" />
+                <element signature="e#21422#21423#0" expanded="true" />
+                <element signature="e#21491#21492#0" expanded="true" />
+                <element signature="e#21537#21538#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -74,18 +77,18 @@
       <file leaf-file-name="Network.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Network.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1224" max-vertical-offset="4590">
-              <caret line="75" column="8" selection-start-line="75" selection-start-column="8" selection-end-line="75" selection-end-column="8" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4392">
+              <caret line="32" column="40" selection-start-line="32" selection-start-column="40" selection-end-line="32" selection-end-column="40" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4843918" vertical-offset="5940" max-vertical-offset="10116">
-              <caret line="357" column="38" selection-start-line="357" selection-start-column="38" selection-end-line="357" selection-end-column="38" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="7413" max-vertical-offset="10296">
+              <caret line="437" column="0" selection-start-line="437" selection-start-column="0" selection-end-line="437" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#5184#5185#0" expanded="true" />
@@ -102,10 +105,10 @@
                 <element signature="e#12957#12958#0" expanded="true" />
                 <element signature="e#13030#13031#0" expanded="true" />
                 <element signature="e#13058#13059#0" expanded="true" />
-                <element signature="e#18739#18740#0" expanded="true" />
-                <element signature="e#18795#18796#0" expanded="true" />
-                <element signature="e#18935#18936#0" expanded="true" />
-                <element signature="e#18981#18982#0" expanded="true" />
+                <element signature="e#19337#19338#0" expanded="true" />
+                <element signature="e#19393#19394#0" expanded="true" />
+                <element signature="e#19533#19534#0" expanded="true" />
+                <element signature="e#19579#19580#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -114,8 +117,8 @@
       <file leaf-file-name="InventoryView.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1764" max-vertical-offset="4842">
-              <caret line="118" column="0" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="3816" max-vertical-offset="4950">
+              <caret line="265" column="43" selection-start-line="265" selection-start-column="43" selection-end-line="265" selection-end-column="43" />
               <folding />
             </state>
           </provider>
@@ -131,10 +134,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ChatBox.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ChatBox.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1476" max-vertical-offset="4176">
+            <state vertical-scroll-proportion="1.9299363" vertical-offset="1476" max-vertical-offset="4176">
               <caret line="188" column="0" selection-start-line="188" selection-start-column="0" selection-end-line="188" selection-end-column="0" />
               <folding>
                 <element signature="e#2710#2711#0" expanded="true" />
@@ -172,12 +175,12 @@
       <file leaf-file-name="HotbarInventoryView.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2694" max-vertical-offset="5400">
-              <caret line="175" column="47" selection-start-line="175" selection-start-column="47" selection-end-line="175" selection-end-column="47" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="4176" max-vertical-offset="5472">
+              <caret line="265" column="0" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#4204#4205#0" expanded="true" />
-                <element signature="e#4279#4280#0" expanded="true" />
+                <element signature="e#4281#4282#0" expanded="true" />
+                <element signature="e#4356#4357#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -207,7 +210,7 @@
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="964" max-vertical-offset="1926">
-              <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
+              <caret line="97" column="48" selection-start-line="97" selection-start-column="48" selection-end-line="97" selection-end-column="48" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -1053,15 +1056,15 @@
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/InventorySlotDragWrapper.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Chat.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Sidebar.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
       </list>
     </option>
   </component>
@@ -1772,12 +1775,6 @@
       <option name="number" value="Default" />
       <updated>1419979788259</updated>
     </task>
-    <task id="LOCAL-00003" summary="add some packets">
-      <created>1419988167044</created>
-      <option name="number" value="00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1419988167044</updated>
-    </task>
     <task id="LOCAL-00004" summary="world time">
       <created>1419989442387</created>
       <option name="number" value="00004" />
@@ -2066,7 +2063,13 @@
       <option name="project" value="LOCAL" />
       <updated>1422394368688</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="add some minor hacks to get chat scrolling not being a pita">
+      <created>1422406293654</created>
+      <option name="number" value="00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1422406293654</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2140,7 +2143,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="sprite rendering/origin is proper now. physics looks to be working well." />
     <MESSAGE value="actually fix the timestep, apparently. probably will need improvements later on&#10;&#10;but at least now it doesn't slow down as your cpu speeds up ;)" />
     <MESSAGE value="fix periodic loaded region sending&#10;&#10;it'll need a lot of tweaking, but it's basically back to where it was...and much simpler. yet still need to do entity spawning/loading...among other things..&#10;" />
     <MESSAGE value="lots of ui stuff (default skin, json etc), chat dialog added&#10;&#10;using atlases now as well, all over, packed automatically at each runtime via texturepacker.&#10;&#10;chat dialog has scrolling working, scrolls to bottom..multi line word wrap..scrolling is even kinetic and looks very nice. i'm quite impressed with scene2d.ui, this is probably the easiest i've gotten a chat dialog up and running and i've tried many ui libs. now to try the inventory and dragging/dropping..that's where the &quot;fun&quot; may or may not start. seems like it's got builtin d&amp;d stuff, which is a lot better than most it looks." />
@@ -2165,7 +2167,8 @@
     <MESSAGE value="don't try to send chat, client side if text is null. also send it when enter is pressed, as well as close it.&#10;&#10;need to show an animation though when ones are received." />
     <MESSAGE value="make sidebar buttons for various gui action things" />
     <MESSAGE value="make chat enter a notification kind of mode when it receives something..this was very tricky to get right&#10;&#10;it has 3 states, hidden, notification, which is when it's super transparent, textbox is hidden, can't be scrollable etc, and normal...took a while to get the input to handle properly, pretty sure there's a couple dupe'd state changes here that i may be able to condense without issue." />
-    <option name="LAST_COMMIT_MESSAGE" value="make chat enter a notification kind of mode when it receives something..this was very tricky to get right&#10;&#10;it has 3 states, hidden, notification, which is when it's super transparent, textbox is hidden, can't be scrollable etc, and normal...took a while to get the input to handle properly, pretty sure there's a couple dupe'd state changes here that i may be able to condense without issue." />
+    <MESSAGE value="add some minor hacks to get chat scrolling not being a pita" />
+    <option name="LAST_COMMIT_MESSAGE" value="add some minor hacks to get chat scrolling not being a pita" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2175,7 +2178,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java</url>
-          <line>524</line>
+          <line>534</line>
           <properties />
           <option name="timeStamp" value="130" />
         </line-breakpoint>
@@ -2474,33 +2477,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2694" max-vertical-offset="5400">
-          <caret line="175" column="47" selection-start-line="175" selection-start-column="47" selection-end-line="175" selection-end-column="47" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#4204#4205#0" expanded="true" />
-            <element signature="e#4279#4280#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.2/26a156f1bebc8d08a2f6101a039390cbba85f07c/gdx-1.5.2-sources.jar!/com/badlogic/gdx/utils/Array.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.6587729" vertical-offset="738" max-vertical-offset="9828">
           <caret line="102" column="0" selection-start-line="102" selection-start-column="0" selection-end-line="102" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="964" max-vertical-offset="1926">
-          <caret line="93" column="0" selection-start-line="93" selection-start-column="0" selection-end-line="93" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -2555,27 +2536,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4392" max-vertical-offset="9846">
-          <caret line="312" column="0" selection-start-line="312" selection-start-column="0" selection-end-line="312" selection-end-column="0" />
-          <folding>
-            <element signature="e#19824#19825#0" expanded="true" />
-            <element signature="e#19875#19876#0" expanded="true" />
-            <element signature="e#19944#19945#0" expanded="true" />
-            <element signature="e#19990#19991#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Network.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1224" max-vertical-offset="4590">
-          <caret line="75" column="8" selection-start-line="75" selection-start-column="8" selection-end-line="75" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Sidebar.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="522" max-vertical-offset="1836">
@@ -2586,14 +2546,6 @@
             <element signature="e#2430#2431#0" expanded="true" />
             <element signature="e#2493#2494#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1764" max-vertical-offset="4842">
-          <caret line="118" column="0" selection-start-line="118" selection-start-column="0" selection-end-line="118" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2608,21 +2560,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/HotbarInventoryView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1476" max-vertical-offset="4176">
-          <caret line="188" column="0" selection-start-line="188" selection-start-column="0" selection-end-line="188" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="4176" max-vertical-offset="5472">
+          <caret line="265" column="0" selection-start-line="265" selection-start-column="0" selection-end-line="265" selection-end-column="0" />
           <folding>
-            <element signature="e#2710#2711#0" expanded="true" />
-            <element signature="e#2752#2753#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="e#4281#4282#0" expanded="true" />
+            <element signature="e#4356#4357#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/InventoryView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3816" max-vertical-offset="4950">
+          <caret line="265" column="43" selection-start-line="265" selection-start-column="43" selection-end-line="265" selection-end-column="43" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4843918" vertical-offset="5940" max-vertical-offset="10116">
-          <caret line="357" column="38" selection-start-line="357" selection-start-column="38" selection-end-line="357" selection-end-column="38" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="7413" max-vertical-offset="10296">
+          <caret line="437" column="0" selection-start-line="437" selection-start-column="0" selection-end-line="437" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#5184#5185#0" expanded="true" />
@@ -2639,10 +2600,52 @@
             <element signature="e#12957#12958#0" expanded="true" />
             <element signature="e#13030#13031#0" expanded="true" />
             <element signature="e#13058#13059#0" expanded="true" />
-            <element signature="e#18739#18740#0" expanded="true" />
-            <element signature="e#18795#18796#0" expanded="true" />
-            <element signature="e#18935#18936#0" expanded="true" />
-            <element signature="e#18981#18982#0" expanded="true" />
+            <element signature="e#19337#19338#0" expanded="true" />
+            <element signature="e#19393#19394#0" expanded="true" />
+            <element signature="e#19533#19534#0" expanded="true" />
+            <element signature="e#19579#19580#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Network.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4392">
+          <caret line="32" column="40" selection-start-line="32" selection-start-column="40" selection-end-line="32" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="964" max-vertical-offset="1926">
+          <caret line="97" column="48" selection-start-line="97" selection-start-column="48" selection-end-line="97" selection-end-column="48" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="6405" max-vertical-offset="10458">
+          <caret line="390" column="0" selection-start-line="390" selection-start-column="0" selection-end-line="390" selection-end-column="0" />
+          <folding>
+            <element signature="e#21371#21372#0" expanded="true" />
+            <element signature="e#21422#21423#0" expanded="true" />
+            <element signature="e#21491#21492#0" expanded="true" />
+            <element signature="e#21537#21538#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/ChatBox.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.9299363" vertical-offset="1476" max-vertical-offset="4176">
+          <caret line="188" column="0" selection-start-line="188" selection-start-column="0" selection-end-line="188" selection-end-column="0" />
+          <folding>
+            <element signature="e#2710#2711#0" expanded="true" />
+            <element signature="e#2752#2753#0" expanded="true" />
           </folding>
         </state>
       </provider>

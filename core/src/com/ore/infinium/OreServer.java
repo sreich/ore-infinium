@@ -270,6 +270,14 @@ public class OreServer implements Runnable {
             playerComponent.hotbarInventory.setSlot(i, torch);
         }
 
+
+        for (int i = 0; i < playerComponent.hotbarInventory.maxHotbarSlots; ++i) {
+            Entity entity = playerComponent.hotbarInventory.item(i);
+            if (entity != null) {
+                sendSpawnHotbarInventoryItem(entity, i, player);
+            }
+        }
+
         sendServerMessage("Player " + playerComponent.playerName + " has joined the server.");
     }
 
@@ -445,6 +453,30 @@ public class OreServer implements Runnable {
 
                 DateFormat date = new SimpleDateFormat("HH:mm:ss");
                 m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message, Chat.ChatSender.Player);
+            } else if (job.object instanceof Network.PlayerMoveInventoryItemFromClient) {
+                Network.PlayerMoveInventoryItemFromClient data = ((Network.PlayerMoveInventoryItemFromClient) job.object);
+                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+
+                //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
+                if (data.sourceType == data.destType && data.sourceIndex == data.destIndex) {
+                    //todo kick client, cheating
+                }
+
+                Inventory sourceInventory;
+                if (data.sourceType == Inventory.InventoryType.Hotbar) {
+                    sourceInventory = playerComponent.hotbarInventory;
+                } else {
+                    sourceInventory = playerComponent.inventory;
+                }
+
+                Inventory destInventory;
+                if (data.destType == Inventory.InventoryType.Hotbar) {
+                    destInventory = playerComponent.hotbarInventory;
+                } else {
+                    destInventory = playerComponent.inventory;
+                }
+
+                destInventory.setSlot(data.destIndex, sourceInventory.takeItem(data.sourceIndex));
             }
         }
     }
@@ -538,11 +570,13 @@ public class OreServer implements Runnable {
 
         @Override
         public void set(int index, Inventory inventory) {
-            PlayerComponent playerComponent = Mappers.player.get(inventory.owningPlayer);
-
-            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
-                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
-            }
+            //todo think this through..drags make this situation very "hairy". possibly implement a move(),
+            //or an overloaded method for dragging
+//            PlayerComponent playerComponent = Mappers.player.get(inventory.owningPlayer);
+//
+//            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
+//                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
+//            }
         }
 
         @Override
