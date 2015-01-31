@@ -38,11 +38,13 @@ public class Network {
         kryo.register(ChatMessageFromServer.class);
         kryo.register(Chat.ChatSender.class);
         kryo.register(PlayerMoveInventoryItemFromClient.class);
+        kryo.register(PlayerBlockPickRequestFromClient.class);
         kryo.register(Inventory.InventoryType.class);
         kryo.register(KickReason.class);
         kryo.register(KickReason.Reason.class);
         kryo.register(PlayerSpawnedFromServer.class);
         kryo.register(PlayerMoveFromClient.class);
+        kryo.register(PlayerEquipHotbarIndexFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
         kryo.register(PlayerSpawnHotbarInventoryItemFromServer.class);
@@ -87,8 +89,6 @@ public class Network {
         /**
          * The desired player name, which corresponds with the ID.
          * <p>
-         * If we do not know our ID yet (none stored, then -1).
-         * If the
          */
         public String playerName;
 
@@ -125,6 +125,11 @@ public class Network {
         public Rectangle rect;
     }
 
+    //todo reduce data type sizes for lots of this stuff...
+    static public class PlayerEquipHotbarIndexFromClient {
+        public byte index;
+    }
+
     static public class DestroyEntitiesFromServer {
         public IntArray entityId;
     }
@@ -133,6 +138,11 @@ public class Network {
         public int hour;
         public int minute;
         public int second;
+    }
+
+    static public class BlockPickFromClient {
+        public int x;
+        public int y;
     }
 
     static public class PlayerSpawnedFromServer {
@@ -195,7 +205,7 @@ public class Network {
     }
 
     static public class HotbarDropItemRequestFromClient {
-        public int index;
+        public byte index;
     }
 
     static public class KickReason {
@@ -210,8 +220,8 @@ public class Network {
     static public class PlayerMoveInventoryItemFromClient {
         public Inventory.InventoryType sourceType;
         public Inventory.InventoryType destType;
-        public int sourceIndex;
-        public int destIndex;
+        public byte sourceIndex;
+        public byte destIndex;
     }
 
     /**

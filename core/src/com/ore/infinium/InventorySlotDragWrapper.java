@@ -22,5 +22,5 @@ public class InventorySlotDragWrapper {
     //where (which inventory) this drop is coming from
     public Inventory.InventoryType type;
     //dragSourceIndex of where it's coming from
-    public int dragSourceIndex;
+    public byte dragSourceIndex;
 }

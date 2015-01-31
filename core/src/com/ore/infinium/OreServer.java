@@ -229,7 +229,7 @@ public class OreServer implements Runnable {
         tool.add(itemComponent);
 
         PlayerComponent playerComponent = Mappers.player.get(player);
-        playerComponent.hotbarInventory.setSlot(0, tool);
+        playerComponent.hotbarInventory.setSlot((byte) 0, tool);
 
         Entity block = m_world.engine.createEntity();
         m_world.createBlockItem(block);
@@ -238,16 +238,16 @@ public class OreServer implements Runnable {
         blockItemComponent.inventoryIndex = 1;
         blockItemComponent.state = ItemComponent.State.InInventoryState;
 
-        playerComponent.hotbarInventory.setSlot(1, block);
+        playerComponent.hotbarInventory.setSlot((byte) 1, block);
 
         Entity airGen = m_world.createAirGenerator();
         ItemComponent airGenItem = Mappers.item.get(airGen);
         airGenItem.inventoryIndex = 2;
         airGenItem.state = ItemComponent.State.InInventoryState;
 
-        playerComponent.hotbarInventory.setSlot(2, airGen);
+        playerComponent.hotbarInventory.setSlot((byte) 2, airGen);
 
-        for (int i = 4; i < 7; ++i) {
+        for (byte i = 4; i < 7; ++i) {
             Entity torch = m_world.engine.createEntity();
             torch.add(m_world.engine.createComponent(VelocityComponent.class));
 
@@ -271,7 +271,7 @@ public class OreServer implements Runnable {
         }
 
 
-        for (int i = 0; i < playerComponent.hotbarInventory.maxHotbarSlots; ++i) {
+        for (byte i = 0; i < playerComponent.hotbarInventory.maxHotbarSlots; ++i) {
             Entity entity = playerComponent.hotbarInventory.item(i);
             if (entity != null) {
                 sendSpawnHotbarInventoryItem(entity, i, player);
@@ -477,6 +477,11 @@ public class OreServer implements Runnable {
                 }
 
                 destInventory.setSlot(data.destIndex, sourceInventory.takeItem(data.sourceIndex));
+            } else if (job.object instanceof Network.BlockPickFromClient) {
+                Network.BlockPickFromClient data = ((Network.BlockPickFromClient) job.object);
+                //FIXME verify..everything....this is horrible obviously
+                m_world.blockAt(data.x, data.y).blockType = Block.BlockType.NullBlockType;
+
             }
         }
     }
@@ -564,12 +569,12 @@ public class OreServer implements Runnable {
 
     private class HotbarInventorySlotListener implements Inventory.SlotListener {
         @Override
-        public void countChanged(int index, Inventory inventory) {
+        public void countChanged(byte index, Inventory inventory) {
 
         }
 
         @Override
-        public void set(int index, Inventory inventory) {
+        public void set(byte index, Inventory inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
             //or an overloaded method for dragging
 //            PlayerComponent playerComponent = Mappers.player.get(inventory.owningPlayer);
@@ -580,12 +585,12 @@ public class OreServer implements Runnable {
         }
 
         @Override
-        public void removed(int index, Inventory inventory) {
+        public void removed(byte index, Inventory inventory) {
 
         }
 
         @Override
-        public void selected(int index, Inventory inventory) {
+        public void selected(byte index, Inventory inventory) {
 
         }
     }

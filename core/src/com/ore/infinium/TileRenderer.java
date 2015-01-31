@@ -36,6 +36,8 @@ public class TileRenderer {
 
     private TextureAtlas m_atlas;
 
+    public static int tileCount;
+
     public TileRenderer(OrthographicCamera camera, World world) {
         m_camera = camera;
         m_world = world;
@@ -48,6 +50,8 @@ public class TileRenderer {
         if (m_world.m_mainPlayer == null) {
             return;
         }
+
+        tileCount = 0;
 
 
         m_batch.setProjectionMatrix(m_camera.combined);
@@ -109,6 +113,8 @@ public class TileRenderer {
                 count++;
             }
         }
+
+        tileCount = count;
         //Gdx.app.log("", "drew tiles: " + count);
         m_batch.end();
     }

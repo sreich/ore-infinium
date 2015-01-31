@@ -34,7 +34,7 @@ public class ItemComponent extends Component implements Pool.Poolable {
     /**
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
-    public int inventoryIndex;
+    public byte inventoryIndex;
     public boolean justDropped;
 
     public void reset() {

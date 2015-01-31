@@ -80,7 +80,7 @@ public class InventoryView implements Inventory.SlotListener {
         dragImage.setSize(32, 32);
 
         final int slotsPerRow = 5;
-        int i = 0;
+        byte i = 0;
         while (i < Inventory.maxSlots) {
             for (int slot = 0; slot < slotsPerRow && i < Inventory.maxSlots; ++slot, ++i) {
                 Image slotImage = new Image();
@@ -129,13 +129,13 @@ public class InventoryView implements Inventory.SlotListener {
     }
 
     @Override
-    public void countChanged(int index, Inventory inventory) {
+    public void countChanged(byte index, Inventory inventory) {
         ItemComponent itemComponent = Mappers.item.get(inventory.item(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
     @Override
-    public void set(int index, Inventory inventory) {
+    public void set(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
 
         TextureRegion region = atlas.findRegion("stone");
@@ -154,7 +154,7 @@ public class InventoryView implements Inventory.SlotListener {
     }
 
     @Override
-    public void removed(int index, Inventory inventory) {
+    public void removed(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
         slot.itemImage.setDrawable(null);
         slot.itemCountLabel.setText(null);
@@ -162,15 +162,15 @@ public class InventoryView implements Inventory.SlotListener {
 
     //unused
     @Override
-    public void selected(int index, Inventory inventory) {
+    public void selected(byte index, Inventory inventory) {
     }
 
     private static class InventoryDragSource extends DragAndDrop.Source {
-        private final int index;
+        private final byte index;
         private Image dragImage;
         private InventoryView inventoryView;
 
-        public InventoryDragSource(Table slotTable, int index, Image dragImage, InventoryView inventoryView) {
+        public InventoryDragSource(Table slotTable, byte index, Image dragImage, InventoryView inventoryView) {
             super(slotTable);
             this.index = index;
             this.dragImage = dragImage;
@@ -199,10 +199,10 @@ public class InventoryView implements Inventory.SlotListener {
     }
 
     private static class InventoryDragTarget extends DragAndDrop.Target {
-        private final int index;
+        private final byte index;
         private InventoryView inventory;
 
-        public InventoryDragTarget(Table slotTable, int index, InventoryView inventory) {
+        public InventoryDragTarget(Table slotTable, byte index, InventoryView inventory) {
             super(slotTable);
             this.index = index;
             this.inventory = inventory;

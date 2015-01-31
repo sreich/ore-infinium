@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.ore.infinium.components.*;
@@ -76,6 +77,8 @@ public class World implements Disposable {
     private SpriteRenderer m_spriteRenderer;
     private OrthographicCamera m_camera;
 
+    private Entity m_blockPickingCrosshair;
+
     private TextureAtlas m_atlas;
 
     public World(OreClient client, OreServer server) {
@@ -107,11 +110,24 @@ public class World implements Disposable {
         if (isClient()) {
             m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
             initializeWorld();
+
+            m_blockPickingCrosshair = engine.createEntity();
+            TagComponent tagComponent = new TagComponent();
+            tagComponent.tag = "crosshair";
+            m_blockPickingCrosshair.add(tagComponent);
+
+            SpriteComponent spriteComponent = new SpriteComponent();
+            m_blockPickingCrosshair.add(spriteComponent);
+            spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
+            spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
         }
 
         if (isServer()) {
             generateWorld();
         }
+    }
+
+    private void clientInventoryItemSelected() {
     }
 
     public void initServer() {
@@ -287,6 +303,18 @@ public class World implements Disposable {
                     m_zoomTimer.reset();
                 }
             }
+
+            updateCrosshair();
+
+            if (m_client.leftMouseDown) {
+                Vector2 mouse = mousePositionWorldCoords();
+                int x = (int) (mouse.x / BLOCK_SIZE);
+                int y = (int) (mouse.y / BLOCK_SIZE);
+
+                Block block = blockAt(x, y);
+                block.blockType = Block.BlockType.NullBlockType;
+                m_client.sendBlockPick(x, y);
+            }
         }
 
         if (isServer()) {
@@ -340,6 +368,13 @@ public class World implements Disposable {
 
 
         m_batch.begin();
+        //hack
+        SpriteComponent blockSpriteComponent = Mappers.sprite.get(m_blockPickingCrosshair);
+
+        m_batch.draw(blockSpriteComponent.sprite, blockSpriteComponent.sprite.getX() - blockSpriteComponent.sprite.getWidth() * 0.5f,
+                blockSpriteComponent.sprite.getY() - blockSpriteComponent.sprite.getHeight() * 0.5f,
+                blockSpriteComponent.sprite.getWidth(), blockSpriteComponent.sprite.getHeight());
+
         m_batch.draw(playerSprite.sprite, playerSprite.sprite.getX() - playerSprite.sprite.getWidth() * 0.5f,
                 playerSprite.sprite.getY() - playerSprite.sprite.getHeight() * 0.5f,
                 playerSprite.sprite.getWidth(), playerSprite.sprite.getHeight());
@@ -349,6 +384,26 @@ public class World implements Disposable {
     }
 
     private void updateCrosshair() {
+        //PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+        //playerComponent
+
+        SpriteComponent spriteComponent = Mappers.sprite.get(m_blockPickingCrosshair);
+
+        Vector2 mouse = mousePositionWorldCoords();
+        Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
+
+        Vector2 crosshairOriginOffset = new Vector2(spriteComponent.sprite.getWidth() * 0.5f, spriteComponent.sprite.getHeight() * 0.5f);
+
+        Vector2 crosshairFinalPosition = crosshairPosition.add(crosshairOriginOffset);
+
+        spriteComponent.sprite.setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y);
+    }
+
+    private Vector2 mousePositionWorldCoords() {
+        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
+        Vector3 finalMouse = m_camera.unproject(mouse);
+
+        return new Vector2(finalMouse.x, finalMouse.y);
     }
 
     private void updateItemPlacementGhost() {

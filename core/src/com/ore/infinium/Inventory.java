@@ -26,7 +26,8 @@ public class Inventory {
     public static final byte maxSlots = 32;
 
     //selection is hotbar only
-    public int m_selectedSlot;
+    public byte m_selectedSlot;
+    public byte m_previousSelectedSlot;
 
     public Entity owningPlayer; //HACK? unneeded?
 
@@ -48,7 +49,7 @@ public class Inventory {
         m_listeners.add(listener);
     }
 
-    public void setCount(int index, int newCount) {
+    public void setCount(byte index, byte newCount) {
         Mappers.item.get(m_slots[index]).stackSize = newCount;
 
         for (SlotListener listener : m_listeners) {
@@ -56,7 +57,8 @@ public class Inventory {
         }
     }
 
-    public void selectSlot(int index) {
+    public void selectSlot(byte index) {
+        m_previousSelectedSlot = m_selectedSlot;
         m_selectedSlot = index;
 
         for (SlotListener listener : m_listeners) {
@@ -64,7 +66,7 @@ public class Inventory {
         }
     }
 
-    public void setSlot(int index, Entity entity) {
+    public void setSlot(byte index, Entity entity) {
         m_slots[index] = entity;
 
         for (SlotListener listener : m_listeners) {
@@ -72,7 +74,7 @@ public class Inventory {
         }
     }
 
-    public Entity takeItem(int index) {
+    public Entity takeItem(byte index) {
         Entity tmp = m_slots[index];
         m_slots[index] = null;
 
@@ -83,7 +85,7 @@ public class Inventory {
         return tmp;
     }
 
-    public Entity item(int index) {
+    public Entity item(byte index) {
         return m_slots[index];
     }
 
@@ -93,13 +95,13 @@ public class Inventory {
     }
 
     public interface SlotListener {
-        void countChanged(int index, Inventory inventory);
+        void countChanged(byte index, Inventory inventory);
 
-        void set(int index, Inventory inventory);
+        void set(byte index, Inventory inventory);
 
-        void removed(int index, Inventory inventory);
+        void removed(byte index, Inventory inventory);
 
-        void selected(int index, Inventory inventory);
+        void selected(byte index, Inventory inventory);
     }
 
 }

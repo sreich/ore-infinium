@@ -1,4 +1,7 @@
-package com.ore.infinium;
+package com.ore.infinium.components;
+
+import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.utils.Pool;
 
 /**
  * ***************************************************************************
@@ -18,18 +21,11 @@ package com.ore.infinium;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class SpriteRenderer {
-    public static int spriteCount;
+public class TagComponent extends Component implements Pool.Poolable {
 
-    public void renderEntities(double elapsed) {
+    public void reset() {
+
     }
 
-    public void renderCharacters(double elapsed) {
-    }
-
-    public void renderDroppedEntities(double elapsed) {
-    }
-
-    public void renderDroppedBlocks(double elapsed) {
-    }
+    public String tag;
 }

@@ -82,6 +82,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private BitmapFont m_font;
     private BitmapFont bitmapFont_8pt;
 
+    public boolean leftMouseDown;
+
     private DragAndDrop m_dragAndDrop;
 
     @Override
@@ -265,6 +267,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_font.draw(m_batch, shaderSwitchesString, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, drawCallsString, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
         m_batch.end();
 
         GLProfiler.reset();
@@ -393,11 +397,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        Gdx.app.log("", "mousedown");
+        leftMouseDown = true;
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        leftMouseDown = false;
         return false;
     }
 
@@ -420,16 +427,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
         int index = m_hotbarInventory.m_selectedSlot;
         if (amount > 0) {
             //right, inventory selection scrolling does not wrap around.
-            m_hotbarInventory.selectSlot(Math.min(index + 1, m_hotbarInventory.maxHotbarSlots - 1));
+            m_hotbarInventory.selectSlot((byte) Math.min(index + 1, m_hotbarInventory.maxHotbarSlots - 1));
         } else {
             //left
-            m_hotbarInventory.selectSlot(Math.max(index - 1, 0));
+            m_hotbarInventory.selectSlot((byte) Math.max(index - 1, 0));
         }
 
         return true;
     }
 
-    public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, int sourceIndex, Inventory.InventoryType destInventoryType, int destIndex) {
+    public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, byte sourceIndex, Inventory.InventoryType destInventoryType, byte destIndex) {
         Network.PlayerMoveInventoryItemFromClient inventoryItemFromClient = new Network.PlayerMoveInventoryItemFromClient();
         inventoryItemFromClient.sourceType = sourceInventoryType;
         inventoryItemFromClient.sourceIndex = sourceIndex;
@@ -471,17 +478,48 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
             playerComponent.hotbarInventory = m_hotbarInventory;
 
+            m_hotbarInventory.addListener(new Inventory.SlotListener() {
+                @Override
+                public void countChanged(byte index, Inventory inventory) {
+
+                }
+
+                @Override
+                public void set(byte index, Inventory inventory) {
+
+                }
+
+                @Override
+                public void removed(byte index, Inventory inventory) {
+
+                }
+
+                @Override
+                public void selected(byte index, Inventory inventory) {
+                    sendHotbarEquipped(index);
+                }
+            });
+
             m_inventory = new Inventory(player);
             m_inventory.inventoryType = Inventory.InventoryType.Inventory;
             playerComponent.inventory = m_inventory;
 
             m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
             m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
+
+            playerComponent.hotbarInventory.selectSlot((byte) 0);
         }
 
         m_world.engine.addEntity(player);
 
         return player;
+    }
+
+    private void sendHotbarEquipped(byte index) {
+        Network.PlayerEquipHotbarIndexFromClient playerEquipHotbarIndexFromClient = new Network.PlayerEquipHotbarIndexFromClient();
+        playerEquipHotbarIndexFromClient.index = index;
+
+        m_clientKryo.sendTCP(playerEquipHotbarIndexFromClient);
     }
 
     private void processNetworkQueue() {
@@ -566,4 +604,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
     }
 
+    public void sendBlockPick(int x, int y) {
+        Network.BlockPickFromClient blockPickFromClient = new Network.BlockPickFromClient();
+        blockPickFromClient.x = x;
+        blockPickFromClient.y = y;
+        m_clientKryo.sendTCP(blockPickFromClient);
+    }
 }

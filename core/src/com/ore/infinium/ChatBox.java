@@ -90,6 +90,7 @@ public class ChatBox implements Chat.ChatListener {
         m_scroll.setScrollPercentY(100f);
         stage.addListener(new InputListener() {
             @Override
+            //fixme override mouse as well, to ignroe those.
             public boolean keyDown(InputEvent event, int keycode) {
                 if (keycode == Input.Keys.ENTER) {
                     if (chatVisibilityState == ChatVisibility.Normal) {
