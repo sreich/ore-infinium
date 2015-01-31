@@ -559,6 +559,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 for (Component c : spawn.components) {
                     e.add(c);
                 }
+                m_world.engine.addEntity(e);
 
                 ItemComponent itemComponent = Mappers.item.get(e);
                 m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);

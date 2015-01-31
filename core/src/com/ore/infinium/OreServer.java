@@ -227,6 +227,7 @@ public class OreServer implements Runnable {
         itemComponent.state = ItemComponent.State.InInventoryState;
 
         tool.add(itemComponent);
+        m_world.engine.addEntity(tool);
 
         PlayerComponent playerComponent = Mappers.player.get(player);
         playerComponent.hotbarInventory.setSlot((byte) 0, tool);
@@ -238,12 +239,16 @@ public class OreServer implements Runnable {
         blockItemComponent.inventoryIndex = 1;
         blockItemComponent.state = ItemComponent.State.InInventoryState;
 
+        m_world.engine.addEntity(block);
+
         playerComponent.hotbarInventory.setSlot((byte) 1, block);
 
         Entity airGen = m_world.createAirGenerator();
         ItemComponent airGenItem = Mappers.item.get(airGen);
         airGenItem.inventoryIndex = 2;
         airGenItem.state = ItemComponent.State.InInventoryState;
+
+        m_world.engine.addEntity(airGen);
 
         playerComponent.hotbarInventory.setSlot((byte) 2, airGen);
 
@@ -266,6 +271,7 @@ public class OreServer implements Runnable {
             torchItemComponent.state = ItemComponent.State.InInventoryState;
             torchItemComponent.inventoryIndex = i;
             torch.add(torchItemComponent);
+            m_world.engine.addEntity(torch);
 
             playerComponent.hotbarInventory.setSlot(i, torch);
         }
