@@ -1,6 +1,7 @@
 package com.ore.infinium.components;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import com.ore.infinium.Inventory;
@@ -51,6 +52,10 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public LoadedViewport loadedViewport = new LoadedViewport();
     public Inventory hotbarInventory;
     public Inventory inventory;
+
+    public Entity equippedPrimaryItem() {
+        return hotbarInventory.item(hotbarInventory.m_selectedSlot);
+    }
 
     public void reset() {
 

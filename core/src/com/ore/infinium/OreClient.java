@@ -476,27 +476,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
             playerComponent.hotbarInventory = m_hotbarInventory;
 
-            m_hotbarInventory.addListener(new Inventory.SlotListener() {
-                @Override
-                public void countChanged(byte index, Inventory inventory) {
-
-                }
-
-                @Override
-                public void set(byte index, Inventory inventory) {
-
-                }
-
-                @Override
-                public void removed(byte index, Inventory inventory) {
-
-                }
-
-                @Override
-                public void selected(byte index, Inventory inventory) {
-                    sendHotbarEquipped(index);
-                }
-            });
+            m_hotbarInventory.addListener(new HotbarSlotListener());
 
             m_inventory = new Inventory(player);
             m_inventory.inventoryType = Inventory.InventoryType.Inventory;
@@ -622,5 +602,27 @@ public class OreClient implements ApplicationListener, InputProcessor {
         blockPickFromClient.x = x;
         blockPickFromClient.y = y;
         m_clientKryo.sendTCP(blockPickFromClient);
+    }
+
+    private class HotbarSlotListener implements Inventory.SlotListener {
+        @Override
+        public void countChanged(byte index, Inventory inventory) {
+
+        }
+
+        @Override
+        public void set(byte index, Inventory inventory) {
+
+        }
+
+        @Override
+        public void removed(byte index, Inventory inventory) {
+
+        }
+
+        @Override
+        public void selected(byte index, Inventory inventory) {
+            sendHotbarEquipped(index);
+        }
     }
 }

@@ -127,11 +127,11 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
 
         TextureRegion region;
+        SpriteComponent spriteComponent = Mappers.sprite.get(item);
         if (Mappers.block.get(item) != null) {
             //hack
-            region = m_blockAtlas.findRegion("stone");
+            region = m_blockAtlas.findRegion(spriteComponent.textureName);
         } else {
-            SpriteComponent spriteComponent = Mappers.sprite.get(item);
             region = m_client.m_world.m_atlas.findRegion(spriteComponent.textureName);
         }
 

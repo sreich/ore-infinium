@@ -307,13 +307,7 @@ public class World implements Disposable {
             updateCrosshair();
 
             if (m_client.leftMouseDown) {
-                Vector2 mouse = mousePositionWorldCoords();
-                int x = (int) (mouse.x / BLOCK_SIZE);
-                int y = (int) (mouse.y / BLOCK_SIZE);
-
-                Block block = blockAt(x, y);
-                block.blockType = Block.BlockType.NullBlockType;
-                m_client.sendBlockPick(x, y);
+                handleLeftMousePrimaryAttack();
             }
         }
 
@@ -325,6 +319,20 @@ public class World implements Disposable {
 
         if (isClient()) {
             m_client.sendPlayerMoved();
+        }
+    }
+
+    private void handleLeftMousePrimaryAttack() {
+        Vector2 mouse = mousePositionWorldCoords();
+        int x = (int) (mouse.x / BLOCK_SIZE);
+        int y = (int) (mouse.y / BLOCK_SIZE);
+
+        Block block = blockAt(x, y);
+
+        //attempt to destroy it if it's not already destroyed...
+        if (block.blockType != Block.BlockType.NullBlockType) {
+            block.blockType = Block.BlockType.NullBlockType;
+            m_client.sendBlockPick(x, y);
         }
     }
 
