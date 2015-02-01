@@ -38,12 +38,13 @@ public class Network {
         kryo.register(ChatMessageFromServer.class);
         kryo.register(Chat.ChatSender.class);
         kryo.register(PlayerMoveInventoryItemFromClient.class);
-        kryo.register(PlayerBlockPickRequestFromClient.class);
         kryo.register(Inventory.InventoryType.class);
         kryo.register(KickReason.class);
         kryo.register(KickReason.Reason.class);
         kryo.register(PlayerSpawnedFromServer.class);
         kryo.register(PlayerMoveFromClient.class);
+        kryo.register(BlockPickFromClient.class);
+        kryo.register(BlockPlaceFromClient.class);
         kryo.register(PlayerEquipHotbarIndexFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
@@ -145,6 +146,11 @@ public class Network {
         public int y;
     }
 
+    static public class BlockPlaceFromClient {
+        public int x;
+        public int y;
+    }
+
     static public class PlayerSpawnedFromServer {
         public int connectionId; // session local id, to be displayed
         public String playerName;
@@ -204,12 +210,6 @@ public class Network {
 
     static public class EntityMovedFromServer {
         public Vector2 position;
-    }
-
-    /**
-     */
-    static public class PlayerBlockPickRequestFromClient {
-        public int x, y;
     }
 
     static public class HotbarDropItemRequestFromClient {

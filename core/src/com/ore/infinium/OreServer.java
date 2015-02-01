@@ -486,9 +486,21 @@ public class OreServer implements Runnable {
                 destInventory.setSlot(data.destIndex, sourceInventory.takeItem(data.sourceIndex));
             } else if (job.object instanceof Network.BlockPickFromClient) {
                 Network.BlockPickFromClient data = ((Network.BlockPickFromClient) job.object);
-                //FIXME verify..everything....this is horrible obviously
+                //FIXME verify..everything absolutely everything all over this networking portion....this is horrible obviously
                 m_world.blockAt(data.x, data.y).blockType = Block.BlockType.NullBlockType;
+            } else if (job.object instanceof Network.BlockPlaceFromClient) {
+                Network.BlockPlaceFromClient data = ((Network.BlockPlaceFromClient) job.object);
+                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
 
+                Entity item = playerComponent.equippedPrimaryItem();
+                BlockComponent blockComponent = Mappers.block.get(item);
+
+                m_world.blockAt(data.x, data.y).blockType = blockComponent.blockType;
+            } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
+                Network.PlayerEquipHotbarIndexFromClient data = ((Network.PlayerEquipHotbarIndexFromClient) job.object);
+                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+
+                playerComponent.hotbarInventory.selectSlot(data.index);
             }
         }
     }

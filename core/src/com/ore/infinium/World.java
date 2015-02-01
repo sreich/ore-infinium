@@ -324,15 +324,50 @@ public class World implements Disposable {
 
     private void handleLeftMousePrimaryAttack() {
         Vector2 mouse = mousePositionWorldCoords();
-        int x = (int) (mouse.x / BLOCK_SIZE);
-        int y = (int) (mouse.y / BLOCK_SIZE);
 
-        Block block = blockAt(x, y);
+        PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+        Entity item = playerComponent.equippedPrimaryItem();
+        if (item == null) {
+            return;
+        }
 
-        //attempt to destroy it if it's not already destroyed...
-        if (block.blockType != Block.BlockType.NullBlockType) {
-            block.blockType = Block.BlockType.NullBlockType;
-            m_client.sendBlockPick(x, y);
+        ToolComponent toolComponent = Mappers.tool.get(item);
+        if (toolComponent != null) {
+            if (toolComponent.type != ToolComponent.ToolType.Drill) {
+                return;
+            }
+
+            int x = (int) (mouse.x / BLOCK_SIZE);
+            int y = (int) (mouse.y / BLOCK_SIZE);
+
+            Block block = blockAt(x, y);
+
+            //attempt to destroy it if it's not already destroyed...
+            if (block.blockType != Block.BlockType.NullBlockType) {
+                block.blockType = Block.BlockType.NullBlockType;
+                m_client.sendBlockPick(x, y);
+            }
+
+            //action performed
+            return;
+        }
+
+        BlockComponent blockComponent = Mappers.block.get(item);
+        if (blockComponent != null) {
+
+            int x = (int) (mouse.x / BLOCK_SIZE);
+            int y = (int) (mouse.y / BLOCK_SIZE);
+
+            Block block = blockAt(x, y);
+
+            //attempt to place one if the area is empty
+            if (block.blockType == Block.BlockType.NullBlockType) {
+                block.blockType = blockComponent.blockType;
+                m_client.sendBlockPlace(x, y);
+            }
+
+            //action performed
+            return;
         }
     }
 

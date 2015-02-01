@@ -553,6 +553,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 m_world.engine.addEntity(e);
 
+                ToolComponent toolComponent = Mappers.tool.get(e);
+
                 ItemComponent itemComponent = Mappers.item.get(e);
                 m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
 
@@ -604,6 +606,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_clientKryo.sendTCP(blockPickFromClient);
     }
 
+    public void sendBlockPlace(int x, int y) {
+        Network.BlockPlaceFromClient blockPlaceFromClient = new Network.BlockPlaceFromClient();
+        blockPlaceFromClient.x = x;
+        blockPlaceFromClient.y = y;
+        m_clientKryo.sendTCP(blockPlaceFromClient);
+    }
+
     private class HotbarSlotListener implements Inventory.SlotListener {
         @Override
         public void countChanged(byte index, Inventory inventory) {
@@ -625,4 +634,5 @@ public class OreClient implements ApplicationListener, InputProcessor {
             sendHotbarEquipped(index);
         }
     }
+
 }
