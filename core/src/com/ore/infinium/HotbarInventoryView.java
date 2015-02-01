@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import com.ore.infinium.components.ItemComponent;
+import com.ore.infinium.components.SpriteComponent;
 
 /**
  * ***************************************************************************
@@ -37,7 +38,7 @@ import com.ore.infinium.components.ItemComponent;
  * ***************************************************************************
  */
 public class HotbarInventoryView implements Inventory.SlotListener {
-    TextureAtlas atlas;
+    TextureAtlas m_blockAtlas;
     private Skin m_skin;
     private Table container;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxHotbarSlots];
@@ -66,11 +67,11 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         container.defaults().space(4);
 
         //HACK tmp, use assetmanager
-        atlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
+        m_blockAtlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
 
         stage.addActor(container);
 
-        Image dragImage = new Image(atlas.findRegion("stone"));
+        Image dragImage = new Image();
         dragImage.setSize(32, 32);
 
         for (byte i = 0; i < Inventory.maxHotbarSlots; ++i) {
@@ -120,15 +121,25 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     public void set(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
 
-        TextureRegion region = atlas.findRegion("stone");
-        Image slotImage = slot.itemImage;
-        slotImage.setDrawable(new TextureRegionDrawable(region));
-        slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
-        slotImage.setScaling(Scaling.fit);
 
         Entity item = inventory.item(index);
         ItemComponent itemComponent = Mappers.item.get(item);
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
+
+        TextureRegion region;
+        if (Mappers.block.get(item) != null) {
+            //hack
+            region = m_blockAtlas.findRegion("stone");
+        } else {
+            SpriteComponent spriteComponent = Mappers.sprite.get(item);
+            region = m_client.m_world.m_atlas.findRegion(spriteComponent.textureName);
+        }
+
+        Image slotImage = slot.itemImage;
+//        //m_blockAtlas.findRegion("stone"));
+        slotImage.setDrawable(new TextureRegionDrawable(region));
+        slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
+        slotImage.setScaling(Scaling.fit);
 
         setHotbarSlotVisible(index, true);
 

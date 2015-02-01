@@ -161,6 +161,12 @@ public class Network {
 
     static public class PlayerSpawnHotbarInventoryItemFromServer {
         public SizePacket size = new SizePacket();
+
+        // <sprite
+
+        public String textureName;
+        // </sprite
+
         //pos not sent
 
         public int id;
@@ -170,6 +176,8 @@ public class Network {
     static public class EntitySpawnFromServer {
         public SizePacket size = new SizePacket();
         public PositionPacket pos = new PositionPacket();
+
+        public String textureName;
 
         public int id;
 

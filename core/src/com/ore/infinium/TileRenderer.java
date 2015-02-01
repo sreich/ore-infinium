@@ -34,7 +34,7 @@ public class TileRenderer {
 
     private Texture t;
 
-    private TextureAtlas m_atlas;
+    protected TextureAtlas m_atlas;
 
     public static int tileCount;
 

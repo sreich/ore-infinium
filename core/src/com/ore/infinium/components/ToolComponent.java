@@ -23,7 +23,7 @@ import com.badlogic.gdx.utils.Pool;
  */
 public class ToolComponent extends Component implements Pool.Poolable {
 
-    public ToolType type = ToolType.Pickaxe;
+    public ToolType type = ToolType.Drill;
     public ToolMaterial material = ToolMaterial.Wood;
     public float attackRadius = 10.0f;
 
@@ -32,7 +32,7 @@ public class ToolComponent extends Component implements Pool.Poolable {
     }
 
     public enum ToolType {
-        Pickaxe,
+        Drill,
         Axe,
         Bucket
     }

@@ -4,9 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Vector2;
@@ -68,7 +66,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private Inventory m_inventory;
 
     private ScreenViewport m_viewport;
-    private World m_world;
+    protected World m_world;
     private Entity m_mainPlayer;
     private Client m_clientKryo;
     private OreServer m_server;
@@ -554,11 +552,25 @@ public class OreClient implements ApplicationListener, InputProcessor {
             } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
                 Network.PlayerSpawnHotbarInventoryItemFromServer spawn = (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
 
-                //HACK spawn.id
+                //HACK spawn.id, sprite!!
                 Entity e = m_world.engine.createEntity();
                 for (Component c : spawn.components) {
                     e.add(c);
                 }
+
+                SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
+                spriteComponent.textureName = spawn.textureName;
+
+                TextureRegion textureRegion;
+                if (Mappers.block.get(e) == null) {
+                    textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+                } else {
+                    textureRegion = m_world.m_tileRenderer.m_atlas.findRegion(spriteComponent.textureName);
+                }
+
+                spriteComponent.sprite = new Sprite(textureRegion);
+                e.add(spriteComponent);
+
                 m_world.engine.addEntity(e);
 
                 ItemComponent itemComponent = Mappers.item.get(e);

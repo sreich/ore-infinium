@@ -73,13 +73,13 @@ public class World implements Disposable {
     private OreClient m_client;
     private boolean m_noClipEnabled;
     private SpriteBatch m_batch;
-    private TileRenderer m_tileRenderer;
+    protected TileRenderer m_tileRenderer;
     private SpriteRenderer m_spriteRenderer;
     private OrthographicCamera m_camera;
 
     private Entity m_blockPickingCrosshair;
 
-    private TextureAtlas m_atlas;
+    public TextureAtlas m_atlas;
 
     public World(OreClient client, OreServer server) {
         m_client = client;
@@ -94,7 +94,7 @@ public class World implements Disposable {
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
 
 //        assetManager = new AssetManager();
-//        TextureAtlas atlas = assetManager.get("data/", TextureAtlas.class);
+//        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
 //        assetManager.finishLoading();
         engine = new PooledEngine(2000, 2000, 2000, 2000);
 
@@ -169,7 +169,7 @@ public class World implements Disposable {
         playerSprite.sprite.setSize(World.BLOCK_SIZE * 2, World.BLOCK_SIZE * 3);
         player.add(engine.createComponent(ControllableComponent.class));
 
-        playerSprite.texture = "player1Standing1";
+        playerSprite.textureName = "player1Standing1";
         playerSprite.category = SpriteComponent.EntityCategory.Character;
         player.add(engine.createComponent(JumpComponent.class));
 
@@ -354,7 +354,6 @@ public class World implements Disposable {
         m_spriteRenderer.renderDroppedEntities(elapsed);
         m_spriteRenderer.renderDroppedBlocks(elapsed);
 
-
         //FIXME: take lighting into account, needs access to fbos though.
         //   m_fluidRenderer->render();
 //    m_particleRenderer->render();
@@ -363,9 +362,7 @@ public class World implements Disposable {
         updateCrosshair();
         updateItemPlacementGhost();
 
-
         m_batch.setProjectionMatrix(m_camera.combined);
-
 
         m_batch.begin();
         //hack
@@ -422,7 +419,7 @@ public class World implements Disposable {
         block.add(blockComponent);
 
         SpriteComponent blockSprite = engine.createComponent(SpriteComponent.class);
-        blockSprite.texture = "pickaxeWooden1"; // HACK ?
+        blockSprite.textureName = blockTypes.get(blockComponent.blockType).textureName;
 
 //warning fixme size is fucked
         blockSprite.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
@@ -442,7 +439,7 @@ public class World implements Disposable {
         air.add(itemComponent);
 
         SpriteComponent airSprite = engine.createComponent(SpriteComponent.class);
-        airSprite.texture = "airGenerator1";
+        airSprite.textureName = "air-generator-64";
 
 //warning fixme size is fucked
         airSprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);

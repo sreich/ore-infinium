@@ -208,11 +208,11 @@ public class OreServer implements Runnable {
         tool.add(m_world.engine.createComponent(VelocityComponent.class));
 
         ToolComponent toolComponent = m_world.engine.createComponent(ToolComponent.class);
-        toolComponent.type = ToolComponent.ToolType.Pickaxe;
+        toolComponent.type = ToolComponent.ToolType.Drill;
         tool.add(toolComponent);
 
         SpriteComponent toolSprite = m_world.engine.createComponent(SpriteComponent.class);
-        toolSprite.texture = "pickaxeWooden1";
+        toolSprite.textureName = "drill";
 
 //warning fixme size is fucked
         toolSprite.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
@@ -261,7 +261,8 @@ public class OreServer implements Runnable {
             torch.add(torchComponent);
 
             SpriteComponent torchSprite = m_world.engine.createComponent(SpriteComponent.class);
-            torchSprite.texture = "torch1Ground1";
+            //fixme torch sprite...thuoghh we won't use torches, but lights
+            torchSprite.textureName = "player";
             torchSprite.sprite.setSize(9 / World.PIXELS_PER_METER, 24 / World.PIXELS_PER_METER);
             torch.add(torchSprite);
 
@@ -275,7 +276,6 @@ public class OreServer implements Runnable {
 
             playerComponent.hotbarInventory.setSlot(i, torch);
         }
-
 
         for (byte i = 0; i < playerComponent.hotbarInventory.maxHotbarSlots; ++i) {
             Entity entity = playerComponent.hotbarInventory.item(i);
@@ -305,11 +305,11 @@ public class OreServer implements Runnable {
 
         ToolComponent toolComponent = m_world.engine.createComponent(ToolComponent.class);
         tool.add(toolComponent);
-        toolComponent.type = ToolComponent.ToolType.Pickaxe;
+        toolComponent.type = ToolComponent.ToolType.Drill;
 
         SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
         spriteComponent.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
-        spriteComponent.texture = "pickaxeWooden1";
+        spriteComponent.textureName = "pickaxeWooden1";
         tool.add(spriteComponent);
 
         ItemComponent toolItemComponent = m_world.engine.createComponent(ItemComponent.class);
@@ -362,6 +362,7 @@ public class OreServer implements Runnable {
 
                 spawn.pos.pos = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
                 spawn.size.size = new Vector2(sprite.sprite.getWidth(), sprite.sprite.getHeight());
+                spawn.textureName = sprite.textureName;
             }
         }
 
@@ -400,8 +401,8 @@ public class OreServer implements Runnable {
         spawn.components = serializeComponents(item);
 
         SpriteComponent spriteComponent = Mappers.sprite.get(item);
-        spawn.size = new Network.SizePacket();
         spawn.size.size.set(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+        spawn.textureName = spriteComponent.textureName;
         //FIXME: HACK, we need to spawn it with a texture...and figure out how to do this exactly.
 
         m_serverKryo.sendToTCP(Mappers.player.get(owningPlayer).connectionId, spawn);

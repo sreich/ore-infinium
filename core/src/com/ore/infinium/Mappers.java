@@ -27,5 +27,12 @@ public class Mappers {
     public static final ComponentMapper<VelocityComponent> velocity = ComponentMapper.getFor(VelocityComponent.class);
     public static final ComponentMapper<JumpComponent> jump = ComponentMapper.getFor(JumpComponent.class);
     public static final ComponentMapper<ItemComponent> item = ComponentMapper.getFor(ItemComponent.class);
+    public static final ComponentMapper<ToolComponent> tool = ComponentMapper.getFor(ToolComponent.class);
+    public static final ComponentMapper<TorchComponent> torch = ComponentMapper.getFor(TorchComponent.class);
+    public static final ComponentMapper<HealthComponent> health = ComponentMapper.getFor(HealthComponent.class);
+    public static final ComponentMapper<AirGeneratorComponent> airGenerator = ComponentMapper.getFor(AirGeneratorComponent.class);
+    public static final ComponentMapper<TagComponent> tag = ComponentMapper.getFor(TagComponent.class);
+    public static final ComponentMapper<AirComponent> air = ComponentMapper.getFor(AirComponent.class);
+    public static final ComponentMapper<BlockComponent> block = ComponentMapper.getFor(BlockComponent.class);
     public static final ComponentMapper<PlayerComponent> player = ComponentMapper.getFor(PlayerComponent.class);
 }
