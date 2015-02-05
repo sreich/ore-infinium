@@ -70,7 +70,7 @@ public class World implements Disposable {
 
     public OreServer m_server;
     public AssetManager assetManager;
-    private OreClient m_client;
+    public OreClient m_client;
     private boolean m_noClipEnabled;
     protected TileRenderer m_tileRenderer;
     public OrthographicCamera m_camera;
@@ -318,14 +318,6 @@ public class World implements Disposable {
         //todo explicitly call update on systems, me thinks...otherwise the render and update steps are coupled
         engine.update((float) elapsed);
 
-
-        if (isClient()) {
-            SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
-            m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
-            m_camera.update();
-
-            m_client.sendPlayerMoved();
-        }
     }
 
     private void handleLeftMousePrimaryAttack() {

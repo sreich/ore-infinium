@@ -415,6 +415,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
+        if (m_mainPlayer == null) {
+            return false;
+        }
+
         ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {

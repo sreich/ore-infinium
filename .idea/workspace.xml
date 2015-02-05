@@ -1,35 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="lots more net sync. block breaking, block placement all works, as well as verifying that that equipped item can do those things&#10;&#10;and do the appropriate action..">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_badlogicgames_ashley_ashley_1_3_3.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/libraries/Gradle__com_badlogicgames_gdx_gdx_1_5_3.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/SpriteRenderer.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileHashes.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileHashes.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileSnapshots.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/fileSnapshots.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/outputFileStates.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/outputFileStates.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/taskArtifacts.bin" afterPath="$PROJECT_DIR$/.gradle/2.2/taskArtifacts/taskArtifacts.bin" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/AirComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/AirComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/AirGeneratorComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/AirGeneratorComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/BlockComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/BlockComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ControllableComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ControllableComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/HealthComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/HealthComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ItemComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ItemComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/JumpComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/JumpComponent.java" />
+    <list default="true" id="864d6c3e-92b1-4e2d-bfab-b7826900b2e9" name="Default" comment="fix (hack) rendering flickering regression, get item dropping working both ways, lots of stuff for that still missing though&#10;&#10;like rotating to show it's dropped (animation), animation to show him throwing it, and things render upside down and at the wrong size...&#10;&#10;">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/entities/pack.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/PlayerComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/PlayerComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/TagComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/TagComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ToolComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/ToolComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/TorchComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/TorchComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/components/VelocityComponent.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/components/VelocityComponent.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/build.gradle" afterPath="$PROJECT_DIR$/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/core.iml" afterPath="$PROJECT_DIR$/core/core.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/desktop/desktop.iml" afterPath="$PROJECT_DIR$/desktop/desktop.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ore-infinium.iws" />
@@ -75,8 +52,8 @@
       <file leaf-file-name="World.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="3600" max-vertical-offset="10548">
-              <caret line="257" column="0" selection-start-line="257" selection-start-column="0" selection-end-line="257" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="4926" max-vertical-offset="10404">
+              <caret line="318" column="0" selection-start-line="318" selection-start-column="0" selection-end-line="318" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -85,9 +62,20 @@
       <file leaf-file-name="PooledEngine.java" pinned="false" current-in-tab="false">
         <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.ashley/ashley/1.3.3/6c2091ad575427905d62342a9abe92b3a2dd0f94/ashley-1.3.3-sources.jar!/com/badlogic/ashley/core/PooledEngine.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2898">
+            <state vertical-scroll-proportion="0.0" vertical-offset="306" max-vertical-offset="2898">
               <caret line="35" column="35" selection-start-line="35" selection-start-column="35" selection-end-line="35" selection-end-column="35" />
-              <folding />
+              <folding>
+                <element signature="n#!!doc" expanded="false" />
+                <element signature="imports" expanded="false" />
+                <element signature="e#1867#1868#0" expanded="false" />
+                <element signature="e#1896#1897#0" expanded="false" />
+                <element signature="e#2747#2748#0" expanded="false" />
+                <element signature="e#2780#2781#0" expanded="false" />
+                <element signature="e#4165#4166#0" expanded="false" />
+                <element signature="e#4201#4202#0" expanded="false" />
+                <element signature="e#4254#4255#0" expanded="false" />
+                <element signature="e#4288#4289#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -97,7 +85,35 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="1278" max-vertical-offset="8892">
               <caret line="148" column="0" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="n#!!doc" expanded="false" />
+                <element signature="imports" expanded="false" />
+                <element signature="e#4026#4027#0" expanded="false" />
+                <element signature="e#4054#4055#0" expanded="false" />
+                <element signature="e#5349#5350#0" expanded="false" />
+                <element signature="e#5383#5384#0" expanded="false" />
+                <element signature="e#5432#5433#0" expanded="false" />
+                <element signature="e#5463#5464#0" expanded="false" />
+                <element signature="e#6222#6223#0" expanded="false" />
+                <element signature="e#6270#6271#0" expanded="false" />
+                <element signature="e#6415#6416#0" expanded="false" />
+                <element signature="e#6445#6446#0" expanded="false" />
+                <element signature="e#6640#6641#0" expanded="false" />
+                <element signature="e#6676#6677#0" expanded="false" />
+                <element signature="e#6879#6880#0" expanded="false" />
+                <element signature="e#6909#6910#0" expanded="false" />
+                <element signature="e#11520#11528#0" expanded="false" />
+                <element signature="e#13014#13015#0" expanded="false" />
+                <element signature="e#13043#13044#0" expanded="false" />
+                <element signature="e#13120#13121#0" expanded="false" />
+                <element signature="e#13166#13167#0" expanded="false" />
+                <element signature="e#13293#13294#0" expanded="false" />
+                <element signature="e#13322#13323#0" expanded="false" />
+                <element signature="e#14738#14739#0" expanded="false" />
+                <element signature="e#14778#14779#0" expanded="false" />
+                <element signature="e#15291#15292#0" expanded="false" />
+                <element signature="e#15328#15329#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -105,57 +121,70 @@
       <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="10746" max-vertical-offset="12780">
-              <caret line="626" column="0" selection-start-line="626" selection-start-column="0" selection-end-line="626" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="7092" max-vertical-offset="12852">
+              <caret line="420" column="0" selection-start-line="420" selection-start-column="0" selection-end-line="420" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
-                <element signature="e#14396#14397#0" expanded="true" />
-                <element signature="e#14424#14425#0" expanded="true" />
-                <element signature="e#14859#14860#0" expanded="true" />
-                <element signature="e#14887#14888#0" expanded="true" />
+                <element signature="e#14469#14470#0" expanded="true" />
+                <element signature="e#14497#14498#0" expanded="true" />
+                <element signature="e#14932#14933#0" expanded="true" />
                 <element signature="e#14960#14961#0" expanded="true" />
-                <element signature="e#14988#14989#0" expanded="true" />
+                <element signature="e#15033#15034#0" expanded="true" />
+                <element signature="e#15061#15062#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SpriteRenderSystem.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="pack.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/assets/ui/pack.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-2.6666667" vertical-offset="0" max-vertical-offset="180">
+              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pack.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/assets/blocks/pack.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="738">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="pack.json" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/assets/entities/pack.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="-14.666667" vertical-offset="0" max-vertical-offset="738">
+              <caret line="22" column="19" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SpriteRenderSystem.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.58127016" vertical-offset="702" max-vertical-offset="1746">
-              <caret line="82" column="4" selection-start-line="82" selection-start-column="4" selection-end-line="82" selection-end-column="4" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="702" max-vertical-offset="1746">
+              <caret line="98" column="110" selection-start-line="98" selection-start-column="110" selection-end-line="98" selection-end-column="110" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EPollArrayWrapper.class" pinned="false" current-in-tab="false">
-        <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/sun/nio/ch/EPollArrayWrapper.class">
+      <file leaf-file-name="Sprite.java" pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.3/5ae3e32b01bcaa3d97d819b39c04da78d094563b/gdx-1.5.3-sources.jar!/com/badlogic/gdx/graphics/g2d/Sprite.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-17.44" vertical-offset="3308" max-vertical-offset="4212">
-              <caret line="227" column="0" selection-start-line="227" selection-start-column="0" selection-end-line="227" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Thread.class" pinned="false" current-in-tab="false">
-        <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/java/lang/Thread.class">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-8.88" vertical-offset="876" max-vertical-offset="10692">
-              <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LwjglApplication.java" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-lwjgl/1.5.2/2bd652f2b7df6727657853e5d1f22da1c7926547/gdx-backend-lwjgl-1.5.2-sources.jar!/com/badlogic/gdx/backends/lwjgl/LwjglApplication.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1286" max-vertical-offset="6228">
-              <caret line="131" column="35" selection-start-line="131" selection-start-column="35" selection-end-line="131" selection-end-column="35" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="8452" max-vertical-offset="11340">
+              <caret line="533" column="17" selection-start-line="533" selection-start-column="17" selection-end-line="533" selection-end-column="17" />
+              <folding>
+                <element signature="e#17892#17893#0" expanded="true" />
+                <element signature="e#17911#17912#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -185,16 +214,22 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="8622" max-vertical-offset="11358">
               <caret line="516" column="0" selection-start-line="516" selection-start-column="0" selection-end-line="516" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#24713#24714#0" expanded="false" />
+                <element signature="e#24764#24765#0" expanded="false" />
+                <element signature="e#24833#24834#0" expanded="false" />
+                <element signature="e#24879#24880#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MovementSystem.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MovementSystem.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="4986" max-vertical-offset="5976">
-              <caret line="251" column="0" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.54251885" vertical-offset="3798" max-vertical-offset="6138">
+              <caret line="252" column="0" selection-start-line="252" selection-start-column="0" selection-end-line="252" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -205,7 +240,13 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="840" max-vertical-offset="1944">
               <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#1855#1856#0" expanded="false" />
+                <element signature="e#1896#1897#0" expanded="false" />
+                <element signature="e#2843#2844#0" expanded="false" />
+                <element signature="e#2880#2881#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -214,7 +255,17 @@
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Network.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="378" max-vertical-offset="4734">
-              <caret line="55" column="103" selection-start-line="55" selection-start-column="103" selection-end-line="55" selection-end-column="103" />
+              <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LwjglApplication.java" pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-lwjgl/1.5.2/2bd652f2b7df6727657853e5d1f22da1c7926547/gdx-backend-lwjgl-1.5.2-sources.jar!/com/badlogic/gdx/backends/lwjgl/LwjglApplication.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1286" max-vertical-offset="6228">
+              <caret line="130" column="35" selection-start-line="130" selection-start-column="35" selection-end-line="130" selection-end-column="35" />
               <folding />
             </state>
           </provider>
@@ -223,32 +274,8 @@
       <file leaf-file-name="JumpComponent.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/JumpComponent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="666" max-vertical-offset="936">
+            <state vertical-scroll-proportion="0.0" vertical-offset="666" max-vertical-offset="954">
               <caret line="39" column="27" selection-start-line="39" selection-start-column="27" selection-end-line="39" selection-end-column="27" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ControllableComponent.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/ControllableComponent.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="594" max-vertical-offset="756">
-              <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-              <folding>
-                <element signature="imports" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AirGeneratorComponent.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/AirGeneratorComponent.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="558" max-vertical-offset="774">
-              <caret line="32" column="35" selection-start-line="32" selection-start-column="35" selection-end-line="32" selection-end-column="35" />
               <folding>
                 <element signature="imports" expanded="false" />
               </folding>
@@ -259,8 +286,8 @@
       <file leaf-file-name="SpriteComponent.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="30" max-vertical-offset="972">
-              <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="990">
+              <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="false" />
               </folding>
@@ -802,7 +829,7 @@
     <option name="modificationStamps">
       <map>
         <entry key="$USER_HOME$/Dropbox/ore-infinium" value="5677161104000" />
-        <entry key="$PROJECT_DIR$" value="5686532198090" />
+        <entry key="$PROJECT_DIR$" value="5681033440587" />
         <entry key="$USER_HOME$/ore-infinium-libgdx" value="5677138763998" />
         <entry key="$USER_HOME$/test" value="5677156446017" />
       </map>
@@ -1047,7 +1074,6 @@
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Block.java" />
         <option value="$PROJECT_DIR$/core/assets/blocks-packed/pack.atlas" />
         <option value="$PROJECT_DIR$/core/assets/blocks/pack.json" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/PlayerSystem.java" />
         <option value="$PROJECT_DIR$/core/assets/ui/ui.json" />
         <option value="$PROJECT_DIR$/settings.gradle" />
@@ -1082,12 +1108,13 @@
         <option value="/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/java/net/URLClassLoader.class" />
         <option value="/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/sun/misc/URLClassPath.class" />
         <option value="$PROJECT_DIR$/build.gradle" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
         <option value="/usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/sun/nio/ch/EPollArrayWrapper.class" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java" />
       </list>
     </option>
   </component>
@@ -1228,7 +1255,7 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -1433,13 +1460,35 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
+              <option name="myItemId" value="entities" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ore-infinium" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="ore-infinium" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="assets" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
               <option name="myItemId" value="blocks" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1465,6 +1514,9 @@
     <property name="OverrideImplement.overriding.sorted" value="false" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/core/assets/entities" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/core/assets/blocks" />
       <recent name="$PROJECT_DIR$/core/assets" />
@@ -1817,12 +1869,6 @@
       <option name="number" value="Default" />
       <updated>1419979788259</updated>
     </task>
-    <task id="LOCAL-00010" summary="player spawning/serialization works \o/&#10;&#10;the tile renderer even centers on the players spawned position. still a very long ways to go before achieving my past parity">
-      <created>1420310231537</created>
-      <option name="number" value="00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1420310231537</updated>
-    </task>
     <task id="LOCAL-00011" summary="almost (main) player rendering">
       <created>1420411606183</created>
       <option name="number" value="00011" />
@@ -2111,7 +2157,13 @@
       <option name="project" value="LOCAL" />
       <updated>1422823497246</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="fix (hack) rendering flickering regression, get item dropping working both ways, lots of stuff for that still missing though&#10;&#10;like rotating to show it's dropped (animation), animation to show him throwing it, and things render upside down and at the wrong size...&#10;&#10;">
+      <created>1423117274188</created>
+      <option name="number" value="00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1423117274189</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2154,7 +2206,6 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1315229" sideWeight="0.5674847" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Problems" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="CodotaView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960597" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47265223" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.15335463" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.19169329" sideWeight="0.49923196" order="4" side_tool="false" content_ui="tabs" x="2927" y="247" width="441" height="712" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24973376" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -2168,6 +2219,7 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3993808" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Coverage" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.1996805" sideWeight="0.50076807" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="JProfiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.47265223" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -2185,7 +2237,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="very basic proof of concept for inventory dragging &amp; dropping..&#10;&#10;gotta figure out how to nicely make each slot a dragger and a dropper.." />
     <MESSAGE value="add glprofiler information to debug hud" />
     <MESSAGE value="dragging and dropping of hotbarinventory *looks* well behaved now&#10;&#10;doesn't yet drag...or use any of its information, that'll be a whole thing to get that working. and the backend(s) for the inventory" />
     <MESSAGE value="hotbarinventory serialization over network and loading etc..&#10;&#10;caught a few bugs along the way, big ones especially one that was hidden but could cause a player to try and spawn twice..&#10;left to do is drag &amp; drop of items and the network backing for that rearrangement. that's just for the hotbar for now.&#10;&#10;the hotbar items server-side, stack size gets randomized as well, just to make it different." />
@@ -2210,7 +2261,8 @@
     <MESSAGE value="beginnings of loading various types of entities into the hotbarinventory, and serializing over the network&#10;&#10;and displaying properly their textures according to atlas...main inventory needs fixes incorporated" />
     <MESSAGE value="bit of code cleanup in client, also don't try to destroy a block + send packet if it's already a null block at index" />
     <MESSAGE value="lots more net sync. block breaking, block placement all works, as well as verifying that that equipped item can do those things&#10;&#10;and do the appropriate action.." />
-    <option name="LAST_COMMIT_MESSAGE" value="lots more net sync. block breaking, block placement all works, as well as verifying that that equipped item can do those things&#10;&#10;and do the appropriate action.." />
+    <MESSAGE value="fix (hack) rendering flickering regression, get item dropping working both ways, lots of stuff for that still missing though&#10;&#10;like rotating to show it's dropped (animation), animation to show him throwing it, and things render upside down and at the wrong size...&#10;&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix (hack) rendering flickering regression, get item dropping working both ways, lots of stuff for that still missing though&#10;&#10;like rotating to show it's dropped (animation), animation to show him throwing it, and things render upside down and at the wrong size...&#10;&#10;" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2228,7 +2280,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="216" />
+      <option name="time" value="217" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
@@ -2242,35 +2294,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/assets/ui/pack.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-2.6666667" vertical-offset="0" max-vertical-offset="180">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/assets/ui/ui.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-27.222221" vertical-offset="2199" max-vertical-offset="3114">
-          <caret line="163" column="6" selection-start-line="163" selection-start-column="6" selection-end-line="163" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Chat.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="282" max-vertical-offset="1224">
-          <caret line="38" column="3" selection-start-line="38" selection-start-column="3" selection-end-line="38" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Sidebar.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="522" max-vertical-offset="1836">
-          <caret line="61" column="0" selection-start-line="61" selection-start-column="0" selection-end-line="61" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.2/26a156f1bebc8d08a2f6101a039390cbba85f07c/gdx-1.5.2-sources.jar!/com/badlogic/gdx/utils/Timer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4302">
@@ -2290,10 +2313,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="12751" max-vertical-offset="13680">
           <caret line="767" column="0" selection-start-line="767" selection-start-column="0" selection-end-line="767" selection-end-column="0" />
-          <folding>
-            <element signature="n#!!doc" expanded="false" />
-            <element signature="imports" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -2301,16 +2320,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4392">
           <caret line="69" column="4" selection-start-line="69" selection-start-column="4" selection-end-line="69" selection-end-column="4" />
-          <folding>
-            <element signature="n#!!doc" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#3778#3779#0" expanded="false" />
-            <element signature="e#3821#3822#0" expanded="false" />
-            <element signature="e#6603#6604#0" expanded="false" />
-            <element signature="e#6631#6632#0" expanded="false" />
-            <element signature="e#6756#6757#0" expanded="false" />
-            <element signature="e#6780#6781#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -2372,7 +2381,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="882" max-vertical-offset="11304">
           <caret line="75" column="8" selection-start-line="75" selection-start-column="8" selection-end-line="75" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2480,8 +2488,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/ControllableComponent.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="756">
-          <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="612" max-vertical-offset="774">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
@@ -2500,8 +2508,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="30" max-vertical-offset="972">
-          <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="990">
+          <caret line="44" column="0" selection-start-line="44" selection-start-column="0" selection-end-line="44" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="false" />
           </folding>
@@ -2512,7 +2520,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-7.84" vertical-offset="3116" max-vertical-offset="4608">
           <caret line="206" column="17" selection-start-line="206" selection-start-column="17" selection-end-line="206" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2520,7 +2527,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-8.16" vertical-offset="1092" max-vertical-offset="17874">
           <caret line="116" column="23" selection-start-line="116" selection-start-column="23" selection-end-line="116" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2528,7 +2534,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-8.16" vertical-offset="1416" max-vertical-offset="2988">
           <caret line="107" column="31" selection-start-line="107" selection-start-column="31" selection-end-line="107" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2536,7 +2541,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.13716814" vertical-offset="2288" max-vertical-offset="7524">
           <caret line="175" column="20" selection-start-line="175" selection-start-column="20" selection-end-line="175" selection-end-column="20" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2544,7 +2548,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.48451328" vertical-offset="8436" max-vertical-offset="14544">
           <caret line="566" column="12" selection-start-line="566" selection-start-column="12" selection-end-line="566" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2552,7 +2555,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="840" max-vertical-offset="1944">
           <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1855#1856#0" expanded="false" />
+            <element signature="e#1896#1897#0" expanded="false" />
+            <element signature="e#2843#2844#0" expanded="false" />
+            <element signature="e#2880#2881#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2560,7 +2569,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2898">
           <caret line="35" column="34" selection-start-line="35" selection-start-column="34" selection-end-line="35" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2568,7 +2576,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="10" max-vertical-offset="8118">
           <caret line="43" column="0" selection-start-line="43" selection-start-column="0" selection-end-line="43" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2592,7 +2599,18 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="2898">
           <caret line="35" column="35" selection-start-line="35" selection-start-column="35" selection-end-line="35" selection-end-column="35" />
-          <folding />
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#1867#1868#0" expanded="false" />
+            <element signature="e#1896#1897#0" expanded="false" />
+            <element signature="e#2747#2748#0" expanded="false" />
+            <element signature="e#2780#2781#0" expanded="false" />
+            <element signature="e#4165#4166#0" expanded="false" />
+            <element signature="e#4201#4202#0" expanded="false" />
+            <element signature="e#4254#4255#0" expanded="false" />
+            <element signature="e#4288#4289#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2600,15 +2618,35 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1278" max-vertical-offset="8892">
           <caret line="148" column="0" selection-start-line="148" selection-start-column="0" selection-end-line="148" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Network.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="378" max-vertical-offset="4734">
-          <caret line="55" column="103" selection-start-line="55" selection-start-column="103" selection-end-line="55" selection-end-column="103" />
-          <folding />
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#4026#4027#0" expanded="false" />
+            <element signature="e#4054#4055#0" expanded="false" />
+            <element signature="e#5349#5350#0" expanded="false" />
+            <element signature="e#5383#5384#0" expanded="false" />
+            <element signature="e#5432#5433#0" expanded="false" />
+            <element signature="e#5463#5464#0" expanded="false" />
+            <element signature="e#6222#6223#0" expanded="false" />
+            <element signature="e#6270#6271#0" expanded="false" />
+            <element signature="e#6415#6416#0" expanded="false" />
+            <element signature="e#6445#6446#0" expanded="false" />
+            <element signature="e#6640#6641#0" expanded="false" />
+            <element signature="e#6676#6677#0" expanded="false" />
+            <element signature="e#6879#6880#0" expanded="false" />
+            <element signature="e#6909#6910#0" expanded="false" />
+            <element signature="e#11520#11528#0" expanded="false" />
+            <element signature="e#13014#13015#0" expanded="false" />
+            <element signature="e#13043#13044#0" expanded="false" />
+            <element signature="e#13120#13121#0" expanded="false" />
+            <element signature="e#13166#13167#0" expanded="false" />
+            <element signature="e#13293#13294#0" expanded="false" />
+            <element signature="e#13322#13323#0" expanded="false" />
+            <element signature="e#14738#14739#0" expanded="false" />
+            <element signature="e#14778#14779#0" expanded="false" />
+            <element signature="e#15291#15292#0" expanded="false" />
+            <element signature="e#15328#15329#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2616,7 +2654,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.6329527" vertical-offset="6020" max-vertical-offset="9990">
           <caret line="383" column="0" selection-start-line="383" selection-start-column="0" selection-end-line="383" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2628,43 +2665,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="4986" max-vertical-offset="5976">
-          <caret line="251" column="0" selection-start-line="251" selection-start-column="0" selection-end-line="251" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-lwjgl/1.5.2/2bd652f2b7df6727657853e5d1f22da1c7926547/gdx-backend-lwjgl-1.5.2-sources.jar!/com/badlogic/gdx/backends/lwjgl/LwjglApplication.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1286" max-vertical-offset="6228">
-          <caret line="131" column="35" selection-start-line="131" selection-start-column="35" selection-end-line="131" selection-end-column="35" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/java/lang/Thread.class">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-8.88" vertical-offset="876" max-vertical-offset="10692">
           <caret line="84" column="0" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/sun/nio/ch/EPollArrayWrapper.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-17.44" vertical-offset="3308" max-vertical-offset="4212">
-          <caret line="227" column="0" selection-start-line="227" selection-start-column="0" selection-end-line="227" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3600" max-vertical-offset="10548">
-          <caret line="257" column="0" selection-start-line="257" selection-start-column="0" selection-end-line="257" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2672,30 +2676,110 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="8622" max-vertical-offset="11358">
           <caret line="516" column="0" selection-start-line="516" selection-start-column="0" selection-end-line="516" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#24713#24714#0" expanded="false" />
+            <element signature="e#24764#24765#0" expanded="false" />
+            <element signature="e#24833#24834#0" expanded="false" />
+            <element signature="e#24879#24880#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-8-openjdk/jre/lib/rt.jar!/sun/nio/ch/EPollArrayWrapper.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.48230088" vertical-offset="3308" max-vertical-offset="4212">
+          <caret line="227" column="0" selection-start-line="227" selection-start-column="0" selection-end-line="227" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Network.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="378" max-vertical-offset="4734">
+          <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="10746" max-vertical-offset="12780">
-          <caret line="626" column="0" selection-start-line="626" selection-start-column="0" selection-end-line="626" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="7092" max-vertical-offset="12852">
+          <caret line="420" column="0" selection-start-line="420" selection-start-column="0" selection-end-line="420" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
-            <element signature="e#14396#14397#0" expanded="true" />
-            <element signature="e#14424#14425#0" expanded="true" />
-            <element signature="e#14859#14860#0" expanded="true" />
-            <element signature="e#14887#14888#0" expanded="true" />
+            <element signature="e#14469#14470#0" expanded="true" />
+            <element signature="e#14497#14498#0" expanded="true" />
+            <element signature="e#14932#14933#0" expanded="true" />
             <element signature="e#14960#14961#0" expanded="true" />
-            <element signature="e#14988#14989#0" expanded="true" />
+            <element signature="e#15033#15034#0" expanded="true" />
+            <element signature="e#15061#15062#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/assets/ui/pack.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-2.6666667" vertical-offset="0" max-vertical-offset="180">
+          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/assets/blocks/pack.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="942">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/assets/entities/pack.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-14.666667" vertical-offset="0" max-vertical-offset="738">
+          <caret line="22" column="19" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.3/5ae3e32b01bcaa3d97d819b39c04da78d094563b/gdx-1.5.3-sources.jar!/com/badlogic/gdx/graphics/g2d/Sprite.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="8452" max-vertical-offset="11340">
+          <caret line="533" column="17" selection-start-line="533" selection-start-column="17" selection-end-line="533" selection-end-column="17" />
+          <folding>
+            <element signature="e#17892#17893#0" expanded="true" />
+            <element signature="e#17911#17912#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.58127016" vertical-offset="702" max-vertical-offset="1746">
-          <caret line="82" column="4" selection-start-line="82" selection-start-column="4" selection-end-line="82" selection-end-column="4" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="702" max-vertical-offset="1746">
+          <caret line="98" column="110" selection-start-line="98" selection-start-column="110" selection-end-line="98" selection-end-column="110" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="4926" max-vertical-offset="10404">
+          <caret line="318" column="0" selection-start-line="318" selection-start-column="0" selection-end-line="318" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-lwjgl/1.5.2/2bd652f2b7df6727657853e5d1f22da1c7926547/gdx-backend-lwjgl-1.5.2-sources.jar!/com/badlogic/gdx/backends/lwjgl/LwjglApplication.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1286" max-vertical-offset="6228">
+          <caret line="130" column="35" selection-start-line="130" selection-start-column="35" selection-end-line="130" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.54251885" vertical-offset="3798" max-vertical-offset="6138">
+          <caret line="252" column="0" selection-start-line="252" selection-start-column="0" selection-end-line="252" selection-end-column="0" />
           <folding />
         </state>
       </provider>

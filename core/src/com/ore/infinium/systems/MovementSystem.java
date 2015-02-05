@@ -60,6 +60,15 @@ public class MovementSystem extends EntitySystem {
         for (Entity e : entities) {
             simulate(e, delta);
         }
+
+
+        if (m_world.isClient()) {
+            SpriteComponent playerSprite = Mappers.sprite.get(m_world.m_mainPlayer);
+            m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
+            m_world.m_camera.update();
+
+            m_world.m_client.sendPlayerMoved();
+        }
     }
 
     private void simulate(Entity entity, float delta) {

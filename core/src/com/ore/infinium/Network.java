@@ -28,7 +28,7 @@ import com.ore.infinium.components.*;
  * ***************************************************************************
  */
 public class Network {
-    static public final int port = 54555;
+    static public final int port = 54553;
 
     // This registers objects that are going to be sent over the network.
     static public void register(EndPoint endPoint) {
