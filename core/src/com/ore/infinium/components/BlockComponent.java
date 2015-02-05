@@ -29,4 +29,11 @@ public class BlockComponent extends Component implements Pool.Poolable {
     public void reset() {
 
     }
+
+    public BlockComponent() {
+    }
+
+    public BlockComponent(BlockComponent blockComponent) {
+        blockType = blockComponent.blockType;
+    }
 }

@@ -36,4 +36,14 @@ public class AirComponent extends Component implements Pool.Poolable {
 
     }
 
+    public AirComponent() {
+    }
+
+    public AirComponent(AirComponent airComponent) {
+        decreaseRate = airComponent.decreaseRate;
+        decreaseInterval = airComponent.decreaseInterval;
+        maxAir = airComponent.maxAir;
+        air = airComponent.air;
+        healthDecreaseRate = airComponent.healthDecreaseRate;
+    }
 }

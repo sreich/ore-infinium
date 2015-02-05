@@ -26,9 +26,7 @@ import com.ore.infinium.LoadedViewport;
  * ***************************************************************************
  */
 public class PlayerComponent extends Component implements Pool.Poolable {
-
     public final static float jumpVelocity = 5.0f;
-
     public final static float movementSpeed = .8f;
     public final static float maxMovementSpeed = movementSpeed * 1;
 
@@ -52,6 +50,7 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public LoadedViewport loadedViewport = new LoadedViewport();
     public Inventory hotbarInventory;
     public Inventory inventory;
+    public Entity equippedItemAnimator;
 
     public Entity equippedPrimaryItem() {
         return hotbarInventory.item(hotbarInventory.m_selectedSlot);

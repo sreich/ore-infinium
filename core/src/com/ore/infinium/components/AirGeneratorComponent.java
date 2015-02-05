@@ -29,4 +29,11 @@ public class AirGeneratorComponent extends Component implements Pool.Poolable {
     public void reset() {
 
     }
+
+    public AirGeneratorComponent() {
+    }
+
+    public AirGeneratorComponent(AirGeneratorComponent airGeneratorComponent) {
+        airOutputRate = airGeneratorComponent.airOutputRate;
+    }
 }

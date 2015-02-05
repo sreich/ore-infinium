@@ -30,4 +30,12 @@ public class HealthComponent extends Component implements Pool.Poolable {
     public void reset() {
 
     }
+
+    public HealthComponent() {
+    }
+
+    public HealthComponent(HealthComponent healthComponent) {
+        maxHealth = healthComponent.maxHealth;
+        health = healthComponent.health;
+    }
 }

@@ -28,4 +28,11 @@ public class TagComponent extends Component implements Pool.Poolable {
     }
 
     public String tag;
+
+    public TagComponent() {
+    }
+
+    public TagComponent(TagComponent tagComponent) {
+        tag = new String(tag);
+    }
 }

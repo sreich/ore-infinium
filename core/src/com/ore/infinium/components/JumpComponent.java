@@ -36,4 +36,14 @@ public class JumpComponent extends Component implements Pool.Poolable {
     public void reset() {
 
     }
+
+    public JumpComponent() {
+    }
+
+    public JumpComponent(JumpComponent jumpComponent) {
+        canJump = jumpComponent.canJump;
+        shouldJump = jumpComponent.shouldJump;
+        jumpRequested = jumpComponent.jumpRequested;
+        jumpInterval = jumpComponent.jumpInterval;
+    }
 }

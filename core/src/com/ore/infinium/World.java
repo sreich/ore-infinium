@@ -6,7 +6,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -17,6 +16,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.MovementSystem;
 import com.ore.infinium.systems.PlayerSystem;
+import com.ore.infinium.systems.SpriteRenderSystem;
 
 import java.util.HashMap;
 
@@ -72,13 +72,12 @@ public class World implements Disposable {
     public AssetManager assetManager;
     private OreClient m_client;
     private boolean m_noClipEnabled;
-    private SpriteBatch m_batch;
     protected TileRenderer m_tileRenderer;
-    private SpriteRenderer m_spriteRenderer;
-    private OrthographicCamera m_camera;
+    public OrthographicCamera m_camera;
 
     private Entity m_blockPickingCrosshair;
 
+    //fixme remve in favor of the render system
     public TextureAtlas m_atlas;
 
     public World(OreClient client, OreServer server) {
@@ -88,7 +87,6 @@ public class World implements Disposable {
         if (isClient()) {
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
-            m_batch = new SpriteBatch();
         }
 
         blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
@@ -112,11 +110,11 @@ public class World implements Disposable {
             initializeWorld();
 
             m_blockPickingCrosshair = engine.createEntity();
-            TagComponent tagComponent = new TagComponent();
+            TagComponent tagComponent = engine.createComponent(TagComponent.class);
             tagComponent.tag = "crosshair";
             m_blockPickingCrosshair.add(tagComponent);
 
-            SpriteComponent spriteComponent = new SpriteComponent();
+            SpriteComponent spriteComponent = engine.createComponent(SpriteComponent.class);
             m_blockPickingCrosshair.add(spriteComponent);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
@@ -138,7 +136,9 @@ public class World implements Disposable {
 //        Mappers.velocity.get(m_mainPlayer);
 
         m_tileRenderer = new TileRenderer(m_camera, this);
-        m_spriteRenderer = new SpriteRenderer();
+
+        engine.addSystem(new SpriteRenderSystem(this));
+
         SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
         playerSprite.sprite.setRegion(m_atlas.findRegion("player"));
         playerSprite.sprite.flip(false, true);
@@ -276,8 +276,6 @@ public class World implements Disposable {
     }
 
     public void dispose() {
-//        m_batch.dispose();
-//        m_texture.dispose();
     }
 
     public void zoom(float factor) {
@@ -287,6 +285,9 @@ public class World implements Disposable {
 
     public void update(double elapsed) {
         if (isClient()) {
+//        playerSprite.sprite.setOriginCenter();
+
+//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
 
             final float zoomAmount = 0.004f;
             if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
@@ -310,14 +311,19 @@ public class World implements Disposable {
                 handleLeftMousePrimaryAttack();
             }
         }
-
         if (isServer()) {
 
         }
 
+        //todo explicitly call update on systems, me thinks...otherwise the render and update steps are coupled
         engine.update((float) elapsed);
 
+
         if (isClient()) {
+            SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
+            m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
+            m_camera.update();
+
             m_client.sendPlayerMoved();
         }
     }
@@ -378,12 +384,6 @@ public class World implements Disposable {
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
-        SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
-//        playerSprite.sprite.setOriginCenter();
-
-//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
-        m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
-        m_camera.update();
 
         if (m_client.m_renderTiles) {
             m_tileRenderer.render(elapsed);
@@ -391,11 +391,6 @@ public class World implements Disposable {
 
         //FIXME: incorporate entities into the pre-lit gamescene FBO, then render lighting as last pass
         //m_lightRenderer->renderToBackbuffer();
-
-        m_spriteRenderer.renderEntities(elapsed);
-        m_spriteRenderer.renderCharacters(elapsed);
-        m_spriteRenderer.renderDroppedEntities(elapsed);
-        m_spriteRenderer.renderDroppedBlocks(elapsed);
 
         //FIXME: take lighting into account, needs access to fbos though.
         //   m_fluidRenderer->render();
@@ -405,9 +400,7 @@ public class World implements Disposable {
         updateCrosshair();
         updateItemPlacementGhost();
 
-        m_batch.setProjectionMatrix(m_camera.combined);
-
-        m_batch.begin();
+        /*
         //hack
         SpriteComponent blockSpriteComponent = Mappers.sprite.get(m_blockPickingCrosshair);
 
@@ -420,7 +413,7 @@ public class World implements Disposable {
                 playerSprite.sprite.getWidth(), playerSprite.sprite.getHeight());
 
 //        m_sprite2.draw(m_batch);
-        m_batch.end();
+        */
     }
 
     private void updateCrosshair() {
@@ -510,6 +503,93 @@ public class World implements Disposable {
                 ++sourceIndex;
             }
         }
+    }
+
+    /**
+     * Clone everything about the entity. Does *not* add it to the engine
+     *
+     * @param entity to clone
+     * @return the cloned entity
+     */
+    public Entity cloneEntity(Entity entity) {
+        Entity clonedEntity = engine.createEntity();
+
+        //sorted alphabetically for your pleasure
+        AirComponent airComponent = Mappers.air.get(entity);
+        if (airComponent != null) {
+            AirComponent clonedComponent = new AirComponent(airComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        AirGeneratorComponent airGeneratorComponent = Mappers.airGenerator.get(entity);
+        if (airGeneratorComponent != null) {
+            AirGeneratorComponent clonedComponent = new AirGeneratorComponent(airGeneratorComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        BlockComponent blockComponent = Mappers.block.get(entity);
+        if (blockComponent != null) {
+            BlockComponent clonedComponent = new BlockComponent(blockComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        ControllableComponent controllableComponent = Mappers.control.get(entity);
+        if (controllableComponent != null) {
+            ControllableComponent clonedComponent = new ControllableComponent(controllableComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        HealthComponent healthComponent = Mappers.health.get(entity);
+        if (healthComponent != null) {
+            HealthComponent clonedComponent = new HealthComponent(healthComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        ItemComponent itemComponent = Mappers.item.get(entity);
+        if (itemComponent != null) {
+            ItemComponent clonedComponent = new ItemComponent(itemComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        JumpComponent jumpComponent = Mappers.jump.get(entity);
+        if (jumpComponent != null) {
+            JumpComponent clonedComponent = new JumpComponent(jumpComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        //player, unneeded
+
+        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        if (spriteComponent != null) {
+            SpriteComponent clonedComponent = new SpriteComponent(spriteComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        TagComponent tagComponent = Mappers.tag.get(entity);
+        if (tagComponent != null) {
+            TagComponent clonedComponent = new TagComponent(tagComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        ToolComponent toolComponent = Mappers.tool.get(entity);
+        if (toolComponent != null) {
+            ToolComponent clonedComponent = new ToolComponent(toolComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        TorchComponent torchComponent = Mappers.torch.get(entity);
+        if (torchComponent != null) {
+            TorchComponent clonedComponent = new TorchComponent(torchComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        VelocityComponent velocityComponent = Mappers.velocity.get(entity);
+        if (velocityComponent != null) {
+            VelocityComponent clonedComponent = new VelocityComponent(velocityComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        return clonedEntity;
     }
 
     public void addPlayer(Entity player) {

@@ -29,4 +29,11 @@ public class ControllableComponent extends Component implements Pool.Poolable {
     public void reset() {
 
     }
+
+    public ControllableComponent() {
+    }
+
+    public ControllableComponent(ControllableComponent controllableComponent) {
+        desiredDirection.set(controllableComponent.desiredDirection);
+    }
 }

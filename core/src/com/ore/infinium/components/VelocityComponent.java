@@ -29,4 +29,11 @@ public class VelocityComponent extends Component implements Pool.Poolable {
     public void reset() {
 
     }
+
+    public VelocityComponent() {
+    }
+
+    public VelocityComponent(VelocityComponent velocityComponent) {
+        velocity.set(velocityComponent.velocity);
+    }
 }

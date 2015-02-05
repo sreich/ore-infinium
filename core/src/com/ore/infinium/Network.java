@@ -46,13 +46,14 @@ public class Network {
         kryo.register(BlockPickFromClient.class);
         kryo.register(BlockPlaceFromClient.class);
         kryo.register(PlayerEquipHotbarIndexFromClient.class);
+        kryo.register(HotbarDropItemRequestFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
         kryo.register(PlayerSpawnHotbarInventoryItemFromServer.class);
         kryo.register(ItemComponent.State.class);
         kryo.register(Component.class);
 
-        //modular components. some components are too fucking huge to serialize,
+        //modular components. some components are too fucking huge and stupid to serialize automatically (like Sprite),
         //so we split up only what we need.
         kryo.register(PositionPacket.class);
         kryo.register(SizePacket.class);

@@ -22,9 +22,11 @@ import com.badlogic.gdx.utils.Pool;
  * ***************************************************************************
  */
 public class ItemComponent extends Component implements Pool.Poolable {
-
+    //number of items this item has. e.g. 35 wood..things
     public int stackSize;
+    //the max a single item stack can hold
     public int maxStackSize;
+
     /**
      * The id of the player who dropped the item in the world
      * Unused if the item is not in a dropped state.
@@ -35,6 +37,8 @@ public class ItemComponent extends Component implements Pool.Poolable {
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
     public byte inventoryIndex;
+    //flag to indicate the item was *just* dropped this frame and has not yet
+    //had velocity integrated yet.
     public boolean justDropped;
 
     public void reset() {
@@ -65,5 +69,17 @@ public class ItemComponent extends Component implements Pool.Poolable {
 
     public enum PlacementHints {
 
+    }
+
+    public ItemComponent() {
+    }
+
+    public ItemComponent(ItemComponent itemComponent) {
+        stackSize = itemComponent.stackSize;
+        maxStackSize = itemComponent.maxStackSize;
+        playerIdWhoDropped = itemComponent.playerIdWhoDropped;
+        state = itemComponent.state;
+        inventoryIndex = itemComponent.inventoryIndex;
+        justDropped = itemComponent.justDropped;
     }
 }

@@ -39,4 +39,13 @@ public class SpriteComponent extends Component implements Pool.Poolable {
         Character,
         Entity
     }
+
+    public SpriteComponent() {
+    }
+
+    public SpriteComponent(SpriteComponent spriteComponent) {
+        sprite = new Sprite(spriteComponent.sprite);
+        textureName = spriteComponent.textureName;
+        category = spriteComponent.category;
+    }
 }

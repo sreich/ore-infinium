@@ -43,4 +43,13 @@ public class ToolComponent extends Component implements Pool.Poolable {
         Steel,
         Diamond
     }
+
+    public ToolComponent() {
+    }
+
+    public ToolComponent(ToolComponent toolComponent) {
+        type = toolComponent.type;
+        material = toolComponent.material;
+        attackRadius = toolComponent.attackRadius;
+    }
 }

@@ -9,11 +9,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.ore.infinium.components.*;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,7 +45,7 @@ public class OreServer implements Runnable {
     public CountDownLatch connectHostLatch = new CountDownLatch(1);
     public CountDownLatch shutdownLatch = new CountDownLatch(1);
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
-    private World m_world;
+    protected World m_world;
     private Server m_serverKryo;
     private Entity m_hostingPlayer;
     private double m_accumulator;
@@ -71,7 +73,11 @@ public class OreServer implements Runnable {
         m_serverKryo.addListener(new ServerListener());
 
         try {
-            m_serverKryo.bind(Network.port);
+            try {
+                m_serverKryo.bind(Network.port);
+            } catch (BindException e) {
+
+            }
             m_world = new World(null, this);
             m_chat = new Chat();
             m_chat.addListener(new Chat.ChatListener() {
@@ -353,18 +359,11 @@ public class OreServer implements Runnable {
         Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
         spawn.components = serializeComponents(e);
 
-        for (int i = 0; i < spawn.components.size; i++) {
-            Component comp = spawn.components.get(i);
-            if (comp instanceof PlayerComponent) {
-                PlayerComponent c = Mappers.player.get(e);
-            } else if (comp instanceof SpriteComponent) {
-                SpriteComponent sprite = Mappers.sprite.get(e);
+        SpriteComponent sprite = Mappers.sprite.get(e);
 
-                spawn.pos.pos = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
-                spawn.size.size = new Vector2(sprite.sprite.getWidth(), sprite.sprite.getHeight());
-                spawn.textureName = sprite.textureName;
-            }
-        }
+        spawn.pos.pos.set(sprite.sprite.getX(), sprite.sprite.getY());
+        spawn.size.size.set(sprite.sprite.getWidth(), sprite.sprite.getHeight());
+        spawn.textureName = sprite.textureName;
 
         //FIXME, HACK: m_serverKryo.sendToTCP(connectionId, spawn);
         m_serverKryo.sendToAllTCP(spawn);
@@ -501,6 +500,39 @@ public class OreServer implements Runnable {
                 PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
 
                 playerComponent.hotbarInventory.selectSlot(data.index);
+            } else if (job.object instanceof Network.HotbarDropItemRequestFromClient) {
+                Network.HotbarDropItemRequestFromClient data = ((Network.HotbarDropItemRequestFromClient) job.object);
+                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+
+                Entity itemToDrop = playerComponent.hotbarInventory.item(data.index);
+                ItemComponent itemToDropComponent = Mappers.item.get(itemToDrop);
+                if (itemToDropComponent.stackSize > 1) {
+                    itemToDropComponent.stackSize -= 1;
+                } else {
+                    //remove item from inventory, client has already done so, because the count will be 0 after this drop
+                    m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
+                }
+
+                //decrease count of equipped item
+                Entity droppedItem = m_world.cloneEntity(itemToDrop);
+                ItemComponent itemDroppedComponent = Mappers.item.get(droppedItem);
+                itemDroppedComponent.state = ItemComponent.State.DroppedInWorld;
+                itemDroppedComponent.justDropped = true;
+
+                SpriteComponent playerSprite = Mappers.sprite.get(job.connection.player);
+                SpriteComponent itemSprite = Mappers.sprite.get(droppedItem);
+
+                itemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
+
+                m_world.engine.addEntity(droppedItem);
+
+                //HACK holy god yes, make it check viewport, send to players interested..aka signup for entity adds
+                sendSpawnEntity(droppedItem, job.connection.getID());
+            } else {
+                if (!(job.object instanceof FrameworkMessage.KeepAlive)) {
+                    Gdx.app.log("client network", "unhandled network receiving class");
+                    assert false;
+                }
             }
         }
     }

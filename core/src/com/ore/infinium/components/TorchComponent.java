@@ -28,4 +28,11 @@ public class TorchComponent extends Component implements Pool.Poolable {
     public void reset() {
 
     }
+
+    public TorchComponent() {
+    }
+
+    public TorchComponent(TorchComponent torchComponent) {
+        radius = torchComponent.radius;
+    }
 }

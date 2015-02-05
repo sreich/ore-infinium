@@ -210,14 +210,20 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_currentTime = newTime;
 
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         while (m_accumulator >= m_step) {
             m_accumulator -= m_step;
             //entityManager.update();
             processNetworkQueue();
 
-            if (m_world != null) {
-                m_world.update(m_step);
-            }
+        }
+
+        if (m_world != null) {
+            //on client, actually renders, due to systems :S
+            //fixme we want to split rendering and updating..its coupled right now
+            m_world.update(m_step);
         }
 
         double alpha = m_accumulator / m_step;
@@ -225,8 +231,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         //Gdx.app.log("frametime", Double.toString(frameTime));
         //Gdx.app.log("alpha", Double.toString(alpha));
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (m_world != null) {
             m_world.render(m_step);
@@ -249,7 +253,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_batch.begin();
 
-        int textY = Gdx.graphics.getHeight() - 150;
+        int textY = Gdx.graphics.getHeight() - 130;
         m_font.draw(m_batch, fpsString, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, frameTimeString, 0, textY);
@@ -266,6 +270,19 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, drawCallsString, 0, textY);
         textY -= 15;
+        m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
+        textY -= 15;
+
+        if (m_world != null) {
+            m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
+            textY -= 15;
+
+            if (m_server != null) {
+                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+                textY -= 15;
+            }
+        }
+
         m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
         m_batch.end();
 
@@ -348,6 +365,29 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
+
+        if (keycode == Input.Keys.Q) {
+
+            PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+
+            if (playerComponent.equippedPrimaryItem() != null) {
+                Network.HotbarDropItemRequestFromClient dropItemRequestFromClient = new Network.HotbarDropItemRequestFromClient();
+                dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
+                // decrement count, we assume it'll get spawned shortly. delete in-inventory entity if necessary
+                // server assumes we already do so
+                Entity item = playerComponent.equippedPrimaryItem();
+                ItemComponent itemComponent = Mappers.item.get(item);
+                if (itemComponent.stackSize > 1) {
+                    //decrement count, server has already done so. we assume here that it went through properly.
+                    itemComponent.stackSize -= 1;
+                } else {
+                    m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(dropItemRequestFromClient.index));
+                }
+
+                m_clientKryo.sendTCP(dropItemRequestFromClient);
+
+            }
+        }
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             controllableComponent.desiredDirection.x = -1;
@@ -488,6 +528,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
             playerComponent.hotbarInventory.selectSlot((byte) 0);
         }
 
+//          SpriteComponent spriteComponent = Mappers.sprite.get(player);
+//        spriteComponent.sprite.setTexture();
+
         m_world.engine.addEntity(player);
 
         return player;
@@ -560,6 +603,32 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 //TODO i wonder if i can implement my own serializer (trivially!) and make it use the entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
 
+            } else if (object instanceof Network.EntitySpawnFromServer) {
+                //fixme this and hotbar code needs consolidation
+                Network.EntitySpawnFromServer spawn = (Network.EntitySpawnFromServer) object;
+
+                Entity e = m_world.engine.createEntity();
+                for (Component c : spawn.components) {
+                    e.add(c);
+                }
+
+                //hack id..see above.
+                SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
+                spriteComponent.textureName = spawn.textureName;
+                spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
+                spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+
+                TextureRegion textureRegion;
+                if (Mappers.block.get(e) == null) {
+                    textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+                } else {
+                    textureRegion = m_world.m_tileRenderer.m_atlas.findRegion(spriteComponent.textureName);
+                }
+
+                spriteComponent.sprite.setRegion(textureRegion);
+                e.add(spriteComponent);
+
+                m_world.engine.addEntity(e);
             } else if (object instanceof Network.ChatMessageFromServer) {
                 Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) object;
                 m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
@@ -631,7 +700,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         @Override
         public void selected(byte index, Inventory inventory) {
+            if (m_mainPlayer == null) {
+                return;
+            }
+
             sendHotbarEquipped(index);
+            PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+
+            Entity itemCopy = playerComponent.equippedPrimaryItem();
+            playerComponent.equippedItemAnimator = itemCopy;
         }
     }
 
