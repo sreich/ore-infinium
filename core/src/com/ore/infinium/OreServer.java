@@ -646,4 +646,14 @@ public class OreServer implements Runnable {
         }
     }
 
+    public void sendEntityMoved(Entity player, Entity entity) {
+        Network.EntityMovedFromServer move = new Network.EntityMovedFromServer();
+        move.id = entity.getId();
+
+        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        move.position = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+
+        PlayerComponent playerComponent = Mappers.player.get(player);
+        m_serverKryo.sendToTCP(playerComponent.connectionId, move);
+    }
 }

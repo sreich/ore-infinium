@@ -2,6 +2,7 @@ package com.ore.infinium;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -13,6 +14,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
+import com.badlogic.gdx.utils.LongMap;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -83,6 +86,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean leftMouseDown;
 
     private DragAndDrop m_dragAndDrop;
+
+    // the internal (client) entity for the network(server's) entity ID
+    private LongMap<Entity> m_entityForNetworkId = new LongMap<>(500);
+    // map to reverse lookup, the long (server) entity ID for the given Entity
+    private ObjectMap<Entity, Long> m_networkIdForEntityId = new ObjectMap<>(500);
 
     @Override
     public void create() {
@@ -387,6 +395,22 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_clientKryo.sendTCP(dropItemRequestFromClient);
 
             }
+        } else if (keycode == Input.Keys.NUM_1) {
+            m_hotbarInventory.selectSlot((byte) 0);
+        } else if (keycode == Input.Keys.NUM_2) {
+            m_hotbarInventory.selectSlot((byte) 1);
+        } else if (keycode == Input.Keys.NUM_3) {
+            m_hotbarInventory.selectSlot((byte) 2);
+        } else if (keycode == Input.Keys.NUM_4) {
+            m_hotbarInventory.selectSlot((byte) 3);
+        } else if (keycode == Input.Keys.NUM_5) {
+            m_hotbarInventory.selectSlot((byte) 4);
+        } else if (keycode == Input.Keys.NUM_6) {
+            m_hotbarInventory.selectSlot((byte) 5);
+        } else if (keycode == Input.Keys.NUM_7) {
+            m_hotbarInventory.selectSlot((byte) 6);
+        } else if (keycode == Input.Keys.NUM_8) {
+            m_hotbarInventory.selectSlot((byte) 7);
         }
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
@@ -563,6 +587,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
                     m_world.addPlayer(m_mainPlayer);
                     m_world.initClient(m_mainPlayer);
+
+                    m_world.engine.addEntityListener(new ClientEntityListener());
                 } else {
                     //FIXME cover other players joining case
                     assert false;
@@ -631,6 +657,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 spriteComponent.sprite.setRegion(textureRegion);
                 e.add(spriteComponent);
+
+                m_networkIdForEntityId.put(e, spawn.id);
+                m_entityForNetworkId.put(spawn.id, e);
 
                 m_world.engine.addEntity(e);
             } else if (object instanceof Network.ChatMessageFromServer) {
@@ -716,4 +745,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
     }
 
+    private class ClientEntityListener implements EntityListener {
+        @Override
+        public void entityAdded(Entity entity) {
+
+        }
+
+        @Override
+        public void entityRemoved(Entity entity) {
+            Long networkId = m_networkIdForEntityId.remove(entity);
+            m_entityForNetworkId.remove(networkId);
+        }
+    }
 }

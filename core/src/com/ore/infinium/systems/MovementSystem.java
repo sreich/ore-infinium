@@ -333,6 +333,13 @@ public class MovementSystem extends EntitySystem {
     }
 
     private void maybeSendEntityMoved(Entity entity) {
+        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        for (Entity player : m_world.m_players) {
+            PlayerComponent playerComponent = Mappers.player.get(player);
+            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()))) {
+                m_world.m_server.sendEntityMoved(player, entity);
+            }
+        }
     /*
     for (auto player : m_world->m_players) {
         auto playerComponent = player.component<PlayerComponent>();
