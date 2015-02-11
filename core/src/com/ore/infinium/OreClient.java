@@ -665,6 +665,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
             } else if (object instanceof Network.ChatMessageFromServer) {
                 Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) object;
                 m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
+            } else if (object instanceof Network.EntityMovedFromServer) {
+                Network.EntityMovedFromServer data = (Network.EntityMovedFromServer) object;
+                Entity entity = m_entityForNetworkId.get(data.id);
+                assert entity != null;
+
+                SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+                spriteComponent.sprite.setPosition(data.position.x, data.position.y);
             } else {
                 if (!(object instanceof FrameworkMessage.KeepAlive)) {
                     Gdx.app.log("client network", "unhandled network receiving class");

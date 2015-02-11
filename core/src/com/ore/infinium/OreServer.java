@@ -358,6 +358,7 @@ public class OreServer implements Runnable {
     private void sendSpawnEntity(Entity e, int connectionId) {
         Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
         spawn.components = serializeComponents(e);
+        spawn.id = e.getId();
 
         SpriteComponent sprite = Mappers.sprite.get(e);
 
@@ -518,6 +519,7 @@ public class OreServer implements Runnable {
                 ItemComponent itemDroppedComponent = Mappers.item.get(droppedItem);
                 itemDroppedComponent.state = ItemComponent.State.DroppedInWorld;
                 itemDroppedComponent.justDropped = true;
+                itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionId;
 
                 SpriteComponent playerSprite = Mappers.sprite.get(job.connection.player);
                 SpriteComponent itemSprite = Mappers.sprite.get(droppedItem);

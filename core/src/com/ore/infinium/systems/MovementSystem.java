@@ -5,13 +5,11 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
-import com.ore.infinium.components.JumpComponent;
-import com.ore.infinium.components.PlayerComponent;
-import com.ore.infinium.components.SpriteComponent;
-import com.ore.infinium.components.VelocityComponent;
+import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
@@ -47,9 +45,6 @@ public class MovementSystem extends EntitySystem {
     }
 
     public void update(float delta) {
-        if (m_world.isServer()) {
-            return;
-        }
 
         ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, VelocityComponent.class).get());
 
@@ -61,7 +56,6 @@ public class MovementSystem extends EntitySystem {
             simulate(e, delta);
         }
 
-
         if (m_world.isClient()) {
             SpriteComponent playerSprite = Mappers.sprite.get(m_world.m_mainPlayer);
             m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
@@ -72,11 +66,19 @@ public class MovementSystem extends EntitySystem {
     }
 
     private void simulate(Entity entity, float delta) {
+        //fixme maybe make a dropped component?
         if (Mappers.control.get(entity) == null) {
-            if (Mappers.item.get(entity) != null) {
-                simulateDroppedItem(entity, delta);
+            if (m_world.isServer()) {
+                ItemComponent itemComponent = Mappers.item.get(entity);
+                if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
+                    simulateDroppedItem(entity, delta);
+                }
             }
 
+            return;
+        }
+
+        if (m_world.isServer()) {
             return;
         }
 
@@ -147,8 +149,72 @@ public class MovementSystem extends EntitySystem {
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
     }
 
-    private void simulateDroppedItem(Entity entity, float delta) {
+    private void simulateDroppedItem(Entity item, float delta) {
+        ItemComponent itemComponent = Mappers.item.get(item);
+        if (itemComponent.state != ItemComponent.State.DroppedInWorld) {
+            return;
+            //only interested in simulating gravity for dropped items
+        }
 
+        SpriteComponent spriteComponent = Mappers.sprite.get(item);
+        VelocityComponent velocityComponent = Mappers.velocity.get(item);
+
+        Vector2 itemPosition = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+
+        int x = (int)(itemPosition.x / World.BLOCK_SIZE);
+        int y = (int)(itemPosition.y / World.BLOCK_SIZE);
+
+        Entity playerWhoDropped = m_world.playerForID(itemComponent.playerIdWhoDropped);
+
+        SpriteComponent playerSprite = Mappers.sprite.get(playerWhoDropped);
+        Vector2 playerVelocity = new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY());
+
+        Vector2 acceleration = new Vector2(0.0f, World.GRAVITY_ACCEL);
+
+        if (itemComponent.justDropped) {
+            acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
+            acceleration.y += -World.GRAVITY_ACCEL * 4.0f;
+
+            //only add player velocity the first tick, as soon as they drop it.
+            itemComponent.justDropped = false;
+        }
+
+
+        final Vector2 oldVelocity = velocityComponent.velocity;
+        Vector2 newVelocity = new Vector2(oldVelocity);
+
+        newVelocity.add(acceleration);
+
+        newVelocity.x *= 0.95;
+
+        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.maxMovementSpeed);
+        newVelocity.y = MathUtils.clamp(newVelocity.x, PlayerComponent.jumpVelocity, World.GRAVITY_ACCEL_CLAMP);
+
+        //clamp both axes between some max/min values..
+//    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2(maxMovementSpeed, 9.8f / PIXELS_PER_METER /10.0f));
+
+        //reset velocity once it gets small enough, and consider it non-moved.
+        float epsilon = 0.00001f;
+        if (Math.abs(newVelocity.x) < epsilon && Math.abs(newVelocity.y) < epsilon) {
+//            newVelocity.setZero();
+        } else {
+            Vector2 desiredPosition = itemPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)));
+            velocityComponent.velocity.set(newVelocity);
+            Vector2 finalPosition = performCollision(desiredPosition, item);
+
+
+            //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
+
+            //HACK: obviously
+            //    positionComponent->setPosition(desiredPosition);
+
+            //    const glm::vec3 finalPosition ;
+
+            //qCDebug(ORE_IMPORTANT) << "dropped item opsition: " << desiredPosition << " Id: " << entity.getId() << " velcotiy: " << v;
+
+            spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
+            maybeSendEntityMoved(item);
+        }
     }
 
     /**
@@ -259,79 +325,6 @@ public class MovementSystem extends EntitySystem {
         return desiredPosition;
     }
 
-    private void simulateDroppedItem(Entity entity) {
-    /*
-    auto itemComponent = entity.component<ItemComponent>();
-    if (itemComponent->state() != ItemComponent::State::DroppedInWorld) {
-        return;
-        //only interested in simulating gravity for dropped items
-    }
-
-    auto positionComponent = entity.component<PositionComponent>();
-    auto sizeComponent = entity.component<SizeComponent>();
-
-    auto velocityComponent = entity.component<VelocityComponent>();
-
-    const auto itemPosition = positionComponent->position();
-    const glm::vec2 itemVelocity = velocityComponent->velocity();
-
-    int x = (itemPosition.x) / BLOCK_SIZE;
-    int y = (itemPosition.y) / BLOCK_SIZE;
-
-    auto playerWhoDropped = m_world->playerForID(itemComponent->playerIDWhoDropped());
-    Q_ASSERT(playerWhoDropped.valid());
-
-   // auto player = playerWhoDropped->getComponent<VelocityComponent>()->velocity().x;
-    auto playerVelocity = m_world->m_players[0].component<VelocityComponent>();
-
-    //NOTE: int he futre, gravity may not be a global constant
-    glm::vec2 acceleration(0.0f, GRAVITY_ACCEL);
-
-    if (itemComponent->justDropped()) {
-        acceleration.x += glm::max<float>(playerVelocity->velocity().x * 0.5f, GRAVITY_ACCEL);
-        acceleration.y += -GRAVITY_ACCEL * 4.0f;
-        //qCDebug(ORE_IMPORTANT) << "ADDING just dropped accelerration x:" << acceleration.x;
-        //only add player velocity the first tick, as soon as they drop it.
-        itemComponent->setJustDropped(false);
-    }
-
-
-    glm::vec2 newVelocity = itemVelocity;
-
-    newVelocity += acceleration;
-
-    newVelocity.x *= 0.95;
-
-    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2(maxMovementSpeed, GRAVITY_ACCEL_CLAMP));
-
-    //clamp both axes between some max/min values..
-//    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2(maxMovementSpeed, 9.8f / PIXELS_PER_METER /10.0f));
-
-    //reset velocity once it gets small enough, and consider it non-moved.
-    float epsilon = 0.00001f;
-    if (glm::abs(newVelocity.x) < epsilon && glm::abs(newVelocity.y) < epsilon) {
-        newVelocity = glm::vec2(0.0f, 0.0f);
-    } else {
-        glm::vec3 desiredPosition = glm::vec3(itemPosition.xy() + (itemVelocity + newVelocity) * glm::vec2(0.5f) * glm::vec2(m_dt), itemPosition.z);
-        const glm::vec3 finalPosition = performCollision(desiredPosition, sizeComponent->sizeMeters(), &newVelocity, nullptr);
-        velocityComponent->setVelocity(newVelocity);
-
-        //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
-
-        //HACK: obviously
-    //    positionComponent->setPosition(desiredPosition);
-
-    //    const glm::vec3 finalPosition ;
-
-        //qCDebug(ORE_IMPORTANT) << "dropped item opsition: " << desiredPosition << " Id: " << entity.getId() << " velcotiy: " << v;
-
-
-        positionComponent->setPosition(finalPosition);
-        maybeSendEntityMoved(entity);
-    }
-    */
-    }
-
     private void maybeSendEntityMoved(Entity entity) {
         SpriteComponent spriteComponent = Mappers.sprite.get(entity);
         for (Entity player : m_world.m_players) {
@@ -340,16 +333,5 @@ public class MovementSystem extends EntitySystem {
                 m_world.m_server.sendEntityMoved(player, entity);
             }
         }
-    /*
-    for (auto player : m_world->m_players) {
-        auto playerComponent = player.component<PlayerComponent>();
-        auto& viewport = playerComponent->loadedViewport();
-
-        if (viewport.exists(entity)) {
-            m_world->m_server->sendEntityMoved(player, entity);
-        }
     }
-    */
-    }
-
 }

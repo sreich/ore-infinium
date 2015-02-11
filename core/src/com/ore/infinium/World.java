@@ -1,7 +1,9 @@
 package com.ore.infinium;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
@@ -596,5 +598,19 @@ public class World implements Disposable {
             textureName = _textureName;
             collides = _collides;
         }
+    }
+
+    public Entity playerForID(int playerIdWhoDropped) {
+
+        ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
+        PlayerComponent playerComponent;
+        for (Entity e : entities) {
+            playerComponent = Mappers.player.get(e);
+            if (playerComponent.connectionId == playerIdWhoDropped) {
+                return e;
+            }
+        }
+
+        throw new IllegalStateException("player id attempted to be obtained from item, but this player does not exist");
     }
 }
