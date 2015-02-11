@@ -57,6 +57,10 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
             SpriteComponent spriteComponent = Mappers.sprite.get(e);
             PlayerComponent playerComponent = Mappers.player.get(e);
 
+            if (spriteComponent == null || spriteComponent.sprite == null || playerComponent == null || playerComponent.lastLoadedRegion == null) {
+                continue; //hack, not sure why but occasional NPE's happen..on something
+            }
+
             if (Vector2.dst(spriteComponent.sprite.getX(), spriteComponent.sprite.getY(), playerComponent.lastLoadedRegion.x, playerComponent.lastLoadedRegion.y)
                     > 10.0f) {
                 //HACK, dunno why 20. need something sane.

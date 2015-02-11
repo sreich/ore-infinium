@@ -56,7 +56,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean m_renderTiles = true;
     private boolean m_guiDebug;
     private boolean m_renderGui = true;
-    private boolean m_renderDebugServer = true;
+    private boolean m_renderDebugServer = false;
 
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     FreeTypeFontGenerator m_fontGenerator;
@@ -284,6 +284,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, debugString3, 0, textY);
         textY -= 15;
+        m_font.draw(m_batch, debugString4, 0, textY);
+        textY -= 15;
         m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
         textY -= 15;
 
@@ -292,14 +294,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             if (m_server != null) {
                 textY -= 15;
-                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+        //        m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
 
             }
         }
 
         m_batch.end();
 
-        if (m_world != null && m_renderDebugServer) {
+        if (m_world != null && m_renderDebugServer && false) {
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
             m_debugServerBatch.begin();
             m_debugServerBatch.setColor(1, 0, 0, 0.5f);

@@ -155,50 +155,51 @@ public class MovementSystem extends EntitySystem {
             //only interested in simulating gravity for dropped items
         }
 
-        SpriteComponent spriteComponent = Mappers.sprite.get(item);
-        VelocityComponent velocityComponent = Mappers.velocity.get(item);
+        SpriteComponent itemSpriteComponent = Mappers.sprite.get(item);
+        VelocityComponent itemVelocityComponent = Mappers.velocity.get(item);
 
-        Vector2 itemPosition = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+        Vector2 itemPosition = new Vector2(itemSpriteComponent.sprite.getX(), itemSpriteComponent.sprite.getY());
 
         int x = (int)(itemPosition.x / World.BLOCK_SIZE);
         int y = (int)(itemPosition.y / World.BLOCK_SIZE);
 
         Entity playerWhoDropped = m_world.playerForID(itemComponent.playerIdWhoDropped);
 
-        SpriteComponent playerSprite = Mappers.sprite.get(playerWhoDropped);
-        Vector2 playerVelocity = new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY());
+        VelocityComponent playerVelocityComponent = Mappers.velocity.get(playerWhoDropped);
+        Vector2 playerVelocity = new Vector2(playerVelocityComponent.velocity);
 
         Vector2 acceleration = new Vector2(0.0f, World.GRAVITY_ACCEL);
 
         if (itemComponent.justDropped) {
-            acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
-            acceleration.y += -World.GRAVITY_ACCEL * 4.0f;
+            //acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
+            acceleration.x += 2;//Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
+            acceleration.y += -World.GRAVITY_ACCEL * 8.0f;
 
             //only add player velocity the first tick, as soon as they drop it.
             itemComponent.justDropped = false;
         }
 
+        final Vector2 itemOldVelocity = new Vector2(itemVelocityComponent.velocity);
+        Vector2 itemNewVelocity = new Vector2(itemVelocityComponent.velocity);
 
-        final Vector2 oldVelocity = velocityComponent.velocity;
-        Vector2 newVelocity = new Vector2(oldVelocity);
+        itemNewVelocity.add(acceleration);
 
-        newVelocity.add(acceleration);
+        itemNewVelocity.x *= 0.95f;
 
-        newVelocity.x *= 0.95;
-
-        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.maxMovementSpeed);
-        newVelocity.y = MathUtils.clamp(newVelocity.x, PlayerComponent.jumpVelocity, World.GRAVITY_ACCEL_CLAMP);
+        itemNewVelocity.x = MathUtils.clamp(itemNewVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.maxMovementSpeed);
+//        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World.GRAVITY_ACCEL_CLAMP);
+        itemNewVelocity.y = MathUtils.clamp(itemNewVelocity.y, -World.GRAVITY_ACCEL_CLAMP * 10, World.GRAVITY_ACCEL_CLAMP);
 
         //clamp both axes between some max/min values..
 //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2(maxMovementSpeed, 9.8f / PIXELS_PER_METER /10.0f));
 
         //reset velocity once it gets small enough, and consider it non-moved.
         float epsilon = 0.00001f;
-        if (Math.abs(newVelocity.x) < epsilon && Math.abs(newVelocity.y) < epsilon) {
-//            newVelocity.setZero();
+        if (Math.abs(itemNewVelocity.x) < epsilon && Math.abs(itemNewVelocity.y) < epsilon) {
+            itemNewVelocity.setZero();
         } else {
-            Vector2 desiredPosition = itemPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)));
-            velocityComponent.velocity.set(newVelocity);
+            itemVelocityComponent.velocity.set(itemNewVelocity);
+            Vector2 desiredPosition = itemPosition.add(itemOldVelocity.add(itemNewVelocity.scl(0.5f * delta)));
             Vector2 finalPosition = performCollision(desiredPosition, item);
 
 
@@ -211,7 +212,7 @@ public class MovementSystem extends EntitySystem {
 
             //qCDebug(ORE_IMPORTANT) << "dropped item opsition: " << desiredPosition << " Id: " << entity.getId() << " velcotiy: " << v;
 
-            spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
+            itemSpriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
             maybeSendEntityMoved(item);
         }
     }
@@ -328,9 +329,9 @@ public class MovementSystem extends EntitySystem {
         SpriteComponent spriteComponent = Mappers.sprite.get(entity);
         for (Entity player : m_world.m_players) {
             PlayerComponent playerComponent = Mappers.player.get(player);
-            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()))) {
+//            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()))) {
                 m_world.m_server.sendEntityMoved(player, entity);
-            }
+ //           }
         }
     }
 }
