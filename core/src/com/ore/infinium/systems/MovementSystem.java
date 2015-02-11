@@ -244,7 +244,7 @@ public class MovementSystem extends EntitySystem {
                     collision = true;
 
                     //indexes are top-left remember, due to how it's rendered and such.
-                    float tileBottom = World.BLOCK_SIZE * (topY + 3);/// oh yeah btw this is a fucking hack, just in case this entire fucking function didn't seem like it, this + 3 definitely is.
+                    float tileBottom = World.BLOCK_SIZE * (topY + 0);
                     desiredPosition.y = tileBottom + (sizeMeters.y * 0.5f) + epsilon;
                     break;
                 } // else noop, move freely
