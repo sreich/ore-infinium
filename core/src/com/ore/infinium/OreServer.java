@@ -268,7 +268,7 @@ public class OreServer implements Runnable {
 
             SpriteComponent torchSprite = m_world.engine.createComponent(SpriteComponent.class);
             //fixme torch sprite...thuoghh we won't use torches, but lights
-            torchSprite.textureName = "player";
+            torchSprite.textureName = "player-32x64";
             torchSprite.sprite.setSize(9 / World.PIXELS_PER_METER, 24 / World.PIXELS_PER_METER);
             torch.add(torchSprite);
 

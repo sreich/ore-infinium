@@ -140,7 +140,7 @@ public class World implements Disposable {
         engine.addSystem(new SpriteRenderSystem(this));
 
         SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
-        playerSprite.sprite.setRegion(m_atlas.findRegion("player"));
+        playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
         playerSprite.sprite.flip(false, true);
     }
 
@@ -467,7 +467,7 @@ public class World implements Disposable {
         air.add(itemComponent);
 
         SpriteComponent airSprite = engine.createComponent(SpriteComponent.class);
-        airSprite.textureName = "air-generator-64";
+        airSprite.textureName = "air-generator-64x64";
 
 //warning fixme size is fucked
         airSprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
