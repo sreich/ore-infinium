@@ -1,0 +1,3 @@
+[submodule "core/assets"]
+	path = core/assets
+	url = https://github.com/sreich/ore-infinium-assets.git
