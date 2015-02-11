@@ -1,55 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c9b9911d-f887-49a8-a438-87444c32ea99" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/fonts/Ubuntu-L.ttf" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/packed/blocks.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/check-off.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/check-on.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/blocks/copper.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/entities/crosshair-blockpicking.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/cursor.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-pane-noborder.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-pane.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-rect-down.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-rect-pad.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-rect.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-round-down.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-round-large.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-round.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-scroll.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-select-selection.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-select.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-slider-knob.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-slider.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-splitpane-vertical.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-splitpane.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/default-window.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/blocks/dirt.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/blocks/dirt.xcf" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/entities/drill.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/packed/entities.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/selection.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/blocks/stone.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/blocks/stone.xcf" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/textfield.9.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/tree-minus.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/tree-plus.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/packed/ui.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/white.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/packed/blocks.atlas" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/packed/entities.atlas" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/blocks/pack.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/entities/pack.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/pack.json" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/texturepacker command.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/packed/ui.atlas" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/assets/ui/ui.json" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/core/assets/air-gen-64x64.png" afterPath="$PROJECT_DIR$/core/assets/entities/air-generator-64x64.png" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/core/assets/player-32x64.png" afterPath="$PROJECT_DIR$/core/assets/entities/player-32x64.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+    <list default="true" id="c9b9911d-f887-49a8-a438-87444c32ea99" name="Default" comment="add all the assets needed to run the game, into this new assets repo">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/assets" afterPath="$PROJECT_DIR$/core/assets" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="ore-infinium.iws" />
@@ -118,8 +71,8 @@
       <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.1803279" vertical-offset="0" max-vertical-offset="12978">
-              <caret line="68" column="15" selection-start-line="68" selection-start-column="15" selection-end-line="68" selection-end-column="15" />
+            <state vertical-scroll-proportion="0.9147541" vertical-offset="0" max-vertical-offset="12978">
+              <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -1210,7 +1163,13 @@
       <option name="project" value="LOCAL" />
       <updated>1423613504540</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="add all the assets needed to run the game, into this new assets repo">
+      <created>1423614568811</created>
+      <option name="number" value="00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1423614568811</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1282,7 +1241,8 @@
       <TodoPanelSettings />
     </option>
     <MESSAGE value="redo IDEA stuff, maybe it won't screw up as much now(re old gdx version). fix physics collision on top" />
-    <option name="LAST_COMMIT_MESSAGE" value="redo IDEA stuff, maybe it won't screw up as much now(re old gdx version). fix physics collision on top" />
+    <MESSAGE value="add all the assets needed to run the game, into this new assets repo" />
+    <option name="LAST_COMMIT_MESSAGE" value="add all the assets needed to run the game, into this new assets repo" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -1343,8 +1303,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.1803279" vertical-offset="0" max-vertical-offset="12978">
-          <caret line="68" column="15" selection-start-line="68" selection-start-column="15" selection-end-line="68" selection-end-column="15" />
+        <state vertical-scroll-proportion="0.9147541" vertical-offset="0" max-vertical-offset="12978">
+          <caret line="59" column="0" selection-start-line="59" selection-start-column="0" selection-end-line="59" selection-end-column="0" />
           <folding />
         </state>
       </provider>
