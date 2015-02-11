@@ -45,7 +45,6 @@ public class MovementSystem extends EntitySystem {
     }
 
     public void update(float delta) {
-
         ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, VelocityComponent.class).get());
 
         //clients, for now, do their own collision stuff. mostly.

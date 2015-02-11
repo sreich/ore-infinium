@@ -3,8 +3,11 @@ package com.ore.infinium;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
@@ -38,6 +41,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     static final String debugString1 = "F12 - gui debug";
     static final String debugString2 = "F11 - gui render toggle";
     static final String debugString3 = "F10 - tile render toggle";
+    static final String debugString4 = "F9 - client/server sync debug render toggle";
 
     static OreTimer frameTimer = new OreTimer();
     static String frameTimeString = "";
@@ -47,9 +51,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
     static String drawCallsString = "";
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
 
+    private SpriteBatch m_debugServerBatch;
+
     public boolean m_renderTiles = true;
     private boolean m_guiDebug;
     private boolean m_renderGui = true;
+    private boolean m_renderDebugServer = true;
 
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     FreeTypeFontGenerator m_fontGenerator;
@@ -86,6 +93,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean leftMouseDown;
 
     private DragAndDrop m_dragAndDrop;
+
+    private Texture junktexture;
 
     // the internal (client) entity for the network(server's) entity ID
     private LongMap<Entity> m_entityForNetworkId = new LongMap<>(500);
@@ -139,6 +148,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_chat.addListener(m_chatBox);
 
         m_sidebar = new Sidebar(m_stage, m_skin, this);
+
+        junktexture = new Texture(Gdx.files.internal("entities/debug.png"));
+        m_debugServerBatch = new SpriteBatch();
 
         hostAndJoin();
     }
@@ -249,7 +261,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_stage.draw();
         }
 
-        if (frameTimer.milliseconds() > 2000) {
+        if (frameTimer.milliseconds() > 1000) {
             frameTimeString = "Frametime: " + decimalFormat.format(frameTime);
             fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
             textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
@@ -272,27 +284,36 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, debugString3, 0, textY);
         textY -= 15;
-        m_font.draw(m_batch, textureSwitchesString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, shaderSwitchesString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, drawCallsString, 0, textY);
-        textY -= 15;
         m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
         textY -= 15;
 
         if (m_world != null) {
             m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
-            textY -= 15;
 
             if (m_server != null) {
-                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
                 textY -= 15;
+                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+
             }
         }
 
-        m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
         m_batch.end();
+
+        if (m_world != null && m_renderDebugServer) {
+            m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
+            m_debugServerBatch.begin();
+            m_debugServerBatch.setColor(1, 0, 0, 0.5f);
+            ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+            for (Entity e : entities) {
+                SpriteComponent spriteComponent = Mappers.sprite.get(e);
+
+                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+            }
+
+            m_debugServerBatch.end();
+        }
 
         GLProfiler.reset();
 
@@ -355,6 +376,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
             shutdown();
+        } else if (keycode == Input.Keys.F9) {
+            m_renderDebugServer = !m_renderDebugServer;
         } else if (keycode == Input.Keys.F10) {
             m_renderTiles = !m_renderTiles;
         } else if (keycode == Input.Keys.F11) {
@@ -764,4 +787,5 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_entityForNetworkId.remove(networkId);
         }
     }
+
 }
