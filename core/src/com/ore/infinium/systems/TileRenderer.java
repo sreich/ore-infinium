@@ -1,11 +1,15 @@
-package com.ore.infinium;
+package com.ore.infinium.systems;
 
+import com.badlogic.ashley.systems.IntervalSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector3;
+import com.ore.infinium.Block;
+import com.ore.infinium.Mappers;
+import com.ore.infinium.World;
 import com.ore.infinium.components.SpriteComponent;
 
 /**
@@ -26,19 +30,23 @@ import com.ore.infinium.components.SpriteComponent;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.     *
  * ***************************************************************************
  */
-public class TileRenderer {
-
+public class TileRenderer extends IntervalSystem {
     private World m_world;
     private OrthographicCamera m_camera;
     private SpriteBatch m_batch;
 
     private Texture t;
 
-    protected TextureAtlas m_atlas;
+    public TextureAtlas m_atlas;
 
     public static int tileCount;
 
-    public TileRenderer(OrthographicCamera camera, World world) {
+    float elapsed;
+
+    public TileRenderer(OrthographicCamera camera, World world, float interval) {
+        super(interval);
+        elapsed = interval;
+
         m_camera = camera;
         m_world = world;
         m_batch = new SpriteBatch(5000);
@@ -117,5 +125,13 @@ public class TileRenderer {
         tileCount = count;
         //Gdx.app.log("", "drew tiles: " + count);
         m_batch.end();
+    }
+
+    /**
+     * The processing logic of the system should be placed here.
+     */
+    @Override
+    protected void updateInterval() {
+        render(elapsed);
     }
 }

@@ -27,6 +27,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
 import com.ore.infinium.components.*;
+import com.ore.infinium.systems.TileRenderer;
 
 import java.io.IOException;
 import java.text.DecimalFormat;

@@ -19,6 +19,7 @@ import com.ore.infinium.components.*;
 import com.ore.infinium.systems.MovementSystem;
 import com.ore.infinium.systems.PlayerSystem;
 import com.ore.infinium.systems.SpriteRenderSystem;
+import com.ore.infinium.systems.TileRenderer;
 
 import java.util.HashMap;
 
@@ -80,7 +81,7 @@ public class World implements Disposable {
     private Entity m_blockPickingCrosshair;
     private Entity m_itemPlacementGhost;
 
-    //fixme remve in favor of the render system
+    //fixme remove in favor of the render system
     public TextureAtlas m_atlas;
 
     public World(OreClient client, OreServer server) {
@@ -158,8 +159,7 @@ public class World implements Disposable {
         m_mainPlayer = mainPlayer;
 //        Mappers.velocity.get(m_mainPlayer);
 
-        m_tileRenderer = new TileRenderer(m_camera, this);
-
+        engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f/60f));
         engine.addSystem(new SpriteRenderSystem(this));
 
         SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
@@ -402,7 +402,9 @@ public class World implements Disposable {
 
 
         if (m_client.m_renderTiles) {
-            m_tileRenderer.render(elapsed);
+            //m_tileRenderer.render(elapsed);
+        } else {
+
         }
 
         //FIXME: incorporate entities into the pre-lit gamescene FBO, then render lighting as last pass
@@ -415,21 +417,6 @@ public class World implements Disposable {
 
         updateCrosshair();
         updateItemPlacementGhost();
-
-        /*
-        //hack
-        SpriteComponent blockSpriteComponent = Mappers.sprite.get(m_blockPickingCrosshair);
-
-        m_batch.draw(blockSpriteComponent.sprite, blockSpriteComponent.sprite.getX() - blockSpriteComponent.sprite.getWidth() * 0.5f,
-                blockSpriteComponent.sprite.getY() - blockSpriteComponent.sprite.getHeight() * 0.5f,
-                blockSpriteComponent.sprite.getWidth(), blockSpriteComponent.sprite.getHeight());
-
-        m_batch.draw(playerSprite.sprite, playerSprite.sprite.getX() - playerSprite.sprite.getWidth() * 0.5f,
-                playerSprite.sprite.getY() - playerSprite.sprite.getHeight() * 0.5f,
-                playerSprite.sprite.getWidth(), playerSprite.sprite.getHeight());
-
-//        m_sprite2.draw(m_batch);
-        */
     }
 
     private void updateCrosshair() {
@@ -622,7 +609,7 @@ public class World implements Disposable {
     }
 
     public static class BlockStruct {
-        String textureName; //e.g. "dirt", "stone", etc.
+        public String textureName; //e.g. "dirt", "stone", etc.
         boolean collides;
 
         BlockStruct(String _textureName, boolean _collides) {

@@ -38,7 +38,7 @@ public class Block {
      * The type of tile this is, 0-255 is valid and can be compared with the world's definition of tile types
      * (an enum)
      */
-    BlockType blockType;// = Block.BlockType.NullBlockType;
+    public BlockType blockType;// = Block.BlockType.NullBlockType;
 
 
     /**
