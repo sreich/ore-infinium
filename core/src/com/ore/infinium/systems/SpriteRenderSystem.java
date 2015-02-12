@@ -98,7 +98,6 @@ public class SpriteRenderSystem extends EntitySystem {
             SpriteComponent spriteComponent = Mappers.sprite.get(e);
 
             boolean placementGhost = false;
-            boolean placementValid = false;
 
             TagComponent tagComponent = Mappers.tag.get(e);
             if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
