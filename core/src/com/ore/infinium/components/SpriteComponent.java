@@ -41,10 +41,15 @@ public class SpriteComponent extends Component implements Pool.Poolable {
     }
 
     public SpriteComponent() {
+        sprite.flip(false, true);
     }
 
     public SpriteComponent(SpriteComponent spriteComponent) {
         sprite = new Sprite(spriteComponent.sprite);
+        if (!sprite.isFlipY()) {
+            sprite.flip(false, true);
+        }
+
         textureName = spriteComponent.textureName;
         category = spriteComponent.category;
     }
