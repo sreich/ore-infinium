@@ -513,7 +513,7 @@ private boolean isPlacementValid(Entity entity) {
     int startX = (int)((pos.x - (size.x * 0.5f)) / BLOCK_SIZE + epsilon);
     int startY = (int)((pos.y - (size.y * 0.5f)) / BLOCK_SIZE + epsilon);
 
-    int endX = (int)((pos.x + (size.x * 0.5f)) / BLOCK_SIZE + 1);
+    int endX = (int)((pos.x + (size.x * 0.5f)) / BLOCK_SIZE + 0);
     int endY = (int)((pos.y + (size.y * 0.5f - epsilon)) / BLOCK_SIZE + 1);
 
     for (int column = startX; column < endX; ++column) {

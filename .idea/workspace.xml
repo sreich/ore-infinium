@@ -2,10 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9b9911d-f887-49a8-a438-87444c32ea99" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/TileRenderer.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/systems/TileRenderer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/Block.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/Block.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -45,8 +41,8 @@
       <file leaf-file-name="MovementSystem.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="774" max-vertical-offset="6012">
-              <caret line="66" column="54" selection-start-line="66" selection-start-column="54" selection-end-line="66" selection-end-column="54" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="504" max-vertical-offset="6012">
+              <caret line="53" column="17" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
               <folding>
                 <element signature="e#1585#1586#0" expanded="true" />
                 <element signature="e#1616#1617#0" expanded="true" />
@@ -78,8 +74,8 @@
       <file leaf-file-name="SpriteRenderSystem.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="817" max-vertical-offset="1746">
-              <caret line="103" column="0" selection-start-line="103" selection-start-column="0" selection-end-line="103" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1285" max-vertical-offset="2052">
+              <caret line="103" column="29" selection-start-line="103" selection-start-column="29" selection-end-line="103" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -100,11 +96,11 @@
       <file leaf-file-name="SpriteComponent.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="1080">
-              <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="1116">
+              <caret line="32" column="33" selection-start-line="32" selection-start-column="33" selection-end-line="32" selection-end-column="33" />
               <folding>
-                <element signature="e#1695#1696#0" expanded="true" />
-                <element signature="e#1735#1736#0" expanded="true" />
+                <element signature="e#1731#1732#0" expanded="true" />
+                <element signature="e#1771#1772#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -123,11 +119,11 @@
       <file leaf-file-name="World.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4101184" vertical-offset="2139" max-vertical-offset="10998">
-              <caret line="161" column="8" selection-start-line="161" selection-start-column="8" selection-end-line="161" selection-end-column="8" />
+            <state vertical-scroll-proportion="0.3487621" vertical-offset="8460" max-vertical-offset="12060">
+              <caret line="515" column="62" selection-start-line="515" selection-start-column="62" selection-end-line="515" selection-end-column="62" />
               <folding>
-                <element signature="e#10266#10267#0" expanded="true" />
-                <element signature="e#10305#10306#0" expanded="true" />
+                <element signature="e#10416#10417#0" expanded="true" />
+                <element signature="e#10455#10456#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -152,8 +148,8 @@
       <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="10651" max-vertical-offset="13626">
-              <caret line="647" column="65" selection-start-line="647" selection-start-column="65" selection-end-line="647" selection-end-column="65" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="9864" max-vertical-offset="13626">
+              <caret line="617" column="23" selection-start-line="617" selection-start-column="23" selection-end-line="617" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -875,12 +871,12 @@
       <list>
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/Network.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/PlayerSystem.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/TileRenderer.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
       </list>
     </option>
@@ -1521,7 +1517,19 @@
       <option name="project" value="LOCAL" />
       <updated>1423706534371</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="change tile renderer into an interval system, see how well this works. fixes tiles drawing over entities, as well">
+      <created>1423708052334</created>
+      <option name="number" value="00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1423708052334</updated>
+    </task>
+    <task id="LOCAL-00011" summary="placement ghost now knows if it collides with blocks and shows itself red/green accordingly \o/">
+      <created>1423709685726</created>
+      <option name="number" value="00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1423709685726</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1601,7 +1609,9 @@
     <MESSAGE value="add debug texture" />
     <MESSAGE value="item placement ghost is partially working now. just need to add invalid placement rendering/computation&#10;&#10;but first i should probably put the tile renderer behind the sprite renderer" />
     <MESSAGE value="flip sprites" />
-    <option name="LAST_COMMIT_MESSAGE" value="flip sprites" />
+    <MESSAGE value="change tile renderer into an interval system, see how well this works. fixes tiles drawing over entities, as well" />
+    <MESSAGE value="placement ghost now knows if it collides with blocks and shows itself red/green accordingly \o/" />
+    <option name="LAST_COMMIT_MESSAGE" value="placement ghost now knows if it collides with blocks and shows itself red/green accordingly \o/" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1615,14 +1625,14 @@
         <line-breakpoint enabled="true" type="java-line">
           <condition expression="playerComponent == null" language="JAVA" custom="" />
           <url>file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java</url>
-          <line>626</line>
+          <line>685</line>
           <properties />
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <condition expression="entities.size() &gt; 1" language="JAVA" custom="" />
           <url>file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java</url>
-          <line>624</line>
+          <line>683</line>
           <properties />
           <option name="timeStamp" value="24" />
         </line-breakpoint>
@@ -1682,8 +1692,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="522" max-vertical-offset="990">
           <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
           <folding>
-            <element signature="e#1695#1696#0" expanded="true" />
-            <element signature="e#1735#1736#0" expanded="true" />
+            <element signature="e#1731#1732#0" expanded="true" />
+            <element signature="e#1771#1772#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1701,8 +1711,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="9954" max-vertical-offset="10674">
           <caret line="616" column="0" selection-start-line="616" selection-start-column="0" selection-end-line="616" selection-end-column="0" />
           <folding>
-            <element signature="e#10266#10267#0" expanded="true" />
-            <element signature="e#10305#10306#0" expanded="true" />
+            <element signature="e#10416#10417#0" expanded="true" />
+            <element signature="e#10455#10456#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1766,8 +1776,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="522" max-vertical-offset="990">
           <caret line="31" column="0" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
           <folding>
-            <element signature="e#1695#1696#0" expanded="true" />
-            <element signature="e#1735#1736#0" expanded="true" />
+            <element signature="e#1731#1732#0" expanded="true" />
+            <element signature="e#1771#1772#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1785,8 +1795,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="10674">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
-            <element signature="e#10266#10267#0" expanded="true" />
-            <element signature="e#10305#10306#0" expanded="true" />
+            <element signature="e#10416#10417#0" expanded="true" />
+            <element signature="e#10455#10456#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1866,8 +1876,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="141" max-vertical-offset="10656">
           <caret line="46" column="0" selection-start-line="46" selection-start-column="0" selection-end-line="46" selection-end-column="0" />
           <folding>
-            <element signature="e#10266#10267#0" expanded="true" />
-            <element signature="e#10305#10306#0" expanded="true" />
+            <element signature="e#10416#10417#0" expanded="true" />
+            <element signature="e#10455#10456#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2004,17 +2014,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="774" max-vertical-offset="6012">
-          <caret line="66" column="54" selection-start-line="66" selection-start-column="54" selection-end-line="66" selection-end-column="54" />
-          <folding>
-            <element signature="e#1585#1586#0" expanded="true" />
-            <element signature="e#1616#1617#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="6495" max-vertical-offset="11628">
@@ -2028,33 +2027,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="1080">
-          <caret line="27" column="0" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-          <folding>
-            <element signature="e#1695#1696#0" expanded="true" />
-            <element signature="e#1735#1736#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1008" max-vertical-offset="1746">
-          <caret line="103" column="0" selection-start-line="103" selection-start-column="0" selection-end-line="103" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="10651" max-vertical-offset="13626">
-          <caret line="647" column="65" selection-start-line="647" selection-start-column="65" selection-end-line="647" selection-end-column="65" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/TileRenderer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1368" max-vertical-offset="2394">
@@ -2065,13 +2037,51 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="504" max-vertical-offset="6012">
+          <caret line="53" column="17" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
+          <folding>
+            <element signature="e#1585#1586#0" expanded="true" />
+            <element signature="e#1616#1617#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/components/SpriteComponent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="48" max-vertical-offset="1116">
+          <caret line="32" column="33" selection-start-line="32" selection-start-column="33" selection-end-line="32" selection-end-column="33" />
+          <folding>
+            <element signature="e#1731#1732#0" expanded="true" />
+            <element signature="e#1771#1772#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1285" max-vertical-offset="2052">
+          <caret line="103" column="29" selection-start-line="103" selection-start-column="29" selection-end-line="103" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="9864" max-vertical-offset="13626">
+          <caret line="617" column="23" selection-start-line="617" selection-start-column="23" selection-end-line="617" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4101184" vertical-offset="2139" max-vertical-offset="10998">
-          <caret line="161" column="8" selection-start-line="161" selection-start-column="8" selection-end-line="161" selection-end-column="8" />
+        <state vertical-scroll-proportion="0.3487621" vertical-offset="8460" max-vertical-offset="12060">
+          <caret line="515" column="62" selection-start-line="515" selection-start-column="62" selection-end-line="515" selection-end-column="62" />
           <folding>
-            <element signature="e#10266#10267#0" expanded="true" />
-            <element signature="e#10305#10306#0" expanded="true" />
+            <element signature="e#10416#10417#0" expanded="true" />
+            <element signature="e#10455#10456#0" expanded="true" />
           </folding>
         </state>
       </provider>
