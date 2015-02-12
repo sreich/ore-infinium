@@ -115,7 +115,7 @@ public class SpriteRenderSystem extends EntitySystem {
                     spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
             if (placementGhost) {
-                m_batch.setColor(1);
+                m_batch.setColor(1, 1, 1, 1);
             }
         }
     }
