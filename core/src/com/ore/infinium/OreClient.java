@@ -617,7 +617,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     m_world.engine.addEntityListener(new ClientEntityListener());
                 } else {
                     //FIXME cover other players joining case
-                    assert false;
+                    throw new RuntimeException("fixme, other players joining not yet implemented");
                 }
             } else if (object instanceof Network.KickReason) {
                 Network.KickReason reason = (Network.KickReason) object;

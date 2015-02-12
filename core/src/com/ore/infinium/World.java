@@ -149,6 +149,9 @@ public class World implements Disposable {
 
         SpriteComponent spriteComponent = Mappers.sprite.get(m_itemPlacementGhost);
 
+        TagComponent tag = engine.createComponent(TagComponent.class);
+        tag.tag = "itemPlacementGhost";
+        m_itemPlacementGhost.add(tag);
         engine.addEntity(m_itemPlacementGhost);
     }
 
@@ -452,6 +455,7 @@ public class World implements Disposable {
 
         SpriteComponent spriteComponent = Mappers.sprite.get(m_itemPlacementGhost);
         spriteComponent.sprite.setPosition(crosshairPosition.x, crosshairPosition.y);
+        spriteComponent.placementValid = isPlacementValid(m_itemPlacementGhost);
     }
 
     public int seaLevel() {
@@ -498,6 +502,61 @@ public class World implements Disposable {
 
         return air;
     }
+
+
+private boolean isPlacementValid(Entity entity) {
+    SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+    Vector2 pos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+    Vector2 size = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+
+    float epsilon = 0.001f;
+    int startX = (int)((pos.x - (size.x * 0.5f)) / BLOCK_SIZE + epsilon);
+    int startY = (int)((pos.y - (size.y * 0.5f)) / BLOCK_SIZE + epsilon);
+
+    int endX = (int)((pos.x + (size.x * 0.5f)) / BLOCK_SIZE + 1);
+    int endY = (int)((pos.y + (size.y * 0.5f - epsilon)) / BLOCK_SIZE + 1);
+
+    for (int column = startX; column < endX; ++column) {
+        for (int row = startY; row < endY; ++row) {
+            if (blockAt(column, row).blockType != Block.BlockType.NullBlockType) {
+                return false;
+            }
+        }
+    }
+
+    //float x = Math.min(pos.x - (BLOCK_SIZE * 20), 0.0f);
+    //float y = Math.min(pos.y - (BLOCK_SIZE * 20), 0.0f);
+    //float x2 = Math.min(pos.x + (BLOCK_SIZE * 20), WORLD_COLUMNCOUNT * BLOCK_SIZE);
+    //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_ROWCOUNT * BLOCK_SIZE);
+
+//
+//    ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+//    for (Entity e : entities) {
+//        //it's us, don't count a collision with ourselves
+//        if (e == entity) {
+//            continue;
+//        }
+//
+//        //ignore players, aka don't count them as colliding when placing static objects.
+////        if (e.has_component<PlayerComponent>()) {
+////            continue;
+////        }
+//
+//        if (e.has_component<ItemComponent>()) {
+//            auto c = e.component<ItemComponent>();
+//            if (c->state() == ItemComponent::State::DroppedInWorld) {
+//                continue;
+//            }
+//        }
+//
+//        if (entityCollides(e, entity)) {
+//
+//            return false;
+//        }
+//    }
+//
+    return true;
+}
 
     public void loadBlockRegion(Network.BlockRegion region) {
         int sourceIndex = 0;

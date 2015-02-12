@@ -30,6 +30,8 @@ public class SpriteComponent extends Component implements Pool.Poolable {
     //HACK yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
     public String textureName;
 
+    public boolean placementValid;
+
     public void reset() {
         // eh?, may have to set everything like alpha etc back to normal..
 

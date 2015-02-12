@@ -10,6 +10,7 @@ import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
 import com.ore.infinium.components.ItemComponent;
 import com.ore.infinium.components.SpriteComponent;
+import com.ore.infinium.components.TagComponent;
 
 /**
  * ***************************************************************************
@@ -96,9 +97,26 @@ public class SpriteRenderSystem extends EntitySystem {
 
             SpriteComponent spriteComponent = Mappers.sprite.get(e);
 
+            boolean placementGhost = false;
+            boolean placementValid = false;
+
+            TagComponent tagComponent = Mappers.tag.get(e);
+            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
+                placementGhost = true;
+                if (spriteComponent.placementValid) {
+                    m_batch.setColor(0, 1, 0, 0.6f);
+                } else {
+                    m_batch.setColor(1, 0, 0, 0.6f);
+                }
+            }
+
             m_batch.draw(spriteComponent.sprite, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
                     spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
                     spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+
+            if (placementGhost) {
+                m_batch.setColor(1);
+            }
         }
     }
 }
