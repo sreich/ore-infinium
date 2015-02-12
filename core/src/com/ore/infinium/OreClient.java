@@ -294,7 +294,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             if (m_server != null) {
                 textY -= 15;
-        //        m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
 
             }
         }
@@ -638,6 +638,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
                 spriteComponent.textureName = spawn.textureName;
+                spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
 
                 TextureRegion textureRegion;
                 if (Mappers.block.get(e) == null) {
@@ -646,7 +647,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     textureRegion = m_world.m_tileRenderer.m_atlas.findRegion(spriteComponent.textureName);
                 }
 
-                spriteComponent.sprite = new Sprite(textureRegion);
+                spriteComponent.sprite.setRegion(textureRegion);
                 e.add(spriteComponent);
 
                 m_world.engine.addEntity(e);
@@ -774,6 +775,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             Entity itemCopy = playerComponent.equippedPrimaryItem();
             playerComponent.equippedItemAnimator = itemCopy;
+
+            m_world.clientInventoryItemSelected();
         }
     }
 
@@ -786,7 +789,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         @Override
         public void entityRemoved(Entity entity) {
             Long networkId = m_networkIdForEntityId.remove(entity);
-            m_entityForNetworkId.remove(networkId);
+            if (networkId != null) {
+                //a local only thing, like crosshair etc
+                m_entityForNetworkId.remove(networkId);
+            }
         }
     }
 

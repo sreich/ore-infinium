@@ -78,6 +78,7 @@ public class World implements Disposable {
     public OrthographicCamera m_camera;
 
     private Entity m_blockPickingCrosshair;
+    private Entity m_itemPlacementGhost;
 
     //fixme remve in favor of the render system
     public TextureAtlas m_atlas;
@@ -127,7 +128,27 @@ public class World implements Disposable {
         }
     }
 
-    private void clientInventoryItemSelected() {
+    protected void clientInventoryItemSelected() {
+        assert !isServer();
+
+        PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+        Entity entity = playerComponent.equippedPrimaryItem();
+        if (entity == null) {
+            return;
+        }
+
+        if (m_itemPlacementGhost != null) {
+            engine.removeEntity(m_itemPlacementGhost);
+        }
+
+        //this item is placeable, show a ghost of it so we can see where we're going to place it
+        m_itemPlacementGhost = cloneEntity(entity);
+        ItemComponent itemComponent = Mappers.item.get(m_itemPlacementGhost);
+        itemComponent.state = ItemComponent.State.InWorldState;
+
+        SpriteComponent spriteComponent = Mappers.sprite.get(m_itemPlacementGhost);
+
+        engine.addEntity(m_itemPlacementGhost);
     }
 
     public void initServer() {
@@ -308,6 +329,7 @@ public class World implements Disposable {
             }
 
             updateCrosshair();
+            updateItemPlacementGhost();
 
             if (m_client.leftMouseDown) {
                 handleLeftMousePrimaryAttack();
@@ -434,7 +456,15 @@ public class World implements Disposable {
     }
 
     private void updateItemPlacementGhost() {
+        if (m_itemPlacementGhost == null) {
+            return;
+        }
 
+        Vector2 mouse = mousePositionWorldCoords();
+        Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
+
+        SpriteComponent spriteComponent = Mappers.sprite.get(m_itemPlacementGhost);
+        spriteComponent.sprite.setPosition(crosshairPosition.x, crosshairPosition.y);
     }
 
     public int seaLevel() {

@@ -644,7 +644,6 @@ public class OreServer implements Runnable {
 
         @Override
         public void selected(byte index, Inventory inventory) {
-
         }
     }
 
