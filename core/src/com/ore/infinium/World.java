@@ -74,6 +74,7 @@ public class World implements Disposable {
     private boolean m_noClipEnabled;
     protected TileRenderer m_tileRenderer;
     public OrthographicCamera m_camera;
+    private PowerOverlayRenderSystem m_powerOverlaySystem;
 
     private Entity m_blockPickingCrosshair;
     private Entity m_itemPlacementGhost;
@@ -161,7 +162,7 @@ public class World implements Disposable {
 
         engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         engine.addSystem(new SpriteRenderSystem(this));
-        engine.addSystem(new PowerOverlayRenderSystem(this));
+        engine.addSystem(m_powerOverlaySystem = new PowerOverlayRenderSystem(this));
 
         SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
         playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
@@ -309,6 +310,9 @@ public class World implements Disposable {
 
     public void update(double elapsed) {
         if (isClient()) {
+            if (m_mainPlayer == null) {
+                return;
+            }
 //        playerSprite.sprite.setOriginCenter();
 
 //        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
@@ -333,9 +337,17 @@ public class World implements Disposable {
             updateItemPlacementGhost();
 
             if (m_client.leftMouseDown) {
-                handleLeftMousePrimaryAttack();
+                if (m_powerOverlaySystem.overlayVisible) {
+                    m_powerOverlaySystem.leftMouseClicked();
+                } else {
+                    m_powerOverlaySystem.leftMouseReleased();
+                    handleLeftMousePrimaryAttack();
+                }
+            } else {
+                m_powerOverlaySystem.leftMouseReleased();
             }
         }
+
         if (isServer()) {
 
         }
@@ -404,6 +416,7 @@ public class World implements Disposable {
         if (m_mainPlayer == null) {
             return;
         }
+
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
@@ -723,4 +736,5 @@ public class World implements Disposable {
 
         throw new IllegalStateException("player id attempted to be obtained from item, but this player does not exist");
     }
+
 }

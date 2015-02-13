@@ -34,7 +34,10 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     private SpriteBatch m_batch;
     //   public TextureAtlas m_atlas;
 
+    public boolean overlayVisible = true;
     public static int spriteCount;
+
+    private boolean m_leftClicked;
 
     public PowerOverlayRenderSystem(World world) {
         m_world = world;
@@ -48,13 +51,28 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         m_batch.dispose();
     }
 
+    public void leftMouseClicked() {
+        m_leftClicked = true;
+    }
+
+    public void leftMouseReleased() {
+        m_leftClicked = false;
+    }
+
     public void update(float delta) {
 
 //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.begin();
 
+        if (m_leftClicked) {
+            m_batch.setColor(1, 0, 0, 0.5f);
+        }
         renderEntities(delta);
+
+        if (!m_leftClicked) {
+            m_batch.setColor(1, 1, 1, 1);
+        }
 
         m_batch.end();
     }
