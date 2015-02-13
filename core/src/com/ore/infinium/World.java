@@ -64,7 +64,6 @@ public class World implements Disposable {
     public Block[] blocks;
     public PooledEngine engine;
 
-
     public Array<Entity> m_players = new Array<>();
     public Entity m_mainPlayer;
 
@@ -74,7 +73,7 @@ public class World implements Disposable {
     private boolean m_noClipEnabled;
     protected TileRenderer m_tileRenderer;
     public OrthographicCamera m_camera;
-    private PowerOverlayRenderSystem m_powerOverlaySystem;
+    PowerOverlayRenderSystem m_powerOverlaySystem;
 
     private Entity m_blockPickingCrosshair;
     private Entity m_itemPlacementGhost;
@@ -532,6 +531,13 @@ public class World implements Disposable {
 
         int endX = (int) ((pos.x + (size.x * 0.5f)) / BLOCK_SIZE + 0);
         int endY = (int) ((pos.y + (size.y * 0.5f - epsilon)) / BLOCK_SIZE + 1);
+
+        if (!(startX >= 0 && startY >= 0 && endX <= WORLD_COLUMNCOUNT && endY <= WORLD_ROWCOUNT)) {
+            //fixme
+            //not sure why, but this ends up giving me some way way invalid values. likely due to mouse being outside
+            //of valid range, *somehow*. sometimes does it on startup etc
+            return false;
+        }
 
         for (int column = startX; column < endX; ++column) {
             for (int row = startY; row < endY; ++row) {

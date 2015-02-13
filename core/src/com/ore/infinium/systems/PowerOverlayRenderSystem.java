@@ -60,6 +60,9 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     }
 
     public void update(float delta) {
+        if (!overlayVisible) {
+            return;
+        }
 
 //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
@@ -73,6 +76,24 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         if (!m_leftClicked) {
             m_batch.setColor(1, 1, 1, 1);
         }
+
+        m_batch.end();
+
+        //screen space rendering
+        m_batch.setProjectionMatrix(m_world.m_client.viewport.getCamera().combined);
+        m_batch.begin();
+
+        m_world.m_client.bitmapFont_8pt.setColor(1, 0, 0, 1);
+
+        float fontY = 150;
+        float fontX = m_world.m_client.viewport.getRightGutterX() - 180;
+
+        m_world.m_client.bitmapFont_8pt.draw(m_batch, "Energy overlay visible (E)", fontX, fontY);
+        fontY -= 15;
+
+        m_world.m_client.bitmapFont_8pt.draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
+
+        m_world.m_client.bitmapFont_8pt.setColor(1, 1, 1, 1);
 
         m_batch.end();
     }
@@ -96,6 +117,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
             float powerNodeOffsetX = 30.0f / World.PIXELS_PER_METER;
             float powerNodeOffsetY = 30.0f / World.PIXELS_PER_METER;
+
             m_batch.draw(m_world.m_atlas.findRegion("power-node-circle"),
                     spriteComponent.sprite.getX(),
                     spriteComponent.sprite.getY(),

@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c9b9911d-f887-49a8-a438-87444c32ea99" name="Default" comment="minor left mouse handling in overlay, also fix NPE on client thinking it was connected too soon, occasionally">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/systems/PowerOverlayRenderSystem.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/systems/PowerOverlayRenderSystem.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" afterPath="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
@@ -44,7 +45,11 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="2400" max-vertical-offset="5976">
               <caret line="165" column="49" selection-start-line="165" selection-start-column="49" selection-end-line="165" selection-end-column="49" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#1585#1586#0" expanded="false" />
+                <element signature="e#1616#1617#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -52,45 +57,13 @@
       <file leaf-file-name="WorldTime.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/WorldTime.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1260">
+            <state vertical-scroll-proportion="0.0" vertical-offset="414" max-vertical-offset="1260">
               <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Engine.java" pinned="false" current-in-tab="false">
-        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.ashley/ashley/1.3.3/6c2091ad575427905d62342a9abe92b3a2dd0f94/ashley-1.3.3-sources.jar!/com/badlogic/ashley/core/Engine.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="5847" max-vertical-offset="8892">
-              <caret line="379" column="0" selection-start-line="379" selection-start-column="0" selection-end-line="379" selection-end-column="0" />
               <folding>
-                <element signature="n#!!doc" expanded="false" />
-                <element signature="imports" expanded="false" />
-                <element signature="e#4026#4027#0" expanded="false" />
-                <element signature="e#4054#4055#0" expanded="false" />
-                <element signature="e#5349#5350#0" expanded="false" />
-                <element signature="e#5383#5384#0" expanded="false" />
-                <element signature="e#5432#5433#0" expanded="false" />
-                <element signature="e#5463#5464#0" expanded="false" />
-                <element signature="e#6222#6223#0" expanded="false" />
-                <element signature="e#6270#6271#0" expanded="false" />
-                <element signature="e#6415#6416#0" expanded="false" />
-                <element signature="e#6445#6446#0" expanded="false" />
-                <element signature="e#6640#6641#0" expanded="false" />
-                <element signature="e#6676#6677#0" expanded="false" />
-                <element signature="e#6879#6880#0" expanded="false" />
-                <element signature="e#6909#6910#0" expanded="false" />
-                <element signature="e#13014#13015#0" expanded="false" />
-                <element signature="e#13043#13044#0" expanded="false" />
-                <element signature="e#13120#13121#0" expanded="false" />
-                <element signature="e#13166#13167#0" expanded="false" />
-                <element signature="e#13293#13294#0" expanded="false" />
-                <element signature="e#13322#13323#0" expanded="false" />
-                <element signature="e#14738#14739#0" expanded="false" />
-                <element signature="e#14778#14779#0" expanded="false" />
-                <element signature="e#15291#15292#0" expanded="false" />
-                <element signature="e#15328#15329#0" expanded="false" />
+                <element signature="e#1207#1208#0" expanded="false" />
+                <element signature="e#1266#1267#0" expanded="false" />
+                <element signature="e#1838#1839#0" expanded="false" />
+                <element signature="e#1878#1879#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -99,8 +72,8 @@
       <file leaf-file-name="PlayerSystem.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/PlayerSystem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="409" max-vertical-offset="1998">
-              <caret line="53" column="3" selection-start-line="53" selection-start-column="3" selection-end-line="53" selection-end-column="3" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="432" max-vertical-offset="1998">
+              <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -154,19 +127,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PowerOverlayRenderSystem.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PowerOverlayRenderSystem.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/PowerOverlayRenderSystem.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="612" max-vertical-offset="1764">
-              <caret line="73" column="0" selection-start-line="73" selection-start-column="0" selection-end-line="73" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.6393972" vertical-offset="612" max-vertical-offset="2052">
+              <caret line="86" column="0" selection-start-line="86" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BitmapFont.java" pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.3/5ae3e32b01bcaa3d97d819b39c04da78d094563b/gdx-1.5.3-sources.jar!/com/badlogic/gdx/graphics/g2d/BitmapFont.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="13258" max-vertical-offset="17604">
+              <caret line="863" column="59" selection-start-line="863" selection-start-column="59" selection-end-line="863" selection-end-column="59" />
               <folding>
-                <element signature="e#2000#2001#0" expanded="true" />
-                <element signature="e#2033#2034#0" expanded="true" />
-                <element signature="e#2071#2072#0" expanded="true" />
-                <element signature="e#2107#2108#0" expanded="true" />
-                <element signature="e#2146#2147#0" expanded="true" />
-                <element signature="e#2183#2184#0" expanded="true" />
+                <element signature="e#24353#24354#0" expanded="true" />
+                <element signature="e#24412#24413#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SpriteBatch.java" pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.3/5ae3e32b01bcaa3d97d819b39c04da78d094563b/gdx-1.5.3-sources.jar!/com/badlogic/gdx/graphics/g2d/SpriteBatch.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="17236" max-vertical-offset="18648">
+              <caret line="1019" column="0" selection-start-line="1019" selection-start-column="0" selection-end-line="1019" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -190,34 +179,22 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="156" max-vertical-offset="1098">
               <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="World.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.44564047" vertical-offset="10368" max-vertical-offset="13248">
-              <caret line="607" column="0" selection-start-line="607" selection-start-column="0" selection-end-line="607" selection-end-column="0" />
               <folding>
-                <element signature="imports" expanded="true" />
+                <element signature="imports" expanded="false" />
+                <element signature="e#2434#2435#0" expanded="false" />
+                <element signature="e#2509#2510#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Inventory.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java">
+      <file leaf-file-name="World.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="738" max-vertical-offset="1944">
-              <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="1422" max-vertical-offset="13356">
+              <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
               <folding>
-                <element signature="imports" expanded="false" />
-                <element signature="e#1855#1856#0" expanded="false" />
-                <element signature="e#1896#1897#0" expanded="false" />
-                <element signature="e#2843#2844#0" expanded="false" />
-                <element signature="e#2880#2881#0" expanded="false" />
+                <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -226,20 +203,9 @@
       <file leaf-file-name="OreClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="10134" max-vertical-offset="13842">
-              <caret line="628" column="31" selection-start-line="628" selection-start-column="31" selection-end-line="628" selection-end-column="31" />
-              <folding>
-                <element signature="e#11935#11936#0" expanded="true" />
-                <element signature="e#12006#12007#0" expanded="true" />
-                <element signature="e#12834#12835#0" expanded="true" />
-                <element signature="e#12899#12900#0" expanded="true" />
-                <element signature="e#17064#17065#0" expanded="true" />
-                <element signature="e#17092#17093#0" expanded="true" />
-                <element signature="e#17527#17528#0" expanded="true" />
-                <element signature="e#17555#17556#0" expanded="true" />
-                <element signature="e#17628#17629#0" expanded="true" />
-                <element signature="e#17656#17657#0" expanded="true" />
-              </folding>
+            <state vertical-scroll-proportion="0.0" vertical-offset="1134" max-vertical-offset="13734">
+              <caret line="122" column="0" selection-start-line="122" selection-start-column="0" selection-end-line="122" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -249,7 +215,13 @@
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="7434" max-vertical-offset="11556">
               <caret line="459" column="0" selection-start-line="459" selection-start-column="0" selection-end-line="459" selection-end-column="0" />
-              <folding />
+              <folding>
+                <element signature="imports" expanded="false" />
+                <element signature="e#24832#24833#0" expanded="false" />
+                <element signature="e#24883#24884#0" expanded="false" />
+                <element signature="e#24952#24953#0" expanded="false" />
+                <element signature="e#24998#24999#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -277,9 +249,17 @@
       <file leaf-file-name="ComponentMapper.java" pinned="false" current-in-tab="false">
         <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.ashley/ashley/1.3.3/6c2091ad575427905d62342a9abe92b3a2dd0f94/ashley-1.3.3-sources.jar!/com/badlogic/ashley/core/ComponentMapper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="612">
+            <state vertical-scroll-proportion="0.0" vertical-offset="306" max-vertical-offset="612">
               <caret line="31" column="53" selection-start-line="31" selection-start-column="53" selection-end-line="31" selection-end-column="53" />
-              <folding />
+              <folding>
+                <element signature="n#!!doc" expanded="false" />
+                <element signature="e#1504#1505#0" expanded="false" />
+                <element signature="e#1552#1553#0" expanded="false" />
+                <element signature="e#1671#1672#0" expanded="false" />
+                <element signature="e#1719#1720#0" expanded="false" />
+                <element signature="e#1773#1774#0" expanded="false" />
+                <element signature="e#1832#1833#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -994,11 +974,11 @@
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/PlayerSystem.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreServer.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
-        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/PowerOverlayRenderSystem.java" />
         <option value="$PROJECT_DIR$/core/src/com/ore/infinium/World.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java" />
+        <option value="$PROJECT_DIR$/core/src/com/ore/infinium/systems/PowerOverlayRenderSystem.java" />
       </list>
     </option>
   </component>
@@ -1180,8 +1160,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -1326,6 +1304,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1680,7 +1660,13 @@
       <option name="project" value="LOCAL" />
       <updated>1423789312965</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="minor left mouse handling in overlay, also fix NPE on client thinking it was connected too soon, occasionally">
+      <created>1423791544876</created>
+      <option name="number" value="00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1423791544876</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1722,7 +1708,6 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.1629393" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="CodotaView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32960597" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.13951011" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.16986156" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -1734,6 +1719,7 @@
       <window_info id="IntelliHeap" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32920536" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="UpdateCopyrightCheckinHandler">
@@ -1771,7 +1757,8 @@
     <MESSAGE value="fix it not restoring the batch color properly, apparently batch.setColor(1) is an overload for tint, not similar to how glsl has e.g. vec4(1), etc.." />
     <MESSAGE value="calculate placement validity for entities now" />
     <MESSAGE value="beginning of a poweroverlay renderer" />
-    <option name="LAST_COMMIT_MESSAGE" value="beginning of a poweroverlay renderer" />
+    <MESSAGE value="minor left mouse handling in overlay, also fix NPE on client thinking it was connected too soon, occasionally" />
+    <option name="LAST_COMMIT_MESSAGE" value="minor left mouse handling in overlay, also fix NPE on client thinking it was connected too soon, occasionally" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -1788,7 +1775,7 @@
         <line-breakpoint enabled="true" type="java-line">
           <condition expression="entities.size() &gt; 1" language="JAVA" custom="" />
           <url>file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java</url>
-          <line>729</line>
+          <line>735</line>
           <properties />
           <option name="timeStamp" value="24" />
         </line-breakpoint>
@@ -1815,46 +1802,11 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/MovementSystem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="324" max-vertical-offset="6174">
-          <caret line="46" column="69" selection-start-line="46" selection-start-column="69" selection-end-line="46" selection-end-column="69" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.ashley/ashley/1.3.3/6c2091ad575427905d62342a9abe92b3a2dd0f94/ashley-1.3.3-sources.jar!/com/badlogic/ashley/core/Engine.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="8928">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="n#!!doc" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#4026#4027#0" expanded="false" />
-            <element signature="e#4054#4055#0" expanded="false" />
-            <element signature="e#5349#5350#0" expanded="false" />
-            <element signature="e#5383#5384#0" expanded="false" />
-            <element signature="e#5432#5433#0" expanded="false" />
-            <element signature="e#5463#5464#0" expanded="false" />
-            <element signature="e#6222#6223#0" expanded="false" />
-            <element signature="e#6270#6271#0" expanded="false" />
-            <element signature="e#6415#6416#0" expanded="false" />
-            <element signature="e#6445#6446#0" expanded="false" />
-            <element signature="e#6640#6641#0" expanded="false" />
-            <element signature="e#6676#6677#0" expanded="false" />
-            <element signature="e#6879#6880#0" expanded="false" />
-            <element signature="e#6909#6910#0" expanded="false" />
-            <element signature="e#13014#13015#0" expanded="false" />
-            <element signature="e#13043#13044#0" expanded="false" />
-            <element signature="e#13120#13121#0" expanded="false" />
-            <element signature="e#13166#13167#0" expanded="false" />
-            <element signature="e#13293#13294#0" expanded="false" />
-            <element signature="e#13322#13323#0" expanded="false" />
-            <element signature="e#14738#14739#0" expanded="false" />
-            <element signature="e#14778#14779#0" expanded="false" />
-            <element signature="e#15291#15292#0" expanded="false" />
-            <element signature="e#15328#15329#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1890,7 +1842,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="156" max-vertical-offset="1098">
           <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#2434#2435#0" expanded="false" />
+            <element signature="e#2509#2510#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1908,13 +1864,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="738" max-vertical-offset="1944">
           <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1855#1856#0" expanded="false" />
-            <element signature="e#1896#1897#0" expanded="false" />
-            <element signature="e#2843#2844#0" expanded="false" />
-            <element signature="e#2880#2881#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1922,18 +1872,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4356" max-vertical-offset="13518">
           <caret line="298" column="12" selection-start-line="298" selection-start-column="12" selection-end-line="298" selection-end-column="12" />
-          <folding>
-            <element signature="e#11935#11936#0" expanded="true" />
-            <element signature="e#12006#12007#0" expanded="true" />
-            <element signature="e#12834#12835#0" expanded="true" />
-            <element signature="e#12899#12900#0" expanded="true" />
-            <element signature="e#17064#17065#0" expanded="true" />
-            <element signature="e#17092#17093#0" expanded="true" />
-            <element signature="e#17527#17528#0" expanded="true" />
-            <element signature="e#17555#17556#0" expanded="true" />
-            <element signature="e#17628#17629#0" expanded="true" />
-            <element signature="e#17656#17657#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1941,7 +1880,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="8370" max-vertical-offset="11646">
           <caret line="523" column="0" selection-start-line="523" selection-start-column="0" selection-end-line="523" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#24832#24833#0" expanded="false" />
+            <element signature="e#24883#24884#0" expanded="false" />
+            <element signature="e#24952#24953#0" expanded="false" />
+            <element signature="e#24998#24999#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1949,7 +1894,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="2574" max-vertical-offset="5976">
           <caret line="176" column="0" selection-start-line="176" selection-start-column="0" selection-end-line="176" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1585#1586#0" expanded="false" />
+            <element signature="e#1616#1617#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1977,7 +1926,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="156" max-vertical-offset="1098">
           <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#2434#2435#0" expanded="false" />
+            <element signature="e#2509#2510#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1995,13 +1948,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="738" max-vertical-offset="1944">
           <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1855#1856#0" expanded="false" />
-            <element signature="e#1896#1897#0" expanded="false" />
-            <element signature="e#2843#2844#0" expanded="false" />
-            <element signature="e#2880#2881#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2009,18 +1956,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4356" max-vertical-offset="13518">
           <caret line="298" column="12" selection-start-line="298" selection-start-column="12" selection-end-line="298" selection-end-column="12" />
-          <folding>
-            <element signature="e#11935#11936#0" expanded="true" />
-            <element signature="e#12006#12007#0" expanded="true" />
-            <element signature="e#12834#12835#0" expanded="true" />
-            <element signature="e#12899#12900#0" expanded="true" />
-            <element signature="e#17064#17065#0" expanded="true" />
-            <element signature="e#17092#17093#0" expanded="true" />
-            <element signature="e#17527#17528#0" expanded="true" />
-            <element signature="e#17555#17556#0" expanded="true" />
-            <element signature="e#17628#17629#0" expanded="true" />
-            <element signature="e#17656#17657#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2028,7 +1964,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="10350" max-vertical-offset="11682">
           <caret line="595" column="0" selection-start-line="595" selection-start-column="0" selection-end-line="595" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#24832#24833#0" expanded="false" />
+            <element signature="e#24883#24884#0" expanded="false" />
+            <element signature="e#24952#24953#0" expanded="false" />
+            <element signature="e#24998#24999#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2036,7 +1978,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5958">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1585#1586#0" expanded="false" />
+            <element signature="e#1616#1617#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2056,34 +2002,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="5652" max-vertical-offset="8928">
           <caret line="387" column="0" selection-start-line="387" selection-start-column="0" selection-end-line="387" selection-end-column="0" />
-          <folding>
-            <element signature="n#!!doc" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#4026#4027#0" expanded="false" />
-            <element signature="e#4054#4055#0" expanded="false" />
-            <element signature="e#5349#5350#0" expanded="false" />
-            <element signature="e#5383#5384#0" expanded="false" />
-            <element signature="e#5432#5433#0" expanded="false" />
-            <element signature="e#5463#5464#0" expanded="false" />
-            <element signature="e#6222#6223#0" expanded="false" />
-            <element signature="e#6270#6271#0" expanded="false" />
-            <element signature="e#6415#6416#0" expanded="false" />
-            <element signature="e#6445#6446#0" expanded="false" />
-            <element signature="e#6640#6641#0" expanded="false" />
-            <element signature="e#6676#6677#0" expanded="false" />
-            <element signature="e#6879#6880#0" expanded="false" />
-            <element signature="e#6909#6910#0" expanded="false" />
-            <element signature="e#13014#13015#0" expanded="false" />
-            <element signature="e#13043#13044#0" expanded="false" />
-            <element signature="e#13120#13121#0" expanded="false" />
-            <element signature="e#13166#13167#0" expanded="false" />
-            <element signature="e#13293#13294#0" expanded="false" />
-            <element signature="e#13322#13323#0" expanded="false" />
-            <element signature="e#14738#14739#0" expanded="false" />
-            <element signature="e#14778#14779#0" expanded="false" />
-            <element signature="e#15291#15292#0" expanded="false" />
-            <element signature="e#15328#15329#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2109,7 +2028,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="5634" max-vertical-offset="11574">
           <caret line="383" column="0" selection-start-line="383" selection-start-column="0" selection-end-line="383" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#24832#24833#0" expanded="false" />
+            <element signature="e#24883#24884#0" expanded="false" />
+            <element signature="e#24952#24953#0" expanded="false" />
+            <element signature="e#24998#24999#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2125,18 +2050,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4050" max-vertical-offset="13698">
           <caret line="290" column="0" selection-start-line="290" selection-start-column="0" selection-end-line="290" selection-end-column="0" />
-          <folding>
-            <element signature="e#11935#11936#0" expanded="true" />
-            <element signature="e#12006#12007#0" expanded="true" />
-            <element signature="e#12834#12835#0" expanded="true" />
-            <element signature="e#12899#12900#0" expanded="true" />
-            <element signature="e#17064#17065#0" expanded="true" />
-            <element signature="e#17092#17093#0" expanded="true" />
-            <element signature="e#17527#17528#0" expanded="true" />
-            <element signature="e#17555#17556#0" expanded="true" />
-            <element signature="e#17628#17629#0" expanded="true" />
-            <element signature="e#17656#17657#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2152,7 +2066,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6264">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1585#1586#0" expanded="false" />
+            <element signature="e#1616#1617#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2160,7 +2078,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="6264">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1585#1586#0" expanded="false" />
+            <element signature="e#1616#1617#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2168,7 +2090,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="432" max-vertical-offset="6264">
           <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1585#1586#0" expanded="false" />
+            <element signature="e#1616#1617#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2188,25 +2114,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.3/5ae3e32b01bcaa3d97d819b39c04da78d094563b/gdx-1.5.3-sources.jar!/com/badlogic/gdx/graphics/g2d/SpriteBatch.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2198" max-vertical-offset="18648">
-          <caret line="586" column="16" selection-start-line="586" selection-start-column="16" selection-end-line="586" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/Inventory.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="738" max-vertical-offset="1944">
           <caret line="97" column="0" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
-          <folding>
-            <element signature="imports" expanded="false" />
-            <element signature="e#1855#1856#0" expanded="false" />
-            <element signature="e#1896#1897#0" expanded="false" />
-            <element signature="e#2843#2844#0" expanded="false" />
-            <element signature="e#2880#2881#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2214,34 +2126,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="5847" max-vertical-offset="8892">
           <caret line="379" column="0" selection-start-line="379" selection-start-column="0" selection-end-line="379" selection-end-column="0" />
-          <folding>
-            <element signature="n#!!doc" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#4026#4027#0" expanded="false" />
-            <element signature="e#4054#4055#0" expanded="false" />
-            <element signature="e#5349#5350#0" expanded="false" />
-            <element signature="e#5383#5384#0" expanded="false" />
-            <element signature="e#5432#5433#0" expanded="false" />
-            <element signature="e#5463#5464#0" expanded="false" />
-            <element signature="e#6222#6223#0" expanded="false" />
-            <element signature="e#6270#6271#0" expanded="false" />
-            <element signature="e#6415#6416#0" expanded="false" />
-            <element signature="e#6445#6446#0" expanded="false" />
-            <element signature="e#6640#6641#0" expanded="false" />
-            <element signature="e#6676#6677#0" expanded="false" />
-            <element signature="e#6879#6880#0" expanded="false" />
-            <element signature="e#6909#6910#0" expanded="false" />
-            <element signature="e#13014#13015#0" expanded="false" />
-            <element signature="e#13043#13044#0" expanded="false" />
-            <element signature="e#13120#13121#0" expanded="false" />
-            <element signature="e#13166#13167#0" expanded="false" />
-            <element signature="e#13293#13294#0" expanded="false" />
-            <element signature="e#13322#13323#0" expanded="false" />
-            <element signature="e#14738#14739#0" expanded="false" />
-            <element signature="e#14778#14779#0" expanded="false" />
-            <element signature="e#15291#15292#0" expanded="false" />
-            <element signature="e#15328#15329#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2293,7 +2178,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1260">
           <caret line="23" column="13" selection-start-line="23" selection-start-column="13" selection-end-line="23" selection-end-column="13" />
-          <folding />
+          <folding>
+            <element signature="e#1207#1208#0" expanded="false" />
+            <element signature="e#1266#1267#0" expanded="false" />
+            <element signature="e#1838#1839#0" expanded="false" />
+            <element signature="e#1878#1879#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2301,7 +2191,15 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="612">
           <caret line="31" column="53" selection-start-line="31" selection-start-column="53" selection-end-line="31" selection-end-column="53" />
-          <folding />
+          <folding>
+            <element signature="n#!!doc" expanded="false" />
+            <element signature="e#1504#1505#0" expanded="false" />
+            <element signature="e#1552#1553#0" expanded="false" />
+            <element signature="e#1671#1672#0" expanded="false" />
+            <element signature="e#1719#1720#0" expanded="false" />
+            <element signature="e#1773#1774#0" expanded="false" />
+            <element signature="e#1832#1833#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2309,15 +2207,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="2400" max-vertical-offset="5976">
           <caret line="165" column="49" selection-start-line="165" selection-start-column="49" selection-end-line="165" selection-end-column="49" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="751" max-vertical-offset="2034">
-          <caret line="67" column="57" selection-start-line="67" selection-start-column="57" selection-end-line="67" selection-end-column="57" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#1585#1586#0" expanded="false" />
+            <element signature="e#1616#1617#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2333,7 +2227,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="156" max-vertical-offset="1098">
           <caret line="53" column="0" selection-start-line="53" selection-start-column="0" selection-end-line="53" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#2434#2435#0" expanded="false" />
+            <element signature="e#2509#2510#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2349,59 +2247,74 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="7434" max-vertical-offset="11556">
           <caret line="459" column="0" selection-start-line="459" selection-start-column="0" selection-end-line="459" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/PowerOverlayRenderSystem.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="612" max-vertical-offset="1764">
-          <caret line="73" column="0" selection-start-line="73" selection-start-column="0" selection-end-line="73" selection-end-column="0" />
           <folding>
-            <element signature="e#2000#2001#0" expanded="true" />
-            <element signature="e#2033#2034#0" expanded="true" />
-            <element signature="e#2071#2072#0" expanded="true" />
-            <element signature="e#2107#2108#0" expanded="true" />
-            <element signature="e#2146#2147#0" expanded="true" />
-            <element signature="e#2183#2184#0" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#24832#24833#0" expanded="false" />
+            <element signature="e#24883#24884#0" expanded="false" />
+            <element signature="e#24952#24953#0" expanded="false" />
+            <element signature="e#24998#24999#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/PlayerSystem.java">
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.3/5ae3e32b01bcaa3d97d819b39c04da78d094563b/gdx-1.5.3-sources.jar!/com/badlogic/gdx/graphics/g2d/SpriteBatch.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="409" max-vertical-offset="1998">
-          <caret line="53" column="3" selection-start-line="53" selection-start-column="3" selection-end-line="53" selection-end-column="3" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="17236" max-vertical-offset="18648">
+          <caret line="1019" column="0" selection-start-line="1019" selection-start-column="0" selection-end-line="1019" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.5.3/5ae3e32b01bcaa3d97d819b39c04da78d094563b/gdx-1.5.3-sources.jar!/com/badlogic/gdx/graphics/g2d/BitmapFont.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="13258" max-vertical-offset="17604">
+          <caret line="863" column="59" selection-start-line="863" selection-start-column="59" selection-end-line="863" selection-end-column="59" />
+          <folding>
+            <element signature="e#24353#24354#0" expanded="true" />
+            <element signature="e#24412#24413#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/SpriteRenderSystem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="751" max-vertical-offset="2034">
+          <caret line="67" column="57" selection-start-line="67" selection-start-column="57" selection-end-line="67" selection-end-column="57" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/OreClient.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="10134" max-vertical-offset="13842">
-          <caret line="628" column="31" selection-start-line="628" selection-start-column="31" selection-end-line="628" selection-end-column="31" />
-          <folding>
-            <element signature="e#11935#11936#0" expanded="true" />
-            <element signature="e#12006#12007#0" expanded="true" />
-            <element signature="e#12834#12835#0" expanded="true" />
-            <element signature="e#12899#12900#0" expanded="true" />
-            <element signature="e#17064#17065#0" expanded="true" />
-            <element signature="e#17092#17093#0" expanded="true" />
-            <element signature="e#17527#17528#0" expanded="true" />
-            <element signature="e#17555#17556#0" expanded="true" />
-            <element signature="e#17628#17629#0" expanded="true" />
-            <element signature="e#17656#17657#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.0" vertical-offset="1134" max-vertical-offset="13734">
+          <caret line="122" column="0" selection-start-line="122" selection-start-column="0" selection-end-line="122" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/World.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44564047" vertical-offset="10368" max-vertical-offset="13248">
-          <caret line="607" column="0" selection-start-line="607" selection-start-column="0" selection-end-line="607" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="1422" max-vertical-offset="13356">
+          <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/PlayerSystem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="432" max-vertical-offset="1998">
+          <caret line="55" column="0" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/src/com/ore/infinium/systems/PowerOverlayRenderSystem.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6393972" vertical-offset="612" max-vertical-offset="2052">
+          <caret line="86" column="0" selection-start-line="86" selection-start-column="0" selection-end-line="86" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

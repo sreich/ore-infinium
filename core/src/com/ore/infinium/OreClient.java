@@ -90,7 +90,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private SpriteBatch m_batch;
     private BitmapFont m_font;
-    private BitmapFont bitmapFont_8pt;
+    public BitmapFont bitmapFont_8pt;
 
     public boolean leftMouseDown;
 
@@ -102,6 +102,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private LongMap<Entity> m_entityForNetworkId = new LongMap<>(500);
     // map to reverse lookup, the long (server) entity ID for the given Entity
     private ObjectMap<Entity, Long> m_networkIdForEntityId = new ObjectMap<>(500);
+
+    public StretchViewport viewport;
 
     @Override
     public void create() {
@@ -118,7 +120,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_batch = new SpriteBatch();
 
-        m_stage = new Stage(new StretchViewport(1600, 900));
+        m_stage = new Stage(viewport = new StretchViewport(1600, 900));
         m_multiplexer = new InputMultiplexer(m_stage, this);
 
         GLProfiler.enable();
@@ -424,6 +426,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_clientKryo.sendTCP(dropItemRequestFromClient);
 
             }
+        } else if (keycode == Input.Keys.E) {
+            //power overlay
+            m_world.m_powerOverlaySystem.overlayVisible = !m_world.m_powerOverlaySystem.overlayVisible;
         } else if (keycode == Input.Keys.NUM_1) {
             m_hotbarInventory.selectSlot((byte) 0);
         } else if (keycode == Input.Keys.NUM_2) {
@@ -492,7 +497,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        Gdx.app.log("", "mousedown");
         leftMouseDown = true;
         return false;
     }
