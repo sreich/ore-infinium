@@ -51,8 +51,8 @@ public class MovementSystem extends EntitySystem {
         //FIXME: clients should simulate their own player's collision with everything and tell the server its position so it can broadcast.
         // but nothing else.
         //server will simulate everything else(except players), and broadcast positions
-        for (Entity e : entities) {
-            simulate(e, delta);
+        for (int i = 0; i < entities.size(); ++i) {
+            simulate(entities.get(i), delta);
         }
 
         if (m_world.isClient()) {

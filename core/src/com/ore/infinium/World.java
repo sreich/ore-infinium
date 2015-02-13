@@ -16,10 +16,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.ore.infinium.components.*;
-import com.ore.infinium.systems.MovementSystem;
-import com.ore.infinium.systems.PlayerSystem;
-import com.ore.infinium.systems.SpriteRenderSystem;
-import com.ore.infinium.systems.TileRenderer;
+import com.ore.infinium.systems.*;
 
 import java.util.HashMap;
 
@@ -164,6 +161,7 @@ public class World implements Disposable {
 
         engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         engine.addSystem(new SpriteRenderSystem(this));
+        engine.addSystem(new PowerOverlayRenderSystem(this));
 
         SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
         playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
@@ -394,6 +392,12 @@ public class World implements Disposable {
             //action performed
             return;
         }
+
+        ItemComponent itemComponent = Mappers.item.get(item);
+        if (itemComponent != null) {
+            //place the item
+            //hack, do more validation..
+        }
     }
 
     public void render(double elapsed) {
@@ -530,9 +534,9 @@ public class World implements Disposable {
         //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_ROWCOUNT * BLOCK_SIZE);
 
         ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
-        for (Entity e : entities) {
+        for (int i = 0; i < entities.size(); ++i) {
             //it's us, don't count a collision with ourselves
-            if (e == entity) {
+            if (entities.get(i) == entity) {
                 continue;
             }
 
@@ -541,14 +545,14 @@ public class World implements Disposable {
 //            continue;
 //        }
 
-            ItemComponent itemComponent = Mappers.item.get(e);
+            ItemComponent itemComponent = Mappers.item.get(entities.get(i));
             if (itemComponent != null) {
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
                     continue;
                 }
             }
 
-            if (entityCollides(e, entity)) {
+            if (entityCollides(entities.get(i), entity)) {
                 return false;
             }
         }
@@ -707,13 +711,13 @@ public class World implements Disposable {
     }
 
     public Entity playerForID(int playerIdWhoDropped) {
-
+        assert !isClient();
         ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
         PlayerComponent playerComponent;
-        for (Entity e : entities) {
-            playerComponent = Mappers.player.get(e);
+        for (int i = 0; i < entities.size(); ++i) {
+            playerComponent = Mappers.player.get(entities.get(i));
             if (playerComponent.connectionId == playerIdWhoDropped) {
-                return e;
+                return entities.get(i);
             }
         }
 

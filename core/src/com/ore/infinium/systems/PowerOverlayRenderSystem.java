@@ -10,7 +10,6 @@ import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
 import com.ore.infinium.components.ItemComponent;
 import com.ore.infinium.components.SpriteComponent;
-import com.ore.infinium.components.TagComponent;
 
 /**
  * ***************************************************************************
@@ -30,20 +29,19 @@ import com.ore.infinium.components.TagComponent;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class SpriteRenderSystem extends EntitySystem {
+public class PowerOverlayRenderSystem extends EntitySystem {
     private World m_world;
     private SpriteBatch m_batch;
     //   public TextureAtlas m_atlas;
 
     public static int spriteCount;
 
-    public SpriteRenderSystem(World world) {
+    public PowerOverlayRenderSystem(World world) {
         m_world = world;
     }
 
     public void addedToEngine(Engine engine) {
         m_batch = new SpriteBatch();
-//        m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
     }
 
     public void removedFromEngine(Engine engine) {
@@ -57,65 +55,33 @@ public class SpriteRenderSystem extends EntitySystem {
         m_batch.begin();
 
         renderEntities(delta);
-        renderDroppedEntities(delta);
 
         m_batch.end();
     }
 
-    //fixme probably also droppedblocks?
-    private void renderDroppedEntities(float delta) {
-        //fixme obviously this is very inefficient...
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
-
-        ItemComponent itemComponent;
-        for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = Mappers.item.get(entities.get(i));
-            //don't draw in-inventory or dropped items
-            if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
-                continue;
-            }
-
-            SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
-
-            m_batch.draw(spriteComponent.sprite, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                    spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                    spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
-        }
-    }
-
     private void renderEntities(float delta) {
         //todo need to exclude blocks?
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, ItemComponent.class).get());
 
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
             itemComponent = Mappers.item.get(entities.get(i));
-            //don't draw in-inventory or dropped items
-            if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
+            assert itemComponent != null;
+            if (itemComponent.state != ItemComponent.State.InWorldState) {
                 continue;
             }
 
             SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
 
-            boolean placementGhost = false;
+            float powerNodeWidth = 30.0f / World.PIXELS_PER_METER;
+            float powerNodeHeight = 30.0f / World.PIXELS_PER_METER;
 
-            TagComponent tagComponent = Mappers.tag.get(entities.get(i));
-            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
-                placementGhost = true;
-                if (spriteComponent.placementValid) {
-                    m_batch.setColor(0, 1, 0, 0.6f);
-                } else {
-                    m_batch.setColor(1, 0, 0, 0.6f);
-                }
-            }
-
-            m_batch.draw(spriteComponent.sprite, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                    spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                    spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
-
-            if (placementGhost) {
-                m_batch.setColor(1, 1, 1, 1);
-            }
+            float powerNodeOffsetX = 30.0f / World.PIXELS_PER_METER;
+            float powerNodeOffsetY = 30.0f / World.PIXELS_PER_METER;
+            m_batch.draw(m_world.m_atlas.findRegion("power-node-circle"),
+                    spriteComponent.sprite.getX(),
+                    spriteComponent.sprite.getY(),
+                    powerNodeWidth, powerNodeHeight);
         }
     }
 }

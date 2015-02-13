@@ -53,9 +53,9 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
         //FIXME: clients should simulate their own player's collision with everything and tell the server its position so it can broadcast.
         // but nothing else.
         //server will simulate everything else(except players), and broadcast positions
-        for (Entity e : entities) {
-            SpriteComponent spriteComponent = Mappers.sprite.get(e);
-            PlayerComponent playerComponent = Mappers.player.get(e);
+        for (int i = 0; i < entities.size(); ++i) {
+            SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
+            PlayerComponent playerComponent = Mappers.player.get(entities.get(i));
 
             if (spriteComponent == null || spriteComponent.sprite == null || playerComponent == null || playerComponent.lastLoadedRegion == null) {
                 continue; //hack, not sure why but occasional NPE's happen..on something
@@ -64,7 +64,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
             if (Vector2.dst(spriteComponent.sprite.getX(), spriteComponent.sprite.getY(), playerComponent.lastLoadedRegion.x, playerComponent.lastLoadedRegion.y)
                     > 10.0f) {
                 //HACK, dunno why 20. need something sane.
-                calculateLoadedViewport(e);
+                calculateLoadedViewport(entities.get(i));
             }
         }
     }

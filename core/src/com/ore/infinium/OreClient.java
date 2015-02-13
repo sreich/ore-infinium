@@ -3,12 +3,13 @@ package com.ore.infinium;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Vector2;
@@ -295,7 +296,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             if (m_server != null) {
                 textY -= 15;
-                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+                //m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
 
             }
         }
@@ -303,12 +304,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_batch.end();
 
         if (m_world != null && m_renderDebugServer && false) {
+            /*
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
             m_debugServerBatch.begin();
             m_debugServerBatch.setColor(1, 0, 0, 0.5f);
             ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
-            for (Entity e : entities) {
-                SpriteComponent spriteComponent = Mappers.sprite.get(e);
+            for (int i = 0; i < entities.size(); ++i) {
+                SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
 
                 m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
@@ -316,6 +318,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
 
             m_debugServerBatch.end();
+            */
         }
 
         GLProfiler.reset();
@@ -519,7 +522,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         int index = m_hotbarInventory.m_selectedSlot;
         if (amount > 0) {
             //right, inventory selection scrolling does not wrap around.
-            m_hotbarInventory.selectSlot((byte) Math.min(index + 1, m_hotbarInventory.maxHotbarSlots - 1));
+            m_hotbarInventory.selectSlot((byte) Math.min(index + 1, Inventory.maxHotbarSlots - 1));
         } else {
             //left
             m_hotbarInventory.selectSlot((byte) Math.max(index - 1, 0));

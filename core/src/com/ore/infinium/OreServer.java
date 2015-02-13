@@ -283,7 +283,7 @@ public class OreServer implements Runnable {
             playerComponent.hotbarInventory.setSlot(i, torch);
         }
 
-        for (byte i = 0; i < playerComponent.hotbarInventory.maxHotbarSlots; ++i) {
+        for (byte i = 0; i < Inventory.maxHotbarSlots; ++i) {
             Entity entity = playerComponent.hotbarInventory.item(i);
             if (entity != null) {
                 sendSpawnHotbarInventoryItem(entity, i, player);
@@ -511,7 +511,7 @@ public class OreServer implements Runnable {
                     itemToDropComponent.stackSize -= 1;
                 } else {
                     //remove item from inventory, client has already done so, because the count will be 0 after this drop
-                    m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
+                    // hack          m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
                 }
 
                 //decrease count of equipped item
