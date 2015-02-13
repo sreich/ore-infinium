@@ -5,7 +5,9 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
 import com.ore.infinium.components.ItemComponent;
@@ -38,6 +40,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     public static int spriteCount;
 
     private boolean m_leftClicked;
+    private boolean m_dragInProgress;
 
     public PowerOverlayRenderSystem(World world) {
         m_world = world;
@@ -57,6 +60,12 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
     public void leftMouseReleased() {
         m_leftClicked = false;
+
+        if (m_dragInProgress) {
+
+        }
+
+        m_dragInProgress = false;
     }
 
     public void update(float delta) {
@@ -122,6 +131,19 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                     spriteComponent.sprite.getX(),
                     spriteComponent.sprite.getY(),
                     powerNodeWidth, powerNodeHeight);
+
+
+            Vector2 spritePos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+            float angle = spritePos.angle(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+
+            float powerLineWidth = 30.0f / World.PIXELS_PER_METER;
+            float powerLineHeight = 30.0f / World.PIXELS_PER_METER;
+
+            m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
+                    spriteComponent.sprite.getX(),
+                    spriteComponent.sprite.getY(),
+                    0, 0,
+                    powerLineWidth, powerLineHeight, 1.0f, 1.0f, angle);
         }
     }
 }

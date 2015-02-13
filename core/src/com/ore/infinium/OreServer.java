@@ -530,6 +530,20 @@ public class OreServer implements Runnable {
 
                 //HACK holy god yes, make it check viewport, send to players interested..aka signup for entity adds
                 sendSpawnEntity(droppedItem, job.connection.getID());
+            } else if (job.object instanceof Network.ItemPlaceFromClient) {
+                Network.ItemPlaceFromClient data = ((Network.ItemPlaceFromClient) job.object);
+
+                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+
+                Entity placedItem = m_world.cloneEntity(playerComponent.equippedPrimaryItem());
+
+                ItemComponent itemComponent = Mappers.item.get(placedItem);
+                itemComponent.state = ItemComponent.State.InWorldState;
+
+                SpriteComponent spriteComponent = Mappers.sprite.get(placedItem);
+                spriteComponent.sprite.setPosition(data.x, data.y);
+
+                m_world.engine.addEntity(placedItem);
             } else {
                 if (!(job.object instanceof FrameworkMessage.KeepAlive)) {
                     Gdx.app.log("client network", "unhandled network receiving class");

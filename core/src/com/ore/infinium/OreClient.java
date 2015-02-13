@@ -298,7 +298,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             if (m_server != null) {
                 textY -= 15;
-                //m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
 
             }
         }
@@ -498,12 +498,20 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         leftMouseDown = true;
+        if (m_world != null) {
+            return m_world.touchDown(screenX, screenY, pointer, button);
+        }
+
         return false;
     }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         leftMouseDown = false;
+        if (m_world != null) {
+            return m_world.touchUp(screenX, screenY, pointer, button);
+        }
+
         return false;
     }
 
@@ -804,4 +812,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
     }
 
+    public void sendItemPlace(float x, float y) {
+        Network.ItemPlaceFromClient itemPlace = new Network.ItemPlaceFromClient();
+        itemPlace.x = x;
+        itemPlace.y = y;
+
+        m_clientKryo.sendTCP(itemPlace);
+    }
 }

@@ -334,17 +334,6 @@ public class World implements Disposable {
 
             updateCrosshair();
             updateItemPlacementGhost();
-
-            if (m_client.leftMouseDown) {
-                if (m_powerOverlaySystem.overlayVisible) {
-                    m_powerOverlaySystem.leftMouseClicked();
-                } else {
-                    m_powerOverlaySystem.leftMouseReleased();
-                    handleLeftMousePrimaryAttack();
-                }
-            } else {
-                m_powerOverlaySystem.leftMouseReleased();
-            }
         }
 
         if (isServer()) {
@@ -407,7 +396,17 @@ public class World implements Disposable {
         ItemComponent itemComponent = Mappers.item.get(item);
         if (itemComponent != null) {
             //place the item
+            Entity placedItem = cloneEntity(playerComponent.equippedPrimaryItem());
+
+            itemComponent.state = ItemComponent.State.InWorldState;
+
+            SpriteComponent spriteComponent = Mappers.sprite.get(placedItem);
+            spriteComponent.sprite.setPosition(mouse.x, mouse.y);
+
+            engine.addEntity(placedItem);
+
             //hack, do more validation..
+            m_client.sendItemPlace(mouse.x, mouse.y);
         }
     }
 
@@ -743,4 +742,33 @@ public class World implements Disposable {
         throw new IllegalStateException("player id attempted to be obtained from item, but this player does not exist");
     }
 
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        if (button != Input.Buttons.LEFT) {
+            return false;
+        }
+
+        if (m_powerOverlaySystem.overlayVisible) {
+            m_powerOverlaySystem.leftMouseReleased();
+            return true;
+        } else {
+            handleLeftMousePrimaryAttack();
+            return true;
+        }
+
+        //return false;
+    }
+
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (button != Input.Buttons.LEFT) {
+            return false;
+        }
+
+        if (m_powerOverlaySystem.overlayVisible) {
+            m_powerOverlaySystem.leftMouseReleased();
+            return true;
+        } else {
+        }
+
+        return false;
+    }
 }

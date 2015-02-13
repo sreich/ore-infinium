@@ -45,6 +45,7 @@ public class Network {
         kryo.register(PlayerMoveFromClient.class);
         kryo.register(BlockPickFromClient.class);
         kryo.register(BlockPlaceFromClient.class);
+        kryo.register(ItemPlaceFromClient.class);
         kryo.register(PlayerEquipHotbarIndexFromClient.class);
         kryo.register(HotbarDropItemRequestFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
@@ -151,6 +152,11 @@ public class Network {
     static public class BlockPlaceFromClient {
         public int x;
         public int y;
+    }
+
+    static public class ItemPlaceFromClient {
+        public float x;
+        public float y;
     }
 
     static public class PlayerSpawnedFromServer {
