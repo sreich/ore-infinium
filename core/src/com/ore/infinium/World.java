@@ -70,16 +70,14 @@ public class World implements Disposable {
     public OreServer m_server;
     public AssetManager assetManager;
     public OreClient m_client;
-    private boolean m_noClipEnabled;
-    protected TileRenderer m_tileRenderer;
     public OrthographicCamera m_camera;
-    PowerOverlayRenderSystem m_powerOverlaySystem;
-
-    private Entity m_blockPickingCrosshair;
-    private Entity m_itemPlacementGhost;
-
     //fixme remove in favor of the render system
     public TextureAtlas m_atlas;
+    protected TileRenderer m_tileRenderer;
+    PowerOverlayRenderSystem m_powerOverlaySystem;
+    private boolean m_noClipEnabled;
+    private Entity m_blockPickingCrosshair;
+    private Entity m_itemPlacementGhost;
 
     public World(OreClient client, OreServer server) {
         m_client = client;
@@ -466,11 +464,15 @@ public class World implements Disposable {
         }
 
         Vector2 mouse = mousePositionWorldCoords();
-        Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
+        alignPositionToBlocks(mouse);
 
         SpriteComponent spriteComponent = Mappers.sprite.get(m_itemPlacementGhost);
-        spriteComponent.sprite.setPosition(crosshairPosition.x, crosshairPosition.y);
+        spriteComponent.sprite.setPosition(mouse.x, mouse.y);
         spriteComponent.placementValid = isPlacementValid(m_itemPlacementGhost);
+    }
+
+    private void alignPositionToBlocks(Vector2 pos) {
+        pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
     }
 
     public int seaLevel() {
@@ -517,7 +519,6 @@ public class World implements Disposable {
 
         return air;
     }
-
 
     private boolean isPlacementValid(Entity entity) {
         SpriteComponent spriteComponent = Mappers.sprite.get(entity);
@@ -718,16 +719,6 @@ public class World implements Disposable {
         m_players.add(player);
     }
 
-    public static class BlockStruct {
-        public String textureName; //e.g. "dirt", "stone", etc.
-        boolean collides;
-
-        BlockStruct(String _textureName, boolean _collides) {
-            textureName = _textureName;
-            collides = _collides;
-        }
-    }
-
     public Entity playerForID(int playerIdWhoDropped) {
         assert !isClient();
         ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
@@ -770,5 +761,15 @@ public class World implements Disposable {
         }
 
         return false;
+    }
+
+    public static class BlockStruct {
+        public String textureName; //e.g. "dirt", "stone", etc.
+        boolean collides;
+
+        BlockStruct(String _textureName, boolean _collides) {
+            textureName = _textureName;
+            collides = _collides;
+        }
     }
 }
