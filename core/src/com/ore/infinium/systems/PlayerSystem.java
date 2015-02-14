@@ -4,10 +4,8 @@ import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.LoadedViewport;
-import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
-import com.ore.infinium.components.PlayerComponent;
-import com.ore.infinium.components.SpriteComponent;
+import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
@@ -29,6 +27,14 @@ import com.ore.infinium.components.SpriteComponent;
  */
 public class PlayerSystem extends EntitySystem implements EntityListener {
     private World m_world;
+
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+
 
     public PlayerSystem(World world) {
         m_world = world;
@@ -54,8 +60,8 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
         // but nothing else.
         //server will simulate everything else(except players), and broadcast positions
         for (int i = 0; i < entities.size(); ++i) {
-            SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
-            PlayerComponent playerComponent = Mappers.player.get(entities.get(i));
+            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+            PlayerComponent playerComponent = playerMapper.get(entities.get(i));
 
             if (spriteComponent == null || spriteComponent.sprite == null || playerComponent == null || playerComponent.lastLoadedRegion == null) {
                 continue; //hack, not sure why but occasional NPE's happen..on something
@@ -70,8 +76,8 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
     }
 
     private void calculateLoadedViewport(Entity entity) {
-        PlayerComponent playerComponent = Mappers.player.get(entity);
-        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        PlayerComponent playerComponent = playerMapper.get(entity);
+        SpriteComponent spriteComponent = spriteMapper.get(entity);
 
 
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
@@ -85,7 +91,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
     }
 
     private void sendPlayerBlockRegion(Entity entity) {
-        PlayerComponent playerComponent = Mappers.player.get(entity);
+        PlayerComponent playerComponent = playerMapper.get(entity);
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
 
         int x = (int) (Math.max(0.0f, loadedViewport.rect.x - loadedViewport.rect.width) / World.BLOCK_SIZE);

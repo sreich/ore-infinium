@@ -1,5 +1,6 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.core.PooledEngine;
@@ -49,24 +50,18 @@ public class World implements Disposable {
     public static final int WORLD_COLUMNCOUNT = 1000; //2400
     public static final int WORLD_ROWCOUNT = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
-
     public static final HashMap<Block.BlockType, BlockStruct> blockTypes = new HashMap<>();
-
     static {
         blockTypes.put(Block.BlockType.NullBlockType, new BlockStruct("", false));
         blockTypes.put(Block.BlockType.DirtBlockType, new BlockStruct("dirt", true));
         blockTypes.put(Block.BlockType.StoneBlockType, new BlockStruct("stone", true));
     }
-
     private static final int zoomInterval = 50; //ms
     private static OreTimer m_zoomTimer = new OreTimer();
-
     public Block[] blocks;
     public PooledEngine engine;
-
     public Array<Entity> m_players = new Array<>();
     public Entity m_mainPlayer;
-
     public OreServer m_server;
     public AssetManager assetManager;
     public OreClient m_client;
@@ -75,9 +70,24 @@ public class World implements Disposable {
     public TextureAtlas m_atlas;
     protected TileRenderer m_tileRenderer;
     PowerOverlayRenderSystem m_powerOverlaySystem;
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
+    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper = ComponentMapper.getFor(AirGeneratorComponent.class);
+    private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
+    private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
+    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
+    private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
+    private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
     private Entity m_itemPlacementGhost;
+
+    private com.artemis.World artemisWorld;
 
     public World(OreClient client, OreServer server) {
         m_client = client;
@@ -127,7 +137,7 @@ public class World implements Disposable {
     protected void clientInventoryItemSelected() {
         assert !isServer();
 
-        PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+        PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
         Entity entity = playerComponent.equippedPrimaryItem();
         if (entity == null) {
             return;
@@ -139,10 +149,10 @@ public class World implements Disposable {
 
         //this item is placeable, show a ghost of it so we can see where we're going to place it
         m_itemPlacementGhost = cloneEntity(entity);
-        ItemComponent itemComponent = Mappers.item.get(m_itemPlacementGhost);
+        ItemComponent itemComponent = itemMapper.get(m_itemPlacementGhost);
         itemComponent.state = ItemComponent.State.InWorldState;
 
-        SpriteComponent spriteComponent = Mappers.sprite.get(m_itemPlacementGhost);
+        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementGhost);
 
         TagComponent tag = engine.createComponent(TagComponent.class);
         tag.tag = "itemPlacementGhost";
@@ -155,13 +165,13 @@ public class World implements Disposable {
 
     public void initClient(Entity mainPlayer) {
         m_mainPlayer = mainPlayer;
-//        Mappers.velocity.get(m_mainPlayer);
+//        velocityMapper.get(m_mainPlayer);
 
         engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         engine.addSystem(new SpriteRenderSystem(this));
         engine.addSystem(m_powerOverlaySystem = new PowerOverlayRenderSystem(this));
 
-        SpriteComponent playerSprite = Mappers.sprite.get(m_mainPlayer);
+        SpriteComponent playerSprite = spriteMapper.get(m_mainPlayer);
         playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
         playerSprite.sprite.flip(false, true);
     }
@@ -346,13 +356,13 @@ public class World implements Disposable {
     private void handleLeftMousePrimaryAttack() {
         Vector2 mouse = mousePositionWorldCoords();
 
-        PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+        PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
         Entity item = playerComponent.equippedPrimaryItem();
         if (item == null) {
             return;
         }
 
-        ToolComponent toolComponent = Mappers.tool.get(item);
+        ToolComponent toolComponent = toolMapper.get(item);
         if (toolComponent != null) {
             if (toolComponent.type != ToolComponent.ToolType.Drill) {
                 return;
@@ -373,7 +383,7 @@ public class World implements Disposable {
             return;
         }
 
-        BlockComponent blockComponent = Mappers.block.get(item);
+        BlockComponent blockComponent = blockMapper.get(item);
         if (blockComponent != null) {
 
             int x = (int) (mouse.x / BLOCK_SIZE);
@@ -391,14 +401,14 @@ public class World implements Disposable {
             return;
         }
 
-        ItemComponent itemComponent = Mappers.item.get(item);
+        ItemComponent itemComponent = itemMapper.get(item);
         if (itemComponent != null) {
             //place the item
             Entity placedItem = cloneEntity(playerComponent.equippedPrimaryItem());
 
             itemComponent.state = ItemComponent.State.InWorldState;
 
-            SpriteComponent spriteComponent = Mappers.sprite.get(placedItem);
+            SpriteComponent spriteComponent = spriteMapper.get(placedItem);
             spriteComponent.sprite.setPosition(mouse.x, mouse.y);
 
             engine.addEntity(placedItem);
@@ -436,10 +446,10 @@ public class World implements Disposable {
     }
 
     private void updateCrosshair() {
-        //PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+        //PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
         //playerComponent
 
-        SpriteComponent spriteComponent = Mappers.sprite.get(m_blockPickingCrosshair);
+        SpriteComponent spriteComponent = spriteMapper.get(m_blockPickingCrosshair);
 
         Vector2 mouse = mousePositionWorldCoords();
         Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
@@ -466,7 +476,7 @@ public class World implements Disposable {
         Vector2 mouse = mousePositionWorldCoords();
         alignPositionToBlocks(mouse);
 
-        SpriteComponent spriteComponent = Mappers.sprite.get(m_itemPlacementGhost);
+        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementGhost);
         spriteComponent.sprite.setPosition(mouse.x, mouse.y);
         spriteComponent.placementValid = isPlacementValid(m_itemPlacementGhost);
     }
@@ -521,7 +531,7 @@ public class World implements Disposable {
     }
 
     private boolean isPlacementValid(Entity entity) {
-        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        SpriteComponent spriteComponent = spriteMapper.get(entity);
         Vector2 pos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
         Vector2 size = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
@@ -564,7 +574,7 @@ public class World implements Disposable {
 //            continue;
 //        }
 
-            ItemComponent itemComponent = Mappers.item.get(entities.get(i));
+            ItemComponent itemComponent = itemMapper.get(entities.get(i));
             if (itemComponent != null) {
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
                     continue;
@@ -580,8 +590,8 @@ public class World implements Disposable {
     }
 
     private boolean entityCollides(Entity first, Entity second) {
-        SpriteComponent spriteComponent1 = Mappers.sprite.get(first);
-        SpriteComponent spriteComponent2 = Mappers.sprite.get(second);
+        SpriteComponent spriteComponent1 = spriteMapper.get(first);
+        SpriteComponent spriteComponent2 = spriteMapper.get(second);
 
         Vector2 pos1 = new Vector2(spriteComponent1.sprite.getX(), spriteComponent1.sprite.getY());
         Vector2 pos2 = new Vector2(spriteComponent2.sprite.getX(), spriteComponent2.sprite.getY());
@@ -637,76 +647,76 @@ public class World implements Disposable {
         Entity clonedEntity = engine.createEntity();
 
         //sorted alphabetically for your pleasure
-        AirComponent airComponent = Mappers.air.get(entity);
+        AirComponent airComponent = airMapper.get(entity);
         if (airComponent != null) {
             AirComponent clonedComponent = new AirComponent(airComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        AirGeneratorComponent airGeneratorComponent = Mappers.airGenerator.get(entity);
+        AirGeneratorComponent airGeneratorComponent = airGeneratorMapper.get(entity);
         if (airGeneratorComponent != null) {
             AirGeneratorComponent clonedComponent = new AirGeneratorComponent(airGeneratorComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        BlockComponent blockComponent = Mappers.block.get(entity);
+        BlockComponent blockComponent = blockMapper.get(entity);
         if (blockComponent != null) {
             BlockComponent clonedComponent = new BlockComponent(blockComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        ControllableComponent controllableComponent = Mappers.control.get(entity);
+        ControllableComponent controllableComponent = controlMapper.get(entity);
         if (controllableComponent != null) {
             ControllableComponent clonedComponent = new ControllableComponent(controllableComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        HealthComponent healthComponent = Mappers.health.get(entity);
+        HealthComponent healthComponent = healthMapper.get(entity);
         if (healthComponent != null) {
             HealthComponent clonedComponent = new HealthComponent(healthComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        ItemComponent itemComponent = Mappers.item.get(entity);
+        ItemComponent itemComponent = itemMapper.get(entity);
         if (itemComponent != null) {
             ItemComponent clonedComponent = new ItemComponent(itemComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        JumpComponent jumpComponent = Mappers.jump.get(entity);
+        JumpComponent jumpComponent = jumpMapper.get(entity);
         if (jumpComponent != null) {
             JumpComponent clonedComponent = new JumpComponent(jumpComponent);
             clonedEntity.add(clonedComponent);
         }
 
         //player, unneeded
-        assert Mappers.player.get(entity) == null;
+        assert playerMapper.get(entity) == null;
 
-        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        SpriteComponent spriteComponent = spriteMapper.get(entity);
         if (spriteComponent != null) {
             SpriteComponent clonedComponent = new SpriteComponent(spriteComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        TagComponent tagComponent = Mappers.tag.get(entity);
+        TagComponent tagComponent = tagMapper.get(entity);
         if (tagComponent != null) {
             TagComponent clonedComponent = new TagComponent(tagComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        ToolComponent toolComponent = Mappers.tool.get(entity);
+        ToolComponent toolComponent = toolMapper.get(entity);
         if (toolComponent != null) {
             ToolComponent clonedComponent = new ToolComponent(toolComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        TorchComponent torchComponent = Mappers.torch.get(entity);
+        TorchComponent torchComponent = torchMapper.get(entity);
         if (torchComponent != null) {
             TorchComponent clonedComponent = new TorchComponent(torchComponent);
             clonedEntity.add(clonedComponent);
         }
 
-        VelocityComponent velocityComponent = Mappers.velocity.get(entity);
+        VelocityComponent velocityComponent = velocityMapper.get(entity);
         if (velocityComponent != null) {
             VelocityComponent clonedComponent = new VelocityComponent(velocityComponent);
             clonedEntity.add(clonedComponent);
@@ -724,7 +734,7 @@ public class World implements Disposable {
         ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
         PlayerComponent playerComponent;
         for (int i = 0; i < entities.size(); ++i) {
-            playerComponent = Mappers.player.get(entities.get(i));
+            playerComponent = playerMapper.get(entities.get(i));
             if (playerComponent.connectionId == playerIdWhoDropped) {
                 return entities.get(i);
             }

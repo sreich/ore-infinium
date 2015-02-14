@@ -1,5 +1,6 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -34,8 +35,8 @@ import com.ore.infinium.components.ItemComponent;
  */
 public class InventoryView implements Inventory.SlotListener {
     public boolean inventoryVisible;
-
     TextureAtlas atlas;
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
     private Skin m_skin;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxSlots];
 
@@ -130,7 +131,7 @@ public class InventoryView implements Inventory.SlotListener {
 
     @Override
     public void countChanged(byte index, Inventory inventory) {
-        ItemComponent itemComponent = Mappers.item.get(inventory.item(index));
+        ItemComponent itemComponent = itemMapper.get(inventory.item(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
@@ -145,7 +146,7 @@ public class InventoryView implements Inventory.SlotListener {
         slotImage.setScaling(Scaling.fit);
 
         Entity item = inventory.item(index);
-        ItemComponent itemComponent = Mappers.item.get(item);
+        ItemComponent itemComponent = itemMapper.get(item);
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
 
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.

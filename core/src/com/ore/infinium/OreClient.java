@@ -1,6 +1,7 @@
 package com.ore.infinium;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.gdx.*;
@@ -39,12 +40,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
     public final static int ORE_VERSION_REVISION = 1;
-
     static final String debugString1 = "F12 - gui debug";
     static final String debugString2 = "F11 - gui render toggle";
     static final String debugString3 = "F10 - tile render toggle";
     static final String debugString4 = "F9 - client/server sync debug render toggle";
-
     static OreTimer frameTimer = new OreTimer();
     static String frameTimeString = "";
     static String fpsString = "";
@@ -52,58 +51,52 @@ public class OreClient implements ApplicationListener, InputProcessor {
     static String shaderSwitchesString = "";
     static String drawCallsString = "";
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
-
-    private SpriteBatch m_debugServerBatch;
-
     public boolean m_renderTiles = true;
+    public BitmapFont bitmapFont_8pt;
+    public boolean leftMouseDown;
+    public StretchViewport viewport;
+    protected World m_world;
+    FreeTypeFontGenerator m_fontGenerator;
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
+    private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
+    private SpriteBatch m_debugServerBatch;
     private boolean m_guiDebug;
     private boolean m_renderGui = true;
     private boolean m_renderDebugServer = false;
-
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
-    FreeTypeFontGenerator m_fontGenerator;
     private Stage m_stage;
     private Skin m_skin;
-
     private InputMultiplexer m_multiplexer;
-
     private ChatBox m_chatBox;
     private Chat m_chat;
     private Dialog dialog;
     private Sidebar m_sidebar;
-
     private HotbarInventoryView m_hotbarView;
     private InventoryView m_inventoryView;
     private Inventory m_hotbarInventory;
     private Inventory m_inventory;
-
     private ScreenViewport m_viewport;
-    protected World m_world;
     private Entity m_mainPlayer;
     private Client m_clientKryo;
     private OreServer m_server;
     private Thread m_serverThread;
-
     private double m_accumulator;
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
-
     private SpriteBatch m_batch;
     private BitmapFont m_font;
-    public BitmapFont bitmapFont_8pt;
-
-    public boolean leftMouseDown;
-
     private DragAndDrop m_dragAndDrop;
-
     private Texture junktexture;
-
     // the internal (client) entity for the network(server's) entity ID
     private LongMap<Entity> m_entityForNetworkId = new LongMap<>(500);
     // map to reverse lookup, the long (server) entity ID for the given Entity
     private ObjectMap<Entity, Long> m_networkIdForEntityId = new ObjectMap<>(500);
-
-    public StretchViewport viewport;
 
     @Override
     public void create() {
@@ -312,7 +305,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_debugServerBatch.setColor(1, 0, 0, 0.5f);
             ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
             for (int i = 0; i < entities.size(); ++i) {
-                SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
+                SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
                 m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
@@ -403,11 +396,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
+        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayer);
 
         if (keycode == Input.Keys.Q) {
 
-            PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+            PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
 
             if (playerComponent.equippedPrimaryItem() != null) {
                 Network.HotbarDropItemRequestFromClient dropItemRequestFromClient = new Network.HotbarDropItemRequestFromClient();
@@ -415,7 +408,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 // decrement count, we assume it'll get spawned shortly. delete in-inventory entity if necessary
                 // server assumes we already do so
                 Entity item = playerComponent.equippedPrimaryItem();
-                ItemComponent itemComponent = Mappers.item.get(item);
+                ItemComponent itemComponent = itemMapper.get(item);
                 if (itemComponent.stackSize > 1) {
                     //decrement count, server has already done so. we assume here that it went through properly.
                     itemComponent.stackSize -= 1;
@@ -464,7 +457,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         if (keycode == Input.Keys.SPACE) {
-            JumpComponent jumpComponent = Mappers.jump.get(m_mainPlayer);
+            JumpComponent jumpComponent = jumpMapper.get(m_mainPlayer);
             jumpComponent.shouldJump = true;
         }
 
@@ -477,7 +470,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        ControllableComponent controllableComponent = Mappers.control.get(m_mainPlayer);
+        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayer);
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             controllableComponent.desiredDirection.x = 0;
@@ -557,7 +550,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
      * Send the command indicating (main) player moved to position
      */
     public void sendPlayerMoved() {
-        SpriteComponent sprite = Mappers.sprite.get(m_mainPlayer);
+        SpriteComponent sprite = spriteMapper.get(m_mainPlayer);
 
         Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
         move.position = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
@@ -579,7 +572,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
         if (m_mainPlayer == null) {
-            PlayerComponent playerComponent = Mappers.player.get(player);
+            PlayerComponent playerComponent = playerMapper.get(player);
 
             m_hotbarInventory = new Inventory(player);
             m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
@@ -597,7 +590,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             playerComponent.hotbarInventory.selectSlot((byte) 0);
         }
 
-//          SpriteComponent spriteComponent = Mappers.sprite.get(player);
+//          SpriteComponent spriteComponent = spriteMapper.get(player);
 //        spriteComponent.sprite.setTexture();
 
         m_world.engine.addEntity(player);
@@ -623,7 +616,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     m_world = new World(this, null);
 
                     m_mainPlayer = createPlayer(spawn.playerName, m_clientKryo.getID());
-                    SpriteComponent spriteComp = Mappers.sprite.get(m_mainPlayer);
+                    SpriteComponent spriteComp = spriteMapper.get(m_mainPlayer);
 
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
                     m_world.addPlayer(m_mainPlayer);
@@ -641,7 +634,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_world.loadBlockRegion(region);
             } else if (object instanceof Network.LoadedViewportMovedFromServer) {
                 Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
-                PlayerComponent c = Mappers.player.get(m_mainPlayer);
+                PlayerComponent c = playerMapper.get(m_mainPlayer);
                 c.loadedViewport.rect = v.rect;
             } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
                 Network.PlayerSpawnHotbarInventoryItemFromServer spawn = (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
@@ -657,7 +650,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
 
                 TextureRegion textureRegion;
-                if (Mappers.block.get(e) == null) {
+                if (blockMapper.get(e) == null) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
                     textureRegion = m_world.m_tileRenderer.m_atlas.findRegion(spriteComponent.textureName);
@@ -668,9 +661,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 m_world.engine.addEntity(e);
 
-                ToolComponent toolComponent = Mappers.tool.get(e);
+                ToolComponent toolComponent = toolMapper.get(e);
 
-                ItemComponent itemComponent = Mappers.item.get(e);
+                ItemComponent itemComponent = itemMapper.get(e);
                 m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
 
                 //TODO i wonder if i can implement my own serializer (trivially!) and make it use the entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
@@ -691,7 +684,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
 
                 TextureRegion textureRegion;
-                if (Mappers.block.get(e) == null) {
+                if (blockMapper.get(e) == null) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
                     textureRegion = m_world.m_tileRenderer.m_atlas.findRegion(spriteComponent.textureName);
@@ -712,7 +705,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 Entity entity = m_entityForNetworkId.get(data.id);
                 assert entity != null;
 
-                SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+                SpriteComponent spriteComponent = spriteMapper.get(entity);
                 spriteComponent.sprite.setPosition(data.position.x, data.position.y);
             } else {
                 if (!(object instanceof FrameworkMessage.KeepAlive)) {
@@ -727,6 +720,28 @@ public class OreClient implements ApplicationListener, InputProcessor {
             //         return;
             // }
         }
+    }
+
+    public void sendBlockPick(int x, int y) {
+        Network.BlockPickFromClient blockPickFromClient = new Network.BlockPickFromClient();
+        blockPickFromClient.x = x;
+        blockPickFromClient.y = y;
+        m_clientKryo.sendTCP(blockPickFromClient);
+    }
+
+    public void sendBlockPlace(int x, int y) {
+        Network.BlockPlaceFromClient blockPlaceFromClient = new Network.BlockPlaceFromClient();
+        blockPlaceFromClient.x = x;
+        blockPlaceFromClient.y = y;
+        m_clientKryo.sendTCP(blockPlaceFromClient);
+    }
+
+    public void sendItemPlace(float x, float y) {
+        Network.ItemPlaceFromClient itemPlace = new Network.ItemPlaceFromClient();
+        itemPlace.x = x;
+        itemPlace.y = y;
+
+        m_clientKryo.sendTCP(itemPlace);
     }
 
     class ClientListener extends Listener {
@@ -748,20 +763,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         public void disconnected(Connection connection) {
         }
-    }
-
-    public void sendBlockPick(int x, int y) {
-        Network.BlockPickFromClient blockPickFromClient = new Network.BlockPickFromClient();
-        blockPickFromClient.x = x;
-        blockPickFromClient.y = y;
-        m_clientKryo.sendTCP(blockPickFromClient);
-    }
-
-    public void sendBlockPlace(int x, int y) {
-        Network.BlockPlaceFromClient blockPlaceFromClient = new Network.BlockPlaceFromClient();
-        blockPlaceFromClient.x = x;
-        blockPlaceFromClient.y = y;
-        m_clientKryo.sendTCP(blockPlaceFromClient);
     }
 
     private class HotbarSlotListener implements Inventory.SlotListener {
@@ -787,7 +788,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
 
             sendHotbarEquipped(index);
-            PlayerComponent playerComponent = Mappers.player.get(m_mainPlayer);
+            PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
 
             Entity itemCopy = playerComponent.equippedPrimaryItem();
             playerComponent.equippedItemAnimator = itemCopy;
@@ -810,13 +811,5 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_entityForNetworkId.remove(networkId);
             }
         }
-    }
-
-    public void sendItemPlace(float x, float y) {
-        Network.ItemPlaceFromClient itemPlace = new Network.ItemPlaceFromClient();
-        itemPlace.x = x;
-        itemPlace.y = y;
-
-        m_clientKryo.sendTCP(itemPlace);
     }
 }

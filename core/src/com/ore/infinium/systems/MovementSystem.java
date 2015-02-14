@@ -1,13 +1,9 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
 import com.ore.infinium.components.*;
 
@@ -31,6 +27,13 @@ import com.ore.infinium.components.*;
  */
 public class MovementSystem extends EntitySystem {
     private World m_world;
+
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
 
     public MovementSystem(World world) {
         m_world = world;
@@ -56,7 +59,7 @@ public class MovementSystem extends EntitySystem {
         }
 
         if (m_world.isClient()) {
-            SpriteComponent playerSprite = Mappers.sprite.get(m_world.m_mainPlayer);
+            SpriteComponent playerSprite = spriteMapper.get(m_world.m_mainPlayer);
             m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
             m_world.m_camera.update();
 
@@ -66,9 +69,9 @@ public class MovementSystem extends EntitySystem {
 
     private void simulate(Entity entity, float delta) {
         //fixme maybe make a dropped component?
-        if (Mappers.control.get(entity) == null) {
+        if (controlMapper.get(entity) == null) {
             if (m_world.isServer()) {
-                ItemComponent itemComponent = Mappers.item.get(entity);
+                ItemComponent itemComponent = itemMapper.get(entity);
                 if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
                     simulateDroppedItem(entity, delta);
                 }
@@ -82,20 +85,20 @@ public class MovementSystem extends EntitySystem {
         }
 
         //fixme handle noclip
-        final SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        final SpriteComponent spriteComponent = spriteMapper.get(entity);
         final Vector2 origPosition = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
 
-        final VelocityComponent velocityComponent = Mappers.velocity.get(entity);
+        final VelocityComponent velocityComponent = velocityMapper.get(entity);
 
         final Vector2 oldVelocity = new Vector2(velocityComponent.velocity);
         Vector2 newVelocity = new Vector2(oldVelocity);
 
-        final Vector2 desiredDirection = Mappers.control.get(entity).desiredDirection;
+        final Vector2 desiredDirection = controlMapper.get(entity).desiredDirection;
 
         //acceleration due to gravity
         Vector2 acceleration = new Vector2(desiredDirection.x * PlayerComponent.movementSpeed, World.GRAVITY_ACCEL);
 
-        JumpComponent jumpComponent = Mappers.jump.get(entity);
+        JumpComponent jumpComponent = jumpMapper.get(entity);
         if (jumpComponent.canJump && jumpComponent.shouldJump) {
 
             if (jumpComponent.jumpTimer.milliseconds() >= jumpComponent.jumpInterval) {
@@ -149,14 +152,14 @@ public class MovementSystem extends EntitySystem {
     }
 
     private void simulateDroppedItem(Entity item, float delta) {
-        ItemComponent itemComponent = Mappers.item.get(item);
+        ItemComponent itemComponent = itemMapper.get(item);
         if (itemComponent.state != ItemComponent.State.DroppedInWorld) {
             return;
             //only interested in simulating gravity for dropped items
         }
 
-        SpriteComponent itemSpriteComponent = Mappers.sprite.get(item);
-        VelocityComponent itemVelocityComponent = Mappers.velocity.get(item);
+        SpriteComponent itemSpriteComponent = spriteMapper.get(item);
+        VelocityComponent itemVelocityComponent = velocityMapper.get(item);
 
         Vector2 itemPosition = new Vector2(itemSpriteComponent.sprite.getX(), itemSpriteComponent.sprite.getY());
 
@@ -165,7 +168,7 @@ public class MovementSystem extends EntitySystem {
 
         Entity playerWhoDropped = m_world.playerForID(itemComponent.playerIdWhoDropped);
 
-        VelocityComponent playerVelocityComponent = Mappers.velocity.get(playerWhoDropped);
+        VelocityComponent playerVelocityComponent = velocityMapper.get(playerWhoDropped);
         Vector2 playerVelocity = new Vector2(playerVelocityComponent.velocity);
 
         Vector2 acceleration = new Vector2(0.0f, World.GRAVITY_ACCEL);
@@ -225,8 +228,8 @@ public class MovementSystem extends EntitySystem {
     private Vector2 performCollision(Vector2 desiredPosition, Entity entity) {
         boolean canJump = false;
 
-        final SpriteComponent spriteComponent = Mappers.sprite.get(entity);
-        final VelocityComponent velocityComponent = Mappers.velocity.get(entity);
+        final SpriteComponent spriteComponent = spriteMapper.get(entity);
+        final VelocityComponent velocityComponent = velocityMapper.get(entity);
         final Vector2 velocity = velocityComponent.velocity;
         final Vector2 sizeMeters = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
@@ -317,7 +320,7 @@ public class MovementSystem extends EntitySystem {
             }
         }
 
-        JumpComponent jumpComponent = Mappers.jump.get(entity);
+        JumpComponent jumpComponent = jumpMapper.get(entity);
         if (jumpComponent != null) {
             jumpComponent.canJump = canJump;
         }
@@ -326,9 +329,9 @@ public class MovementSystem extends EntitySystem {
     }
 
     private void maybeSendEntityMoved(Entity entity) {
-        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
+        SpriteComponent spriteComponent = spriteMapper.get(entity);
         for (Entity player : m_world.m_players) {
-            PlayerComponent playerComponent = Mappers.player.get(player);
+            PlayerComponent playerComponent = playerMapper.get(player);
 //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()))) {
                 m_world.m_server.sendEntityMoved(player, entity);
  //           }

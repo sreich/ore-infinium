@@ -1,6 +1,7 @@
 package com.ore.infinium;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
@@ -52,6 +53,20 @@ public class OreServer implements Runnable {
     private double m_currentTime;
     private double m_step = 1.0 / 60.0;
     private boolean m_running = true;
+
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
+    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper = ComponentMapper.getFor(AirGeneratorComponent.class);
+    private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
+    private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
+    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
+    private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
+    private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
 
     private Chat m_chat;
 
@@ -174,10 +189,10 @@ public class OreServer implements Runnable {
             m_world.blockAt(x, tiley).blockType = Block.BlockType.StoneBlockType;
         }
 
-        SpriteComponent playerSprite = Mappers.sprite.get(player);
+        SpriteComponent playerSprite = spriteMapper.get(player);
         playerSprite.sprite.setPosition(posX, posY);
 
-        PlayerComponent playerComponent = Mappers.player.get(player);
+        PlayerComponent playerComponent = playerMapper.get(player);
         playerComponent.hotbarInventory = new Inventory(player);
         playerComponent.hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
         playerComponent.hotbarInventory.addListener(new HotbarInventorySlotListener());
@@ -235,13 +250,13 @@ public class OreServer implements Runnable {
         tool.add(itemComponent);
         m_world.engine.addEntity(tool);
 
-        PlayerComponent playerComponent = Mappers.player.get(player);
+        PlayerComponent playerComponent = playerMapper.get(player);
         playerComponent.hotbarInventory.setSlot((byte) 0, tool);
 
         Entity block = m_world.engine.createEntity();
         m_world.createBlockItem(block);
 
-        ItemComponent blockItemComponent = Mappers.item.get(block);
+        ItemComponent blockItemComponent = itemMapper.get(block);
         blockItemComponent.inventoryIndex = 1;
         blockItemComponent.state = ItemComponent.State.InInventoryState;
 
@@ -250,7 +265,7 @@ public class OreServer implements Runnable {
         playerComponent.hotbarInventory.setSlot((byte) 1, block);
 
         Entity airGen = m_world.createAirGenerator();
-        ItemComponent airGenItem = Mappers.item.get(airGen);
+        ItemComponent airGenItem = itemMapper.get(airGen);
         airGenItem.inventoryIndex = 2;
         airGenItem.state = ItemComponent.State.InInventoryState;
 
@@ -324,14 +339,14 @@ public class OreServer implements Runnable {
         toolItemComponent.inventoryIndex = 0;
         toolItemComponent.state = ItemComponent.State.InInventoryState;
 
-        PlayerComponent playerComponent = Mappers.player.get(player);
+        PlayerComponent playerComponent = playerMapper.get(player);
         playerComponent.inventory.setSlot(0, tool);
         */
     }
 
     private void sendSpawnPlayerBroadcast(Entity e) {
-        PlayerComponent playerComp = Mappers.player.get(e);
-        SpriteComponent spriteComp = Mappers.sprite.get(e);
+        PlayerComponent playerComp = playerMapper.get(e);
+        SpriteComponent spriteComp = spriteMapper.get(e);
 
         Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
         spawn.connectionId = playerComp.connectionId;
@@ -345,8 +360,8 @@ public class OreServer implements Runnable {
      * @param connectionId client to send to
      */
     private void sendSpawnPlayer(Entity e, int connectionId) {
-        PlayerComponent playerComp = Mappers.player.get(e);
-        SpriteComponent spriteComp = Mappers.sprite.get(e);
+        PlayerComponent playerComp = playerMapper.get(e);
+        SpriteComponent spriteComp = spriteMapper.get(e);
 
         Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
         spawn.connectionId = playerComp.connectionId;
@@ -360,7 +375,7 @@ public class OreServer implements Runnable {
         spawn.components = serializeComponents(e);
         spawn.id = e.getId();
 
-        SpriteComponent sprite = Mappers.sprite.get(e);
+        SpriteComponent sprite = spriteMapper.get(e);
 
         spawn.pos.pos.set(sprite.sprite.getX(), sprite.sprite.getY());
         spawn.size.size.set(sprite.sprite.getWidth(), sprite.sprite.getHeight());
@@ -400,12 +415,12 @@ public class OreServer implements Runnable {
         Network.PlayerSpawnHotbarInventoryItemFromServer spawn = new Network.PlayerSpawnHotbarInventoryItemFromServer();
         spawn.components = serializeComponents(item);
 
-        SpriteComponent spriteComponent = Mappers.sprite.get(item);
+        SpriteComponent spriteComponent = spriteMapper.get(item);
         spawn.size.size.set(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
         spawn.textureName = spriteComponent.textureName;
         //FIXME: HACK, we need to spawn it with a texture...and figure out how to do this exactly.
 
-        m_serverKryo.sendToTCP(Mappers.player.get(owningPlayer).connectionId, spawn);
+        m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).connectionId, spawn);
     }
 
     //fixme even needed???
@@ -452,7 +467,7 @@ public class OreServer implements Runnable {
                 job.connection.playerName = name;
             } else if (job.object instanceof Network.PlayerMoveFromClient) {
                 Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
-                SpriteComponent sprite = Mappers.sprite.get(job.connection.player);
+                SpriteComponent sprite = spriteMapper.get(job.connection.player);
                 sprite.sprite.setPosition(data.position.x, data.position.y);
             } else if (job.object instanceof Network.ChatMessageFromClient) {
                 Network.ChatMessageFromClient data = ((Network.ChatMessageFromClient) job.object);
@@ -462,7 +477,7 @@ public class OreServer implements Runnable {
                 m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message, Chat.ChatSender.Player);
             } else if (job.object instanceof Network.PlayerMoveInventoryItemFromClient) {
                 Network.PlayerMoveInventoryItemFromClient data = ((Network.PlayerMoveInventoryItemFromClient) job.object);
-                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
                 //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
                 if (data.sourceType == data.destType && data.sourceIndex == data.destIndex) {
@@ -490,23 +505,23 @@ public class OreServer implements Runnable {
                 m_world.blockAt(data.x, data.y).blockType = Block.BlockType.NullBlockType;
             } else if (job.object instanceof Network.BlockPlaceFromClient) {
                 Network.BlockPlaceFromClient data = ((Network.BlockPlaceFromClient) job.object);
-                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
                 Entity item = playerComponent.equippedPrimaryItem();
-                BlockComponent blockComponent = Mappers.block.get(item);
+                BlockComponent blockComponent = blockMapper.get(item);
 
                 m_world.blockAt(data.x, data.y).blockType = blockComponent.blockType;
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
                 Network.PlayerEquipHotbarIndexFromClient data = ((Network.PlayerEquipHotbarIndexFromClient) job.object);
-                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
                 playerComponent.hotbarInventory.selectSlot(data.index);
             } else if (job.object instanceof Network.HotbarDropItemRequestFromClient) {
                 Network.HotbarDropItemRequestFromClient data = ((Network.HotbarDropItemRequestFromClient) job.object);
-                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
                 Entity itemToDrop = playerComponent.hotbarInventory.item(data.index);
-                ItemComponent itemToDropComponent = Mappers.item.get(itemToDrop);
+                ItemComponent itemToDropComponent = itemMapper.get(itemToDrop);
                 if (itemToDropComponent.stackSize > 1) {
                     itemToDropComponent.stackSize -= 1;
                 } else {
@@ -516,13 +531,13 @@ public class OreServer implements Runnable {
 
                 //decrease count of equipped item
                 Entity droppedItem = m_world.cloneEntity(itemToDrop);
-                ItemComponent itemDroppedComponent = Mappers.item.get(droppedItem);
+                ItemComponent itemDroppedComponent = itemMapper.get(droppedItem);
                 itemDroppedComponent.state = ItemComponent.State.DroppedInWorld;
                 itemDroppedComponent.justDropped = true;
                 itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionId;
 
-                SpriteComponent playerSprite = Mappers.sprite.get(job.connection.player);
-                SpriteComponent itemSprite = Mappers.sprite.get(droppedItem);
+                SpriteComponent playerSprite = spriteMapper.get(job.connection.player);
+                SpriteComponent itemSprite = spriteMapper.get(droppedItem);
 
                 itemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
 
@@ -533,14 +548,14 @@ public class OreServer implements Runnable {
             } else if (job.object instanceof Network.ItemPlaceFromClient) {
                 Network.ItemPlaceFromClient data = ((Network.ItemPlaceFromClient) job.object);
 
-                PlayerComponent playerComponent = Mappers.player.get(job.connection.player);
+                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
                 Entity placedItem = m_world.cloneEntity(playerComponent.equippedPrimaryItem());
 
-                ItemComponent itemComponent = Mappers.item.get(placedItem);
+                ItemComponent itemComponent = itemMapper.get(placedItem);
                 itemComponent.state = ItemComponent.State.InWorldState;
 
-                SpriteComponent spriteComponent = Mappers.sprite.get(placedItem);
+                SpriteComponent spriteComponent = spriteMapper.get(placedItem);
                 spriteComponent.sprite.setPosition(data.x, data.y);
 
                 m_world.engine.addEntity(placedItem);
@@ -557,7 +572,7 @@ public class OreServer implements Runnable {
         //fixme: decide if we do or do not want to send the entire rect...perhaps just a simple reposition would be nice.
         //surely it won't be getting resized that often?
 
-        PlayerComponent playerComponent = Mappers.player.get(player);
+        PlayerComponent playerComponent = playerMapper.get(player);
 
         Network.LoadedViewportMovedFromServer v = new Network.LoadedViewportMovedFromServer();
         v.rect = playerComponent.loadedViewport.rect;
@@ -581,8 +596,19 @@ public class OreServer implements Runnable {
             }
         }
 
-        PlayerComponent playerComponent = Mappers.player.get(player);
+        PlayerComponent playerComponent = playerMapper.get(player);
         m_serverKryo.sendToTCP(playerComponent.connectionId, region);
+    }
+
+    public void sendEntityMoved(Entity player, Entity entity) {
+        Network.EntityMovedFromServer move = new Network.EntityMovedFromServer();
+        move.id = entity.getId();
+
+        SpriteComponent spriteComponent = spriteMapper.get(entity);
+        move.position = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+
+        PlayerComponent playerComponent = playerMapper.get(player);
+        m_serverKryo.sendToTCP(playerComponent.connectionId, move);
     }
 
     static class PlayerConnection extends Connection {
@@ -644,7 +670,7 @@ public class OreServer implements Runnable {
         public void set(byte index, Inventory inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
             //or an overloaded method for dragging
-//            PlayerComponent playerComponent = Mappers.player.get(inventory.owningPlayer);
+//            PlayerComponent playerComponent = playerMapper.get(inventory.owningPlayer);
 //
 //            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
 //                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
@@ -659,16 +685,5 @@ public class OreServer implements Runnable {
         @Override
         public void selected(byte index, Inventory inventory) {
         }
-    }
-
-    public void sendEntityMoved(Entity player, Entity entity) {
-        Network.EntityMovedFromServer move = new Network.EntityMovedFromServer();
-        move.id = entity.getId();
-
-        SpriteComponent spriteComponent = Mappers.sprite.get(entity);
-        move.position = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
-
-        PlayerComponent playerComponent = Mappers.player.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionId, move);
     }
 }

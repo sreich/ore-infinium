@@ -1,5 +1,6 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -16,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
+import com.ore.infinium.components.BlockComponent;
 import com.ore.infinium.components.ItemComponent;
 import com.ore.infinium.components.SpriteComponent;
 
@@ -43,6 +45,10 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     private Table container;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxHotbarSlots];
     private OreClient m_client;
+
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
 
     //the model for this view
     private Inventory m_hotbarInventory;
@@ -113,7 +119,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
     @Override
     public void countChanged(byte index, Inventory inventory) {
-        ItemComponent itemComponent = Mappers.item.get(inventory.item(index));
+        ItemComponent itemComponent = itemMapper.get(inventory.item(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
@@ -123,12 +129,12 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
 
         Entity item = inventory.item(index);
-        ItemComponent itemComponent = Mappers.item.get(item);
+        ItemComponent itemComponent = itemMapper.get(item);
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
 
         TextureRegion region;
-        SpriteComponent spriteComponent = Mappers.sprite.get(item);
-        if (Mappers.block.get(item) != null) {
+        SpriteComponent spriteComponent = spriteMapper.get(item);
+        if (blockMapper.get(item) != null) {
             //hack
             region = m_blockAtlas.findRegion(spriteComponent.textureName);
         } else {

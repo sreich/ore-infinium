@@ -1,7 +1,9 @@
 package com.ore.infinium;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Array;
+import com.ore.infinium.components.ItemComponent;
 
 /**
  * ***************************************************************************
@@ -24,15 +26,13 @@ import com.badlogic.gdx.utils.Array;
 public class Inventory {
     public static final byte maxHotbarSlots = 8;
     public static final byte maxSlots = 32;
-
     //selection is hotbar only
     public byte m_selectedSlot;
     public byte m_previousSelectedSlot;
-
     public Entity owningPlayer; //HACK? unneeded?
-
     public InventoryType inventoryType;
     Array<SlotListener> m_listeners = new Array<>();
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
     private Entity[] m_slots;
 
     public Inventory(Entity _owningPlayer) {
@@ -50,7 +50,7 @@ public class Inventory {
     }
 
     public void setCount(byte index, byte newCount) {
-        Mappers.item.get(m_slots[index]).stackSize = newCount;
+        itemMapper.get(m_slots[index]).stackSize = newCount;
 
         for (SlotListener listener : m_listeners) {
             listener.countChanged(index, this);

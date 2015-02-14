@@ -1,5 +1,6 @@
 package com.ore.infinium.systems;
 
+import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.systems.IntervalSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -8,9 +9,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector3;
 import com.ore.infinium.Block;
-import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
-import com.ore.infinium.components.SpriteComponent;
+import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
@@ -31,17 +31,19 @@ import com.ore.infinium.components.SpriteComponent;
  * ***************************************************************************
  */
 public class TileRenderer extends IntervalSystem {
+    public static int tileCount;
+    public TextureAtlas m_atlas;
+    float elapsed;
     private World m_world;
     private OrthographicCamera m_camera;
     private SpriteBatch m_batch;
-
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
     private Texture t;
-
-    public TextureAtlas m_atlas;
-
-    public static int tileCount;
-
-    float elapsed;
 
     public TileRenderer(OrthographicCamera camera, World world, float interval) {
         super(interval);
@@ -65,7 +67,7 @@ public class TileRenderer extends IntervalSystem {
         m_batch.setProjectionMatrix(m_camera.combined);
         //auto positionComponent = m_mainPlayer->component<PositionComponent>();
 
-        SpriteComponent sprite = Mappers.sprite.get(m_world.m_mainPlayer);
+        SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayer);
 
         Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0); //new Vector3(100, 200, 0);//positionComponent->position();
         int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
@@ -114,7 +116,7 @@ public class TileRenderer extends IntervalSystem {
                     continue;
                 }
 
-                String textureName = m_world.blockTypes.get(block.blockType).textureName;
+                String textureName = World.blockTypes.get(block.blockType).textureName;
 
                 m_batch.draw(m_atlas.findRegion(textureName), tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
 

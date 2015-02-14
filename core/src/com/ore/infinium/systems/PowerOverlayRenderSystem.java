@@ -1,17 +1,12 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
-import com.ore.infinium.components.ItemComponent;
-import com.ore.infinium.components.SpriteComponent;
+import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
@@ -32,13 +27,17 @@ import com.ore.infinium.components.SpriteComponent;
  * ***************************************************************************
  */
 public class PowerOverlayRenderSystem extends EntitySystem {
+    public static int spriteCount;
+    public boolean overlayVisible = true;
+    //   public TextureAtlas m_atlas;
     private World m_world;
     private SpriteBatch m_batch;
-    //   public TextureAtlas m_atlas;
-
-    public boolean overlayVisible = true;
-    public static int spriteCount;
-
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
     private boolean m_leftClicked;
     private boolean m_dragInProgress;
 
@@ -113,13 +112,13 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = Mappers.item.get(entities.get(i));
+            itemComponent = itemMapper.get(entities.get(i));
             assert itemComponent != null;
             if (itemComponent.state != ItemComponent.State.InWorldState) {
                 continue;
             }
 
-            SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
+            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
             float powerNodeWidth = 30.0f / World.PIXELS_PER_METER;
             float powerNodeHeight = 30.0f / World.PIXELS_PER_METER;

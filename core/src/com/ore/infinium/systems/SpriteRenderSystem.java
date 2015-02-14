@@ -1,16 +1,10 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.ore.infinium.Mappers;
 import com.ore.infinium.World;
-import com.ore.infinium.components.ItemComponent;
-import com.ore.infinium.components.SpriteComponent;
-import com.ore.infinium.components.TagComponent;
+import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
@@ -31,11 +25,17 @@ import com.ore.infinium.components.TagComponent;
  * ***************************************************************************
  */
 public class SpriteRenderSystem extends EntitySystem {
-    private World m_world;
-    private SpriteBatch m_batch;
-    //   public TextureAtlas m_atlas;
-
     public static int spriteCount;
+    private World m_world;
+    //   public TextureAtlas m_atlas;
+    private SpriteBatch m_batch;
+    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
+    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
+    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
+    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
 
     public SpriteRenderSystem(World world) {
         m_world = world;
@@ -69,13 +69,13 @@ public class SpriteRenderSystem extends EntitySystem {
 
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = Mappers.item.get(entities.get(i));
+            itemComponent = itemMapper.get(entities.get(i));
             //don't draw in-inventory or dropped items
             if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
                 continue;
             }
 
-            SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
+            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
             m_batch.draw(spriteComponent.sprite, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
                     spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
@@ -89,17 +89,17 @@ public class SpriteRenderSystem extends EntitySystem {
 
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = Mappers.item.get(entities.get(i));
+            itemComponent = itemMapper.get(entities.get(i));
             //don't draw in-inventory or dropped items
             if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
                 continue;
             }
 
-            SpriteComponent spriteComponent = Mappers.sprite.get(entities.get(i));
+            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
             boolean placementGhost = false;
 
-            TagComponent tagComponent = Mappers.tag.get(entities.get(i));
+            TagComponent tagComponent = tagMapper.get(entities.get(i));
             if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
                 placementGhost = true;
                 if (spriteComponent.placementValid) {
