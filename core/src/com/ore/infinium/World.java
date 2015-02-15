@@ -410,7 +410,10 @@ public class World implements Disposable {
             placedItemComponent.state = ItemComponent.State.InWorldState;
 
             SpriteComponent spriteComponent = spriteMapper.get(placedItem);
-            spriteComponent.sprite.setPosition(mouse.x, mouse.y);
+            Vector2 alignedPosition = new Vector2(mouse.x, mouse.y);
+            alignPositionToBlocks(alignedPosition);
+
+            spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
 
             engine.addEntity(placedItem);
 
