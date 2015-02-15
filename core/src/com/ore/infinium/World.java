@@ -405,8 +405,9 @@ public class World implements Disposable {
         if (itemComponent != null) {
             //place the item
             Entity placedItem = cloneEntity(playerComponent.equippedPrimaryItem());
+            ItemComponent placedItemComponent = itemMapper.get(placedItem);
 
-            itemComponent.state = ItemComponent.State.InWorldState;
+            placedItemComponent.state = ItemComponent.State.InWorldState;
 
             SpriteComponent spriteComponent = spriteMapper.get(placedItem);
             spriteComponent.sprite.setPosition(mouse.x, mouse.y);
