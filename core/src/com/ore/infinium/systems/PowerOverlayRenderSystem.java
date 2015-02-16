@@ -3,8 +3,10 @@ package com.ore.infinium.systems;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.ore.infinium.World;
 import com.ore.infinium.components.*;
 
@@ -122,7 +124,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
             float powerNodeWidth = 30.0f / World.PIXELS_PER_METER;
             float powerNodeHeight = 30.0f / World.PIXELS_PER_METER;
-
+            Sprite sprite;
             float powerNodeOffsetX = 30.0f / World.PIXELS_PER_METER;
             float powerNodeOffsetY = 30.0f / World.PIXELS_PER_METER;
 
@@ -131,12 +133,14 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                     spriteComponent.sprite.getY(),
                     powerNodeWidth, powerNodeHeight);
 
-
             Vector2 spritePos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
-            float angle = spritePos.angle(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+            Vector3 projectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            Vector3 unprojectedMouse = m_world.m_camera.project(projectedMouse);
 
-            float powerLineWidth = 30.0f / World.PIXELS_PER_METER;
-            float powerLineHeight = 30.0f / World.PIXELS_PER_METER;
+            float angle = spritePos.angle(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
+
+            float powerLineWidth = 300.0f / World.PIXELS_PER_METER;
+            float powerLineHeight = 300.0f / World.PIXELS_PER_METER;
 
             m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
                     spriteComponent.sprite.getX(),
