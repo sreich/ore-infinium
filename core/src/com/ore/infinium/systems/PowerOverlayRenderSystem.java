@@ -5,6 +5,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ore.infinium.World;
@@ -40,6 +41,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private boolean m_leftClicked;
     private boolean m_dragInProgress;
 
@@ -120,7 +122,15 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                 continue;
             }
 
+            TagComponent tagComponent = tagMapper.get(entities.get(i));
+            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
+                continue;
+            }
+
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+
+  // float dist = (float)Math.sqrt(dx*dx + dy*dy);
+ //   batch.draw(rect, x1, y1, dist, thickness, 0, 0, rad);
 
             float powerNodeWidth = 30.0f / World.PIXELS_PER_METER;
             float powerNodeHeight = 30.0f / World.PIXELS_PER_METER;
@@ -133,20 +143,33 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                     spriteComponent.sprite.getY(),
                     powerNodeWidth, powerNodeHeight);
 
-            Vector2 spritePos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
             Vector3 projectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            Vector3 unprojectedMouse = m_world.m_camera.project(projectedMouse);
+            Vector3 unprojectedMouse = projectedMouse;m_world.m_camera.unproject(projectedMouse);
+
+            Vector2 diff = new Vector2(unprojectedMouse.x - spriteComponent.sprite.getX(), unprojectedMouse.y - spriteComponent.sprite.getY());
+            float dist = Vector2.dot(diff.x, diff.y, diff.x, diff.y);
+            float rads = (float)Math.atan2(diff.y, diff.x);
+            float degrees = rads * MathUtils.radiansToDegrees - 90;
+
+            Vector2 spritePos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
 
             float angle = spritePos.angle(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
 
-            float powerLineWidth = 300.0f / World.PIXELS_PER_METER;
+            float powerLineWidth = 20.0f / World.PIXELS_PER_METER;
             float powerLineHeight = 300.0f / World.PIXELS_PER_METER;
 
             m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
                     spriteComponent.sprite.getX(),
                     spriteComponent.sprite.getY(),
                     0, 0,
+                    powerLineWidth, powerLineHeight, 1.0f, 1.0f, degrees);
+            /*
+            m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
+                    spriteComponent.sprite.getX(),
+                    spriteComponent.sprite.getY(),
+                    0, 0,
                     powerLineWidth, powerLineHeight, 1.0f, 1.0f, angle);
+            */
         }
     }
 }
