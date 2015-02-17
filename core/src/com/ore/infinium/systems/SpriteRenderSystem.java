@@ -87,6 +87,9 @@ public class SpriteRenderSystem extends EntitySystem {
         ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
 
         ItemComponent itemComponent;
+        TagComponent tagComponent;
+        SpriteComponent spriteComponent;
+
         for (int i = 0; i < entities.size(); ++i) {
             itemComponent = itemMapper.get(entities.get(i));
             //don't draw in-inventory or dropped items
@@ -94,13 +97,19 @@ public class SpriteRenderSystem extends EntitySystem {
                 continue;
             }
 
-            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+            spriteComponent = spriteMapper.get(entities.get(i));
 
             boolean placementGhost = false;
 
-            TagComponent tagComponent = tagMapper.get(entities.get(i));
+            tagComponent = tagMapper.get(entities.get(i));
             if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
+                if (m_world.engine.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
+                    //we're in power overlay, do not render placement ghost
+                    continue;
+                }
+
                 placementGhost = true;
+
                 if (spriteComponent.placementValid) {
                     m_batch.setColor(0, 1, 0, 0.6f);
                 } else {
