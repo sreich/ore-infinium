@@ -26,9 +26,10 @@ import com.ore.infinium.components.*;
  */
 public class SpriteRenderSystem extends EntitySystem {
     public static int spriteCount;
+
     private World m_world;
-    //   public TextureAtlas m_atlas;
     private SpriteBatch m_batch;
+
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
     private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
     private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
@@ -43,7 +44,6 @@ public class SpriteRenderSystem extends EntitySystem {
 
     public void addedToEngine(Engine engine) {
         m_batch = new SpriteBatch();
-//        m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
     }
 
     public void removedFromEngine(Engine engine) {
@@ -51,7 +51,6 @@ public class SpriteRenderSystem extends EntitySystem {
     }
 
     public void update(float delta) {
-
 //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.begin();

@@ -117,6 +117,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         for (int i = 0; i < entities.size(); ++i) {
             itemComponent = itemMapper.get(entities.get(i));
             assert itemComponent != null;
+
             if (itemComponent.state != ItemComponent.State.InWorldState) {
                 continue;
             }
@@ -128,6 +129,31 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
+            renderPowerNode(spriteComponent);
+
+            Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            m_world.m_camera.unproject(unprojectedMouse);
+            renderWire(new Vector2(unprojectedMouse.x, unprojectedMouse.y), new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()));
+        }
+    }
+
+    private void renderWire(Vector2 source, Vector2 dest) {
+            Vector2 diff = new Vector2(source.x - dest.x, source.y - dest.y);
+
+            float rads = MathUtils.atan2(diff.y, diff.x);
+            float degrees = rads * MathUtils.radiansToDegrees - 90;
+
+            float powerLineWidth = 3.0f / World.PIXELS_PER_METER;
+            float powerLineHeight = Vector2.dst(source.x, source.y, dest.x, dest.y);
+
+            m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
+                    dest.x,
+                    dest.y,
+                    0, 0,
+                    powerLineWidth, powerLineHeight, 1.0f, 1.0f, degrees);
+    }
+
+    private void renderPowerNode(SpriteComponent spriteComponent) {
             float powerNodeWidth = 30.0f / World.PIXELS_PER_METER;
             float powerNodeHeight = 30.0f / World.PIXELS_PER_METER;
             float powerNodeOffsetX = 30.0f / World.PIXELS_PER_METER;
@@ -137,25 +163,5 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                     spriteComponent.sprite.getX(),
                     spriteComponent.sprite.getY(),
                     powerNodeWidth, powerNodeHeight);
-
-            Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            m_world.m_camera.unproject(unprojectedMouse);
-
-            Vector2 diff = new Vector2(unprojectedMouse.x - spriteComponent.sprite.getX(), unprojectedMouse.y - spriteComponent.sprite.getY());
-
-            float rads = MathUtils.atan2(diff.y, diff.x);
-            float degrees = rads * MathUtils.radiansToDegrees - 90;
-
-            Vector2 spritePos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
-
-            float powerLineWidth = 3.0f / World.PIXELS_PER_METER;
-            float powerLineHeight = Vector2.dst(unprojectedMouse.x, unprojectedMouse.y, spriteComponent.sprite.getX(),  spriteComponent.sprite.getY());
-
-            m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
-                    spriteComponent.sprite.getX(),
-                    spriteComponent.sprite.getY(),
-                    0, 0,
-                    powerLineWidth, powerLineHeight, 1.0f, 1.0f, degrees);
-        }
     }
 }
