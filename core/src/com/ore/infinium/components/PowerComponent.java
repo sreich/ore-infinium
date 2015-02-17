@@ -1,7 +1,8 @@
 package com.ore.infinium.components;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
 /**
@@ -23,7 +24,8 @@ import com.badlogic.gdx.utils.Pool;
  * ***************************************************************************
  */
 public class PowerComponent extends Component implements Pool.Poolable {
-    public Sprite outputNode = new Sprite();
+    //entity connected to the output
+    public Array<Entity> outputEntities = new Array<>();
 
     public void reset() {
 

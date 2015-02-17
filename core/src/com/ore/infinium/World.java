@@ -89,6 +89,7 @@ public class World implements Disposable {
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
     private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
+    private ComponentMapper<PowerComponent> powerMapper = ComponentMapper.getFor(PowerComponent.class);
 
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
@@ -527,6 +528,9 @@ public class World implements Disposable {
         itemComponent.maxStackSize = 900;
         air.add(itemComponent);
 
+        PowerComponent power = engine.createComponent(PowerComponent.class);
+        air.add(power);
+
         SpriteComponent airSprite = engine.createComponent(SpriteComponent.class);
         airSprite.textureName = "air-generator-64x64";
 
@@ -733,6 +737,12 @@ public class World implements Disposable {
             clonedEntity.add(clonedComponent);
         }
 
+        PowerComponent powerComponent = powerMapper.get(entity);
+        if (powerComponent != null) {
+            PowerComponent clonedComponent = new PowerComponent(powerComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
         return clonedEntity;
     }
 
@@ -760,7 +770,7 @@ public class World implements Disposable {
         }
 
         if (m_powerOverlaySystem.overlayVisible) {
-            m_powerOverlaySystem.leftMouseReleased();
+            m_powerOverlaySystem.leftMouseClicked();
             return true;
         } else {
             handleLeftMousePrimaryAttack();

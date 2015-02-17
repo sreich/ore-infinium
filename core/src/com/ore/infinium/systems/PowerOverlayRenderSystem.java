@@ -5,6 +5,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ore.infinium.World;
@@ -36,13 +37,16 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     private SpriteBatch m_batch;
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
     private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
     private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
+    private ComponentMapper<PowerComponent> powerMapper = ComponentMapper.getFor(PowerComponent.class);
+
+//    public Sprite outputNode = new Sprite();
+
     private boolean m_leftClicked;
     private boolean m_dragInProgress;
+    private Entity dragSourceEntity;
 
     public PowerOverlayRenderSystem(World world) {
         m_world = world;
@@ -56,18 +60,52 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         m_batch.dispose();
     }
 
+    //todo sufficient until we get a spatial hash or whatever
+    private Entity entityAtPosition(Vector2 pos) {
+
+        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, ItemComponent.class).get());
+        SpriteComponent spriteComponent;
+        for (int i = 0; i < entities.size(); ++i) {
+            spriteComponent = spriteMapper.get(entities.get(i));
+
+            Rectangle rectangle = spriteComponent.sprite.getBoundingRectangle();
+            if (rectangle.contains(pos)) {
+                return entities.get(i);
+            }
+        }
+
+        return null;
+    }
+
     public void leftMouseClicked() {
         m_leftClicked = true;
+
+        //fixme prolly make a threshold for dragging
+        m_dragInProgress = true;
+
+        Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+        m_world.m_camera.unproject(unprojectedMouse);
+
+        //find the entity we're dragging on
+        dragSourceEntity = entityAtPosition(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
     }
 
     public void leftMouseReleased() {
         m_leftClicked = false;
 
         if (m_dragInProgress) {
+            //check if drag can be connected
 
+            if (dragSourceEntity != null) {
+                Gdx.app.log("", "drag source release, adding");
+                Entity dropEntity = entityAtPosition(new Vector2(Gdx.input.getX(), Gdx.input.getY()));
+
+                PowerComponent powerComponent = powerMapper.get(dragSourceEntity);
+                powerComponent.outputEntities.add(dropEntity);
+            }
+
+            m_dragInProgress = false;
         }
-
-        m_dragInProgress = false;
     }
 
     public void update(float delta) {
@@ -111,9 +149,13 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
     private void renderEntities(float delta) {
         //todo need to exclude blocks?
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class, ItemComponent.class).get());
+        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PowerComponent.class).get());
 
         ItemComponent itemComponent;
+        SpriteComponent spriteComponent;
+        TagComponent tagComponent;
+        PowerComponent powerComponent;
+
         for (int i = 0; i < entities.size(); ++i) {
             itemComponent = itemMapper.get(entities.get(i));
             assert itemComponent != null;
@@ -122,18 +164,34 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                 continue;
             }
 
-            TagComponent tagComponent = tagMapper.get(entities.get(i));
+            tagComponent = tagMapper.get(entities.get(i));
             if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
                 continue;
             }
 
-            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+            spriteComponent = spriteMapper.get(entities.get(i));
 
+            //for each power node that goes outward from this sprite, draw connection lines
             renderPowerNode(spriteComponent);
 
             Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             m_world.m_camera.unproject(unprojectedMouse);
-            renderWire(new Vector2(unprojectedMouse.x, unprojectedMouse.y), new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()));
+            if (m_dragInProgress) {
+                //draw powernode to mouse position
+                renderWire(new Vector2(unprojectedMouse.x, unprojectedMouse.y),
+                        new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()));
+            }
+
+            powerComponent = powerMapper.get(entities.get(i));
+
+            SpriteComponent spriteOutputNodeComponent;
+            for (int j = 0; j < powerComponent.outputEntities.size; ++j) {
+                powerComponent = powerMapper.get(entities.get(i));
+                spriteOutputNodeComponent = spriteMapper.get(powerComponent.outputEntities.get(j));
+
+                renderWire(new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()),
+                        new Vector2(spriteOutputNodeComponent.sprite.getX(),  spriteOutputNodeComponent.sprite.getY()));
+            }
         }
     }
 
