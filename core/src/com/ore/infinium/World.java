@@ -51,14 +51,18 @@ public class World implements Disposable {
     public static final int WORLD_ROWCOUNT = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
     public static final HashMap<Block.BlockType, BlockStruct> blockTypes = new HashMap<>();
+
     static {
         blockTypes.put(Block.BlockType.NullBlockType, new BlockStruct("", false));
         blockTypes.put(Block.BlockType.DirtBlockType, new BlockStruct("dirt", true));
         blockTypes.put(Block.BlockType.StoneBlockType, new BlockStruct("stone", true));
     }
+
     private static final int zoomInterval = 50; //ms
     private static OreTimer m_zoomTimer = new OreTimer();
+
     public Block[] blocks;
+
     public PooledEngine engine;
     public Array<Entity> m_players = new Array<>();
     public Entity m_mainPlayer;
@@ -66,10 +70,12 @@ public class World implements Disposable {
     public AssetManager assetManager;
     public OreClient m_client;
     public OrthographicCamera m_camera;
+
     //fixme remove in favor of the render system
     public TextureAtlas m_atlas;
     protected TileRenderer m_tileRenderer;
     PowerOverlayRenderSystem m_powerOverlaySystem;
+
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
     private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
     private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
@@ -83,6 +89,7 @@ public class World implements Disposable {
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
     private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
+
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
     private Entity m_itemPlacementGhost;

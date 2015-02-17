@@ -3,7 +3,6 @@ package com.ore.infinium.systems;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -100,7 +99,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         float fontY = 150;
         float fontX = m_world.m_client.viewport.getRightGutterX() - 180;
 
-        m_world.m_client.bitmapFont_8pt.draw(m_batch, "Energy overlay visible (E)", fontX, fontY);
+        m_world.m_client.bitmapFont_8pt.draw(m_batch, "Energy overlay visible (press E)", fontX, fontY);
         fontY -= 15;
 
         m_world.m_client.bitmapFont_8pt.draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
@@ -129,12 +128,8 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
-  // float dist = (float)Math.sqrt(dx*dx + dy*dy);
- //   batch.draw(rect, x1, y1, dist, thickness, 0, 0, rad);
-
             float powerNodeWidth = 30.0f / World.PIXELS_PER_METER;
             float powerNodeHeight = 30.0f / World.PIXELS_PER_METER;
-            Sprite sprite;
             float powerNodeOffsetX = 30.0f / World.PIXELS_PER_METER;
             float powerNodeOffsetY = 30.0f / World.PIXELS_PER_METER;
 
@@ -143,33 +138,24 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                     spriteComponent.sprite.getY(),
                     powerNodeWidth, powerNodeHeight);
 
-            Vector3 projectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            Vector3 unprojectedMouse = projectedMouse;m_world.m_camera.unproject(projectedMouse);
+            Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            m_world.m_camera.unproject(unprojectedMouse);
 
             Vector2 diff = new Vector2(unprojectedMouse.x - spriteComponent.sprite.getX(), unprojectedMouse.y - spriteComponent.sprite.getY());
-            float dist = Vector2.dot(diff.x, diff.y, diff.x, diff.y);
-            float rads = (float)Math.atan2(diff.y, diff.x);
+
+            float rads = MathUtils.atan2(diff.y, diff.x);
             float degrees = rads * MathUtils.radiansToDegrees - 90;
 
             Vector2 spritePos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
 
-            float angle = spritePos.angle(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
-
-            float powerLineWidth = 20.0f / World.PIXELS_PER_METER;
-            float powerLineHeight = 300.0f / World.PIXELS_PER_METER;
+            float powerLineWidth = 3.0f / World.PIXELS_PER_METER;
+            float powerLineHeight = Vector2.dst(unprojectedMouse.x, unprojectedMouse.y, spriteComponent.sprite.getX(),  spriteComponent.sprite.getY());
 
             m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
                     spriteComponent.sprite.getX(),
                     spriteComponent.sprite.getY(),
                     0, 0,
                     powerLineWidth, powerLineHeight, 1.0f, 1.0f, degrees);
-            /*
-            m_batch.draw(m_world.m_atlas.findRegion("power-node-line"),
-                    spriteComponent.sprite.getX(),
-                    spriteComponent.sprite.getY(),
-                    0, 0,
-                    powerLineWidth, powerLineHeight, 1.0f, 1.0f, angle);
-            */
         }
     }
 }

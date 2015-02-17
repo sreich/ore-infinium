@@ -40,10 +40,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
     public final static int ORE_VERSION_REVISION = 1;
+
     static final String debugString1 = "F12 - gui debug";
     static final String debugString2 = "F11 - gui render toggle";
     static final String debugString3 = "F10 - tile render toggle";
     static final String debugString4 = "F9 - client/server sync debug render toggle";
+
     static OreTimer frameTimer = new OreTimer();
     static String frameTimeString = "";
     static String fpsString = "";
@@ -57,6 +59,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public StretchViewport viewport;
     protected World m_world;
     FreeTypeFontGenerator m_fontGenerator;
+
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
     private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
     private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
@@ -65,7 +68,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
     private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
     private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
+
     private SpriteBatch m_debugServerBatch;
+
     private boolean m_guiDebug;
     private boolean m_renderGui = true;
     private boolean m_renderDebugServer = false;
@@ -284,6 +289,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_font.draw(m_batch, debugString4, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, textureSwitchesString, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, shaderSwitchesString, 0, textY);
+        textY -= 15;
+        m_font.draw(m_batch, drawCallsString, 0, textY);
         textY -= 15;
 
         if (m_world != null) {
