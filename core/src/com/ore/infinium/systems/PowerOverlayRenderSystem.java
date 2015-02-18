@@ -165,6 +165,8 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         float fontY = 150;
         float fontX = m_world.m_client.viewport.getRightGutterX() - 220;
 
+        m_batch.draw(m_world.m_atlas.findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100, fontY - 300);
+
         m_world.m_client.bitmapFont_8pt.draw(m_batch, "Energy overlay visible (press E)", fontX, fontY);
         fontY -= 15;
 
