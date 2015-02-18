@@ -48,6 +48,9 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     private boolean m_dragInProgress;
     private Entity dragSourceEntity;
 
+    private static final float powerNodeOffsetRatioX = 0.1f;
+    private static final float powerNodeOffsetRatioY = 0.1f;
+
     public PowerOverlayRenderSystem(World world) {
         m_world = world;
     }
@@ -181,6 +184,18 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         TagComponent tagComponent;
         PowerComponent powerComponent;
 
+        if (m_dragInProgress && dragSourceEntity != null) {
+            SpriteComponent dragSpriteComponent = spriteMapper.get(dragSourceEntity);
+
+            Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            m_world.m_camera.unproject(unprojectedMouse);
+
+            //in the middle of a drag, draw powernode from source, to mouse position
+            renderWire(new Vector2(unprojectedMouse.x, unprojectedMouse.y),
+                    new Vector2(dragSpriteComponent.sprite.getX() + dragSpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
+                            dragSpriteComponent.sprite.getY() + dragSpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY));
+        }
+
         for (int i = 0; i < entities.size(); ++i) {
             itemComponent = itemMapper.get(entities.get(i));
             assert itemComponent != null;
@@ -199,15 +214,6 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             //for each power node that goes outward from this sprite, draw connection lines
             renderPowerNode(spriteComponent);
 
-            Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-            m_world.m_camera.unproject(unprojectedMouse);
-
-            if (m_dragInProgress && entities.get(i) == dragSourceEntity) {
-                //in the middle of a drag, draw powernode from source, to mouse position
-                renderWire(new Vector2(unprojectedMouse.x, unprojectedMouse.y),
-                        new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()));
-            }
-
             powerComponent = powerMapper.get(entities.get(i));
 
             SpriteComponent spriteOutputNodeComponent;
@@ -216,8 +222,10 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                 powerComponent = powerMapper.get(entities.get(i));
                 spriteOutputNodeComponent = spriteMapper.get(powerComponent.outputEntities.get(j));
 
-                renderWire(new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()),
-                        new Vector2(spriteOutputNodeComponent.sprite.getX(), spriteOutputNodeComponent.sprite.getY()));
+                renderWire(new Vector2(spriteComponent.sprite.getX() + spriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
+                                spriteComponent.sprite.getY() + spriteComponent.sprite.getHeight() * powerNodeOffsetRatioY),
+                        new Vector2(spriteOutputNodeComponent.sprite.getX() + spriteOutputNodeComponent.sprite.getWidth() * powerNodeOffsetRatioX,
+                                spriteOutputNodeComponent.sprite.getY() + spriteOutputNodeComponent.sprite.getHeight() * powerNodeOffsetRatioY));
             }
         }
     }
@@ -239,14 +247,12 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     }
 
     private void renderPowerNode(SpriteComponent spriteComponent) {
-        float powerNodeWidth = 30.0f / World.PIXELS_PER_METER;
-        float powerNodeHeight = 30.0f / World.PIXELS_PER_METER;
-        float powerNodeOffsetX = 30.0f / World.PIXELS_PER_METER;
-        float powerNodeOffsetY = 30.0f / World.PIXELS_PER_METER;
+        float powerNodeWidth = 20.0f / World.PIXELS_PER_METER;
+        float powerNodeHeight = 20.0f / World.PIXELS_PER_METER;
 
         m_batch.draw(m_world.m_atlas.findRegion("power-node-circle"),
-                spriteComponent.sprite.getX(),
-                spriteComponent.sprite.getY(),
+                spriteComponent.sprite.getX() + (spriteComponent.sprite.getWidth() * powerNodeOffsetRatioX) - (powerNodeWidth * 0.5f),
+                spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * powerNodeOffsetRatioY) - (powerNodeHeight * 0.5f),
                 powerNodeWidth, powerNodeHeight);
     }
 }
