@@ -202,7 +202,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             m_world.m_camera.unproject(unprojectedMouse);
 
-            if (m_dragInProgress) {
+            if (m_dragInProgress && entities.get(i) == dragSourceEntity) {
                 //in the middle of a drag, draw powernode from source, to mouse position
                 renderWire(new Vector2(unprojectedMouse.x, unprojectedMouse.y),
                         new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()));
