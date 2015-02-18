@@ -124,9 +124,16 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                     return;
                 }
 
-                PowerComponent powerComponent = powerMapper.get(dragSourceEntity);
-                powerComponent.outputEntities.add(dropEntity);
-                Gdx.app.log("", "drag source release, adding, count" + powerComponent.outputEntities.size);
+                PowerComponent sourcePowerComponent = powerMapper.get(dragSourceEntity);
+                PowerComponent dropPowerComponent = powerMapper.get(dropEntity);
+
+                if (!sourcePowerComponent.outputEntities.contains(dropEntity, true) &&
+                        !dropPowerComponent.outputEntities.contains(dragSourceEntity, true)) {
+
+                    sourcePowerComponent.outputEntities.add(dropEntity);
+
+                    Gdx.app.log("", "drag source release, adding, count" + sourcePowerComponent.outputEntities.size);
+                }
 
                 dragSourceEntity = null;
             }
@@ -144,15 +151,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.begin();
 
-        if (m_leftClicked) {
-            m_batch.setColor(1, 0, 0, 0.5f);
-        }
-
         renderEntities(delta);
-
-        if (!m_leftClicked) {
-            m_batch.setColor(1, 1, 1, 1);
-        }
 
         m_batch.end();
 
@@ -192,10 +191,13 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
             m_world.m_camera.unproject(unprojectedMouse);
 
+            m_batch.setColor(1, 1, 0, 0.5f);
+
             //in the middle of a drag, draw powernode from source, to mouse position
             renderWire(new Vector2(unprojectedMouse.x, unprojectedMouse.y),
                     new Vector2(dragSpriteComponent.sprite.getX() + dragSpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
                             dragSpriteComponent.sprite.getY() + dragSpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY));
+            m_batch.setColor(1, 1, 1, 1);
         }
 
         for (int i = 0; i < entities.size(); ++i) {
