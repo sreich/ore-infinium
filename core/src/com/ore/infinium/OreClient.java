@@ -1,9 +1,7 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntityListener;
+import com.badlogic.ashley.core.*;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -33,6 +31,8 @@ import com.ore.infinium.systems.TileRenderer;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -41,10 +41,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MINOR = 1;
     public final static int ORE_VERSION_REVISION = 1;
 
-    static final String debugString1 = "F12 - gui debug";
-    static final String debugString2 = "F11 - gui render toggle";
-    static final String debugString3 = "F10 - tile render toggle";
-    static final String debugString4 = "F9 - client/server sync debug render toggle";
+    static private ArrayList<String> debugStrings;
 
     static OreTimer frameTimer = new OreTimer();
     static String frameTimeString = "";
@@ -74,6 +71,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private boolean m_guiDebug;
     private boolean m_renderGui = true;
     private boolean m_renderDebugServer = false;
+    private boolean m_renderDebugClient = false;
+
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
     private Stage m_stage;
     private Skin m_skin;
@@ -112,6 +111,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
 //        progressBar.getStyle().knobBefore = progressBar.getStyle().knob;
 //        progressBar.getStyle().knob.setMinHeight(50);
 //        container.add(progressBar);
+
+        debugStrings = new ArrayList<>(Arrays.asList(
+                "E - power overlay, Q - drop Item",
+                "1-8 or mouse wheel, inventory selection",
+                "F12 - gui debug",
+                "F11 - gui render toggle",
+                "F10 - tile render toggle",
+                "F9 - client/server sync debug render toggle",
+                "F8 - client sprite debug render toggle"
+        ));
 
         m_dragAndDrop = new DragAndDrop();
         decimalFormat.setMaximumFractionDigits(9);
@@ -280,14 +289,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, frameTimeString, 0, textY);
         textY -= 15;
-        m_font.draw(m_batch, debugString1, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, debugString2, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, debugString3, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, debugString4, 0, textY);
-        textY -= 15;
+
+        for (String s : debugStrings) {
+            m_font.draw(m_batch, s, 0, textY);
+            textY -= 15;
+        }
+
         m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, textureSwitchesString, 0, textY);
@@ -325,6 +332,24 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             m_debugServerBatch.end();
             */
+        }
+
+        if (m_world != null && m_renderDebugClient) {
+            m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
+            m_debugServerBatch.begin();
+            m_debugServerBatch.setColor(1, 0, 0, 0.5f);
+
+            ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+
+            for (int i = 0; i < entities.size(); ++i) {
+                SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+
+                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+            }
+
+            m_debugServerBatch.end();
         }
 
         GLProfiler.reset();
@@ -388,6 +413,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
             shutdown();
+        } else if (keycode == Input.Keys.F8) {
+            m_renderDebugClient = !m_renderDebugClient;
         } else if (keycode == Input.Keys.F9) {
             m_renderDebugServer = !m_renderDebugServer;
         } else if (keycode == Input.Keys.F10) {
