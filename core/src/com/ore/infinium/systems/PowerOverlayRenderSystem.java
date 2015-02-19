@@ -13,7 +13,7 @@ import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
- * Copyright (C) 2015 by Shaun Reich <sreich@kde.org>                    *
+ * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -102,7 +102,6 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
         //find the entity we're dragging on
         dragSourceEntity = entityAtPosition(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
-        Gdx.app.log("", "drag source" + dragSourceEntity);
     }
 
     public void leftMouseReleased() {
@@ -120,7 +119,6 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                 if (dropEntity == null || dropEntity == dragSourceEntity) {
                     dragSourceEntity = null;
                     m_dragInProgress = false;
-                    Gdx.app.log("", "drag source release,  target non existent, canceling.");
                     return;
                 }
 
@@ -131,8 +129,6 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                         !dropPowerComponent.outputEntities.contains(dragSourceEntity, true)) {
 
                     sourcePowerComponent.outputEntities.add(dropEntity);
-
-                    Gdx.app.log("", "drag source release, adding, count" + sourcePowerComponent.outputEntities.size);
                 }
 
                 dragSourceEntity = null;

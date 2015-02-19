@@ -11,7 +11,7 @@ import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich@kde.org>                     *
+ * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                     *
  * *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU General Public License as            *
