@@ -177,7 +177,7 @@ public class OreServer implements Runnable {
 
         //left
         for (int y = 0; y < seaLevel; y++) {
-            m_world.blockAt(tilex - 24, tiley + y).blockType = Block.BlockType.StoneBlockType;
+            //m_world.blockAt(tilex - 24, tiley + y).blockType = Block.BlockType.StoneBlockType;
         }
 
         //right
@@ -186,7 +186,7 @@ public class OreServer implements Runnable {
         }
         //top
         for (int x = tilex - 54; x < tilex + 50; x++) {
-            m_world.blockAt(x, tiley).blockType = Block.BlockType.StoneBlockType;
+            //m_world.blockAt(x, tiley).blockType = Block.BlockType.StoneBlockType;
         }
 
         SpriteComponent playerSprite = spriteMapper.get(player);

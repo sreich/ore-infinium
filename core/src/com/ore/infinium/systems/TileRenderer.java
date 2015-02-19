@@ -4,10 +4,10 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.systems.IntervalSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.IntMap;
 import com.ore.infinium.Block;
 import com.ore.infinium.World;
 import com.ore.infinium.components.*;
@@ -32,18 +32,26 @@ import com.ore.infinium.components.*;
  */
 public class TileRenderer extends IntervalSystem {
     public static int tileCount;
-    public TextureAtlas m_atlas;
+
+    public TextureAtlas m_blockAtlas;
+    public TextureAtlas m_tilesAtlas;
+
     float elapsed;
+
     private World m_world;
     private OrthographicCamera m_camera;
+
     private SpriteBatch m_batch;
+
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
     private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
     private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
     private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
-    private Texture t;
+
+    // <byte mesh type, string texture name>
+    private IntMap<String> dirtBlockMeshes;
 
     public TileRenderer(OrthographicCamera camera, World world, float interval) {
         super(interval);
@@ -53,7 +61,30 @@ public class TileRenderer extends IntervalSystem {
         m_world = world;
         m_batch = new SpriteBatch(5000);
 
-        m_atlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
+        m_blockAtlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
+        m_tilesAtlas = new TextureAtlas(Gdx.files.internal("packed/tiles.atlas"));
+
+
+        dirtBlockMeshes = new IntMap<>(20);
+        dirtBlockMeshes.put(0, "dirt-00");
+        dirtBlockMeshes.put(1, "dirt-01");
+        dirtBlockMeshes.put(2, "dirt-02");
+        dirtBlockMeshes.put(3, "dirt-03");
+        dirtBlockMeshes.put(4, "dirt-04");
+        dirtBlockMeshes.put(5, "dirt-05");
+        dirtBlockMeshes.put(6, "dirt-06");
+        dirtBlockMeshes.put(7, "dirt-07");
+        dirtBlockMeshes.put(8, "dirt-08");
+        dirtBlockMeshes.put(9, "dirt-09");
+        dirtBlockMeshes.put(10, "dirt-10");
+        dirtBlockMeshes.put(11, "dirt-11");
+        dirtBlockMeshes.put(12, "dirt-12");
+        dirtBlockMeshes.put(13, "dirt-13");
+        dirtBlockMeshes.put(14, "dirt-14");
+        dirtBlockMeshes.put(15, "dirt-15");
+        dirtBlockMeshes.put(16, "dirt-16");
+        dirtBlockMeshes.put(17, "dirt-17");
+        dirtBlockMeshes.put(18, "dirt-18");
     }
 
     public void render(double elapsed) {
@@ -79,16 +110,10 @@ public class TileRenderer extends IntervalSystem {
         final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
         float halfScreenMetersHeight = (/*Settings::instance()->windowHeight */ 900f * 0.5f) / World.PIXELS_PER_METER;
         //       float halfScreenMetersWidth = (1600f * 0.5f) / (World.PIXELS_PER_METER);
-        //      Gdx.app.log("", "tile size" + tileSize.toString());
-        //     Gdx.app.log("", "transformedtile size" + tilesInView);
         final int startColumn = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startRow = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
         final int endColumn = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_COLUMNCOUNT);
         final int endRow = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_ROWCOUNT);
-        //Gdx.app.log("", "startcol: " + startColumn);
-        //Gdx.app.log("", "endcol: " + endColumn);
-        //Gdx.app.log("", "startrow: " + startRow);
-        //Gdx.app.log("", "endrow: " + endRow);
       /*
       if (Math.abs(startColumn) != startColumn) {
           //qCDebug(ORE_TILE_RENDERER) << "FIXME, WENT INTO NEGATIVE COLUMN!!";
@@ -116,9 +141,13 @@ public class TileRenderer extends IntervalSystem {
                     continue;
                 }
 
-                String textureName = World.blockTypes.get(block.blockType).textureName;
+                //String textureName = World.blockTypes.get(block.blockType).textureName;
+                String textureName = "";
+                if (block.blockType == Block.BlockType.DirtBlockType) {
+                    textureName = dirtBlockMeshes.get(block.meshType);
+                }
 
-                m_batch.draw(m_atlas.findRegion(textureName), tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                m_batch.draw(m_tilesAtlas.findRegion(textureName), tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
 
                 count++;
             }

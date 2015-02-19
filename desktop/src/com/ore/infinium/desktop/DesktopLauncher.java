@@ -24,7 +24,8 @@ public class DesktopLauncher {
 			settings.maxHeight = 512;
 			settings.fast = true; //hack just to speed up debugging, overrides local settings(probably??)
 			TexturePacker.process(settings, "blocks", "../assets/packed", "blocks");
-			TexturePacker.process(settings, "ui", "../assets/packed", "ui");
+            TexturePacker.process(settings, "tiles", "../assets/packed", "tiles");
+            TexturePacker.process(settings, "ui", "../assets/packed", "ui");
 			TexturePacker.process(settings, "entities", "../assets/packed", "entities");
 		}
 

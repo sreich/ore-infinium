@@ -227,6 +227,92 @@ public class World implements Disposable {
 
     private void generateWorld() {
         generateOres();
+        meshTiles();
+    }
+
+    private void meshTiles() {
+        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+                boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
+                boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
+                boolean topMerge = shouldTileMerge(x, y, x, y - 1);
+                boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
+
+                int index = x * WORLD_ROWCOUNT + y;
+
+                if (leftMerge && rightMerge && bottomMerge && topMerge) {
+                    //center tile, 0
+                    blocks[index].meshType = 0;
+                } else if (bottomMerge && !leftMerge && !rightMerge && !topMerge) {
+                    //1
+                    blocks[index].meshType = 1;
+                } else if (topMerge && bottomMerge && !leftMerge && !rightMerge) {
+                    //2
+                    blocks[index].meshType = 2;
+                } else if (rightMerge && !topMerge && !bottomMerge && !leftMerge) {
+                    //3
+                    blocks[index].meshType = 3;
+                } else if (leftMerge && rightMerge && !topMerge && !bottomMerge) {
+                    //4
+                    blocks[index].meshType = 4;
+                } else if (leftMerge && rightMerge && !topMerge && !bottomMerge) {
+                    //5
+                    blocks[index].meshType = 5;
+                } else if (leftMerge && !topMerge && !bottomMerge && !rightMerge) {
+                    //6
+                    blocks[index].meshType = 6;
+                } else if (topMerge && bottomMerge && !leftMerge && !rightMerge) {
+                    //7
+                    blocks[index].meshType = 7;
+                } else if (topMerge && !bottomMerge && !leftMerge && !rightMerge) {
+                    //8
+                    blocks[index].meshType = 8;
+                } else if (bottomMerge && rightMerge && !leftMerge && !topMerge) {
+                    //9
+                    blocks[index].meshType = 9;
+                } else if (leftMerge && rightMerge && bottomMerge && !topMerge) {
+                    //10
+                    blocks[index].meshType = 10;
+                } else if (leftMerge && bottomMerge && !topMerge && !rightMerge) {
+                    //11
+                    blocks[index].meshType = 11;
+                } else if (topMerge && bottomMerge && rightMerge && !leftMerge) {
+                    //12
+                    blocks[index].meshType = 12;
+                } else if (leftMerge && topMerge && bottomMerge && !rightMerge) {
+                    //13
+                    blocks[index].meshType = 13;
+                } else if (topMerge && rightMerge && !leftMerge && !bottomMerge) {
+                    //14
+                    blocks[index].meshType = 14;
+                } else if (leftMerge && topMerge && rightMerge && !bottomMerge) {
+                    //15
+                    blocks[index].meshType = 15;
+                } else if (leftMerge && topMerge && !rightMerge && !bottomMerge) {
+                    //16
+                    blocks[index].meshType = 16;
+                } else if (!leftMerge && !rightMerge && !topMerge && !bottomMerge) {
+                    //17
+                    blocks[index].meshType = 17;
+                }
+                //18 is a null tile surrounded by dirts
+
+            }
+        }
+    }
+
+    private boolean shouldTileMerge(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
+        boolean isMatched = false;
+        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_ROWCOUNT + sourceTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_ROWCOUNT + nearbyTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+
+        if (blocks[srcIndex].blockType == blocks[nearbyIndex].blockType) {
+            //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
+            //some may be exceptions??
+            isMatched = true;
+        }
+
+        return isMatched;
     }
 
     private void initializeWorld() {
@@ -235,7 +321,7 @@ public class World implements Disposable {
 
                 int index = x * WORLD_ROWCOUNT + y;
                 blocks[index] = new Block();
-                blocks[index].blockType = Block.BlockType.StoneBlockType;
+                blocks[index].blockType = Block.BlockType.NullBlockType;
             }
         }
     }
@@ -264,7 +350,8 @@ public class World implements Disposable {
                         blocks[index].blockType = Block.BlockType.DirtBlockType;
                         break;
                     case 2:
-                        blocks[index].blockType = Block.BlockType.StoneBlockType;
+                        //hack, simulate only dirt for now. blocks[index].blockType = Block.BlockType.StoneBlockType;
+                        blocks[index].blockType = Block.BlockType.DirtBlockType;
                         break;
                 }
 
@@ -651,6 +738,9 @@ public class World implements Disposable {
                 ++sourceIndex;
             }
         }
+
+        //fixme obviously don't do the whole world..
+        meshTiles();
     }
 
     /**

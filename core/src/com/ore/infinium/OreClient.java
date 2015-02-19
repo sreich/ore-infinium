@@ -691,7 +691,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 if (blockMapper.get(e) == null) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
-                    textureRegion = m_world.m_tileRenderer.m_atlas.findRegion(spriteComponent.textureName);
+                    textureRegion = m_world.m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
                 }
 
                 spriteComponent.sprite.setRegion(textureRegion);
@@ -725,7 +725,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 if (blockMapper.get(e) == null) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
-                    textureRegion = m_world.m_tileRenderer.m_atlas.findRegion(spriteComponent.textureName);
+                    textureRegion = m_world.m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
                 }
 
                 spriteComponent.sprite.setRegion(textureRegion);

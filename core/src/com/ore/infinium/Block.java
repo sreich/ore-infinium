@@ -33,7 +33,8 @@ public class Block {
      * Bottom line: use meshType ONLY for rendering, use primitiveType for everything else. meshType is only a displaying
      * niche of a detail, not a gameplay mechanic
      */
-    byte meshType;
+    public byte meshType;
+
     /**
      * The type of tile this is, 0-255 is valid and can be compared with the world's definition of tile types
      * (an enum)
@@ -44,7 +45,7 @@ public class Block {
     /**
      * 1:1 correspondence to the primitive type. just that it's rendered in the background with a darker color.
      */
-    byte wallType;
+    public byte wallType;
 
     /*
     struct BlockStruct {
@@ -84,7 +85,7 @@ public class Block {
      * @sa WallType
      */
     /// NOTE: block ownership is stored in the Player class, which just stores a list of indices of tiles which the player 'owns'.
-    byte flags;
+    public byte flags;
 
     /**
      * Determines the health and texture of the Block.
