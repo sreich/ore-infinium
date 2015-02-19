@@ -127,6 +127,7 @@ public class TileRenderer extends IntervalSystem {
         TextureAtlas.AtlasRegion region;
         m_batch.begin();
         int count = 0;
+        String textureName = "";
         for (int currentColumn = startColumn; currentColumn < endColumn; ++currentColumn) {
             for (int currentRow = startRow; currentRow < endRow; ++currentRow) {
                 int blockIndex = currentColumn * World.WORLD_ROWCOUNT + currentRow;
@@ -142,7 +143,6 @@ public class TileRenderer extends IntervalSystem {
                 }
 
                 //String textureName = World.blockTypes.get(block.blockType).textureName;
-                String textureName = "";
                 if (block.blockType == Block.BlockType.DirtBlockType) {
                     textureName = dirtBlockMeshes.get(block.meshType);
                 }

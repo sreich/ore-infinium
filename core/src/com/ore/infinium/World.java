@@ -375,11 +375,13 @@ public class World implements Disposable {
     }
 
     public Block blockAtPosition(Vector2 pos) {
-        return blockAt((int) (pos.x / BLOCK_SIZE), (int) (pos.y / BLOCK_SIZE));
+        int x = MathUtils.clamp((int) (pos.x / BLOCK_SIZE), 0, WORLD_COLUMNCOUNT);
+        int y = MathUtils.clamp((int) (pos.y / BLOCK_SIZE), 0, WORLD_ROWCOUNT);
+        return blockAt(x, y);
     }
 
     public Block blockAt(int x, int y) {
-        assert x >= 0 && y >= 0 && x <= WORLD_COLUMNCOUNT && y <= WORLD_ROWCOUNT;
+        assert x >= 0 && y >= 0 && x <= WORLD_COLUMNCOUNT && y <= WORLD_ROWCOUNT : "block index out of range";
 
         return blocks[x * WORLD_ROWCOUNT + y];
     }
@@ -562,7 +564,8 @@ public class World implements Disposable {
     }
 
     Vector2 mousePositionWorldCoords() {
-        Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
+        //libgdx can and probably will return negative mouse coords..
+        Vector3 mouse = new Vector3(Math.max(Gdx.input.getX(), 0), Math.max(Gdx.input.getY(), 0), 0f);
         Vector3 finalMouse = m_camera.unproject(mouse);
 
         return new Vector2(finalMouse.x, finalMouse.y);
