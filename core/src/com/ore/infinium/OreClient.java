@@ -305,6 +305,20 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
 
         if (m_world != null) {
+            Vector2 mousePos = m_world.mousePositionWorldCoords();
+            Block block = m_world.blockAtPosition(mousePos);
+
+            int x = (int) (mousePos.x / World.BLOCK_SIZE);
+            int y = (int) (mousePos.y / World.BLOCK_SIZE);
+
+            String s = String.format("tile(%d,%d), block type: %s, mesh: %s, texture: %s",
+                    x, y, block.blockType, block.meshType,
+                    m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType));
+            m_font.draw(m_batch, s, 0, textY);
+            textY -= 15;
+        }
+
+        if (m_world != null) {
             m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
 
             if (m_server != null) {

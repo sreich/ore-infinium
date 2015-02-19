@@ -237,7 +237,7 @@ public class World implements Disposable {
                 boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
                 boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
-
+//      return blocks[x * WORLD_ROWCOUNT + y];
                 int index = x * WORLD_ROWCOUNT + y;
 
                 if (leftMerge && rightMerge && bottomMerge && topMerge) {
@@ -561,7 +561,7 @@ public class World implements Disposable {
         spriteComponent.sprite.setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y);
     }
 
-    private Vector2 mousePositionWorldCoords() {
+    Vector2 mousePositionWorldCoords() {
         Vector3 mouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f);
         Vector3 finalMouse = m_camera.unproject(mouse);
 

@@ -51,7 +51,7 @@ public class TileRenderer extends IntervalSystem {
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
 
     // <byte mesh type, string texture name>
-    private IntMap<String> dirtBlockMeshes;
+    public IntMap<String> dirtBlockMeshes;
 
     public TileRenderer(OrthographicCamera camera, World world, float interval) {
         super(interval);
