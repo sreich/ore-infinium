@@ -233,12 +233,17 @@ public class World implements Disposable {
     private void meshTiles() {
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+                int index = x * WORLD_ROWCOUNT + y;
+
+                if (blocks[index].blockType == Block.BlockType.NullBlockType) {
+                    continue;
+                }
+
                 boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
                 boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
                 boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
 //      return blocks[x * WORLD_ROWCOUNT + y];
-                int index = x * WORLD_ROWCOUNT + y;
 
                 if (leftMerge && rightMerge && bottomMerge && topMerge) {
                     //center tile, 0

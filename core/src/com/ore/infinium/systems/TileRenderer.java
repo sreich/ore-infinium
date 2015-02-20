@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntMap;
 import com.ore.infinium.Block;
@@ -63,6 +64,9 @@ public class TileRenderer extends IntervalSystem {
 
         m_blockAtlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
         m_tilesAtlas = new TextureAtlas(Gdx.files.internal("packed/tiles.atlas"));
+        for (TextureRegion region : m_tilesAtlas.getRegions()) {
+            region.flip(false, true);
+        }
 
 
         dirtBlockMeshes = new IntMap<>(20);
@@ -92,18 +96,20 @@ public class TileRenderer extends IntervalSystem {
             return;
         }
 
+        if (!m_world.m_client.m_renderTiles) {
+            return;
+        }
+
         tileCount = 0;
 
 
         m_batch.setProjectionMatrix(m_camera.combined);
-        //auto positionComponent = m_mainPlayer->component<PositionComponent>();
-
         SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayer);
 
         Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0); //new Vector3(100, 200, 0);//positionComponent->position();
         int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
         int tilesBeforeY = (int) (playerPosition.y / World.BLOCK_SIZE);
-        //     m_camera.position.set(0, 0, 0);
+
         // determine what the size of the tiles are but convert that to our zoom level
         final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
         tileSize.mul(m_camera.view);
@@ -128,15 +134,13 @@ public class TileRenderer extends IntervalSystem {
         m_batch.begin();
         int count = 0;
         String textureName = "";
-        for (int currentColumn = startColumn; currentColumn < endColumn; ++currentColumn) {
-            for (int currentRow = startRow; currentRow < endRow; ++currentRow) {
-                int blockIndex = currentColumn * World.WORLD_ROWCOUNT + currentRow;
-                assert (blockIndex >= 0);
-                assert (blockIndex < World.WORLD_ROWCOUNT * World.WORLD_COLUMNCOUNT);
-                Block block = m_world.blockAt(currentColumn, currentRow);
+        for (int x = startColumn; x < endColumn; ++x) {
+            for (int y = startRow; y < endRow; ++y) {
+                int blockIndex = x * World.WORLD_ROWCOUNT + y;
+                Block block = m_world.blockAt(x, y);
 
-                float tileX = World.BLOCK_SIZE * currentColumn;
-                float tileY = World.BLOCK_SIZE * currentRow;
+                float tileX = World.BLOCK_SIZE * x;
+                float tileY = World.BLOCK_SIZE * y;
 
                 if (block.blockType == Block.BlockType.NullBlockType) {
                     continue;
@@ -149,14 +153,15 @@ public class TileRenderer extends IntervalSystem {
                     assert false;
                 }
 
-                m_batch.draw(m_tilesAtlas.findRegion(textureName), tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                region = m_tilesAtlas.findRegion(textureName);
+
+                m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
 
                 count++;
             }
         }
 
         tileCount = count;
-        //Gdx.app.log("", "drew tiles: " + count);
         m_batch.end();
     }
 
