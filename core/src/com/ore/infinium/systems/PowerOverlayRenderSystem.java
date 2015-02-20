@@ -31,7 +31,7 @@ import com.ore.infinium.components.*;
  */
 public class PowerOverlayRenderSystem extends EntitySystem {
     public static int spriteCount;
-    public boolean overlayVisible = true;
+    public boolean overlayVisible = false;
     //   public TextureAtlas m_atlas;
     private World m_world;
     private SpriteBatch m_batch;
