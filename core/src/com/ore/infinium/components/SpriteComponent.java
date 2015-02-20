@@ -31,6 +31,7 @@ public class SpriteComponent extends Component implements Pool.Poolable {
     public String textureName;
 
     public boolean placementValid;
+    public boolean visible = true;
 
     public void reset() {
         // eh?, may have to set everything like alpha etc back to normal..

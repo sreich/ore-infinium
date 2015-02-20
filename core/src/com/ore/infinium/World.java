@@ -93,8 +93,7 @@ public class World implements Disposable {
 
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
-    private Entity m_itemPlacementGhost;
-
+    Entity m_itemPlacementGhost;
 
     private com.artemis.World artemisWorld;
 

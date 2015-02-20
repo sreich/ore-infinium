@@ -538,6 +538,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         } else if (keycode == Input.Keys.E) {
             //power overlay
             m_world.m_powerOverlaySystem.overlayVisible = !m_world.m_powerOverlaySystem.overlayVisible;
+            if (m_world.m_itemPlacementGhost != null) {
+                spriteMapper.get(m_world.m_itemPlacementGhost).visible = !m_world.m_powerOverlaySystem.overlayVisible;
+            }
         } else if (keycode == Input.Keys.NUM_1) {
             m_hotbarInventory.selectSlot((byte) 0);
         } else if (keycode == Input.Keys.NUM_2) {

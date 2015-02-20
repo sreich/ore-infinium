@@ -99,14 +99,14 @@ public class SpriteRenderSystem extends EntitySystem {
 
             spriteComponent = spriteMapper.get(entities.get(i));
 
+            if (!spriteComponent.visible) {
+                continue;
+            }
+
             boolean placementGhost = false;
 
             tagComponent = tagMapper.get(entities.get(i));
             if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
-                if (m_world.engine.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
-                    //we're in power overlay, do not render placement ghost
-                    continue;
-                }
 
                 placementGhost = true;
 
