@@ -145,6 +145,8 @@ public class TileRenderer extends IntervalSystem {
                 //String textureName = World.blockTypes.get(block.blockType).textureName;
                 if (block.blockType == Block.BlockType.DirtBlockType) {
                     textureName = dirtBlockMeshes.get(block.meshType);
+                } else {
+                    assert false;
                 }
 
                 m_batch.draw(m_tilesAtlas.findRegion(textureName), tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);

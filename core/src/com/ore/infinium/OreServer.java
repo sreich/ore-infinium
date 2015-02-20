@@ -254,7 +254,7 @@ public class OreServer implements Runnable {
         playerComponent.hotbarInventory.setSlot((byte) 0, tool);
 
         Entity block = m_world.engine.createEntity();
-        m_world.createBlockItem(block);
+        m_world.createBlockItem(block, Block.BlockType.DirtBlockType);
 
         ItemComponent blockItemComponent = itemMapper.get(block);
         blockItemComponent.inventoryIndex = 1;

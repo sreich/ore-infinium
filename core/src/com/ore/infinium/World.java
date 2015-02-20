@@ -524,7 +524,7 @@ public class World implements Disposable {
         if (m_mainPlayer == null) {
             return;
         }
-
+        meshTiles();
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
@@ -592,11 +592,11 @@ public class World implements Disposable {
         return WORLD_SEA_LEVEL;
     }
 
-    public void createBlockItem(Entity block) {
+    public void createBlockItem(Entity block, Block.BlockType blockType) {
         block.add(engine.createComponent(VelocityComponent.class));
 
         BlockComponent blockComponent = engine.createComponent(BlockComponent.class);
-        blockComponent.blockType = Block.BlockType.StoneBlockType;
+        blockComponent.blockType = blockType;
         block.add(blockComponent);
 
         SpriteComponent blockSprite = engine.createComponent(SpriteComponent.class);
