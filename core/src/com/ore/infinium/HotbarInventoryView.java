@@ -2,11 +2,10 @@ package com.ore.infinium;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -53,10 +52,14 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     //the main player inventory, for drag and drop
     private Inventory m_inventory;
 
+    private Label m_tooltip;
+    private Stage m_stage;
+
     public HotbarInventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory, DragAndDrop dragAndDrop, OreClient client) {
         m_skin = skin;
         m_inventory = inventory;
         m_client = client;
+        m_stage = stage;
 
         m_hotbarInventory = hotbarInventory;
         //attach to the inventory model
@@ -87,6 +90,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             element.table = slotTable;
             slotTable.setTouchable(Touchable.enabled);
             slotTable.addListener(new SlotClickListener(this, i));
+            slotTable.addListener(new SlotInputListener(this, i));
 
             slotTable.add(slotImage);
             slotTable.background("default-pane");
@@ -105,6 +109,9 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
             dragAndDrop.addTarget(new HotbarDragTarget(slotTable, i, this));
         }
+
+        m_tooltip = new Label(null, m_skin);
+        stage.addActor(m_tooltip);
     }
 
     private void deselectPreviousSlot() {
@@ -285,6 +292,41 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             inventory.m_hotbarInventory.selectSlot(index);
         }
 
+    }
+
+    private static class SlotInputListener extends InputListener {
+        private byte index;
+        private HotbarInventoryView inventory;
+
+        SlotInputListener(HotbarInventoryView inventory, byte index) {
+            this.index = index;
+            this.inventory = inventory;
+        }
+
+        @Override
+        public boolean mouseMoved(InputEvent event, float x, float y) {
+            Entity item = inventory.m_hotbarInventory.item(index);
+            if (item != null) {
+                inventory.m_tooltip.setVisible(true);
+
+                inventory.m_tooltip.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY() - 50);
+
+                //fixme, obviously texture name is not a valid tooltip text. we need a real name, but should it be in sprite or item? everything should probably have a canonical name, no?
+                ItemComponent itemComponent = inventory.itemMapper.get(item);
+                SpriteComponent spriteComponent = inventory.spriteMapper.get(item);
+                inventory.m_tooltip.setText(spriteComponent.textureName);
+            } else {
+                inventory.m_tooltip.setVisible(false);
+            }
+
+            return super.mouseMoved(event, x, y);
+        }
+
+        @Override
+        public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+
+            super.exit(event, x, y, pointer, toActor);
+        }
     }
 
     private static class SlotClickListener extends ClickListener {
