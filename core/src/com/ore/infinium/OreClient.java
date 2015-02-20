@@ -538,7 +538,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         } else if (keycode == Input.Keys.E) {
             //power overlay
             m_world.m_powerOverlaySystem.overlayVisible = !m_world.m_powerOverlaySystem.overlayVisible;
-            if (m_world.m_itemPlacementGhost != null) {
+            if (m_world.m_itemPlacementGhost != null && m_world.m_itemPlacementGhost.getId() > 0) {
                 spriteMapper.get(m_world.m_itemPlacementGhost).visible = !m_world.m_powerOverlaySystem.overlayVisible;
             }
         } else if (keycode == Input.Keys.NUM_1) {
@@ -912,7 +912,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             Entity itemCopy = playerComponent.equippedPrimaryItem();
             playerComponent.equippedItemAnimator = itemCopy;
 
-            m_world.clientInventoryItemSelected();
+            m_world.clientHotbarInventoryItemSelected();
         }
     }
 

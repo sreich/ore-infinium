@@ -144,17 +144,23 @@ public class World implements Disposable {
         }
     }
 
-    protected void clientInventoryItemSelected() {
+    protected void clientHotbarInventoryItemSelected() {
         assert !isServer();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
         Entity entity = playerComponent.equippedPrimaryItem();
+
+        if (m_itemPlacementGhost != null) {
+            engine.removeEntity(m_itemPlacementGhost);
+        }
+
         if (entity == null) {
             return;
         }
 
-        if (m_itemPlacementGhost != null) {
-            engine.removeEntity(m_itemPlacementGhost);
+        //don't show the placement for block
+        if (blockMapper.get(entity) != null) {
+            return;
         }
 
         //this item is placeable, show a ghost of it so we can see where we're going to place it
@@ -577,7 +583,7 @@ public class World implements Disposable {
     }
 
     private void updateItemPlacementGhost() {
-        if (m_itemPlacementGhost == null) {
+        if (m_itemPlacementGhost == null || m_itemPlacementGhost.getId() == 0) {
             return;
         }
 
