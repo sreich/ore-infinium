@@ -2,9 +2,7 @@ package com.ore.infinium;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -40,7 +38,6 @@ import com.ore.infinium.components.SpriteComponent;
  * ***************************************************************************
  */
 public class HotbarInventoryView implements Inventory.SlotListener {
-    TextureAtlas m_blockAtlas;
     private Skin m_skin;
     private Table container;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxHotbarSlots];
@@ -71,9 +68,6 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         container.padLeft(10).padTop(10);
 
         container.defaults().space(4);
-
-        //HACK tmp, use assetmanager
-        m_blockAtlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
 
         stage.addActor(container);
 
@@ -136,7 +130,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         SpriteComponent spriteComponent = spriteMapper.get(item);
         if (blockMapper.get(item) != null) {
             //hack
-            region = m_blockAtlas.findRegion(spriteComponent.textureName);
+            region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion(spriteComponent.textureName.concat("-00"));
         } else {
             region = m_client.m_world.m_atlas.findRegion(spriteComponent.textureName);
         }

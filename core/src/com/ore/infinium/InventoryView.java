@@ -2,9 +2,7 @@ package com.ore.infinium;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -35,8 +33,9 @@ import com.ore.infinium.components.ItemComponent;
  */
 public class InventoryView implements Inventory.SlotListener {
     public boolean inventoryVisible;
-    TextureAtlas atlas;
+
     private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+
     private Skin m_skin;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxSlots];
 
@@ -73,11 +72,8 @@ public class InventoryView implements Inventory.SlotListener {
         //window.pack();
         m_window.add(container).fill().expand();
 
-
-        //HACK tmp, use assetmanager
-        atlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
-
-        Image dragImage = new Image(atlas.findRegion("stone"));
+        TextureRegion region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion("dirt-00");
+        Image dragImage = new Image(region);
         dragImage.setSize(32, 32);
 
         final int slotsPerRow = 5;
@@ -139,7 +135,7 @@ public class InventoryView implements Inventory.SlotListener {
     public void set(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
 
-        TextureRegion region = atlas.findRegion("stone");
+        TextureRegion region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion("dirt-00");
         Image slotImage = slot.itemImage;
         slotImage.setDrawable(new TextureRegionDrawable(region));
         slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());

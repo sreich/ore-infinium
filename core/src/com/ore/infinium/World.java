@@ -136,6 +136,8 @@ public class World implements Disposable {
             m_blockPickingCrosshair.add(spriteComponent);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
+
+            engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         }
 
         if (isServer()) {
@@ -176,7 +178,6 @@ public class World implements Disposable {
         m_mainPlayer = mainPlayer;
 //        velocityMapper.get(m_mainPlayer);
 
-        engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         engine.addSystem(new SpriteRenderSystem(this));
         engine.addSystem(m_powerOverlaySystem = new PowerOverlayRenderSystem(this));
 
