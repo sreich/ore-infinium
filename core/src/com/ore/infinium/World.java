@@ -451,6 +451,10 @@ public class World implements Disposable {
 
             updateCrosshair();
             updateItemPlacementGhost();
+
+            if (m_client.leftMouseDown) {
+                handleLeftMousePrimaryAttack();
+            }
         }
 
         if (isServer()) {
@@ -878,7 +882,6 @@ public class World implements Disposable {
             m_powerOverlaySystem.leftMouseClicked();
             return true;
         } else {
-            handleLeftMousePrimaryAttack();
             return true;
         }
 
