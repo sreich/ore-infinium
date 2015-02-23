@@ -543,10 +543,11 @@ public class World implements Disposable {
         if (m_mainPlayer == null) {
             return;
         }
+
         meshTiles();
+        computeSunlight();
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
-
 
         if (m_client.m_renderTiles) {
             //m_tileRenderer.render(elapsed);
@@ -564,6 +565,23 @@ public class World implements Disposable {
 
         updateCrosshair();
         updateItemPlacementGhost();
+    }
+
+    private void computeSunlight() {
+        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+                int index = x * WORLD_ROWCOUNT + y;
+
+                if (blocks[index].blockType == Block.BlockType.NullBlockType) {
+                    continue;
+                } else if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
+                    blocks[index].flags |= Block.BlockFlags.SunlightVisible.ordinal();
+                    ++x;
+                    y = 0;
+                }
+            }
+        }
+
     }
 
     private void updateCrosshair() {

@@ -85,7 +85,6 @@ public class Block {
      * @sa WallType
      */
     /// NOTE: block ownership is stored in the Player class, which just stores a list of indices of tiles which the player 'owns'.
-    public byte flags;
 
     /**
      * Determines the health and texture of the Block.
@@ -108,8 +107,17 @@ public class Block {
         DirtWallType
     }
 
-    public enum BlockFlags {
+    public byte flags;
+
+    public static enum BlockFlags {
+        OnFireBlockFlag((byte) (1 << 0)),
+        SunlightVisible((byte) (1 << 0)),;
+
         /// theoretically more things belong in here. except i ran out of ideas :(
         // OnFireBlockFlag(1 << 0)
+        BlockFlags(byte blah) {
+
+        }
+
     }
 }
