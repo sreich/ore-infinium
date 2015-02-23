@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
+import com.ore.infinium.OreTimer;
 
 /**
  * ***************************************************************************
@@ -38,6 +39,10 @@ public class PlayerComponent extends Component implements Pool.Poolable {
      */
     public int connectionId = -1;
     public boolean killed;
+    public OreTimer placeableItemTimer = new OreTimer();
+
+    //ms
+    public static final int placeableItemDelay = 300;
 
     //the center position of the rect of the region that was loaded last (viewport)
     public Vector2 lastLoadedRegion = new Vector2();

@@ -516,22 +516,26 @@ public class World implements Disposable {
 
         ItemComponent itemComponent = itemMapper.get(item);
         if (itemComponent != null) {
-            //place the item
-            Entity placedItem = cloneEntity(playerComponent.equippedPrimaryItem());
-            ItemComponent placedItemComponent = itemMapper.get(placedItem);
+            if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
+                playerComponent.placeableItemTimer.reset();
 
-            placedItemComponent.state = ItemComponent.State.InWorldState;
+                //place the item
+                Entity placedItem = cloneEntity(playerComponent.equippedPrimaryItem());
+                ItemComponent placedItemComponent = itemMapper.get(placedItem);
 
-            SpriteComponent spriteComponent = spriteMapper.get(placedItem);
-            Vector2 alignedPosition = new Vector2(mouse.x, mouse.y);
-            alignPositionToBlocks(alignedPosition);
+                placedItemComponent.state = ItemComponent.State.InWorldState;
 
-            spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
+                SpriteComponent spriteComponent = spriteMapper.get(placedItem);
+                Vector2 alignedPosition = new Vector2(mouse.x, mouse.y);
+                alignPositionToBlocks(alignedPosition);
 
-            engine.addEntity(placedItem);
+                spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
 
-            //hack, do more validation..
-            m_client.sendItemPlace(mouse.x, mouse.y);
+                engine.addEntity(placedItem);
+
+                //hack, do more validation..
+                m_client.sendItemPlace(mouse.x, mouse.y);
+            }
         }
     }
 
