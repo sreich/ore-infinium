@@ -245,6 +245,12 @@ public class World implements Disposable {
                     continue;
                 }
 
+                if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
+                    if (blocks[index].hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
+                        continue;
+                    }
+                }
+
                 boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
                 boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
@@ -568,21 +574,157 @@ public class World implements Disposable {
     }
 
     private void computeSunlight() {
+        /*
+            private void meshGrassTiles(int x, int y) {
+
+        int index = x * WORLD_ROWCOUNT + y;
+
+        //we know that because this is a grass tile, there is not possibly one above this tile, anywhere at all
+        //hack??
+
+        boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
+        boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
+        boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
+
+        if (leftMerge && rightMerge) {
+            blocks[index].meshType = 0;
+        } //else if (leftm)
+    }
+        */
+
+        int previousY = 0;
+
+        //if true, probably continue downward until we are surounded on both sides by blocks
+        boolean previousYHadSun = false;
+        boolean ignoreFurther = false;
+
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+            ignoreFurther = false;
+
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
                 int index = x * WORLD_ROWCOUNT + y;
 
-                if (blocks[index].blockType == Block.BlockType.NullBlockType) {
+                if (ignoreFurther) {
+                    blocks[index].unsetFlag(Block.BlockFlags.SunlightVisibleBlock);
                     continue;
-                } else if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
-                    blocks[index].flags |= Block.BlockFlags.SunlightVisible.ordinal();
-                    ++x;
-                    y = 0;
+                }
+
+                if (previousYHadSun) {
+
+                    blocks[index].unsetFlag(Block.BlockFlags.SunlightVisibleBlock);
+
+                    Block leftBlock = blockAt(MathUtils.clamp(x - 1, 0, WORLD_COLUMNCOUNT), y);
+                    Block rightBlock = blockAt(MathUtils.clamp(x + 1, 0, WORLD_COLUMNCOUNT), y);
+                    Block topBlock = blockAt(x, MathUtils.clamp(y + 1, 0, WORLD_ROWCOUNT));
+                    Block bottomBlock = blockAt(x, MathUtils.clamp(y + 1, 0, WORLD_ROWCOUNT));
+
+                    if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
+                        previousYHadSun = true;
+
+                        boolean leftEmpty = leftBlock.blockType != Block.BlockType.DirtBlockType;
+
+                        boolean rightEmpty = rightBlock.blockType != Block.BlockType.DirtBlockType;
+
+                        //hack is top redundant?
+                        boolean topEmpty = topBlock.blockType != Block.BlockType.DirtBlockType;
+
+                        boolean bottomEmpty = bottomBlock.blockType != Block.BlockType.DirtBlockType;
+
+                        if (leftEmpty && rightEmpty && topEmpty && !bottomEmpty) {
+                            //0
+                            blocks[index].meshType = 0;
+                        } else if (leftEmpty && rightEmpty && !topEmpty && !bottomEmpty) {
+                            //1
+                            blocks[index].meshType = 1;
+
+                        } else if (leftEmpty && topEmpty && !rightEmpty && bottomEmpty) {
+                            //2
+                            blocks[index].meshType = 2;
+                        } else if (!leftEmpty && topEmpty && !rightEmpty && bottomEmpty) {
+                            //3
+                            blocks[index].meshType = 3;
+                        } else if (!leftEmpty && !rightEmpty && !topEmpty && !bottomEmpty) {
+                            //hack check diagonals
+                            //4
+                            blocks[index].meshType = 4;
+                        } else if (!leftEmpty && topEmpty && !rightEmpty && bottomEmpty) {
+                            //5
+                            blocks[index].meshType = 5;
+                        } else if (!leftEmpty && topEmpty && rightEmpty && bottomEmpty) {
+                            //6
+                            blocks[index].meshType = 6;
+
+                        } else if (leftEmpty && topEmpty && !bottomEmpty && !rightEmpty) {
+                            //7
+                            blocks[index].meshType = 7;
+
+                        } else if (!leftEmpty && topEmpty && !rightEmpty && !bottomEmpty) {
+                            //8
+                            blocks[index].meshType = 8;
+
+                        } else if (!leftEmpty && topEmpty && !bottomEmpty && rightEmpty) {
+                            //9
+                            blocks[index].meshType = 9;
+                        } else if (leftEmpty && !topEmpty && bottomEmpty && !rightEmpty) {
+                            //10
+                            blocks[index].meshType = 10;
+                        } else if (!leftEmpty && !topEmpty && rightEmpty && bottomEmpty) {
+                            //11
+                            blocks[index].meshType = 11;
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //12
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //13
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //14
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //15
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //16
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //17
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //18
+                        } else if (leftEmpty && topEmpty && !rightEmpty) {
+                            //19
+                        }
+                    } else {
+                        //skip to next column, no more grass transitions possible in this area
+                        previousYHadSun = false;
+                        ignoreFurther = true;
+                        //++x;
+                        //y = 0;
+                    }
+                } else {
+//                    if (blocks[index].blockType == Block.BlockType.NullBlockType) {
+//                        continue;
+//                    }
+
+                    if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
+                        blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
+                        previousYHadSun = true;
+                    }
                 }
             }
         }
 
     }
+
+    /*
+    private boolean shouldGrassMesh(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
+        boolean isMatched = false;
+        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_ROWCOUNT + sourceTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_ROWCOUNT + nearbyTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+
+        if (blocks[srcIndex].blockType == blocks[nearbyIndex].blockType) {
+            //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
+            //some may be exceptions??
+            isMatched = true;
+        }
+
+        return isMatched;
+    }
+    */
 
     private void updateCrosshair() {
         //PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
@@ -778,6 +920,8 @@ public class World implements Disposable {
                 ++sourceIndex;
             }
         }
+
+        Gdx.app.log("block region", "loading");
 
         //fixme obviously don't do the whole world..
         meshTiles();

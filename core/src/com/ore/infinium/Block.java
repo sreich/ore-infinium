@@ -26,10 +26,10 @@ public class Block {
      * 0-15.
      * For example, @sa primitiveType
      * which does not generally depend on the surroundings.
-     * <p/>
+     * <p>
      * meshType however, is determined by calculating the surrounding tiles and if they are of a simlar type or similar
      * blendType, then it will change the overall look of it.
-     * <p/>
+     * <p>
      * Bottom line: use meshType ONLY for rendering, use primitiveType for everything else. meshType is only a displaying
      * niche of a detail, not a gameplay mechanic
      */
@@ -109,9 +109,31 @@ public class Block {
 
     public byte flags;
 
+    public final void setFlag(int flag) {
+        flags |= flag;
+    }
+
+    public final boolean hasFlag(int flag) {
+        return (this.flags & flag) != 0;
+    }
+
+    public void unsetFlag(int flag) {
+        this.flags &= ~flag;
+    }
+
+    public final class BlockFlags {
+        public static final int OnFireBlock = 1 << 0;
+        public static final int SunlightVisibleBlock = 1 << 1;
+//        public static final int GrassBlock = 1 << 2;
+    }
+
+
+
+    /*
     public static enum BlockFlags {
         OnFireBlockFlag((byte) (1 << 0)),
-        SunlightVisible((byte) (1 << 0)),;
+        SunlightVisible((byte) (1 << 1)),
+        GrassBlock((byte) (1 << 2));
 
         /// theoretically more things belong in here. except i ran out of ideas :(
         // OnFireBlockFlag(1 << 0)
@@ -120,4 +142,5 @@ public class Block {
         }
 
     }
+    */
 }

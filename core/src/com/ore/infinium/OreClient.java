@@ -311,9 +311,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
             int x = (int) (mousePos.x / World.BLOCK_SIZE);
             int y = (int) (mousePos.y / World.BLOCK_SIZE);
 
-            String s = String.format("tile(%d,%d), block type: %s, mesh: %s, texture: %s , sunlight: %s",
+            String s = String.format("tile(%d,%d), block type: %s, mesh: %s, texture: %s , Grass: %s",
                     x, y, block.blockType, block.meshType,
-                    m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType), block.flags & Block.BlockFlags.SunlightVisible.ordinal());
+                    m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType),
+                    block.hasFlag(Block.BlockFlags.SunlightVisibleBlock));
 
             m_font.draw(m_batch, s, 0, textY);
             textY -= 15;

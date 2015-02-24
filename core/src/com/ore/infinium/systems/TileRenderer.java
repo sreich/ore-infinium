@@ -53,6 +53,7 @@ public class TileRenderer extends IntervalSystem {
 
     // <byte mesh type, string texture name>
     public IntMap<String> dirtBlockMeshes;
+    public IntMap<String> grassBlockMeshes;
 
     public TileRenderer(OrthographicCamera camera, World world, float interval) {
         super(interval);
@@ -67,7 +68,6 @@ public class TileRenderer extends IntervalSystem {
         for (TextureRegion region : m_tilesAtlas.getRegions()) {
             region.flip(false, true);
         }
-
 
         dirtBlockMeshes = new IntMap<>(20);
         dirtBlockMeshes.put(0, "dirt-00");
@@ -89,6 +89,27 @@ public class TileRenderer extends IntervalSystem {
         dirtBlockMeshes.put(16, "dirt-16");
         dirtBlockMeshes.put(17, "dirt-17");
         dirtBlockMeshes.put(18, "dirt-18");
+
+        grassBlockMeshes = new IntMap<>(20);
+        grassBlockMeshes.put(0, "grass-00");
+        grassBlockMeshes.put(1, "grass-01");
+        grassBlockMeshes.put(2, "grass-02");
+        grassBlockMeshes.put(3, "grass-03");
+        grassBlockMeshes.put(4, "grass-04");
+        grassBlockMeshes.put(5, "grass-05");
+        grassBlockMeshes.put(6, "grass-06");
+        grassBlockMeshes.put(7, "grass-07");
+        grassBlockMeshes.put(8, "grass-08");
+        grassBlockMeshes.put(9, "grass-09");
+        grassBlockMeshes.put(10, "grass-10");
+        grassBlockMeshes.put(11, "grass-11");
+        grassBlockMeshes.put(12, "grass-12");
+        grassBlockMeshes.put(13, "grass-13");
+        grassBlockMeshes.put(14, "grass-14");
+        grassBlockMeshes.put(15, "grass-15");
+        grassBlockMeshes.put(16, "grass-16");
+        grassBlockMeshes.put(17, "grass-17");
+        grassBlockMeshes.put(18, "grass-18");
     }
 
     public void render(double elapsed) {
@@ -146,9 +167,26 @@ public class TileRenderer extends IntervalSystem {
                     continue;
                 }
 
+                boolean grass = false;
                 //String textureName = World.blockTypes.get(block.blockType).textureName;
                 if (block.blockType == Block.BlockType.DirtBlockType) {
-                    textureName = dirtBlockMeshes.get(block.meshType);
+
+                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
+                        textureName = grassBlockMeshes.get(block.meshType);
+                    } else {
+                        textureName = dirtBlockMeshes.get(block.meshType);
+                    }
+
+                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
+                        m_batch.setColor(1, 0.9f, 1, 1);
+                        grass = true;
+                    }
+
+                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
+                        m_batch.setColor(1, 0.9f, 0.9f, 1);
+
+                        grass = true;
+                    }
                 } else {
                     assert false;
                 }
@@ -156,6 +194,11 @@ public class TileRenderer extends IntervalSystem {
                 region = m_tilesAtlas.findRegion(textureName);
 
                 m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+
+                if (grass) {
+                    m_batch.setColor(1, 1, 1, 1);
+                }
+
 
                 count++;
             }
