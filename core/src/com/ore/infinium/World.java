@@ -257,8 +257,6 @@ public class World implements Disposable {
                     //null empty block, surrounded by blocks on all sides
                     if (leftDirt && rightDirt && topDirt && bottomDirt) {
                         blocks[index].meshType = 16;
-                    } else {
-                        blocks[index].meshType = 0;
                     }
                     continue;
                 }
@@ -269,7 +267,6 @@ public class World implements Disposable {
                 boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
                 boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
-
 
                 if (leftMerge) {
                     if (rightMerge) {
@@ -530,7 +527,7 @@ public class World implements Disposable {
 
             //attempt to destroy it if it's not already destroyed...
             if (block.blockType != Block.BlockType.NullBlockType) {
-                block.blockType = Block.BlockType.NullBlockType;
+                block.destroy();
                 m_client.sendBlockPick(x, y);
             }
 

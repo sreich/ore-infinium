@@ -107,8 +107,16 @@ public class Block {
         DirtWallType
     }
 
-
     public byte flags;
+
+    /**
+     * properly destroys the block (sets meshtype, flags etc to defaults)
+     * must be called when destroying a block.
+     */
+    void destroy() {
+        blockType = Block.BlockType.NullBlockType;
+        meshType = 0;
+    }
 
     public final void setFlag(int flag) {
         flags |= flag;
