@@ -87,8 +87,6 @@ public class TileRenderer extends IntervalSystem {
         dirtBlockMeshes.put(14, "dirt-14");
         dirtBlockMeshes.put(15, "dirt-15");
         dirtBlockMeshes.put(16, "dirt-16");
-        dirtBlockMeshes.put(17, "dirt-17");
-        dirtBlockMeshes.put(18, "dirt-18");
     }
 
     public void render(double elapsed) {

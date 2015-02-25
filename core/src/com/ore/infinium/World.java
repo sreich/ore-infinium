@@ -50,7 +50,7 @@ public class World implements Disposable {
     public static final int WORLD_COLUMNCOUNT = 1000; //2400
     public static final int WORLD_ROWCOUNT = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
-    public static final HashMap<Block.BlockType, BlockStruct> blockTypes = new HashMap<>();
+    public static final HashMap<Byte, BlockStruct> blockTypes = new HashMap<>();
 
     static {
         blockTypes.put(Block.BlockType.NullBlockType, new BlockStruct("", false));
@@ -304,7 +304,7 @@ public class World implements Disposable {
                     blocks[index].meshType = 16;
                 } else if (!leftMerge && !rightMerge && !topMerge && !bottomMerge) {
                     //17
-                    blocks[index].meshType = 17;
+                    //blocks[index].meshType = 17;
                 }
                 //18 is a null tile surrounded by dirts
 
@@ -400,7 +400,7 @@ public class World implements Disposable {
     public boolean isBlockSolid(int x, int y) {
         boolean solid = true;
 
-        Block.BlockType type = blockAt(x, y).blockType;
+        byte type = blockAt(x, y).blockType;
 
         if (type == Block.BlockType.NullBlockType) {
             solid = false;
@@ -629,7 +629,7 @@ public class World implements Disposable {
         return WORLD_SEA_LEVEL;
     }
 
-    public void createBlockItem(Entity block, Block.BlockType blockType) {
+    public void createBlockItem(Entity block, byte blockType) {
         block.add(engine.createComponent(VelocityComponent.class));
 
         BlockComponent blockComponent = engine.createComponent(BlockComponent.class);

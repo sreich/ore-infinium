@@ -74,7 +74,7 @@ public class OreServer implements Runnable {
     }
 
     public void run() {
-        m_serverKryo = new Server(65536, 2048) {
+        m_serverKryo = new Server(Network.bufferWriteSize, 2048) {
             protected Connection newConnection() {
                 // By providing our own connection implementation, we can store per
                 // connection state without a connection ID to state look up.

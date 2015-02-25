@@ -189,7 +189,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             e.printStackTrace();
         }
 
-        m_clientKryo = new Client(8192, 65536);
+        m_clientKryo = new Client(8192, Network.bufferObjectSize);
         m_clientKryo.start();
 
         Network.register(m_clientKryo);
@@ -375,9 +375,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     tilex, top, 16, 16);
             tilex += 18;
             m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(16)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(17)),
                     tilex, top, 16, 16);
             tilex += 18;
         }
