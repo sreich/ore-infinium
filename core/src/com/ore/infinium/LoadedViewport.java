@@ -31,10 +31,19 @@ import java.util.HashSet;
 public class LoadedViewport {
     //the amount of tiles able to be seen by any client
     //(aka we sync only things like blocks, entities, within this region)
-    public final static int MAX_VIEWPORT_WIDTH = 20; //200
-    public final static int MAX_VIEWPORT_HEIGHT = 20;
+    public final static int MAX_VIEWPORT_WIDTH = 40;
+    public final static int MAX_VIEWPORT_HEIGHT = 35;
 
-    public final float buffer = 50.0f / World.PIXELS_PER_METER;
+    /**
+     * the distance (amount of blocks, world units) from the center of the viewport
+     * that the player should probably be, when we decide to send another chunk
+     *
+     * @param of
+     * @param units
+     * @return
+     */
+    public final static float reloadDistance = World.BLOCK_SIZE * 30;
+
     public Rectangle rect;
     HashSet<Entity> loadedEntities;
 

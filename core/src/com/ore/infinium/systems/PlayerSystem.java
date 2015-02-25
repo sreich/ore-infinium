@@ -68,8 +68,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
             }
 
             if (Vector2.dst(spriteComponent.sprite.getX(), spriteComponent.sprite.getY(), playerComponent.lastLoadedRegion.x, playerComponent.lastLoadedRegion.y)
-                    > 10.0f) {
-                //HACK, dunno why 20. need something sane.
+                    > LoadedViewport.reloadDistance) {
                 calculateLoadedViewport(entities.get(i));
             }
         }

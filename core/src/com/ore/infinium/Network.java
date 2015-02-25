@@ -29,6 +29,8 @@ import com.ore.infinium.components.*;
  */
 public class Network {
     static public final int port = 54553;
+    static public final int bufferObjectSize = 255032;
+    static public final int bufferWriteSize = 250536;
 
     // This registers objects that are going to be sent over the network.
     static public void register(EndPoint endPoint) {
@@ -246,7 +248,7 @@ public class Network {
      * Tiny(er) class to wrap a Block and send over the wire
      */
     static public class SingleBlock {
-        Block.BlockType blockType;
+        byte blockType;
         byte wallType;
 
         //mesh type is not passed, but recalculated as each chunk is merged with the running world

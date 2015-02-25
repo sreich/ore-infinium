@@ -39,7 +39,7 @@ public class Block {
      * The type of tile this is, 0-255 is valid and can be compared with the world's definition of tile types
      * (an enum)
      */
-    public BlockType blockType;// = Block.BlockType.NullBlockType;
+    public byte blockType;
 
 
     /**
@@ -89,11 +89,11 @@ public class Block {
     /**
      * Determines the health and texture of the Block.
      */
-    public enum BlockType {
-        NullBlockType,
-        DirtBlockType,
-        StoneBlockType,
-        CopperBlockType
+    public static final class BlockType {
+        public static final byte NullBlockType = 1 << 0;
+        public static final byte DirtBlockType = 1 << 1;
+        public static final byte StoneBlockType = 1 << 2;
+        public static final byte CopperBlockType = 1 << 3;
     }
 
     /**
@@ -106,6 +106,7 @@ public class Block {
         NullWallType,
         DirtWallType
     }
+
 
     public byte flags;
 
