@@ -87,8 +87,6 @@ public class TileRenderer extends IntervalSystem {
         dirtBlockMeshes.put(14, "dirt-14");
         dirtBlockMeshes.put(15, "dirt-15");
         dirtBlockMeshes.put(16, "dirt-16");
-        dirtBlockMeshes.put(17, "dirt-17");
-        dirtBlockMeshes.put(18, "dirt-18");
 
         grassBlockMeshes = new IntMap<>(20);
         grassBlockMeshes.put(0, "grass-00");
@@ -109,7 +107,6 @@ public class TileRenderer extends IntervalSystem {
         grassBlockMeshes.put(15, "grass-15");
         grassBlockMeshes.put(16, "grass-16");
         grassBlockMeshes.put(17, "grass-17");
-        grassBlockMeshes.put(18, "grass-18");
     }
 
     public void render(double elapsed) {
@@ -157,6 +154,8 @@ public class TileRenderer extends IntervalSystem {
         String textureName = "";
         for (int x = startColumn; x < endColumn; ++x) {
             for (int y = startRow; y < endRow; ++y) {
+                boolean nullBlockSurroundedByDirt = false;
+
                 int blockIndex = x * World.WORLD_ROWCOUNT + y;
                 Block block = m_world.blockAt(x, y);
 
@@ -164,12 +163,19 @@ public class TileRenderer extends IntervalSystem {
                 float tileY = World.BLOCK_SIZE * y;
 
                 if (block.blockType == Block.BlockType.NullBlockType) {
-                    continue;
+                    if (block.meshType == 16) {
+                        // actually drawn as a blank block, with a bit of dirt on all sides
+                        // because it is surrounded by dirt blocks. though it's drawn with the dirt tile stuff,
+                        // and is still considered null.
+                        nullBlockSurroundedByDirt = true;
+                    } else {
+                        continue;
+                    }
                 }
 
                 boolean grass = false;
                 //String textureName = World.blockTypes.get(block.blockType).textureName;
-                if (block.blockType == Block.BlockType.DirtBlockType) {
+                if (block.blockType == Block.BlockType.DirtBlockType || nullBlockSurroundedByDirt) {
 
                     if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);

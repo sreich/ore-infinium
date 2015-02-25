@@ -241,82 +241,104 @@ public class World implements Disposable {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
                 int index = x * WORLD_ROWCOUNT + y;
 
-                if (blocks[index].blockType == Block.BlockType.NullBlockType) {
-                    continue;
-                }
-
                 if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
                     if (blocks[index].hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
                         continue;
                     }
                 }
 
+                if (blocks[index].blockType == Block.BlockType.NullBlockType) {
+
+                    boolean leftDirt = blockAtSafely(x - 1, y).blockType == Block.BlockType.DirtBlockType;
+                    boolean rightDirt = blockAtSafely(x + 1, y).blockType == Block.BlockType.DirtBlockType;
+                    boolean topDirt = blockAtSafely(x, y - 1).blockType == Block.BlockType.DirtBlockType;
+                    boolean bottomDirt = blockAtSafely(x, y + 1).blockType == Block.BlockType.DirtBlockType;
+
+                    //null empty block, surrounded by blocks on all sides
+                    if (leftDirt && rightDirt && topDirt && bottomDirt) {
+                        blocks[index].meshType = 16;
+                    } else {
+                        blocks[index].meshType = 0;
+                    }
+                    continue;
+                }
+
+                //essentially, if the *other* tiles in question are the same blocks, we should
+                //merge/transition with them.
                 boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
                 boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
                 boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
 
-                //i think this should serve our purposes still
-                boolean topLeftEmpty = !shouldTileMerge(x, y, x - 1, y - 1);
-                boolean topRightEmpty = !shouldTileMerge(x, y, x + 1, y - 1);
 
-                if (leftMerge && rightMerge && bottomMerge && topMerge) {
-                    //center tile, 0
-                    blocks[index].meshType = 0;
-                } else if (bottomMerge && !leftMerge && !rightMerge && !topMerge) {
-                    //1
-                    blocks[index].meshType = 1;
-                } else if (topMerge && bottomMerge && !leftMerge && !rightMerge) {
-                    //2
-                    blocks[index].meshType = 2;
-                } else if (rightMerge && !topMerge && !bottomMerge && !leftMerge) {
-                    //3
-                    blocks[index].meshType = 3;
-                } else if (leftMerge && rightMerge && !topMerge && !bottomMerge) {
-                    //4
-                    blocks[index].meshType = 4;
-                } else if (leftMerge && rightMerge && !topMerge && !bottomMerge) {
-                    //5
-                    blocks[index].meshType = 5;
-                } else if (leftMerge && !topMerge && !bottomMerge && !rightMerge) {
-                    //6
-                    blocks[index].meshType = 6;
-                } else if (topMerge && bottomMerge && !leftMerge && !rightMerge) {
-                    //7
-                    blocks[index].meshType = 7;
-                } else if (topMerge && !bottomMerge && !leftMerge && !rightMerge) {
-                    //8
-                    blocks[index].meshType = 8;
-                } else if (bottomMerge && rightMerge && !leftMerge && !topMerge) {
-                    //9
-                    blocks[index].meshType = 9;
-                } else if (leftMerge && rightMerge && bottomMerge && !topMerge) {
-                    //10
-                    blocks[index].meshType = 10;
-                } else if (leftMerge && bottomMerge && !topMerge && !rightMerge) {
-                    //11
-                    blocks[index].meshType = 11;
-                } else if (topMerge && bottomMerge && rightMerge && !leftMerge) {
-                    //12
-                    blocks[index].meshType = 12;
-                } else if (leftMerge && topMerge && bottomMerge && !rightMerge) {
-                    //13
-                    blocks[index].meshType = 13;
-                } else if (topMerge && rightMerge && !leftMerge && !bottomMerge) {
-                    //14
-                    blocks[index].meshType = 14;
-                } else if (leftMerge && topMerge && rightMerge && !bottomMerge) {
-                    //15
-                    blocks[index].meshType = 15;
-                } else if (leftMerge && topMerge && !rightMerge && !bottomMerge) {
-                    //16
-                    blocks[index].meshType = 16;
-                } else if (!leftMerge && !rightMerge && !topMerge && !bottomMerge) {
-                    //17
-                    //blocks[index].meshType = 17;
+                if (leftMerge) {
+                    if (rightMerge) {
+                        if (topMerge) {
+                            if (bottomMerge) {
+                                blocks[index].meshType = 0;
+                            } else { // !bottom
+                                blocks[index].meshType = 13;
+                            }
+                        } else { //!top
+                            if (bottomMerge) {
+                                blocks[index].meshType = 8;
+                            } else { //!bottom
+                                blocks[index].meshType = 4;
+                            }
+                        }
+
+                    } else { //!right
+                        if (topMerge) {
+                            if (bottomMerge) {
+                                blocks[index].meshType = 11;
+                            } else { //!bottom
+                                blocks[index].meshType = 14;
+                            }
+                        } else { //!top
+                            if (bottomMerge) {
+                                blocks[index].meshType = 9;
+                            } else { //!bottom
+                                blocks[index].meshType = 5;
+                            }
+
+                        }
+
+                    }
+
+                } else { //!left
+                    if (rightMerge) {
+                        if (topMerge) {
+                            if (bottomMerge) {
+                                blocks[index].meshType = 10;
+                            } else { //!bottom
+                                blocks[index].meshType = 12;
+                            }
+                        } else { //!top
+                            if (bottomMerge) {
+                                blocks[index].meshType = 7;
+                            } else { //!bottom
+                                blocks[index].meshType = 3;
+                            }
+                        }
+
+                    } else { //!right
+                        if (topMerge) {
+                            if (bottomMerge) {
+                                blocks[index].meshType = 2;
+                            } else { //!bottom
+                                blocks[index].meshType = 6;
+                            }
+
+                        } else { //!top
+                            if (bottomMerge) {
+                                blocks[index].meshType = 1;
+                            } else { //!bottom
+                                blocks[index].meshType = 15;
+                            }
+                        }
+                    }
+
                 }
-                //18 is a null tile surrounded by dirts
-
             }
         }
     }
@@ -395,9 +417,20 @@ public class World implements Disposable {
     }
 
     public Block blockAtPosition(Vector2 pos) {
-        int x = MathUtils.clamp((int) (pos.x / BLOCK_SIZE), 0, WORLD_COLUMNCOUNT);
-        int y = MathUtils.clamp((int) (pos.y / BLOCK_SIZE), 0, WORLD_ROWCOUNT);
+        int x = MathUtils.clamp((int) (pos.x / BLOCK_SIZE), 0, WORLD_COLUMNCOUNT - 1);
+        int y = MathUtils.clamp((int) (pos.y / BLOCK_SIZE), 0, WORLD_ROWCOUNT - 1);
         return blockAt(x, y);
+    }
+
+    /**
+     * safely return a block at x, y, clamped at world bounds
+     *
+     * @param x
+     * @param y
+     * @return
+     */
+    public Block blockAtSafely(int x, int y) {
+        return blocks[MathUtils.clamp(x, 0, WORLD_COLUMNCOUNT - 1) * WORLD_ROWCOUNT + MathUtils.clamp(y, 0, WORLD_ROWCOUNT - 1)];
     }
 
     public Block blockAt(int x, int y) {

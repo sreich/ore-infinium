@@ -90,10 +90,10 @@ public class Block {
      * Determines the health and texture of the Block.
      */
     public static final class BlockType {
-        public static final byte NullBlockType = 1 << 0;
-        public static final byte DirtBlockType = 1 << 1;
-        public static final byte StoneBlockType = 1 << 2;
-        public static final byte CopperBlockType = 1 << 3;
+        public static final byte NullBlockType = 0;
+        public static final byte DirtBlockType = 1;
+        public static final byte StoneBlockType = 2;
+        public static final byte CopperBlockType = 3;
     }
 
     /**
