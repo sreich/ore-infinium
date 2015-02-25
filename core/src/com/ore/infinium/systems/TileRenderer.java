@@ -173,19 +173,10 @@ public class TileRenderer extends IntervalSystem {
 
                     if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);
+                        m_batch.setColor(1, 0.5f, 1, 1);
+                        grass = true;
                     } else {
                         textureName = dirtBlockMeshes.get(block.meshType);
-                    }
-
-                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
-                        m_batch.setColor(1, 0.9f, 1, 1);
-                        grass = true;
-                    }
-
-                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
-                        m_batch.setColor(1, 0.9f, 0.9f, 1);
-
-                        grass = true;
                     }
                 } else {
                     assert false;

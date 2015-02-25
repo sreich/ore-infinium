@@ -255,7 +255,10 @@ public class World implements Disposable {
                 boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
                 boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
-//      return blocks[x * WORLD_ROWCOUNT + y];
+
+                //i think this should serve our purposes still
+                boolean topLeftEmpty = !shouldTileMerge(x, y, x - 1, y - 1);
+                boolean topRightEmpty = !shouldTileMerge(x, y, x + 1, y - 1);
 
                 if (leftMerge && rightMerge && bottomMerge && topMerge) {
                     //center tile, 0
