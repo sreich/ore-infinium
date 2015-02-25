@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
 
@@ -50,12 +51,55 @@ public class World implements Disposable {
     public static final int WORLD_COLUMNCOUNT = 1000; //2400
     public static final int WORLD_ROWCOUNT = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
+
+    /**
+     * looks up the texture prefix name for each block type.
+     * e.g. DirtBlockType -> "dirt", etc.
+     */
     public static final HashMap<Byte, BlockStruct> blockTypes = new HashMap<>();
 
     static {
         blockTypes.put(Block.BlockType.NullBlockType, new BlockStruct("", false));
         blockTypes.put(Block.BlockType.DirtBlockType, new BlockStruct("dirt", true));
         blockTypes.put(Block.BlockType.StoneBlockType, new BlockStruct("stone", true));
+    }
+
+    /**
+     * @first bitmask of all sides, that maps to valid transition types
+     * e.g. left | right, indicates that it needs to mesh on the left and right sides ONLY
+     * @second
+     */
+    public static final IntIntMap dirtMeshTypes = new IntIntMap(17);
+
+    public static final class DirtMesh {
+        //no sides to mesh/transition to
+        static final int none = 0;
+        static final int left = 1 << 0;
+        static final int right = 1 << 1;
+        static final int top = 1 << 2;
+        static final int bottom = 1 << 3;
+        // block is null, all sides surrounded by dirts
+        static final int nullBlockAllSidesSurroundedByDirt = 1 << 4;
+    }
+
+    static {
+        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right | DirtMesh.top | DirtMesh.bottom, 0);
+        dirtMeshTypes.put(DirtMesh.bottom, 1);
+        dirtMeshTypes.put(DirtMesh.top | DirtMesh.bottom, 2);
+        dirtMeshTypes.put(DirtMesh.right, 3);
+        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right, 4);
+        dirtMeshTypes.put(DirtMesh.left, 5);
+        dirtMeshTypes.put(DirtMesh.top, 6);
+        dirtMeshTypes.put(DirtMesh.right | DirtMesh.bottom, 7);
+        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right | DirtMesh.bottom, 8);
+        dirtMeshTypes.put(DirtMesh.left | DirtMesh.bottom, 9);
+        dirtMeshTypes.put(DirtMesh.right | DirtMesh.top | DirtMesh.bottom, 10);
+        dirtMeshTypes.put(DirtMesh.left | DirtMesh.top | DirtMesh.bottom, 11);
+        dirtMeshTypes.put(DirtMesh.top | DirtMesh.right, 12);
+        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right | DirtMesh.top, 13);
+        dirtMeshTypes.put(DirtMesh.left | DirtMesh.top, 14);
+        dirtMeshTypes.put(DirtMesh.none, 15);
+        dirtMeshTypes.put(DirtMesh.nullBlockAllSidesSurroundedByDirt, 16);
     }
 
     private static final int zoomInterval = 50; //ms
@@ -256,7 +300,7 @@ public class World implements Disposable {
 
                     //null empty block, surrounded by blocks on all sides
                     if (leftDirt && rightDirt && topDirt && bottomDirt) {
-                        blocks[index].meshType = 16;
+                        blocks[index].meshType = (byte) dirtMeshTypes.get(DirtMesh.nullBlockAllSidesSurroundedByDirt, -1);
                     }
                     continue;
                 }
@@ -268,74 +312,25 @@ public class World implements Disposable {
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
                 boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
 
+                byte result = 0;
                 if (leftMerge) {
-                    if (rightMerge) {
-                        if (topMerge) {
-                            if (bottomMerge) {
-                                blocks[index].meshType = 0;
-                            } else { // !bottom
-                                blocks[index].meshType = 13;
-                            }
-                        } else { //!top
-                            if (bottomMerge) {
-                                blocks[index].meshType = 8;
-                            } else { //!bottom
-                                blocks[index].meshType = 4;
-                            }
-                        }
-
-                    } else { //!right
-                        if (topMerge) {
-                            if (bottomMerge) {
-                                blocks[index].meshType = 11;
-                            } else { //!bottom
-                                blocks[index].meshType = 14;
-                            }
-                        } else { //!top
-                            if (bottomMerge) {
-                                blocks[index].meshType = 9;
-                            } else { //!bottom
-                                blocks[index].meshType = 5;
-                            }
-
-                        }
-
-                    }
-
-                } else { //!left
-                    if (rightMerge) {
-                        if (topMerge) {
-                            if (bottomMerge) {
-                                blocks[index].meshType = 10;
-                            } else { //!bottom
-                                blocks[index].meshType = 12;
-                            }
-                        } else { //!top
-                            if (bottomMerge) {
-                                blocks[index].meshType = 7;
-                            } else { //!bottom
-                                blocks[index].meshType = 3;
-                            }
-                        }
-
-                    } else { //!right
-                        if (topMerge) {
-                            if (bottomMerge) {
-                                blocks[index].meshType = 2;
-                            } else { //!bottom
-                                blocks[index].meshType = 6;
-                            }
-
-                        } else { //!top
-                            if (bottomMerge) {
-                                blocks[index].meshType = 1;
-                            } else { //!bottom
-                                blocks[index].meshType = 15;
-                            }
-                        }
-                    }
-
+                    result |= DirtMesh.left;
                 }
+
+                if (rightMerge) {
+                    result |= DirtMesh.right;
+                }
+
+                if (topMerge) {
+                    result |= DirtMesh.top;
+                }
+
+                if (bottomMerge) {
+                    result |= DirtMesh.bottom;
+                }
+
+                blocks[index].meshType = (byte) dirtMeshTypes.get(result, -1);
+
             }
         }
     }
