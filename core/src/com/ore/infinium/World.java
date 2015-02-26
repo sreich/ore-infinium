@@ -87,7 +87,7 @@ public class World implements Disposable {
         dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 0);
         dirtTransitionTypes.put(TileTransitions.bottom, 1);
         dirtTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 2);
-        dirtTransitionTypes.put(TileTransitions.right, 2);
+        dirtTransitionTypes.put(TileTransitions.right, 3);
         dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right, 4);
         dirtTransitionTypes.put(TileTransitions.left, 5);
         dirtTransitionTypes.put(TileTransitions.top, 6);
@@ -102,7 +102,7 @@ public class World implements Disposable {
         dirtTransitionTypes.put(TileTransitions.none, 15);
         dirtTransitionTypes.put(TileTransitions.nullBlockAllSidesSurroundedByDirt, 16);
 
-        /////////////////////
+        ///////////////////////////////////////////////////////////////////////////////////
 
         grassTransitionTypes.put(TileTransitions.bottom, 0);
         grassTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 1);
@@ -128,7 +128,7 @@ public class World implements Disposable {
 
         //below here is junk
         grassTransitionTypes.put(TileTransitions.left | TileTransitions.top, 14);
-//        grassTransitionTypes.put(TileTransitions.none, 15);
+//        grassTransitionTypes.put(TileTransitions.none, 11);
         grassTransitionTypes.put(TileTransitions.top, 4); //hack
         grassTransitionTypes.put(TileTransitions.right, 16);
         grassTransitionTypes.put(TileTransitions.left, 17);
@@ -672,7 +672,7 @@ public class World implements Disposable {
 
                         blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
 
-                        int result = 0;
+                        int result = TileTransitions.none;
                         if (leftMerge) {
                             result |= TileTransitions.left;
                         }
@@ -690,6 +690,12 @@ public class World implements Disposable {
                         }
 
                         byte finalMesh = (byte) grassTransitionTypes.get(result, -1);
+
+                        if (result == TileTransitions.none || finalMesh == 15) {
+
+                            byte finalMesasdash = (byte) grassTransitionTypes.get(result, -1);
+                        }
+
                         blocks[index].meshType = finalMesh;
                         if (finalMesh == -1) {
                             assert false : "invalid mesh type retrieval, for some reason";
@@ -705,7 +711,8 @@ public class World implements Disposable {
 //                    if (blocks[index].blockType == Block.BlockType.NullBlockType) {
 //                        continue;
 //                    }
-
+//hack fixme, this is the issue..when it's surrounded by none/it's the first one in the list, it never hits the above
+                    //condition, i think
                     if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
                         blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
                         previousYHadSun = true;
