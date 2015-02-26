@@ -8,7 +8,7 @@ website: http://sreich.github.io/ore-infinium/
 
 Extremely early development!
 
-It is multiplayer but has only been tested local machine only.
+It is multiplayer but has only been tested local machine only. It also will not have any lag compensation/prediction etc for a while until I get more functionality.
 
 # Requirements
 You will need java 1.8 (java 8). Tested with intellij IDEA. 
