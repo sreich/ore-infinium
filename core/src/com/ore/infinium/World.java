@@ -632,24 +632,6 @@ public class World implements Disposable {
     }
 
     private void computeSunlight() {
-        /*
-            private void meshGrassTiles(int x, int y) {
-
-        int index = x * WORLD_ROWCOUNT + y;
-
-        //we know that because this is a grass tile, there is not possibly one above this tile, anywhere at all
-        //hack??
-
-        boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
-        boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
-        boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
-
-        if (leftMerge && rightMerge) {
-            blocks[index].meshType = 0;
-        } //else if (leftm)
-    }
-        */
-
         int previousY = 0;
 
         //if true, probably continue downward until we are surounded on both sides by blocks
@@ -671,20 +653,20 @@ public class World implements Disposable {
 
                     Block leftBlock = blockAt(MathUtils.clamp(x - 1, 0, WORLD_COLUMNCOUNT), y);
                     Block rightBlock = blockAt(MathUtils.clamp(x + 1, 0, WORLD_COLUMNCOUNT), y);
-                    Block topBlock = blockAt(x, MathUtils.clamp(y + 1, 0, WORLD_ROWCOUNT));
+                    Block topBlock = blockAt(x, MathUtils.clamp(y - 1, 0, WORLD_ROWCOUNT));
                     Block bottomBlock = blockAt(x, MathUtils.clamp(y + 1, 0, WORLD_ROWCOUNT));
 
                     if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
                         previousYHadSun = true;
 
-                        boolean leftMerge = leftBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean leftMerge = leftBlock.blockType == Block.BlockType.DirtBlockType;
 
-                        boolean rightMerge = rightBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean rightMerge = rightBlock.blockType == Block.BlockType.DirtBlockType;
 
                         //hack is top redundant?
-                        boolean topMerge = topBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean topMerge = topBlock.blockType == Block.BlockType.DirtBlockType;
 
-                        boolean bottomMerge = bottomBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean bottomMerge = bottomBlock.blockType == Block.BlockType.DirtBlockType;
 
                         blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
 
