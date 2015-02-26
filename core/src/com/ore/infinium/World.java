@@ -87,7 +87,7 @@ public class World implements Disposable {
         dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 0);
         dirtTransitionTypes.put(TileTransitions.bottom, 1);
         dirtTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 2);
-        dirtTransitionTypes.put(TileTransitions.right, 3);
+        dirtTransitionTypes.put(TileTransitions.right, 2);
         dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right, 4);
         dirtTransitionTypes.put(TileTransitions.left, 5);
         dirtTransitionTypes.put(TileTransitions.top, 6);
@@ -123,11 +123,13 @@ public class World implements Disposable {
         grassTransitionTypes.put(TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 9);
         //lefttopbottom
         grassTransitionTypes.put(TileTransitions.left | TileTransitions.top | TileTransitions.bottom, 10);
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top, 4);
         //hack ^^
 
         //below here is junk
         grassTransitionTypes.put(TileTransitions.left | TileTransitions.top, 14);
-        grassTransitionTypes.put(TileTransitions.none, 15);
+//        grassTransitionTypes.put(TileTransitions.none, 15);
+        grassTransitionTypes.put(TileTransitions.top, 4); //hack
         grassTransitionTypes.put(TileTransitions.right, 16);
         grassTransitionTypes.put(TileTransitions.left, 17);
     }
