@@ -69,10 +69,11 @@ public class World implements Disposable {
      * e.g. left | right, indicates that it needs to mesh on the left and right sides ONLY
      * @second
      */
-    public static final IntIntMap dirtMeshTypes = new IntIntMap(17);
+    public static final IntIntMap dirtTransitionTypes = new IntIntMap();
+    public static final IntIntMap grassTransitionTypes = new IntIntMap();
 
-    public static final class DirtMesh {
-        //no sides to mesh/transition to
+    public static final class TileTransitions {
+        //no sides to transition to
         static final int none = 0;
         static final int left = 1 << 0;
         static final int right = 1 << 1;
@@ -83,23 +84,52 @@ public class World implements Disposable {
     }
 
     static {
-        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right | DirtMesh.top | DirtMesh.bottom, 0);
-        dirtMeshTypes.put(DirtMesh.bottom, 1);
-        dirtMeshTypes.put(DirtMesh.top | DirtMesh.bottom, 2);
-        dirtMeshTypes.put(DirtMesh.right, 3);
-        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right, 4);
-        dirtMeshTypes.put(DirtMesh.left, 5);
-        dirtMeshTypes.put(DirtMesh.top, 6);
-        dirtMeshTypes.put(DirtMesh.right | DirtMesh.bottom, 7);
-        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right | DirtMesh.bottom, 8);
-        dirtMeshTypes.put(DirtMesh.left | DirtMesh.bottom, 9);
-        dirtMeshTypes.put(DirtMesh.right | DirtMesh.top | DirtMesh.bottom, 10);
-        dirtMeshTypes.put(DirtMesh.left | DirtMesh.top | DirtMesh.bottom, 11);
-        dirtMeshTypes.put(DirtMesh.top | DirtMesh.right, 12);
-        dirtMeshTypes.put(DirtMesh.left | DirtMesh.right | DirtMesh.top, 13);
-        dirtMeshTypes.put(DirtMesh.left | DirtMesh.top, 14);
-        dirtMeshTypes.put(DirtMesh.none, 15);
-        dirtMeshTypes.put(DirtMesh.nullBlockAllSidesSurroundedByDirt, 16);
+        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 0);
+        dirtTransitionTypes.put(TileTransitions.bottom, 1);
+        dirtTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 2);
+        dirtTransitionTypes.put(TileTransitions.right, 3);
+        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right, 4);
+        dirtTransitionTypes.put(TileTransitions.left, 5);
+        dirtTransitionTypes.put(TileTransitions.top, 6);
+        dirtTransitionTypes.put(TileTransitions.right | TileTransitions.bottom, 7);
+        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.bottom, 8);
+        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.bottom, 9);
+        dirtTransitionTypes.put(TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 10);
+        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.top | TileTransitions.bottom, 11);
+        dirtTransitionTypes.put(TileTransitions.top | TileTransitions.right, 12);
+        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top, 13);
+        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.top, 14);
+        dirtTransitionTypes.put(TileTransitions.none, 15);
+        dirtTransitionTypes.put(TileTransitions.nullBlockAllSidesSurroundedByDirt, 16);
+
+        /////////////////////
+
+        grassTransitionTypes.put(TileTransitions.bottom, 0);
+        grassTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 1);
+        grassTransitionTypes.put(TileTransitions.right, 2);
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right, 3);
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 4);
+        grassTransitionTypes.put(TileTransitions.left, 5);
+        grassTransitionTypes.put(TileTransitions.right | TileTransitions.bottom, 6);
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.bottom, 7);
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.bottom, 8);
+        grassTransitionTypes.put(TileTransitions.right | TileTransitions.top, 9);
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.top, 10);
+        grassTransitionTypes.put(TileTransitions.none, 11);
+        grassTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 12);
+        grassTransitionTypes.put(TileTransitions.right | TileTransitions.top, 13);
+
+        //rightbottomtop unhandled ??? NEEDED??
+        grassTransitionTypes.put(TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 9);
+        //lefttopbottom
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.top | TileTransitions.bottom, 10);
+        //hack ^^
+
+        //below here is junk
+        grassTransitionTypes.put(TileTransitions.left | TileTransitions.top, 14);
+        grassTransitionTypes.put(TileTransitions.none, 15);
+        grassTransitionTypes.put(TileTransitions.right, 16);
+        grassTransitionTypes.put(TileTransitions.left, 17);
     }
 
     private static final int zoomInterval = 50; //ms
@@ -287,7 +317,7 @@ public class World implements Disposable {
 
                 if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
                     if (blocks[index].hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
-                        continue;
+                        blocks[index].unsetFlag(Block.BlockFlags.SunlightVisibleBlock);
                     }
                 }
 
@@ -300,7 +330,7 @@ public class World implements Disposable {
 
                     //null empty block, surrounded by blocks on all sides
                     if (leftDirt && rightDirt && topDirt && bottomDirt) {
-                        blocks[index].meshType = (byte) dirtMeshTypes.get(DirtMesh.nullBlockAllSidesSurroundedByDirt, -1);
+                        blocks[index].meshType = (byte) dirtTransitionTypes.get(TileTransitions.nullBlockAllSidesSurroundedByDirt, -1);
                     }
                     continue;
                 }
@@ -312,24 +342,24 @@ public class World implements Disposable {
                 boolean topMerge = shouldTileMerge(x, y, x, y - 1);
                 boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
 
-                byte result = 0;
+                int result = 0;
                 if (leftMerge) {
-                    result |= DirtMesh.left;
+                    result |= TileTransitions.left;
                 }
 
                 if (rightMerge) {
-                    result |= DirtMesh.right;
+                    result |= TileTransitions.right;
                 }
 
                 if (topMerge) {
-                    result |= DirtMesh.top;
+                    result |= TileTransitions.top;
                 }
 
                 if (bottomMerge) {
-                    result |= DirtMesh.bottom;
+                    result |= TileTransitions.bottom;
                 }
 
-                blocks[index].meshType = (byte) dirtMeshTypes.get(result, -1);
+                blocks[index].meshType = (byte) dirtTransitionTypes.get(result, -1);
 
             }
         }
@@ -633,13 +663,11 @@ public class World implements Disposable {
                 int index = x * WORLD_ROWCOUNT + y;
 
                 if (ignoreFurther) {
-                    blocks[index].unsetFlag(Block.BlockFlags.SunlightVisibleBlock);
+                    y = WORLD_ROWCOUNT;
                     continue;
                 }
 
                 if (previousYHadSun) {
-
-                    blocks[index].unsetFlag(Block.BlockFlags.SunlightVisibleBlock);
 
                     Block leftBlock = blockAt(MathUtils.clamp(x - 1, 0, WORLD_COLUMNCOUNT), y);
                     Block rightBlock = blockAt(MathUtils.clamp(x + 1, 0, WORLD_COLUMNCOUNT), y);
@@ -649,72 +677,38 @@ public class World implements Disposable {
                     if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
                         previousYHadSun = true;
 
-                        boolean leftEmpty = leftBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean leftMerge = leftBlock.blockType != Block.BlockType.DirtBlockType;
 
-                        boolean rightEmpty = rightBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean rightMerge = rightBlock.blockType != Block.BlockType.DirtBlockType;
 
                         //hack is top redundant?
-                        boolean topEmpty = topBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean topMerge = topBlock.blockType != Block.BlockType.DirtBlockType;
 
-                        boolean bottomEmpty = bottomBlock.blockType != Block.BlockType.DirtBlockType;
+                        boolean bottomMerge = bottomBlock.blockType != Block.BlockType.DirtBlockType;
 
-                        if (leftEmpty && rightEmpty && topEmpty && !bottomEmpty) {
-                            //0
-                            blocks[index].meshType = 0;
-                        } else if (leftEmpty && rightEmpty && !topEmpty && !bottomEmpty) {
-                            //1
-                            blocks[index].meshType = 1;
+                        blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
 
-                        } else if (leftEmpty && topEmpty && !rightEmpty && bottomEmpty) {
-                            //2
-                            blocks[index].meshType = 2;
-                        } else if (!leftEmpty && topEmpty && !rightEmpty && bottomEmpty) {
-                            //3
-                            blocks[index].meshType = 3;
-                        } else if (!leftEmpty && !rightEmpty && !topEmpty && !bottomEmpty) {
-                            //hack check diagonals
-                            //4
-                            blocks[index].meshType = 4;
-                        } else if (!leftEmpty && topEmpty && !rightEmpty && bottomEmpty) {
-                            //5
-                            blocks[index].meshType = 5;
-                        } else if (!leftEmpty && topEmpty && rightEmpty && bottomEmpty) {
-                            //6
-                            blocks[index].meshType = 6;
+                        int result = 0;
+                        if (leftMerge) {
+                            result |= TileTransitions.left;
+                        }
 
-                        } else if (leftEmpty && topEmpty && !bottomEmpty && !rightEmpty) {
-                            //7
-                            blocks[index].meshType = 7;
+                        if (rightMerge) {
+                            result |= TileTransitions.right;
+                        }
 
-                        } else if (!leftEmpty && topEmpty && !rightEmpty && !bottomEmpty) {
-                            //8
-                            blocks[index].meshType = 8;
+                        if (topMerge) {
+                            result |= TileTransitions.top;
+                        }
 
-                        } else if (!leftEmpty && topEmpty && !bottomEmpty && rightEmpty) {
-                            //9
-                            blocks[index].meshType = 9;
-                        } else if (leftEmpty && !topEmpty && bottomEmpty && !rightEmpty) {
-                            //10
-                            blocks[index].meshType = 10;
-                        } else if (!leftEmpty && !topEmpty && rightEmpty && bottomEmpty) {
-                            //11
-                            blocks[index].meshType = 11;
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //12
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //13
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //14
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //15
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //16
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //17
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //18
-                        } else if (leftEmpty && topEmpty && !rightEmpty) {
-                            //19
+                        if (bottomMerge) {
+                            result |= TileTransitions.bottom;
+                        }
+
+                        byte finalMesh = (byte) grassTransitionTypes.get(result, -1);
+                        blocks[index].meshType = finalMesh;
+                        if (finalMesh == -1) {
+                            assert false : "invalid mesh type retrieval, for some reason";
                         }
                     } else {
                         //skip to next column, no more grass transitions possible in this area

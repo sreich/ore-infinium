@@ -502,7 +502,7 @@ public class OreServer implements Runnable {
             } else if (job.object instanceof Network.BlockPickFromClient) {
                 Network.BlockPickFromClient data = ((Network.BlockPickFromClient) job.object);
                 //FIXME verify..everything absolutely everything all over this networking portion....this is horrible obviously
-                m_world.blockAt(data.x, data.y).blockType = Block.BlockType.NullBlockType;
+                m_world.blockAt(data.x, data.y).destroy();
             } else if (job.object instanceof Network.BlockPlaceFromClient) {
                 Network.BlockPlaceFromClient data = ((Network.BlockPlaceFromClient) job.object);
                 PlayerComponent playerComponent = playerMapper.get(job.connection.player);

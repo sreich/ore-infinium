@@ -116,6 +116,7 @@ public class Block {
     void destroy() {
         blockType = Block.BlockType.NullBlockType;
         meshType = 0;
+        flags = 0;
     }
 
     public final void setFlag(int flag) {

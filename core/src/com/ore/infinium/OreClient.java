@@ -322,7 +322,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             int top = Gdx.graphics.getHeight() - 50;
             int tilex = 500;
 
-            for (int i = 0; i < 18; ++i) {
+            for (int i = 0; i < 17; ++i) {
                 m_font.draw(m_batch, Integer.toString(i), tilex + 4 + (i * 18), top - 5);
             }
 
