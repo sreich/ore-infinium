@@ -657,23 +657,35 @@ public class World implements Disposable {
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset();
 
-                //place the item
-                Entity placedItem = cloneEntity(playerComponent.equippedPrimaryItem());
-                ItemComponent placedItemComponent = itemMapper.get(placedItem);
-
-                placedItemComponent.state = ItemComponent.State.InWorldState;
-
-                SpriteComponent spriteComponent = spriteMapper.get(placedItem);
-                Vector2 alignedPosition = new Vector2(mouse.x, mouse.y);
-                alignPositionToBlocks(alignedPosition);
-
-                spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
-
-                engine.addEntity(placedItem);
-
-                //hack, do more validation..
-                m_client.sendItemPlace(mouse.x, mouse.y);
+                attemptItemPlace(mouse.x, mouse.y, playerComponent.equippedPrimaryItem());
             }
+        }
+    }
+
+    private void attemptItemPlace(float x, float y, Entity item) {
+
+        //place the item
+        Entity placedItem = cloneEntity(item);
+
+        ItemComponent placedItemComponent = itemMapper.get(placedItem);
+
+        placedItemComponent.state = ItemComponent.State.InWorldState;
+
+        Vector2 alignedPosition = new Vector2(x, y);
+        SpriteComponent spriteComponent = spriteMapper.get(placedItem);
+        alignPositionToBlocks(alignedPosition);
+
+        spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
+
+        engine.addEntity(placedItem);
+
+        if (isPlacementValid(placedItem)) {
+            //hack, do more validation..
+            m_client.sendItemPlace(alignedPosition.x, alignedPosition.y);
+        } else {
+            //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
+            //because the function actually takes only the entity, to check if its size, position etc conflict with anything
+            engine.removeEntity(placedItem);
         }
     }
 
@@ -949,6 +961,12 @@ public class World implements Disposable {
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
                     continue;
                 }
+            }
+
+            TagComponent tagComponent = tagMapper.get(entities.get(i));
+            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
+                //ignore all collisions with this
+                continue;
             }
 
             if (entityCollides(entities.get(i), entity)) {
