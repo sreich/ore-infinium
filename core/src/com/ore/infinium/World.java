@@ -246,10 +246,15 @@ public class World implements Disposable {
 
         SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementGhost);
 
+        if (m_powerOverlaySystem.overlayVisible) {
+            spriteComponent.visible = false;
+        }
+
         TagComponent tag = engine.createComponent(TagComponent.class);
         tag.tag = "itemPlacementGhost";
         m_itemPlacementGhost.add(tag);
         engine.addEntity(m_itemPlacementGhost);
+
     }
 
     public void initServer() {
@@ -433,7 +438,6 @@ public class World implements Disposable {
         }
 
         blocks[index].meshType = (byte) dirtTransitionTypes.get(result, -1);
-
     }
 
     private boolean shouldTileMerge(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
@@ -587,7 +591,7 @@ public class World implements Disposable {
             updateCrosshair();
             updateItemPlacementGhost();
 
-            if (m_client.leftMouseDown) {
+            if (m_client.leftMouseDown && !m_powerOverlaySystem.overlayVisible) {
                 handleLeftMousePrimaryAttack();
             }
         }
