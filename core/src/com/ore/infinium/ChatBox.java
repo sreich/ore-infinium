@@ -119,7 +119,7 @@ public class ChatBox implements Chat.ChatListener {
         });
 
         closeChatDialog();
-        showForNotification();
+        //   showForNotification();
     }
 
     private void showForNotification() {
