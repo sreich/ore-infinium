@@ -54,9 +54,14 @@ project(":desktop") {
 project(":core") {
     apply plugin: "java"
 
+//    sourceSets.test.java.srcDirs = ["test/"]
 
     dependencies {
+
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+        //       testCompile "junit:junit:4.11+"
+
         compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile "com.badlogicgames.ashley:ashley:$ashleyVersion"

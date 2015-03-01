@@ -40,7 +40,8 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
-    private ComponentMapper<PowerComponent> powerMapper = ComponentMapper.getFor(PowerComponent.class);
+    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper = ComponentMapper.getFor(PowerDeviceComponent.class);
+    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper = ComponentMapper.getFor(PowerGeneratorComponent.class);
 
 //    public Sprite outputNode = new Sprite();
 
@@ -67,7 +68,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
     private Entity entityAtPosition(Vector2 pos) {
 
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PowerComponent.class).get());
+        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PowerDeviceComponent.class).get());
         SpriteComponent spriteComponent;
         TagComponent tagComponent;
         for (int i = 0; i < entities.size(); ++i) {
@@ -122,14 +123,17 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                     return;
                 }
 
-                PowerComponent sourcePowerComponent = powerMapper.get(dragSourceEntity);
-                PowerComponent dropPowerComponent = powerMapper.get(dropEntity);
+                PowerDeviceComponent sourcePowerDeviceComponent = powerDeviceMapper.get(dragSourceEntity);
+                PowerDeviceComponent dropPowerDeviceComponent = powerDeviceMapper.get(dropEntity);
 
-                if (!sourcePowerComponent.outputEntities.contains(dropEntity, true) &&
-                        !dropPowerComponent.outputEntities.contains(dragSourceEntity, true)) {
+                //              if (!sourcePowerDeviceComponent.outputEntities.contains(dropEntity, true) &&
+                //                     !dropPowerDeviceComponent.outputEntities.contains(dragSourceEntity, true)) {
 
-                    sourcePowerComponent.outputEntities.add(dropEntity);
-                }
+//                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
+
+                m_world.m_powerCircuitSystem.connectDevices(dragSourceEntity, dropEntity);
+
+                //               }
 
                 dragSourceEntity = null;
             }
@@ -174,12 +178,6 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
     private void renderEntities(float delta) {
         //todo need to exclude blocks?
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PowerComponent.class).get());
-
-        ItemComponent itemComponent;
-        SpriteComponent spriteComponent;
-        TagComponent tagComponent;
-        PowerComponent powerComponent;
 
         if (m_dragInProgress && dragSourceEntity != null) {
             SpriteComponent dragSpriteComponent = spriteMapper.get(dragSourceEntity);
@@ -196,39 +194,40 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             m_batch.setColor(1, 1, 1, 1);
         }
 
-        for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = itemMapper.get(entities.get(i));
-            assert itemComponent != null;
 
-            if (itemComponent.state != ItemComponent.State.InWorldState) {
-                continue;
+        SpriteComponent firstEntitySpriteComponent;
+        SpriteComponent secondEntitySpriteComponent;
+
+        SpriteComponent deviceSprite;
+        for (PowerCircuitSystem.PowerCircuit circuit : m_world.m_powerCircuitSystem.m_circuits) {
+            //for each device, draw a power node, a "hub" of connections of sorts.
+            for (Entity gen : circuit.generators) {
+                deviceSprite = spriteMapper.get(gen);
+                renderPowerNode(deviceSprite);
             }
 
-            tagComponent = tagMapper.get(entities.get(i));
-            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
-                continue;
+            //do the same for devices. devices(consumers)
+            for (Entity device : circuit.devices) {
+                deviceSprite = spriteMapper.get(device);
+                renderPowerNode(deviceSprite);
             }
 
-            spriteComponent = spriteMapper.get(entities.get(i));
+            //draw wires of each connection, in every circuit. Wires only have a start and end point.
+            for (PowerCircuitSystem.WireConnection wireConnection : circuit.connections) {
 
-            //for each power node that goes outward from this sprite, draw connection lines
-            renderPowerNode(spriteComponent);
+                firstEntitySpriteComponent = spriteMapper.get(wireConnection.first);
+                secondEntitySpriteComponent = spriteMapper.get(wireConnection.second);
 
-            powerComponent = powerMapper.get(entities.get(i));
 
-            SpriteComponent spriteOutputNodeComponent;
-            //go over each output of this entity, and draw a connection from this entity to the connected dest
-            for (int j = 0; j < powerComponent.outputEntities.size; ++j) {
-                powerComponent = powerMapper.get(entities.get(i));
-                spriteOutputNodeComponent = spriteMapper.get(powerComponent.outputEntities.get(j));
-
-                renderWire(new Vector2(spriteComponent.sprite.getX() + spriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
-                                spriteComponent.sprite.getY() + spriteComponent.sprite.getHeight() * powerNodeOffsetRatioY),
-                        new Vector2(spriteOutputNodeComponent.sprite.getX() + spriteOutputNodeComponent.sprite.getWidth() * powerNodeOffsetRatioX,
-                                spriteOutputNodeComponent.sprite.getY() + spriteOutputNodeComponent.sprite.getHeight() * powerNodeOffsetRatioY));
+                //go over each output of this entity, and draw a connection from this entity to the connected dest
+                renderWire(new Vector2(firstEntitySpriteComponent.sprite.getX() + firstEntitySpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
+                                firstEntitySpriteComponent.sprite.getY() + firstEntitySpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY),
+                        new Vector2(secondEntitySpriteComponent.sprite.getX() + secondEntitySpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
+                                secondEntitySpriteComponent.sprite.getY() + secondEntitySpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY));
             }
         }
     }
+
 
     private void renderWire(Vector2 source, Vector2 dest) {
         Vector2 diff = new Vector2(source.x - dest.x, source.y - dest.y);

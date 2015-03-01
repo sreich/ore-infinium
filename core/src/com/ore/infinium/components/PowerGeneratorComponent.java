@@ -1,8 +1,6 @@
 package com.ore.infinium.components;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
 /**
@@ -23,17 +21,15 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class PowerComponent extends Component implements Pool.Poolable {
-    //entity connected to the output
-    public Array<Entity> outputEntities = new Array<>();
+public class PowerGeneratorComponent extends Component implements Pool.Poolable {
 
     public void reset() {
 
     }
 
-    public PowerComponent() {
+    public PowerGeneratorComponent() {
     }
 
-    public PowerComponent(PowerComponent component) {
+    public PowerGeneratorComponent(PowerGeneratorComponent component) {
     }
 }

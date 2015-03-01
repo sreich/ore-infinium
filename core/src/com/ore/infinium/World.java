@@ -151,6 +151,7 @@ public class World implements Disposable {
     public TextureAtlas m_atlas;
     protected TileRenderer m_tileRenderer;
     PowerOverlayRenderSystem m_powerOverlaySystem;
+    public PowerCircuitSystem m_powerCircuitSystem;
 
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
     private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
@@ -165,7 +166,7 @@ public class World implements Disposable {
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
     private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
-    private ComponentMapper<PowerComponent> powerMapper = ComponentMapper.getFor(PowerComponent.class);
+    private ComponentMapper<PowerDeviceComponent> powerMapper = ComponentMapper.getFor(PowerDeviceComponent.class);
 
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
@@ -190,6 +191,7 @@ public class World implements Disposable {
         engine = new PooledEngine(2000, 2000, 2000, 2000);
 
         engine.addSystem(new MovementSystem(this));
+        engine.addSystem(m_powerCircuitSystem = new PowerCircuitSystem(this));
         engine.addSystem(new PlayerSystem(this));
 
         m_camera = new OrthographicCamera(1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
@@ -695,7 +697,7 @@ public class World implements Disposable {
         }
 
         meshTiles();
-        computeSunlight();
+        //computeSunlight();
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
@@ -895,7 +897,7 @@ public class World implements Disposable {
         itemComponent.maxStackSize = 900;
         air.add(itemComponent);
 
-        PowerComponent power = engine.createComponent(PowerComponent.class);
+        PowerDeviceComponent power = engine.createComponent(PowerDeviceComponent.class);
         air.add(power);
 
         SpriteComponent airSprite = engine.createComponent(SpriteComponent.class);
@@ -1115,9 +1117,9 @@ public class World implements Disposable {
             clonedEntity.add(clonedComponent);
         }
 
-        PowerComponent powerComponent = powerMapper.get(entity);
-        if (powerComponent != null) {
-            PowerComponent clonedComponent = new PowerComponent(powerComponent);
+        PowerDeviceComponent powerDeviceComponent = powerMapper.get(entity);
+        if (powerDeviceComponent != null) {
+            PowerDeviceComponent clonedComponent = new PowerDeviceComponent(powerDeviceComponent);
             clonedEntity.add(clonedComponent);
         }
 
