@@ -154,33 +154,26 @@ public class TileRenderer extends IntervalSystem {
         String textureName = "";
         for (int x = startColumn; x < endColumn; ++x) {
             for (int y = startRow; y < endRow; ++y) {
-                boolean nullBlockSurroundedByDirt = false;
-
                 int blockIndex = x * World.WORLD_ROWCOUNT + y;
+
                 Block block = m_world.blockAt(x, y);
 
                 float tileX = World.BLOCK_SIZE * x;
                 float tileY = World.BLOCK_SIZE * y;
 
                 if (block.blockType == Block.BlockType.NullBlockType) {
-                    if (block.meshType == 16) {
-                        // actually drawn as a blank block, with a bit of dirt on all sides
-                        // because it is surrounded by dirt blocks. though it's drawn with the dirt tile stuff,
-                        // and is still considered null.
-                        nullBlockSurroundedByDirt = true;
-                    } else {
                         continue;
-                    }
                 }
 
                 boolean grass = false;
                 //String textureName = World.blockTypes.get(block.blockType).textureName;
-                if (block.blockType == Block.BlockType.DirtBlockType || nullBlockSurroundedByDirt) {
+                if (block.blockType == Block.BlockType.DirtBlockType) {
 
                     if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure";
                         m_batch.setColor(1, 0.5f, 1, 1);
+
                         grass = true;
                     } else {
                         textureName = dirtBlockMeshes.get(block.meshType);

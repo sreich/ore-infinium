@@ -318,66 +318,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             m_font.draw(m_batch, s, 0, textY);
             textY -= 15;
-
-            int top = Gdx.graphics.getHeight() - 50;
-            int tilex = 500;
-
-            for (int i = 0; i < 17; ++i) {
-                m_font.draw(m_batch, Integer.toString(i), tilex + 4 + (i * 18), top - 5);
-            }
-
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 0)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 1)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 2)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 3)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 4)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 5)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 6)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 7)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 8)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get((byte) 9)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(10)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(11)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(12)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(13)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(14)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(15)),
-                    tilex, top, 16, 16);
-            tilex += 18;
-            m_batch.draw(m_world.m_tileRenderer.m_tilesAtlas.findRegion(m_world.m_tileRenderer.dirtBlockMeshes.get(16)),
-                    tilex, top, 16, 16);
-            tilex += 18;
         }
 
         if (m_world != null) {

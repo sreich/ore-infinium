@@ -71,6 +71,7 @@ public class World implements Disposable {
      */
     public static final IntIntMap dirtTransitionTypes = new IntIntMap();
     public static final IntIntMap grassTransitionTypes = new IntIntMap();
+    public static final IntIntMap stoneTransitionTypes = new IntIntMap();
 
     public static final class TileTransitions {
         //no sides to transition to
@@ -79,8 +80,6 @@ public class World implements Disposable {
         static final int right = 1 << 1;
         static final int top = 1 << 2;
         static final int bottom = 1 << 3;
-        // block is null, all sides surrounded by dirts
-        static final int nullBlockAllSidesSurroundedByDirt = 1 << 4;
     }
 
     static {
@@ -100,7 +99,6 @@ public class World implements Disposable {
         dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top, 13);
         dirtTransitionTypes.put(TileTransitions.left | TileTransitions.top, 14);
         dirtTransitionTypes.put(TileTransitions.none, 15);
-        dirtTransitionTypes.put(TileTransitions.nullBlockAllSidesSurroundedByDirt, 16);
 
         ///////////////////////////////////////////////////////////////////////////////////
 
@@ -319,19 +317,6 @@ public class World implements Disposable {
         meshTiles();
     }
 
-    //tiles which must be transitioned as the last pass, null ones in this case
-    private Array<TransitionIndex> transitionTilesNull = new Array<>();
-
-    private static class TransitionIndex {
-        TransitionIndex(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int x;
-        public int y;
-    }
-
     private void meshTiles() {
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
@@ -344,79 +329,20 @@ public class World implements Disposable {
                 }
 
                 if (blocks[index].blockType == Block.BlockType.NullBlockType) {
-
-                    Block leftBlock = blockAtSafely(x - 1, y);
-                    Block rightBlock = blockAtSafely(x + 1, y);
-                    Block topBlock = blockAtSafely(x, y - 1);
-                    Block bottomBlock = blockAtSafely(x, y + 1);
-
-                    boolean leftDirt = leftBlock.blockType == Block.BlockType.DirtBlockType;
-                    boolean rightDirt = rightBlock.blockType == Block.BlockType.DirtBlockType;
-                    boolean topDirt = topBlock.blockType == Block.BlockType.DirtBlockType;
-                    boolean bottomDirt = bottomBlock.blockType == Block.BlockType.DirtBlockType;
-
-                    //null empty block, surrounded by blocks on all sides
-                    if (leftDirt && rightDirt && topDirt && bottomDirt) {
-                        blocks[index].meshType = (byte) dirtTransitionTypes.get(TileTransitions.nullBlockAllSidesSurroundedByDirt, -1);
-                        transitionTilesNull.add(new TransitionIndex(x, y));
-                    }
                     continue;
                 }
 
-                transitionDirtTile(x, y, TileTransitions.none);
+                transitionDirtTile(x, y);
             }
         }
-
-        for (TransitionIndex transitionIndex : transitionTilesNull) {
-            int x = transitionIndex.x;
-            int y = transitionIndex.y;
-
-            //3rd param is source, aka where our current block is relative to the one we're checking
-            //so, the opposite.
-            transitionDirtTile(x - 1, y, TileTransitions.right);
-            transitionDirtTile(x + 1, y, TileTransitions.left);
-            transitionDirtTile(x, y - 1, TileTransitions.bottom);
-            transitionDirtTile(x, y + 1, TileTransitions.top);
-        }
-        transitionTilesNull.clear();
     }
 
-    /**
-     * @param x
-     * @param y
-     * @param nullSurroundedByDirtSource contains one of TileTransitions.none, left, ... etc
-     *                                   If it is not none, it indicates that this transition is
-     *                                   being called again, because a null block was found, surrounded
-     *                                   on all sides by dirt blocks. This is which side the null block was
-     *                                   found on. e.g. TileTransitions.right if the null block is to the right
-     *                                   of this block
-     *                                   <p>
-     *                                   If it is none, it's just a regular transition check.
-     */
-    private void transitionDirtTile(int x, int y, int nullSurroundedByDirtSource) {
+    private void transitionDirtTile(int x, int y) {
         int index = x * WORLD_ROWCOUNT + y;
         //essentially, if the *other* tiles in question are the same blocks, we should
         //merge/transition with them.
 
         int result = 0;
-
-//        if (blocks[index].meshType != Block.BlockType.NullBlockType) {
-        if (nullSurroundedByDirtSource == TileTransitions.left) {
-            result |= TileTransitions.left;
-        }
-
-        if (nullSurroundedByDirtSource == TileTransitions.right) {
-            result |= TileTransitions.right;
-        }
-
-        if (nullSurroundedByDirtSource == TileTransitions.top) {
-            result |= TileTransitions.top;
-        }
-
-        if (nullSurroundedByDirtSource == TileTransitions.bottom) {
-            result |= TileTransitions.bottom;
-        }
-        //       }
 
         boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
         boolean rightMerge = shouldTileMerge(x, y, x + 1, y);

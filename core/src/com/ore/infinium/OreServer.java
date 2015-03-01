@@ -253,25 +253,35 @@ public class OreServer implements Runnable {
         PlayerComponent playerComponent = playerMapper.get(player);
         playerComponent.hotbarInventory.setSlot((byte) 0, tool);
 
-        Entity block = m_world.engine.createEntity();
-        m_world.createBlockItem(block, Block.BlockType.DirtBlockType);
+        Entity dirtBlock = m_world.engine.createEntity();
+        m_world.createBlockItem(dirtBlock, Block.BlockType.DirtBlockType);
 
-        ItemComponent blockItemComponent = itemMapper.get(block);
-        blockItemComponent.inventoryIndex = 1;
-        blockItemComponent.state = ItemComponent.State.InInventoryState;
+        ItemComponent dirtBlockItemComponent = itemMapper.get(dirtBlock);
+        dirtBlockItemComponent.inventoryIndex = 1;
+        dirtBlockItemComponent.state = ItemComponent.State.InInventoryState;
 
-        m_world.engine.addEntity(block);
+        m_world.engine.addEntity(dirtBlock);
+        playerComponent.hotbarInventory.setSlot((byte) 1, dirtBlock);
 
-        playerComponent.hotbarInventory.setSlot((byte) 1, block);
+        Entity stoneBlock = m_world.engine.createEntity();
+        m_world.createBlockItem(stoneBlock, Block.BlockType.StoneBlockType);
+
+        ItemComponent stoneBlockItemComponent = itemMapper.get(stoneBlock);
+        stoneBlockItemComponent.inventoryIndex = 2;
+        stoneBlockItemComponent.state = ItemComponent.State.InInventoryState;
+
+        m_world.engine.addEntity(stoneBlock);
+
+        playerComponent.hotbarInventory.setSlot((byte) 2, stoneBlock);
 
         Entity airGen = m_world.createAirGenerator();
         ItemComponent airGenItem = itemMapper.get(airGen);
-        airGenItem.inventoryIndex = 2;
+        airGenItem.inventoryIndex = 3;
         airGenItem.state = ItemComponent.State.InInventoryState;
 
         m_world.engine.addEntity(airGen);
 
-        playerComponent.hotbarInventory.setSlot((byte) 2, airGen);
+        playerComponent.hotbarInventory.setSlot((byte) 3, airGen);
 
         for (byte i = 4; i < 7; ++i) {
             Entity torch = m_world.engine.createEntity();
