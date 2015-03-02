@@ -16,11 +16,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.badlogic.gdx.utils.IntIntMap;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
 
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * ***************************************************************************
@@ -69,67 +70,117 @@ public class World implements Disposable {
      * e.g. left | right, indicates that it needs to mesh on the left and right sides ONLY
      * @second
      */
-    public static final IntIntMap dirtTransitionTypes = new IntIntMap();
-    public static final IntIntMap grassTransitionTypes = new IntIntMap();
-    public static final IntIntMap stoneTransitionTypes = new IntIntMap();
+    public static final HashMap<EnumSet<TileTransitions>, Integer> dirtTransitionTypes = new HashMap<>();
+    public static final HashMap<EnumSet<TileTransitions>, Integer> grassTransitionTypes = new HashMap<>();
+    public static final HashMap<EnumSet<TileTransitions>, Integer> stoneTransitionTypes = new HashMap<>();
 
-    public static final class TileTransitions {
-        //no sides to transition to
-        static final int none = 0;
-        static final int left = 1 << 0;
-        static final int right = 1 << 1;
-        static final int top = 1 << 2;
-        static final int bottom = 1 << 3;
+    private enum TileTransitions {
+        left,
+        right,
+        top,
+        bottom,
+        //
+        LeftDirt,
+        RightDirt,
+        TopDirt,
+        BottomDirt
     }
 
     static {
-        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 0);
-        dirtTransitionTypes.put(TileTransitions.bottom, 1);
-        dirtTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 2);
-        dirtTransitionTypes.put(TileTransitions.right, 3);
-        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right, 4);
-        dirtTransitionTypes.put(TileTransitions.left, 5);
-        dirtTransitionTypes.put(TileTransitions.top, 6);
-        dirtTransitionTypes.put(TileTransitions.right | TileTransitions.bottom, 7);
-        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.bottom, 8);
-        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.bottom, 9);
-        dirtTransitionTypes.put(TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 10);
-        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.top | TileTransitions.bottom, 11);
-        dirtTransitionTypes.put(TileTransitions.right | TileTransitions.top, 12);
-        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top, 13);
-        dirtTransitionTypes.put(TileTransitions.left | TileTransitions.top, 14);
-        dirtTransitionTypes.put(TileTransitions.none, 15);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right, TileTransitions.top, TileTransitions.bottom), 0);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.bottom), 1);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.top, TileTransitions.bottom), 2);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.right), 3);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right), 4);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left), 5);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.top), 6);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.right, TileTransitions.bottom), 7);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right, TileTransitions.bottom), 8);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.bottom), 9);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.right, TileTransitions.top, TileTransitions.bottom), 10);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.top, TileTransitions.bottom), 11);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.right, TileTransitions.top), 12);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right, TileTransitions.top), 13);
+        dirtTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.top), 14);
+        dirtTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 15);
 
         ///////////////////////////////////////////////////////////////////////////////////
 
-        grassTransitionTypes.put(TileTransitions.bottom, 0);
-        grassTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 1);
-        grassTransitionTypes.put(TileTransitions.right, 2);
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right, 3);
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 4);
-        grassTransitionTypes.put(TileTransitions.left, 5);
-        grassTransitionTypes.put(TileTransitions.right | TileTransitions.bottom, 6);
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.bottom, 7);
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.bottom, 8);
-        grassTransitionTypes.put(TileTransitions.right | TileTransitions.top, 9);
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.top, 10);
-        grassTransitionTypes.put(TileTransitions.none, 11);
-        grassTransitionTypes.put(TileTransitions.top | TileTransitions.bottom, 12);
-        grassTransitionTypes.put(TileTransitions.right | TileTransitions.top, 13);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.bottom), 0);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.top, TileTransitions.bottom), 1);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.right), 2);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right), 3);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right, TileTransitions.top, TileTransitions.bottom), 4);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left), 5);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.right, TileTransitions.bottom), 6);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right, TileTransitions.bottom), 7);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.bottom), 8);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.right, TileTransitions.top), 9);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.top), 10);
+        grassTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 11);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.top, TileTransitions.bottom), 12);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.right, TileTransitions.top), 13);
 
         //rightbottomtop unhandled ??? NEEDED??
-        grassTransitionTypes.put(TileTransitions.right | TileTransitions.top | TileTransitions.bottom, 9);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.right, TileTransitions.top, TileTransitions.bottom), 9);
         //lefttopbottom
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.top | TileTransitions.bottom, 10);
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.right | TileTransitions.top, 4);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.top, TileTransitions.bottom), 10);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.right, TileTransitions.top), 4);
         //hack ^^
 
         //below here is junk
-        grassTransitionTypes.put(TileTransitions.left | TileTransitions.top, 14);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left, TileTransitions.top), 14);
 //        grassTransitionTypes.put(TileTransitions.none, 11);
-        grassTransitionTypes.put(TileTransitions.top, 4); //hack
-        grassTransitionTypes.put(TileTransitions.right, 16);
-        grassTransitionTypes.put(TileTransitions.left, 17);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.top), 4); //hack
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.right), 16);
+        grassTransitionTypes.put(EnumSet.of(TileTransitions.left), 17);
+
+        ////////////////////
+
+
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 1);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 2);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 3);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 4);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 5);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 6);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 7);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 8);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 9);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 10);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 11);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 12);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 13);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 14);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 15);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 16);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 17);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 18);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 19);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 20);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 21);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 22);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 23);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 24);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 25);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 26);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 27);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 28);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 29);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 30);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 31);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 32);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 33);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 34);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 35);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 36);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 37);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 38);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 39);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 40);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 41);
+        stoneTransitionTypes.put(EnumSet.noneOf(TileTransitions.class), 42);
+
     }
 
     private static final int zoomInterval = 50; //ms
@@ -332,9 +383,47 @@ public class World implements Disposable {
                     continue;
                 }
 
-                transitionDirtTile(x, y);
+                if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
+                    //fixme may be able to be made generic. MAYBE.
+                    transitionDirtTile(x, y);
+                } else if (blocks[index].blockType == Block.BlockType.StoneBlockType) {
+                    transitionStoneTile(x, y);
+                }
             }
         }
+    }
+
+    private void transitionStoneTile(int x, int y) {
+        int index = x * WORLD_ROWCOUNT + y;
+        //essentially, if the *other* tiles in question are the same blocks, we should
+        //merge/transition with them.
+
+        Set<TileTransitions> result = EnumSet.noneOf(TileTransitions.class);
+
+        boolean leftMerge = shouldTileTransitionWith(x, y, x - 1, y);
+        boolean rightMerge = shouldTileTransitionWith(x, y, x + 1, y);
+        boolean topMerge = shouldTileTransitionWith(x, y, x, y - 1);
+        boolean bottomMerge = shouldTileTransitionWith(x, y, x, y + 1);
+
+        if (leftMerge) {
+            result.add(TileTransitions.left);
+        }
+
+        if (rightMerge) {
+            result.add(TileTransitions.right);
+        }
+
+        if (topMerge) {
+            result.add(TileTransitions.top);
+        }
+
+        if (bottomMerge) {
+            result.add(TileTransitions.bottom);
+        }
+
+        Integer lookup = stoneTransitionTypes.get(result);
+        assert lookup != null : "transition lookup failure!";
+        blocks[index].meshType = (byte) lookup.intValue();
     }
 
     private void transitionDirtTile(int x, int y) {
@@ -342,33 +431,45 @@ public class World implements Disposable {
         //essentially, if the *other* tiles in question are the same blocks, we should
         //merge/transition with them.
 
-        int result = 0;
+        Set<TileTransitions> result = EnumSet.noneOf(TileTransitions.class);
 
-        boolean leftMerge = shouldTileMerge(x, y, x - 1, y);
-        boolean rightMerge = shouldTileMerge(x, y, x + 1, y);
-        boolean topMerge = shouldTileMerge(x, y, x, y - 1);
-        boolean bottomMerge = shouldTileMerge(x, y, x, y + 1);
+        boolean leftMerge = shouldTileTransitionWith(x, y, x - 1, y);
+        boolean rightMerge = shouldTileTransitionWith(x, y, x + 1, y);
+        boolean topMerge = shouldTileTransitionWith(x, y, x, y - 1);
+        boolean bottomMerge = shouldTileTransitionWith(x, y, x, y + 1);
 
         if (leftMerge) {
-            result |= TileTransitions.left;
+            result.add(TileTransitions.left);
         }
 
         if (rightMerge) {
-            result |= TileTransitions.right;
+            result.add(TileTransitions.right);
         }
 
         if (topMerge) {
-            result |= TileTransitions.top;
+            result.add(TileTransitions.top);
         }
 
         if (bottomMerge) {
-            result |= TileTransitions.bottom;
+            result.add(TileTransitions.bottom);
         }
 
-        blocks[index].meshType = (byte) dirtTransitionTypes.get(result, -1);
+        Integer lookup = dirtTransitionTypes.get(result);
+        assert lookup != null : "transition lookup failure!";
+        blocks[index].meshType = (byte) lookup.intValue();
     }
 
-    private boolean shouldTileMerge(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
+    /**
+     * if given tile should transition with the neighbor tile. Usually indicated by if they are the same type or not.
+     * (if they are, it's a yes. If they're different, no)
+     *
+     * @param sourceTileX
+     * @param sourceTileY
+     * @param nearbyTileX
+     * @param nearbyTileY
+     * @return
+     */
+    private boolean shouldTileTransitionWith(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
         boolean isMatched = false;
         int srcIndex = MathUtils.clamp(sourceTileX * WORLD_ROWCOUNT + sourceTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
         int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_ROWCOUNT + nearbyTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
@@ -684,28 +785,28 @@ public class World implements Disposable {
 
                         blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
 
-                        int result = TileTransitions.none;
+                        Set<TileTransitions> result = EnumSet.noneOf(TileTransitions.class);
                         if (leftMerge) {
-                            result |= TileTransitions.left;
+                            result = EnumSet.of(TileTransitions.left);
                         }
 
                         if (rightMerge) {
-                            result |= TileTransitions.right;
+                            result = EnumSet.of(TileTransitions.right);
                         }
 
                         if (topMerge) {
-                            result |= TileTransitions.top;
+                            result = EnumSet.of(TileTransitions.top);
                         }
 
                         if (bottomMerge) {
-                            result |= TileTransitions.bottom;
+                            result = EnumSet.of(TileTransitions.bottom);
                         }
 
-                        byte finalMesh = (byte) grassTransitionTypes.get(result, -1);
+                        byte finalMesh = (byte) grassTransitionTypes.get(result).intValue();
 
-                        if (result == TileTransitions.none || finalMesh == 15) {
+                        if (result.isEmpty() || finalMesh == 15) {
 
-                            byte finalMesasdash = (byte) grassTransitionTypes.get(result, -1);
+                            //byte finalMesasdash = (byte) grassTransitionTypes.get(result, -1);
                         }
 
                         blocks[index].meshType = finalMesh;

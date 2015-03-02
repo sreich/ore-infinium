@@ -14,6 +14,8 @@ public class DesktopLauncher {
             String s = String.format("You broke it bad :(\n Recovery is not possible.\nException on thread name: %s",
                     thread.getName());
 
+            throwable.printStackTrace();
+
             ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
             dialog.setVisible(true);
         });
