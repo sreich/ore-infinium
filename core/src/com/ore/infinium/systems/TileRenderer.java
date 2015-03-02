@@ -53,6 +53,7 @@ public class TileRenderer extends IntervalSystem {
 
     // <byte mesh type, string texture name>
     public IntMap<String> dirtBlockMeshes;
+    public IntMap<String> stoneBlockMeshes;
     public IntMap<String> grassBlockMeshes;
 
     public TileRenderer(OrthographicCamera camera, World world, float interval) {
@@ -70,43 +71,22 @@ public class TileRenderer extends IntervalSystem {
         }
 
         dirtBlockMeshes = new IntMap<>(20);
-        dirtBlockMeshes.put(0, "dirt-00");
-        dirtBlockMeshes.put(1, "dirt-01");
-        dirtBlockMeshes.put(2, "dirt-02");
-        dirtBlockMeshes.put(3, "dirt-03");
-        dirtBlockMeshes.put(4, "dirt-04");
-        dirtBlockMeshes.put(5, "dirt-05");
-        dirtBlockMeshes.put(6, "dirt-06");
-        dirtBlockMeshes.put(7, "dirt-07");
-        dirtBlockMeshes.put(8, "dirt-08");
-        dirtBlockMeshes.put(9, "dirt-09");
-        dirtBlockMeshes.put(10, "dirt-10");
-        dirtBlockMeshes.put(11, "dirt-11");
-        dirtBlockMeshes.put(12, "dirt-12");
-        dirtBlockMeshes.put(13, "dirt-13");
-        dirtBlockMeshes.put(14, "dirt-14");
-        dirtBlockMeshes.put(15, "dirt-15");
-        dirtBlockMeshes.put(16, "dirt-16");
+        for (int i = 0; i < 16; ++i) {
+            String formatted = String.format("dirt-%02d", i);
+            dirtBlockMeshes.put(i, formatted);
+        }
 
         grassBlockMeshes = new IntMap<>(20);
-        grassBlockMeshes.put(0, "grass-00");
-        grassBlockMeshes.put(1, "grass-01");
-        grassBlockMeshes.put(2, "grass-02");
-        grassBlockMeshes.put(3, "grass-03");
-        grassBlockMeshes.put(4, "grass-04");
-        grassBlockMeshes.put(5, "grass-05");
-        grassBlockMeshes.put(6, "grass-06");
-        grassBlockMeshes.put(7, "grass-07");
-        grassBlockMeshes.put(8, "grass-08");
-        grassBlockMeshes.put(9, "grass-09");
-        grassBlockMeshes.put(10, "grass-10");
-        grassBlockMeshes.put(11, "grass-11");
-        grassBlockMeshes.put(12, "grass-12");
-        grassBlockMeshes.put(13, "grass-13");
-        grassBlockMeshes.put(14, "grass-14");
-        grassBlockMeshes.put(15, "grass-15");
-        grassBlockMeshes.put(16, "grass-16");
-        grassBlockMeshes.put(17, "grass-17");
+        for (int i = 0; i < 17; ++i) {
+            String formatted = String.format("grass-%02d", i);
+            grassBlockMeshes.put(i, formatted);
+        }
+
+        stoneBlockMeshes = new IntMap<>(20);
+        for (int i = 0; i < 42; ++i) {
+            String formatted = String.format("stone-%02d", i);
+            stoneBlockMeshes.put(i, formatted);
+        }
     }
 
     public void render(double elapsed) {
@@ -179,6 +159,10 @@ public class TileRenderer extends IntervalSystem {
                         textureName = dirtBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure type: " + block.meshType;
                     }
+                } else if (block.blockType == Block.BlockType.StoneBlockType) {
+                    textureName = stoneBlockMeshes.get(block.meshType);
+                    assert textureName != null : "block mesh lookup failure type: " + block.meshType;
+
                 } else {
                     assert false;
                 }
