@@ -272,7 +272,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_stage.draw();
         }
 
-        if (frameTimer.milliseconds() > 1000) {
+        if (frameTimer.milliseconds() > 800) {
             frameTimeString = "Frametime: " + decimalFormat.format(frameTime);
             fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
             textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;

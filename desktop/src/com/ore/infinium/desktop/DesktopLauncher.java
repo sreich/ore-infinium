@@ -5,16 +5,17 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglInput;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
+import com.ore.infinium.ExceptionDialog;
 import com.ore.infinium.OreClient;
-
-import javax.swing.*;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            String s = String.format("You broke it :(\nException on thread name: %s, id: %s.\nException: %s.\nDetails: %s",
-                    thread.getName(), thread.getId(), throwable, throwable.getCause());
-            JOptionPane.showMessageDialog(null, s, "Ore Infinium Exception Handler", JOptionPane.INFORMATION_MESSAGE);
+            String s = String.format("You broke it bad :(\n Recovery is not possible.\nException on thread name: %s",
+                    thread.getName());
+
+            ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
+            dialog.setVisible(true);
         });
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
