@@ -365,10 +365,10 @@ public class World implements Disposable {
 
     private void generateWorld() {
         generateOres();
-        meshTiles();
+        transitionTiles();
     }
 
-    private void meshTiles() {
+    private void transitionTiles() {
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
                 int index = x * WORLD_ROWCOUNT + y;
@@ -723,16 +723,10 @@ public class World implements Disposable {
             return;
         }
 
-        meshTiles();
-        //computeSunlight();
+        transitionTiles();
+        computeSunlight();
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
-
-        if (m_client.m_renderTiles) {
-            //m_tileRenderer.render(elapsed);
-        } else {
-
-        }
 
         //FIXME: incorporate entities into the pre-lit gamescene FBO, then render lighting as last pass
         //m_lightRenderer->renderToBackbuffer();
@@ -741,38 +735,20 @@ public class World implements Disposable {
         //   m_fluidRenderer->render();
 //    m_particleRenderer->render();
 //FIXME unused    m_quadTreeRenderer->render();
-
-        updateCrosshair();
-        updateItemPlacementGhost();
     }
 
     private void computeSunlight() {
-        int previousY = 0;
-
-        //if true, probably continue downward until we are surounded on both sides by blocks
-        boolean previousYHadSun = false;
-        boolean ignoreFurther = false;
-
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
-            ignoreFurther = false;
 
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
-                int index = x * WORLD_ROWCOUNT + y;
 
-                if (ignoreFurther) {
-                    y = WORLD_ROWCOUNT;
-                    continue;
-                }
+                Block leftBlock = blockAtSafely(x - 1, y);
+                Block rightBlock = blockAtSafely(x + 1, y);
+                Block topBlock = blockAtSafely(x, y - 1);
+                Block bottomBlock = blockAtSafely(x, y + 1);
 
-                if (previousYHadSun) {
-
-                    Block leftBlock = blockAt(MathUtils.clamp(x - 1, 0, WORLD_COLUMNCOUNT), y);
-                    Block rightBlock = blockAt(MathUtils.clamp(x + 1, 0, WORLD_COLUMNCOUNT), y);
-                    Block topBlock = blockAt(x, MathUtils.clamp(y - 1, 0, WORLD_ROWCOUNT));
-                    Block bottomBlock = blockAt(x, MathUtils.clamp(y + 1, 0, WORLD_ROWCOUNT));
-
-                    if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
-                        previousYHadSun = true;
+                Block block = blockAtSafely(x, y);
+                if (block.blockType == Block.BlockType.DirtBlockType) {
 
                         boolean leftMerge = leftBlock.blockType == Block.BlockType.DirtBlockType;
 
@@ -783,57 +759,40 @@ public class World implements Disposable {
 
                         boolean bottomMerge = bottomBlock.blockType == Block.BlockType.DirtBlockType;
 
-                        blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
+                    block.setFlag(Block.BlockFlags.SunlightVisibleBlock);
 
                         Set<TileTransitions> result = EnumSet.noneOf(TileTransitions.class);
                         if (leftMerge) {
-                            result = EnumSet.of(TileTransitions.left);
+                            result.add(TileTransitions.left);
                         }
 
                         if (rightMerge) {
-                            result = EnumSet.of(TileTransitions.right);
+                            result.add(TileTransitions.right);
                         }
 
                         if (topMerge) {
-                            result = EnumSet.of(TileTransitions.top);
+                            result.add(TileTransitions.top);
                         }
 
                         if (bottomMerge) {
-                            result = EnumSet.of(TileTransitions.bottom);
+                            result.add(TileTransitions.bottom);
                         }
 
                         byte finalMesh = (byte) grassTransitionTypes.get(result).intValue();
 
-                        if (result.isEmpty() || finalMesh == 15) {
-
-                            //byte finalMesasdash = (byte) grassTransitionTypes.get(result, -1);
-                        }
-
-                        blocks[index].meshType = finalMesh;
+                    block.meshType = finalMesh;
                         if (finalMesh == -1) {
                             assert false : "invalid mesh type retrieval, for some reason";
                         }
                     } else {
                         //skip to next column, no more grass transitions possible in this area
-                        previousYHadSun = false;
-                        ignoreFurther = true;
-                        //++x;
-                        //y = 0;
+//                        ++x;
+                    y = WORLD_ROWCOUNT;
                     }
-                } else {
-//                    if (blocks[index].blockType == Block.BlockType.NullBlockType) {
-//                        continue;
-//                    }
 //hack fixme, this is the issue..when it's surrounded by none/it's the first one in the list, it never hits the above
                     //condition, i think
-                    if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
-                        blocks[index].setFlag(Block.BlockFlags.SunlightVisibleBlock);
-                        previousYHadSun = true;
-                    }
-                }
             }
         }
-
     }
 
     /*
@@ -1056,7 +1015,7 @@ public class World implements Disposable {
         Gdx.app.log("block region", "loading");
 
         //fixme obviously don't do the whole world..
-        meshTiles();
+        transitionTiles();
     }
 
     /**
