@@ -750,47 +750,48 @@ public class World implements Disposable {
                 Block block = blockAtSafely(x, y);
                 if (block.blockType == Block.BlockType.DirtBlockType) {
 
-                        boolean leftMerge = leftBlock.blockType == Block.BlockType.DirtBlockType;
+                    boolean leftMerge = leftBlock.blockType == Block.BlockType.DirtBlockType;
 
-                        boolean rightMerge = rightBlock.blockType == Block.BlockType.DirtBlockType;
+                    boolean rightMerge = rightBlock.blockType == Block.BlockType.DirtBlockType;
 
-                        //hack is top redundant?
-                        boolean topMerge = topBlock.blockType == Block.BlockType.DirtBlockType;
+                    //hack is top redundant?
+                    boolean topMerge = topBlock.blockType == Block.BlockType.DirtBlockType;
 
-                        boolean bottomMerge = bottomBlock.blockType == Block.BlockType.DirtBlockType;
+                    boolean bottomMerge = bottomBlock.blockType == Block.BlockType.DirtBlockType;
 
                     block.setFlag(Block.BlockFlags.SunlightVisibleBlock);
 
-                        Set<TileTransitions> result = EnumSet.noneOf(TileTransitions.class);
-                        if (leftMerge) {
-                            result.add(TileTransitions.left);
-                        }
+                    Set<TileTransitions> result = EnumSet.noneOf(TileTransitions.class);
+                    if (leftMerge) {
+                        result.add(TileTransitions.left);
+                    }
 
-                        if (rightMerge) {
-                            result.add(TileTransitions.right);
-                        }
+                    if (rightMerge) {
+                        result.add(TileTransitions.right);
+                    }
 
-                        if (topMerge) {
-                            result.add(TileTransitions.top);
-                        }
+                    if (topMerge) {
+                        result.add(TileTransitions.top);
+                    }
 
-                        if (bottomMerge) {
-                            result.add(TileTransitions.bottom);
-                        }
+                    if (bottomMerge) {
+                        result.add(TileTransitions.bottom);
+                    }
 
-                        byte finalMesh = (byte) grassTransitionTypes.get(result).intValue();
+                    byte finalMesh = (byte) grassTransitionTypes.get(result).intValue();
 
                     block.meshType = finalMesh;
-                        if (finalMesh == -1) {
-                            assert false : "invalid mesh type retrieval, for some reason";
-                        }
-                    } else {
-                        //skip to next column, no more grass transitions possible in this area
-//                        ++x;
-                    y = WORLD_ROWCOUNT;
+                    if (finalMesh == -1) {
+                        assert false : "invalid mesh type retrieval, for some reason";
                     }
+
+                    y = WORLD_ROWCOUNT;
+                } else {
+                    //skip to next column, no more grass transitions possible in this area
+//                        ++x;
+                }
 //hack fixme, this is the issue..when it's surrounded by none/it's the first one in the list, it never hits the above
-                    //condition, i think
+                //condition, i think
             }
         }
     }

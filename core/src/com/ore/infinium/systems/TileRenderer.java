@@ -70,23 +70,23 @@ public class TileRenderer extends IntervalSystem {
             region.flip(false, true);
         }
 
-        final int dirtCount = 16;
-        dirtBlockMeshes = new IntMap<>(dirtCount);
-        for (int i = 0; i < dirtCount; ++i) {
+        final int dirtMax = 16;
+        dirtBlockMeshes = new IntMap<>(dirtMax);
+        for (int i = 0; i <= dirtMax; ++i) {
             String formatted = String.format("dirt-%02d", i);
             dirtBlockMeshes.put(i, formatted);
         }
 
-        final int grassCount = 17;
-        grassBlockMeshes = new IntMap<>(grassCount);
-        for (int i = 0; i < grassCount; ++i) {
+        final int grassMax = 18;
+        grassBlockMeshes = new IntMap<>(grassMax);
+        for (int i = 0; i <= grassMax; ++i) {
             String formatted = String.format("grass-%02d", i);
             grassBlockMeshes.put(i, formatted);
         }
 
-        final int stoneCount = 42;
+        final int stoneMax = 42;
         stoneBlockMeshes = new IntMap<>(42);
-        for (int i = 0; i < stoneCount; ++i) {
+        for (int i = 0; i <= stoneMax; ++i) {
             String formatted = String.format("stone-%02d", i);
             stoneBlockMeshes.put(i, formatted);
         }

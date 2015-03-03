@@ -311,9 +311,25 @@ public class OreClient implements ApplicationListener, InputProcessor {
             int x = (int) (mousePos.x / World.BLOCK_SIZE);
             int y = (int) (mousePos.y / World.BLOCK_SIZE);
 
+            String texture = "";
+
+            switch (block.blockType) {
+                case Block.BlockType.DirtBlockType:
+                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
+                        texture = m_world.m_tileRenderer.grassBlockMeshes.get(block.meshType);
+                    } else {
+                        texture = m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType);
+                    }
+
+                    break;
+                case Block.BlockType.StoneBlockType:
+                    texture = m_world.m_tileRenderer.stoneBlockMeshes.get(block.meshType);
+                    break;
+            }
+
             String s = String.format("tile(%d,%d), block type: %s, mesh: %s, texture: %s , Grass: %s",
                     x, y, block.blockType, block.meshType,
-                    m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType),
+                    texture,
                     block.hasFlag(Block.BlockFlags.SunlightVisibleBlock));
 
             m_font.draw(m_batch, s, 0, textY);
