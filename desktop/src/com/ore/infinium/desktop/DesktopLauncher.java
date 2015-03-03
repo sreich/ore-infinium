@@ -11,7 +11,7 @@ import com.ore.infinium.OreClient;
 public class DesktopLauncher {
     public static void main(String[] arg) {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            String s = String.format("You broke it bad :(\n Recovery is not possible.\nException on thread name: %s",
+            String s = String.format("You broke it bad :(\nRecovery not possible.\nException on thread name: %s",
                     thread.getName());
 
             throwable.printStackTrace();

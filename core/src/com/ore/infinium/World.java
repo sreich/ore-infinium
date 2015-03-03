@@ -138,49 +138,37 @@ public class World implements Disposable {
         ////////////////////
 
 
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 1);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 2);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 3);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 4);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 5);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 6);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 7);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 8);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 9);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 10);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 11);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 12);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 13);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 14);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 15);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 16);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 17);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 18);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 19);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 20);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 21);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 22);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 23);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 24);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 25);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 26);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 27);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 28);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 29);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.right, Transitions.bottom), 1);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 2);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 3);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.right, Transitions.bottom, Transitions.top), 4);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.top, Transitions.bottom), 5);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.top, Transitions.right), 6);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top), 7);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 8);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.bottom), 9);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.bottom, Transitions.top), 10);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.right), 11);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 12);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left), 13);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.top), 14);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.LeftDirt, Transitions.RightDirt, Transitions.BottomDirt, Transitions.TopDirt), 15);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.bottom, Transitions.right), 16);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom, Transitions.right), 17);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 18);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.top, Transitions.bottom, Transitions.right), 19);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.top, Transitions.bottom), 20);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.top, Transitions.right), 21);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 22);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.top), 23);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.bottom), 24);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.bottom, Transitions.top), 25);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.right), 26);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 27);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left), 28);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.top), 29);
         stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 30);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 31);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 32);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 33);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 34);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 35);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 36);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 37);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 38);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 39);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 40);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 41);
-        stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 42);
-
     }
 
     private static final int zoomInterval = 50; //ms
