@@ -70,22 +70,24 @@ public class TileRenderer extends IntervalSystem {
             region.flip(false, true);
         }
 
-        final int dirtMax = 16;
+        //dirt 16 and beyond are transition things.
+        final int dirtMax = 25;
         dirtBlockMeshes = new IntMap<>(dirtMax);
         for (int i = 0; i <= dirtMax; ++i) {
             String formatted = String.format("dirt-%02d", i);
             dirtBlockMeshes.put(i, formatted);
         }
 
-        final int grassMax = 18;
+        //18+ are transition helpers
+        final int grassMax = 20;
         grassBlockMeshes = new IntMap<>(grassMax);
         for (int i = 0; i <= grassMax; ++i) {
             String formatted = String.format("grass-%02d", i);
             grassBlockMeshes.put(i, formatted);
         }
 
-        final int stoneMax = 42;
-        stoneBlockMeshes = new IntMap<>(42);
+        final int stoneMax = 30;
+        stoneBlockMeshes = new IntMap<>(stoneMax);
         for (int i = 0; i <= stoneMax; ++i) {
             String formatted = String.format("stone-%02d", i);
             stoneBlockMeshes.put(i, formatted);
@@ -155,7 +157,7 @@ public class TileRenderer extends IntervalSystem {
                     if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure";
-                        m_batch.setColor(1, 0.5f, 1, 1);
+                        //m_batch.setColor(1, 0.5f, 1, 1);
 
                         grass = true;
                     } else {
@@ -175,7 +177,7 @@ public class TileRenderer extends IntervalSystem {
                 m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
 
                 if (grass) {
-                    m_batch.setColor(1, 1, 1, 1);
+                    //m_batch.setColor(1, 1, 1, 1);
                 }
 
 
