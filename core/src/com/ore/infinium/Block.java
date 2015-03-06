@@ -133,7 +133,7 @@ public class Block {
 
     public final class BlockFlags {
         public static final int OnFireBlock = 1 << 0;
-        public static final int SunlightVisibleBlock = 1 << 1;
+        public static final int GrassBlock = 1 << 1;
 //        public static final int GrassBlock = 1 << 2;
     }
 

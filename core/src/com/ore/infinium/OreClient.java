@@ -315,7 +315,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             switch (block.blockType) {
                 case Block.BlockType.DirtBlockType:
-                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
+                    if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
                         texture = m_world.m_tileRenderer.grassBlockMeshes.get(block.meshType);
                     } else {
                         texture = m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType);
@@ -330,7 +330,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             String s = String.format("tile(%d,%d), block type: %s, mesh: %s, texture: %s , Grass: %s",
                     x, y, block.blockType, block.meshType,
                     texture,
-                    block.hasFlag(Block.BlockFlags.SunlightVisibleBlock));
+                    block.hasFlag(Block.BlockFlags.GrassBlock));
 
             m_font.draw(m_batch, s, 0, textY);
             textY -= 15;

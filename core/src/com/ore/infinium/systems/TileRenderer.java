@@ -115,10 +115,8 @@ public class TileRenderer extends IntervalSystem {
 
         // determine what the size of the tiles are but convert that to our zoom level
         final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
-        tileSize.mul(m_camera.view);
+        tileSize.mul(m_camera.combined);
         final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
-        float halfScreenMetersHeight = (/*Settings::instance()->windowHeight */ 900f * 0.5f) / World.PIXELS_PER_METER;
-        //       float halfScreenMetersWidth = (1600f * 0.5f) / (World.PIXELS_PER_METER);
         final int startColumn = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startRow = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
         final int endColumn = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_COLUMNCOUNT);
@@ -139,6 +137,7 @@ public class TileRenderer extends IntervalSystem {
         String textureName = "";
         for (int x = startColumn; x < endColumn; ++x) {
             for (int y = startRow; y < endRow; ++y) {
+                count++;
                 int blockIndex = x * World.WORLD_ROWCOUNT + y;
 
                 Block block = m_world.blockAt(x, y);
@@ -154,7 +153,7 @@ public class TileRenderer extends IntervalSystem {
                 //String textureName = World.blockTypes.get(block.blockType).textureName;
                 if (block.blockType == Block.BlockType.DirtBlockType) {
 
-                    if (block.hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
+                    if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure";
                         //m_batch.setColor(1, 0.5f, 1, 1);
@@ -181,7 +180,6 @@ public class TileRenderer extends IntervalSystem {
                 }
 
 
-                count++;
             }
         }
 

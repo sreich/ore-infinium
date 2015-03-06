@@ -87,7 +87,8 @@ public class World implements Disposable {
     }
 
     static {
-        dirtTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
+        dirtTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom),
+                0);
         dirtTransitionTypes.put(EnumSet.of(Transitions.bottom), 1);
         dirtTransitionTypes.put(EnumSet.of(Transitions.top, Transitions.bottom), 2);
         dirtTransitionTypes.put(EnumSet.of(Transitions.right), 3);
@@ -114,10 +115,13 @@ public class World implements Disposable {
         grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 4);
         grassTransitions.put(EnumSet.of(Transitions.left), 5);
         grassTransitions.put(EnumSet.of(Transitions.right, Transitions.bottom), 6);
+
         grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.bottom), 7);
+        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top), 4);
+
         grassTransitions.put(EnumSet.of(Transitions.left, Transitions.bottom), 8);
         grassTransitions.put(EnumSet.of(Transitions.right, Transitions.top), 9);
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.top), 10);
+        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.top), 12);
         grassTransitions.put(EnumSet.noneOf(Transitions.class), 11);
         grassTransitions.put(EnumSet.of(Transitions.top, Transitions.bottom), 12);
         grassTransitions.put(EnumSet.of(Transitions.right, Transitions.top), 13);
@@ -126,7 +130,7 @@ public class World implements Disposable {
         grassTransitions.put(EnumSet.of(Transitions.right, Transitions.top, Transitions.bottom), 9);
         //lefttopbottom
         grassTransitions.put(EnumSet.of(Transitions.left, Transitions.top, Transitions.bottom), 10);
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 4);
+
         //hack ^^
 
         //below here is junk
@@ -138,7 +142,8 @@ public class World implements Disposable {
         ////////////////////
 
 
-        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom),
+                0);
         stoneTransitionTypes.put(EnumSet.of(Transitions.right, Transitions.bottom), 1);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 2);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 3);
@@ -153,7 +158,9 @@ public class World implements Disposable {
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 12);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left), 13);
         stoneTransitionTypes.put(EnumSet.of(Transitions.top), 14);
-        stoneTransitionTypes.put(EnumSet.of(Transitions.LeftDirt, Transitions.RightDirt, Transitions.BottomDirt, Transitions.TopDirt), 15);
+        stoneTransitionTypes.put(
+                EnumSet.of(Transitions.LeftDirt, Transitions.RightDirt, Transitions.BottomDirt, Transitions.TopDirt),
+                15);
         stoneTransitionTypes.put(EnumSet.of(Transitions.bottom, Transitions.right), 16);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom, Transitions.right), 17);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 18);
@@ -197,7 +204,8 @@ public class World implements Disposable {
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
     private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
-    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper = ComponentMapper.getFor(AirGeneratorComponent.class);
+    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper = ComponentMapper.getFor(
+            AirGeneratorComponent.class);
     private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
     private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
@@ -231,7 +239,8 @@ public class World implements Disposable {
         engine.addSystem(m_powerCircuitSystem = new PowerCircuitSystem(this));
         engine.addSystem(new PlayerSystem(this));
 
-        m_camera = new OrthographicCamera(1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
+        m_camera = new OrthographicCamera(1600 / World.PIXELS_PER_METER,
+                900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
         m_camera.setToOrtho(true, 1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);
 
 //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
@@ -329,7 +338,8 @@ public class World implements Disposable {
         playerComponent.noClip = m_noClipEnabled;
 
         playerComponent.playerName = playerName;
-        playerComponent.loadedViewport.setRect(new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
+        playerComponent.loadedViewport.setRect(
+                new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
         playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY()));
         player.add(playerComponent);
 
@@ -360,12 +370,6 @@ public class World implements Disposable {
         for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
                 int index = x * WORLD_ROWCOUNT + y;
-
-                if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
-                    if (blocks[index].hasFlag(Block.BlockFlags.SunlightVisibleBlock)) {
-                        blocks[index].unsetFlag(Block.BlockFlags.SunlightVisibleBlock);
-                    }
-                }
 
                 if (blocks[index].blockType == Block.BlockType.NullBlockType) {
                     continue;
@@ -459,8 +463,10 @@ public class World implements Disposable {
      */
     private boolean shouldTileTransitionWith(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
         boolean isMatched = false;
-        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_ROWCOUNT + sourceTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
-        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_ROWCOUNT + nearbyTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_ROWCOUNT + sourceTileY, 0,
+                WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_ROWCOUNT + nearbyTileY, 0,
+                WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
 
         if (blocks[srcIndex].blockType == blocks[nearbyIndex].blockType) {
             //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
@@ -544,7 +550,8 @@ public class World implements Disposable {
      * @return
      */
     public Block blockAtSafely(int x, int y) {
-        return blocks[MathUtils.clamp(x, 0, WORLD_COLUMNCOUNT - 1) * WORLD_ROWCOUNT + MathUtils.clamp(y, 0, WORLD_ROWCOUNT - 1)];
+        return blocks[MathUtils.clamp(x, 0, WORLD_COLUMNCOUNT - 1) * WORLD_ROWCOUNT + MathUtils.clamp(y, 0,
+                WORLD_ROWCOUNT - 1)];
     }
 
     public Block blockAt(int x, int y) {
@@ -706,13 +713,26 @@ public class World implements Disposable {
         }
     }
 
+    private OreTimer tileRecomputeTimer = new OreTimer();
+    private OreTimer randomGrassTimer = new OreTimer();
+
     public void render(double elapsed) {
         if (m_mainPlayer == null) {
             return;
         }
 
-        transitionTiles();
-        computeSunlight();
+        if (randomGrassTimer.milliseconds() > 1.0 / 30.0 * 1000.0) {
+            randomGrowGrass();
+            randomGrassTimer.reset();
+        }
+
+
+        if (tileRecomputeTimer.milliseconds() > 3500) {
+            transitionTiles();
+//            transitionGrass();
+
+            tileRecomputeTimer.reset();
+        }
 //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
@@ -725,9 +745,31 @@ public class World implements Disposable {
 //FIXME unused    m_quadTreeRenderer->render();
     }
 
-    private void computeSunlight() {
-        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
+    private void randomGrowGrass() {
+        SpriteComponent sprite = spriteMapper.get(m_mainPlayer);
 
+        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(),
+                0); //new Vector3(100, 200, 0);//positionComponent->position();
+        int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
+        int tilesBeforeY = (int) (playerPosition.y / World.BLOCK_SIZE);
+
+        // determine what the size of the tiles are but convert that to our zoom level
+        final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
+        tileSize.mul(m_camera.view);
+
+        final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
+        final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
+        final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
+        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_COLUMNCOUNT);
+        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_ROWCOUNT);
+
+        int x = MathUtils.random(startX, endX);
+        int y = MathUtils.random(startY, endY);
+        blockAt(x, y).setFlag(Block.BlockFlags.GrassBlock);
+    }
+
+    private void transitionGrass() {
+        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
             for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
 
                 Block leftBlock = blockAtSafely(x - 1, y);
@@ -735,8 +777,9 @@ public class World implements Disposable {
                 Block topBlock = blockAtSafely(x, y - 1);
                 Block bottomBlock = blockAtSafely(x, y + 1);
 
+
                 Block block = blockAtSafely(x, y);
-                if (block.blockType == Block.BlockType.DirtBlockType) {
+                if (block.blockType == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
 
                     boolean leftMerge = leftBlock.blockType == Block.BlockType.DirtBlockType;
 
@@ -747,7 +790,7 @@ public class World implements Disposable {
 
                     boolean bottomMerge = bottomBlock.blockType == Block.BlockType.DirtBlockType;
 
-                    block.setFlag(Block.BlockFlags.SunlightVisibleBlock);
+//                    block.setFlag(Block.BlockFlags.GrassBlock);
 
                     Set<Transitions> result = EnumSet.noneOf(Transitions.class);
                     if (leftMerge) {
@@ -768,18 +811,15 @@ public class World implements Disposable {
 
                     byte finalMesh = (byte) grassTransitions.get(result).intValue();
 
+                    if (topMerge && leftMerge && rightMerge) {
+                        block.meshType = finalMesh;
+                    }
+
                     block.meshType = finalMesh;
                     if (finalMesh == -1) {
                         assert false : "invalid mesh type retrieval, for some reason";
                     }
-
-                    y = WORLD_ROWCOUNT;
-                } else {
-                    //skip to next column, no more grass transitions possible in this area
-//                        ++x;
                 }
-//hack fixme, this is the issue..when it's surrounded by none/it's the first one in the list, it never hits the above
-                //condition, i think
             }
         }
     }
@@ -807,9 +847,11 @@ public class World implements Disposable {
         SpriteComponent spriteComponent = spriteMapper.get(m_blockPickingCrosshair);
 
         Vector2 mouse = mousePositionWorldCoords();
-        Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
+        Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE),
+                BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
 
-        Vector2 crosshairOriginOffset = new Vector2(spriteComponent.sprite.getWidth() * 0.5f, spriteComponent.sprite.getHeight() * 0.5f);
+        Vector2 crosshairOriginOffset = new Vector2(spriteComponent.sprite.getWidth() * 0.5f,
+                spriteComponent.sprite.getHeight() * 0.5f);
 
         Vector2 crosshairFinalPosition = crosshairPosition.add(crosshairOriginOffset);
 
