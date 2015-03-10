@@ -62,4 +62,32 @@ public class LoadedViewport {
     public boolean contains(Vector2 pos) {
         return rect.contains(pos);
     }
+
+    public static final class PlayerViewportBlockRegion {
+        int x, y, width, height;
+
+        PlayerViewportBlockRegion(int x, int y, int width, int height) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+    }
+
+    /**
+     * Starting from x to (including) rect.width, blocks. Same for y.
+     *
+     * @return a rectangle with x, y, width(x2), height(y2), inclusive,
+     * where these are the blocks the viewport has within its view/range
+     */
+    public PlayerViewportBlockRegion blockRegionInViewport() {
+        int x = (int) (Math.max(0.0f, this.rect.x - this.rect.width) / World.BLOCK_SIZE);
+        int y = (int) (Math.max(0.0f, this.rect.y - this.rect.height) / World.BLOCK_SIZE);
+        int width = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_X,
+                this.rect.x + this.rect.width) / World.BLOCK_SIZE);
+        int height = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_Y,
+                this.rect.y + this.rect.height) / World.BLOCK_SIZE);
+
+        return new PlayerViewportBlockRegion(x, y, width, height);
+    }
 }

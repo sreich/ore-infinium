@@ -67,7 +67,8 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
                 continue; //hack, not sure why but occasional NPE's happen..on something
             }
 
-            if (Vector2.dst(spriteComponent.sprite.getX(), spriteComponent.sprite.getY(), playerComponent.lastLoadedRegion.x, playerComponent.lastLoadedRegion.y)
+            if (Vector2.dst(spriteComponent.sprite.getX(), spriteComponent.sprite.getY(),
+                    playerComponent.lastLoadedRegion.x, playerComponent.lastLoadedRegion.y)
                     > LoadedViewport.reloadDistance) {
                 calculateLoadedViewport(entities.get(i));
             }
@@ -89,18 +90,12 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
         sendPlayerBlockRegion(entity);
     }
 
-    private void sendPlayerBlockRegion(Entity entity) {
-        PlayerComponent playerComponent = playerMapper.get(entity);
+
+    private void sendPlayerBlockRegion(Entity player) {
+        PlayerComponent playerComponent = playerMapper.get(player);
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
 
-        int x = (int) (Math.max(0.0f, loadedViewport.rect.x - loadedViewport.rect.width) / World.BLOCK_SIZE);
-        int y = (int) (Math.max(0.0f, loadedViewport.rect.y - loadedViewport.rect.height) / World.BLOCK_SIZE);
-        int x2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_X,
-                loadedViewport.rect.x + loadedViewport.rect.width) / World.BLOCK_SIZE);
-        int y2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_Y,
-                loadedViewport.rect.y + loadedViewport.rect.height) / World.BLOCK_SIZE);
-
-        m_world.m_server.sendPlayerBlockRegion(entity, x, y, x2, y2);
+        m_world.m_server.sendPlayerBlockRegion(player, loadedViewport.blockRegionInViewport());
     }
 
     @Override

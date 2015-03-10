@@ -590,11 +590,11 @@ public class OreServer implements Runnable {
         m_serverKryo.sendToTCP(playerComponent.connectionId, v);
     }
 
-    public void sendPlayerBlockRegion(Entity player, int x, int y, int x2, int y2) {
+    public void sendPlayerBlockRegion(Entity player, LoadedViewport.PlayerViewportBlockRegion region) {
         //FIXME: avoid array realloc
-        Network.BlockRegion region = new Network.BlockRegion(x, y, x2, y2);
-        for (int row = y; row < y2; ++row) {
-            for (int col = x; col < x2; ++col) {
+        Network.BlockRegion blockRegion = new Network.BlockRegion(region.x, region.y, region.width, region.height);
+        for (int row = region.y; row < region.height; ++row) {
+            for (int col = region.x; col < region.width; ++col) {
 
                 Network.SingleBlock block = new Network.SingleBlock();
 
@@ -603,12 +603,12 @@ public class OreServer implements Runnable {
                 block.wallType = origBlock.wallType;
                 block.flags = origBlock.flags;
 
-                region.blocks.add(block);
+                blockRegion.blocks.add(block);
             }
         }
 
         PlayerComponent playerComponent = playerMapper.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionId, region);
+        m_serverKryo.sendToTCP(playerComponent.connectionId, blockRegion);
     }
 
     public void sendEntityMoved(Entity player, Entity entity) {

@@ -135,10 +135,7 @@ public class World implements Disposable {
 
         //below here is junk
         grassTransitions.put(EnumSet.of(Transitions.left, Transitions.top), 14);
-//        grassTransitions.put(TileTransitions.none, 11);
         grassTransitions.put(EnumSet.of(Transitions.top), 1); //hack
-        //       grassTransitions.put(EnumSet.of(Transitions.right), 16);
-
         ////////////////////
 
 
@@ -652,7 +649,7 @@ public class World implements Disposable {
 
             if (randomGrassTimer.milliseconds() > 1.0 / 30.0 * 1000.0) {
                 //HACK
-                //randomGrowGrass();
+                randomGrowGrass();
                 randomGrassTimer.reset();
             }
         }
@@ -773,32 +770,21 @@ public class World implements Disposable {
     }
 
     private void randomGrowGrass() {
-        SpriteComponent sprite = spriteMapper.get(m_mainPlayer);
-
-        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(),
-                0); //new Vector3(100, 200, 0);//positionComponent->position();
-        int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
-        int tilesBeforeY = (int) (playerPosition.y / World.BLOCK_SIZE);
-
-        // determine what the size of the tiles are but convert that to our zoom level
-        final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
-        tileSize.mul(m_camera.view);
-
-        final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
-        final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
-        final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
-        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_SIZE_X);
-        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_SIZE_Y);
-
-        int x = MathUtils.random(startX, endX);
-        int y = MathUtils.random(startY, endY);
-
-        Block block = blockAt(x, y);
-
-        assert false;
-        if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-            block.setFlag(Block.BlockFlags.GrassBlock);
-        }
+//        SpriteComponent sprite = spriteMapper.get(m_mainPlayer);
+//
+//        for (Entity player : m_players) {
+//        PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
+//
+//            Block block = blockAt(x, y);
+//
+//        assert false;
+//        if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+//            block.setFlag(Block.BlockFlags.GrassBlock);
+//        }
+//
+//        //fixme...obviously not main player
+//        m_server.sendPlayerBlockRegion(player, );
+//            }
     }
 
     private void transitionGrass() {
