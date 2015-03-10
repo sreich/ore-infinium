@@ -177,7 +177,7 @@ public class OreServer implements Runnable {
 
         //left
         for (int y = 0; y < seaLevel; y++) {
-            //m_world.blockAt(tilex - 24, tiley + y).blockType = Block.BlockType.StoneBlockType;
+            //m_world.blockAt(tilex - 24, tiley + y).type = Block.BlockType.StoneBlockType;
         }
 
         //right
@@ -186,7 +186,7 @@ public class OreServer implements Runnable {
         }
         //top
         for (int x = tilex - 54; x < tilex + 50; x++) {
-            //m_world.blockAt(x, tiley).blockType = Block.BlockType.StoneBlockType;
+            //m_world.blockAt(x, tiley).type = Block.BlockType.StoneBlockType;
         }
 
         SpriteComponent playerSprite = spriteMapper.get(player);
@@ -520,7 +520,7 @@ public class OreServer implements Runnable {
                 Entity item = playerComponent.equippedPrimaryItem();
                 BlockComponent blockComponent = blockMapper.get(item);
 
-                m_world.blockAt(data.x, data.y).blockType = blockComponent.blockType;
+                m_world.blockAt(data.x, data.y).type = blockComponent.blockType;
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
                 Network.PlayerEquipHotbarIndexFromClient data = ((Network.PlayerEquipHotbarIndexFromClient) job.object);
                 PlayerComponent playerComponent = playerMapper.get(job.connection.player);
@@ -599,8 +599,9 @@ public class OreServer implements Runnable {
                 Network.SingleBlock block = new Network.SingleBlock();
 
                 Block origBlock = m_world.blockAt(col, row);
-                block.blockType = origBlock.blockType;
+                block.type = origBlock.type;
                 block.wallType = origBlock.wallType;
+                block.flags = origBlock.flags;
 
                 region.blocks.add(block);
             }

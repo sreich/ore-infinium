@@ -248,8 +248,9 @@ public class Network {
      * Tiny(er) class to wrap a Block and send over the wire
      */
     static public class SingleBlock {
-        byte blockType;
+        byte type;
         byte wallType;
+        byte flags;
 
         //mesh type is not passed, but recalculated as each chunk is merged with the running world
     }

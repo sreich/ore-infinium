@@ -295,7 +295,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             textY -= 15;
         }
 
-        m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tileCount, 0, textY);
+        m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tilesInViewCountDebug, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, textureSwitchesString, 0, textY);
         textY -= 15;
@@ -313,7 +313,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             String texture = "";
 
-            switch (block.blockType) {
+            switch (block.type) {
                 case Block.BlockType.DirtBlockType:
                     if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
                         texture = m_world.m_tileRenderer.grassBlockMeshes.get(block.meshType);
@@ -328,7 +328,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
 
             String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s",
-                    x, y, block.blockType, block.meshType, block.wallType,
+                    x, y, block.type, block.meshType, block.wallType,
                     texture,
                     block.hasFlag(Block.BlockFlags.GrassBlock));
 

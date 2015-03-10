@@ -32,7 +32,7 @@ import com.ore.infinium.components.*;
  * ***************************************************************************
  */
 public class TileRenderer extends IntervalSystem {
-    public static int tileCount;
+    public static int tilesInViewCountDebug;
 
     public TextureAtlas m_blockAtlas;
     public TextureAtlas m_tilesAtlas;
@@ -103,8 +103,7 @@ public class TileRenderer extends IntervalSystem {
             return;
         }
 
-        tileCount = 0;
-
+        tilesInViewCountDebug = 0;
 
         m_batch.setProjectionMatrix(m_camera.combined);
         SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayer);
@@ -119,8 +118,8 @@ public class TileRenderer extends IntervalSystem {
         final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
         final int startColumn = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startRow = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
-        final int endColumn = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_COLUMNCOUNT);
-        final int endRow = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_ROWCOUNT);
+        final int endColumn = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_SIZE_X);
+        final int endRow = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_SIZE_Y);
       /*
       if (Math.abs(startColumn) != startColumn) {
           //qCDebug(ORE_TILE_RENDERER) << "FIXME, WENT INTO NEGATIVE COLUMN!!";
@@ -148,8 +147,8 @@ public class TileRenderer extends IntervalSystem {
 
                 boolean drawWallTile = false;
 
-                //String textureName = World.blockTypes.get(block.blockType).textureName;
-                if (block.blockType == Block.BlockType.DirtBlockType) {
+                //String textureName = World.blockTypes.get(block.type).textureName;
+                if (block.type == Block.BlockType.DirtBlockType) {
 
                     if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);
@@ -158,12 +157,13 @@ public class TileRenderer extends IntervalSystem {
                         textureName = dirtBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure type: " + block.meshType;
                     }
-                } else if (block.blockType == Block.BlockType.StoneBlockType) {
+                } else if (block.type == Block.BlockType.StoneBlockType) {
                     textureName = stoneBlockMeshes.get(block.meshType);
                     assert textureName != null : "block mesh lookup failure type: " + block.meshType;
 
-                } else if (block.blockType == Block.BlockType.NullBlockType) {
+                } else if (block.type == Block.BlockType.NullBlockType) {
                     if (block.wallType == Block.WallType.NullWallType) {
+                        //we can skip a draw call iff the wall, and block is null
                         continue;
                     } else {
                         drawWallTile = true;
@@ -198,7 +198,7 @@ public class TileRenderer extends IntervalSystem {
             }
         }
 
-        tileCount = tilesInViewDebug;
+        tilesInViewCountDebug = tilesInViewDebug;
         m_batch.end();
     }
 

@@ -95,8 +95,10 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
 
         int x = (int) (Math.max(0.0f, loadedViewport.rect.x - loadedViewport.rect.width) / World.BLOCK_SIZE);
         int y = (int) (Math.max(0.0f, loadedViewport.rect.y - loadedViewport.rect.height) / World.BLOCK_SIZE);
-        int x2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_COLUMNCOUNT, loadedViewport.rect.x + loadedViewport.rect.width) / World.BLOCK_SIZE);
-        int y2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_ROWCOUNT, loadedViewport.rect.y + loadedViewport.rect.height) / World.BLOCK_SIZE);
+        int x2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_X,
+                loadedViewport.rect.x + loadedViewport.rect.width) / World.BLOCK_SIZE);
+        int y2 = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_Y,
+                loadedViewport.rect.y + loadedViewport.rect.height) / World.BLOCK_SIZE);
 
         m_world.m_server.sendPlayerBlockRegion(entity, x, y, x2, y2);
     }

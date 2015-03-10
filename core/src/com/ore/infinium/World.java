@@ -49,8 +49,8 @@ public class World implements Disposable {
     public static final float BLOCK_SIZE = (16.0f / PIXELS_PER_METER);
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
-    public static final int WORLD_COLUMNCOUNT = 1000; //2400
-    public static final int WORLD_ROWCOUNT = 1000; //8400
+    public static final int WORLD_SIZE_X = 1000; //2400
+    public static final int WORLD_SIZE_Y = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
 
     /**
@@ -228,7 +228,7 @@ public class World implements Disposable {
             float h = Gdx.graphics.getHeight();
         }
 
-        blocks = new Block[WORLD_ROWCOUNT * WORLD_COLUMNCOUNT];
+        blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
 
 //        assetManager = new AssetManager();
 //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
@@ -363,22 +363,41 @@ public class World implements Disposable {
 
     private void generateWorld() {
         generateOres();
+        generateGrassTiles();
         transitionTiles();
     }
 
-    private void transitionTiles() {
-        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
-            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
-                int index = x * WORLD_ROWCOUNT + y;
+    private void generateGrassTiles() {
+        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+            for (int y = 0; y < WORLD_SIZE_Y; ++y) {
+                Block block = blockAt(x, y);
 
-                if (blocks[index].blockType == Block.BlockType.NullBlockType) {
+                //fixme check biomes and their ranges
+                if (block.type == Block.BlockType.DirtBlockType) {
+                    Block topBlock = blockAtSafely(x, y - 1);
+
+                    if (topBlock.type == Block.BlockType.NullBlockType) {
+                        block.setFlag(Block.BlockFlags.GrassBlock);
+                        y = WORLD_SIZE_Y;
+                    }
+                }
+            }
+        }
+    }
+
+    private void transitionTiles() {
+        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+            for (int y = 0; y < WORLD_SIZE_Y; ++y) {
+                int index = x * WORLD_SIZE_Y + y;
+
+                if (blocks[index].type == Block.BlockType.NullBlockType) {
                     continue;
                 }
 
-                if (blocks[index].blockType == Block.BlockType.DirtBlockType) {
+                if (blocks[index].type == Block.BlockType.DirtBlockType) {
                     //fixme may be able to be made generic. MAYBE.
                     transitionDirtTile(x, y);
-                } else if (blocks[index].blockType == Block.BlockType.StoneBlockType) {
+                } else if (blocks[index].type == Block.BlockType.StoneBlockType) {
                     transitionStoneTile(x, y);
                 }
             }
@@ -386,7 +405,7 @@ public class World implements Disposable {
     }
 
     private void transitionStoneTile(int x, int y) {
-        int index = x * WORLD_ROWCOUNT + y;
+        int index = x * WORLD_SIZE_Y + y;
         //essentially, if the *other* tiles in question are the same blocks, we should
         //merge/transition with them.
 
@@ -419,7 +438,7 @@ public class World implements Disposable {
     }
 
     private void transitionDirtTile(int x, int y) {
-        int index = x * WORLD_ROWCOUNT + y;
+        int index = x * WORLD_SIZE_Y + y;
         //essentially, if the *other* tiles in question are the same blocks, we should
         //merge/transition with them.
 
@@ -463,12 +482,12 @@ public class World implements Disposable {
      */
     private boolean shouldTileTransitionWith(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
         boolean isMatched = false;
-        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_ROWCOUNT + sourceTileY, 0,
-                WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
-        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_ROWCOUNT + nearbyTileY, 0,
-                WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_SIZE_Y + sourceTileY, 0,
+                WORLD_SIZE_Y * WORLD_SIZE_X - 1);
+        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_SIZE_Y + nearbyTileY, 0,
+                WORLD_SIZE_Y * WORLD_SIZE_X - 1);
 
-        if (blocks[srcIndex].blockType == blocks[nearbyIndex].blockType) {
+        if (blocks[srcIndex].type == blocks[nearbyIndex].type) {
             //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
             //some may be exceptions??
             isMatched = true;
@@ -478,26 +497,26 @@ public class World implements Disposable {
     }
 
     private void initializeWorld() {
-        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
-            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+            for (int y = 0; y < WORLD_SIZE_Y; ++y) {
 
-                int index = x * WORLD_ROWCOUNT + y;
+                int index = x * WORLD_SIZE_Y + y;
                 blocks[index] = new Block();
-                blocks[index].blockType = Block.BlockType.NullBlockType;
+                blocks[index].type = Block.BlockType.NullBlockType;
             }
         }
     }
 
     private void generateOres() {
-        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
-            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+            for (int y = 0; y < WORLD_SIZE_Y; ++y) {
 
-                int index = x * WORLD_ROWCOUNT + y;
+                int index = x * WORLD_SIZE_Y + y;
 
                 //java wants me to go through each and every block and initialize them..
                 Block block = new Block();
                 blocks[index] = block;
-                block.blockType = Block.BlockType.NullBlockType;
+                block.type = Block.BlockType.NullBlockType;
                 block.wallType = Block.WallType.NullWallType;
 
                 //create some sky
@@ -509,15 +528,15 @@ public class World implements Disposable {
 
                 switch (MathUtils.random(0, 3)) {
                     case 0:
-                        block.blockType = Block.BlockType.NullBlockType;
+                        block.type = Block.BlockType.NullBlockType;
                         break;
 
                     case 1:
-                        block.blockType = Block.BlockType.DirtBlockType;
+                        block.type = Block.BlockType.DirtBlockType;
                         break;
                     case 2:
-                        //hack, simulate only dirt for now. blocks[index].blockType = Block.BlockType.StoneBlockType;
-                        block.blockType = Block.BlockType.DirtBlockType;
+                        //hack, simulate only dirt for now. blocks[index].type = Block.BlockType.StoneBlockType;
+                        block.type = Block.BlockType.DirtBlockType;
                         break;
                 }
 
@@ -528,10 +547,10 @@ public class World implements Disposable {
 //                blocks[dragSourceIndex].wallType = Block::Wall
             }
         }
-//        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
-//            for (int y = seaLevel(); y < WORLD_ROWCOUNT; ++y) {
+//        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+//            for (int y = seaLevel(); y < WORLD_SIZE_Y; ++y) {
 //                Block block = blockAt(x, y);
-//                block.blockType = Block.BlockType.DirtBlockType;
+//                block.type = Block.BlockType.DirtBlockType;
 //            }
 //        }
     }
@@ -545,8 +564,8 @@ public class World implements Disposable {
     }
 
     public Block blockAtPosition(Vector2 pos) {
-        int x = MathUtils.clamp((int) (pos.x / BLOCK_SIZE), 0, WORLD_COLUMNCOUNT - 1);
-        int y = MathUtils.clamp((int) (pos.y / BLOCK_SIZE), 0, WORLD_ROWCOUNT - 1);
+        int x = MathUtils.clamp((int) (pos.x / BLOCK_SIZE), 0, WORLD_SIZE_X - 1);
+        int y = MathUtils.clamp((int) (pos.y / BLOCK_SIZE), 0, WORLD_SIZE_Y - 1);
         return blockAt(x, y);
     }
 
@@ -558,20 +577,20 @@ public class World implements Disposable {
      * @return
      */
     public Block blockAtSafely(int x, int y) {
-        return blocks[MathUtils.clamp(x, 0, WORLD_COLUMNCOUNT - 1) * WORLD_ROWCOUNT + MathUtils.clamp(y, 0,
-                WORLD_ROWCOUNT - 1)];
+        return blocks[MathUtils.clamp(x, 0, WORLD_SIZE_X - 1) * WORLD_SIZE_Y + MathUtils.clamp(y, 0,
+                WORLD_SIZE_Y - 1)];
     }
 
     public Block blockAt(int x, int y) {
-        assert x >= 0 && y >= 0 && x <= WORLD_COLUMNCOUNT && y <= WORLD_ROWCOUNT : "block index out of range";
+        assert x >= 0 && y >= 0 && x <= WORLD_SIZE_X && y <= WORLD_SIZE_Y : "block index out of range";
 
-        return blocks[x * WORLD_ROWCOUNT + y];
+        return blocks[x * WORLD_SIZE_Y + y];
     }
 
     public boolean isBlockSolid(int x, int y) {
         boolean solid = true;
 
-        byte type = blockAt(x, y).blockType;
+        byte type = blockAt(x, y).type;
 
         if (type == Block.BlockType.NullBlockType) {
             solid = false;
@@ -581,7 +600,7 @@ public class World implements Disposable {
     }
 
     public boolean canPlaceBlock(int x, int y) {
-        boolean canPlace = blockAt(x, y).blockType == Block.BlockType.NullBlockType;
+        boolean canPlace = blockAt(x, y).type == Block.BlockType.NullBlockType;
         //TODO: check collision with other entities...
 
         return canPlace;
@@ -630,6 +649,11 @@ public class World implements Disposable {
 
         if (isServer()) {
 
+            if (randomGrassTimer.milliseconds() > 1.0 / 30.0 * 1000.0) {
+                //HACK
+                //randomGrowGrass();
+                randomGrassTimer.reset();
+            }
         }
 
         //todo explicitly call update on systems, me thinks...otherwise the render and update steps are coupled
@@ -657,7 +681,7 @@ public class World implements Disposable {
 
             Block block = blockAt(x, y);
 
-            if (block.blockType != Block.BlockType.NullBlockType) {
+            if (block.type != Block.BlockType.NullBlockType) {
                 block.destroy();
                 m_client.sendBlockPick(x, y);
             }
@@ -675,8 +699,8 @@ public class World implements Disposable {
             Block block = blockAt(x, y);
 
             //attempt to place one if the area is empty
-            if (block.blockType == Block.BlockType.NullBlockType) {
-                block.blockType = blockComponent.blockType;
+            if (block.type == Block.BlockType.NullBlockType) {
+                block.type = blockComponent.blockType;
                 m_client.sendBlockPlace(x, y);
             }
 
@@ -729,12 +753,6 @@ public class World implements Disposable {
             return;
         }
 
-        if (randomGrassTimer.milliseconds() > 1.0 / 30.0 * 1000.0) {
-            randomGrowGrass();
-            randomGrassTimer.reset();
-        }
-
-
         if (tileRecomputeTimer.milliseconds() > 3500) {
             transitionTiles();
 //            transitionGrass();
@@ -768,20 +786,23 @@ public class World implements Disposable {
         final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
         final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
-        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_COLUMNCOUNT);
-        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_ROWCOUNT);
+        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_SIZE_X);
+        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_SIZE_Y);
 
         int x = MathUtils.random(startX, endX);
         int y = MathUtils.random(startY, endY);
 
         Block block = blockAt(x, y);
 
-        block.setFlag(Block.BlockFlags.GrassBlock);
+        assert false;
+        if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+            block.setFlag(Block.BlockFlags.GrassBlock);
+        }
     }
 
     private void transitionGrass() {
-        for (int x = 0; x < WORLD_COLUMNCOUNT; ++x) {
-            for (int y = 0; y < WORLD_ROWCOUNT; ++y) {
+        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+            for (int y = 0; y < WORLD_SIZE_Y; ++y) {
 
                 Block leftBlock = blockAtSafely(x - 1, y);
                 Block rightBlock = blockAtSafely(x + 1, y);
@@ -790,16 +811,16 @@ public class World implements Disposable {
 
 
                 Block block = blockAtSafely(x, y);
-                if (block.blockType == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                if (block.type == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
 
-                    boolean leftMerge = leftBlock.blockType == Block.BlockType.DirtBlockType;
+                    boolean leftMerge = leftBlock.type == Block.BlockType.DirtBlockType;
 
-                    boolean rightMerge = rightBlock.blockType == Block.BlockType.DirtBlockType;
+                    boolean rightMerge = rightBlock.type == Block.BlockType.DirtBlockType;
 
                     //hack is top redundant?
-                    boolean topMerge = topBlock.blockType == Block.BlockType.DirtBlockType;
+                    boolean topMerge = topBlock.type == Block.BlockType.DirtBlockType;
 
-                    boolean bottomMerge = bottomBlock.blockType == Block.BlockType.DirtBlockType;
+                    boolean bottomMerge = bottomBlock.type == Block.BlockType.DirtBlockType;
 
 //                    block.setFlag(Block.BlockFlags.GrassBlock);
 
@@ -838,10 +859,10 @@ public class World implements Disposable {
     /*
     private boolean shouldGrassMesh(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
         boolean isMatched = false;
-        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_ROWCOUNT + sourceTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
-        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_ROWCOUNT + nearbyTileY, 0, WORLD_ROWCOUNT * WORLD_COLUMNCOUNT - 1);
+        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_SIZE_Y + sourceTileY, 0, WORLD_SIZE_Y * WORLD_SIZE_X - 1);
+        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_SIZE_Y + nearbyTileY, 0, WORLD_SIZE_Y * WORLD_SIZE_X - 1);
 
-        if (blocks[srcIndex].blockType == blocks[nearbyIndex].blockType) {
+        if (blocks[srcIndex].type == blocks[nearbyIndex].type) {
             //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
             //some may be exceptions??
             isMatched = true;
@@ -954,7 +975,7 @@ public class World implements Disposable {
         int endX = (int) ((pos.x + (size.x * 0.5f)) / BLOCK_SIZE + 0);
         int endY = (int) ((pos.y + (size.y * 0.5f - epsilon)) / BLOCK_SIZE + 1);
 
-        if (!(startX >= 0 && startY >= 0 && endX <= WORLD_COLUMNCOUNT && endY <= WORLD_ROWCOUNT)) {
+        if (!(startX >= 0 && startY >= 0 && endX <= WORLD_SIZE_X && endY <= WORLD_SIZE_Y)) {
             //fixme
             //not sure why, but this ends up giving me some way way invalid values. likely due to mouse being outside
             //of valid range, *somehow*. sometimes does it on startup etc
@@ -963,7 +984,7 @@ public class World implements Disposable {
 
         for (int column = startX; column < endX; ++column) {
             for (int row = startY; row < endY; ++row) {
-                if (blockAt(column, row).blockType != Block.BlockType.NullBlockType) {
+                if (blockAt(column, row).type != Block.BlockType.NullBlockType) {
                     return false;
                 }
             }
@@ -971,8 +992,8 @@ public class World implements Disposable {
 
         //float x = Math.min(pos.x - (BLOCK_SIZE * 20), 0.0f);
         //float y = Math.min(pos.y - (BLOCK_SIZE * 20), 0.0f);
-        //float x2 = Math.min(pos.x + (BLOCK_SIZE * 20), WORLD_COLUMNCOUNT * BLOCK_SIZE);
-        //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_ROWCOUNT * BLOCK_SIZE);
+        //float x2 = Math.min(pos.x + (BLOCK_SIZE * 20), WORLD_SIZE_X * BLOCK_SIZE);
+        //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_SIZE_Y * BLOCK_SIZE);
 
         ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
         for (int i = 0; i < entities.size(); ++i) {
@@ -1044,8 +1065,9 @@ public class World implements Disposable {
             for (int col = region.x; col < region.x2; ++col) {
                 Block origBlock = blockAt(col, row);
                 Network.SingleBlock srcBlock = region.blocks.get(sourceIndex);
-                origBlock.blockType = srcBlock.blockType;
+                origBlock.type = srcBlock.type;
                 origBlock.wallType = srcBlock.wallType;
+                origBlock.flags = srcBlock.flags;
 
                 //fixme wall type as well
 

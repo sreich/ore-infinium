@@ -39,7 +39,7 @@ public class Block {
      * The type of tile this is, 0-255 is valid and can be compared with the world's definition of tile types
      * (an enum)
      */
-    public byte blockType;
+    public byte type;
 
 
     /**
@@ -109,26 +109,27 @@ public class Block {
      * must be called when destroying a block.
      */
     void destroy() {
-        blockType = Block.BlockType.NullBlockType;
+        type = Block.BlockType.NullBlockType;
         meshType = 0;
+        wallType = 0;
         flags = 0;
     }
 
-    public final void setFlag(int flag) {
+    public final void setFlag(byte flag) {
         flags |= flag;
     }
 
-    public final boolean hasFlag(int flag) {
+    public final boolean hasFlag(byte flag) {
         return (this.flags & flag) != 0;
     }
 
-    public void unsetFlag(int flag) {
+    public void unsetFlag(byte flag) {
         this.flags &= ~flag;
     }
 
     public final class BlockFlags {
-        public static final int OnFireBlock = 1 << 0;
-        public static final int GrassBlock = 1 << 1;
+        public static final byte OnFireBlock = 1 << 0;
+        public static final byte GrassBlock = 1 << 1;
 //        public static final int GrassBlock = 1 << 2;
     }
 
