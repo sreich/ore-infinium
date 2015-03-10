@@ -495,26 +495,34 @@ public class World implements Disposable {
                 int index = x * WORLD_ROWCOUNT + y;
 
                 //java wants me to go through each and every block and initialize them..
-                blocks[index] = new Block();
-                blocks[index].blockType = Block.BlockType.NullBlockType;
+                Block block = new Block();
+                blocks[index] = block;
+                block.blockType = Block.BlockType.NullBlockType;
+                block.wallType = Block.WallType.NullWallType;
 
                 //create some sky
                 if (y <= seaLevel()) {
                     continue;
                 }
 
+                boolean underground = true;
+
                 switch (MathUtils.random(0, 3)) {
                     case 0:
-                        blocks[index].blockType = Block.BlockType.NullBlockType;
+                        block.blockType = Block.BlockType.NullBlockType;
                         break;
 
                     case 1:
-                        blocks[index].blockType = Block.BlockType.DirtBlockType;
+                        block.blockType = Block.BlockType.DirtBlockType;
                         break;
                     case 2:
                         //hack, simulate only dirt for now. blocks[index].blockType = Block.BlockType.StoneBlockType;
-                        blocks[index].blockType = Block.BlockType.DirtBlockType;
+                        block.blockType = Block.BlockType.DirtBlockType;
                         break;
+                }
+
+                if (underground) {
+                    block.wallType = Block.WallType.DirtUndergroundWallType;
                 }
 
 //                blocks[dragSourceIndex].wallType = Block::Wall
@@ -765,7 +773,10 @@ public class World implements Disposable {
 
         int x = MathUtils.random(startX, endX);
         int y = MathUtils.random(startY, endY);
-        blockAt(x, y).setFlag(Block.BlockFlags.GrassBlock);
+
+        Block block = blockAt(x, y);
+
+        block.setFlag(Block.BlockFlags.GrassBlock);
     }
 
     private void transitionGrass() {
@@ -1031,11 +1042,10 @@ public class World implements Disposable {
         int sourceIndex = 0;
         for (int row = region.y; row < region.y2; ++row) {
             for (int col = region.x; col < region.x2; ++col) {
-                int index = col * WORLD_ROWCOUNT + row;
-
-                Block origBlock = blocks[index];
+                Block origBlock = blockAt(col, row);
                 Network.SingleBlock srcBlock = region.blocks.get(sourceIndex);
                 origBlock.blockType = srcBlock.blockType;
+                origBlock.wallType = srcBlock.wallType;
 
                 //fixme wall type as well
 

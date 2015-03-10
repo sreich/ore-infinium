@@ -131,34 +131,29 @@ public class TileRenderer extends IntervalSystem {
       */
 
         //FIXME: this needs to be cached..it's supposedly very slow.
-        TextureAtlas.AtlasRegion region;
         m_batch.begin();
-        int count = 0;
+
+        TextureAtlas.AtlasRegion region;
+        int tilesInViewDebug = 0;
         String textureName = "";
+
         for (int x = startColumn; x < endColumn; ++x) {
             for (int y = startRow; y < endRow; ++y) {
-                count++;
-                int blockIndex = x * World.WORLD_ROWCOUNT + y;
+                ++tilesInViewDebug;
 
                 Block block = m_world.blockAt(x, y);
 
                 float tileX = World.BLOCK_SIZE * x;
                 float tileY = World.BLOCK_SIZE * y;
 
-                if (block.blockType == Block.BlockType.NullBlockType) {
-                        continue;
-                }
+                boolean drawWallTile = false;
 
-                boolean grass = false;
                 //String textureName = World.blockTypes.get(block.blockType).textureName;
                 if (block.blockType == Block.BlockType.DirtBlockType) {
 
                     if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure";
-                        //m_batch.setColor(1, 0.5f, 1, 1);
-
-                        grass = true;
                     } else {
                         textureName = dirtBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure type: " + block.meshType;
@@ -167,23 +162,43 @@ public class TileRenderer extends IntervalSystem {
                     textureName = stoneBlockMeshes.get(block.meshType);
                     assert textureName != null : "block mesh lookup failure type: " + block.meshType;
 
+                } else if (block.blockType == Block.BlockType.NullBlockType) {
+                    if (block.wallType == Block.WallType.NullWallType) {
+                        continue;
+                    } else {
+                        drawWallTile = true;
+                    }
                 } else {
-                    assert false;
+                    assert false : "unhaneld block";
                 }
 
-                region = m_tilesAtlas.findRegion(textureName);
-
-                m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
-
-                if (grass) {
-                    //m_batch.setColor(1, 1, 1, 1);
+                if (drawWallTile) {
+                    m_batch.setColor(0.3f, 0.3f, 0.3f, 1);
                 }
 
+                //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some* scenarios..)
+                if (!drawWallTile) {
+                    region = m_tilesAtlas.findRegion(textureName);
 
+                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+
+                } else {
+                    //draw walls
+                    //hack of course, for wall drawing
+                    textureName = dirtBlockMeshes.get(0);
+                    assert textureName != null : "block mesh lookup failure type: " + block.meshType;
+                    region = m_tilesAtlas.findRegion(textureName);
+                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+
+                }
+
+                if (drawWallTile) {
+                    m_batch.setColor(1, 1, 1, 1);
+                }
             }
         }
 
-        tileCount = count;
+        tileCount = tilesInViewDebug;
         m_batch.end();
     }
 

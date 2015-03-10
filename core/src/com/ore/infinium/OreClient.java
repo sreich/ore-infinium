@@ -327,8 +327,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     break;
             }
 
-            String s = String.format("tile(%d,%d), block type: %s, mesh: %s, texture: %s , Grass: %s",
-                    x, y, block.blockType, block.meshType,
+            String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s",
+                    x, y, block.blockType, block.meshType, block.wallType,
                     texture,
                     block.hasFlag(Block.BlockFlags.GrassBlock));
 

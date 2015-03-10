@@ -600,7 +600,7 @@ public class OreServer implements Runnable {
 
                 Block origBlock = m_world.blockAt(col, row);
                 block.blockType = origBlock.blockType;
-                //fixme wall type as well
+                block.wallType = origBlock.wallType;
 
                 region.blocks.add(block);
             }
