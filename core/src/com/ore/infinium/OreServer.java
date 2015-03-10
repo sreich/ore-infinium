@@ -593,12 +593,12 @@ public class OreServer implements Runnable {
     public void sendPlayerBlockRegion(Entity player, LoadedViewport.PlayerViewportBlockRegion region) {
         //FIXME: avoid array realloc
         Network.BlockRegion blockRegion = new Network.BlockRegion(region.x, region.y, region.width, region.height);
-        for (int row = region.y; row < region.height; ++row) {
-            for (int col = region.x; col < region.width; ++col) {
+        for (int y = region.y; y < region.height; ++y) {
+            for (int x = region.x; x < region.width; ++x) {
 
                 Network.SingleBlock block = new Network.SingleBlock();
 
-                Block origBlock = m_world.blockAt(col, row);
+                Block origBlock = m_world.blockAt(x, y);
                 block.type = origBlock.type;
                 block.wallType = origBlock.wallType;
                 block.flags = origBlock.flags;

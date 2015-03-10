@@ -969,9 +969,9 @@ public class World implements Disposable {
             return false;
         }
 
-        for (int column = startX; column < endX; ++column) {
-            for (int row = startY; row < endY; ++row) {
-                if (blockAt(column, row).type != Block.BlockType.NullBlockType) {
+        for (int x = startX; x < endX; ++x) {
+            for (int y = startY; y < endY; ++y) {
+                if (blockAt(x, y).type != Block.BlockType.NullBlockType) {
                     return false;
                 }
             }
@@ -1048,9 +1048,9 @@ public class World implements Disposable {
 
     public void loadBlockRegion(Network.BlockRegion region) {
         int sourceIndex = 0;
-        for (int row = region.y; row < region.y2; ++row) {
-            for (int col = region.x; col < region.x2; ++col) {
-                Block origBlock = blockAt(col, row);
+        for (int y = region.y; y < region.y2; ++y) {
+            for (int x = region.x; x < region.x2; ++x) {
+                Block origBlock = blockAt(x, y);
                 Network.SingleBlock srcBlock = region.blocks.get(sourceIndex);
                 origBlock.type = srcBlock.type;
                 origBlock.wallType = srcBlock.wallType;

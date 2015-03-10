@@ -116,15 +116,15 @@ public class TileRenderer extends IntervalSystem {
         final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
         tileSize.mul(m_camera.combined);
         final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
-        final int startColumn = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
-        final int startRow = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
-        final int endColumn = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_SIZE_X);
-        final int endRow = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_SIZE_Y);
+        final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
+        final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
+        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_SIZE_X);
+        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_SIZE_Y);
       /*
-      if (Math.abs(startColumn) != startColumn) {
+      if (Math.abs(startX) != startX) {
           //qCDebug(ORE_TILE_RENDERER) << "FIXME, WENT INTO NEGATIVE COLUMN!!";
           throw new IndexOutOfBoundsException("went into negative world column");
-      } else if (Math.abs(startRow) != startRow) {
+      } else if (Math.abs(startY) != startY) {
           throw new IndexOutOfBoundsException("went into negative world row");
       }
       */
@@ -136,8 +136,8 @@ public class TileRenderer extends IntervalSystem {
         int tilesInViewDebug = 0;
         String textureName = "";
 
-        for (int x = startColumn; x < endColumn; ++x) {
-            for (int y = startRow; y < endRow; ++y) {
+        for (int x = startX; x < endX; ++x) {
+            for (int y = startY; y < endY; ++y) {
                 ++tilesInViewDebug;
 
                 Block block = m_world.blockAt(x, y);
