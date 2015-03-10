@@ -64,7 +64,7 @@ public class LoadedViewport {
     }
 
     public static final class PlayerViewportBlockRegion {
-        int x, y, width, height;
+        public int x, y, width, height;
 
         PlayerViewportBlockRegion(int x, int y, int width, int height) {
             this.x = x;

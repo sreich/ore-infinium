@@ -1048,8 +1048,8 @@ public class World implements Disposable {
 
     public void loadBlockRegion(Network.BlockRegion region) {
         int sourceIndex = 0;
-        for (int y = region.y; y < region.y2; ++y) {
-            for (int x = region.x; x < region.x2; ++x) {
+        for (int y = region.y; y <= region.y2; ++y) {
+            for (int x = region.x; x <= region.x2; ++x) {
                 Block origBlock = blockAt(x, y);
                 Network.SingleBlock srcBlock = region.blocks.get(sourceIndex);
                 origBlock.type = srcBlock.type;

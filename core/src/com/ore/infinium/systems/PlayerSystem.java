@@ -95,7 +95,8 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
         PlayerComponent playerComponent = playerMapper.get(player);
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
 
-        m_world.m_server.sendPlayerBlockRegion(player, loadedViewport.blockRegionInViewport());
+        LoadedViewport.PlayerViewportBlockRegion region = loadedViewport.blockRegionInViewport();
+        m_world.m_server.sendPlayerBlockRegion(player, region.x, region.y, region.width, region.height);
     }
 
     @Override

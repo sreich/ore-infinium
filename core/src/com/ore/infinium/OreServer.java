@@ -590,15 +590,15 @@ public class OreServer implements Runnable {
         m_serverKryo.sendToTCP(playerComponent.connectionId, v);
     }
 
-    public void sendPlayerBlockRegion(Entity player, LoadedViewport.PlayerViewportBlockRegion region) {
+    public void sendPlayerBlockRegion(Entity player, int x, int y, int width, int height) {
         //FIXME: avoid array realloc
-        Network.BlockRegion blockRegion = new Network.BlockRegion(region.x, region.y, region.width, region.height);
-        for (int y = region.y; y < region.height; ++y) {
-            for (int x = region.x; x < region.width; ++x) {
+        Network.BlockRegion blockRegion = new Network.BlockRegion(x, y, width, height);
+        for (int blockY = y; blockY <= height; ++blockY) {
+            for (int blockX = x; blockX <= width; ++blockX) {
 
                 Network.SingleBlock block = new Network.SingleBlock();
 
-                Block origBlock = m_world.blockAt(x, y);
+                Block origBlock = m_world.blockAt(blockX, blockY);
                 block.type = origBlock.type;
                 block.wallType = origBlock.wallType;
                 block.flags = origBlock.flags;
