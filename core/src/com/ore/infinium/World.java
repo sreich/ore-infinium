@@ -373,6 +373,7 @@ public class World implements Disposable {
                 Block block = blockAt(x, y);
 
                 //fixme check biomes and their ranges
+                //fill the surface/exposed dirt blocks with grass blocks
                 if (block.type == Block.BlockType.DirtBlockType) {
                     Block topBlock = blockAtSafely(x, y - 1);
 
@@ -753,9 +754,9 @@ public class World implements Disposable {
             return;
         }
 
-        if (tileRecomputeTimer.milliseconds() > 3500) {
+        if (tileRecomputeTimer.milliseconds() > 50) {
             transitionTiles();
-//            transitionGrass();
+            transitionGrass();
 
             tileRecomputeTimer.reset();
         }
