@@ -22,8 +22,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * ***************************************************************************
@@ -44,7 +42,6 @@ import java.util.concurrent.locks.ReentrantLock;
  * ***************************************************************************
  */
 public class OreServer implements Runnable {
-
     public CountDownLatch connectHostLatch = new CountDownLatch(1);
     public CountDownLatch shutdownLatch = new CountDownLatch(1);
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
@@ -55,13 +52,7 @@ public class OreServer implements Runnable {
 
     private Entity m_hostingPlayer;
 
-    private double m_accumulator;
-    private double m_currentTime;
-
-    Lock sharedFrameTimeLock = new ReentrantLock();
-    Double sharedFrameTime;
-
-    private double m_step = 1.0 / 60.0;
+    double sharedFrameTime;
 
     private boolean m_running = true;
 
@@ -80,6 +71,10 @@ public class OreServer implements Runnable {
     private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
 
     private Chat m_chat;
+
+    private double m_accumulator;
+    private double m_currentTime = TimeUtils.nanoTime() / 1e6;
+    private double SERVER_FIXED_TIMESTEP = 1.0 / 60.0 * 1000;
 
     public OreServer() {
     }
@@ -137,20 +132,23 @@ public class OreServer implements Runnable {
 
     private void serverLoop() {
         while (m_running) {
-            double newTime = TimeUtils.millis() / 1000.0;
-            double frameTime = Math.min(newTime - m_currentTime, 1.0 / 15.0);
+            double newTime = TimeUtils.nanoTime() / 1e6;// / 1000.0;
+            double frameTime = newTime - m_currentTime;
 
-            m_accumulator += frameTime;
+
+            if (frameTime > (1.0 / 15.0) * 1000) {
+                frameTime = (1.0 / 15.0) * 1000;
+            }
 
             m_currentTime = newTime;
 
 
-            while (m_accumulator >= m_step) {
-                sharedFrameTimeLock.lock();
-                sharedFrameTime = frameTime; //newTime - m_currentTime; is ZERO
-                sharedFrameTimeLock.unlock();
+            m_accumulator += frameTime;
 
-                m_accumulator -= m_step;
+            while (m_accumulator >= SERVER_FIXED_TIMESTEP) {
+                sharedFrameTime = m_accumulator;
+
+                m_accumulator -= SERVER_FIXED_TIMESTEP;
 
                 processNetworkQueue();
 
@@ -166,7 +164,7 @@ public class OreServer implements Runnable {
             }
 
 
-            double alpha = m_accumulator / m_step;
+            double alpha = m_accumulator / SERVER_FIXED_TIMESTEP;
         }
     }
 

@@ -140,7 +140,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         ));
 
         m_dragAndDrop = new DragAndDrop();
-        decimalFormat.setMaximumFractionDigits(9);
+        decimalFormat.setMaximumFractionDigits(4);
 
         m_batch = new SpriteBatch();
 
@@ -248,13 +248,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
     }
 
-    double newTime;
-    double frameTime;
-
     @Override
     public void render() {
-        newTime = TimeUtils.nanoTime() / 1e6;// / 1000.0;
-        frameTime = newTime - m_currentTime;
+        double newTime = TimeUtils.nanoTime() / 1e6;// / 1000.0;
+        double frameTime = newTime - m_currentTime;
 
 
         if (frameTime > (1.0 / 15.0) * 1000) {
@@ -281,7 +278,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 Thread.sleep(0);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-        }
+            }
 
             if (frameTimer.milliseconds() > 600) {
                 frameTimeString = "Client frame time: " + decimalFormat.format(m_accumulator);
@@ -290,6 +287,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;
                 drawCallsString = "Draw calls: " + GLProfiler.drawCalls;
 
+                if (m_server != null) {
+                    frameTimeServerString = "Server frame time: " + decimalFormat.format(m_server.sharedFrameTime);
+                }
+
                 frameTimer.reset();
             }
 
@@ -297,97 +298,92 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             double alpha = m_accumulator / CLIENT_FIXED_TIMESTEP;
 
-        //Gdx.app.log("frametime", Double.toString(frameTime));
-        //Gdx.app.log("alpha", Double.toString(alpha));
+            //Gdx.app.log("frametime", Double.toString(frameTime));
+            //Gdx.app.log("alpha", Double.toString(alpha));
 
 
-        if (m_world != null) {
-            m_world.render(CLIENT_FIXED_TIMESTEP / 1000);
-        }
+            if (m_world != null) {
+                m_world.render(CLIENT_FIXED_TIMESTEP / 1000);
+            }
 
-        if (m_renderGui) {
-            m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-            m_stage.draw();
-        }
+            if (m_renderGui) {
+                m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+                m_stage.draw();
+            }
 
-            if (m_server != null) {
-                m_server.sharedFrameTimeLock.lock();
-                frameTimeServerString = "Server frame time: " + (m_server.sharedFrameTime);
-                m_server.sharedFrameTimeLock.unlock();
-        }
 
-        m_batch.begin();
+            m_batch.begin();
 
-        int textY = Gdx.graphics.getHeight() - 130;
-        m_font.draw(m_batch, fpsString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, frameTimeString, 0, textY);
-        textY -= 15;
+            int textY = Gdx.graphics.getHeight() - 130;
+            m_font.draw(m_batch, fpsString, 0, textY);
+            textY -= 15;
+            m_font.draw(m_batch, frameTimeString, 0, textY);
+            textY -= 15;
             if (m_server != null) {
                 m_font.draw(m_batch, frameTimeServerString, 0, textY);
                 textY -= 15;
 
             }
 
-        for (String s : debugStrings) {
-            m_font.draw(m_batch, s, 0, textY);
-            textY -= 15;
-        }
-
-        m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tilesInViewCountDebug, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, textureSwitchesString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, shaderSwitchesString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, drawCallsString, 0, textY);
-        textY -= 15;
-
-        if (m_world != null && m_mainPlayer != null) {
-            Vector2 mousePos = m_world.mousePositionWorldCoords();
-            Block block = m_world.blockAtPosition(mousePos);
-
-            int x = (int) (mousePos.x / World.BLOCK_SIZE);
-            int y = (int) (mousePos.y / World.BLOCK_SIZE);
-
-            String texture = "";
-
-            switch (block.type) {
-                case Block.BlockType.DirtBlockType:
-                    if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-                        texture = m_world.m_tileRenderer.grassBlockMeshes.get(block.meshType);
-                    } else {
-                        texture = m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType);
-                    }
-
-                    break;
-                case Block.BlockType.StoneBlockType:
-                    texture = m_world.m_tileRenderer.stoneBlockMeshes.get(block.meshType);
-                    break;
-            }
-
-            String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s",
-                    x, y, block.type, block.meshType, block.wallType,
-                    texture,
-                    block.hasFlag(Block.BlockFlags.GrassBlock));
-
-            m_font.draw(m_batch, s, 0, textY);
-            textY -= 15;
-        }
-
-        if (m_world != null) {
-            m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
-
-            if (m_server != null) {
+            for (String s : debugStrings) {
+                m_font.draw(m_batch, s, 0, textY);
                 textY -= 15;
-                m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
-
             }
-        }
 
-        m_batch.end();
+            m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tilesInViewCountDebug, 0, textY);
+            textY -= 15;
+            m_font.draw(m_batch, textureSwitchesString, 0, textY);
+            textY -= 15;
+            m_font.draw(m_batch, shaderSwitchesString, 0, textY);
+            textY -= 15;
+            m_font.draw(m_batch, drawCallsString, 0, textY);
+            textY -= 15;
 
-        if (m_world != null && m_renderDebugServer && false) {
+            if (m_world != null && m_mainPlayer != null) {
+                Vector2 mousePos = m_world.mousePositionWorldCoords();
+                Block block = m_world.blockAtPosition(mousePos);
+
+                int x = (int) (mousePos.x / World.BLOCK_SIZE);
+                int y = (int) (mousePos.y / World.BLOCK_SIZE);
+
+                String texture = "";
+
+                switch (block.type) {
+                    case Block.BlockType.DirtBlockType:
+                        if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                            texture = m_world.m_tileRenderer.grassBlockMeshes.get(block.meshType);
+                        } else {
+                            texture = m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType);
+                        }
+
+                        break;
+                    case Block.BlockType.StoneBlockType:
+                        texture = m_world.m_tileRenderer.stoneBlockMeshes.get(block.meshType);
+                        break;
+                }
+
+                String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s",
+                        x, y, block.type, block.meshType, block.wallType,
+                        texture,
+                        block.hasFlag(Block.BlockFlags.GrassBlock));
+
+                m_font.draw(m_batch, s, 0, textY);
+                textY -= 15;
+            }
+
+            if (m_world != null) {
+                m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
+
+                if (m_server != null) {
+                    textY -= 15;
+                    m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+
+                }
+            }
+
+            m_batch.end();
+
+            if (m_world != null && m_renderDebugServer && false) {
             /*
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
             m_debugServerBatch.begin();
@@ -403,36 +399,37 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             m_debugServerBatch.end();
             */
-        }
-
-        if (m_world != null && m_renderDebugClient) {
-            m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
-            m_debugServerBatch.begin();
-            m_debugServerBatch.setColor(1, 0, 0, 0.5f);
-
-            ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
-
-            for (int i = 0; i < entities.size(); ++i) {
-                SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
-
-                m_debugServerBatch.draw(junktexture,
-                        spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
             }
 
-            m_debugServerBatch.end();
-        }
+            if (m_world != null && m_renderDebugClient) {
+                m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
+                m_debugServerBatch.begin();
+                m_debugServerBatch.setColor(1, 0, 0, 0.5f);
 
-        GLProfiler.reset();
+                ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(
+                        Family.all(SpriteComponent.class).get());
 
-        //try {
+                for (int i = 0; i < entities.size(); ++i) {
+                    SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+
+                    m_debugServerBatch.draw(junktexture,
+                            spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                            spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                            spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                }
+
+                m_debugServerBatch.end();
+            }
+
+            GLProfiler.reset();
+
+            //try {
             //    int sleep = (int)Math.max(newTime + CLIENT_FIXED_TIMESTEP - TimeUtils.millis()/1000.0, 0.0);
-        //    Gdx.app.log("", "sleep amnt: " + sleep);
-        //    Thread.sleep(sleep);
-        //} catch (InterruptedException e) {
-        //    e.printStackTrace();
-        //}
+            //    Gdx.app.log("", "sleep amnt: " + sleep);
+            //    Thread.sleep(sleep);
+            //} catch (InterruptedException e) {
+            //    e.printStackTrace();
+            //}
 
         }//hack loop should be much smaller, renderer broken out of it
     }
