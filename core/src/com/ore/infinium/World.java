@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
 
@@ -359,9 +360,17 @@ public class World implements Disposable {
     }
 
     private void generateWorld() {
+        PerformanceCounter counter = new PerformanceCounter("test");
+        counter.start();
+
         generateOres();
         generateGrassTiles();
         transitionTiles();
+
+        counter.stop();
+        String s = String.format("total world gen took (incl transitioning, etc): %s seconds", counter.current);
+        Gdx.app.log("", s);
+
     }
 
     private void generateGrassTiles() {
@@ -377,6 +386,25 @@ public class World implements Disposable {
                     if (topBlock.type == Block.BlockType.NullBlockType) {
                         block.setFlag(Block.BlockFlags.GrassBlock);
                         y = WORLD_SIZE_Y;
+                    }
+                }
+            }
+        }
+
+        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+            for (int y = 0; y < WORLD_SIZE_Y; ++y) {
+                Block block = blockAt(x, y);
+
+                if (block.type == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    Block topBlock = blockAtSafely(x, y - 1);
+                    Block bottomBlock = blockAtSafely(x, y + 1);
+                    Block bottomLeftBlock = blockAtSafely(x - 1, y + 1);
+                    Block bottomRightBlock = blockAtSafely(x + 1, y + 1);
+
+//                    boolean leftGrass =
+
+                    if (topBlock.type == Block.BlockType.NullBlockType) {
+                        block.setFlag(Block.BlockFlags.GrassBlock);
                     }
                 }
             }
@@ -647,7 +675,7 @@ public class World implements Disposable {
 
         if (isServer()) {
 
-            if (randomGrassTimer.milliseconds() > 1.0 / 30.0 * 1000.0) {
+            if (randomGrassTimer.milliseconds() > 500) {
                 //HACK
                 randomGrowGrass();
                 randomGrassTimer.reset();
@@ -770,21 +798,48 @@ public class World implements Disposable {
     }
 
     private void randomGrowGrass() {
-//        SpriteComponent sprite = spriteMapper.get(m_mainPlayer);
-//
-//        for (Entity player : m_players) {
-//        PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
-//
-//            Block block = blockAt(x, y);
-//
-//        assert false;
-//        if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-//            block.setFlag(Block.BlockFlags.GrassBlock);
-//        }
-//
-//        //fixme...obviously not main player
-//        m_server.sendPlayerBlockRegion(player, );
-//            }
+        for (Entity player : m_players) {
+            PlayerComponent playerComponent = playerMapper.get(player);
+
+            LoadedViewport.PlayerViewportBlockRegion region = playerComponent.loadedViewport.blockRegionInViewport();
+            int randomX = MathUtils.random(region.x, region.width);
+            int randomY = MathUtils.random(region.y, region.height);
+
+            Block block = blockAt(randomX, randomY);
+
+            int blockRangeX = randomX;
+            int blockRangeY = randomY;
+
+            //pick a random block, if it has grass, try to grow outward along its edges/spread the grass
+            if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                Block leftBlock = blockAtSafely(randomX - 1, randomY);
+                Block rightBlock = blockAtSafely(randomX + 1, randomY);
+                Block topBlock = blockAtSafely(randomX, randomY - 1);
+                Block bottomBlock = blockAtSafely(randomX, randomY + 1);
+
+                if (leftBlock.type == Block.BlockType.DirtBlockType && !leftBlock.hasFlag(
+                        Block.BlockFlags.GrassBlock)) {
+                    leftBlock.setFlag(Block.BlockFlags.GrassBlock);
+                    blockRangeX -= 1;
+                }
+
+                if (rightBlock.type == Block.BlockType.DirtBlockType && !rightBlock.hasFlag(
+                        Block.BlockFlags.GrassBlock)) {
+                    rightBlock.setFlag(Block.BlockFlags.GrassBlock);
+                    blockRangeX += 1;
+                }
+
+            }
+
+            //fixme...obviously not main player
+            int x = Math.max(0, blockRangeX - 1);
+            int width = Math.min(blockRangeX + 1, WORLD_SIZE_X);
+            int y = Math.max(0, blockRangeY - 1);
+            int height = Math.min(blockRangeY + 1, WORLD_SIZE_Y);
+
+            //we likely want to place this in a queue of some sorts, so we can batch out individual ones?
+//            m_server.sendPlayerBlockRegion(player, x, y, width, height);
+        }
     }
 
     private void transitionGrass() {
@@ -1063,9 +1118,7 @@ public class World implements Disposable {
         }
 
         Gdx.app.log("block region", "loading");
-
-        //fixme obviously don't do the whole world..
-        transitionTiles();
+        //fixme should re transition tiles in this area
     }
 
     /**

@@ -173,7 +173,7 @@ public class TileRenderer extends IntervalSystem {
                 }
 
                 if (drawWallTile) {
-                    m_batch.setColor(0.3f, 0.3f, 0.3f, 1);
+                    m_batch.setColor(0.5f, 0.5f, 0.5f, 1);
                 }
 
                 //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some* scenarios..)

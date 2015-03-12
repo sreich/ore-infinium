@@ -44,8 +44,8 @@ public class DesktopLauncher {
         LwjglInput.keyRepeatTime = 0.08f;
         LwjglInput.keyRepeatInitialTime = 0.15f;
 
-        //config.foregroundFPS = 0;
-        //config.backgroundFPS = 0;
+        config.foregroundFPS = 0;
+        config.backgroundFPS = 0;
         new LwjglApplication(new OreClient(), config);
 
     }

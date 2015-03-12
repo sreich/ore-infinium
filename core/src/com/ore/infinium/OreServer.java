@@ -22,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * ***************************************************************************
@@ -46,12 +48,21 @@ public class OreServer implements Runnable {
     public CountDownLatch connectHostLatch = new CountDownLatch(1);
     public CountDownLatch shutdownLatch = new CountDownLatch(1);
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
+
     protected World m_world;
+
     private Server m_serverKryo;
+
     private Entity m_hostingPlayer;
+
     private double m_accumulator;
     private double m_currentTime;
+
+    Lock sharedFrameTimeLock = new ReentrantLock();
+    Double sharedFrameTime;
+
     private double m_step = 1.0 / 60.0;
+
     private boolean m_running = true;
 
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
@@ -127,13 +138,18 @@ public class OreServer implements Runnable {
     private void serverLoop() {
         while (m_running) {
             double newTime = TimeUtils.millis() / 1000.0;
-            double frameTime = Math.min(newTime - m_currentTime, 0.25);
+            double frameTime = Math.min(newTime - m_currentTime, 1.0 / 15.0);
 
             m_accumulator += frameTime;
 
             m_currentTime = newTime;
 
+
             while (m_accumulator >= m_step) {
+                sharedFrameTimeLock.lock();
+                sharedFrameTime = frameTime; //newTime - m_currentTime; is ZERO
+                sharedFrameTimeLock.unlock();
+
                 m_accumulator -= m_step;
 
                 processNetworkQueue();
@@ -148,6 +164,7 @@ public class OreServer implements Runnable {
                 m_serverKryo.close();
                 return;
             }
+
 
             double alpha = m_accumulator / m_step;
         }
@@ -697,4 +714,5 @@ public class OreServer implements Runnable {
         public void selected(byte index, Inventory inventory) {
         }
     }
+
 }

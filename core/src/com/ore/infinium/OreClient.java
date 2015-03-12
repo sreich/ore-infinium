@@ -44,12 +44,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
     static private ArrayList<String> debugStrings;
 
     static OreTimer frameTimer = new OreTimer();
+
     static String frameTimeString = "";
+    static String frameTimeServerString = "";
     static String fpsString = "";
     static String textureSwitchesString = "";
     static String shaderSwitchesString = "";
     static String drawCallsString = "";
+
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
+
     public boolean m_renderTiles = true;
     public BitmapFont bitmapFont_8pt;
     public boolean leftMouseDown;
@@ -73,30 +77,43 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private boolean m_renderDebugServer = false;
     private boolean m_renderDebugClient = false;
 
+    private InputMultiplexer m_multiplexer;
+
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
+
     private Stage m_stage;
     private Skin m_skin;
-    private InputMultiplexer m_multiplexer;
-    private ChatBox m_chatBox;
+
     private Chat m_chat;
-    private Dialog dialog;
     private Sidebar m_sidebar;
+
+    private DragAndDrop m_dragAndDrop;
+
+    private Dialog dialog;
+    private ChatBox m_chatBox;
     private HotbarInventoryView m_hotbarView;
     private InventoryView m_inventoryView;
+
     private Inventory m_hotbarInventory;
     private Inventory m_inventory;
+
     private ScreenViewport m_viewport;
+
     private Entity m_mainPlayer;
+
     private Client m_clientKryo;
     private OreServer m_server;
     private Thread m_serverThread;
+
     private double m_accumulator;
-    private double m_currentTime;
-    private double m_step = 1.0 / 60.0;
+    private double m_currentTime = TimeUtils.nanoTime() / 1e6;
+    private double CLIENT_FIXED_TIMESTEP = 1.0 / 60.0 * 1000;
+
     private SpriteBatch m_batch;
     private BitmapFont m_font;
-    private DragAndDrop m_dragAndDrop;
+
     private Texture junktexture;
+
     // the internal (client) entity for the network(server's) entity ID
     private LongMap<Entity> m_entityForNetworkId = new LongMap<>(500);
     // map to reverse lookup, the long (server) entity ID for the given Entity
@@ -231,40 +248,61 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
     }
 
+    double newTime;
+    double frameTime;
+
     @Override
     public void render() {
+        newTime = TimeUtils.nanoTime() / 1e6;// / 1000.0;
+        frameTime = newTime - m_currentTime;
 
-        double newTime = TimeUtils.millis() / 1000.0;
-        double frameTime = Math.min(newTime - m_currentTime, 1.0 / 15.0);
 
-        m_accumulator += frameTime;
+        if (frameTime > (1.0 / 15.0) * 1000) {
+            frameTime = (1.0 / 15.0) * 1000;
+        }
 
         m_currentTime = newTime;
 
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        while (m_accumulator >= m_step) {
-            m_accumulator -= m_step;
-            //entityManager.update();
+        m_accumulator += frameTime;
+
+        while (m_accumulator >= CLIENT_FIXED_TIMESTEP) {
             processNetworkQueue();
 
+            if (m_world != null) {
+                //on client, actually renders, due to systems :S
+                //fixme we want to split rendering and updating..its coupled right now
+                Gdx.gl.glClearColor(0, 0, 0, 1);
+                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                m_world.update(CLIENT_FIXED_TIMESTEP / 1000.0);
+            }
+
+            try {
+                Thread.sleep(0);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
         }
 
-        if (m_world != null) {
-            //on client, actually renders, due to systems :S
-            //fixme we want to split rendering and updating..its coupled right now
-            m_world.update(m_step);
-        }
+            if (frameTimer.milliseconds() > 600) {
+                frameTimeString = "Client frame time: " + decimalFormat.format(m_accumulator);
+                fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
+                textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
+                shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;
+                drawCallsString = "Draw calls: " + GLProfiler.drawCalls;
 
-        double alpha = m_accumulator / m_step;
+                frameTimer.reset();
+            }
+
+            m_accumulator -= CLIENT_FIXED_TIMESTEP;
+
+            double alpha = m_accumulator / CLIENT_FIXED_TIMESTEP;
 
         //Gdx.app.log("frametime", Double.toString(frameTime));
         //Gdx.app.log("alpha", Double.toString(alpha));
 
 
         if (m_world != null) {
-            m_world.render(m_step);
+            m_world.render(CLIENT_FIXED_TIMESTEP / 1000);
         }
 
         if (m_renderGui) {
@@ -272,14 +310,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_stage.draw();
         }
 
-        if (frameTimer.milliseconds() > 800) {
-            frameTimeString = "Frametime: " + decimalFormat.format(frameTime);
-            fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
-            textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
-            shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;
-            drawCallsString = "Draw calls: " + GLProfiler.drawCalls;
-
-            frameTimer.reset();
+            if (m_server != null) {
+                m_server.sharedFrameTimeLock.lock();
+                frameTimeServerString = "Server frame time: " + (m_server.sharedFrameTime);
+                m_server.sharedFrameTimeLock.unlock();
         }
 
         m_batch.begin();
@@ -289,6 +323,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
         textY -= 15;
         m_font.draw(m_batch, frameTimeString, 0, textY);
         textY -= 15;
+            if (m_server != null) {
+                m_font.draw(m_batch, frameTimeServerString, 0, textY);
+                textY -= 15;
+
+            }
 
         for (String s : debugStrings) {
             m_font.draw(m_batch, s, 0, textY);
@@ -376,7 +415,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
             for (int i = 0; i < entities.size(); ++i) {
                 SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
-                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                m_debugServerBatch.draw(junktexture,
+                        spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
             }
@@ -387,12 +427,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
         GLProfiler.reset();
 
         //try {
-        //    int sleep = (int)Math.max(newTime + m_step - TimeUtils.millis()/1000.0, 0.0);
+            //    int sleep = (int)Math.max(newTime + CLIENT_FIXED_TIMESTEP - TimeUtils.millis()/1000.0, 0.0);
         //    Gdx.app.log("", "sleep amnt: " + sleep);
         //    Thread.sleep(sleep);
         //} catch (InterruptedException e) {
         //    e.printStackTrace();
         //}
+
+        }//hack loop should be much smaller, renderer broken out of it
     }
 
     private void showFailToConnectDialog() {
@@ -483,7 +525,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     //decrement count, server has already done so. we assume here that it went through properly.
                     itemComponent.stackSize -= 1;
                 } else {
-                    m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(dropItemRequestFromClient.index));
+                    m_world.engine.removeEntity(
+                            playerComponent.hotbarInventory.takeItem(dropItemRequestFromClient.index));
                 }
 
                 m_clientKryo.sendTCP(dropItemRequestFromClient);
@@ -609,7 +652,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
         return true;
     }
 
-    public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, byte sourceIndex, Inventory.InventoryType destInventoryType, byte destIndex) {
+    public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, byte sourceIndex,
+                                  Inventory.InventoryType destInventoryType, byte destIndex) {
         Network.PlayerMoveInventoryItemFromClient inventoryItemFromClient = new Network.PlayerMoveInventoryItemFromClient();
         inventoryItemFromClient.sourceType = sourceInventoryType;
         inventoryItemFromClient.sourceIndex = sourceIndex;
@@ -657,7 +701,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_inventory.inventoryType = Inventory.InventoryType.Inventory;
             playerComponent.inventory = m_inventory;
 
-            m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
+            m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop,
+                    this);
             m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
 
             playerComponent.hotbarInventory.selectSlot((byte) 0);
