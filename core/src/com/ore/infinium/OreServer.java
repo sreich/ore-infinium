@@ -605,18 +605,25 @@ public class OreServer implements Runnable {
         m_serverKryo.sendToTCP(playerComponent.connectionId, v);
     }
 
+    public void sendPlayerSparseBlock(Entity player, Block block, int x, int y) {
+        Network.SparseBlockUpdate sparseBlockUpdate = new Network.SparseBlockUpdate();
+
+        sparseBlockUpdate.blocks.add(new Network.SingleSparseBlock(block, x, y));
+
+        //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
+        // purpose ofo
+        //this. so put it in a queue, etc..
+        PlayerComponent playerComponent = playerMapper.get(player);
+        m_serverKryo.sendToTCP(playerComponent.connectionId, sparseBlockUpdate);
+    }
+
     public void sendPlayerBlockRegion(Entity player, int x, int y, int width, int height) {
         //FIXME: avoid array realloc
         Network.BlockRegion blockRegion = new Network.BlockRegion(x, y, width, height);
         for (int blockY = y; blockY <= height; ++blockY) {
             for (int blockX = x; blockX <= width; ++blockX) {
 
-                Network.SingleBlock block = new Network.SingleBlock();
-
-                Block origBlock = m_world.blockAt(blockX, blockY);
-                block.type = origBlock.type;
-                block.wallType = origBlock.wallType;
-                block.flags = origBlock.flags;
+                Network.SingleBlock block = new Network.SingleBlock(m_world.blockAt(blockX, blockY));
 
                 blockRegion.blocks.add(block);
             }

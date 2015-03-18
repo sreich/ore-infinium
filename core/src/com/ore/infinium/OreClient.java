@@ -747,6 +747,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
             } else if (object instanceof Network.BlockRegion) {
                 Network.BlockRegion region = (Network.BlockRegion) object;
                 m_world.loadBlockRegion(region);
+            } else if (object instanceof Network.SparseBlockUpdate) {
+                Network.SparseBlockUpdate update = (Network.SparseBlockUpdate) object;
+                m_world.loadSparseBlockUpdate(update);
             } else if (object instanceof Network.LoadedViewportMovedFromServer) {
                 Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
                 PlayerComponent c = playerMapper.get(m_mainPlayer);

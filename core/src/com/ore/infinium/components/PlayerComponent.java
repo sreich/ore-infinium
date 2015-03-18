@@ -2,7 +2,6 @@ package com.ore.infinium.components;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
@@ -43,9 +42,6 @@ public class PlayerComponent extends Component implements Pool.Poolable {
 
     //ms
     public static final int placeableItemDelay = 300;
-
-    //the center position of the rect of the region that was loaded last (viewport)
-    public Vector2 lastLoadedRegion = new Vector2();
 
     //    public Vector2 mousePositionWorldCoords;
 //    public boolean mouseLeftButtonHeld;

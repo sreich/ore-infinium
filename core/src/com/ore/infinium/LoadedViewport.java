@@ -31,19 +31,20 @@ import java.util.HashSet;
 public class LoadedViewport {
     //the amount of tiles able to be seen by any client
     //(aka we sync only things like blocks, entities, within this region)
-    public final static int MAX_VIEWPORT_WIDTH = 40;
-    public final static int MAX_VIEWPORT_HEIGHT = 35;
+    public final static int MAX_VIEWPORT_WIDTH = 120;//65;
+    public final static int MAX_VIEWPORT_HEIGHT = 100;//55;
 
     /**
-     * the distance (amount of blocks, world units) from the center of the viewport
+     * the distance (amount of blocks, block index units) to the closest edge
      * that the player should probably be, when we decide to send another chunk
      *
      * @param of
      * @param units
      * @return
      */
-    public final static float reloadDistance = World.BLOCK_SIZE * 30;
+    public final static float reloadDistance = 30;
 
+    //x, y, top left. in # of blocks (index units)
     public Rectangle rect;
     HashSet<Entity> loadedEntities;
 
@@ -55,8 +56,22 @@ public class LoadedViewport {
         return loadedEntities.contains(e);
     }
 
+    /**
+     * @param pos
+     *         center point
+     */
     public void centerOn(Vector2 pos) {
-        rect.setPosition(pos);
+        pos.x /= World.BLOCK_SIZE;
+        pos.y /= World.BLOCK_SIZE;
+
+        float halfWidth = (MAX_VIEWPORT_WIDTH / 2);
+        float halfHeight = (MAX_VIEWPORT_HEIGHT / 2);
+
+        rect.x = Math.max(0.0f, pos.x - halfWidth);
+        rect.y = Math.max(0.0f, pos.y - halfHeight);
+
+        rect.width = Math.min(World.WORLD_SIZE_X, pos.x + (halfWidth));
+        rect.height = Math.min(World.WORLD_SIZE_Y, pos.y + (halfHeight));
     }
 
     public boolean contains(Vector2 pos) {
@@ -81,13 +96,6 @@ public class LoadedViewport {
      * where these are the blocks the viewport has within its view/range
      */
     public PlayerViewportBlockRegion blockRegionInViewport() {
-        int x = (int) (Math.max(0.0f, this.rect.x - this.rect.width) / World.BLOCK_SIZE);
-        int y = (int) (Math.max(0.0f, this.rect.y - this.rect.height) / World.BLOCK_SIZE);
-        int width = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_X,
-                this.rect.x + this.rect.width) / World.BLOCK_SIZE);
-        int height = (int) (Math.min(World.BLOCK_SIZE * World.WORLD_SIZE_Y,
-                this.rect.y + this.rect.height) / World.BLOCK_SIZE);
-
-        return new PlayerViewportBlockRegion(x, y, width, height);
+        return new PlayerViewportBlockRegion((int) rect.x, (int) rect.y, (int) rect.width, (int) rect.height);
     }
 }

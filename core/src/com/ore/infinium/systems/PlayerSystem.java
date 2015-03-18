@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.LoadedViewport;
+import com.ore.infinium.OreTimer;
 import com.ore.infinium.World;
 import com.ore.infinium.components.*;
 
@@ -35,7 +36,6 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
 
-
     public PlayerSystem(World world) {
         m_world = world;
     }
@@ -48,6 +48,7 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
 
     }
 
+    private OreTimer chunkTimer = new OreTimer();
     public void update(float delta) {
         if (m_world.isClient()) {
             return;
@@ -63,33 +64,35 @@ public class PlayerSystem extends EntitySystem implements EntityListener {
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
             PlayerComponent playerComponent = playerMapper.get(entities.get(i));
 
-            if (spriteComponent == null || spriteComponent.sprite == null || playerComponent == null || playerComponent.lastLoadedRegion == null) {
+            if (spriteComponent == null || spriteComponent.sprite == null || playerComponent == null) {
                 continue; //hack, not sure why but occasional NPE's happen..on something
             }
 
-            if (Vector2.dst(spriteComponent.sprite.getX(), spriteComponent.sprite.getY(),
-                    playerComponent.lastLoadedRegion.x, playerComponent.lastLoadedRegion.y)
-                    > LoadedViewport.reloadDistance) {
+            com.badlogic.gdx.math.Rectangle viewportRect = playerComponent.loadedViewport.rect;
+            float x = spriteComponent.sprite.getX();
+            float y = spriteComponent.sprite.getY();
+
+            //fixme hack, we'll fix this when we get to chunking and come up with a proper solution
+            if (chunkTimer.milliseconds() > 600) {
                 calculateLoadedViewport(entities.get(i));
+                chunkTimer.reset();
             }
+
         }
     }
 
-    private void calculateLoadedViewport(Entity entity) {
-        PlayerComponent playerComponent = playerMapper.get(entity);
-        SpriteComponent spriteComponent = spriteMapper.get(entity);
-
+    private void calculateLoadedViewport(Entity player) {
+        PlayerComponent playerComponent = playerMapper.get(player);
+        SpriteComponent spriteComponent = spriteMapper.get(player);
 
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
 
         Vector2 center = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
         loadedViewport.centerOn(center);
-        playerComponent.lastLoadedRegion = center;
 
-        m_world.m_server.sendPlayerLoadedViewportMoved(entity);
-        sendPlayerBlockRegion(entity);
+        m_world.m_server.sendPlayerLoadedViewportMoved(player);
+        sendPlayerBlockRegion(player);
     }
-
 
     private void sendPlayerBlockRegion(Entity player) {
         PlayerComponent playerComponent = playerMapper.get(player);

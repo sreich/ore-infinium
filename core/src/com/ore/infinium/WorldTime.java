@@ -1,6 +1,5 @@
 package com.ore.infinium;
 
-
 import java.time.LocalTime;
 
 /**

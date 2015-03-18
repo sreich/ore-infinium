@@ -64,6 +64,8 @@ public class Network {
         kryo.register(SizePacket.class);
 
         kryo.register(BlockRegion.class);
+        kryo.register(SparseBlockUpdate.class);
+        kryo.register(SingleSparseBlock.class);
         kryo.register(SingleBlock.class);
         kryo.register(Block.BlockType.class);
 
@@ -248,11 +250,46 @@ public class Network {
      * Tiny(er) class to wrap a Block and send over the wire
      */
     static public class SingleBlock {
+        SingleBlock() {
+        }
+
+        SingleBlock(Block block) {
+            type = block.type;
+            wallType = block.wallType;
+            flags = block.flags;
+        }
+
         byte type;
         byte wallType;
         byte flags;
 
         //mesh type is not passed, but recalculated as each chunk is merged with the running world
+    }
+
+    static public class SingleSparseBlock {
+        SingleSparseBlock() {
+        }
+
+        SingleBlock block;
+        int x;
+        int y;
+
+        SingleSparseBlock(Block _block, int x, int y) {
+            block = new SingleBlock(_block);
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    /**
+     * Incremental and sparse update of changed blocks. These are different in that they are more efficient
+     * for single to double digit block counts. They store with them their block index.
+     * <p>
+     * Usually used for when out-of-line blocks are modified and changes need to be sent. They are queued on the server
+     * so there is not one packet per tiny block update.
+     */
+    static public class SparseBlockUpdate {
+        public Array<Network.SingleSparseBlock> blocks = new Array<>();
     }
 
     static public class BlockRegion {

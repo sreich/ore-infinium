@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                        *
+ * Copyright (C) 2014, 2015 by Shaun Reich <sreich02@gmail.com>              *
  * *
  * This program is free software; you can redistribute it and/or             *
  * modify it under the terms of the GNU General Public License as            *
@@ -55,8 +55,7 @@ public class World implements Disposable {
     public static final int WORLD_SEA_LEVEL = 50;
 
     /**
-     * looks up the texture prefix name for each block type.
-     * e.g. DirtBlockType -> "dirt", etc.
+     * looks up the texture prefix name for each block type. e.g. DirtBlockType -> "dirt", etc.
      */
     public static final HashMap<Byte, BlockStruct> blockTypes = new HashMap<>();
 
@@ -67,8 +66,8 @@ public class World implements Disposable {
     }
 
     /**
-     * @first bitmask of all sides, that maps to valid transition types
-     * e.g. left | right, indicates that it needs to mesh on the left and right sides ONLY
+     * @first bitmask of all sides, that maps to valid transition types e.g. left | right, indicates that it needs to
+     * mesh on the left and right sides ONLY
      * @second
      */
     public static final HashMap<EnumSet<Transitions>, Integer> dirtTransitionTypes = new HashMap<>();
@@ -89,7 +88,8 @@ public class World implements Disposable {
 
     static {
         dirtTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom),
-                0);
+                                0
+        );
         dirtTransitionTypes.put(EnumSet.of(Transitions.bottom), 1);
         dirtTransitionTypes.put(EnumSet.of(Transitions.top, Transitions.bottom), 2);
         dirtTransitionTypes.put(EnumSet.of(Transitions.right), 3);
@@ -139,9 +139,9 @@ public class World implements Disposable {
         grassTransitions.put(EnumSet.of(Transitions.top), 1); //hack
         ////////////////////
 
-
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom),
-                0);
+                                 0
+        );
         stoneTransitionTypes.put(EnumSet.of(Transitions.right, Transitions.bottom), 1);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 2);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 3);
@@ -158,7 +158,8 @@ public class World implements Disposable {
         stoneTransitionTypes.put(EnumSet.of(Transitions.top), 14);
         stoneTransitionTypes.put(
                 EnumSet.of(Transitions.LeftDirt, Transitions.RightDirt, Transitions.BottomDirt, Transitions.TopDirt),
-                15);
+                15
+        );
         stoneTransitionTypes.put(EnumSet.of(Transitions.bottom, Transitions.right), 16);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom, Transitions.right), 17);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 18);
@@ -176,7 +177,8 @@ public class World implements Disposable {
         stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 30);
     }
 
-    private static final int zoomInterval = 50; //ms
+    // zoom every n ms, while zoom key is held down
+    private static final int zoomInterval = 30;
     private static OreTimer m_zoomTimer = new OreTimer();
 
     public Block[] blocks;
@@ -203,7 +205,8 @@ public class World implements Disposable {
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
     private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
     private ComponentMapper<AirGeneratorComponent> airGeneratorMapper = ComponentMapper.getFor(
-            AirGeneratorComponent.class);
+            AirGeneratorComponent.class
+    );
     private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
     private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
@@ -238,7 +241,8 @@ public class World implements Disposable {
         engine.addSystem(new PlayerSystem(this));
 
         m_camera = new OrthographicCamera(1600 / World.PIXELS_PER_METER,
-                900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
+                                          900 / World.PIXELS_PER_METER
+        );//30, 30 * (h / w));
         m_camera.setToOrtho(true, 1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);
 
 //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
@@ -323,6 +327,7 @@ public class World implements Disposable {
      *
      * @param playerName
      * @param connectionId
+     *
      * @return
      */
     public Entity createPlayer(String playerName, int connectionId) {
@@ -337,8 +342,12 @@ public class World implements Disposable {
 
         playerComponent.playerName = playerName;
         playerComponent.loadedViewport.setRect(
-                new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
-        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY()));
+                new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT)
+        );
+        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX() / World.BLOCK_SIZE,
+                                                            playerSprite.sprite.getY() / World.BLOCK_SIZE
+                                                )
+        );
         player.add(playerComponent);
 
         playerSprite.sprite.setSize(World.BLOCK_SIZE * 2, World.BLOCK_SIZE * 3);
@@ -504,14 +513,17 @@ public class World implements Disposable {
      * @param sourceTileY
      * @param nearbyTileX
      * @param nearbyTileY
+     *
      * @return
      */
     private boolean shouldTileTransitionWith(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
         boolean isMatched = false;
         int srcIndex = MathUtils.clamp(sourceTileX * WORLD_SIZE_Y + sourceTileY, 0,
-                WORLD_SIZE_Y * WORLD_SIZE_X - 1);
+                                       WORLD_SIZE_Y * WORLD_SIZE_X - 1
+        );
         int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_SIZE_Y + nearbyTileY, 0,
-                WORLD_SIZE_Y * WORLD_SIZE_X - 1);
+                                          WORLD_SIZE_Y * WORLD_SIZE_X - 1
+        );
 
         if (blocks[srcIndex].type == blocks[nearbyIndex].type) {
             //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
@@ -600,11 +612,19 @@ public class World implements Disposable {
      *
      * @param x
      * @param y
+     *
      * @return
      */
     public Block blockAtSafely(int x, int y) {
-        return blocks[MathUtils.clamp(x, 0, WORLD_SIZE_X - 1) * WORLD_SIZE_Y + MathUtils.clamp(y, 0,
-                WORLD_SIZE_Y - 1)];
+        return blocks[blockXSafe(x) * WORLD_SIZE_Y + blockYSafe(y)];
+    }
+
+    public int blockXSafe(int x) {
+        return MathUtils.clamp(x, 0, WORLD_SIZE_X - 1);
+    }
+
+    public int blockYSafe(int y) {
+        return MathUtils.clamp(y, 0, WORLD_SIZE_Y - 1);
     }
 
     public Block blockAt(int x, int y) {
@@ -647,7 +667,8 @@ public class World implements Disposable {
             }
 //        playerSprite.sprite.setOriginCenter();
 
-//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite.sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
+//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite
+// .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
 
             final float zoomAmount = 0.004f;
             if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
@@ -675,11 +696,11 @@ public class World implements Disposable {
 
         if (isServer()) {
 
-            if (randomGrassTimer.milliseconds() > 500) {
-                //HACK
-                randomGrowGrass();
-                randomGrassTimer.reset();
-            }
+//            if (randomGrassTimer.milliseconds() > 500) {
+            //HACK
+            randomGrowGrass();
+            randomGrassTimer.reset();
+            //           }
         }
 
         //todo explicitly call update on systems, me thinks...otherwise the render and update steps are coupled
@@ -766,7 +787,8 @@ public class World implements Disposable {
             m_client.sendItemPlace(alignedPosition.x, alignedPosition.y);
         } else {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
-            //because the function actually takes only the entity, to check if its size, position etc conflict with anything
+            //because the function actually takes only the entity, to check if its size, position etc conflict with
+            // anything
             engine.removeEntity(placedItem);
         }
     }
@@ -802,43 +824,51 @@ public class World implements Disposable {
             PlayerComponent playerComponent = playerMapper.get(player);
 
             LoadedViewport.PlayerViewportBlockRegion region = playerComponent.loadedViewport.blockRegionInViewport();
-            int randomX = MathUtils.random(region.x, region.width);
-            int randomY = MathUtils.random(region.y, region.height);
 
-            Block block = blockAt(randomX, randomY);
+            //each tick, resample 100 or so blocks to see if grass can grow. this may need to be
+            //reduced, but for debugging right now it's good.
+            for (int i = 0; i < 100; ++i) {
+                int randomX = MathUtils.random(region.x, region.width);
+                int randomY = MathUtils.random(region.y, region.height);
 
-            int blockRangeX = randomX;
-            int blockRangeY = randomY;
+                Block block = blockAt(randomX, randomY);
 
-            //pick a random block, if it has grass, try to grow outward along its edges/spread the grass
-            if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-                Block leftBlock = blockAtSafely(randomX - 1, randomY);
-                Block rightBlock = blockAtSafely(randomX + 1, randomY);
-                Block topBlock = blockAtSafely(randomX, randomY - 1);
-                Block bottomBlock = blockAtSafely(randomX, randomY + 1);
+                //pick a random block, if it has grass, try to grow outward along its edges/spread the grass
+                if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    int leftBlockX = blockXSafe(randomX - 1);
+                    int leftBlockY = blockYSafe(randomY);
 
-                if (leftBlock.type == Block.BlockType.DirtBlockType && !leftBlock.hasFlag(
-                        Block.BlockFlags.GrassBlock)) {
-                    leftBlock.setFlag(Block.BlockFlags.GrassBlock);
-                    blockRangeX -= 1;
+                    int rightBlockX = blockXSafe(randomX + 1);
+                    int rightBlockY = blockYSafe(randomY);
+
+                    int topBlockX = blockXSafe(randomX);
+                    int topBlockY = blockYSafe(randomY - 1);
+
+                    int bottomBlockX = blockXSafe(randomX);
+                    int bottomBlockY = blockYSafe(randomY + 1);
+
+                    Block leftBlock = blockAt(leftBlockX, leftBlockY);
+                    Block rightBlock = blockAt(rightBlockX, rightBlockY);
+                    Block topBlock = blockAt(topBlockX, topBlockY);
+                    Block bottomBlock = blockAt(bottomBlockX, bottomBlockY);
+
+                    if (leftBlock.type == Block.BlockType.DirtBlockType && !leftBlock.hasFlag(
+                            Block.BlockFlags.GrassBlock
+                    )) {
+                        leftBlock.setFlag(Block.BlockFlags.GrassBlock);
+
+                        m_server.sendPlayerSparseBlock(player, leftBlock, leftBlockX, leftBlockY);
+                    }
+
+                    if (rightBlock.type == Block.BlockType.DirtBlockType && !rightBlock.hasFlag(
+                            Block.BlockFlags.GrassBlock
+                    )) {
+                        rightBlock.setFlag(Block.BlockFlags.GrassBlock);
+
+                        m_server.sendPlayerSparseBlock(player, rightBlock, rightBlockX, rightBlockY);
+                    }
                 }
-
-                if (rightBlock.type == Block.BlockType.DirtBlockType && !rightBlock.hasFlag(
-                        Block.BlockFlags.GrassBlock)) {
-                    rightBlock.setFlag(Block.BlockFlags.GrassBlock);
-                    blockRangeX += 1;
-                }
-
             }
-
-            //fixme...obviously not main player
-            int x = Math.max(0, blockRangeX - 1);
-            int width = Math.min(blockRangeX + 1, WORLD_SIZE_X);
-            int y = Math.max(0, blockRangeY - 1);
-            int height = Math.min(blockRangeY + 1, WORLD_SIZE_Y);
-
-            //we likely want to place this in a queue of some sorts, so we can batch out individual ones?
-//            m_server.sendPlayerBlockRegion(player, x, y, width, height);
         }
     }
 
@@ -850,7 +880,6 @@ public class World implements Disposable {
                 Block rightBlock = blockAtSafely(x + 1, y);
                 Block topBlock = blockAtSafely(x, y - 1);
                 Block bottomBlock = blockAtSafely(x, y + 1);
-
 
                 Block block = blockAtSafely(x, y);
                 if (block.type == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
@@ -922,10 +951,12 @@ public class World implements Disposable {
 
         Vector2 mouse = mousePositionWorldCoords();
         Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE),
-                BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
+                                                BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE)
+        );
 
         Vector2 crosshairOriginOffset = new Vector2(spriteComponent.sprite.getWidth() * 0.5f,
-                spriteComponent.sprite.getHeight() * 0.5f);
+                                                    spriteComponent.sprite.getHeight() * 0.5f
+        );
 
         Vector2 crosshairFinalPosition = crosshairPosition.add(crosshairOriginOffset);
 
@@ -1094,11 +1125,29 @@ public class World implements Disposable {
         float bottom2 = pos2.y + (size2.y * 0.5f) - epsilon;
 
         boolean collides = !(left2 > right1
-                || right2 < left1
-                || top2 > bottom1
-                || bottom2 < top1);
+                             || right2 < left1
+                             || top2 > bottom1
+                             || bottom2 < top1);
 
         return collides;
+    }
+
+    public static void log(String tag, String message) {
+        java.time.LocalDateTime datetime = java.time.LocalDateTime.now();
+        String time = datetime.format(java.time.format.DateTimeFormatter.ofPattern("HH:m:s:S"));
+
+        Gdx.app.log(tag, message + " [" + time + " ]");
+    }
+
+    public void loadSparseBlockUpdate(Network.SparseBlockUpdate update) {
+        log("sparse block update", "loaded, count: " + update.blocks.size);
+
+        for (Network.SingleSparseBlock sparseBlock : update.blocks) {
+            Block originalBlock = blockAt(sparseBlock.x, sparseBlock.y);
+            originalBlock.type = sparseBlock.block.type;
+            originalBlock.wallType = sparseBlock.block.wallType;
+            originalBlock.flags = sparseBlock.block.flags;
+        }
     }
 
     public void loadBlockRegion(Network.BlockRegion region) {
@@ -1117,14 +1166,17 @@ public class World implements Disposable {
             }
         }
 
-        Gdx.app.log("block region", "loading");
+        log("block region", String.format("loaded %s tiles", sourceIndex));
+
         //fixme should re transition tiles in this area
     }
 
     /**
      * Clone everything about the entity. Does *not* add it to the engine
      *
-     * @param entity to clone
+     * @param entity
+     *         to clone
+     *
      * @return the cloned entity
      */
     public Entity cloneEntity(Entity entity) {
