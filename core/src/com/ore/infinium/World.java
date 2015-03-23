@@ -93,10 +93,10 @@ public class World implements Disposable {
         right,
         top,
         bottom,
-        topLeft,
-        topRight,
+        topLeftEmpty,
+        topRightEmpty,
 
-        //
+        // show grass on the left side of this current block
         leftGrass,
         rightGrass,
         topGrass,
@@ -105,14 +105,15 @@ public class World implements Disposable {
         topRightGrass,
 
         //
-        LeftDirt,
-        RightDirt,
-        TopDirt,
-        BottomDirt
+        leftDirt,
+        rightDirt,
+        topDirt,
+        bottomDirt
     }
 
     static {
-        dirtTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
+        dirtTransitionTypes
+                .put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
         dirtTransitionTypes.put(EnumSet.of(Transitions.bottom), 1);
         dirtTransitionTypes.put(EnumSet.of(Transitions.top, Transitions.bottom), 2);
         dirtTransitionTypes.put(EnumSet.of(Transitions.right), 3);
@@ -130,6 +131,57 @@ public class World implements Disposable {
         dirtTransitionTypes.put(EnumSet.noneOf(Transitions.class), 15);
 
         ///////////////////////////////////////////////////////////////////////////////////
+
+        grassTransitions.put(EnumSet.of(Transitions.bottomDirt, Transitions.leftGrass, Transitions.rightGrass,
+                                        Transitions.topGrass), 0);
+
+        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.bottomDirt, Transitions.leftGrass,
+                                        Transitions.rightGrass), 1);
+
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.leftGrass, Transitions.topGrass), 2);
+
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.leftDirt, Transitions.topGrass), 3);
+
+//        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.leftDirt, HACK
+        //                                       Transitions.topGrass), 4);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topGrass, Transitions.rightGrass), 5);
+
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftGrass,
+                                        Transitions.topGrass), 6);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
+                                        Transitions.topGrass), 7);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
+                                        Transitions.topGrass), 7);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.topGrass,
+                                        Transitions.rightGrass), 8);
+
+        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.rightDirt,
+                                        //hack questionable? does this need bottom or not?
+                                        Transitions.leftGrass), 9);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.rightGrass), 10);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.rightGrass), 10);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.bottomDirt,
+                                        Transitions.rightGrass), 10);
+
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                                        Transitions.leftGrass), 9);
+
+        grassTransitions.put(EnumSet.of(Transitions.topGrass), 11);
+        //hack 12, 13
+
+        grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass, Transitions.topGrass),
+                             11); //fixme hack, dunno if this is right at all
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt), 4); //HACK
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.bottomDirt), 4); //HACK
+
+        /*
 
         grassTransitions.put(EnumSet.of(Transitions.bottom), 0);
         grassTransitions.put(EnumSet.of(Transitions.top, Transitions.bottom), 1);//hack
@@ -158,10 +210,11 @@ public class World implements Disposable {
 
         //below here is junk
         grassTransitions.put(EnumSet.of(Transitions.top), 1); //hack
+        */
         ////////////////////
 
-        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom)
-                , 0);
+        stoneTransitionTypes
+                .put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
         stoneTransitionTypes.put(EnumSet.of(Transitions.right, Transitions.bottom), 1);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 2);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 3);
@@ -176,9 +229,8 @@ public class World implements Disposable {
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 12);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left), 13);
         stoneTransitionTypes.put(EnumSet.of(Transitions.top), 14);
-        stoneTransitionTypes
-                .put(EnumSet.of(Transitions.LeftDirt, Transitions.RightDirt, Transitions.BottomDirt, Transitions
-                        .TopDirt), 15);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
+                                            Transitions.topDirt), 15);
         stoneTransitionTypes.put(EnumSet.of(Transitions.bottom, Transitions.right), 16);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom, Transitions.right), 17);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 18);
@@ -223,8 +275,8 @@ public class World implements Disposable {
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
     private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
-    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper = ComponentMapper.getFor(AirGeneratorComponent
-                                                                                                       .class);
+    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper =
+            ComponentMapper.getFor(AirGeneratorComponent.class);
     private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
     private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
@@ -863,13 +915,15 @@ public class World implements Disposable {
                     Block topBlock = blockAt(topBlockX, topBlockY);
                     Block bottomBlock = blockAt(bottomBlockX, bottomBlockY);
 
-                    if (leftBlock.type == Block.BlockType.DirtBlockType && !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    if (leftBlock.type == Block.BlockType.DirtBlockType &&
+                        !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
                         leftBlock.setFlag(Block.BlockFlags.GrassBlock);
 
                         m_server.sendPlayerSparseBlock(player, leftBlock, leftBlockX, leftBlockY);
                     }
 
-                    if (rightBlock.type == Block.BlockType.DirtBlockType && !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    if (rightBlock.type == Block.BlockType.DirtBlockType &&
+                        !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
                         rightBlock.setFlag(Block.BlockFlags.GrassBlock);
 
                         m_server.sendPlayerSparseBlock(player, rightBlock, rightBlockX, rightBlockY);
@@ -894,45 +948,78 @@ public class World implements Disposable {
                 Block block = blockAtSafely(x, y);
                 if (block.type == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
 
-                    boolean leftMerge = leftBlock.hasFlag(Block.BlockFlags.GrassBlock);
+                    //should have grass on left side of this block..or not.
+                    boolean leftGrass = leftBlock.type == Block.BlockType.NullBlockType;
 
-                    boolean rightMerge = rightBlock.hasFlag(Block.BlockFlags.GrassBlock);
+                    boolean rightGrass = rightBlock.type == Block.BlockType.NullBlockType;
 
-                    //hack is top redundant?
-                    boolean topMerge = topBlock.hasFlag(Block.BlockFlags.GrassBlock);
+                    boolean topGrass = topBlock.type == Block.BlockType.NullBlockType;
 
-                    boolean bottomMerge = bottomBlock.hasFlag(Block.BlockFlags.GrassBlock);
+                    //if block to the left is dirt..
+                    boolean leftDirt = leftBlock.type == Block.BlockType.DirtBlockType;
+                    boolean rightDirt = rightBlock.type == Block.BlockType.DirtBlockType;
+                    boolean topDirt = topBlock.type == Block.BlockType.DirtBlockType;
+                    boolean bottomDirt = bottomBlock.type == Block.BlockType.DirtBlockType;
 
                     //handled a bit differently,
-                    boolean topLeftEmpty = bottomBlock.type == Block.BlockType.NullBlockType;
-                    boolean topRightEmpty = bottomBlock.type == Block.BlockType.NullBlockType;
-
-//                    block.setFlag(Block.BlockFlags.GrassBlock);
+                    boolean topLeftEmpty = topLeftBlock.type == Block.BlockType.NullBlockType;
+                    boolean topRightEmpty = topRightBlock.type == Block.BlockType.NullBlockType;
 
                     Set<Transitions> result = EnumSet.noneOf(Transitions.class);
-                    if (leftMerge) {
-                        result.add(Transitions.left);
+                    if (leftGrass) {
+                        result.add(Transitions.leftGrass);
                     }
 
-                    if (rightMerge) {
-                        result.add(Transitions.right);
+                    if (rightGrass) {
+                        result.add(Transitions.rightGrass);
                     }
 
-                    if (topMerge) {
-                        result.add(Transitions.top);
+                    if (topGrass) {
+                        result.add(Transitions.topGrass);
                     }
 
-                    if (bottomMerge) {
-                        result.add(Transitions.bottom);
+                    //bottom is IMPOSSIBLE. i hope.
+
+                    if (leftDirt) {
+                        result.add(Transitions.leftDirt);
                     }
 
-                    byte finalMesh = (byte) grassTransitions.get(result).intValue();
-
-                    if (topMerge && leftMerge && rightMerge) {
-                        block.meshType = finalMesh;
+                    if (rightDirt) {
+                        result.add(Transitions.rightDirt);
                     }
+
+                    if (topDirt) {
+                        result.add(Transitions.topDirt);
+                    }
+
+                    if (bottomDirt) {
+                        result.add(Transitions.bottomDirt);
+                    }
+
+                    /*
+                    //hack only set these if the other conditions are set. so we don't have to duplicate the lookup
+                    table code
+
+                    //only checked/set for cases where it will be used. This is e.g. surrounded by dirt,
+                    if (topLeftEmpty) {
+                        result.add(Transitions.topLeftEmpty);
+                    }
+
+                    if (topRightEmpty) {
+                        result.add(Transitions.topRightEmpty);
+                    }
+                    */
+
+                    Integer meshObj = grassTransitions.get(result);
+
+                    if (meshObj == null) {
+                        assert false : "invalid mesh type retrieval, for some reason, null";
+                    }
+
+                    byte finalMesh = (byte) meshObj.intValue();
 
                     block.meshType = finalMesh;
+
                     if (finalMesh == -1) {
                         assert false : "invalid mesh type retrieval, for some reason";
                     }
