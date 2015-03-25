@@ -985,7 +985,6 @@ public class World implements Disposable {
 
                             m_server.sendPlayerSparseBlock(player, bottomBlock, bottomBlockX, bottomBlockY);
                         }
-
                     }
                 }
             }
