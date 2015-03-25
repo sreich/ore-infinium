@@ -177,9 +177,32 @@ public class World implements Disposable {
         grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass, Transitions.topGrass),
                              11); //fixme hack, dunno if this is right at all
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt), 4); //HACK
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt), 18); //HACK
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.topLeftEmpty, Transitions.topRightEmpty), 18); //HACK
+
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
                                         Transitions.bottomDirt), 4); //HACK
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.bottomDirt, Transitions.topLeftEmpty), 12);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.bottomDirt, Transitions.topRightEmpty), 13);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty),
+                             4);
+
+        //hack idk what this one is
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.topRightEmpty), 13);
+        //hack same here
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.topLeftEmpty), 12);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass, Transitions.topDirt), 1);
 
         /*
 
@@ -915,6 +938,7 @@ public class World implements Disposable {
                     Block topBlock = blockAt(topBlockX, topBlockY);
                     Block bottomBlock = blockAt(bottomBlockX, bottomBlockY);
 
+                    //grow left
                     if (leftBlock.type == Block.BlockType.DirtBlockType &&
                         !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
                         leftBlock.setFlag(Block.BlockFlags.GrassBlock);
@@ -922,11 +946,36 @@ public class World implements Disposable {
                         m_server.sendPlayerSparseBlock(player, leftBlock, leftBlockX, leftBlockY);
                     }
 
+                    //grow right
                     if (rightBlock.type == Block.BlockType.DirtBlockType &&
                         !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
                         rightBlock.setFlag(Block.BlockFlags.GrassBlock);
 
                         m_server.sendPlayerSparseBlock(player, rightBlock, rightBlockX, rightBlockY);
+                    }
+
+                    //grow grow down
+                    if (bottomBlock.type == Block.BlockType.DirtBlockType &&
+                        !bottomBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+
+                        int bottomRightBlockX = blockXSafe(randomX + 1);
+                        int bottomRightBlockY = blockYSafe(randomY + 1);
+
+                        int bottomLeftBlockX = blockXSafe(randomX - 1);
+                        int bottomLeftBlockY = blockYSafe(randomY + 1);
+
+                        Block bottomRightBlock = blockAt(bottomRightBlockX, bottomRightBlockY);
+                        Block bottomLeftBlock = blockAt(bottomLeftBlockX, bottomLeftBlockY);
+
+                        //only spread grass to the lower block, if that block has open space
+                        if (bottomLeftBlock.type == Block.BlockType.NullBlockType ||
+                            bottomRightBlock.type == Block.BlockType.NullBlockType) {
+
+                            bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
+
+                            m_server.sendPlayerSparseBlock(player, bottomBlock, bottomBlockX, bottomBlockY);
+                        }
+
                     }
                 }
             }
@@ -996,24 +1045,24 @@ public class World implements Disposable {
                         result.add(Transitions.bottomDirt);
                     }
 
-                    /*
                     //hack only set these if the other conditions are set. so we don't have to duplicate the lookup
-                    table code
-
+                    //table code
                     //only checked/set for cases where it will be used. This is e.g. surrounded by dirt,
-                    if (topLeftEmpty) {
-                        result.add(Transitions.topLeftEmpty);
-                    }
 
-                    if (topRightEmpty) {
-                        result.add(Transitions.topRightEmpty);
+                    if (topDirt && leftDirt && rightDirt) {
+                        if (topLeftEmpty) {
+                            result.add(Transitions.topLeftEmpty);
+                        }
+
+                        if (topRightEmpty) {
+                            result.add(Transitions.topRightEmpty);
+                        }
                     }
-                    */
 
                     Integer meshObj = grassTransitions.get(result);
 
                     if (meshObj == null) {
-                        assert false : "invalid mesh type retrieval, for some reason, null";
+                        assert false : "invalid mesh type retrieval, for some reason, null, result is: " + result;
                     }
 
                     byte finalMesh = (byte) meshObj.intValue();
