@@ -172,7 +172,6 @@ public class World implements Disposable {
                                         Transitions.leftGrass), 9);
 
         grassTransitions.put(EnumSet.of(Transitions.topGrass), 11);
-        //hack 12, 13
 
         grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass, Transitions.topGrass),
                              11); //fixme hack, dunno if this is right at all
@@ -941,17 +940,28 @@ public class World implements Disposable {
                     //grow left
                     if (leftBlock.type == Block.BlockType.DirtBlockType &&
                         !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
-                        leftBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                        m_server.sendPlayerSparseBlock(player, leftBlock, leftBlockX, leftBlockY);
+                        Block topLeftBlock = blockAt(leftBlockX, blockYSafe(leftBlockY - 1));
+
+                        //only think about moving left if the top left block has room to grow grass (empty above)
+                        //otherwise in coherent dirt grid, you'd get grass moving inward where it is surrounded
+                        //by all dirt, which makes no sense.
+                        if (topLeftBlock.type == Block.BlockType.NullBlockType) {
+                            leftBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            m_server.sendPlayerSparseBlock(player, leftBlock, leftBlockX, leftBlockY);
+                        }
                     }
 
                     //grow right
                     if (rightBlock.type == Block.BlockType.DirtBlockType &&
                         !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
-                        rightBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                        m_server.sendPlayerSparseBlock(player, rightBlock, rightBlockX, rightBlockY);
+                        Block topRightBlock = blockAt(rightBlockX, blockYSafe(rightBlockY - 1));
+
+                        if (topRightBlock.type == Block.BlockType.NullBlockType) {
+                            rightBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            m_server.sendPlayerSparseBlock(player, rightBlock, rightBlockX, rightBlockY);
+                        }
                     }
 
                     //grow grow down
