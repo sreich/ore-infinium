@@ -115,6 +115,7 @@ public class TileRenderer extends IntervalSystem {
         // determine what the size of the tiles are but convert that to our zoom level
         final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
         tileSize.mul(m_camera.combined);
+
         final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
         final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
@@ -142,8 +143,8 @@ public class TileRenderer extends IntervalSystem {
 
                 Block block = m_world.blockAt(x, y);
 
-                float tileX = World.BLOCK_SIZE * x;
-                float tileY = World.BLOCK_SIZE * y;
+                float tileX = World.BLOCK_SIZE * (float) x;
+                float tileY = World.BLOCK_SIZE * (float) y;
 
                 boolean drawWallTile = false;
 

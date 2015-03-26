@@ -142,16 +142,10 @@ public class World implements Disposable {
 
         grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.leftDirt, Transitions.topGrass), 3);
 
-//        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.leftDirt, HACK
-        //                                       Transitions.topGrass), 4);
-
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topGrass, Transitions.rightGrass), 5);
 
         grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftGrass,
                                         Transitions.topGrass), 6);
-
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
-                                        Transitions.topGrass), 7);
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
                                         Transitions.topGrass), 7);
@@ -161,7 +155,7 @@ public class World implements Disposable {
 
         grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.rightDirt,
                                         //hack questionable? does this need bottom or not?
-                                        Transitions.leftGrass), 9);
+                                        Transitions.leftGrass), 16);
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.rightGrass), 10);
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.rightGrass), 10);
@@ -202,6 +196,8 @@ public class World implements Disposable {
                                         Transitions.topLeftEmpty), 12);
 
         grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass, Transitions.topDirt), 1);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass), 1);
 
         /*
 
@@ -729,13 +725,6 @@ public class World implements Disposable {
         return solid;
     }
 
-    public boolean canPlaceBlock(int x, int y) {
-        boolean canPlace = blockAt(x, y).type == Block.BlockType.NullBlockType;
-        //TODO: check collision with other entities...
-
-        return canPlace;
-    }
-
     public void dispose() {
     }
 
@@ -827,15 +816,11 @@ public class World implements Disposable {
             int x = (int) (mouse.x / BLOCK_SIZE);
             int y = (int) (mouse.y / BLOCK_SIZE);
 
-            Block block = blockAt(x, y);
-
-            //attempt to place one if the area is empty
-            if (block.type == Block.BlockType.NullBlockType) {
-                block.type = blockComponent.blockType;
+            boolean blockPlaced = attemptBlockPlacement(x, y, blockComponent.blockType);
+            if (blockPlaced) {
                 m_client.sendBlockPlace(x, y);
             }
 
-            //action performed
             return;
         }
 
@@ -847,6 +832,37 @@ public class World implements Disposable {
                 attemptItemPlace(mouse.x, mouse.y, playerComponent.equippedPrimaryItem());
             }
         }
+    }
+
+    /**
+     * Attempts to place a block at position with the type, can fail. If it succeeds it will *not*
+     * notify anything (network wise). Takes care of destroying e.g. nearby grass
+     *
+     * @param x
+     * @param y
+     * @param placedBlockType
+     *         block type to change it to
+     *
+     * @return true if placement succeeded.
+     */
+    boolean attemptBlockPlacement(int x, int y, byte placedBlockType) {
+        Block block = blockAtSafely(x, y);
+
+        //attempt to place one if the area is empty
+        if (block.type == Block.BlockType.NullBlockType) {
+            block.type = placedBlockType;
+
+            Block bottomBlock = blockAtSafely(x, y + 1);
+            if (bottomBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+                //remove grass flag here.
+                bottomBlock.unsetFlag(Block.BlockFlags.GrassBlock);
+            }
+
+            return true;
+        }
+        //TODO: check collision with other entities...
+
+        return false;
     }
 
     private void attemptItemPlace(float x, float y, Entity item) {
@@ -977,9 +993,13 @@ public class World implements Disposable {
                         Block bottomRightBlock = blockAt(bottomRightBlockX, bottomRightBlockY);
                         Block bottomLeftBlock = blockAt(bottomLeftBlockX, bottomLeftBlockY);
 
-                        //only spread grass to the lower block, if that block has open space
+                        //only spread grass to the lower block, if that block has open space left, right, or
+                        //top left, etc. (from our perspective..the block with grass, it is our right block that
+                        //we are checking for empty)
                         if (bottomLeftBlock.type == Block.BlockType.NullBlockType ||
-                            bottomRightBlock.type == Block.BlockType.NullBlockType) {
+                            bottomRightBlock.type == Block.BlockType.NullBlockType ||
+                            leftBlock.type == Block.BlockType.NullBlockType ||
+                            rightBlock.type == Block.BlockType.NullBlockType) {
 
                             bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
 

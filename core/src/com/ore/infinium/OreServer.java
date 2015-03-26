@@ -535,7 +535,7 @@ public class OreServer implements Runnable {
                 Entity item = playerComponent.equippedPrimaryItem();
                 BlockComponent blockComponent = blockMapper.get(item);
 
-                m_world.blockAt(data.x, data.y).type = blockComponent.blockType;
+                m_world.attemptBlockPlacement(data.x, data.y, blockComponent.blockType);
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
                 Network.PlayerEquipHotbarIndexFromClient data = ((Network.PlayerEquipHotbarIndexFromClient) job.object);
                 PlayerComponent playerComponent = playerMapper.get(job.connection.player);
