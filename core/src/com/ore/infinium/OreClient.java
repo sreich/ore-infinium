@@ -122,6 +122,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public void create() {
         //    Log.set(Log.LEVEL_DEBUG);
+        Gdx.app.setLogLevel(Application.LOG_NONE);
 //        Log.set(Log.LEVEL_INF
 //        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, m_skin);
 //        progressBar.setValue(50);
@@ -260,28 +261,23 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_currentTime = newTime;
 
-
         m_accumulator += frameTime;
 
         while (m_accumulator >= CLIENT_FIXED_TIMESTEP) {
             processNetworkQueue();
 
+            Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
             if (m_world != null) {
                 //on client, actually renders, due to systems :S
                 //fixme we want to split rendering and updating..its coupled right now
-                Gdx.gl.glClearColor(0, 0, 0, 1);
-                Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+                //Gdx.gl.glClearColor(102.0f/255.0f, 179.0f/255.0f, 1, 1);
                 m_world.update(CLIENT_FIXED_TIMESTEP / 1000.0);
             }
 
-            try {
-                Thread.sleep(0);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             if (frameTimer.milliseconds() > 600) {
-                frameTimeString = "Client frame time: " + decimalFormat.format(m_accumulator);
+                frameTimeString = "Client frame time: " + decimalFormat.format(frameTime);
                 fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
                 textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
                 shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;

@@ -60,9 +60,12 @@ public class World implements Disposable {
     public static final HashMap<Byte, BlockStruct> blockTypes = new HashMap<>();
 
     static {
-        blockTypes.put(Block.BlockType.NullBlockType, new BlockStruct("", false));
-        blockTypes.put(Block.BlockType.DirtBlockType, new BlockStruct("dirt", true));
-        blockTypes.put(Block.BlockType.StoneBlockType, new BlockStruct("stone", true));
+        blockTypes.put(Block.BlockType.NullBlockType,
+                       new BlockStruct("", BlockStruct.Collision.False, BlockStruct.BlockCategory.Null));
+        blockTypes.put(Block.BlockType.DirtBlockType,
+                       new BlockStruct("dirt", BlockStruct.Collision.True, BlockStruct.BlockCategory.Dirt));
+        blockTypes.put(Block.BlockType.StoneBlockType,
+                       new BlockStruct("stone", BlockStruct.Collision.True, BlockStruct.BlockCategory.Ore));
     }
 
     /**
@@ -79,7 +82,7 @@ public class World implements Disposable {
      * block it is. The various types have their own logic, these are just sometimes-shared
      * identifiers.
      * <p>
-     * Grass mostly uses the leftGrass, etc. meaning that it will show grass on the left side of this block
+     * Grass mostly uses the leftEmpty, etc. meaning that it will show grass on the left side of this block
      * Grass additionally uses the left, right, "should merge/transition" rules. That is, grass merges/blends with
      * dirt,
      * so if "left" is set, it means it will be a continuous stretch of dirt on the left side.
@@ -95,14 +98,22 @@ public class World implements Disposable {
         bottom,
         topLeftEmpty,
         topRightEmpty,
+        bottomLeftEmpty,
+        bottomRightEmpty,
 
         // show grass on the left side of this current block
-        leftGrass,
-        rightGrass,
-        topGrass,
-        //bottom cannot have grass
+        leftEmpty,
+        rightEmpty,
+        topEmpty,
+        bottomEmpty,
         topLeftGrass,
         topRightGrass,
+
+        //
+        leftOre,
+        rightOre,
+        topOre,
+        bottomOre,
 
         //
         leftDirt,
@@ -132,103 +143,119 @@ public class World implements Disposable {
 
         ///////////////////////////////////////////////////////////////////////////////////
 
-        grassTransitions.put(EnumSet.of(Transitions.bottomDirt, Transitions.leftGrass, Transitions.rightGrass,
-                                        Transitions.topGrass), 0);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty,
+                                        Transitions.bottomLeftEmpty, Transitions.bottomRightEmpty), 0);
 
-        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.bottomDirt, Transitions.leftGrass,
-                                        Transitions.rightGrass), 1);
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftEmpty,
+                                        Transitions.topEmpty), 1);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.leftGrass, Transitions.topGrass), 2);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topEmpty), 2);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.leftDirt, Transitions.topGrass), 3);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.topEmpty,
+                                        Transitions.rightEmpty), 3);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topGrass, Transitions.rightGrass), 5);
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.topDirt,
+                                        Transitions.leftEmpty), 4);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftGrass,
-                                        Transitions.topGrass), 6);
-
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
-                                        Transitions.topGrass), 7);
-
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.topGrass,
-                                        Transitions.rightGrass), 8);
-
-        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.rightDirt,
-                                        //hack questionable? does this need bottom or not?
-                                        Transitions.leftGrass), 16);
-
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.rightGrass), 10);
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.rightGrass), 10);
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.bottomDirt,
-                                        Transitions.rightGrass), 10);
+                                        Transitions.rightEmpty), 5);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
-                                        Transitions.leftGrass), 9);
+        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.rightDirt, Transitions.leftEmpty,
+                                        Transitions.bottomEmpty), 6);
 
-        grassTransitions.put(EnumSet.of(Transitions.topGrass), 11);
+        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.leftDirt, Transitions.rightDirt,
+                                        Transitions.bottomEmpty), 7);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass, Transitions.topGrass),
-                             11); //fixme hack, dunno if this is right at all
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.rightEmpty,
+                                        Transitions.bottomEmpty), 8);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt), 18); //HACK
+        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topEmpty,
+                                        Transitions.bottomDirt), 9);
+        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topEmpty,
+                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty),
+                             9);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topDirt,
+                                        Transitions.bottomDirt), 10);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.bottomEmpty,
+                                        Transitions.rightDirt), 11);
+        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.bottomEmpty,
+                                        Transitions.rightDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty,
+                                        Transitions.bottomLeftEmpty, Transitions.bottomRightEmpty), 11);
+
+        grassTransitions.put(EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.leftDirt,
+                                        Transitions.rightDirt), 12);
+
+        grassTransitions.put(EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.rightEmpty,
+                                        Transitions.leftDirt), 13);
+
+        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.bottomEmpty,
+                                        Transitions.topDirt), 14);
+
+        grassTransitions.put(EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.leftEmpty,
+                                        Transitions.rightEmpty), 15);
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.topLeftEmpty, Transitions.topRightEmpty), 18); //HACK
+                                        Transitions.bottomDirt, Transitions.topLeftEmpty),
+                             16); //hack 16, probably need one without bottom,etc
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt), 4); //HACK
+                                        Transitions.bottomDirt, Transitions.topRightEmpty), 17); //HACK
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topLeftEmpty), 12);
+                                        Transitions.bottomDirt, Transitions.bottomLeftEmpty), 18);
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topRightEmpty), 13);
+                                        Transitions.bottomDirt, Transitions.bottomRightEmpty), 19);
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
                                         Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty),
-                             4);
+                             20);
 
-        //hack idk what this one is
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.topRightEmpty), 13);
-        //hack same here
+                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.bottomLeftEmpty),
+                             21);
+
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.topLeftEmpty), 12);
+                                        Transitions.bottomDirt, Transitions.topRightEmpty,
+                                        Transitions.bottomRightEmpty), 22);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass, Transitions.topDirt), 1);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.bottomDirt, Transitions.bottomLeftEmpty,
+                                        Transitions.bottomRightEmpty), 23);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftGrass, Transitions.rightGrass), 1);
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                                        Transitions.leftEmpty), 24);
 
-        /*
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.bottomDirt,
+                                        Transitions.rightEmpty), 25);
 
-        grassTransitions.put(EnumSet.of(Transitions.bottom), 0);
-        grassTransitions.put(EnumSet.of(Transitions.top, Transitions.bottom), 1);//hack
-        grassTransitions.put(EnumSet.of(Transitions.left), 5);
-        grassTransitions.put(EnumSet.of(Transitions.right), 2);
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right), 3);
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 4);
-        grassTransitions.put(EnumSet.of(Transitions.left), 5);
-        grassTransitions.put(EnumSet.of(Transitions.right, Transitions.bottom), 6);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
+                                        Transitions.bottomEmpty), 26);
 
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.bottom), 7);
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top), 4);
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
+                                        Transitions.topEmpty), 27);
 
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.bottom), 8);
-        grassTransitions.put(EnumSet.of(Transitions.right, Transitions.top), 9);
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.top), 12);
-        grassTransitions.put(EnumSet.noneOf(Transitions.class), 11);
-        grassTransitions.put(EnumSet.of(Transitions.top, Transitions.bottom), 12);//hack
+        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.topLeftEmpty,
+                                        Transitions.rightEmpty, Transitions.bottomEmpty), 28);
 
-        //rightbottomtop unhandled ??? NEEDED??
-        grassTransitions.put(EnumSet.of(Transitions.right, Transitions.top, Transitions.bottom), 9);
-        //lefttopbottom
-        grassTransitions.put(EnumSet.of(Transitions.left, Transitions.top, Transitions.bottom), 10);
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.topRightEmpty,
+                                        Transitions.leftEmpty, Transitions.bottomEmpty), 29);
 
-        //hack ^^
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.bottomRightEmpty,
+                                        Transitions.leftEmpty), 31);
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.bottomRightEmpty,
+                                        Transitions.leftEmpty, Transitions.bottomLeftEmpty, Transitions.topLeftEmpty),
+                             31);
+        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftEmpty,
+                                        Transitions.topEmpty, Transitions.topLeftEmpty, Transitions.topRightEmpty,
+                                        Transitions.bottomLeftEmpty, Transitions.bottomRightEmpty), 31);
 
-        //below here is junk
-        grassTransitions.put(EnumSet.of(Transitions.top), 1); //hack
-        */
+        //hack?
+
+        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.rightDirt), 1);
         ////////////////////
 
         stoneTransitionTypes
@@ -494,7 +521,7 @@ public class World implements Disposable {
                     Block bottomLeftBlock = blockAtSafely(x - 1, y + 1);
                     Block bottomRightBlock = blockAtSafely(x + 1, y + 1);
 
-//                    boolean leftGrass =
+//                    boolean leftEmpty =
 
                     if (topBlock.type == Block.BlockType.NullBlockType) {
                         block.setFlag(Block.BlockFlags.GrassBlock);
@@ -1022,16 +1049,20 @@ public class World implements Disposable {
 
                 Block topLeftBlock = blockAtSafely(x - 1, y - 1);
                 Block topRightBlock = blockAtSafely(x + 1, y - 1);
+                Block bottomLeftBlock = blockAtSafely(x - 1, y + 1);
+                Block bottomRightBlock = blockAtSafely(x + 1, y + 1);
 
                 Block block = blockAtSafely(x, y);
                 if (block.type == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
 
                     //should have grass on left side of this block..or not.
-                    boolean leftGrass = leftBlock.type == Block.BlockType.NullBlockType;
+                    boolean leftEmpty = leftBlock.type == Block.BlockType.NullBlockType;
 
-                    boolean rightGrass = rightBlock.type == Block.BlockType.NullBlockType;
+                    boolean rightEmpty = rightBlock.type == Block.BlockType.NullBlockType;
 
-                    boolean topGrass = topBlock.type == Block.BlockType.NullBlockType;
+                    boolean topEmpty = topBlock.type == Block.BlockType.NullBlockType;
+
+                    boolean bottomEmpty = bottomBlock.type == Block.BlockType.NullBlockType;
 
                     //if block to the left is dirt..
                     boolean leftDirt = leftBlock.type == Block.BlockType.DirtBlockType;
@@ -1042,21 +1073,34 @@ public class World implements Disposable {
                     //handled a bit differently,
                     boolean topLeftEmpty = topLeftBlock.type == Block.BlockType.NullBlockType;
                     boolean topRightEmpty = topRightBlock.type == Block.BlockType.NullBlockType;
+                    boolean bottomLeftEmpty = bottomLeftBlock.type == Block.BlockType.NullBlockType;
+                    boolean bottomRightEmpty = bottomRightBlock.type == Block.BlockType.NullBlockType;
 
+                    boolean leftOre = blockTypes.get(leftBlock.type).category == BlockStruct.BlockCategory.Ore;
+
+                    /*
                     Set<Transitions> result = EnumSet.noneOf(Transitions.class);
-                    if (leftGrass) {
-                        result.add(Transitions.leftGrass);
+                    if (leftEmpty) {
+                        result.add(Transitions.leftEmpty);
+                    } else {
+//                        if (leftOre) {
+                        //there is ore to the left of this, so we need
+                        //to blend with that instead
+                        //                           result.add(Transitions.leftOre);
+                        //                      }
                     }
 
-                    if (rightGrass) {
-                        result.add(Transitions.rightGrass);
+                    if (rightEmpty) {
+                        result.add(Transitions.rightEmpty);
                     }
 
-                    if (topGrass) {
-                        result.add(Transitions.topGrass);
+                    if (topEmpty) {
+                        result.add(Transitions.topEmpty);
                     }
 
-                    //bottom is IMPOSSIBLE. i hope.
+                    if (bottomEmpty) {
+                        result.add(Transitions.bottomEmpty);
+                    }
 
                     if (leftDirt) {
                         result.add(Transitions.leftDirt);
@@ -1074,18 +1118,50 @@ public class World implements Disposable {
                         result.add(Transitions.bottomDirt);
                     }
 
-                    //hack only set these if the other conditions are set. so we don't have to duplicate the lookup
-                    //table code
-                    //only checked/set for cases where it will be used. This is e.g. surrounded by dirt,
+                    boolean considerTopLeft = true;
+                    boolean considerTopRight = true;
+                    boolean considerBottomLeft = true;
+                    boolean considerBottomRight = true;
 
-                    if (topDirt && leftDirt && rightDirt) {
-                        if (topLeftEmpty) {
-                            result.add(Transitions.topLeftEmpty);
-                        }
+                    // do not set the corner statuses of several ones, if we know it won't matter
+                    //e.g. case 15, nothing on all sides, corners do not matter
+                    if (topEmpty && leftEmpty && rightEmpty && bottomEmpty) {
+                        considerTopLeft = false;
+                        considerTopRight = false;
+                        considerBottomLeft = false;
+                        considerBottomRight = false;
+                    } else if (leftDirt && rightDirt && topEmpty && bottomEmpty) {
+                        //case 12
+                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
+                    } else if (rightDirt && leftEmpty && topEmpty && bottomEmpty) {
+                        //11
+                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
+                    } else if (leftDirt && rightEmpty && topEmpty && bottomEmpty) {
+                        //13
+                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
+                    } else if (leftEmpty && rightEmpty && topEmpty && bottomDirt) {
+                        //9
+                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
+                    } else if () {
+//10
+                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
 
-                        if (topRightEmpty) {
-                            result.add(Transitions.topRightEmpty);
-                        }
+                    }
+
+                    if (considerTopLeft && topLeftEmpty) {
+                        result.add(Transitions.topLeftEmpty);
+                    }
+
+                    if (considerTopRight && topRightEmpty) {
+                        result.add(Transitions.topRightEmpty);
+                    }
+
+                    if (considerBottomLeft && bottomLeftEmpty) {
+                        result.add(Transitions.bottomLeftEmpty);
+                    }
+
+                    if (considerBottomRight && bottomRightEmpty) {
+                        result.add(Transitions.bottomRightEmpty);
                     }
 
                     Integer meshObj = grassTransitions.get(result);
@@ -1095,6 +1171,78 @@ public class World implements Disposable {
                     }
 
                     byte finalMesh = (byte) meshObj.intValue();
+
+                    block.meshType = finalMesh;
+                    */
+                    byte finalMesh = -1;
+
+                    if (leftDirt && rightDirt && topDirt && bottomDirt && topLeftEmpty && topRightEmpty &&
+                        bottomLeftEmpty && bottomRightEmpty) {
+                        finalMesh = 0;
+                    } else if (leftEmpty && topEmpty && rightDirt && bottomDirt) {
+                        finalMesh = 1;
+                    } else if (leftDirt && topEmpty && rightDirt && bottomDirt) {
+                        finalMesh = 2;
+                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty) {
+                        finalMesh = 3;
+                    } else if (topDirt && rightDirt && bottomDirt && leftEmpty) {
+                        finalMesh = 4;
+                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty) {
+                        finalMesh = 5;
+                    } else if (topDirt && rightDirt && leftEmpty && bottomEmpty) {
+                        finalMesh = 6;
+                    } else if (topDirt && leftDirt && rightDirt && bottomEmpty) {
+                        finalMesh = 7;
+                    } else if (leftDirt && topDirt && rightEmpty && bottomEmpty) {
+                        finalMesh = 8;
+                    } else if (leftEmpty && topEmpty && rightEmpty && bottomDirt) {
+                        finalMesh = 9;
+                    } else if (leftEmpty && rightEmpty && topDirt && bottomDirt) {
+                        finalMesh = 10;
+                    } else if (leftEmpty && topEmpty && bottomEmpty && rightDirt) {
+                        finalMesh = 11;
+                    } else if (leftDirt && rightDirt && topEmpty && bottomEmpty) {
+                        finalMesh = 12;
+                    } else if (leftDirt && topEmpty && bottomEmpty && rightEmpty) {
+                        finalMesh = 13;
+                    } else if (leftEmpty && rightEmpty && bottomEmpty && topDirt) {
+                        finalMesh = 14;
+                    } else if (leftEmpty && rightEmpty && topEmpty && bottomEmpty) {
+                        finalMesh = 15;
+                    } else if (leftDirt && topDirt && topLeftEmpty) {
+                        finalMesh = 16;
+                    } else if (topDirt && rightDirt && topRightEmpty) {
+                        finalMesh = 17;
+                    } else if (leftDirt && bottomDirt && bottomLeftEmpty) {
+                        finalMesh = 18;
+                    } else if (rightDirt && bottomDirt && bottomRightEmpty) {
+                        finalMesh = 19;
+                    } else if (leftDirt && rightDirt && topDirt && topLeftEmpty && topRightEmpty) {
+                        finalMesh = 20;
+                    } else if (topDirt && bottomDirt && leftDirt && topLeftEmpty && bottomLeftEmpty) {
+                        finalMesh = 21;
+                    } else if (topDirt && bottomDirt && rightDirt && topRightEmpty && bottomRightEmpty) {
+                        finalMesh = 22;
+                    } else if (leftDirt && rightDirt && bottomLeftEmpty && bottomRightEmpty) {
+                        finalMesh = 23;
+                    } else if (topDirt && rightDirt && bottomDirt && topRightEmpty && bottomRightEmpty &&
+                               leftEmpty) { //hack
+                        finalMesh = 24;
+                    } else if (leftDirt && topDirt && bottomDirt && topLeftEmpty && bottomLeftEmpty && rightEmpty) {
+                        finalMesh = 25;
+                    } else if (leftDirt && rightDirt && topDirt && topLeftEmpty && topRightEmpty && bottomEmpty) {
+                        finalMesh = 26;
+                    } else if (leftDirt && rightDirt && bottomDirt && topEmpty && bottomLeftEmpty && bottomRightEmpty) {
+                        finalMesh = 27;
+                    } else if (leftDirt && topDirt && topLeftEmpty && rightEmpty && bottomEmpty) {
+                        finalMesh = 28;
+                    } else if (topDirt && rightDirt && topRightEmpty && leftEmpty && bottomEmpty) {
+                        finalMesh = 29;
+                    } else if (leftDirt && bottomDirt && bottomRightEmpty && rightEmpty && topEmpty) {
+                        finalMesh = 30;
+                    } else if (rightDirt && bottomDirt && bottomRightEmpty && leftEmpty && topEmpty) {
+                        finalMesh = 31;
+                    }
 
                     block.meshType = finalMesh;
 
@@ -1490,11 +1638,26 @@ public class World implements Disposable {
 
     public static class BlockStruct {
         public String textureName; //e.g. "dirt", "stone", etc.
-        boolean collides;
+        Collision collision;
+        BlockCategory category;
 
-        BlockStruct(String _textureName, boolean _collides) {
-            textureName = _textureName;
-            collides = _collides;
+        //if this type is a type of ore (like stone, copper, ...)
+        public enum BlockCategory {
+            Null,
+            Dirt,
+            Ore
+            //liquid
+        }
+
+        public enum Collision {
+            True,
+            False
+        }
+
+        BlockStruct(String textureName, Collision collides, BlockCategory category) {
+            this.textureName = textureName;
+            this.collision = collides;
+            this.category = category;
         }
     }
 }

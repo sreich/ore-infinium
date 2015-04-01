@@ -79,7 +79,7 @@ public class TileRenderer extends IntervalSystem {
         }
 
         //18+ are transition helpers
-        final int grassMax = 20;
+        final int grassMax = 31;
         grassBlockMeshes = new IntMap<>(grassMax);
         for (int i = 0; i <= grassMax; ++i) {
             String formatted = String.format("grass-%02d", i);
