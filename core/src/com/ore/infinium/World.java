@@ -989,25 +989,56 @@ public class World implements Disposable {
                     int bottomBlockX = blockXSafe(randomX);
                     int bottomBlockY = blockYSafe(randomY + 1);
 
+                    int topLeftBlockX = blockXSafe(randomX - 1);
+                    int topLeftBlockY = blockYSafe(randomY - 1);
+
+                    int topRightBlockX = blockXSafe(randomX + 1);
+                    int topRightBlockY = blockYSafe(randomY - 1);
+
+                    int bottomRightBlockX = blockXSafe(randomX + 1);
+                    int bottomRightBlockY = blockYSafe(randomY + 1);
+
+                    int bottomLeftBlockX = blockXSafe(randomX - 1);
+                    int bottomLeftBlockY = blockYSafe(randomY + 1);
+
                     Block leftBlock = blockAt(leftBlockX, leftBlockY);
                     Block rightBlock = blockAt(rightBlockX, rightBlockY);
                     Block topBlock = blockAt(topBlockX, topBlockY);
                     Block bottomBlock = blockAt(bottomBlockX, bottomBlockY);
+                    Block topLeftBlock = blockAt(topLeftBlockX, topLeftBlockY);
+                    Block topRightBlock = blockAt(topRightBlockX, topRightBlockY);
+                    Block bottomLeftBlock = blockAt(bottomLeftBlockX, bottomLeftBlockY);
+                    Block bottomRightBlock = blockAt(bottomRightBlockX, bottomRightBlockY);
 
                     //grow left
                     if (leftBlock.type == Block.BlockType.DirtBlockType &&
                         !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
 
-                        int topLeftX = leftBlockX;
-                        int topLeftY = blockYSafe(leftBlockY - 1);
-                        Block topLeftBlock = blockAt(topLeftX, topLeftY);
-
                         //only think about moving left if the top left block has room to grow grass (empty above)
                         //otherwise in coherent dirt grid, you'd get grass moving inward where it is surrounded
                         //by all dirt, which makes no sense.
                         if (topLeftBlock.type == Block.BlockType.NullBlockType) {
+//                            leftBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            //                           m_server.sendPlayerSparseBlock(player, topLeftBlock,
+                            // topLeftX, topLeftY);
+                        }
+                    }
+
+                    //grow left
+                    if (leftBlock.type == Block.BlockType.DirtBlockType &&
+                        !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+
+                        int leftLeftX = blockXSafe(leftBlockX + 1);
+                        int leftLeftY = leftBlockY;
+                        Block leftLeftBlock = blockAt(leftLeftX, leftLeftY);
+
+                        if (leftLeftBlock.type == Block.BlockType.NullBlockType ||
+                            topLeftBlock.type == Block.BlockType.NullBlockType ||
+                            bottomLeftBlock.type == Block.BlockType.NullBlockType) {
+
                             leftBlock.setFlag(Block.BlockFlags.GrassBlock);
-                            m_server.sendPlayerSparseBlock(player, topLeftBlock, topLeftX, topLeftY);
+                            //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
+                            m_server.sendPlayerSparseBlock(player, leftLeftBlock, leftLeftX, leftLeftY);
                         }
                     }
 
@@ -1015,28 +1046,23 @@ public class World implements Disposable {
                     if (rightBlock.type == Block.BlockType.DirtBlockType &&
                         !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
 
-                        int topRightX = rightBlockX;
-                        int topRightY = blockYSafe(rightBlockY - 1);
-                        Block topRightBlock = blockAt(topRightX, topRightY);
+                        int rightRightX = blockXSafe(rightBlockX + 1);
+                        int rightRightY = rightBlockY;
+                        Block rightRightBlock = blockAt(rightRightX, rightRightY);
 
-                        if (topRightBlock.type == Block.BlockType.NullBlockType) {
-                            topRightBlock.setFlag(Block.BlockFlags.GrassBlock);
-                            m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
+                        if (rightRightBlock.type == Block.BlockType.NullBlockType ||
+                            topRightBlock.type == Block.BlockType.NullBlockType ||
+                            bottomRightBlock.type == Block.BlockType.NullBlockType) {
+
+                            rightBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
+                            m_server.sendPlayerSparseBlock(player, rightRightBlock, rightRightX, rightRightY);
                         }
                     }
 
                     //grow grow down
                     if (bottomBlock.type == Block.BlockType.DirtBlockType &&
                         !bottomBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
-
-                        int bottomRightBlockX = blockXSafe(randomX + 1);
-                        int bottomRightBlockY = blockYSafe(randomY + 1);
-
-                        int bottomLeftBlockX = blockXSafe(randomX - 1);
-                        int bottomLeftBlockY = blockYSafe(randomY + 1);
-
-                        Block bottomRightBlock = blockAt(bottomRightBlockX, bottomRightBlockY);
-                        Block bottomLeftBlock = blockAt(bottomLeftBlockX, bottomLeftBlockY);
 
                         //only spread grass to the lower block, if that block has open space left, right, or
                         //top left, etc. (from our perspective..the block with grass, it is our right block that
@@ -1049,6 +1075,24 @@ public class World implements Disposable {
                             bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
 
                             m_server.sendPlayerSparseBlock(player, bottomBlock, bottomBlockX, bottomBlockY);
+                        }
+                    }
+
+                    //grow grow up
+                    if (topBlock.type == Block.BlockType.DirtBlockType &&
+                        !topBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+
+                        //only spread grass to the lower block, if that block has open space left, right, or
+                        //top left, etc. (from our perspective..the block with grass, it is our right block that
+                        //we are checking for empty)
+                        if (topLeftBlock.type == Block.BlockType.NullBlockType ||
+                            topRightBlock.type == Block.BlockType.NullBlockType ||
+                            leftBlock.type == Block.BlockType.NullBlockType ||
+                            rightBlock.type == Block.BlockType.NullBlockType) {
+
+                            topBlock.setFlag(Block.BlockFlags.GrassBlock);
+
+                            m_server.sendPlayerSparseBlock(player, topBlock, topBlockX, topBlockY);
                         }
                     }
                 }
