@@ -417,7 +417,6 @@ public class World implements Disposable {
             }
         }
 
-
         //this item is placeable, show a ghost of it so we can see where we're going to place it
         m_itemPlacementGhost = cloneEntity(equippedEntity);
         ItemComponent itemComponent = itemMapper.get(m_itemPlacementGhost);
@@ -999,14 +998,16 @@ public class World implements Disposable {
                     if (leftBlock.type == Block.BlockType.DirtBlockType &&
                         !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
 
-                        Block topLeftBlock = blockAt(leftBlockX, blockYSafe(leftBlockY - 1));
+                        int topLeftX = leftBlockX;
+                        int topLeftY = blockYSafe(leftBlockY - 1);
+                        Block topLeftBlock = blockAt(topLeftX, topLeftY);
 
                         //only think about moving left if the top left block has room to grow grass (empty above)
                         //otherwise in coherent dirt grid, you'd get grass moving inward where it is surrounded
                         //by all dirt, which makes no sense.
                         if (topLeftBlock.type == Block.BlockType.NullBlockType) {
                             leftBlock.setFlag(Block.BlockFlags.GrassBlock);
-                            m_server.sendPlayerSparseBlock(player, leftBlock, leftBlockX, leftBlockY);
+                            m_server.sendPlayerSparseBlock(player, topLeftBlock, topLeftX, topLeftY);
                         }
                     }
 
@@ -1014,11 +1015,13 @@ public class World implements Disposable {
                     if (rightBlock.type == Block.BlockType.DirtBlockType &&
                         !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
 
-                        Block topRightBlock = blockAt(rightBlockX, blockYSafe(rightBlockY - 1));
+                        int topRightX = rightBlockX;
+                        int topRightY = blockYSafe(rightBlockY - 1);
+                        Block topRightBlock = blockAt(topRightX, topRightY);
 
                         if (topRightBlock.type == Block.BlockType.NullBlockType) {
-                            rightBlock.setFlag(Block.BlockFlags.GrassBlock);
-                            m_server.sendPlayerSparseBlock(player, rightBlock, rightBlockX, rightBlockY);
+                            topRightBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
                         }
                     }
 
@@ -1093,102 +1096,6 @@ public class World implements Disposable {
 
                     boolean leftOre = blockTypes.get(leftBlock.type).category == BlockStruct.BlockCategory.Ore;
 
-                    /*
-                    Set<Transitions> result = EnumSet.noneOf(Transitions.class);
-                    if (leftEmpty) {
-                        result.add(Transitions.leftEmpty);
-                    } else {
-//                        if (leftOre) {
-                        //there is ore to the left of this, so we need
-                        //to blend with that instead
-                        //                           result.add(Transitions.leftOre);
-                        //                      }
-                    }
-
-                    if (rightEmpty) {
-                        result.add(Transitions.rightEmpty);
-                    }
-
-                    if (topEmpty) {
-                        result.add(Transitions.topEmpty);
-                    }
-
-                    if (bottomEmpty) {
-                        result.add(Transitions.bottomEmpty);
-                    }
-
-                    if (leftDirt) {
-                        result.add(Transitions.leftDirt);
-                    }
-
-                    if (rightDirt) {
-                        result.add(Transitions.rightDirt);
-                    }
-
-                    if (topDirt) {
-                        result.add(Transitions.topDirt);
-                    }
-
-                    if (bottomDirt) {
-                        result.add(Transitions.bottomDirt);
-                    }
-
-                    boolean considerTopLeft = true;
-                    boolean considerTopRight = true;
-                    boolean considerBottomLeft = true;
-                    boolean considerBottomRight = true;
-
-                    // do not set the corner statuses of several ones, if we know it won't matter
-                    //e.g. case 15, nothing on all sides, corners do not matter
-                    if (topEmpty && leftEmpty && rightEmpty && bottomEmpty) {
-                        considerTopLeft = false;
-                        considerTopRight = false;
-                        considerBottomLeft = false;
-                        considerBottomRight = false;
-                    } else if (leftDirt && rightDirt && topEmpty && bottomEmpty) {
-                        //case 12
-                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
-                    } else if (rightDirt && leftEmpty && topEmpty && bottomEmpty) {
-                        //11
-                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
-                    } else if (leftDirt && rightEmpty && topEmpty && bottomEmpty) {
-                        //13
-                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
-                    } else if (leftEmpty && rightEmpty && topEmpty && bottomDirt) {
-                        //9
-                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
-                    } else if () {
-//10
-                        considerTopLeft = considerTopRight = considerBottomLeft = considerBottomRight = false;
-
-                    }
-
-                    if (considerTopLeft && topLeftEmpty) {
-                        result.add(Transitions.topLeftEmpty);
-                    }
-
-                    if (considerTopRight && topRightEmpty) {
-                        result.add(Transitions.topRightEmpty);
-                    }
-
-                    if (considerBottomLeft && bottomLeftEmpty) {
-                        result.add(Transitions.bottomLeftEmpty);
-                    }
-
-                    if (considerBottomRight && bottomRightEmpty) {
-                        result.add(Transitions.bottomRightEmpty);
-                    }
-
-                    Integer meshObj = grassTransitions.get(result);
-
-                    if (meshObj == null) {
-                        assert false : "invalid mesh type retrieval, for some reason, null, result is: " + result;
-                    }
-
-                    byte finalMesh = (byte) meshObj.intValue();
-
-                    block.meshType = finalMesh;
-                    */
                     byte finalMesh = -1;
 
                     if (leftDirt && rightDirt && topDirt && bottomDirt && topLeftEmpty && topRightEmpty &&
@@ -1199,11 +1106,11 @@ public class World implements Disposable {
                     } else if (leftDirt && topEmpty && rightDirt && bottomDirt &&
                                !(bottomLeftEmpty && bottomRightEmpty)) {
                         finalMesh = 2;
-                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty && !bottomLeftEmpty) {
+                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty) {
                         finalMesh = 3;
-                    } else if (topDirt && rightDirt && bottomDirt && leftEmpty && !topRightEmpty) {
+                    } else if (topDirt && rightDirt && bottomDirt && leftEmpty) {
                         finalMesh = 4;
-                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty && !topLeftEmpty) {
+                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty) {
                         finalMesh = 5;
                     } else if (topDirt && rightDirt && leftEmpty && bottomEmpty && !topRightEmpty) {
                         finalMesh = 6;
