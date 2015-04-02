@@ -76,9 +76,10 @@ public class SpriteRenderSystem extends EntitySystem {
 
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
-            m_batch.draw(spriteComponent.sprite, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                    spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                    spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+            m_batch.draw(spriteComponent.sprite,
+                         spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
         }
     }
 
@@ -106,20 +107,23 @@ public class SpriteRenderSystem extends EntitySystem {
             boolean placementGhost = false;
 
             tagComponent = tagMapper.get(entities.get(i));
-            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
+            if (tagComponent != null) {
+                if (tagComponent.tag.equals("itemPlacementGhost")) {
 
-                placementGhost = true;
+                    placementGhost = true;
 
-                if (spriteComponent.placementValid) {
-                    m_batch.setColor(0, 1, 0, 0.6f);
-                } else {
-                    m_batch.setColor(1, 0, 0, 0.6f);
+                    if (spriteComponent.placementValid) {
+                        m_batch.setColor(0, 1, 0, 0.6f);
+                    } else {
+                        m_batch.setColor(1, 0, 0, 0.6f);
+                    }
                 }
             }
 
-            m_batch.draw(spriteComponent.sprite, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                    spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                    spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+            m_batch.draw(spriteComponent.sprite,
+                         spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
             if (placementGhost) {
                 m_batch.setColor(1, 1, 1, 1);

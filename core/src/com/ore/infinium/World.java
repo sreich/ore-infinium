@@ -375,6 +375,7 @@ public class World implements Disposable {
             m_blockPickingCrosshair.add(spriteComponent);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
+            engine.addEntity(m_blockPickingCrosshair);
 
             engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         }
@@ -928,7 +929,7 @@ public class World implements Disposable {
             return;
         }
 
-        if (tileRecomputeTimer.milliseconds() > 50) {
+        if (tileRecomputeTimer.milliseconds() > 60) {
             transitionTiles();
             transitionGrass();
 
@@ -955,7 +956,7 @@ public class World implements Disposable {
 
             //each tick, resample 100 or so blocks to see if grass can grow. this may need to be
             //reduced, but for debugging right now it's good.
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < 1000; ++i) {
                 int randomX = MathUtils.random(region.x, region.width);
                 int randomY = MathUtils.random(region.y, region.height);
 
@@ -1179,21 +1180,22 @@ public class World implements Disposable {
                     if (leftDirt && rightDirt && topDirt && bottomDirt && topLeftEmpty && topRightEmpty &&
                         bottomLeftEmpty && bottomRightEmpty) {
                         finalMesh = 0;
-                    } else if (leftEmpty && topEmpty && rightDirt && bottomDirt) {
+                    } else if (leftEmpty && topEmpty && rightDirt && bottomDirt && !bottomRightEmpty) {
                         finalMesh = 1;
-                    } else if (leftDirt && topEmpty && rightDirt && bottomDirt) {
+                    } else if (leftDirt && topEmpty && rightDirt && bottomDirt &&
+                               !(bottomLeftEmpty && bottomRightEmpty)) {
                         finalMesh = 2;
-                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty) {
+                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty && !bottomLeftEmpty) {
                         finalMesh = 3;
-                    } else if (topDirt && rightDirt && bottomDirt && leftEmpty) {
+                    } else if (topDirt && rightDirt && bottomDirt && leftEmpty && !topRightEmpty) {
                         finalMesh = 4;
-                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty) {
+                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty && !topLeftEmpty) {
                         finalMesh = 5;
-                    } else if (topDirt && rightDirt && leftEmpty && bottomEmpty) {
+                    } else if (topDirt && rightDirt && leftEmpty && bottomEmpty && !topRightEmpty) {
                         finalMesh = 6;
                     } else if (topDirt && leftDirt && rightDirt && bottomEmpty) {
                         finalMesh = 7;
-                    } else if (leftDirt && topDirt && rightEmpty && bottomEmpty) {
+                    } else if (leftDirt && topDirt && rightEmpty && bottomEmpty && !topLeftEmpty) {
                         finalMesh = 8;
                     } else if (leftEmpty && topEmpty && rightEmpty && bottomDirt) {
                         finalMesh = 9;
@@ -1209,13 +1211,14 @@ public class World implements Disposable {
                         finalMesh = 14;
                     } else if (leftEmpty && rightEmpty && topEmpty && bottomEmpty) {
                         finalMesh = 15;
-                    } else if (leftDirt && topDirt && topLeftEmpty) {
+                    } else if (leftDirt && topDirt && rightDirt && bottomDirt && topLeftEmpty) {
                         finalMesh = 16;
-                    } else if (topDirt && rightDirt && topRightEmpty) {
+                    } else if (leftDirt && topDirt && bottomDirt && rightDirt && topRightEmpty) {
                         finalMesh = 17;
-                    } else if (leftDirt && bottomDirt && bottomLeftEmpty) {
+                    } else if (leftDirt && bottomDirt && topDirt && bottomLeftEmpty &&
+                               !topLeftEmpty) { //hack ADD TOP BOTTOM ETC
                         finalMesh = 18;
-                    } else if (rightDirt && bottomDirt && bottomRightEmpty) {
+                    } else if (rightDirt && bottomDirt && topDirt && leftDirt && bottomRightEmpty) {
                         finalMesh = 19;
                     } else if (leftDirt && rightDirt && topDirt && topLeftEmpty && topRightEmpty) {
                         finalMesh = 20;
@@ -1223,7 +1226,7 @@ public class World implements Disposable {
                         finalMesh = 21;
                     } else if (topDirt && bottomDirt && rightDirt && topRightEmpty && bottomRightEmpty) {
                         finalMesh = 22;
-                    } else if (leftDirt && rightDirt && bottomLeftEmpty && bottomRightEmpty) {
+                    } else if (leftDirt && rightDirt && topDirt && bottomLeftEmpty && bottomRightEmpty) {
                         finalMesh = 23;
                     } else if (topDirt && rightDirt && bottomDirt && topRightEmpty && bottomRightEmpty &&
                                leftEmpty) { //hack
@@ -1242,6 +1245,9 @@ public class World implements Disposable {
                         finalMesh = 30;
                     } else if (rightDirt && bottomDirt && bottomRightEmpty && leftEmpty && topEmpty) {
                         finalMesh = 31;
+                    } else {
+                        //failure
+                        finalMesh = 15;
                     }
 
                     block.meshType = finalMesh;
