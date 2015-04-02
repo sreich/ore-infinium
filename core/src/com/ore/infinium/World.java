@@ -389,23 +389,37 @@ public class World implements Disposable {
         assert !isServer();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
-        Entity entity = playerComponent.equippedPrimaryItem();
+        Entity equippedEntity = playerComponent.equippedPrimaryItem();
 
         if (m_itemPlacementGhost != null) {
             engine.removeEntity(m_itemPlacementGhost);
         }
 
-        if (entity == null) {
+        if (equippedEntity == null) {
             return;
         }
 
-        //don't show the placement for block
-        if (blockMapper.get(entity) != null) {
+        SpriteComponent crosshairSprite = spriteMapper.get(m_blockPickingCrosshair);
+        crosshairSprite.visible = false;
+
+        if (blockMapper.get(equippedEntity) != null) {
+            crosshairSprite.visible = true;
+
+            //don't show the placement for blocks
             return;
         }
+
+        ToolComponent entityToolComponent = toolMapper.get(equippedEntity);
+        if (entityToolComponent != null) {
+            if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
+                //drill, show the block crosshair...
+                crosshairSprite.visible = true;
+            }
+        }
+
 
         //this item is placeable, show a ghost of it so we can see where we're going to place it
-        m_itemPlacementGhost = cloneEntity(entity);
+        m_itemPlacementGhost = cloneEntity(equippedEntity);
         ItemComponent itemComponent = itemMapper.get(m_itemPlacementGhost);
         itemComponent.state = ItemComponent.State.InWorldState;
 
@@ -1419,9 +1433,13 @@ public class World implements Disposable {
             }
 
             TagComponent tagComponent = tagMapper.get(entities.get(i));
-            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
-                //ignore all collisions with this
-                continue;
+            if (tagComponent != null) {
+                if (tagComponent.tag.equals("itemPlacementGhost")) {
+                    //ignore all collisions with this
+                    continue;
+                } else if (tagComponent.tag.equals("crosshair")) {
+                    continue;
+                }
             }
 
             if (entityCollides(entities.get(i), entity)) {
