@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.ore.infinium.World;
 import com.ore.infinium.components.*;
@@ -37,33 +38,43 @@ public class PowerCircuitSystem extends EntitySystem {
      */
     Array<PowerCircuit> m_circuits = new Array<>();
 
+    /**
+     * Either a connected entity on a circuit/wire, is a device or a generator. It is *not* both.
+     * Devices consumer power, generators...generate
+     */
     public class PowerCircuit {
         /**
          * duplicate entities may exist across all connections
          * e.g. Wire1{ ent1, ent2 }, Wire2 { ent3, ent 1}, but
          * they would still be of the same circuit of course.
          * However, devices are unique across circuits. No devices can bridge multiple circuits,
-         * if they do, the circuits are merged.
-         * Mostly this is used for rendering. See generators, devices
+         * if they do, the circuits are merged. No 1 connection shall have the same device/generator at both
+         * of the endpoints.
+         * Mostly this is used for rendering. See generators, consumers
          */
         Array<WireConnection> connections = new Array<>();
+
         /**
          * List of generators for faster checking of changes/recalculations, in addition to the
          * wire connection list
+         * Is disjoint from devices.
          */
         Array<Entity> generators = new Array<>();
+
         /**
-         * List of devices connected on this circuit, in addition to the wire connections.
-         * For faster retrieval of just devices, and for calculating the load usages.
+         * List of all the devices that consume power, connected on this circuit
+         * For faster retrieval of just those, and for calculating the load usages.
+         * May be disjoint from generators, but generators have potential to consume power as well..
          */
-        Array<Entity> devices = new Array<>();
+        Array<Entity> consumers = new Array<>();
 
         int totalSupply;
         int totalDemand;
     }
 
     /**
-     * Each circuit is composed of
+     * Each circuit is composed of > 1 wire connections, each wire connection is composed of
+     * only 2 devices.
      */
     public class WireConnection {
         Entity first;
@@ -81,20 +92,30 @@ public class PowerCircuitSystem extends EntitySystem {
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<PowerDeviceComponent> powerDeviceMapper = ComponentMapper.getFor(PowerDeviceComponent.class);
+    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper = ComponentMapper.getFor(PowerConsumerComponent.class);
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper = ComponentMapper.getFor(PowerGeneratorComponent.class);
 
     public PowerCircuitSystem(World world) {
         m_world = world;
     }
 
+    @Override
     public void addedToEngine(Engine engine) {
+        Gdx.app.log("added power circuit system to engine: %s", engine.toString());
     }
 
+    @Override
     public void removedFromEngine(Engine engine) {
     }
 
+    @Override
+    public void update(float delta) {
+
+    }
+
+    //fixme does not inform the server of these connections!!! or anything wirey for that matter.
     /**
-     * connects two power devices together, determines how to handle data structures
+     * connects two power consumers together, determines how to handle data structures
      * in between
      *
      * @param first
@@ -104,8 +125,8 @@ public class PowerCircuitSystem extends EntitySystem {
         for (PowerCircuit circuit : m_circuits) {
             //
 
-            //check which circuit this connection between 2 devices belongs to
-            //if none of the two devices are in a circuit, it is a new circuit
+            //check which circuit this connection between 2 consumers belongs to
+            //if none of the two consumers are in a circuit, it is a new circuit
             for (WireConnection connection : circuit.connections) {
                 if ((connection.first == first && connection.second == second) ||
                         connection.first == second && connection.second == first) {
@@ -138,22 +159,37 @@ public class PowerCircuitSystem extends EntitySystem {
         circuit.connections.add(wireConnection);
     }
 
+    /**
+     * Forms a wire connection between any 2 devices (direction does not matter).
+     * Note, A single connection creates a circuit, additional connections should only be a part of one circuit.
+     * @param first
+     * @param second
+     * @param circuit
+     */
     private void addConnection(Entity first, Entity second, PowerCircuit circuit) {
-        if (powerDeviceMapper.get(first) != null) {
-            circuit.devices.add(first);
+        //cannot connect to a non-device
+        /*
+        assert powerDeviceMapper.has(first) && powerDeviceMapper.has(second);
+
+        if (powerConsumerMapper.get(first) != null) {
+            assert !circuit.consumers.contains(first, true);
+            circuit.consumers.add(first);
         }
 
-        if (powerDeviceMapper.get(second) != null) {
-            circuit.devices.add(second);
+        if (powerConsumerMapper.get(second) != null) {
+            assert !circuit.consumers.contains(second, true);
+            circuit.consumers.add(second);
         }
 
         if (powerGeneratorMapper.get(first) != null) {
+            assert !circuit.generators.contains(first, true);
             circuit.generators.add(first);
         }
 
         if (powerGeneratorMapper.get(second) != null) {
             circuit.generators.add(second);
         }
+        */
     }
 
 //todo sufficient until we get a spatial hash or whatever

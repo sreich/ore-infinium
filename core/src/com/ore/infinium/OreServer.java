@@ -68,7 +68,7 @@ public class OreServer implements Runnable {
     private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
-    private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
+    private ComponentMapper<LightComponent> torchMapper = ComponentMapper.getFor(LightComponent.class);
 
     private Chat m_chat;
 
@@ -289,38 +289,25 @@ public class OreServer implements Runnable {
 
         playerComponent.hotbarInventory.setSlot((byte) 2, stoneBlock);
 
-        Entity airGen = m_world.createAirGenerator();
-        ItemComponent airGenItem = itemMapper.get(airGen);
-        airGenItem.inventoryIndex = 3;
-        airGenItem.state = ItemComponent.State.InInventoryState;
+        Entity powerGen = m_world.createPowerGenerator();
+        ItemComponent powerGenItem = itemMapper.get(powerGen);
+        powerGenItem.inventoryIndex = 3;
+        powerGenItem.state = ItemComponent.State.InInventoryState;
 
-        m_world.engine.addEntity(airGen);
+        m_world.engine.addEntity(powerGen);
 
-        playerComponent.hotbarInventory.setSlot((byte) 3, airGen);
+        playerComponent.hotbarInventory.setSlot((byte) 3, powerGen);
 
         for (byte i = 4; i < 7; ++i) {
-            Entity torch = m_world.engine.createEntity();
-            torch.add(m_world.engine.createComponent(VelocityComponent.class));
+            Entity light = m_world.createLight();
 
-            TorchComponent torchComponent = m_world.engine.createComponent(TorchComponent.class);
-            torchComponent.radius = 5.0f;
-            torch.add(torchComponent);
+            ItemComponent lightItemComponent = itemMapper.get(light);
+            lightItemComponent.stackSize = MathUtils.random(10, 5000);
+            lightItemComponent.maxStackSize = 64000;
+            lightItemComponent.state = ItemComponent.State.InInventoryState;
+            lightItemComponent.inventoryIndex = i;
 
-            SpriteComponent torchSprite = m_world.engine.createComponent(SpriteComponent.class);
-            //fixme torch sprite...thuoghh we won't use torches, but lights
-            torchSprite.textureName = "player-32x64";
-            torchSprite.sprite.setSize(9 / World.PIXELS_PER_METER, 24 / World.PIXELS_PER_METER);
-            torch.add(torchSprite);
-
-            ItemComponent torchItemComponent = m_world.engine.createComponent(ItemComponent.class);
-            torchItemComponent.stackSize = MathUtils.random(10, 5000);
-            torchItemComponent.maxStackSize = 64000;
-            torchItemComponent.state = ItemComponent.State.InInventoryState;
-            torchItemComponent.inventoryIndex = i;
-            torch.add(torchItemComponent);
-            m_world.engine.addEntity(torch);
-
-            playerComponent.hotbarInventory.setSlot(i, torch);
+            playerComponent.hotbarInventory.setSlot(i, light);
         }
 
         for (byte i = 0; i < Inventory.maxHotbarSlots; ++i) {

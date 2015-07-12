@@ -42,14 +42,17 @@ public class SpriteRenderSystem extends EntitySystem {
         m_world = world;
     }
 
+    @Override
     public void addedToEngine(Engine engine) {
         m_batch = new SpriteBatch();
     }
 
+    @Override
     public void removedFromEngine(Engine engine) {
         m_batch.dispose();
     }
 
+    @Override
     public void update(float delta) {
 //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.setProjectionMatrix(m_world.m_camera.combined);

@@ -21,20 +21,18 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+public class LightComponent extends Component implements Pool.Poolable {
 
-/**
- * A power device is anything that can reside on a circuit. Whether a consumer
- * or a generator.
- */
-public class PowerDeviceComponent extends Component implements Pool.Poolable {
+    public float radius = 10.0f;
 
     public void reset() {
 
     }
 
-    public PowerDeviceComponent() {
+    public LightComponent() {
     }
 
-    public PowerDeviceComponent(PowerDeviceComponent component) {
+    public LightComponent(LightComponent lightComponent) {
+        radius = lightComponent.radius;
     }
 }

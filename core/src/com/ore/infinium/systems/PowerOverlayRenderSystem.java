@@ -56,10 +56,12 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         m_world = world;
     }
 
+    @Override
     public void addedToEngine(Engine engine) {
         m_batch = new SpriteBatch();
     }
 
+    @Override
     public void removedFromEngine(Engine engine) {
         m_batch.dispose();
     }
@@ -142,6 +144,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         }
     }
 
+    @Override
     public void update(float delta) {
         if (!overlayVisible) {
             return;
@@ -207,7 +210,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             }
 
             //do the same for devices. devices(consumers)
-            for (Entity device : circuit.devices) {
+            for (Entity device : circuit.consumers) {
                 deviceSprite = spriteMapper.get(device);
                 renderPowerNode(deviceSprite);
             }

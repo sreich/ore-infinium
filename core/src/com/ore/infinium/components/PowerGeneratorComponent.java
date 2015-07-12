@@ -21,6 +21,10 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+
+/**
+ * Any device that can generate some amount of power on a circuit
+ */
 public class PowerGeneratorComponent extends Component implements Pool.Poolable {
 
     public void reset() {
@@ -32,4 +36,6 @@ public class PowerGeneratorComponent extends Component implements Pool.Poolable 
 
     public PowerGeneratorComponent(PowerGeneratorComponent component) {
     }
+
+    public int powerSupplyRate;
 }

@@ -21,18 +21,21 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class TorchComponent extends Component implements Pool.Poolable {
 
-    public float radius = 10.0f;
+/**
+ * Any device on a circuit that can consume some amount of power
+ */
+public class PowerConsumerComponent extends Component implements Pool.Poolable {
 
     public void reset() {
 
     }
 
-    public TorchComponent() {
+    public PowerConsumerComponent() {
     }
 
-    public TorchComponent(TorchComponent torchComponent) {
-        radius = torchComponent.radius;
+    public PowerConsumerComponent(PowerConsumerComponent component) {
     }
+
+    public int powerDemandRate;
 }

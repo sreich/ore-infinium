@@ -72,6 +72,8 @@ public class Network {
         //components
         kryo.register(AirComponent.class);
         kryo.register(AirGeneratorComponent.class);
+        kryo.register(PowerGeneratorComponent.class);
+        kryo.register(PowerDeviceComponent.class);
         kryo.register(BlockComponent.class);
         kryo.register(HealthComponent.class);
         kryo.register(ItemComponent.class);
@@ -83,7 +85,7 @@ public class Network {
         kryo.register(ToolComponent.ToolMaterial.class);
         kryo.register(ToolComponent.ToolType.class);
 
-        kryo.register(TorchComponent.class);
+        kryo.register(LightComponent.class);
         kryo.register(VelocityComponent.class);
 
         // primitives/builtin

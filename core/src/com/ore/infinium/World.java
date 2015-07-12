@@ -326,8 +326,10 @@ public class World implements Disposable {
     private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
-    private ComponentMapper<TorchComponent> torchMapper = ComponentMapper.getFor(TorchComponent.class);
-    private ComponentMapper<PowerDeviceComponent> powerMapper = ComponentMapper.getFor(PowerDeviceComponent.class);
+    private ComponentMapper<LightComponent> torchMapper = ComponentMapper.getFor(LightComponent.class);
+    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper = ComponentMapper.getFor(PowerDeviceComponent.class);
+    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper = ComponentMapper.getFor(PowerConsumerComponent.class);
+    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper = ComponentMapper.getFor(PowerGeneratorComponent.class);
 
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
@@ -1109,6 +1111,8 @@ public class World implements Disposable {
         for (int x = 0; x < WORLD_SIZE_X; ++x) {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
 
+                Block leftLeftBlock = blockAtSafely(x - 2, y);
+                Block rightRightBlock = blockAtSafely(x + 2, y);
                 Block leftBlock = blockAtSafely(x - 1, y);
                 Block rightBlock = blockAtSafely(x + 1, y);
                 Block topBlock = blockAtSafely(x, y - 1);
@@ -1124,8 +1128,10 @@ public class World implements Disposable {
 
                     //should have grass on left side of this block..or not.
                     boolean leftEmpty = leftBlock.type == Block.BlockType.NullBlockType;
+                    boolean leftLeftEmpty = leftLeftBlock.type == Block.BlockType.NullBlockType;
 
                     boolean rightEmpty = rightBlock.type == Block.BlockType.NullBlockType;
+                    boolean rightRightEmpty = rightRightBlock.type == Block.BlockType.NullBlockType;
 
                     boolean topEmpty = topBlock.type == Block.BlockType.NullBlockType;
 
@@ -1153,13 +1159,13 @@ public class World implements Disposable {
                     } else if (leftEmpty && topEmpty && rightDirt && bottomDirt && !bottomRightEmpty) {
                         finalMesh = 1;
                     } else if (leftDirt && topEmpty && rightDirt && bottomDirt &&
-                               !(bottomLeftEmpty && bottomRightEmpty)) {
+                               !(bottomLeftEmpty && bottomRightEmpty)) { //hack this is supsiciously different
                         finalMesh = 2;
-                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty) {
+                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty) { // hack check leftleftempty etc?
                         finalMesh = 3;
                     } else if (topDirt && rightDirt && bottomDirt && leftEmpty) {
                         finalMesh = 4;
-                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty) {
+                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty ) {
                         finalMesh = 5;
                     } else if (topDirt && rightDirt && leftEmpty && bottomEmpty && !topRightEmpty) {
                         finalMesh = 6;
@@ -1311,6 +1317,53 @@ public class World implements Disposable {
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
         block.add(itemComponent);
+    }
+
+    public Entity createLight() {
+       Entity light = engine.createEntity();
+        ItemComponent itemComponent = engine.createComponent(ItemComponent.class);
+        itemComponent.stackSize = 800;
+        itemComponent.maxStackSize = 900;
+        light.add(itemComponent);
+
+        PowerDeviceComponent powerDeviceComponent = engine.createComponent(PowerDeviceComponent.class);
+        light.add(powerDeviceComponent);
+
+        SpriteComponent sprite = engine.createComponent(SpriteComponent.class);
+        sprite.textureName = "light-blue";
+
+        sprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
+        light.add(sprite);
+
+        PowerConsumerComponent powerConsumerComponent = engine.createComponent(PowerConsumerComponent.class);
+        powerConsumerComponent.powerDemandRate = 100;
+        light.add(powerConsumerComponent);
+
+        return light;
+    }
+
+    public Entity createPowerGenerator() {
+        Entity power = engine.createEntity();
+        ItemComponent itemComponent = engine.createComponent(ItemComponent.class);
+        itemComponent.stackSize = 800;
+        itemComponent.maxStackSize = 900;
+        power.add(itemComponent);
+
+        PowerDeviceComponent powerDeviceComponent = engine.createComponent(PowerDeviceComponent.class);
+        power.add(powerDeviceComponent);
+
+        SpriteComponent sprite = engine.createComponent(SpriteComponent.class);
+        sprite.textureName = "air-generator-64x64";
+
+//warning fixme size is fucked
+        sprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
+        power.add(sprite);
+
+        PowerGeneratorComponent powerComponent = engine.createComponent(PowerGeneratorComponent.class);
+        powerComponent.powerSupplyRate = 100;
+        power.add(powerComponent);
+
+        return power;
     }
 
     public Entity createAirGenerator() {
@@ -1548,9 +1601,9 @@ public class World implements Disposable {
             clonedEntity.add(clonedComponent);
         }
 
-        TorchComponent torchComponent = torchMapper.get(entity);
-        if (torchComponent != null) {
-            TorchComponent clonedComponent = new TorchComponent(torchComponent);
+        LightComponent lightComponent = torchMapper.get(entity);
+        if (lightComponent != null) {
+            LightComponent clonedComponent = new LightComponent(lightComponent);
             clonedEntity.add(clonedComponent);
         }
 
@@ -1560,9 +1613,21 @@ public class World implements Disposable {
             clonedEntity.add(clonedComponent);
         }
 
-        PowerDeviceComponent powerDeviceComponent = powerMapper.get(entity);
+        PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.get(entity);
         if (powerDeviceComponent != null) {
             PowerDeviceComponent clonedComponent = new PowerDeviceComponent(powerDeviceComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        PowerConsumerComponent powerConsumerComponent = powerConsumerMapper.get(entity);
+        if (powerConsumerComponent != null) {
+            PowerConsumerComponent clonedComponent = new PowerConsumerComponent(powerConsumerComponent);
+            clonedEntity.add(clonedComponent);
+        }
+
+        PowerGeneratorComponent powerGeneratorComponent = powerGeneratorMapper.get(entity);
+        if (powerGeneratorComponent != null) {
+            PowerGeneratorComponent clonedComponent = new PowerGeneratorComponent(powerGeneratorComponent);
             clonedEntity.add(clonedComponent);
         }
 

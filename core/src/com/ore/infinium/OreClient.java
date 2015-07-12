@@ -122,7 +122,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public void create() {
         //    Log.set(Log.LEVEL_DEBUG);
-        Gdx.app.setLogLevel(Application.LOG_NONE);
+//        Gdx.app.setLogLevel(Application.LOG_NONE);
+//        Gdx.app.setLogLevel(Application.LOG_NONE);
 //        Log.set(Log.LEVEL_INF
 //        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, m_skin);
 //        progressBar.setValue(50);
