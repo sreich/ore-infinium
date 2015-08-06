@@ -41,7 +41,6 @@ public class Inventory {
         } else {
             m_slots = new Entity[maxSlots];
         }
-
         owningPlayer = _owningPlayer;
     }
 

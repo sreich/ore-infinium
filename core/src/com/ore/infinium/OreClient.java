@@ -107,7 +107,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private double m_accumulator;
     private double m_currentTime = TimeUtils.nanoTime() / 1e6;
-    private double CLIENT_FIXED_TIMESTEP = 1.0 / 60.0 * 1000;
+    private final double CLIENT_FIXED_TIMESTEP = 1.0 / 60.0 * 1000;
 
     private SpriteBatch m_batch;
     private BitmapFont m_font;
@@ -130,6 +130,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 //        progressBar.getStyle().knobBefore = progressBar.getStyle().knob;
 //        progressBar.getStyle().knob.setMinHeight(50);
 //        container.add(progressBar);
+
+        Thread.currentThread().setName("client thread (GL)");
 
         debugStrings = new ArrayList<>(Arrays.asList(
                 "E - power overlay, Q - drop Item",
@@ -216,7 +218,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_clientKryo.addListener(new ClientListener(this));
         m_clientKryo.setKeepAliveTCP(999999);
 
-        new Thread("Connect") {
+        new Thread("kryonet Connect") {
             public void run() {
                 try {
                     m_clientKryo.connect(99999999 /*HACK, debug*/, "127.0.0.1", Network.port);
@@ -277,7 +279,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_world.update(CLIENT_FIXED_TIMESTEP / 1000.0);
             }
 
-            if (frameTimer.milliseconds() > 600) {
+            if (frameTimer.milliseconds() > 300) {
                 frameTimeString = "Client frame time: " + decimalFormat.format(frameTime);
                 fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
                 textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
@@ -481,6 +483,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.ESCAPE) {
             shutdown();
+        } else if (keycode == Input.Keys.F7) {
+            for(int i =0; i < 1000000;++i){
+                Entity h = new Entity();
+                h.toString();
+
+            }
         } else if (keycode == Input.Keys.F8) {
             m_renderDebugClient = !m_renderDebugClient;
         } else if (keycode == Input.Keys.F9) {

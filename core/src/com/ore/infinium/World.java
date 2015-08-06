@@ -1332,7 +1332,7 @@ public class World implements Disposable {
         SpriteComponent sprite = engine.createComponent(SpriteComponent.class);
         sprite.textureName = "light-blue";
 
-        sprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
+        sprite.sprite.setSize(BLOCK_SIZE * 2, BLOCK_SIZE * 2);
         light.add(sprite);
 
         PowerConsumerComponent powerConsumerComponent = engine.createComponent(PowerConsumerComponent.class);

@@ -73,6 +73,7 @@ public class Network {
         kryo.register(AirComponent.class);
         kryo.register(AirGeneratorComponent.class);
         kryo.register(PowerGeneratorComponent.class);
+        kryo.register(PowerConsumerComponent.class);
         kryo.register(PowerDeviceComponent.class);
         kryo.register(BlockComponent.class);
         kryo.register(HealthComponent.class);

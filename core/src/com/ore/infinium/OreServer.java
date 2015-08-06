@@ -80,6 +80,8 @@ public class OreServer implements Runnable {
     }
 
     public void run() {
+        Thread.currentThread().setName("server thread (main)");
+
         m_serverKryo = new Server(Network.bufferWriteSize, 2048) {
             protected Connection newConnection() {
                 // By providing our own connection implementation, we can store per
@@ -659,6 +661,8 @@ public class OreServer implements Runnable {
 
         @Override
         public void connected(Connection connection) {
+            Thread.currentThread().setName("server thread (main)");
+
             super.connected(connection);
         }
 

@@ -5,19 +5,15 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl.LwjglInput;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import com.badlogic.gdx.utils.Array;
-import com.ore.infinium.ExceptionDialog;
+import com.ore.infinium.ErrorDialog;
 import com.ore.infinium.OreClient;
 
 public class DesktopLauncher {
     public static void main(String[] arg) {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-            String s = String.format("You broke it bad :(\nRecovery not possible.\nException on thread name: %s",
-                    thread.getName());
-
-            throwable.printStackTrace();
-
-            ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
-            dialog.setVisible(true);
+//            ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
+            ErrorDialog dialog2 = new ErrorDialog(throwable, Thread.currentThread());
+            dialog2.setVisible(true);
         });
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
@@ -44,7 +40,7 @@ public class DesktopLauncher {
         LwjglInput.keyRepeatTime = 0.08f;
         LwjglInput.keyRepeatInitialTime = 0.15f;
 
-        if (false) { //un-limit fps
+        if (true) { //un-limit fps
             config.foregroundFPS = 0;
             config.backgroundFPS = 0;
         }
