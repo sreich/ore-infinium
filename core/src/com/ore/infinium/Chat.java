@@ -30,7 +30,7 @@ public class Chat {
         Server
     }
 
-    public class ChatLine {
+    public static class ChatLine {
         ChatSender chatSender;
         String timestamp;
         String playerName;

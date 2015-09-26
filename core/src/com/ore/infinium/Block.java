@@ -127,7 +127,7 @@ public class Block {
         this.flags &= ~flag;
     }
 
-    public final class BlockFlags {
+    public static final class BlockFlags {
         public static final byte OnFireBlock = 1 << 0;
         public static final byte GrassBlock = 1 << 1;
 //        public static final int GrassBlock = 1 << 2;
