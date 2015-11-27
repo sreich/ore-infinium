@@ -1,10 +1,13 @@
 apply plugin: "java"
+apply plugin: "artemis"
 
 sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = [ "src/" ]
 
 project.ext.mainClassName = "com.ore.infinium.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
+//modifications for artemis Weaving. see https://github.com/junkdog/artemis-odb/wiki/Weaving-LibGDX
+project.ext.weaveDir = new File("$buildDir/explodedForWeave")
 
 task run(dependsOn: classes, type: JavaExec) {
     main = project.mainClassName
@@ -14,6 +17,8 @@ task run(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
 }
 
+/*
+//old, before artemis weaving
 task dist(type: Jar) {
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
@@ -21,6 +26,35 @@ task dist(type: Jar) {
     from files(project.assetsDir);
 
     baseName = 'ore-infinium'
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+}
+*/
+
+
+// Prepare folder with all dependencies exploded.
+task explodeForWeave(type: Sync, dependsOn: classes) {
+    into project.weaveDir
+    from files(sourceSets.main.output.classesDir)
+    from files(sourceSets.main.output.resourcesDir)
+    from {configurations.compile.collect {zipTree(it)}}
+    from files(project.assetsDir)
+}
+
+// Apply weaving on dependency folder.
+weave {
+    dependsOn explodeForWeave
+    enableArtemisPlugin = true
+    enablePooledWeaving = true
+    ideFriendlyPacking = true
+    optimizeEntitySystems = true
+    classesDir = project.weaveDir
+}
+
+// package woven classes into jar.
+task dist(type: Jar, dependsOn: weave) {
+    from project.weaveDir
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
