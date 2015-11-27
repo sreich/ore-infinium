@@ -1,3 +1,8 @@
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = "2.9"
+}
+
 buildscript {
     repositories {
         mavenCentral()
