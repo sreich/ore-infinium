@@ -110,7 +110,22 @@ public class PowerCircuitSystem extends EntitySystem {
 
     @Override
     public void update(float delta) {
+        for (PowerCircuit circuit : m_circuits) {
+            circuit.totalDemand = 0;
+            circuit.totalSupply = 0;
 
+            for (Entity generator : circuit.generators) {
+                PowerGeneratorComponent generatorComponent = powerGeneratorMapper.get(generator);
+                circuit.totalSupply += generatorComponent.powerSupplyRate;
+            }
+
+            for (Entity consumer : circuit.consumers) {
+                PowerConsumerComponent consumerComponent = powerConsumerMapper.get(consumer);
+                circuit.totalSupply += consumerComponent.powerDemandRate;
+            }
+
+            continue;
+        }
     }
 
     //fixme does not inform the server of these connections!!! or anything wirey for that matter.
@@ -168,28 +183,23 @@ public class PowerCircuitSystem extends EntitySystem {
      */
     private void addConnection(Entity first, Entity second, PowerCircuit circuit) {
         //cannot connect to a non-device
-        /*
         assert powerDeviceMapper.has(first) && powerDeviceMapper.has(second);
 
-        if (powerConsumerMapper.get(first) != null) {
-            assert !circuit.consumers.contains(first, true);
+        if (powerConsumerMapper.get(first) != null && !circuit.consumers.contains(first, true)) {
             circuit.consumers.add(first);
         }
 
-        if (powerConsumerMapper.get(second) != null) {
-            assert !circuit.consumers.contains(second, true);
+        if (powerConsumerMapper.get(second) != null && !circuit.consumers.contains(second, true)) {
             circuit.consumers.add(second);
         }
 
-        if (powerGeneratorMapper.get(first) != null) {
-            assert !circuit.generators.contains(first, true);
+        if (powerGeneratorMapper.get(first) != null && !circuit.generators.contains(first, true)) {
             circuit.generators.add(first);
         }
 
-        if (powerGeneratorMapper.get(second) != null) {
+        if (powerGeneratorMapper.get(second) != null && !circuit.generators.contains(second, true)) {
             circuit.generators.add(second);
         }
-        */
     }
 
 //todo sufficient until we get a spatial hash or whatever
@@ -203,7 +213,7 @@ public class PowerCircuitSystem extends EntitySystem {
         for (int i = 0; i < entities.size(); ++i) {
             tagComponent = tagMapper.get(entities.get(i));
 
-            if (tagComponent != null && tagComponent.tag.equals("itemPlacementGhost")) {
+            if (tagComponent != null && tagComponent.tag.equals("itemPlacementOverlay")) {
                 continue;
             }
 

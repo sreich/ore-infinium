@@ -33,6 +33,12 @@ public class SpriteComponent extends Component implements Pool.Poolable {
     public boolean placementValid;
     public boolean visible = true;
 
+    /*
+     * enabled, ignore this and every entity that can ever check for collisions against it,
+     * or overlaps (useful for ignoring some on-screen client-only items like tooltips, which technically don't exist in the world)
+     */
+    public boolean noClip = false;
+
     public void reset() {
         // eh?, may have to set everything like alpha etc back to normal..
 
@@ -55,5 +61,7 @@ public class SpriteComponent extends Component implements Pool.Poolable {
 
         textureName = spriteComponent.textureName;
         category = spriteComponent.category;
+        noClip = spriteComponent.noClip;
+        placementValid = spriteComponent.placementValid;
     }
 }

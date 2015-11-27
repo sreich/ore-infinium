@@ -107,11 +107,13 @@ public class SpriteRenderSystem extends EntitySystem {
                 continue;
             }
 
+            assert spriteComponent.sprite != null;
+
             boolean placementGhost = false;
 
             tagComponent = tagMapper.get(entities.get(i));
             if (tagComponent != null) {
-                if (tagComponent.tag.equals("itemPlacementGhost")) {
+                if (tagComponent.tag.equals("itemPlacementOverlay")) {
 
                     placementGhost = true;
 

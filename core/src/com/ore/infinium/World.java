@@ -333,7 +333,7 @@ public class World implements Disposable {
 
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
-    Entity m_itemPlacementGhost;
+    Entity m_itemPlacementOverlay;
 
     private com.artemis.World artemisWorld;
 
@@ -377,6 +377,7 @@ public class World implements Disposable {
             m_blockPickingCrosshair.add(spriteComponent);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
+            spriteComponent.noClip = true;
             engine.addEntity(m_blockPickingCrosshair);
 
             engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
@@ -387,14 +388,17 @@ public class World implements Disposable {
         }
     }
 
+    //TODO cleanup, can be broken down into various handlers, early returns and handling multiple cases make it convoluted
     protected void clientHotbarInventoryItemSelected() {
         assert !isServer();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
         Entity equippedEntity = playerComponent.equippedPrimaryItem();
 
-        if (m_itemPlacementGhost != null) {
-            engine.removeEntity(m_itemPlacementGhost);
+        //if it is here, remove it...we respawn the placement overlay further down either way.
+        if (m_itemPlacementOverlay != null) {
+            engine.removeEntity(m_itemPlacementOverlay);
+            m_itemPlacementOverlay = null;
         }
 
         if (equippedEntity == null) {
@@ -404,36 +408,45 @@ public class World implements Disposable {
         SpriteComponent crosshairSprite = spriteMapper.get(m_blockPickingCrosshair);
         crosshairSprite.visible = false;
 
+        assert crosshairSprite.noClip;
+
         if (blockMapper.get(equippedEntity) != null) {
+            // if the switched to item is a block, we should show a crosshair overlay
             crosshairSprite.visible = true;
 
-            //don't show the placement for blocks
+            //don't show the placement overlay for blocks, just items and other placeable things
             return;
         }
 
         ToolComponent entityToolComponent = toolMapper.get(equippedEntity);
         if (entityToolComponent != null) {
             if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
-                //drill, show the block crosshair...
+                //drill, one of the few cases we want to show the block crosshair...
                 crosshairSprite.visible = true;
+
+                //drill has no placement overlay
+                //HACK: return;
             }
         }
 
-        //this item is placeable, show a ghost of it so we can see where we're going to place it
-        m_itemPlacementGhost = cloneEntity(equippedEntity);
-        ItemComponent itemComponent = itemMapper.get(m_itemPlacementGhost);
+        //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its entity)
+        m_itemPlacementOverlay = cloneEntity(equippedEntity);
+        ItemComponent itemComponent = itemMapper.get(m_itemPlacementOverlay);
+        //transition to the in world state, since the cloned source item was in the inventory state, so to would this
         itemComponent.state = ItemComponent.State.InWorldState;
 
-        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementGhost);
+        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlay);
+        spriteComponent.noClip = true;
 
+        //crosshair shoudln't be visible if the power overlay is
         if (m_powerOverlaySystem.overlayVisible) {
             spriteComponent.visible = false;
         }
 
         TagComponent tag = engine.createComponent(TagComponent.class);
-        tag.tag = "itemPlacementGhost";
-        m_itemPlacementGhost.add(tag);
-        engine.addEntity(m_itemPlacementGhost);
+        tag.tag = "itemPlacementOverlay";
+        m_itemPlacementOverlay.add(tag);
+        engine.addEntity(m_itemPlacementOverlay);
 
     }
 
@@ -803,10 +816,17 @@ public class World implements Disposable {
             }
 
             updateCrosshair();
-            updateItemPlacementGhost();
+            updateItemPlacementOverlay();
 
             if (m_client.leftMouseDown && !m_powerOverlaySystem.overlayVisible) {
                 handleLeftMousePrimaryAttack();
+            }
+
+            if (m_itemPlacementOverlay != null) {
+                SpriteComponent component = spriteMapper.get(m_itemPlacementOverlay);
+                assert component != null :"how the hell does it have no spritecomp?!!";
+
+                assert component.noClip : "placement overlay found to not be in noclip mode!!!";
             }
         }
 
@@ -1270,7 +1290,7 @@ public class World implements Disposable {
         spriteComponent.sprite.setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y);
     }
 
-    Vector2 mousePositionWorldCoords() {
+    public Vector2 mousePositionWorldCoords() {
         //libgdx can and probably will return negative mouse coords..
         Vector3 mouse = new Vector3(Math.max(Gdx.input.getX(), 0), Math.max(Gdx.input.getY(), 0), 0f);
         Vector3 finalMouse = m_camera.unproject(mouse);
@@ -1278,17 +1298,17 @@ public class World implements Disposable {
         return new Vector2(finalMouse.x, finalMouse.y);
     }
 
-    private void updateItemPlacementGhost() {
-        if (m_itemPlacementGhost == null || m_itemPlacementGhost.getId() == 0) {
+    private void updateItemPlacementOverlay() {
+        if (m_itemPlacementOverlay == null || m_itemPlacementOverlay.getId() == 0) {
             return;
         }
 
         Vector2 mouse = mousePositionWorldCoords();
         alignPositionToBlocks(mouse);
 
-        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementGhost);
+        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlay);
         spriteComponent.sprite.setPosition(mouse.x, mouse.y);
-        spriteComponent.placementValid = isPlacementValid(m_itemPlacementGhost);
+        spriteComponent.placementValid = isPlacementValid(m_itemPlacementOverlay);
     }
 
     private void alignPositionToBlocks(Vector2 pos) {
@@ -1409,6 +1429,7 @@ public class World implements Disposable {
             return false;
         }
 
+        //check collision against blocks first
         for (int x = startX; x < endX; ++x) {
             for (int y = startY; y < endY; ++y) {
                 if (blockAt(x, y).type != Block.BlockType.NullBlockType) {
@@ -1422,9 +1443,10 @@ public class World implements Disposable {
         //float x2 = Math.min(pos.x + (BLOCK_SIZE * 20), WORLD_SIZE_X * BLOCK_SIZE);
         //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_SIZE_Y * BLOCK_SIZE);
 
+        //check collision against entities
         ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
         for (int i = 0; i < entities.size(); ++i) {
-            //it's us, don't count a collision with ourselves
+            //it's the item we're trying to place, don't count a collision with ourselves
             if (entities.get(i) == entity) {
                 continue;
             }
@@ -1436,6 +1458,7 @@ public class World implements Disposable {
 
             ItemComponent itemComponent = itemMapper.get(entities.get(i));
             if (itemComponent != null) {
+                // items that are dropped in the world are considered non colliding
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
                     continue;
                 }
@@ -1443,12 +1466,12 @@ public class World implements Disposable {
 
             TagComponent tagComponent = tagMapper.get(entities.get(i));
             if (tagComponent != null) {
-                if (tagComponent.tag.equals("itemPlacementGhost")) {
-                    //ignore all collisions with this
-                    continue;
-                } else if (tagComponent.tag.equals("crosshair")) {
-                    continue;
-                }
+            }
+
+            SpriteComponent entitySpriteComponent = spriteMapper.get(entities.get(i));
+            // possible colliding object is not meant to be collided with. skip it/don't count it
+            if (entitySpriteComponent.noClip) {
+                continue;
             }
 
             if (entityCollides(entities.get(i), entity)) {
