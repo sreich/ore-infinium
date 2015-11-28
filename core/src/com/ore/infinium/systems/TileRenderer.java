@@ -95,7 +95,7 @@ public class TileRenderer extends IntervalSystem {
     }
 
     public void render(double elapsed) {
-        if (m_world.m_mainPlayer == null) {
+        if (m_world.m_mainPlayerEntity == null) {
             return;
         }
 
@@ -106,7 +106,7 @@ public class TileRenderer extends IntervalSystem {
         tilesInViewCountDebug = 0;
 
         m_batch.setProjectionMatrix(m_camera.combined);
-        SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayer);
+        SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayerEntity);
 
         Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0); //new Vector3(100, 200, 0);//positionComponent->position();
         int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);

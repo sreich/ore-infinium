@@ -62,7 +62,7 @@ public class MovementSystem extends EntitySystem {
         }
 
         if (m_world.isClient()) {
-            SpriteComponent playerSprite = spriteMapper.get(m_world.m_mainPlayer);
+            SpriteComponent playerSprite = spriteMapper.get(m_world.m_mainPlayerEntity);
             m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
             m_world.m_camera.update();
 

@@ -98,7 +98,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private ScreenViewport m_viewport;
 
-    private Entity m_mainPlayer;
+    private int m_mainPlayerEntity = World.ENTITY_INVALID;
 
     private Client m_clientKryo;
     private OreServer m_server;
@@ -337,7 +337,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_font.draw(m_batch, drawCallsString, 0, textY);
             textY -= 15;
 
-            if (m_world != null && m_mainPlayer != null) {
+            if (m_world != null && m_mainPlayerEntity != World.ENTITY_INVALID) {
                 Vector2 mousePos = m_world.mousePositionWorldCoords();
                 Block block = m_world.blockAtPosition(mousePos);
 
@@ -505,23 +505,23 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
-        if (m_mainPlayer == null) {
+        if (m_mainPlayerEntity == null) {
             return false;
         }
 
-        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayer);
+        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayerEntity);
 
         if (keycode == Input.Keys.Q) {
 
-            PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
+            PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
             if (playerComponent.getEquippedPrimaryItemEntity() != null) {
                 Network.HotbarDropItemRequestFromClient dropItemRequestFromClient = new Network.HotbarDropItemRequestFromClient();
                 dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
                 // decrement count, we assume it'll get spawned shortly. delete in-inventory entity if necessary
                 // server assumes we already do so
-                Entity item = playerComponent.getEquippedPrimaryItemEntity();
-                ItemComponent itemComponent = itemMapper.get(item);
+                int itemEntity = playerComponent.getEquippedPrimaryItemEntity();
+                ItemComponent itemComponent = itemMapper.get(itemEntity);
                 if (itemComponent.stackSize > 1) {
                     //decrement count, server has already done so. we assume here that it went through properly.
                     itemComponent.stackSize -= 1;
@@ -536,8 +536,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
         } else if (keycode == Input.Keys.E) {
             //power overlay
             m_world.m_powerOverlaySystem.overlayVisible = !m_world.m_powerOverlaySystem.overlayVisible;
-            if (m_world.m_itemPlacementOverlay != null && m_world.m_itemPlacementOverlay.getId() > 0) {
-                spriteMapper.get(m_world.m_itemPlacementOverlay).visible = !m_world.m_powerOverlaySystem.overlayVisible;
+            if (m_world.m_itemPlacementOverlayEntity != World.ENTITY_INVALID) {
+                spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible = !m_world.m_powerOverlaySystem.overlayVisible;
             }
         } else if (keycode == Input.Keys.NUM_1) {
             m_hotbarInventory.selectSlot((byte) 0);
@@ -574,7 +574,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         if (keycode == Input.Keys.SPACE) {
-            JumpComponent jumpComponent = jumpMapper.get(m_mainPlayer);
+            JumpComponent jumpComponent = jumpMapper.get(m_mainPlayerEntity);
             jumpComponent.shouldJump = true;
         }
 
@@ -583,11 +583,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        if (m_mainPlayer == null) {
+        if (m_mainPlayerEntity == null) {
             return false;
         }
 
-        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayer);
+        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayerEntity);
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             controllableComponent.desiredDirection.x = 0;
@@ -637,7 +637,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean scrolled(int amount) {
-        if (m_mainPlayer == null) {
+        if (m_mainPlayerEntity == null) {
             return false;
         }
 
@@ -668,7 +668,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
      * Send the command indicating (main) player moved to position
      */
     public void sendPlayerMoved() {
-        SpriteComponent sprite = spriteMapper.get(m_mainPlayer);
+        SpriteComponent sprite = spriteMapper.get(m_mainPlayerEntity);
 
         Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
         move.position = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
@@ -689,7 +689,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         player.add(controllableComponent);
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
-        if (m_mainPlayer == null) {
+        if (m_mainPlayerEntity == null) {
             PlayerComponent playerComponent = playerMapper.get(player);
 
             m_hotbarInventory = new Inventory(player);
@@ -730,16 +730,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
 
-                if (m_mainPlayer == null) {
+                if (m_mainPlayerEntity == null) {
 
                     m_world = new World(this, null);
 
-                    m_mainPlayer = createPlayer(spawn.playerName, m_clientKryo.getID());
-                    SpriteComponent spriteComp = spriteMapper.get(m_mainPlayer);
+                    m_mainPlayerEntity = createPlayer(spawn.playerName, m_clientKryo.getID());
+                    SpriteComponent spriteComp = spriteMapper.get(m_mainPlayerEntity);
 
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
-                    m_world.addPlayer(m_mainPlayer);
-                    m_world.initClient(m_mainPlayer);
+                    m_world.addPlayer(m_mainPlayerEntity);
+                    m_world.initClient(m_mainPlayerEntity);
 
                     m_world.engine.addEntityListener(new ClientEntityListener());
                 } else {
@@ -756,7 +756,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_world.loadSparseBlockUpdate(update);
             } else if (object instanceof Network.LoadedViewportMovedFromServer) {
                 Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
-                PlayerComponent c = playerMapper.get(m_mainPlayer);
+                PlayerComponent c = playerMapper.get(m_mainPlayerEntity);
                 c.loadedViewport.rect = v.rect;
             } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
                 Network.PlayerSpawnHotbarInventoryItemFromServer spawn = (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
@@ -905,12 +905,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         @Override
         public void selected(byte index, Inventory inventory) {
-            if (m_mainPlayer == null) {
+            if (m_mainPlayerEntity == null) {
                 return;
             }
 
             sendHotbarEquipped(index);
-            PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
+            PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
             Entity itemCopy = playerComponent.getEquippedPrimaryItemEntity();
             playerComponent.equippedItemAnimator = itemCopy;

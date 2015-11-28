@@ -1,7 +1,7 @@
 package com.ore.infinium;
 
-import com.artemis.ComponentMapper;
-import com.artemis.WorldConfigurationBuilder;
+import com.artemis.*;
+import com.artemis.annotations.Wire;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Gdx;
@@ -13,8 +13,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
+import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
@@ -42,6 +42,7 @@ import java.util.Set;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.     *
  * ***************************************************************************
  */
+@Wire
 public class World implements Disposable {
     public static final float PIXELS_PER_METER = 50.0f;
     public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 3.0f;
@@ -128,8 +129,8 @@ public class World implements Disposable {
     }
 
     static {
-        dirtTransitionTypes
-                .put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
+        dirtTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom),
+                                0);
         dirtTransitionTypes.put(EnumSet.of(Transitions.bottom), 1);
         dirtTransitionTypes.put(EnumSet.of(Transitions.top, Transitions.bottom), 2);
         dirtTransitionTypes.put(EnumSet.of(Transitions.right), 3);
@@ -148,123 +149,148 @@ public class World implements Disposable {
 
         ///////////////////////////////////////////////////////////////////////////////////
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty,
-                                        Transitions.bottomLeftEmpty, Transitions.bottomRightEmpty), 0);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.topLeftEmpty, Transitions.topRightEmpty, Transitions.bottomLeftEmpty,
+                           Transitions.bottomRightEmpty), 0);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftEmpty,
-                                        Transitions.topEmpty), 1);
+        grassTransitions.put(
+                EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftEmpty, Transitions.topEmpty),
+                1);
 
         grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topEmpty), 2);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.topEmpty,
-                                        Transitions.rightEmpty), 3);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.bottomDirt, Transitions.topEmpty, Transitions.rightEmpty),
+                3);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.topDirt,
-                                        Transitions.leftEmpty), 4);
+        grassTransitions.put(
+                EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.topDirt, Transitions.leftEmpty),
+                4);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.bottomDirt,
-                                        Transitions.rightEmpty), 5);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.bottomDirt, Transitions.rightEmpty),
+                5);
 
-        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.rightDirt, Transitions.leftEmpty,
-                                        Transitions.bottomEmpty), 6);
+        grassTransitions.put(
+                EnumSet.of(Transitions.topDirt, Transitions.rightDirt, Transitions.leftEmpty, Transitions.bottomEmpty),
+                6);
 
-        grassTransitions.put(EnumSet.of(Transitions.topDirt, Transitions.leftDirt, Transitions.rightDirt,
-                                        Transitions.bottomEmpty), 7);
+        grassTransitions.put(
+                EnumSet.of(Transitions.topDirt, Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomEmpty),
+                7);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.rightEmpty,
-                                        Transitions.bottomEmpty), 8);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.rightEmpty, Transitions.bottomEmpty),
+                8);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topEmpty,
-                                        Transitions.bottomDirt), 9);
-        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topEmpty,
-                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty),
-                             9);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topEmpty, Transitions.bottomDirt),
+                9);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topEmpty, Transitions.bottomDirt,
+                           Transitions.topLeftEmpty, Transitions.topRightEmpty), 9);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topDirt,
-                                        Transitions.bottomDirt), 10);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.topDirt, Transitions.bottomDirt),
+                10);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.bottomEmpty,
-                                        Transitions.rightDirt), 11);
-        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.bottomEmpty,
-                                        Transitions.rightDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty,
-                                        Transitions.bottomLeftEmpty, Transitions.bottomRightEmpty), 11);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.bottomEmpty, Transitions.rightDirt),
+                11);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.bottomEmpty, Transitions.rightDirt,
+                           Transitions.topLeftEmpty, Transitions.topRightEmpty, Transitions.bottomLeftEmpty,
+                           Transitions.bottomRightEmpty), 11);
 
-        grassTransitions.put(EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.leftDirt,
-                                        Transitions.rightDirt), 12);
+        grassTransitions.put(
+                EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.leftDirt, Transitions.rightDirt),
+                12);
 
-        grassTransitions.put(EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.rightEmpty,
-                                        Transitions.leftDirt), 13);
+        grassTransitions.put(
+                EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.rightEmpty, Transitions.leftDirt),
+                13);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.bottomEmpty,
-                                        Transitions.topDirt), 14);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftEmpty, Transitions.rightEmpty, Transitions.bottomEmpty, Transitions.topDirt),
+                14);
 
         grassTransitions.put(EnumSet.of(Transitions.topEmpty, Transitions.bottomEmpty, Transitions.leftEmpty,
                                         Transitions.rightEmpty), 15);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topLeftEmpty),
-                             16); //hack 16, probably need one without bottom,etc
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.topLeftEmpty), 16); //hack 16, probably need one without bottom,etc
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topRightEmpty), 17); //HACK
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.topRightEmpty), 17); //HACK
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.bottomLeftEmpty), 18);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.bottomLeftEmpty), 18);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.bottomRightEmpty), 19);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.bottomRightEmpty), 19);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.topRightEmpty),
-                             20);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.topLeftEmpty, Transitions.topRightEmpty), 20);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topLeftEmpty, Transitions.bottomLeftEmpty),
-                             21);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.topLeftEmpty, Transitions.bottomLeftEmpty), 21);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.topRightEmpty,
-                                        Transitions.bottomRightEmpty), 22);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.topRightEmpty, Transitions.bottomRightEmpty), 22);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomDirt, Transitions.bottomLeftEmpty,
-                                        Transitions.bottomRightEmpty), 23);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
+                           Transitions.bottomLeftEmpty, Transitions.bottomRightEmpty), 23);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
-                                        Transitions.leftEmpty), 24);
+        grassTransitions.put(
+                EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt, Transitions.leftEmpty),
+                24);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.bottomDirt,
-                                        Transitions.rightEmpty), 25);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.bottomDirt, Transitions.rightEmpty),
+                25);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt,
-                                        Transitions.bottomEmpty), 26);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomEmpty),
+                26);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
-                                        Transitions.topEmpty), 27);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt, Transitions.topEmpty),
+                27);
 
-        grassTransitions.put(EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.topLeftEmpty,
-                                        Transitions.rightEmpty, Transitions.bottomEmpty), 28);
+        grassTransitions.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.topDirt, Transitions.topLeftEmpty, Transitions.rightEmpty,
+                           Transitions.bottomEmpty), 28);
 
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.topRightEmpty,
-                                        Transitions.leftEmpty, Transitions.bottomEmpty), 29);
+        grassTransitions.put(
+                EnumSet.of(Transitions.rightDirt, Transitions.topDirt, Transitions.topRightEmpty, Transitions.leftEmpty,
+                           Transitions.bottomEmpty), 29);
 
         grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.bottomRightEmpty,
                                         Transitions.leftEmpty), 31);
         grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.bottomRightEmpty,
                                         Transitions.leftEmpty, Transitions.bottomLeftEmpty, Transitions.topLeftEmpty),
                              31);
-        grassTransitions.put(EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftEmpty,
-                                        Transitions.topEmpty, Transitions.topLeftEmpty, Transitions.topRightEmpty,
-                                        Transitions.bottomLeftEmpty, Transitions.bottomRightEmpty), 31);
+        grassTransitions.put(
+                EnumSet.of(Transitions.rightDirt, Transitions.bottomDirt, Transitions.leftEmpty, Transitions.topEmpty,
+                           Transitions.topLeftEmpty, Transitions.topRightEmpty, Transitions.bottomLeftEmpty,
+                           Transitions.bottomRightEmpty), 31);
 
         //hack?
 
         grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.rightDirt), 1);
         ////////////////////
 
-        stoneTransitionTypes
-                .put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom), 0);
+        stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right, Transitions.top, Transitions.bottom),
+                                 0);
         stoneTransitionTypes.put(EnumSet.of(Transitions.right, Transitions.bottom), 1);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 2);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 3);
@@ -279,8 +305,9 @@ public class World implements Disposable {
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.right), 12);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left), 13);
         stoneTransitionTypes.put(EnumSet.of(Transitions.top), 14);
-        stoneTransitionTypes.put(EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt,
-                                            Transitions.topDirt), 15);
+        stoneTransitionTypes.put(
+                EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.bottomDirt, Transitions.topDirt),
+                15);
         stoneTransitionTypes.put(EnumSet.of(Transitions.bottom, Transitions.right), 16);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom, Transitions.right), 17);
         stoneTransitionTypes.put(EnumSet.of(Transitions.left, Transitions.bottom), 18);
@@ -304,8 +331,9 @@ public class World implements Disposable {
 
     public Block[] blocks;
 
-    public Array<Entity> m_players = new Array<>();
-    public Entity m_mainPlayer;
+    //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by them alone.
+    public IntArray m_players = new IntArray();
+    public int m_mainPlayerEntity = ENTITY_INVALID;
     public OreServer m_server;
     public AssetManager assetManager;
     public OreClient m_client;
@@ -317,30 +345,26 @@ public class World implements Disposable {
     PowerOverlayRenderSystem m_powerOverlaySystem;
     public PowerCircuitSystem m_powerCircuitSystem;
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
-    private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
-    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper =
-            ComponentMapper.getFor(AirGeneratorComponent.class);
-    private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
-    private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
-    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
-    private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
-    private ComponentMapper<LightComponent> torchMapper = ComponentMapper.getFor(LightComponent.class);
-    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper =
-            ComponentMapper.getFor(PowerDeviceComponent.class);
-    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper =
-            ComponentMapper.getFor(PowerConsumerComponent.class);
-    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper =
-            ComponentMapper.getFor(PowerGeneratorComponent.class);
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<JumpComponent> jumpMapper;
+    private ComponentMapper<BlockComponent> blockMapper;
+    private ComponentMapper<AirGeneratorComponent> airGeneratorMapper;
+    private ComponentMapper<ToolComponent> toolMapper;
+    private ComponentMapper<AirComponent> airMapper;
+    private ComponentMapper<TagComponent> tagMapper;
+    private ComponentMapper<HealthComponent> healthMapper;
+    private ComponentMapper<LightComponent> torchMapper;
+    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
+    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
+    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
 
     private boolean m_noClipEnabled;
-    private Entity m_blockPickingCrosshair;
-    Entity m_itemPlacementOverlay;
+    private int m_blockPickingCrosshairEntity = ENTITY_INVALID;
+    int m_itemPlacementOverlayEntity = ENTITY_INVALID;
 
     private com.artemis.World m_artemisWorld;
 
@@ -350,8 +374,11 @@ public class World implements Disposable {
         m_server = server;
 
         if (isClient()) {
-            m_artemisWorld = new com.artemis.World(
-                    new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class).with(new TagManager(), new PlayerManager()).build());
+            m_artemisWorld = new com.artemis.World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
+                                                                                  .with(new TagManager(),
+                                                                                        new PlayerManager())
+                                                                                  .with(new MovementSystem())
+                                                                                  .build());
 
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
@@ -364,10 +391,9 @@ public class World implements Disposable {
 
         blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
 
-//        assetManager = new AssetManager();
-//        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
-//        assetManager.finishLoading();
-        engine = new PooledEngine(2000, 2000, 2000, 2000);
+        //        assetManager = new AssetManager();
+        //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
+        //        assetManager.finishLoading();
 
         engine.addSystem(new MovementSystem(this));
         engine.addSystem(m_powerCircuitSystem = new PowerCircuitSystem(this));
@@ -377,24 +403,24 @@ public class World implements Disposable {
                 new OrthographicCamera(1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
         m_camera.setToOrtho(true, 1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);
 
-//        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
+        //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
 
         assert isClient() ^ isServer();
         if (isClient()) {
             m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
             initializeWorld();
 
-            m_blockPickingCrosshair = engine.createEntity();
+            m_blockPickingCrosshairEntity = m_artemisWorld.create();
             TagComponent tagComponent = engine.createComponent(TagComponent.class);
             tagComponent.tag = "crosshair";
-            m_blockPickingCrosshair.add(tagComponent);
+            m_blockPickingCrosshairEntity.add(tagComponent);
 
             SpriteComponent spriteComponent = engine.createComponent(SpriteComponent.class);
-            m_blockPickingCrosshair.add(spriteComponent);
+            m_blockPickingCrosshairEntity.add(spriteComponent);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
             spriteComponent.noClip = true;
-            engine.addEntity(m_blockPickingCrosshair);
+            engine.addEntity(m_blockPickingCrosshairEntity);
 
             engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         }
@@ -409,20 +435,20 @@ public class World implements Disposable {
     protected void clientHotbarInventoryItemSelected() {
         assert !isServer();
 
-        PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
-        Entity equippedEntity = playerComponent.getEquippedPrimaryItemEntity();
+        PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
+        int equippedEntity = playerComponent.getEquippedPrimaryItemEntity();
 
         //if it is here, remove it...we respawn the placement overlay further down either way.
-        if (m_itemPlacementOverlay != null) {
-            engine.removeEntity(m_itemPlacementOverlay);
-            m_itemPlacementOverlay = null;
+        if (m_itemPlacementOverlayEntity != ENTITY_INVALID) {
+            m_artemisWorld.delete(m_itemPlacementOverlayEntity);
+            m_itemPlacementOverlayEntity = ENTITY_INVALID;
         }
 
-        if (equippedEntity == null) {
+        if (equippedEntity == ENTITY_INVALID) {
             return;
         }
 
-        SpriteComponent crosshairSprite = spriteMapper.get(m_blockPickingCrosshair);
+        SpriteComponent crosshairSprite = spriteMapper.get(m_blockPickingCrosshairEntity);
         crosshairSprite.visible = false;
 
         assert crosshairSprite.noClip;
@@ -448,12 +474,12 @@ public class World implements Disposable {
 
         //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its
         // entity)
-        m_itemPlacementOverlay = cloneEntity(equippedEntity);
-        ItemComponent itemComponent = itemMapper.get(m_itemPlacementOverlay);
+        m_itemPlacementOverlayEntity = cloneEntity(equippedEntity);
+        ItemComponent itemComponent = itemMapper.get(m_itemPlacementOverlayEntity);
         //transition to the in world state, since the cloned source item was in the inventory state, so to would this
         itemComponent.state = ItemComponent.State.InWorldState;
 
-        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlay);
+        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlayEntity);
         spriteComponent.noClip = true;
 
         //crosshair shoudln't be visible if the power overlay is
@@ -463,8 +489,8 @@ public class World implements Disposable {
 
         TagComponent tag = engine.createComponent(TagComponent.class);
         tag.tag = "itemPlacementOverlay";
-        m_itemPlacementOverlay.add(tag);
-        engine.addEntity(m_itemPlacementOverlay);
+        m_itemPlacementOverlayEntity.add(tag);
+        engine.addEntity(m_itemPlacementOverlayEntity);
 
     }
 
@@ -472,13 +498,13 @@ public class World implements Disposable {
     }
 
     public void initClient(Entity mainPlayer) {
-        m_mainPlayer = mainPlayer;
-//        velocityMapper.get(m_mainPlayer);
+        m_mainPlayerEntity = mainPlayer;
+        //        velocityMapper.get(m_mainPlayerEntity);
 
         engine.addSystem(new SpriteRenderSystem(this));
         engine.addSystem(m_powerOverlaySystem = new PowerOverlayRenderSystem(this));
 
-        SpriteComponent playerSprite = spriteMapper.get(m_mainPlayer);
+        SpriteComponent playerSprite = spriteMapper.get(m_mainPlayerEntity);
         playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
         playerSprite.sprite.flip(false, true);
     }
@@ -491,39 +517,40 @@ public class World implements Disposable {
      *
      * @return
      */
-    public Entity createPlayer(String playerName, int connectionId) {
-        Entity player = engine.createEntity();
+    public int createPlayer(String playerName, int connectionId) {
+        Entity playerEntity = m_artemisWorld.create();
         SpriteComponent playerSprite = engine.createComponent(SpriteComponent.class);
-        player.add(playerSprite);
+        playerEntity.add(playerSprite);
 
-        player.add(engine.createComponent(VelocityComponent.class));
+        playerEntity.add(engine.createComponent(VelocityComponent.class));
         PlayerComponent playerComponent = engine.createComponent(PlayerComponent.class);
         playerComponent.connectionId = connectionId;
+        //hack fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on the server?? at least the component, maybe not inner sprite
         playerComponent.noClip = m_noClipEnabled;
 
         playerComponent.playerName = playerName;
-        playerComponent.loadedViewport
-                .setRect(new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
+        playerComponent.loadedViewport.setRect(
+                new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
         playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX() / World.BLOCK_SIZE,
                                                             playerSprite.sprite.getY() / World.BLOCK_SIZE));
-        player.add(playerComponent);
+        playerEntity.add(playerComponent);
 
         playerSprite.sprite.setSize(World.BLOCK_SIZE * 2, World.BLOCK_SIZE * 3);
-        player.add(engine.createComponent(ControllableComponent.class));
+        playerEntity.add(engine.createComponent(ControllableComponent.class));
 
         playerSprite.textureName = "player1Standing1";
         playerSprite.category = SpriteComponent.EntityCategory.Character;
-        player.add(engine.createComponent(JumpComponent.class));
+        playerEntity.add(engine.createComponent(JumpComponent.class));
 
         HealthComponent healthComponent = engine.createComponent(HealthComponent.class);
         healthComponent.health = healthComponent.maxHealth;
-        player.add(healthComponent);
+        playerEntity.add(healthComponent);
 
         AirComponent airComponent = engine.createComponent(AirComponent.class);
         airComponent.air = airComponent.maxAir;
-        player.add(airComponent);
+        playerEntity.add(airComponent);
 
-        return player;
+        return playerEntity;
     }
 
     private void generateWorld() {
@@ -568,7 +595,7 @@ public class World implements Disposable {
                     Block bottomLeftBlock = blockAtSafely(x - 1, y + 1);
                     Block bottomRightBlock = blockAtSafely(x + 1, y + 1);
 
-//                    boolean leftEmpty =
+                    //                    boolean leftEmpty =
 
                     if (topBlock.type == Block.BlockType.NullBlockType) {
                         block.setFlag(Block.BlockFlags.GrassBlock);
@@ -736,15 +763,15 @@ public class World implements Disposable {
                     block.wallType = Block.WallType.DirtUndergroundWallType;
                 }
 
-//                blocks[dragSourceIndex].wallType = Block::Wall
+                //                blocks[dragSourceIndex].wallType = Block::Wall
             }
         }
-//        for (int x = 0; x < WORLD_SIZE_X; ++x) {
-//            for (int y = seaLevel(); y < WORLD_SIZE_Y; ++y) {
-//                Block block = blockAt(x, y);
-//                block.type = Block.BlockType.DirtBlockType;
-//            }
-//        }
+        //        for (int x = 0; x < WORLD_SIZE_X; ++x) {
+        //            for (int y = seaLevel(); y < WORLD_SIZE_Y; ++y) {
+        //                Block block = blockAt(x, y);
+        //                block.type = Block.BlockType.DirtBlockType;
+        //            }
+        //        }
     }
 
     public boolean isServer() {
@@ -809,14 +836,15 @@ public class World implements Disposable {
 
     public void update(double elapsed) {
         if (isClient()) {
-            if (m_mainPlayer == null) {
+            if (m_mainPlayerEntity == null) {
                 return;
             }
 
-//        playerSprite.sprite.setOriginCenter();
+            //        playerSprite.sprite.setOriginCenter();
 
-//        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite
-// .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
+            //        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f,
+            // playerSprite
+            // .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
 
             final float zoomAmount = 0.004f;
             if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
@@ -841,8 +869,8 @@ public class World implements Disposable {
                 handleLeftMousePrimaryAttack();
             }
 
-            if (m_itemPlacementOverlay != null) {
-                SpriteComponent component = spriteMapper.get(m_itemPlacementOverlay);
+            if (m_itemPlacementOverlayEntity != ENTITY_INVALID) {
+                SpriteComponent component = spriteMapper.get(m_itemPlacementOverlayEntity);
                 assert component != null : "how the hell does it have no spritecomp?!!";
 
                 assert component.noClip : "placement overlay found to not be in noclip mode!!!";
@@ -851,7 +879,7 @@ public class World implements Disposable {
 
         if (isServer()) {
 
-//            if (randomGrassTimer.milliseconds() > 500) {
+            //            if (randomGrassTimer.milliseconds() > 500) {
             //HACK
             randomGrowGrass();
             randomGrassTimer.reset();
@@ -865,13 +893,13 @@ public class World implements Disposable {
     private void handleLeftMousePrimaryAttack() {
         Vector2 mouse = mousePositionWorldCoords();
 
-        PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
-        Entity item = playerComponent.getEquippedPrimaryItemEntity();
-        if (item == null) {
+        PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
+        int itemEntity = playerComponent.getEquippedPrimaryItemEntity();
+        if (itemEntity == ENTITY_INVALID) {
             return;
         }
 
-        ToolComponent toolComponent = toolMapper.get(item);
+        ToolComponent toolComponent = toolMapper.get(itemEntity);
         if (toolComponent != null) {
             if (toolComponent.type != ToolComponent.ToolType.Drill) {
                 return;
@@ -891,7 +919,7 @@ public class World implements Disposable {
             return;
         }
 
-        BlockComponent blockComponent = blockMapper.get(item);
+        BlockComponent blockComponent = blockMapper.get(itemEntity);
         if (blockComponent != null) {
 
             int x = (int) (mouse.x / BLOCK_SIZE);
@@ -905,7 +933,7 @@ public class World implements Disposable {
             return;
         }
 
-        ItemComponent itemComponent = itemMapper.get(item);
+        ItemComponent itemComponent = itemMapper.get(itemEntity);
         if (itemComponent != null) {
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset();
@@ -946,31 +974,31 @@ public class World implements Disposable {
         return false;
     }
 
-    private void attemptItemPlace(float x, float y, Entity item) {
+    private void attemptItemPlace(float x, float y, int itemEntity) {
 
         //place the item
-        Entity placedItem = cloneEntity(item);
+        int placedItemEntity = cloneEntity(itemEntity);
 
-        ItemComponent placedItemComponent = itemMapper.get(placedItem);
+        ItemComponent placedItemComponent = itemMapper.get(placedItemEntity);
 
         placedItemComponent.state = ItemComponent.State.InWorldState;
 
         Vector2 alignedPosition = new Vector2(x, y);
-        SpriteComponent spriteComponent = spriteMapper.get(placedItem);
+        SpriteComponent spriteComponent = spriteMapper.get(placedItemEntity);
         alignPositionToBlocks(alignedPosition);
 
         spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
 
-        engine.addEntity(placedItem);
+        engine.addEntity(placedItemEntity);
 
-        if (isPlacementValid(placedItem)) {
+        if (isPlacementValid(placedItemEntity)) {
             //hack, do more validation..
             m_client.sendItemPlace(alignedPosition.x, alignedPosition.y);
         } else {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
             //because the function actually takes only the entity, to check if its size, position etc conflict with
             // anything
-            engine.removeEntity(placedItem);
+            engine.removeEntity(placedItemEntity);
         }
     }
 
@@ -978,7 +1006,7 @@ public class World implements Disposable {
     private OreTimer randomGrassTimer = new OreTimer();
 
     public void render(double elapsed) {
-        if (m_mainPlayer == null) {
+        if (m_mainPlayerEntity == null) {
             return;
         }
 
@@ -989,7 +1017,7 @@ public class World implements Disposable {
             tileRecomputeTimer.reset();
         }
 
-//        m_camera.zoom *= 0.9;
+        //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
         //FIXME: incorporate entities into the pre-lit gamescene FBO, then render lighting as last pass
@@ -997,13 +1025,16 @@ public class World implements Disposable {
 
         //FIXME: take lighting into account, needs access to fbos though.
         //   m_fluidRenderer->render();
-//    m_particleRenderer->render();
-//FIXME unused    m_quadTreeRenderer->render();
+        //    m_particleRenderer->render();
+        //FIXME unused    m_quadTreeRenderer->render();
     }
 
     private void randomGrowGrass() {
-        for (Entity player : m_players) {
-            PlayerComponent playerComponent = playerMapper.get(player);
+        for (int i = 0; i < m_players; ++i) {
+            #error
+             int playerEntity
+
+            PlayerComponent playerComponent = playerMapper.get(playerEntity);
 
             LoadedViewport.PlayerViewportBlockRegion region = playerComponent.loadedViewport.blockRegionInViewport();
 
@@ -1067,8 +1098,9 @@ public class World implements Disposable {
                              topBlock.type == Block.BlockType.NullBlockType)) {
 
                             leftBlock.setFlag(Block.BlockFlags.GrassBlock);
-//                            m_server.sendPlayerSparseBlock(player, leftLeftBlock, leftLeftX, leftLeftY);
-                            m_server.sendPlayerSparseBlock(player, leftBlock, leftBlockX, leftBlockY);
+                            //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
+                            // leftLeftX, leftLeftY);
+                            m_server.sendPlayerSparseBlock(playerEntity, leftBlock, leftBlockX, leftBlockY);
                         }
                     }
 
@@ -1092,7 +1124,7 @@ public class World implements Disposable {
                             //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
                             //                               m_server.sendPlayerSparseBlock(player,
                             // rightRightBlock, rightRightX, rightRightY);
-                            m_server.sendPlayerSparseBlock(player, rightBlock, rightBlockX, rightBlockY);
+                            m_server.sendPlayerSparseBlock(playerEntity, rightBlock, rightBlockX, rightBlockY);
                         }
                     }
 
@@ -1110,7 +1142,7 @@ public class World implements Disposable {
 
                             bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                            m_server.sendPlayerSparseBlock(player, bottomBlock, bottomBlockX, bottomBlockY);
+                            m_server.sendPlayerSparseBlock(playerEntity, bottomBlock, bottomBlockX, bottomBlockY);
                         }
                     }
 
@@ -1128,16 +1160,17 @@ public class World implements Disposable {
 
                             topBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                            m_server.sendPlayerSparseBlock(player, topBlock, topBlockX, topBlockY);
+                            m_server.sendPlayerSparseBlock(playerEntity, topBlock, topBlockX, topBlockY);
                         }
                     }
 
                     //grow top-right
                     if (topRightBlock.type == Block.BlockType.DirtBlockType) {
-//hack                        int topRightTopRightX = blockXSafe(topRightBlockX + 1);
-//hack                        int topRightTopRightY = blockYSafe(topRightBlockY + 1);
+                        //hack                        int topRightTopRightX = blockXSafe(topRightBlockX + 1);
+                        //hack                        int topRightTopRightY = blockYSafe(topRightBlockY + 1);
 
-//                        Block topRightTopRightBlock = blockAt(topRightTopRightX, topRightTopRightY);
+                        //                        Block topRightTopRightBlock = blockAt(topRightTopRightX,
+                        // topRightTopRightY);
 
                     }
                 }
@@ -1291,10 +1324,10 @@ public class World implements Disposable {
     */
 
     private void updateCrosshair() {
-        //PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
+        //PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
         //playerComponent
 
-        SpriteComponent spriteComponent = spriteMapper.get(m_blockPickingCrosshair);
+        SpriteComponent spriteComponent = spriteMapper.get(m_blockPickingCrosshairEntity);
 
         Vector2 mouse = mousePositionWorldCoords();
         Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE),
@@ -1317,16 +1350,16 @@ public class World implements Disposable {
     }
 
     private void updateItemPlacementOverlay() {
-        if (m_itemPlacementOverlay == null || m_itemPlacementOverlay.getId() == 0) {
+        if (m_itemPlacementOverlayEntity == null || m_itemPlacementOverlayEntity.getId() == 0) {
             return;
         }
 
         Vector2 mouse = mousePositionWorldCoords();
         alignPositionToBlocks(mouse);
 
-        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlay);
+        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlayEntity);
         spriteComponent.sprite.setPosition(mouse.x, mouse.y);
-        spriteComponent.placementValid = isPlacementValid(m_itemPlacementOverlay);
+        spriteComponent.placementValid = isPlacementValid(m_itemPlacementOverlayEntity);
     }
 
     private void alignPositionToBlocks(Vector2 pos) {
@@ -1347,7 +1380,7 @@ public class World implements Disposable {
         SpriteComponent blockSprite = engine.createComponent(SpriteComponent.class);
         blockSprite.textureName = blockTypes.get(blockComponent.blockType).textureName;
 
-//warning fixme size is fucked
+        //warning fixme size is fucked
         blockSprite.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
         block.add(blockSprite);
 
@@ -1393,7 +1426,7 @@ public class World implements Disposable {
         SpriteComponent sprite = engine.createComponent(SpriteComponent.class);
         sprite.textureName = "air-generator-64x64";
 
-//warning fixme size is fucked
+        //warning fixme size is fucked
         sprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
         power.add(sprite);
 
@@ -1417,7 +1450,7 @@ public class World implements Disposable {
         SpriteComponent airSprite = engine.createComponent(SpriteComponent.class);
         airSprite.textureName = "air-generator-64x64";
 
-//warning fixme size is fucked
+        //warning fixme size is fucked
         airSprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
         air.add(airSprite);
 
@@ -1470,9 +1503,9 @@ public class World implements Disposable {
             }
 
             //ignore players, aka don't count them as colliding when placing static objects.
-//        if (e.has_component<PlayerComponent>()) {
-//            continue;
-//        }
+            //        if (e.has_component<PlayerComponent>()) {
+            //            continue;
+            //        }
 
             ItemComponent itemComponent = itemMapper.get(entities.get(i));
             if (itemComponent != null) {
@@ -1575,8 +1608,8 @@ public class World implements Disposable {
      *
      * @return the cloned entity
      */
-    public Entity cloneEntity(Entity entity) {
-        Entity clonedEntity = engine.createEntity();
+    public int cloneEntity(int entity) {
+        int clonedEntity = m_artemisWorld.create();
 
         //sorted alphabetically for your pleasure
         AirComponent airComponent = airMapper.get(entity);
@@ -1675,11 +1708,16 @@ public class World implements Disposable {
         return clonedEntity;
     }
 
-    public void addPlayer(Entity player) {
-        m_players.add(player);
+    public void addPlayer(int playerEntity) {
+        m_players.add(playerEntity);
     }
 
-    public Entity playerForID(int playerIdWhoDropped) {
+    /**
+     *
+     * @param playerIdWhoDropped the playerid of the player
+     * @return the player entity
+     */
+    public int playerForID(int playerIdWhoDropped) {
         assert !isClient();
         ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
         PlayerComponent playerComponent;
