@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,7 +20,7 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class AirComponent extends Component implements Pool.Poolable {
+public class AirComponent extends Component {
 
     //air amount that is decreased per each interval
     public int decreaseRate = 10;
@@ -32,9 +31,6 @@ public class AirComponent extends Component implements Pool.Poolable {
     //amount to decrease health per interval, when run without air
     public int healthDecreaseRate = 10;
 
-    public void reset() {
-
-    }
 
     public AirComponent() {
     }

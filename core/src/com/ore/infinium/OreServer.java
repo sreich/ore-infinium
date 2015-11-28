@@ -521,7 +521,7 @@ public class OreServer implements Runnable {
                 Network.BlockPlaceFromClient data = ((Network.BlockPlaceFromClient) job.object);
                 PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
-                Entity item = playerComponent.equippedPrimaryItem();
+                Entity item = playerComponent.getEquippedPrimaryItemEntity();
                 BlockComponent blockComponent = blockMapper.get(item);
 
                 m_world.attemptBlockPlacement(data.x, data.y, blockComponent.blockType);
@@ -564,7 +564,7 @@ public class OreServer implements Runnable {
 
                 PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
-                Entity placedItem = m_world.cloneEntity(playerComponent.equippedPrimaryItem());
+                Entity placedItem = m_world.cloneEntity(playerComponent.getEquippedPrimaryItemEntity());
 
                 ItemComponent itemComponent = itemMapper.get(placedItem);
                 itemComponent.state = ItemComponent.State.InWorldState;

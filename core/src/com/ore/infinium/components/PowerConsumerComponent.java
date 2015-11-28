@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -25,11 +24,7 @@ import com.badlogic.gdx.utils.Pool;
 /**
  * Any device on a circuit that can consume some amount of power
  */
-public class PowerConsumerComponent extends Component implements Pool.Poolable {
-
-    public void reset() {
-
-    }
+public class PowerConsumerComponent extends Component {
 
     public PowerConsumerComponent() {
     }

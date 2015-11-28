@@ -1,7 +1,6 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.ComponentMapper;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -516,12 +515,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
 
-            if (playerComponent.equippedPrimaryItem() != null) {
+            if (playerComponent.getEquippedPrimaryItemEntity() != null) {
                 Network.HotbarDropItemRequestFromClient dropItemRequestFromClient = new Network.HotbarDropItemRequestFromClient();
                 dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
                 // decrement count, we assume it'll get spawned shortly. delete in-inventory entity if necessary
                 // server assumes we already do so
-                Entity item = playerComponent.equippedPrimaryItem();
+                Entity item = playerComponent.getEquippedPrimaryItemEntity();
                 ItemComponent itemComponent = itemMapper.get(item);
                 if (itemComponent.stackSize > 1) {
                     //decrement count, server has already done so. we assume here that it went through properly.
@@ -913,7 +912,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             sendHotbarEquipped(index);
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
 
-            Entity itemCopy = playerComponent.equippedPrimaryItem();
+            Entity itemCopy = playerComponent.getEquippedPrimaryItemEntity();
             playerComponent.equippedItemAnimator = itemCopy;
 
             m_world.clientHotbarInventoryItemSelected();

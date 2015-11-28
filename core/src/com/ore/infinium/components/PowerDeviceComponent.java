@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -26,12 +25,7 @@ import com.badlogic.gdx.utils.Pool;
  * A power device is anything that can reside on a circuit. Whether a consumer
  * or a generator.
  */
-public class PowerDeviceComponent extends Component implements Pool.Poolable {
-
-    public void reset() {
-
-    }
-
+public class PowerDeviceComponent extends Component {
     public PowerDeviceComponent() {
     }
 

@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 import com.ore.infinium.OreTimer;
 
 /**
@@ -22,7 +21,7 @@ import com.ore.infinium.OreTimer;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class JumpComponent extends Component implements Pool.Poolable {
+public class JumpComponent extends Component {
 
     //for physics jumping abilities..
     public boolean canJump;
@@ -32,10 +31,6 @@ public class JumpComponent extends Component implements Pool.Poolable {
     //ms, interval between allowed jumps
     public int jumpInterval = 400;
     public OreTimer jumpTimer = new OreTimer();
-
-    public void reset() {
-
-    }
 
     public JumpComponent() {
     }

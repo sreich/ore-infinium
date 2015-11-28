@@ -1,8 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
@@ -25,7 +23,7 @@ import com.ore.infinium.OreTimer;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class PlayerComponent extends Component implements Pool.Poolable {
+public class PlayerComponent extends Component {
     public final static float jumpVelocity = 5.0f;
     public final static float movementSpeed = .8f;
     public final static float maxMovementSpeed = movementSpeed * 1;
@@ -51,13 +49,12 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public LoadedViewport loadedViewport = new LoadedViewport();
     public Inventory hotbarInventory;
     public Inventory inventory;
-    public Entity equippedItemAnimator;
+    public int equippedItemAnimator;
 
-    public Entity equippedPrimaryItem() {
-        return hotbarInventory.item(hotbarInventory.m_selectedSlot);
-    }
-
-    public void reset() {
-
+    /**
+     * @return entity id that is equipped as primary
+     */
+    public int getEquippedPrimaryItemEntity() {
+        return hotbarInventory.itemEntity(hotbarInventory.m_selectedSlot);
     }
 }

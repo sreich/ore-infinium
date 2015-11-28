@@ -1,10 +1,9 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.core.PooledEngine;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.ComponentMapper;
+import com.artemis.WorldConfigurationBuilder;
+import com.artemis.managers.PlayerManager;
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
@@ -19,6 +18,7 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
+import net.mostlyoriginal.plugin.ProfilerPlugin;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -53,6 +53,11 @@ public class World implements Disposable {
     public static final int WORLD_SIZE_X = 1000; //2400
     public static final int WORLD_SIZE_Y = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
+
+    /**
+     * indicates an invalid entity id
+     */
+    public static final int ENTITY_INVALID = -1;
 
     /**
      * looks up the texture prefix name for each block type. e.g. DirtBlockType -> "dirt", etc.
@@ -299,7 +304,6 @@ public class World implements Disposable {
 
     public Block[] blocks;
 
-    public PooledEngine engine;
     public Array<Entity> m_players = new Array<>();
     public Entity m_mainPlayer;
     public OreServer m_server;
@@ -327,23 +331,35 @@ public class World implements Disposable {
     private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
     private ComponentMapper<LightComponent> torchMapper = ComponentMapper.getFor(LightComponent.class);
-    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper = ComponentMapper.getFor(PowerDeviceComponent.class);
-    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper = ComponentMapper.getFor(PowerConsumerComponent.class);
-    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper = ComponentMapper.getFor(PowerGeneratorComponent.class);
+    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper =
+            ComponentMapper.getFor(PowerDeviceComponent.class);
+    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper =
+            ComponentMapper.getFor(PowerConsumerComponent.class);
+    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper =
+            ComponentMapper.getFor(PowerGeneratorComponent.class);
 
     private boolean m_noClipEnabled;
     private Entity m_blockPickingCrosshair;
     Entity m_itemPlacementOverlay;
 
-    private com.artemis.World artemisWorld;
+    private com.artemis.World m_artemisWorld;
 
     public World(OreClient client, OreServer server) {
+
         m_client = client;
         m_server = server;
 
         if (isClient()) {
+            m_artemisWorld = new com.artemis.World(
+                    new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class).with(new TagManager(), new PlayerManager()).build());
+
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
+        } else {
+
+            //hack
+            m_artemisWorld =
+                    new com.artemis.World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class).build());
         }
 
         blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
@@ -388,12 +404,13 @@ public class World implements Disposable {
         }
     }
 
-    //TODO cleanup, can be broken down into various handlers, early returns and handling multiple cases make it convoluted
+    //TODO cleanup, can be broken down into various handlers, early returns and handling multiple cases make it
+    // convoluted
     protected void clientHotbarInventoryItemSelected() {
         assert !isServer();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
-        Entity equippedEntity = playerComponent.equippedPrimaryItem();
+        Entity equippedEntity = playerComponent.getEquippedPrimaryItemEntity();
 
         //if it is here, remove it...we respawn the placement overlay further down either way.
         if (m_itemPlacementOverlay != null) {
@@ -429,7 +446,8 @@ public class World implements Disposable {
             }
         }
 
-        //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its entity)
+        //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its
+        // entity)
         m_itemPlacementOverlay = cloneEntity(equippedEntity);
         ItemComponent itemComponent = itemMapper.get(m_itemPlacementOverlay);
         //transition to the in world state, since the cloned source item was in the inventory state, so to would this
@@ -794,6 +812,7 @@ public class World implements Disposable {
             if (m_mainPlayer == null) {
                 return;
             }
+
 //        playerSprite.sprite.setOriginCenter();
 
 //        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f, playerSprite
@@ -824,7 +843,7 @@ public class World implements Disposable {
 
             if (m_itemPlacementOverlay != null) {
                 SpriteComponent component = spriteMapper.get(m_itemPlacementOverlay);
-                assert component != null :"how the hell does it have no spritecomp?!!";
+                assert component != null : "how the hell does it have no spritecomp?!!";
 
                 assert component.noClip : "placement overlay found to not be in noclip mode!!!";
             }
@@ -839,16 +858,15 @@ public class World implements Disposable {
             //           }
         }
 
-        //todo explicitly call update on systems, me thinks...otherwise the render and update steps are coupled
-        engine.update((float) elapsed);
-
+        m_artemisWorld.setDelta((float) elapsed);
+        m_artemisWorld.process();
     }
 
     private void handleLeftMousePrimaryAttack() {
         Vector2 mouse = mousePositionWorldCoords();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayer);
-        Entity item = playerComponent.equippedPrimaryItem();
+        Entity item = playerComponent.getEquippedPrimaryItemEntity();
         if (item == null) {
             return;
         }
@@ -892,7 +910,7 @@ public class World implements Disposable {
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset();
 
-                attemptItemPlace(mouse.x, mouse.y, playerComponent.equippedPrimaryItem());
+                attemptItemPlace(mouse.x, mouse.y, playerComponent.getEquippedPrimaryItemEntity());
             }
         }
     }
@@ -1185,7 +1203,7 @@ public class World implements Disposable {
                         finalMesh = 3;
                     } else if (topDirt && rightDirt && bottomDirt && leftEmpty) {
                         finalMesh = 4;
-                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty ) {
+                    } else if (leftDirt && topDirt && bottomDirt && rightEmpty) {
                         finalMesh = 5;
                     } else if (topDirt && rightDirt && leftEmpty && bottomEmpty && !topRightEmpty) {
                         finalMesh = 6;
@@ -1340,7 +1358,7 @@ public class World implements Disposable {
     }
 
     public Entity createLight() {
-       Entity light = engine.createEntity();
+        Entity light = engine.createEntity();
         ItemComponent itemComponent = engine.createComponent(ItemComponent.class);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;

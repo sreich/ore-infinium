@@ -1,8 +1,7 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.Component;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.utils.Pool;
 
 /**
  * ***************************************************************************
@@ -22,7 +21,7 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class SpriteComponent extends Component implements Pool.Poolable {
+public class SpriteComponent extends Component {
 
     public Sprite sprite = new Sprite();
 
@@ -38,11 +37,6 @@ public class SpriteComponent extends Component implements Pool.Poolable {
      * or overlaps (useful for ignoring some on-screen client-only items like tooltips, which technically don't exist in the world)
      */
     public boolean noClip = false;
-
-    public void reset() {
-        // eh?, may have to set everything like alpha etc back to normal..
-
-    }
 
     public enum EntityCategory {
         Character,

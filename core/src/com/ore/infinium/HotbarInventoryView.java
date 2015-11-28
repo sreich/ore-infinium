@@ -1,7 +1,7 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -36,15 +36,16 @@ import com.ore.infinium.components.SpriteComponent;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+@Wire
 public class HotbarInventoryView implements Inventory.SlotListener {
     private Skin m_skin;
     private Table container;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxHotbarSlots];
     private OreClient m_client;
 
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<BlockComponent> blockMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
 
     //the model for this view
     private Inventory m_hotbarInventory;
@@ -55,7 +56,8 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     private Label m_tooltip;
     private Stage m_stage;
 
-    public HotbarInventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory, DragAndDrop dragAndDrop, OreClient client) {
+    public HotbarInventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory,
+                               DragAndDrop dragAndDrop, OreClient client) {
         m_skin = skin;
         m_inventory = inventory;
         m_client = client;
@@ -120,7 +122,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
     @Override
     public void countChanged(byte index, Inventory inventory) {
-        ItemComponent itemComponent = itemMapper.get(inventory.item(index));
+        ItemComponent itemComponent = itemMapper.get(inventory.itemEntity(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
@@ -128,14 +130,13 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     public void set(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
 
-
-        Entity item = inventory.item(index);
-        ItemComponent itemComponent = itemMapper.get(item);
+        int itemEntity = inventory.itemEntity(index);
+        ItemComponent itemComponent = itemMapper.get(itemEntity);
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
 
         TextureRegion region;
-        SpriteComponent spriteComponent = spriteMapper.get(item);
-        if (blockMapper.get(item) != null) {
+        SpriteComponent spriteComponent = spriteMapper.get(itemEntity);
+        if (blockMapper.get(itemEntity) != null) {
             //hack
             region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion(spriteComponent.textureName.concat("-00"));
         } else {
@@ -193,7 +194,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
             //invalid drag start, ignore.
-            if (hotbarInventoryView.m_hotbarInventory.item(index) == null) {
+            if (hotbarInventoryView.m_hotbarInventory.itemEntity(index) == World.ENTITY_INVALID) {
                 return null;
             }
 
@@ -245,7 +246,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.m_hotbarInventory.item(index) == null) {
+                if (inventory.m_hotbarInventory.itemEntity(index) == World.ENTITY_INVALID) {
                     //only make it green if the slot is empty
                     return true;
                 }
@@ -265,14 +266,16 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_hotbarInventory.item(this.index) != null) {
+            if (inventory.m_hotbarInventory.itemEntity(this.index) != World.ENTITY_INVALID) {
                 return;
             }
 
             if (dragWrapper.type == Inventory.InventoryType.Hotbar) {
                 //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
-                inventory.m_hotbarInventory.setSlot(this.index, inventory.m_hotbarInventory.item(dragWrapper.dragSourceIndex));
-                inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex, Inventory.InventoryType.Hotbar, index);
+                inventory.m_hotbarInventory
+                        .setSlot(this.index, inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex));
+                inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
+                                                     Inventory.InventoryType.Hotbar, index);
 
                 //remove the source item
                 inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex);
@@ -280,9 +283,11 @@ public class HotbarInventoryView implements Inventory.SlotListener {
                 //main inventory
 
                 //move the item from the source to the dest (from main inventory, to this hotbar inventory)
-                inventory.m_hotbarInventory.setSlot(this.index, inventory.m_inventory.item(dragWrapper.dragSourceIndex));
+                inventory.m_hotbarInventory
+                        .setSlot(this.index, inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
 //HACK?                    inventory.m_previousSelectedSlot = index;
-                inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex, Inventory.InventoryType.Hotbar, index);
+                inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
+                                                     Inventory.InventoryType.Hotbar, index);
 
                 //remove the source item
                 inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex);
@@ -305,15 +310,16 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
         @Override
         public boolean mouseMoved(InputEvent event, float x, float y) {
-            Entity item = inventory.m_hotbarInventory.item(index);
-            if (item != null) {
+            int itemEntity = inventory.m_hotbarInventory.itemEntity(index);
+            if (itemEntity != World.ENTITY_INVALID) {
                 inventory.m_tooltip.setVisible(true);
 
                 inventory.m_tooltip.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY() - 50);
 
-                //fixme, obviously texture name is not a valid tooltip text. we need a real name, but should it be in sprite or item? everything should probably have a canonical name, no?
-                ItemComponent itemComponent = inventory.itemMapper.get(item);
-                SpriteComponent spriteComponent = inventory.spriteMapper.get(item);
+                //fixme, obviously texture name is not a valid tooltip text. we need a real name, but should it be in
+                // sprite or item? everything should probably have a canonical name, no?
+                ItemComponent itemComponent = inventory.itemMapper.get(itemEntity);
+                SpriteComponent spriteComponent = inventory.spriteMapper.get(itemEntity);
                 inventory.m_tooltip.setText(spriteComponent.textureName);
             } else {
                 inventory.m_tooltip.setVisible(false);

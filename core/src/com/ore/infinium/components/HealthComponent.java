@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,15 +20,11 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class HealthComponent extends Component implements Pool.Poolable {
+public class HealthComponent extends Component {
 
     public int maxHealth = 25000;
     //current air level
     public int health = maxHealth;
-
-    public void reset() {
-
-    }
 
     public HealthComponent() {
     }

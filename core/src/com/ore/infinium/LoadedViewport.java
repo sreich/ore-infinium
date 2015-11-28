@@ -1,10 +1,8 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
-import java.util.HashSet;
+import com.badlogic.gdx.utils.IntMap;
 
 /**
  * ***************************************************************************
@@ -46,14 +44,17 @@ public class LoadedViewport {
 
     //x, y, top left. in # of blocks (index units)
     public Rectangle rect;
-    HashSet<Entity> loadedEntities;
+    /**
+     * int entityid
+     */
+    IntMap loadedEntities;
 
     public void setRect(Rectangle _rect) {
         rect = _rect;
     }
 
-    public boolean exists(Entity e) {
-        return loadedEntities.contains(e);
+    public boolean exists(int entity) {
+        return loadedEntities.containsKey(entity);
     }
 
     /**

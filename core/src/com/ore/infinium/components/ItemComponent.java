@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,7 +20,7 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ItemComponent extends Component implements Pool.Poolable {
+public class ItemComponent extends Component {
     //number of items this item has. e.g. 35 wood..things
     public int stackSize;
     //the max a single item stack can hold
@@ -40,10 +39,6 @@ public class ItemComponent extends Component implements Pool.Poolable {
     //flag to indicate the item was *just* dropped this frame and has not yet
     //had velocity integrated yet.
     public boolean justDropped;
-
-    public void reset() {
-
-    }
 
     public enum ItemProperties {
         Placeable,

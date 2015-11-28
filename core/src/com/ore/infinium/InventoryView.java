@@ -1,7 +1,7 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -31,10 +31,11 @@ import com.ore.infinium.components.ItemComponent;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+@Wire
 public class InventoryView implements Inventory.SlotListener {
     public boolean inventoryVisible;
 
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper;
 
     private Skin m_skin;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxSlots];
@@ -127,7 +128,7 @@ public class InventoryView implements Inventory.SlotListener {
 
     @Override
     public void countChanged(byte index, Inventory inventory) {
-        ItemComponent itemComponent = itemMapper.get(inventory.item(index));
+        ItemComponent itemComponent = itemMapper.get(inventory.itemEntity(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
@@ -141,8 +142,8 @@ public class InventoryView implements Inventory.SlotListener {
         slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
         slotImage.setScaling(Scaling.fit);
 
-        Entity item = inventory.item(index);
-        ItemComponent itemComponent = itemMapper.get(item);
+        int itemEntity = inventory.itemEntity(index);
+        ItemComponent itemComponent = itemMapper.get(itemEntity);
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
 
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
@@ -176,7 +177,7 @@ public class InventoryView implements Inventory.SlotListener {
 
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
             //invalid drag start, ignore.
-            if (inventoryView.m_inventory.item(index) == null) {
+            if (inventoryView.m_inventory.itemEntity(index) == World.ENTITY_INVALID) {
                 return null;
             }
 
@@ -228,7 +229,7 @@ public class InventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.m_inventory.item(index) == null) {
+                if (inventory.m_inventory.itemEntity(index) == World.ENTITY_INVALID) {
                     //only make it green if the slot is empty
                     return true;
                 }
@@ -247,10 +248,10 @@ public class InventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_inventory.item(this.index) == null) {
+            if (inventory.m_inventory.itemEntity(this.index) == World.ENTITY_INVALID) {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.m_inventory.setSlot(this.index, inventory.m_inventory.item(dragWrapper.dragSourceIndex));
+                    inventory.m_inventory.setSlot(this.index, inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
                     inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
@@ -259,7 +260,7 @@ public class InventoryView implements Inventory.SlotListener {
                     //hotbar inventory
 
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
-                    inventory.m_inventory.setSlot(this.index, inventory.m_hotbarInventory.item(dragWrapper.dragSourceIndex));
+                    inventory.m_inventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex));
                     inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
 
                     //remove the source item

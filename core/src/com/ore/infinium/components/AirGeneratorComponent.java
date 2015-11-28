@@ -1,7 +1,7 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
+import com.artemis.annotations.PooledWeaver;
 
 /**
  * ***************************************************************************
@@ -21,14 +21,11 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class AirGeneratorComponent extends Component implements Pool.Poolable {
+@PooledWeaver
+public class AirGeneratorComponent extends Component {
 
     //amount that is output per each interval
     public int airOutputRate;
-
-    public void reset() {
-
-    }
 
     public AirGeneratorComponent() {
     }

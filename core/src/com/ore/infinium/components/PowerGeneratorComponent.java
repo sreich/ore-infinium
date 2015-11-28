@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -25,12 +24,7 @@ import com.badlogic.gdx.utils.Pool;
 /**
  * Any device that can generate some amount of power on a circuit
  */
-public class PowerGeneratorComponent extends Component implements Pool.Poolable {
-
-    public void reset() {
-
-    }
-
+public class PowerGeneratorComponent extends Component {
     public PowerGeneratorComponent() {
     }
 

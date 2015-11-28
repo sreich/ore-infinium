@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,15 +20,11 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ToolComponent extends Component implements Pool.Poolable {
+public class ToolComponent extends Component {
 
     public ToolType type = ToolType.Drill;
     public ToolMaterial material = ToolMaterial.Wood;
     public float attackRadius = 10.0f;
-
-    public void reset() {
-
-    }
 
     public enum ToolType {
         Drill,

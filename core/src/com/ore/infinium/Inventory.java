@@ -1,7 +1,7 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.utils.Array;
 import com.ore.infinium.components.ItemComponent;
 
@@ -23,24 +23,33 @@ import com.ore.infinium.components.ItemComponent;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+@Wire
 public class Inventory {
     public static final byte maxHotbarSlots = 8;
     public static final byte maxSlots = 32;
+
     //selection is hotbar only
     public byte m_selectedSlot;
     public byte m_previousSelectedSlot;
-    public Entity owningPlayer; //HACK? unneeded?
+    public int owningPlayer; //HACK? unneeded?
     public InventoryType inventoryType;
     Array<SlotListener> m_listeners = new Array<>();
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private Entity[] m_slots;
+    
+    private ComponentMapper<ItemComponent> itemMapper;
 
-    public Inventory(Entity _owningPlayer) {
+    private int[] m_slots;
+
+    /**
+     *
+     * @param _owningPlayer entity id of player who owns this inventory
+     */
+    public Inventory(int _owningPlayer) {
         if (inventoryType == InventoryType.Hotbar) {
-            m_slots = new Entity[maxHotbarSlots];
+            m_slots = new int[maxHotbarSlots];
         } else {
-            m_slots = new Entity[maxSlots];
+            m_slots = new int[maxSlots];
         }
+
         owningPlayer = _owningPlayer;
     }
 
@@ -65,7 +74,12 @@ public class Inventory {
         }
     }
 
-    public void setSlot(byte index, Entity entity) {
+    /**
+     * replaces the slot at @p index with @p entity id
+     * @param index
+     * @param entity
+     */
+    public void setSlot(byte index, int entity) {
         m_slots[index] = entity;
 
         for (SlotListener listener : m_listeners) {
@@ -73,18 +87,28 @@ public class Inventory {
         }
     }
 
-    public Entity takeItem(byte index) {
-        Entity tmp = m_slots[index];
-        m_slots[index] = null;
+    /**
+     *
+     * @param index
+     * @return entity id of the item taken
+     */
+    public int takeItem(byte index) {
+        int tmpItem = m_slots[index];
+        m_slots[index] = World.ENTITY_INVALID;
 
         for (SlotListener listener : m_listeners) {
             listener.removed(index, this);
         }
 
-        return tmp;
+        return tmpItem;
     }
 
-    public Entity item(byte index) {
+    /**
+     *
+     * @param index
+     * @return entity id at index
+     */
+    public int itemEntity(byte index) {
         return m_slots[index];
     }
 
