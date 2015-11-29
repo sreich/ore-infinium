@@ -45,7 +45,7 @@ import java.util.Set;
  * ***************************************************************************
  */
 @Wire
-public class World implements Disposable {
+public class OreWorld implements Disposable {
     public static final float PIXELS_PER_METER = 50.0f;
     public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 3.0f;
     public static final float GRAVITY_ACCEL_CLAMP = 9.8f / PIXELS_PER_METER / 3.0f;
@@ -370,7 +370,7 @@ public class World implements Disposable {
 
     private com.artemis.World m_artemisWorld;
 
-    public World(OreClient client, OreServer server) {
+    public OreWorld(OreClient client, OreServer server) {
 
         m_client = client;
         m_server = server;
@@ -399,9 +399,9 @@ public class World implements Disposable {
         //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
         //        assetManager.finishLoading();
 
-        m_camera =
-                new OrthographicCamera(1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
-        m_camera.setToOrtho(true, 1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);
+        m_camera = new OrthographicCamera(1600 / OreWorld.PIXELS_PER_METER,
+                                          900 / OreWorld.PIXELS_PER_METER);//30, 30 * (h / w));
+        m_camera.setToOrtho(true, 1600 / OreWorld.PIXELS_PER_METER, 900 / OreWorld.PIXELS_PER_METER);
 
         //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
 
@@ -524,10 +524,10 @@ public class World implements Disposable {
         playerComponent.playerName = playerName;
         playerComponent.loadedViewport.setRect(
                 new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
-        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX() / World.BLOCK_SIZE,
-                                                            playerSprite.sprite.getY() / World.BLOCK_SIZE));
+        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX() / OreWorld.BLOCK_SIZE,
+                                                            playerSprite.sprite.getY() / OreWorld.BLOCK_SIZE));
 
-        playerSprite.sprite.setSize(World.BLOCK_SIZE * 2, World.BLOCK_SIZE * 3);
+        playerSprite.sprite.setSize(OreWorld.BLOCK_SIZE * 2, OreWorld.BLOCK_SIZE * 3);
         controlMapper.create(playerEntity);
 
         playerSprite.textureName = "player1Standing1";
@@ -1374,7 +1374,7 @@ public class World implements Disposable {
         blockSprite.textureName = blockTypes.get(blockComponent.blockType).textureName;
 
         //warning fixme size is fucked
-        blockSprite.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
+        blockSprite.sprite.setSize(32 / OreWorld.PIXELS_PER_METER, 32 / OreWorld.PIXELS_PER_METER);
 
         ItemComponent itemComponent = itemMapper.create(block);
         itemComponent.stackSize = 800;

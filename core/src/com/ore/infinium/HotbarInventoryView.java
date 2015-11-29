@@ -103,7 +103,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             slotTable.add(itemCount).bottom().fill();
             element.itemCountLabel = itemCount;
 
-//            container.add(slotTable).size(50, 50);
+            //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50, 50);
             setHotbarSlotVisible(i, false);
 
@@ -144,7 +144,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         }
 
         Image slotImage = slot.itemImage;
-//        //m_blockAtlas.findRegion("stone"));
+        //        //m_blockAtlas.findRegion("stone"));
         slotImage.setDrawable(new TextureRegionDrawable(region));
         slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
         slotImage.setScaling(Scaling.fit);
@@ -160,7 +160,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     public void removed(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
         //       slot.itemImage.setDrawable(null);
-//        slot.itemCountLabel.setText(null);
+        //        slot.itemCountLabel.setText(null);
         setHotbarSlotVisible(index, false);
     }
 
@@ -194,7 +194,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
             //invalid drag start, ignore.
-            if (hotbarInventoryView.m_hotbarInventory.itemEntity(index) == World.ENTITY_INVALID) {
+            if (hotbarInventoryView.m_hotbarInventory.itemEntity(index) == OreWorld.ENTITY_INVALID) {
                 return null;
             }
 
@@ -246,7 +246,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.m_hotbarInventory.itemEntity(index) == World.ENTITY_INVALID) {
+                if (inventory.m_hotbarInventory.itemEntity(index) == OreWorld.ENTITY_INVALID) {
                     //only make it green if the slot is empty
                     return true;
                 }
@@ -266,14 +266,14 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_hotbarInventory.itemEntity(this.index) != World.ENTITY_INVALID) {
+            if (inventory.m_hotbarInventory.itemEntity(this.index) != OreWorld.ENTITY_INVALID) {
                 return;
             }
 
             if (dragWrapper.type == Inventory.InventoryType.Hotbar) {
                 //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
-                inventory.m_hotbarInventory
-                        .setSlot(this.index, inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex));
+                inventory.m_hotbarInventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(
+                        dragWrapper.dragSourceIndex));
                 inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
                                                      Inventory.InventoryType.Hotbar, index);
 
@@ -283,9 +283,9 @@ public class HotbarInventoryView implements Inventory.SlotListener {
                 //main inventory
 
                 //move the item from the source to the dest (from main inventory, to this hotbar inventory)
-                inventory.m_hotbarInventory
-                        .setSlot(this.index, inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
-//HACK?                    inventory.m_previousSelectedSlot = index;
+                inventory.m_hotbarInventory.setSlot(this.index,
+                                                    inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
+                //HACK?                    inventory.m_previousSelectedSlot = index;
                 inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
                                                      Inventory.InventoryType.Hotbar, index);
 
@@ -311,7 +311,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         @Override
         public boolean mouseMoved(InputEvent event, float x, float y) {
             int itemEntity = inventory.m_hotbarInventory.itemEntity(index);
-            if (itemEntity != World.ENTITY_INVALID) {
+            if (itemEntity != OreWorld.ENTITY_INVALID) {
                 inventory.m_tooltip.setVisible(true);
 
                 inventory.m_tooltip.setPosition(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY() - 50);

@@ -5,7 +5,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
-import com.ore.infinium.World;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
@@ -28,7 +28,7 @@ import com.ore.infinium.components.*;
  */
 @Wire
 public class PowerCircuitSystem extends BaseSystem {
-    private World m_world;
+    private OreWorld m_world;
 
     /**
      * Contains each circuit
@@ -96,7 +96,7 @@ public class PowerCircuitSystem extends BaseSystem {
     private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
 
-    public PowerCircuitSystem(World world) {
+    public PowerCircuitSystem(OreWorld world) {
         m_world = world;
     }
 

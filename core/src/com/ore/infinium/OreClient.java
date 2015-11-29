@@ -59,7 +59,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public BitmapFont bitmapFont_8pt;
     public boolean leftMouseDown;
     public StretchViewport viewport;
-    protected World m_world;
+    protected OreWorld m_world;
     FreeTypeFontGenerator m_fontGenerator;
 
     private ComponentMapper<PlayerComponent> playerMapper;
@@ -100,7 +100,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private ScreenViewport m_viewport;
 
-    private int m_mainPlayerEntity = World.ENTITY_INVALID;
+    private int m_mainPlayerEntity = OreWorld.ENTITY_INVALID;
 
     private Client m_clientKryo;
     private OreServer m_server;
@@ -331,12 +331,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_font.draw(m_batch, drawCallsString, 0, textY);
             textY -= 15;
 
-            if (m_world != null && m_mainPlayerEntity != World.ENTITY_INVALID) {
+            if (m_world != null && m_mainPlayerEntity != OreWorld.ENTITY_INVALID) {
                 Vector2 mousePos = m_world.mousePositionWorldCoords();
                 Block block = m_world.blockAtPosition(mousePos);
 
-                int x = (int) (mousePos.x / World.BLOCK_SIZE);
-                int y = (int) (mousePos.y / World.BLOCK_SIZE);
+                int x = (int) (mousePos.x / OreWorld.BLOCK_SIZE);
+                int y = (int) (mousePos.y / OreWorld.BLOCK_SIZE);
 
                 String texture = "";
 
@@ -533,7 +533,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         } else if (keycode == Input.Keys.E) {
             //power overlay
             m_world.m_powerOverlaySystem.overlayVisible = !m_world.m_powerOverlaySystem.overlayVisible;
-            if (m_world.m_itemPlacementOverlayEntity != World.ENTITY_INVALID) {
+            if (m_world.m_itemPlacementOverlayEntity != OreWorld.ENTITY_INVALID) {
                 spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible =
                         !m_world.m_powerOverlaySystem.overlayVisible;
             }
@@ -732,7 +732,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
                 if (m_mainPlayerEntity == null) {
 
-                    m_world = new World(this, null);
+                    m_world = new OreWorld(this, null);
 
                     m_mainPlayerEntity = createPlayer(spawn.playerName, m_clientKryo.getID());
                     SpriteComponent spriteComp = spriteMapper.get(m_mainPlayerEntity);

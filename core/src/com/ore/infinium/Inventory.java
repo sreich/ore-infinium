@@ -34,14 +34,14 @@ public class Inventory {
     public int owningPlayer; //HACK? unneeded?
     public InventoryType inventoryType;
     Array<SlotListener> m_listeners = new Array<>();
-    
+
     private ComponentMapper<ItemComponent> itemMapper;
 
     private int[] m_slots;
 
     /**
-     *
-     * @param _owningPlayer entity id of player who owns this inventory
+     * @param _owningPlayer
+     *         entity id of player who owns this inventory
      */
     public Inventory(int _owningPlayer) {
         if (inventoryType == InventoryType.Hotbar) {
@@ -76,6 +76,7 @@ public class Inventory {
 
     /**
      * replaces the slot at @p index with @p entity id
+     *
      * @param index
      * @param entity
      */
@@ -88,13 +89,13 @@ public class Inventory {
     }
 
     /**
-     *
      * @param index
+     *
      * @return entity id of the item taken
      */
     public int takeItem(byte index) {
         int tmpItem = m_slots[index];
-        m_slots[index] = World.ENTITY_INVALID;
+        m_slots[index] = OreWorld.ENTITY_INVALID;
 
         for (SlotListener listener : m_listeners) {
             listener.removed(index, this);
@@ -104,8 +105,8 @@ public class Inventory {
     }
 
     /**
-     *
      * @param index
+     *
      * @return entity id at index
      */
     public int itemEntity(byte index) {

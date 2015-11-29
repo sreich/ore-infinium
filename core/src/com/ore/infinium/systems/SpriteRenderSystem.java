@@ -3,7 +3,7 @@ package com.ore.infinium.systems;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.ore.infinium.World;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
@@ -27,7 +27,7 @@ import com.ore.infinium.components.*;
 public class SpriteRenderSystem extends EntitySystem {
     public static int spriteCount;
 
-    private World m_world;
+    private OreWorld m_world;
     private SpriteBatch m_batch;
 
     private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
@@ -38,7 +38,7 @@ public class SpriteRenderSystem extends EntitySystem {
     private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
     private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
 
-    public SpriteRenderSystem(World world) {
+    public SpriteRenderSystem(OreWorld world) {
         m_world = world;
     }
 
@@ -54,7 +54,7 @@ public class SpriteRenderSystem extends EntitySystem {
 
     @Override
     public void update(float delta) {
-//        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.begin();
 

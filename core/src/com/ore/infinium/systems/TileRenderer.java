@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntMap;
 import com.ore.infinium.Block;
-import com.ore.infinium.World;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
@@ -39,7 +39,7 @@ public class TileRenderer extends IntervalSystem {
 
     float elapsed;
 
-    private World m_world;
+    private OreWorld m_world;
     private OrthographicCamera m_camera;
 
     private SpriteBatch m_batch;
@@ -56,7 +56,7 @@ public class TileRenderer extends IntervalSystem {
     public IntMap<String> stoneBlockMeshes;
     public IntMap<String> grassBlockMeshes;
 
-    public TileRenderer(OrthographicCamera camera, World world, float interval) {
+    public TileRenderer(OrthographicCamera camera, OreWorld world, float interval) {
         super(interval);
         elapsed = interval;
 
@@ -108,19 +108,21 @@ public class TileRenderer extends IntervalSystem {
         m_batch.setProjectionMatrix(m_camera.combined);
         SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayerEntity);
 
-        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0); //new Vector3(100, 200, 0);//positionComponent->position();
-        int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
-        int tilesBeforeY = (int) (playerPosition.y / World.BLOCK_SIZE);
+        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(),
+                                             0); //new Vector3(100, 200, 0);//positionComponent->position();
+        int tilesBeforeX = (int) (playerPosition.x / OreWorld.BLOCK_SIZE);
+        int tilesBeforeY = (int) (playerPosition.y / OreWorld.BLOCK_SIZE);
 
         // determine what the size of the tiles are but convert that to our zoom level
-        final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
+        final Vector3 tileSize = new Vector3(OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, 0);
         tileSize.mul(m_camera.combined);
 
-        final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
+        final int tilesInView =
+                (int) (m_camera.viewportHeight / OreWorld.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
         final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
-        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_SIZE_X);
-        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_SIZE_Y);
+        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, OreWorld.WORLD_SIZE_X);
+        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, OreWorld.WORLD_SIZE_Y);
       /*
       if (Math.abs(startX) != startX) {
           //qCDebug(ORE_TILE_RENDERER) << "FIXME, WENT INTO NEGATIVE COLUMN!!";
@@ -143,8 +145,8 @@ public class TileRenderer extends IntervalSystem {
 
                 Block block = m_world.blockAt(x, y);
 
-                float tileX = World.BLOCK_SIZE * (float) x;
-                float tileY = World.BLOCK_SIZE * (float) y;
+                float tileX = OreWorld.BLOCK_SIZE * (float) x;
+                float tileY = OreWorld.BLOCK_SIZE * (float) y;
 
                 boolean drawWallTile = false;
 
@@ -177,11 +179,12 @@ public class TileRenderer extends IntervalSystem {
                     m_batch.setColor(0.5f, 0.5f, 0.5f, 1);
                 }
 
-                //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some* scenarios..)
+                //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some*
+                // scenarios..)
                 if (!drawWallTile) {
                     region = m_tilesAtlas.findRegion(textureName);
 
-                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                    m_batch.draw(region, tileX, tileY, OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE);
 
                 } else {
                     //draw walls
@@ -189,7 +192,7 @@ public class TileRenderer extends IntervalSystem {
                     textureName = dirtBlockMeshes.get(0);
                     assert textureName != null : "block mesh lookup failure type: " + block.meshType;
                     region = m_tilesAtlas.findRegion(textureName);
-                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                    m_batch.draw(region, tileX, tileY, OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE);
 
                 }
 

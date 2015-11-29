@@ -44,7 +44,7 @@ public class OreServer implements Runnable {
     public CountDownLatch shutdownLatch = new CountDownLatch(1);
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
 
-    protected World m_world;
+    protected OreWorld m_world;
 
     private Server m_serverKryo;
 
@@ -99,7 +99,7 @@ public class OreServer implements Runnable {
             } catch (BindException e) {
 
             }
-            m_world = new World(null, this);
+            m_world = new OreWorld(null, this);
             m_chat = new Chat();
             m_chat.addListener(new Chat.ChatListener() {
                 @Override
@@ -174,14 +174,14 @@ public class OreServer implements Runnable {
 
         //TODO:make better server player first-spawning code
         //TODO: (much later) make it try to load the player position from previous world data, if any.
-        float posX = 2600.0f / World.PIXELS_PER_METER;
-        float posY = 2 * World.BLOCK_SIZE; //start at the overground
+        float posX = 2600.0f / OreWorld.PIXELS_PER_METER;
+        float posY = 2 * OreWorld.BLOCK_SIZE; //start at the overground
 
-        int tilex = (int) (posX / World.BLOCK_SIZE);
-        int tiley = (int) (posY / World.BLOCK_SIZE);
+        int tilex = (int) (posX / OreWorld.BLOCK_SIZE);
+        int tiley = (int) (posY / OreWorld.BLOCK_SIZE);
 
         //HACK for collision test
-        posY = 24 * World.BLOCK_SIZE;
+        posY = 24 * OreWorld.BLOCK_SIZE;
 
         final int seaLevel = m_world.seaLevel();
 
@@ -247,7 +247,7 @@ public class OreServer implements Runnable {
         toolSprite.textureName = "drill";
 
         //warning fixme size is fucked
-        toolSprite.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
+        toolSprite.sprite.setSize(32 / OreWorld.PIXELS_PER_METER, 32 / OreWorld.PIXELS_PER_METER);
         tool.add(toolSprite);
 
         ItemComponent itemComponent = m_world.engine.createComponent(ItemComponent.class);

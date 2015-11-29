@@ -7,7 +7,7 @@ import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
-import com.ore.infinium.World;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
@@ -30,7 +30,7 @@ import com.ore.infinium.components.*;
  */
 @Wire
 public class PlayerSystem extends IteratingSystem {
-    private World m_world;
+    private OreWorld m_world;
 
     private ComponentMapper<PlayerComponent> playerMapper;
     private ComponentMapper<SpriteComponent> spriteMapper;
@@ -41,7 +41,7 @@ public class PlayerSystem extends IteratingSystem {
 
     private OreTimer chunkTimer = new OreTimer();
 
-    public PlayerSystem(World world) {
+    public PlayerSystem(OreWorld world) {
         super(Aspect.one(PlayerComponent.class));
 
         m_world = world;

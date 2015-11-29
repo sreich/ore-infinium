@@ -62,8 +62,8 @@ public class LoadedViewport {
      *         center point
      */
     public void centerOn(Vector2 pos) {
-        pos.x /= World.BLOCK_SIZE;
-        pos.y /= World.BLOCK_SIZE;
+        pos.x /= OreWorld.BLOCK_SIZE;
+        pos.y /= OreWorld.BLOCK_SIZE;
 
         float halfWidth = (MAX_VIEWPORT_WIDTH / 2);
         float halfHeight = (MAX_VIEWPORT_HEIGHT / 2);
@@ -71,8 +71,8 @@ public class LoadedViewport {
         rect.x = Math.max(0.0f, pos.x - halfWidth);
         rect.y = Math.max(0.0f, pos.y - halfHeight);
 
-        rect.width = Math.min(World.WORLD_SIZE_X, pos.x + (halfWidth));
-        rect.height = Math.min(World.WORLD_SIZE_Y, pos.y + (halfHeight));
+        rect.width = Math.min(OreWorld.WORLD_SIZE_X, pos.x + (halfWidth));
+        rect.height = Math.min(OreWorld.WORLD_SIZE_Y, pos.y + (halfHeight));
     }
 
     public boolean contains(Vector2 pos) {

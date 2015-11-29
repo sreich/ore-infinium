@@ -6,7 +6,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.ore.infinium.World;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
@@ -29,7 +29,7 @@ import com.ore.infinium.components.*;
  */
 @Wire
 public class MovementSystem extends IteratingSystem {
-    private World m_world;
+    private OreWorld m_world;
 
     private ComponentMapper<PlayerComponent> playerMapper;
     private ComponentMapper<SpriteComponent> spriteMapper;
@@ -38,7 +38,7 @@ public class MovementSystem extends IteratingSystem {
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
 
-    public MovementSystem(World world) {
+    public MovementSystem(OreWorld world) {
         super(Aspect.all(SpriteComponent.class, VelocityComponent.class));
         m_world = world;
     }
@@ -90,7 +90,7 @@ public class MovementSystem extends IteratingSystem {
         final Vector2 desiredDirection = controlMapper.get(entity).desiredDirection;
 
         //acceleration due to gravity
-        Vector2 acceleration = new Vector2(desiredDirection.x * PlayerComponent.movementSpeed, World.GRAVITY_ACCEL);
+        Vector2 acceleration = new Vector2(desiredDirection.x * PlayerComponent.movementSpeed, OreWorld.GRAVITY_ACCEL);
 
         JumpComponent jumpComponent = jumpMapper.get(entity);
         if (jumpComponent.canJump && jumpComponent.shouldJump) {
@@ -161,20 +161,20 @@ public class MovementSystem extends IteratingSystem {
 
         Vector2 itemPosition = new Vector2(itemSpriteComponent.sprite.getX(), itemSpriteComponent.sprite.getY());
 
-        int x = (int) (itemPosition.x / World.BLOCK_SIZE);
-        int y = (int) (itemPosition.y / World.BLOCK_SIZE);
+        int x = (int) (itemPosition.x / OreWorld.BLOCK_SIZE);
+        int y = (int) (itemPosition.y / OreWorld.BLOCK_SIZE);
 
         int playerEntityWhoDropped = m_world.playerForID(itemComponent.playerIdWhoDropped);
 
         VelocityComponent playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped);
         Vector2 playerVelocity = new Vector2(playerVelocityComponent.velocity);
 
-        Vector2 acceleration = new Vector2(0.0f, World.GRAVITY_ACCEL);
+        Vector2 acceleration = new Vector2(0.0f, OreWorld.GRAVITY_ACCEL);
 
         if (itemComponent.justDropped) {
             //acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
             acceleration.x += 2;//Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
-            acceleration.y += -World.GRAVITY_ACCEL * 8.0f;
+            acceleration.y += -OreWorld.GRAVITY_ACCEL * 8.0f;
 
             //only add player velocity the firstEntity tick, as soon as they drop it.
             itemComponent.justDropped = false;
@@ -192,7 +192,7 @@ public class MovementSystem extends IteratingSystem {
         //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
         // .GRAVITY_ACCEL_CLAMP);
         itemNewVelocity.y =
-                MathUtils.clamp(itemNewVelocity.y, -World.GRAVITY_ACCEL_CLAMP * 10, World.GRAVITY_ACCEL_CLAMP);
+                MathUtils.clamp(itemNewVelocity.y, -OreWorld.GRAVITY_ACCEL_CLAMP * 10, OreWorld.GRAVITY_ACCEL_CLAMP);
 
         //clamp both axes between some max/min values..
         //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2
@@ -238,11 +238,11 @@ public class MovementSystem extends IteratingSystem {
         final Vector2 sizeMeters = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
         //FIXME: this whole thing needs a way better solution, it's horrible.
-        final float epsilon = World.BLOCK_SIZE * 0.01f;
-        int leftX = (int) ((desiredPosition.x - sizeMeters.x * 0.5f) / World.BLOCK_SIZE);
-        int rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)) / World.BLOCK_SIZE);
-        int topY = (int) ((desiredPosition.y - sizeMeters.y * 0.5f) / World.BLOCK_SIZE);
-        int bottomY = (int) ((desiredPosition.y + (sizeMeters.y * 0.5f)) / World.BLOCK_SIZE);
+        final float epsilon = OreWorld.BLOCK_SIZE * 0.01f;
+        int leftX = (int) ((desiredPosition.x - sizeMeters.x * 0.5f) / OreWorld.BLOCK_SIZE);
+        int rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)) / OreWorld.BLOCK_SIZE);
+        int topY = (int) ((desiredPosition.y - sizeMeters.y * 0.5f) / OreWorld.BLOCK_SIZE);
+        int bottomY = (int) ((desiredPosition.y + (sizeMeters.y * 0.5f)) / OreWorld.BLOCK_SIZE);
 
         int oldTopY = topY;
 
@@ -259,7 +259,7 @@ public class MovementSystem extends IteratingSystem {
                     velocity.x = 0.0f;
                     collision = true;
 
-                    float tileRight = World.BLOCK_SIZE * (rightX - 0);
+                    float tileRight = OreWorld.BLOCK_SIZE * (rightX - 0);
 
                     //HACK: super small threshold to prevent sticking to right side,
                     //i dont know why this isn't the same case as all the others. i feel like something
@@ -276,7 +276,7 @@ public class MovementSystem extends IteratingSystem {
                     velocity.x = 0.0f;
                     collision = true;
 
-                    float tileLeft = World.BLOCK_SIZE * (leftX + 1);
+                    float tileLeft = OreWorld.BLOCK_SIZE * (leftX + 1);
                     desiredPosition.x = tileLeft + (sizeMeters.x * 0.5f) + epsilon;
                     break;
                 } // else noop, move freely
@@ -286,8 +286,8 @@ public class MovementSystem extends IteratingSystem {
         topY = oldTopY;
         // recalculate startx, etc. now that we reperformed x position
         // y was not touched, so no need
-        leftX = (int) ((desiredPosition.x - (sizeMeters.x * 0.5f)) / World.BLOCK_SIZE);
-        rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)) / World.BLOCK_SIZE);
+        leftX = (int) ((desiredPosition.x - (sizeMeters.x * 0.5f)) / OreWorld.BLOCK_SIZE);
+        rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)) / OreWorld.BLOCK_SIZE);
         collision = false;
 
         //qCDebug(ORE_IMPORTANT) << "y collision test: bottomy: " << bottomY << " leftX: " << leftX << " topY: " <<
@@ -304,7 +304,7 @@ public class MovementSystem extends IteratingSystem {
                     collision = true;
 
                     //indexes are top-left remember, due to how it's rendered and such.
-                    float tileTop = World.BLOCK_SIZE * (bottomY);
+                    float tileTop = OreWorld.BLOCK_SIZE * (bottomY);
                     desiredPosition.y = tileTop - (sizeMeters.y * 0.5f);
                     break;
                 } // else noop, move freely
@@ -318,7 +318,7 @@ public class MovementSystem extends IteratingSystem {
                     collision = true;
 
                     //indexes are top-left remember, due to how it's rendered and such.
-                    float tileBottom = World.BLOCK_SIZE * (topY + 0);
+                    float tileBottom = OreWorld.BLOCK_SIZE * (topY + 0);
                     desiredPosition.y = tileBottom + (sizeMeters.y * 0.5f) + epsilon;
                     break;
                 } // else noop, move freely

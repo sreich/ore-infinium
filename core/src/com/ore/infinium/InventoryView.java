@@ -49,7 +49,8 @@ public class InventoryView implements Inventory.SlotListener {
     private Inventory m_hotbarInventory;
     private Window m_window;
 
-    public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory, DragAndDrop dragAndDrop, OreClient client) {
+    public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory,
+                         DragAndDrop dragAndDrop, OreClient client) {
         m_skin = skin;
         m_inventory = inventory;
         m_client = client;
@@ -69,7 +70,7 @@ public class InventoryView implements Inventory.SlotListener {
         //HACK;not centering or anythign, all hardcoded :(
         m_window.setPosition(900, 100);
         m_window.top().right().setSize(400, 500);
-//        window.defaults().space(4);
+        //        window.defaults().space(4);
         //window.pack();
         m_window.add(container).fill().expand();
 
@@ -101,7 +102,7 @@ public class InventoryView implements Inventory.SlotListener {
                 element.itemCountLabel = itemName;
 
                 container.add(slotTable).size(50, 50);
-//            window.add(slotTable).fill().size(50, 50);
+                //            window.add(slotTable).fill().size(50, 50);
 
                 dragAndDrop.addSource(new InventoryDragSource(slotTable, i, dragImage, this));
 
@@ -110,7 +111,6 @@ public class InventoryView implements Inventory.SlotListener {
 
             container.row();
         }
-
 
         stage.addActor(m_window);
         setVisible(false);
@@ -177,7 +177,7 @@ public class InventoryView implements Inventory.SlotListener {
 
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
             //invalid drag start, ignore.
-            if (inventoryView.m_inventory.itemEntity(index) == World.ENTITY_INVALID) {
+            if (inventoryView.m_inventory.itemEntity(index) == OreWorld.ENTITY_INVALID) {
                 return null;
             }
 
@@ -229,7 +229,7 @@ public class InventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.m_inventory.itemEntity(index) == World.ENTITY_INVALID) {
+                if (inventory.m_inventory.itemEntity(index) == OreWorld.ENTITY_INVALID) {
                     //only make it green if the slot is empty
                     return true;
                 }
@@ -248,11 +248,13 @@ public class InventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_inventory.itemEntity(this.index) == World.ENTITY_INVALID) {
+            if (inventory.m_inventory.itemEntity(this.index) == OreWorld.ENTITY_INVALID) {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.m_inventory.setSlot(this.index, inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
-                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
+                    inventory.m_inventory.setSlot(this.index,
+                                                  inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
+                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
+                                                         Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex);
@@ -260,8 +262,10 @@ public class InventoryView implements Inventory.SlotListener {
                     //hotbar inventory
 
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
-                    inventory.m_inventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex));
-                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
+                    inventory.m_inventory.setSlot(this.index,
+                                                  inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex));
+                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
+                                                         Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex);
