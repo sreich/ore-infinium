@@ -359,7 +359,7 @@ public class World implements Disposable {
     private ComponentMapper<ToolComponent> toolMapper;
     private ComponentMapper<AirComponent> airMapper;
     private ComponentMapper<HealthComponent> healthMapper;
-    private ComponentMapper<LightComponent> torchMapper;
+    private ComponentMapper<LightComponent> lightMapper;
     private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
     private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
@@ -1359,8 +1359,8 @@ public class World implements Disposable {
     }
 
     /**
-     *
-     * @param block block entity id
+     * @param block
+     *         block entity id
      * @param blockType
      */
     public void createBlockItem(int block, byte blockType) {
@@ -1442,8 +1442,9 @@ public class World implements Disposable {
     }
 
     /**
+     * @param entity
+     *         entity id
      *
-     * @param entity entity id
      * @return true if the item can be placed where it currently resides, without any obstructions
      */
     private boolean isPlacementValid(int entity) {
@@ -1500,9 +1501,8 @@ public class World implements Disposable {
                 }
             }
 
-
-//            if ( m_artemisWorld.getSystem(TagManager.class).getTag(entities.get(i)) != null) {
- //           }
+            //            if ( m_artemisWorld.getSystem(TagManager.class).getTag(entities.get(i)) != null) {
+            //           }
 
             SpriteComponent entitySpriteComponent = spriteMapper.get(entities.get(i));
             // possible colliding object is not meant to be collided with. skip it/don't count it
@@ -1597,98 +1597,63 @@ public class World implements Disposable {
         int clonedEntity = m_artemisWorld.create();
 
         //sorted alphabetically for your pleasure
-        AirComponent airComponent = airMapper.get(entity);
-        if (airComponent != null) {
-            AirComponent clonedComponent = new AirComponent(airComponent);
-
-            clonedEntity.add(clonedComponent);
+        if (airMapper.has(entity)) {
+            airMapper.create(clonedEntity);
         }
 
-        AirGeneratorComponent airGeneratorComponent = airGeneratorMapper.get(entity);
-        if (airGeneratorComponent != null) {
-            AirGeneratorComponent clonedComponent = new AirGeneratorComponent(airGeneratorComponent);
-            clonedEntity.add(clonedComponent);
+        if (airGeneratorMapper.has(entity)) {
+            airGeneratorMapper.create(clonedEntity);
         }
 
-        BlockComponent blockComponent = blockMapper.get(entity);
-        if (blockComponent != null) {
-            BlockComponent clonedComponent = new BlockComponent(blockComponent);
-            clonedEntity.add(clonedComponent);
+        if (blockMapper.has(entity)) {
+            blockMapper.create(clonedEntity);
         }
 
-        ControllableComponent controllableComponent = controlMapper.get(entity);
-        if (controllableComponent != null) {
-            ControllableComponent clonedComponent = new ControllableComponent(controllableComponent);
-            clonedEntity.add(clonedComponent);
+        if (controlMapper.has(entity)) {
+            controlMapper.create(clonedEntity);
         }
 
-        HealthComponent healthComponent = healthMapper.get(entity);
-        if (healthComponent != null) {
-            HealthComponent clonedComponent = new HealthComponent(healthComponent);
-            clonedEntity.add(clonedComponent);
+        if (healthMapper.has(entity)) {
+            healthMapper.create(clonedEntity);
         }
 
-        ItemComponent itemComponent = itemMapper.get(entity);
-        if (itemComponent != null) {
-            ItemComponent clonedComponent = new ItemComponent(itemComponent);
-            clonedEntity.add(clonedComponent);
+        if (itemMapper.has(entity)) {
+            itemMapper.create(clonedEntity);
         }
 
-        JumpComponent jumpComponent = jumpMapper.get(entity);
-        if (jumpComponent != null) {
-            JumpComponent clonedComponent = new JumpComponent(jumpComponent);
-            clonedEntity.add(clonedComponent);
+        if (jumpMapper.has(entity)) {
+            jumpMapper.create(clonedEntity);
         }
 
         //player, unneeded
         assert playerMapper.get(entity) == null;
 
-        SpriteComponent spriteComponent = spriteMapper.get(entity);
-        if (spriteComponent != null) {
-            SpriteComponent clonedComponent = new SpriteComponent(spriteComponent);
-            clonedEntity.add(clonedComponent);
+        if (spriteMapper.has(entity)) {
+            spriteMapper.create(clonedEntity);
         }
 
-        TagComponent tagComponent = tagMapper.get(entity);
-        if (tagComponent != null) {
-            TagComponent clonedComponent = new TagComponent(tagComponent);
-            clonedEntity.add(clonedComponent);
+        if (toolMapper.has(entity)) {
+            toolMapper.create(clonedEntity);
         }
 
-        ToolComponent toolComponent = toolMapper.get(entity);
-        if (toolComponent != null) {
-            ToolComponent clonedComponent = new ToolComponent(toolComponent);
-            clonedEntity.add(clonedComponent);
+        if (lightMapper.has(entity)) {
+            lightMapper.create(clonedEntity);
         }
 
-        LightComponent lightComponent = torchMapper.get(entity);
-        if (lightComponent != null) {
-            LightComponent clonedComponent = new LightComponent(lightComponent);
-            clonedEntity.add(clonedComponent);
+        if (velocityMapper.has(entity)) {
+            velocityMapper.create(clonedEntity);
         }
 
-        VelocityComponent velocityComponent = velocityMapper.get(entity);
-        if (velocityComponent != null) {
-            VelocityComponent clonedComponent = new VelocityComponent(velocityComponent);
-            clonedEntity.add(clonedComponent);
+        if (powerDeviceMapper.has(entity)) {
+            powerDeviceMapper.create(clonedEntity);
         }
 
-        PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.get(entity);
-        if (powerDeviceComponent != null) {
-            PowerDeviceComponent clonedComponent = new PowerDeviceComponent(powerDeviceComponent);
-            clonedEntity.add(clonedComponent);
+        if (powerConsumerMapper.has(entity)) {
+            powerConsumerMapper.create(clonedEntity);
         }
 
-        PowerConsumerComponent powerConsumerComponent = powerConsumerMapper.get(entity);
-        if (powerConsumerComponent != null) {
-            PowerConsumerComponent clonedComponent = new PowerConsumerComponent(powerConsumerComponent);
-            clonedEntity.add(clonedComponent);
-        }
-
-        PowerGeneratorComponent powerGeneratorComponent = powerGeneratorMapper.get(entity);
-        if (powerGeneratorComponent != null) {
-            PowerGeneratorComponent clonedComponent = new PowerGeneratorComponent(powerGeneratorComponent);
-            clonedEntity.add(clonedComponent);
+        if (powerGeneratorMapper.has(entity)) {
+            powerGeneratorMapper.create(clonedEntity);
         }
 
         return clonedEntity;
