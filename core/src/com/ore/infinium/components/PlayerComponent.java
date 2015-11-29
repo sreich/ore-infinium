@@ -54,7 +54,7 @@ public class PlayerComponent extends Component {
     /**
      * @return entity id that is equipped as primary
      */
-    public int getEquippedPrimaryItemEntity() {
+    public int getEquippedPrimaryItem() {
         return hotbarInventory.itemEntity(hotbarInventory.m_selectedSlot);
     }
 }

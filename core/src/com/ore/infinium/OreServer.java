@@ -1,18 +1,13 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.ComponentMapper;
+import com.artemis.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.FrameworkMessage;
-import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.kryonet.*;
 import com.ore.infinium.components.*;
 
 import java.io.IOException;
@@ -66,7 +61,6 @@ public class OreServer implements Runnable {
     private ComponentMapper<AirGeneratorComponent> airGeneratorMapper = ComponentMapper.getFor(AirGeneratorComponent.class);
     private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
     private ComponentMapper<AirComponent> airMapper = ComponentMapper.getFor(AirComponent.class);
-    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
     private ComponentMapper<HealthComponent> healthMapper = ComponentMapper.getFor(HealthComponent.class);
     private ComponentMapper<LightComponent> torchMapper = ComponentMapper.getFor(LightComponent.class);
 
@@ -521,7 +515,7 @@ public class OreServer implements Runnable {
                 Network.BlockPlaceFromClient data = ((Network.BlockPlaceFromClient) job.object);
                 PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
-                Entity item = playerComponent.getEquippedPrimaryItemEntity();
+                Entity item = playerComponent.getEquippedPrimaryItem();
                 BlockComponent blockComponent = blockMapper.get(item);
 
                 m_world.attemptBlockPlacement(data.x, data.y, blockComponent.blockType);
@@ -564,7 +558,7 @@ public class OreServer implements Runnable {
 
                 PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
-                Entity placedItem = m_world.cloneEntity(playerComponent.getEquippedPrimaryItemEntity());
+                Entity placedItem = m_world.cloneEntity(playerComponent.getEquippedPrimaryItem());
 
                 ItemComponent itemComponent = itemMapper.get(placedItem);
                 itemComponent.state = ItemComponent.State.InWorldState;
@@ -594,7 +588,14 @@ public class OreServer implements Runnable {
         m_serverKryo.sendToTCP(playerComponent.connectionId, v);
     }
 
-    public void sendPlayerSparseBlock(Entity player, Block block, int x, int y) {
+    /**
+     *
+     * @param player entity id
+     * @param block
+     * @param x
+     * @param y
+     */
+    public void sendPlayerSparseBlock(int player, Block block, int x, int y) {
         Network.SparseBlockUpdate sparseBlockUpdate = new Network.SparseBlockUpdate();
 
         sparseBlockUpdate.blocks.add(new Network.SingleSparseBlock(block, x, y));
@@ -606,7 +607,15 @@ public class OreServer implements Runnable {
         m_serverKryo.sendToTCP(playerComponent.connectionId, sparseBlockUpdate);
     }
 
-    public void sendPlayerBlockRegion(Entity player, int x, int y, int width, int height) {
+    /**
+     *
+     * @param player entity id
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     */
+    public void sendPlayerBlockRegion(int player, int x, int y, int width, int height) {
         //FIXME: avoid array realloc
         Network.BlockRegion blockRegion = new Network.BlockRegion(x, y, width, height);
         for (int blockY = y; blockY <= height; ++blockY) {
@@ -622,7 +631,12 @@ public class OreServer implements Runnable {
         m_serverKryo.sendToTCP(playerComponent.connectionId, blockRegion);
     }
 
-    public void sendEntityMoved(Entity player, Entity entity) {
+    /**
+     *
+     * @param player entity id
+     * @param entity entity id of entity that moved
+     */
+    public void sendEntityMoved(int player, int entity) {
         Network.EntityMovedFromServer move = new Network.EntityMovedFromServer();
         move.id = entity.getId();
 

@@ -515,12 +515,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
-            if (playerComponent.getEquippedPrimaryItemEntity() != null) {
+            if (playerComponent.getEquippedPrimaryItem() != null) {
                 Network.HotbarDropItemRequestFromClient dropItemRequestFromClient = new Network.HotbarDropItemRequestFromClient();
                 dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
                 // decrement count, we assume it'll get spawned shortly. delete in-inventory entity if necessary
                 // server assumes we already do so
-                int itemEntity = playerComponent.getEquippedPrimaryItemEntity();
+                int itemEntity = playerComponent.getEquippedPrimaryItem();
                 ItemComponent itemComponent = itemMapper.get(itemEntity);
                 if (itemComponent.stackSize > 1) {
                     //decrement count, server has already done so. we assume here that it went through properly.
@@ -912,7 +912,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             sendHotbarEquipped(index);
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
-            Entity itemCopy = playerComponent.getEquippedPrimaryItemEntity();
+            Entity itemCopy = playerComponent.getEquippedPrimaryItem();
             playerComponent.equippedItemAnimator = itemCopy;
 
             m_world.clientHotbarInventoryItemSelected();

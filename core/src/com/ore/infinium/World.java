@@ -1,6 +1,8 @@
 package com.ore.infinium;
 
-import com.artemis.*;
+import com.artemis.ComponentMapper;
+import com.artemis.Entity;
+import com.artemis.WorldConfigurationBuilder;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
@@ -331,7 +333,8 @@ public class World implements Disposable {
 
     public Block[] blocks;
 
-    //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by them alone.
+    //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
+    // them alone.
     public IntArray m_players = new IntArray();
     public int m_mainPlayerEntity = ENTITY_INVALID;
     public OreServer m_server;
@@ -355,7 +358,6 @@ public class World implements Disposable {
     private ComponentMapper<AirGeneratorComponent> airGeneratorMapper;
     private ComponentMapper<ToolComponent> toolMapper;
     private ComponentMapper<AirComponent> airMapper;
-    private ComponentMapper<TagComponent> tagMapper;
     private ComponentMapper<HealthComponent> healthMapper;
     private ComponentMapper<LightComponent> torchMapper;
     private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
@@ -377,7 +379,9 @@ public class World implements Disposable {
             m_artemisWorld = new com.artemis.World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
                                                                                   .with(new TagManager(),
                                                                                         new PlayerManager())
-                                                                                  .with(new MovementSystem())
+                                                                                  .with(new MovementSystem(this))
+                                                                                  .with(new PowerCircuitSystem(this))
+                                                                                  .with(new PlayerSystem(this))
                                                                                   .build());
 
             float w = Gdx.graphics.getWidth();
@@ -395,10 +399,6 @@ public class World implements Disposable {
         //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
         //        assetManager.finishLoading();
 
-        engine.addSystem(new MovementSystem(this));
-        engine.addSystem(m_powerCircuitSystem = new PowerCircuitSystem(this));
-        engine.addSystem(new PlayerSystem(this));
-
         m_camera =
                 new OrthographicCamera(1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);//30, 30 * (h / w));
         m_camera.setToOrtho(true, 1600 / World.PIXELS_PER_METER, 900 / World.PIXELS_PER_METER);
@@ -411,16 +411,12 @@ public class World implements Disposable {
             initializeWorld();
 
             m_blockPickingCrosshairEntity = m_artemisWorld.create();
-            TagComponent tagComponent = engine.createComponent(TagComponent.class);
-            tagComponent.tag = "crosshair";
-            m_blockPickingCrosshairEntity.add(tagComponent);
+            m_artemisWorld.getSystem(TagManager.class).register("crosshair", m_blockPickingCrosshairEntity);
 
-            SpriteComponent spriteComponent = engine.createComponent(SpriteComponent.class);
-            m_blockPickingCrosshairEntity.add(spriteComponent);
+            SpriteComponent spriteComponent = spriteMapper.create(m_blockPickingCrosshairEntity);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
             spriteComponent.noClip = true;
-            engine.addEntity(m_blockPickingCrosshairEntity);
 
             engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         }
@@ -436,7 +432,7 @@ public class World implements Disposable {
         assert !isServer();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
-        int equippedEntity = playerComponent.getEquippedPrimaryItemEntity();
+        int equippedEntity = playerComponent.getEquippedPrimaryItem();
 
         //if it is here, remove it...we respawn the placement overlay further down either way.
         if (m_itemPlacementOverlayEntity != ENTITY_INVALID) {
@@ -453,7 +449,7 @@ public class World implements Disposable {
 
         assert crosshairSprite.noClip;
 
-        if (blockMapper.get(equippedEntity) != null) {
+        if (blockMapper.has(equippedEntity)) {
             // if the switched to item is a block, we should show a crosshair overlay
             crosshairSprite.visible = true;
 
@@ -487,17 +483,14 @@ public class World implements Disposable {
             spriteComponent.visible = false;
         }
 
-        TagComponent tag = engine.createComponent(TagComponent.class);
-        tag.tag = "itemPlacementOverlay";
-        m_itemPlacementOverlayEntity.add(tag);
-        engine.addEntity(m_itemPlacementOverlayEntity);
+        m_artemisWorld.getSystem(TagManager.class).register("itemPlacementOverlay", m_itemPlacementOverlayEntity);
 
     }
 
     public void initServer() {
     }
 
-    public void initClient(Entity mainPlayer) {
+    public void initClient(int mainPlayer) {
         m_mainPlayerEntity = mainPlayer;
         //        velocityMapper.get(m_mainPlayerEntity);
 
@@ -518,14 +511,14 @@ public class World implements Disposable {
      * @return
      */
     public int createPlayer(String playerName, int connectionId) {
-        Entity playerEntity = m_artemisWorld.create();
-        SpriteComponent playerSprite = engine.createComponent(SpriteComponent.class);
-        playerEntity.add(playerSprite);
+        int playerEntity = m_artemisWorld.create();
+        SpriteComponent playerSprite = spriteMapper.create(playerEntity);
+        velocityMapper.create(playerEntity);
 
-        playerEntity.add(engine.createComponent(VelocityComponent.class));
-        PlayerComponent playerComponent = engine.createComponent(PlayerComponent.class);
+        PlayerComponent playerComponent = playerMapper.create(playerEntity);
         playerComponent.connectionId = connectionId;
-        //hack fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on the server?? at least the component, maybe not inner sprite
+        //hack fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on
+        // the server?? at least the component, maybe not inner sprite
         playerComponent.noClip = m_noClipEnabled;
 
         playerComponent.playerName = playerName;
@@ -533,22 +526,19 @@ public class World implements Disposable {
                 new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
         playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX() / World.BLOCK_SIZE,
                                                             playerSprite.sprite.getY() / World.BLOCK_SIZE));
-        playerEntity.add(playerComponent);
 
         playerSprite.sprite.setSize(World.BLOCK_SIZE * 2, World.BLOCK_SIZE * 3);
-        playerEntity.add(engine.createComponent(ControllableComponent.class));
+        controlMapper.create(playerEntity);
 
         playerSprite.textureName = "player1Standing1";
         playerSprite.category = SpriteComponent.EntityCategory.Character;
-        playerEntity.add(engine.createComponent(JumpComponent.class));
+        jumpMapper.create(playerEntity);
 
-        HealthComponent healthComponent = engine.createComponent(HealthComponent.class);
+        HealthComponent healthComponent = healthMapper.create(playerEntity);
         healthComponent.health = healthComponent.maxHealth;
-        playerEntity.add(healthComponent);
 
-        AirComponent airComponent = engine.createComponent(AirComponent.class);
+        AirComponent airComponent = airMapper.create(playerEntity);
         airComponent.air = airComponent.maxAir;
-        playerEntity.add(airComponent);
 
         return playerEntity;
     }
@@ -836,7 +826,7 @@ public class World implements Disposable {
 
     public void update(double elapsed) {
         if (isClient()) {
-            if (m_mainPlayerEntity == null) {
+            if (m_mainPlayerEntity == ENTITY_INVALID) {
                 return;
             }
 
@@ -894,7 +884,7 @@ public class World implements Disposable {
         Vector2 mouse = mousePositionWorldCoords();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
-        int itemEntity = playerComponent.getEquippedPrimaryItemEntity();
+        int itemEntity = playerComponent.getEquippedPrimaryItem();
         if (itemEntity == ENTITY_INVALID) {
             return;
         }
@@ -938,7 +928,7 @@ public class World implements Disposable {
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset();
 
-                attemptItemPlace(mouse.x, mouse.y, playerComponent.getEquippedPrimaryItemEntity());
+                attemptItemPlace(mouse.x, mouse.y, playerComponent.getEquippedPrimaryItem());
             }
         }
     }
@@ -989,8 +979,6 @@ public class World implements Disposable {
 
         spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
 
-        engine.addEntity(placedItemEntity);
-
         if (isPlacementValid(placedItemEntity)) {
             //hack, do more validation..
             m_client.sendItemPlace(alignedPosition.x, alignedPosition.y);
@@ -998,7 +986,8 @@ public class World implements Disposable {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
             //because the function actually takes only the entity, to check if its size, position etc conflict with
             // anything
-            engine.removeEntity(placedItemEntity);
+
+            //engine.removeEntity(placedItemEntity);
         }
     }
 
@@ -1006,7 +995,7 @@ public class World implements Disposable {
     private OreTimer randomGrassTimer = new OreTimer();
 
     public void render(double elapsed) {
-        if (m_mainPlayerEntity == null) {
+        if (m_mainPlayerEntity == ENTITY_INVALID) {
             return;
         }
 
@@ -1030,9 +1019,8 @@ public class World implements Disposable {
     }
 
     private void randomGrowGrass() {
-        for (int i = 0; i < m_players; ++i) {
-            #error
-             int playerEntity
+        for (int i = 0; i < m_players.size; ++i) {
+            int playerEntity = m_players.get(i);
 
             PlayerComponent playerComponent = playerMapper.get(playerEntity);
 
@@ -1040,7 +1028,7 @@ public class World implements Disposable {
 
             //each tick, resample 100 or so blocks to see if grass can grow. this may need to be
             //reduced, but for debugging right now it's good.
-            for (int i = 0; i < 1000; ++i) {
+            for (int j = 0; j < 1000; ++j) {
                 int randomX = MathUtils.random(region.x, region.width);
                 int randomY = MathUtils.random(region.y, region.height);
 
@@ -1350,7 +1338,7 @@ public class World implements Disposable {
     }
 
     private void updateItemPlacementOverlay() {
-        if (m_itemPlacementOverlayEntity == null || m_itemPlacementOverlayEntity.getId() == 0) {
+        if (m_itemPlacementOverlayEntity == ENTITY_INVALID) {
             return;
         }
 
@@ -1370,98 +1358,95 @@ public class World implements Disposable {
         return WORLD_SEA_LEVEL;
     }
 
-    public void createBlockItem(Entity block, byte blockType) {
-        block.add(engine.createComponent(VelocityComponent.class));
+    /**
+     *
+     * @param block block entity id
+     * @param blockType
+     */
+    public void createBlockItem(int block, byte blockType) {
+        velocityMapper.create(block);
 
-        BlockComponent blockComponent = engine.createComponent(BlockComponent.class);
+        BlockComponent blockComponent = blockMapper.create(block);
         blockComponent.blockType = blockType;
-        block.add(blockComponent);
 
-        SpriteComponent blockSprite = engine.createComponent(SpriteComponent.class);
+        SpriteComponent blockSprite = spriteMapper.create(block);
         blockSprite.textureName = blockTypes.get(blockComponent.blockType).textureName;
 
         //warning fixme size is fucked
         blockSprite.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
-        block.add(blockSprite);
 
-        ItemComponent itemComponent = engine.createComponent(ItemComponent.class);
+        ItemComponent itemComponent = itemMapper.create(block);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
-        block.add(itemComponent);
     }
 
-    public Entity createLight() {
-        Entity light = engine.createEntity();
-        ItemComponent itemComponent = engine.createComponent(ItemComponent.class);
+    public int createLight() {
+        int light = m_artemisWorld.create();
+
+        ItemComponent itemComponent = itemMapper.create(light);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
-        light.add(itemComponent);
 
-        PowerDeviceComponent powerDeviceComponent = engine.createComponent(PowerDeviceComponent.class);
-        light.add(powerDeviceComponent);
+        PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.create(light);
 
-        SpriteComponent sprite = engine.createComponent(SpriteComponent.class);
+        SpriteComponent sprite = spriteMapper.create(light);
         sprite.textureName = "light-blue";
 
         sprite.sprite.setSize(BLOCK_SIZE * 2, BLOCK_SIZE * 2);
-        light.add(sprite);
 
-        PowerConsumerComponent powerConsumerComponent = engine.createComponent(PowerConsumerComponent.class);
+        PowerConsumerComponent powerConsumerComponent = powerConsumerMapper.create(light);
         powerConsumerComponent.powerDemandRate = 100;
-        light.add(powerConsumerComponent);
 
         return light;
     }
 
-    public Entity createPowerGenerator() {
-        Entity power = engine.createEntity();
-        ItemComponent itemComponent = engine.createComponent(ItemComponent.class);
+    public int createPowerGenerator() {
+        int power = m_artemisWorld.create();
+
+        ItemComponent itemComponent = itemMapper.create(power);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
-        power.add(itemComponent);
 
-        PowerDeviceComponent powerDeviceComponent = engine.createComponent(PowerDeviceComponent.class);
-        power.add(powerDeviceComponent);
+        PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.create(power);
 
-        SpriteComponent sprite = engine.createComponent(SpriteComponent.class);
+        SpriteComponent sprite = spriteMapper.create(power);
         sprite.textureName = "air-generator-64x64";
 
         //warning fixme size is fucked
         sprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
-        power.add(sprite);
 
-        PowerGeneratorComponent powerComponent = engine.createComponent(PowerGeneratorComponent.class);
+        PowerGeneratorComponent powerComponent = powerGeneratorMapper.create(power);
         powerComponent.powerSupplyRate = 100;
-        power.add(powerComponent);
 
         return power;
     }
 
-    public Entity createAirGenerator() {
-        Entity air = engine.createEntity();
-        ItemComponent itemComponent = engine.createComponent(ItemComponent.class);
+    public int createAirGenerator() {
+        int air = m_artemisWorld.create();
+        ItemComponent itemComponent = itemMapper.create(air);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
-        air.add(itemComponent);
 
-        PowerDeviceComponent power = engine.createComponent(PowerDeviceComponent.class);
-        air.add(power);
+        PowerDeviceComponent power = powerDeviceMapper.create(air);
 
-        SpriteComponent airSprite = engine.createComponent(SpriteComponent.class);
+        SpriteComponent airSprite = spriteMapper.create(air);
         airSprite.textureName = "air-generator-64x64";
 
         //warning fixme size is fucked
         airSprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
-        air.add(airSprite);
 
-        AirGeneratorComponent airComponent = engine.createComponent(AirGeneratorComponent.class);
+        AirGeneratorComponent airComponent = airGeneratorMapper.create(air);
         airComponent.airOutputRate = 100;
-        air.add(airComponent);
 
         return air;
     }
 
-    private boolean isPlacementValid(Entity entity) {
+    /**
+     *
+     * @param entity entity id
+     * @return true if the item can be placed where it currently resides, without any obstructions
+     */
+    private boolean isPlacementValid(int entity) {
         SpriteComponent spriteComponent = spriteMapper.get(entity);
         Vector2 pos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
         Vector2 size = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
@@ -1515,9 +1500,9 @@ public class World implements Disposable {
                 }
             }
 
-            TagComponent tagComponent = tagMapper.get(entities.get(i));
-            if (tagComponent != null) {
-            }
+
+//            if ( m_artemisWorld.getSystem(TagManager.class).getTag(entities.get(i)) != null) {
+ //           }
 
             SpriteComponent entitySpriteComponent = spriteMapper.get(entities.get(i));
             // possible colliding object is not meant to be collided with. skip it/don't count it
@@ -1615,6 +1600,7 @@ public class World implements Disposable {
         AirComponent airComponent = airMapper.get(entity);
         if (airComponent != null) {
             AirComponent clonedComponent = new AirComponent(airComponent);
+
             clonedEntity.add(clonedComponent);
         }
 
@@ -1713,8 +1699,9 @@ public class World implements Disposable {
     }
 
     /**
+     * @param playerIdWhoDropped
+     *         the playerid of the player
      *
-     * @param playerIdWhoDropped the playerid of the player
      * @return the player entity
      */
     public int playerForID(int playerIdWhoDropped) {
