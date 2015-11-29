@@ -1,7 +1,9 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
+import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
@@ -26,98 +28,94 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class PlayerSystem extends EntitySystem implements EntityListener {
+@Wire
+public class PlayerSystem extends IteratingSystem {
     private World m_world;
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
-
-    public PlayerSystem(World world) {
-        m_world = world;
-    }
-
-    @Override
-    public void addedToEngine(Engine engine) {
-        engine.addEntityListener(Family.all(PlayerComponent.class).get(), this);
-    }
-
-    @Override
-    public void removedFromEngine(Engine engine) {
-
-    }
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<JumpComponent> jumpMapper;
 
     private OreTimer chunkTimer = new OreTimer();
+
+    public PlayerSystem(World world) {
+        super(Aspect.one(PlayerComponent.class));
+
+        m_world = world;
+
+    }
+
     @Override
-    public void update(float delta) {
+    protected void inserted(int entityId) {
+        super.inserted(entityId);
+
+        //client does nothing as of yet, with this
         if (m_world.isClient()) {
             return;
         }
 
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
+        //initial spawn, send region
+        calculateLoadedViewport(entityId);
+        sendPlayerBlockRegion(entityId);
+    }
+
+    @Override
+    protected void removed(int entityId) {
+        super.removed(entityId);
+
+    }
+
+    @Override
+    protected void process(int entityId) {
+        if (m_world.isClient()) {
+            return;
+        }
 
         //clients, for now, do their own collision stuff. mostly.
-        //FIXME: clients should simulate their own player's collision with everything and tell the server its position so it can broadcast.
+        //FIXME: clients should simulate their own player's collision with everything and tell the server its
+        // position so it can broadcast.
         // but nothing else.
         //server will simulate everything else(except players), and broadcast positions
-        for (int i = 0; i < entities.size(); ++i) {
-            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
-            PlayerComponent playerComponent = playerMapper.get(entities.get(i));
 
-            if (spriteComponent == null || spriteComponent.sprite == null || playerComponent == null) {
-                continue; //hack, not sure why but occasional NPE's happen..on something
-            }
+        //should never ever, ever happen.
+        assert spriteMapper.has(entityId) && playerMapper.has(entityId);
 
-            com.badlogic.gdx.math.Rectangle viewportRect = playerComponent.loadedViewport.rect;
-            float x = spriteComponent.sprite.getX();
-            float y = spriteComponent.sprite.getY();
+        SpriteComponent spriteComponent = spriteMapper.getSafe(entityId);
+        PlayerComponent playerComponent = playerMapper.get(entityId);
 
-            //fixme hack, we'll fix this when we get to chunking and come up with a proper solution
-            if (chunkTimer.milliseconds() > 600) {
-                calculateLoadedViewport(entities.get(i));
-                chunkTimer.reset();
-            }
+        com.badlogic.gdx.math.Rectangle viewportRect = playerComponent.loadedViewport.rect;
+        float x = spriteComponent.sprite.getX();
+        float y = spriteComponent.sprite.getY();
 
+        //fixme hack, we'll fix this when we get to chunking and come up with a proper solution
+        if (chunkTimer.milliseconds() > 600) {
+            calculateLoadedViewport(entityId);
+            chunkTimer.reset();
         }
     }
 
-    private void calculateLoadedViewport(Entity player) {
-        PlayerComponent playerComponent = playerMapper.get(player);
-        SpriteComponent spriteComponent = spriteMapper.get(player);
+    private void calculateLoadedViewport(int playerEntity) {
+        PlayerComponent playerComponent = playerMapper.get(playerEntity);
+        SpriteComponent spriteComponent = spriteMapper.get(playerEntity);
 
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
 
         Vector2 center = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
         loadedViewport.centerOn(center);
 
-        m_world.m_server.sendPlayerLoadedViewportMoved(player);
-        sendPlayerBlockRegion(player);
+        m_world.m_server.sendPlayerLoadedViewportMoved(playerEntity);
+        sendPlayerBlockRegion(playerEntity);
     }
 
-    private void sendPlayerBlockRegion(Entity player) {
-        PlayerComponent playerComponent = playerMapper.get(player);
+    private void sendPlayerBlockRegion(int playerEntity) {
+        PlayerComponent playerComponent = playerMapper.get(playerEntity);
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
 
         LoadedViewport.PlayerViewportBlockRegion region = loadedViewport.blockRegionInViewport();
-        m_world.m_server.sendPlayerBlockRegion(player, region.x, region.y, region.width, region.height);
+        m_world.m_server.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width, region.height);
     }
 
-    @Override
-    public void entityAdded(Entity entity) {
-        if (m_world.isClient()) {
-            return;
-        }
-
-        //initial spawn, send region
-        calculateLoadedViewport(entity);
-        sendPlayerBlockRegion(entity);
-    }
-
-    @Override
-    public void entityRemoved(Entity entity) {
-
-    }
 }

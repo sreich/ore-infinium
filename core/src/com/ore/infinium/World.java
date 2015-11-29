@@ -457,7 +457,7 @@ public class World implements Disposable {
             return;
         }
 
-        ToolComponent entityToolComponent = toolMapper.get(equippedEntity);
+        ToolComponent entityToolComponent = toolMapper.getSafe(equippedEntity);
         if (entityToolComponent != null) {
             if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
                 //drill, one of the few cases we want to show the block crosshair...
@@ -859,6 +859,7 @@ public class World implements Disposable {
                 handleLeftMousePrimaryAttack();
             }
 
+            //hack
             if (m_itemPlacementOverlayEntity != ENTITY_INVALID) {
                 SpriteComponent component = spriteMapper.get(m_itemPlacementOverlayEntity);
                 assert component != null : "how the hell does it have no spritecomp?!!";
@@ -889,7 +890,7 @@ public class World implements Disposable {
             return;
         }
 
-        ToolComponent toolComponent = toolMapper.get(itemEntity);
+        ToolComponent toolComponent = toolMapper.getSafe(itemEntity);
         if (toolComponent != null) {
             if (toolComponent.type != ToolComponent.ToolType.Drill) {
                 return;
@@ -909,7 +910,7 @@ public class World implements Disposable {
             return;
         }
 
-        BlockComponent blockComponent = blockMapper.get(itemEntity);
+        BlockComponent blockComponent = blockMapper.getSafe(itemEntity);
         if (blockComponent != null) {
 
             int x = (int) (mouse.x / BLOCK_SIZE);
@@ -923,7 +924,7 @@ public class World implements Disposable {
             return;
         }
 
-        ItemComponent itemComponent = itemMapper.get(itemEntity);
+        ItemComponent itemComponent = itemMapper.getSafe(itemEntity);
         if (itemComponent != null) {
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset();

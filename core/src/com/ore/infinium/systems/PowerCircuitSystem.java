@@ -1,11 +1,10 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Engine;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.gdx.Gdx;
+import com.artemis.BaseSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntArray;
 import com.ore.infinium.World;
 import com.ore.infinium.components.*;
 
@@ -27,7 +26,8 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class PowerCircuitSystem extends EntitySystem {
+@Wire
+public class PowerCircuitSystem extends BaseSystem {
     private World m_world;
 
     /**
@@ -59,14 +59,16 @@ public class PowerCircuitSystem extends EntitySystem {
          * wire connection list
          * Is disjoint from devices.
          */
-        Array<Entity> generators = new Array<>();
+        IntArray generators = new IntArray();
 
         /**
          * List of all the devices that consume power, connected on this circuit
          * For faster retrieval of just those, and for calculating the load usages.
          * May be disjoint from generators, but generators have potential to consume power as well..
+         *
+         * @type s
          */
-        Array<Entity> consumers = new Array<>();
+        IntArray consumers = new IntArray();
 
         int totalSupply;
         int totalDemand;
@@ -77,87 +79,84 @@ public class PowerCircuitSystem extends EntitySystem {
      * only 2 devices.
      */
     public class WireConnection {
-        Entity first;
-        Entity second;
+        int firstEntity;
+        int secondEntity;
 
-        public WireConnection(Entity first, Entity second) {
-            this.first = first;
-            this.second = second;
+        public WireConnection(int firstEntity, int secondEntity) {
+            this.firstEntity = firstEntity;
+            this.secondEntity = secondEntity;
         }
     }
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
-    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper = ComponentMapper.getFor(PowerDeviceComponent.class);
-    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper = ComponentMapper.getFor(PowerConsumerComponent.class);
-    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper = ComponentMapper.getFor(PowerGeneratorComponent.class);
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
+    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
+    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
 
     public PowerCircuitSystem(World world) {
         m_world = world;
     }
 
+    /**
+     * Process the system.
+     */
     @Override
-    public void addedToEngine(Engine engine) {
-        Gdx.app.log("added power circuit system to engine: %s", engine.toString());
-    }
-
-    @Override
-    public void removedFromEngine(Engine engine) {
-    }
-
-    @Override
-    public void update(float delta) {
+    protected void processSystem() {
         for (PowerCircuit circuit : m_circuits) {
+
             circuit.totalDemand = 0;
             circuit.totalSupply = 0;
 
-            for (Entity generator : circuit.generators) {
+            for (int j = 0; j < circuit.generators.size; ++j) {
+                int generator = circuit.generators.get(j);
+
                 PowerGeneratorComponent generatorComponent = powerGeneratorMapper.get(generator);
                 circuit.totalSupply += generatorComponent.powerSupplyRate;
             }
 
-            for (Entity consumer : circuit.consumers) {
+            for (int j = 0; j < circuit.consumers.size; ++j) {
+                int consumer = circuit.consumers.get(j);
+
                 PowerConsumerComponent consumerComponent = powerConsumerMapper.get(consumer);
                 circuit.totalSupply += consumerComponent.powerDemandRate;
             }
-
-            continue;
         }
     }
 
     //fixme does not inform the server of these connections!!! or anything wirey for that matter.
+
     /**
      * connects two power consumers together, determines how to handle data structures
      * in between
      *
-     * @param first
-     * @param second
+     * @param firstEntity
+     * @param secondEntity
      */
-    void connectDevices(Entity first, Entity second) {
+    void connectDevices(int firstEntity, int secondEntity) {
         for (PowerCircuit circuit : m_circuits) {
             //
 
             //check which circuit this connection between 2 consumers belongs to
             //if none of the two consumers are in a circuit, it is a new circuit
             for (WireConnection connection : circuit.connections) {
-                if ((connection.first == first && connection.second == second) ||
-                        connection.first == second && connection.second == first) {
+                if ((connection.firstEntity == firstEntity && connection.secondEntity == secondEntity) ||
+                    connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
 
                     //connection exists in this circuit already, deny
                     return;
                 }
 
-                if (connection.first == first || connection.second == second
-                        || connection.first == second || connection.second == first) {
+                if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
+                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
                     //one of the entities of this wire is in this connection, so it's a part of this circuit
                     //we don't care which one. we just add our wire to the mix
-                    WireConnection wireConnection = new WireConnection(first, second);
+                    WireConnection wireConnection = new WireConnection(firstEntity, secondEntity);
                     circuit.connections.add(wireConnection);
 
-                    addConnection(first, second, circuit);
+                    addConnection(firstEntity, secondEntity, circuit);
 
                     return;
                 }
@@ -167,42 +166,43 @@ public class PowerCircuitSystem extends EntitySystem {
         PowerCircuit circuit = new PowerCircuit();
 
         //connection nonexistent in any circuits, make a new circuit
-        addConnection(first, second, circuit);
+        addConnection(firstEntity, secondEntity, circuit);
         m_circuits.add(circuit);
 
-        WireConnection wireConnection = new WireConnection(first, second);
+        WireConnection wireConnection = new WireConnection(firstEntity, secondEntity);
         circuit.connections.add(wireConnection);
     }
 
     /**
      * Forms a wire connection between any 2 devices (direction does not matter).
      * Note, A single connection creates a circuit, additional connections should only be a part of one circuit.
-     * @param first
-     * @param second
+     *
+     * @param firstEntity
+     * @param secondEntity
      * @param circuit
      */
-    private void addConnection(Entity first, Entity second, PowerCircuit circuit) {
+    private void addConnection(int firstEntity, int secondEntity, PowerCircuit circuit) {
         //cannot connect to a non-device
-        assert powerDeviceMapper.has(first) && powerDeviceMapper.has(second);
+        assert powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity);
 
-        if (powerConsumerMapper.get(first) != null && !circuit.consumers.contains(first, true)) {
-            circuit.consumers.add(first);
+        if (powerConsumerMapper.get(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
+            circuit.consumers.add(firstEntity);
         }
 
-        if (powerConsumerMapper.get(second) != null && !circuit.consumers.contains(second, true)) {
-            circuit.consumers.add(second);
+        if (powerConsumerMapper.get(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
+            circuit.consumers.add(secondEntity);
         }
 
-        if (powerGeneratorMapper.get(first) != null && !circuit.generators.contains(first, true)) {
-            circuit.generators.add(first);
+        if (powerGeneratorMapper.get(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
+            circuit.generators.add(firstEntity);
         }
 
-        if (powerGeneratorMapper.get(second) != null && !circuit.generators.contains(second, true)) {
-            circuit.generators.add(second);
+        if (powerGeneratorMapper.get(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
+            circuit.generators.add(secondEntity);
         }
     }
 
-//todo sufficient until we get a spatial hash or whatever
+    //todo sufficient until we get a spatial hash or whatever
 
     /*
     private Entity entityAtPosition(Vector2 pos) {
@@ -219,7 +219,8 @@ public class PowerCircuitSystem extends EntitySystem {
 
             spriteComponent = spriteMapper.get(entities.get(i));
 
-            Rectangle rectangle = new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+            Rectangle rectangle = new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() *
+            0.5f),
                     spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
                     spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 

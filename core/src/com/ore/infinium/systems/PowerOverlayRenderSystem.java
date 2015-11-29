@@ -45,7 +45,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper =
             ComponentMapper.getFor(PowerGeneratorComponent.class);
 
-//    public Sprite outputNode = new Sprite();
+    //    public Sprite outputNode = new Sprite();
 
     private boolean m_leftClicked;
     private boolean m_dragInProgress;
@@ -147,7 +147,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                 //              if (!sourcePowerDeviceComponent.outputEntities.contains(dropEntity, true) &&
                 //                     !dropPowerDeviceComponent.outputEntities.contains(dragSourceEntity, true)) {
 
-//                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
+                //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
 
                 m_world.m_powerCircuitSystem.connectDevices(dragSourceEntity, dropEntity);
 
@@ -166,8 +166,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             return;
         }
 
-
-//        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.begin();
 
@@ -202,7 +201,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         Vector2 mouse = m_world.mousePositionWorldCoords();
 
         SpriteComponent tooltipSprite = spriteMapper.get(m_powerCircuitTooltip);
-//        tooltipSprite.sprite.setPosition(mouse.x, mouse.y);
+        //        tooltipSprite.sprite.setPosition(mouse.x, mouse.y);
 
         if (m_dragInProgress && dragSourceEntity != null) {
             SpriteComponent dragSpriteComponent = spriteMapper.get(dragSourceEntity);
@@ -212,8 +211,8 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             //in the middle of a drag, draw powernode from source, to mouse position
             renderWire(new Vector2(mouse.x, mouse.y), new Vector2(
                     dragSpriteComponent.sprite.getX() + dragSpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
-                    dragSpriteComponent.sprite.getY() + dragSpriteComponent.sprite.getHeight() *
-                                                        powerNodeOffsetRatioY));
+                    dragSpriteComponent.sprite.getY() +
+                    dragSpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY));
             m_batch.setColor(1, 1, 1, 1);
         }
 
@@ -237,8 +236,8 @@ public class PowerOverlayRenderSystem extends EntitySystem {
             //draw wires of each connection, in every circuit. Wires only have a start and end point.
             for (PowerCircuitSystem.WireConnection wireConnection : circuit.connections) {
 
-                firstEntitySpriteComponent = spriteMapper.get(wireConnection.first);
-                secondEntitySpriteComponent = spriteMapper.get(wireConnection.second);
+                firstEntitySpriteComponent = spriteMapper.get(wireConnection.firstEntity);
+                secondEntitySpriteComponent = spriteMapper.get(wireConnection.secondEntity);
 
                 //go over each output of this entity, and draw a connection from this entity to the connected dest
                 renderWire(new Vector2(firstEntitySpriteComponent.sprite.getX() +

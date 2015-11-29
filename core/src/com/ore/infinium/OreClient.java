@@ -1,6 +1,7 @@
 package com.ore.infinium;
 
 import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+@Wire
 public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
@@ -60,14 +62,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
     protected World m_world;
     FreeTypeFontGenerator m_fontGenerator;
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
-    private ComponentMapper<BlockComponent> blockMapper = ComponentMapper.getFor(BlockComponent.class);
-    private ComponentMapper<ToolComponent> toolMapper = ComponentMapper.getFor(ToolComponent.class);
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<JumpComponent> jumpMapper;
+    private ComponentMapper<BlockComponent> blockMapper;
+    private ComponentMapper<ToolComponent> toolMapper;
 
     private SpriteBatch m_debugServerBatch;
 
@@ -121,26 +123,21 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public void create() {
         //    Log.set(Log.LEVEL_DEBUG);
-//        Gdx.app.setLogLevel(Application.LOG_NONE);
-//        Gdx.app.setLogLevel(Application.LOG_NONE);
-//        Log.set(Log.LEVEL_INF
-//        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, m_skin);
-//        progressBar.setValue(50);
-//        progressBar.getStyle().knobBefore = progressBar.getStyle().knob;
-//        progressBar.getStyle().knob.setMinHeight(50);
-//        container.add(progressBar);
+        //        Gdx.app.setLogLevel(Application.LOG_NONE);
+        //        Gdx.app.setLogLevel(Application.LOG_NONE);
+        //        Log.set(Log.LEVEL_INF
+        //        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, m_skin);
+        //        progressBar.setValue(50);
+        //        progressBar.getStyle().knobBefore = progressBar.getStyle().knob;
+        //        progressBar.getStyle().knob.setMinHeight(50);
+        //        container.add(progressBar);
 
         Thread.currentThread().setName("client thread (GL)");
 
-        debugStrings = new ArrayList<>(Arrays.asList(
-                "E - power overlay, Q - drop Item",
-                "1-8 or mouse wheel, inventory selection",
-                "F12 - gui debug",
-                "F11 - gui render toggle",
-                "F10 - tile render toggle",
-                "F9 - client/server sync debug render toggle",
-                "F8 - client sprite debug render toggle"
-        ));
+        debugStrings = new ArrayList<>(
+                Arrays.asList("E - power overlay, Q - drop Item", "1-8 or mouse wheel, inventory selection",
+                              "F12 - gui debug", "F11 - gui render toggle", "F10 - tile render toggle",
+                              "F9 - client/server sync debug render toggle", "F8 - client sprite debug render toggle"));
 
         m_dragAndDrop = new DragAndDrop();
         decimalFormat.setMaximumFractionDigits(4);
@@ -164,7 +161,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         parameter.size = 9;
         m_font = m_fontGenerator.generateFont(parameter);
-//        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
+        //        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
         m_font.setColor(234f / 255f, 28f / 255f, 164f / 255f, 1);
 
         m_fontGenerator.dispose();
@@ -256,7 +253,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         double newTime = TimeUtils.nanoTime() / 1e6;// / 1000.0;
         double frameTime = newTime - m_currentTime;
 
-
         if (frameTime > (1.0 / 15.0) * 1000) {
             frameTime = (1.0 / 15.0) * 1000;
         }
@@ -299,7 +295,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
             //Gdx.app.log("frametime", Double.toString(frameTime));
             //Gdx.app.log("alpha", Double.toString(alpha));
 
-
             if (m_world != null) {
                 m_world.render(CLIENT_FIXED_TIMESTEP / 1000);
             }
@@ -308,7 +303,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
                 m_stage.draw();
             }
-
 
             m_batch.begin();
 
@@ -360,10 +354,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
                         break;
                 }
 
-                String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s",
-                        x, y, block.type, block.meshType, block.wallType,
-                        texture,
-                        block.hasFlag(Block.BlockFlags.GrassBlock));
+                String s =
+                        String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s", x,
+                                      y, block.type, block.meshType, block.wallType, texture,
+                                      block.hasFlag(Block.BlockFlags.GrassBlock));
 
                 m_font.draw(m_batch, s, 0, textY);
                 textY -= 15;
@@ -386,11 +380,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
             m_debugServerBatch.begin();
             m_debugServerBatch.setColor(1, 0, 0, 0.5f);
-            ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+            ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent
+            .class).get());
             for (int i = 0; i < entities.size(); ++i) {
                 SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
-                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth
+                () * 0.5f),
                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
             }
@@ -404,16 +400,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 m_debugServerBatch.begin();
                 m_debugServerBatch.setColor(1, 0, 0, 0.5f);
 
-                ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(
-                        Family.all(SpriteComponent.class).get());
+                ImmutableArray<Entity> entities =
+                        m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
 
                 for (int i = 0; i < entities.size(); ++i) {
                     SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
                     m_debugServerBatch.draw(junktexture,
-                            spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                            spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                            spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                                            spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                                            spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                                            spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
                 }
 
                 m_debugServerBatch.end();
@@ -483,7 +479,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         if (keycode == Input.Keys.ESCAPE) {
             shutdown();
         } else if (keycode == Input.Keys.F7) {
-            for(int i =0; i < 1000000;++i){
+            for (int i = 0; i < 1000000; ++i) {
                 Entity h = new Entity();
                 h.toString();
 
@@ -516,7 +512,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
             if (playerComponent.getEquippedPrimaryItem() != null) {
-                Network.HotbarDropItemRequestFromClient dropItemRequestFromClient = new Network.HotbarDropItemRequestFromClient();
+                Network.HotbarDropItemRequestFromClient dropItemRequestFromClient =
+                        new Network.HotbarDropItemRequestFromClient();
                 dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
                 // decrement count, we assume it'll get spawned shortly. delete in-inventory entity if necessary
                 // server assumes we already do so
@@ -537,7 +534,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
             //power overlay
             m_world.m_powerOverlaySystem.overlayVisible = !m_world.m_powerOverlaySystem.overlayVisible;
             if (m_world.m_itemPlacementOverlayEntity != World.ENTITY_INVALID) {
-                spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible = !m_world.m_powerOverlaySystem.overlayVisible;
+                spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible =
+                        !m_world.m_powerOverlaySystem.overlayVisible;
             }
         } else if (keycode == Input.Keys.NUM_1) {
             m_hotbarInventory.selectSlot((byte) 0);
@@ -655,7 +653,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, byte sourceIndex,
                                   Inventory.InventoryType destInventoryType, byte destIndex) {
-        Network.PlayerMoveInventoryItemFromClient inventoryItemFromClient = new Network.PlayerMoveInventoryItemFromClient();
+        Network.PlayerMoveInventoryItemFromClient inventoryItemFromClient =
+                new Network.PlayerMoveInventoryItemFromClient();
         inventoryItemFromClient.sourceType = sourceInventoryType;
         inventoryItemFromClient.sourceIndex = sourceIndex;
         inventoryItemFromClient.destType = destInventoryType;
@@ -702,15 +701,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_inventory.inventoryType = Inventory.InventoryType.Inventory;
             playerComponent.inventory = m_inventory;
 
-            m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop,
-                    this);
+            m_hotbarView =
+                    new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
             m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
 
             playerComponent.hotbarInventory.selectSlot((byte) 0);
         }
 
-//          SpriteComponent spriteComponent = spriteMapper.get(player);
-//        spriteComponent.sprite.setTexture();
+        //          SpriteComponent spriteComponent = spriteMapper.get(player);
+        //        spriteComponent.sprite.setTexture();
 
         m_world.engine.addEntity(player);
 
@@ -718,7 +717,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
     }
 
     private void sendHotbarEquipped(byte index) {
-        Network.PlayerEquipHotbarIndexFromClient playerEquipHotbarIndexFromClient = new Network.PlayerEquipHotbarIndexFromClient();
+        Network.PlayerEquipHotbarIndexFromClient playerEquipHotbarIndexFromClient =
+                new Network.PlayerEquipHotbarIndexFromClient();
         playerEquipHotbarIndexFromClient.index = index;
 
         m_clientKryo.sendTCP(playerEquipHotbarIndexFromClient);
@@ -759,7 +759,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 PlayerComponent c = playerMapper.get(m_mainPlayerEntity);
                 c.loadedViewport.rect = v.rect;
             } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
-                Network.PlayerSpawnHotbarInventoryItemFromServer spawn = (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
+                Network.PlayerSpawnHotbarInventoryItemFromServer spawn =
+                        (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
 
                 //HACK spawn.id, sprite!!
                 Entity e = m_world.engine.createEntity();
@@ -788,7 +789,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 ItemComponent itemComponent = itemMapper.get(e);
                 m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
 
-                //TODO i wonder if i can implement my own serializer (trivially!) and make it use the entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
+                //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
+                // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
 
             } else if (object instanceof Network.EntitySpawnFromServer) {
                 //fixme this and hotbar code needs consolidation

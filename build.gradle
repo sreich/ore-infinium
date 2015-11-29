@@ -78,13 +78,13 @@ project(":desktop") {
 project(":core") {
     apply plugin: "java"
 
-//    sourceSets.test.java.srcDirs = ["test/"]
+    //    sourceSets.test.java.srcDirs = ["test/"]
     configurations {
         provided
     }
 
     sourceSets {
-         // run the annotation processor compile time.
+        // run the annotation processor compile time.
         main {
             compileClasspath += [configurations.provided]
         }
@@ -100,9 +100,9 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
 
         //junit
-        //       testCompile "junit:junit:4.11+"
+        testCompile "junit:junit:4.12"
 
-        //kryonet
+        // kryonet
         compile "com.esotericsoftware:kryonet:$kryonetVersion"
 
         //artemis-odb
