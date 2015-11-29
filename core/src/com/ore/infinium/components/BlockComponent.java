@@ -21,13 +21,15 @@ import com.artemis.Component;
  * ***************************************************************************
  */
 public class BlockComponent extends Component {
-
     public byte blockType;
 
-    public BlockComponent() {
-    }
-
-    public BlockComponent(BlockComponent blockComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param blockComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(BlockComponent blockComponent) {
         blockType = blockComponent.blockType;
     }
 }

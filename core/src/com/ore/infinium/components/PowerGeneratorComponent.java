@@ -25,10 +25,15 @@ import com.artemis.Component;
  * Any device that can generate some amount of power on a circuit
  */
 public class PowerGeneratorComponent extends Component {
-    public PowerGeneratorComponent() {
-    }
 
-    public PowerGeneratorComponent(PowerGeneratorComponent component) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(PowerGeneratorComponent component) {
+        powerSupplyRate = component.powerSupplyRate;
     }
 
     public int powerSupplyRate;

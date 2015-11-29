@@ -57,4 +57,8 @@ public class PlayerComponent extends Component {
     public int getEquippedPrimaryItem() {
         return hotbarInventory.itemEntity(hotbarInventory.m_selectedSlot);
     }
+
+    /**
+     * note, has no copyFrom method, as it is should never be copied
+     */
 }

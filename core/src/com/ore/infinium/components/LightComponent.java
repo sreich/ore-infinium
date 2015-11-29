@@ -24,10 +24,13 @@ public class LightComponent extends Component {
 
     public float radius = 10.0f;
 
-    public LightComponent() {
-    }
-
-    public LightComponent(LightComponent lightComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param lightComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(LightComponent lightComponent) {
         radius = lightComponent.radius;
     }
 }

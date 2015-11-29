@@ -31,11 +31,13 @@ public class AirComponent extends Component {
     //amount to decrease health per interval, when run without air
     public int healthDecreaseRate = 10;
 
-
-    public AirComponent() {
-    }
-
-    public AirComponent(AirComponent airComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param airComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(AirComponent airComponent) {
         decreaseRate = airComponent.decreaseRate;
         decreaseInterval = airComponent.decreaseInterval;
         maxAir = airComponent.maxAir;

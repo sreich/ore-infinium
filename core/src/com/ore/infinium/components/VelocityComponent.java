@@ -25,10 +25,13 @@ public class VelocityComponent extends Component {
 
     public Vector2 velocity = new Vector2();
 
-    public VelocityComponent() {
-    }
-
-    public VelocityComponent(VelocityComponent velocityComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param velocityComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(VelocityComponent velocityComponent) {
         velocity.set(velocityComponent.velocity);
     }
 }

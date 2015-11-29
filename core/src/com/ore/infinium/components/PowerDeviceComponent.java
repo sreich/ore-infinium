@@ -26,9 +26,13 @@ import com.artemis.Component;
  * or a generator.
  */
 public class PowerDeviceComponent extends Component {
-    public PowerDeviceComponent() {
-    }
 
-    public PowerDeviceComponent(PowerDeviceComponent component) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(PowerDeviceComponent component) {
     }
 }

@@ -42,17 +42,22 @@ public class ItemComponent extends Component {
 
     public enum ItemProperties {
         Placeable,
-        Consumable, //potions and such FIXME UNUSED maybe unneeded too?
+        Consumable,
+        //potions and such FIXME UNUSED maybe unneeded too?
         Usable
     }
 
     public enum ItemType {
         Torch,
-        Container, // chesticles
+        Container,
+        // chesticles
         Weapon,
         Armor,
-        Vegetation, // we be plantin' trees and shit
-        Block, // blocks are handled super specially. they have different placement rules, and they are not rendered as an Entity, but something totally different.
+        Vegetation,
+        // we be plantin' trees and shit
+        Block,
+        // blocks are handled super specially. they have different placement rules, and they are not rendered as an
+        // Entity, but something totally different.
         Tool
     }
 
@@ -66,10 +71,13 @@ public class ItemComponent extends Component {
 
     }
 
-    public ItemComponent() {
-    }
-
-    public ItemComponent(ItemComponent itemComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param itemComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(ItemComponent itemComponent) {
         stackSize = itemComponent.stackSize;
         maxStackSize = itemComponent.maxStackSize;
         playerIdWhoDropped = itemComponent.playerIdWhoDropped;

@@ -22,13 +22,15 @@ import com.badlogic.gdx.math.Vector2;
  * ***************************************************************************
  */
 public class ControllableComponent extends Component {
-
     public Vector2 desiredDirection = new Vector2();
 
-    public ControllableComponent() {
-    }
-
-    public ControllableComponent(ControllableComponent controllableComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param controllableComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(ControllableComponent controllableComponent) {
         desiredDirection.set(controllableComponent.desiredDirection);
     }
 }

@@ -23,14 +23,16 @@ import com.artemis.annotations.PooledWeaver;
  */
 @PooledWeaver
 public class AirGeneratorComponent extends Component {
-
     //amount that is output per each interval
     public int airOutputRate;
 
-    public AirGeneratorComponent() {
-    }
-
-    public AirGeneratorComponent(AirGeneratorComponent airGeneratorComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param airGeneratorComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(AirGeneratorComponent airGeneratorComponent) {
         airOutputRate = airGeneratorComponent.airOutputRate;
     }
 }

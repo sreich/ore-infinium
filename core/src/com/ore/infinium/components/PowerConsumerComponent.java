@@ -26,10 +26,13 @@ import com.artemis.Component;
  */
 public class PowerConsumerComponent extends Component {
 
-    public PowerConsumerComponent() {
-    }
-
-    public PowerConsumerComponent(PowerConsumerComponent component) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(PowerConsumerComponent component) {
     }
 
     public int powerDemandRate;

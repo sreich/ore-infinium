@@ -34,7 +34,8 @@ public class SpriteComponent extends Component {
 
     /*
      * enabled, ignore this and every entity that can ever check for collisions against it,
-     * or overlaps (useful for ignoring some on-screen client-only items like tooltips, which technically don't exist in the world)
+     * or overlaps (useful for ignoring some on-screen client-only items like tooltips, which technically don't exist
+      * in the world)
      */
     public boolean noClip = false;
 
@@ -47,8 +48,15 @@ public class SpriteComponent extends Component {
         sprite.flip(false, true);
     }
 
-    public SpriteComponent(SpriteComponent spriteComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param spriteComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(SpriteComponent spriteComponent) {
         sprite = new Sprite(spriteComponent.sprite);
+
         if (!sprite.isFlipY()) {
             sprite.flip(false, true);
         }

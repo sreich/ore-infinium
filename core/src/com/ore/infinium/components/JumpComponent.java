@@ -32,10 +32,13 @@ public class JumpComponent extends Component {
     public int jumpInterval = 400;
     public OreTimer jumpTimer = new OreTimer();
 
-    public JumpComponent() {
-    }
-
-    public JumpComponent(JumpComponent jumpComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param jumpComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(JumpComponent jumpComponent) {
         canJump = jumpComponent.canJump;
         shouldJump = jumpComponent.shouldJump;
         jumpRequested = jumpComponent.jumpRequested;

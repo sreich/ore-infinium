@@ -26,10 +26,13 @@ public class HealthComponent extends Component {
     //current air level
     public int health = maxHealth;
 
-    public HealthComponent() {
-    }
-
-    public HealthComponent(HealthComponent healthComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param healthComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(HealthComponent healthComponent) {
         maxHealth = healthComponent.maxHealth;
         health = healthComponent.health;
     }

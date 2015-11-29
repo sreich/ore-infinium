@@ -39,10 +39,13 @@ public class ToolComponent extends Component {
         Diamond
     }
 
-    public ToolComponent() {
-    }
-
-    public ToolComponent(ToolComponent toolComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param toolComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(ToolComponent toolComponent) {
         type = toolComponent.type;
         material = toolComponent.material;
         attackRadius = toolComponent.attackRadius;
