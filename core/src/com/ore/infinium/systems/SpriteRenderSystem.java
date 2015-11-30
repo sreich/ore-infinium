@@ -1,7 +1,9 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.artemis.*;
+import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
@@ -24,54 +26,64 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class SpriteRenderSystem extends EntitySystem {
+@Wire
+public class SpriteRenderSystem extends BaseSystem {
     public static int spriteCount;
 
     private OreWorld m_world;
     private SpriteBatch m_batch;
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<JumpComponent> jumpMapper;
 
     public SpriteRenderSystem(OreWorld world) {
         m_world = world;
     }
 
     @Override
-    public void addedToEngine(Engine engine) {
+    protected void initialize() {
         m_batch = new SpriteBatch();
     }
 
     @Override
-    public void removedFromEngine(Engine engine) {
+    protected void dispose() {
         m_batch.dispose();
     }
 
     @Override
-    public void update(float delta) {
-        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+    protected void begin() {
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.begin();
+    }
 
-        renderEntities(delta);
-        renderDroppedEntities(delta);
+    @Override
+    protected void processSystem() {
+        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
 
+        renderEntities(world.getDelta());
+        renderDroppedEntities(world.getDelta());
+
+    }
+
+    @Override
+    protected void end() {
         m_batch.end();
     }
 
     //fixme probably also droppedblocks?
     private void renderDroppedEntities(float delta) {
-        //fixme obviously this is very inefficient...
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+        //fixme obviously this is very inefficient...but dunno if it'll ever be an issue.
+        AspectSubscriptionManager aspectSubscriptionManager = world.getAspectSubscriptionManager();
+        EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class));
+        IntBag entities = entitySubscription.getEntities();
 
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = itemMapper.get(entities.get(i));
+            itemComponent = itemMapper.getSafe(entities.get(i));
             //don't draw in-inventory or dropped items
             if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
                 continue;
@@ -88,20 +100,23 @@ public class SpriteRenderSystem extends EntitySystem {
 
     private void renderEntities(float delta) {
         //todo need to exclude blocks?
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+        AspectSubscriptionManager aspectSubscriptionManager = world.getAspectSubscriptionManager();
+        EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class));
+        IntBag entities = entitySubscription.getEntities();
 
         ItemComponent itemComponent;
-        TagComponent tagComponent;
         SpriteComponent spriteComponent;
 
         for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = itemMapper.get(entities.get(i));
+            int entity = entities.get(i);
+
+            itemComponent = itemMapper.getSafe(entity);
             //don't draw in-inventory or dropped items
             if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
                 continue;
             }
 
-            spriteComponent = spriteMapper.get(entities.get(i));
+            spriteComponent = spriteMapper.get(entity);
 
             if (!spriteComponent.visible) {
                 continue;
@@ -111,17 +126,15 @@ public class SpriteRenderSystem extends EntitySystem {
 
             boolean placementGhost = false;
 
-            tagComponent = tagMapper.get(entities.get(i));
-            if (tagComponent != null) {
-                if (tagComponent.tag.equals("itemPlacementOverlay")) {
+            String tag = world.getSystem(TagManager.class).getTag(world.getEntity(entity));
+            if (tag.equals("itemPlacementOverlay")) {
 
-                    placementGhost = true;
+                placementGhost = true;
 
-                    if (spriteComponent.placementValid) {
-                        m_batch.setColor(0, 1, 0, 0.6f);
-                    } else {
-                        m_batch.setColor(1, 0, 0, 0.6f);
-                    }
+                if (spriteComponent.placementValid) {
+                    m_batch.setColor(0, 1, 0, 0.6f);
+                } else {
+                    m_batch.setColor(1, 0, 0, 0.6f);
                 }
             }
 
