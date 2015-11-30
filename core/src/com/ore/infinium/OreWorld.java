@@ -368,7 +368,7 @@ public class OreWorld implements Disposable {
     private int m_blockPickingCrosshairEntity = ENTITY_INVALID;
     int m_itemPlacementOverlayEntity = ENTITY_INVALID;
 
-    private com.artemis.World m_artemisWorld;
+    com.artemis.World m_artemisWorld;
 
     public OreWorld(OreClient client, OreServer server) {
 
@@ -1587,7 +1587,7 @@ public class OreWorld implements Disposable {
     }
 
     /**
-     * Clone everything about the entity. Does *not* add it to the engine
+     * Clone everything about the entity and adds it to the engine/world
      *
      * @param entity
      *         to clone

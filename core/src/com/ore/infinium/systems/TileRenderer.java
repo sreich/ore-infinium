@@ -1,7 +1,8 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.systems.IntervalSystem;
+import com.artemis.BaseSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -31,7 +32,8 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.     *
  * ***************************************************************************
  */
-public class TileRenderer extends IntervalSystem {
+@Wire
+public class TileRenderer extends BaseSystem {
     public static int tilesInViewCountDebug;
 
     public TextureAtlas m_blockAtlas;
@@ -44,22 +46,19 @@ public class TileRenderer extends IntervalSystem {
 
     private SpriteBatch m_batch;
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<JumpComponent> jumpMapper;
 
     // <byte mesh type, string texture name>
     public IntMap<String> dirtBlockMeshes;
     public IntMap<String> stoneBlockMeshes;
     public IntMap<String> grassBlockMeshes;
 
-    public TileRenderer(OrthographicCamera camera, OreWorld world, float interval) {
-        super(interval);
-        elapsed = interval;
-
+    public TileRenderer(OrthographicCamera camera, OreWorld world) {
         m_camera = camera;
         m_world = world;
         m_batch = new SpriteBatch(5000);
@@ -94,8 +93,13 @@ public class TileRenderer extends IntervalSystem {
         }
     }
 
+    @Override
+    protected void processSystem() {
+
+    }
+
     public void render(double elapsed) {
-        if (m_world.m_mainPlayerEntity == null) {
+        if (m_world.m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
             return;
         }
 
@@ -206,11 +210,4 @@ public class TileRenderer extends IntervalSystem {
         m_batch.end();
     }
 
-    /**
-     * The processing logic of the system should be placed here.
-     */
-    @Override
-    protected void updateInterval() {
-        render(elapsed);
-    }
 }
