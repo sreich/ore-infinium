@@ -1,4 +1,5 @@
-apply plugin: 'provided-base'
+apply plugin: 'nebula.provided-base'
+apply plugin: 'com.github.ben-manes.versions'
 
 task createWrapper(type: Wrapper) {
     gradleVersion = "2.9"
@@ -8,14 +9,23 @@ task createWrapper(type: Wrapper) {
 buildscript {
 
     ext {
+        //use + for latest
         appName = 'ore-infinium'
+
         gdxVersion = '1.7.1'
-        //roboVMVersion = '1.0.0-beta-01'
-        aiVersion = '1.4.0'
+
+        aiVersion = '1.6.0'
+
         artemisVersion = '1.2.1'
         artemisContribVersion = '1.1.0'
         kryonetVersion = '2.22.0-RC1'
-        //use + for latest
+
+
+        matrixCliVersion = "0.1.2"
+
+        gradleVersionsPluginVersion = "0.11.3"
+
+        gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
 
     repositories {
@@ -35,7 +45,9 @@ buildscript {
 
         // introduces support for provided scope gradle keyword.
         //3.0.3 FIXME
-        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:1.12.+'
+        classpath "com.netflix.nebula:gradle-extra-configurations-plugin:$gradleExtraConfigurationsPluginVersion"
+
+        classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
     }
 }
 
@@ -126,7 +138,7 @@ project(":matrix") {
 
     dependencies {
         compile project(":core")
-        compile "net.onedaybeard.ecs:matrix-cli:0.1.1"
+        compile "net.onedaybeard.ecs:matrix-cli:$matrixCliVersion"
     }
 
     task generateMatrix(type: JavaExec) {
