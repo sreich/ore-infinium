@@ -364,11 +364,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
 
             if (m_world != null) {
-                m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
+                //hack reinstate
+                //m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
 
                 if (m_server != null) {
                     textY -= 15;
-                    m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
+                    //m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0, textY);
 
                 }
             }
@@ -501,7 +502,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
-        if (m_mainPlayerEntity == null) {
+        if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
             return false;
         }
 
@@ -511,7 +512,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
-            if (playerComponent.getEquippedPrimaryItem() != null) {
+            if (playerComponent.getEquippedPrimaryItem() != OreWorld.ENTITY_INVALID) {
                 Network.HotbarDropItemRequestFromClient dropItemRequestFromClient =
                         new Network.HotbarDropItemRequestFromClient();
                 dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
@@ -683,12 +684,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
     }
 
     private Entity createPlayer(String playerName, int connectionId) {
-        Entity player = m_world.createPlayer(playerName, connectionId);
+        int player = m_world.createPlayer(playerName, connectionId);
         ControllableComponent controllableComponent = m_world.engine.createComponent(ControllableComponent.class);
         player.add(controllableComponent);
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
-        if (m_mainPlayerEntity == null) {
+        if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
             PlayerComponent playerComponent = playerMapper.get(player);
 
             m_hotbarInventory = new Inventory(player);
@@ -710,8 +711,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         //          SpriteComponent spriteComponent = spriteMapper.get(player);
         //        spriteComponent.sprite.setTexture();
-
-        m_world.engine.addEntity(player);
 
         return player;
     }
@@ -763,26 +762,21 @@ public class OreClient implements ApplicationListener, InputProcessor {
                         (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
 
                 //HACK spawn.id, sprite!!
-                Entity e = m_world.engine.createEntity();
+                int e = m_world.m_artemisWorld.create();
                 for (Component c : spawn.components) {
                     e.add(c);
                 }
 
-                SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
+                SpriteComponent spriteComponent = spriteMapper.create(e);
                 spriteComponent.textureName = spawn.textureName;
                 spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
 
                 TextureRegion textureRegion;
-                if (blockMapper.get(e) == null) {
+                if (blockMapper.has(e) == false) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
                     textureRegion = m_world.m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
                 }
-
-                spriteComponent.sprite.setRegion(textureRegion);
-                e.add(spriteComponent);
-
-                m_world.engine.addEntity(e);
 
                 ToolComponent toolComponent = toolMapper.get(e);
 
@@ -796,7 +790,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 //fixme this and hotbar code needs consolidation
                 Network.EntitySpawnFromServer spawn = (Network.EntitySpawnFromServer) object;
 
-                Entity e = m_world.engine.createEntity();
+                int e = m_world.m_artemisWorld.create();
                 for (Component c : spawn.components) {
                     e.add(c);
                 }
@@ -808,26 +802,23 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
 
                 TextureRegion textureRegion;
-                if (blockMapper.get(e) == null) {
+                if (blockMapper.has(e) == false) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
                     textureRegion = m_world.m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
                 }
 
                 spriteComponent.sprite.setRegion(textureRegion);
-                e.add(spriteComponent);
 
                 m_networkIdForEntityId.put(e, spawn.id);
                 m_entityForNetworkId.put(spawn.id, e);
-
-                m_world.engine.addEntity(e);
             } else if (object instanceof Network.ChatMessageFromServer) {
                 Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) object;
                 m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
             } else if (object instanceof Network.EntityMovedFromServer) {
                 Network.EntityMovedFromServer data = (Network.EntityMovedFromServer) object;
-                Entity entity = m_entityForNetworkId.get(data.id);
-                assert entity != null;
+                int entity = m_entityForNetworkId.get(data.id);
+                assert entity != OreWorld.ENTITY_INVALID;
 
                 SpriteComponent spriteComponent = spriteMapper.get(entity);
                 spriteComponent.sprite.setPosition(data.position.x, data.position.y);
@@ -907,14 +898,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         @Override
         public void selected(byte index, Inventory inventory) {
-            if (m_mainPlayerEntity == null) {
+            if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
                 return;
             }
 
             sendHotbarEquipped(index);
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
-            Entity itemCopy = playerComponent.getEquippedPrimaryItem();
+            int itemCopy = playerComponent.getEquippedPrimaryItem();
             playerComponent.equippedItemAnimator = itemCopy;
 
             m_world.clientHotbarInventoryItemSelected();
