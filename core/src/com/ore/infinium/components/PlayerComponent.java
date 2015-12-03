@@ -42,14 +42,14 @@ public class PlayerComponent extends Component {
     public static final int placeableItemDelay = 300;
 
     //    public Vector2 mousePositionWorldCoords;
-//    public boolean mouseLeftButtonHeld;
-//    public boolean mouseRightButtonHeld;
+    //    public boolean mouseLeftButtonHeld;
+    //    public boolean mouseRightButtonHeld;
     public int ping;
     public boolean noClip;
     public LoadedViewport loadedViewport = new LoadedViewport();
     public Inventory hotbarInventory;
     public Inventory inventory;
-    public int equippedItemAnimator;
+    //public int equippedItemAnimator;
 
     /**
      * @return entity id that is equipped as primary

@@ -26,6 +26,13 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+
+/**
+ * system that handled all the power circuits/wire connections, can look them up,
+ * connect them, remove them, etc., and it also will process them each tick and
+ * calculate their current statuses, e.g. how much electricity was generated,
+ * consumed, etc...
+ */
 @Wire
 public class PowerCircuitSystem extends BaseSystem {
     private OreWorld m_world;
@@ -105,6 +112,17 @@ public class PowerCircuitSystem extends BaseSystem {
      */
     @Override
     protected void processSystem() {
+        /*
+        * note that only the server should be the one that processes input and
+        * output for generations, devices etc...the client cannot accurately calculate this each tick,
+        * without desyncing at some point. the server should be the one
+        * informing it of the outcomes, and the changes can be sent over the
+        * wire and consumed by this system
+        */
+        if (m_world.isClient()) {
+            return;
+        }
+
         for (PowerCircuit circuit : m_circuits) {
 
             circuit.totalDemand = 0;

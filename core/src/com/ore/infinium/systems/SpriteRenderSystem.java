@@ -27,7 +27,7 @@ import com.ore.infinium.components.*;
  * ***************************************************************************
  */
 @Wire
-public class SpriteRenderSystem extends BaseSystem {
+public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker {
     public static int spriteCount;
 
     private OreWorld m_world;

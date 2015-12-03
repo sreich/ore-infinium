@@ -33,7 +33,7 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class PowerOverlayRenderSystem extends IteratingSystem {
+public class PowerOverlayRenderSystem extends IteratingSystem implements RenderSystemMarker {
     public static int spriteCount;
     public boolean overlayVisible = false;
     //   public TextureAtlas m_atlas;

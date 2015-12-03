@@ -1,11 +1,10 @@
 package com.ore.infinium;
 
-import com.artemis.ComponentMapper;
-import com.artemis.Entity;
-import com.artemis.WorldConfigurationBuilder;
+import com.artemis.*;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
@@ -344,9 +343,6 @@ public class OreWorld implements Disposable {
 
     //fixme remove in favor of the render system
     public TextureAtlas m_atlas;
-    protected TileRenderer m_tileRenderer;
-    PowerOverlayRenderSystem m_powerOverlaySystem;
-    public PowerCircuitSystem m_powerCircuitSystem;
 
     private ComponentMapper<PlayerComponent> playerMapper;
     private ComponentMapper<SpriteComponent> spriteMapper;
@@ -368,7 +364,7 @@ public class OreWorld implements Disposable {
     private int m_blockPickingCrosshairEntity = ENTITY_INVALID;
     int m_itemPlacementOverlayEntity = ENTITY_INVALID;
 
-    com.artemis.World m_artemisWorld;
+    World m_artemisWorld;
 
     public OreWorld(OreClient client, OreServer server) {
 
@@ -376,21 +372,38 @@ public class OreWorld implements Disposable {
         m_server = server;
 
         if (isClient()) {
-            m_artemisWorld = new com.artemis.World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
-                                                                                  .with(new TagManager(),
-                                                                                        new PlayerManager())
-                                                                                  .with(new MovementSystem(this))
-                                                                                  .with(new PowerCircuitSystem(this))
-                                                                                  .with(new PlayerSystem(this))
-                                                                                  .build());
+
+            m_camera = new OrthographicCamera(1600 / OreWorld.PIXELS_PER_METER,
+                                              900 / OreWorld.PIXELS_PER_METER);//30, 30 * (h / w));
+            m_camera.setToOrtho(true, 1600 / OreWorld.PIXELS_PER_METER, 900 / OreWorld.PIXELS_PER_METER);
+
+            m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
+                                                                      .with(new TagManager())
+                                                                      .with(new PlayerManager())
+                                                                      .with(new MovementSystem(this))
+                                                                      .with(new PowerCircuitSystem(this))
+                                                                      .with(new PlayerSystem(this))
+                                                                      .with(new PowerOverlayRenderSystem(this))
+                                                                      .with(new SpriteRenderSystem(this))
+                                                                      .register(
+                                                                              new GameLoopSystemInvocationStrategy(25))
+                                                                      .build());
 
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
         } else {
 
             //hack
-            m_artemisWorld =
-                    new com.artemis.World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class).build());
+            m_artemisWorld = new World(new WorldConfigurationBuilder().with(new TagManager())
+                                                                      .with(new PlayerManager())
+                                                                      .with(new MovementSystem(this))
+                                                                      .with(new PowerCircuitSystem(this))
+                                                                      .with(new PlayerSystem(this))
+                                                                      .with(new TileRenderSystem(m_camera, this))
+                                                                      .register(
+                                                                              new GameLoopSystemInvocationStrategy(25))
+                                                                      .build());
+
         }
 
         blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
@@ -398,10 +411,6 @@ public class OreWorld implements Disposable {
         //        assetManager = new AssetManager();
         //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
         //        assetManager.finishLoading();
-
-        m_camera = new OrthographicCamera(1600 / OreWorld.PIXELS_PER_METER,
-                                          900 / OreWorld.PIXELS_PER_METER);//30, 30 * (h / w));
-        m_camera.setToOrtho(true, 1600 / OreWorld.PIXELS_PER_METER, 900 / OreWorld.PIXELS_PER_METER);
 
         //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
 
@@ -418,7 +427,6 @@ public class OreWorld implements Disposable {
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
             spriteComponent.noClip = true;
 
-            engine.addSystem(m_tileRenderer = new TileRenderer(m_camera, this, 1f / 60f));
         }
 
         if (isServer()) {
@@ -855,13 +863,14 @@ public class OreWorld implements Disposable {
             updateCrosshair();
             updateItemPlacementOverlay();
 
-            if (m_client.leftMouseDown && !m_powerOverlaySystem.overlayVisible) {
+            PowerOverlaySystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlaySystem.class);
+            if (m_client.leftMouseDown && !powerOverlaySystem.overlayVisible) {
                 handleLeftMousePrimaryAttack();
             }
 
             //hack
             if (m_itemPlacementOverlayEntity != ENTITY_INVALID) {
-                SpriteComponent component = spriteMapper.get(m_itemPlacementOverlayEntity);
+                SpriteComponent component = spriteMapper.getSafe(m_itemPlacementOverlayEntity);
                 assert component != null : "how the hell does it have no spritecomp?!!";
 
                 assert component.noClip : "placement overlay found to not be in noclip mode!!!";
@@ -1482,7 +1491,7 @@ public class OreWorld implements Disposable {
         //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_SIZE_Y * BLOCK_SIZE);
 
         //check collision against entities
-        ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+        IntBag entities = m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(SpriteComponent.class));
         for (int i = 0; i < entities.size(); ++i) {
             //it's the item we're trying to place, don't count a collision with ourselves
             if (entities.get(i) == entity) {
@@ -1494,7 +1503,7 @@ public class OreWorld implements Disposable {
             //            continue;
             //        }
 
-            ItemComponent itemComponent = itemMapper.get(entities.get(i));
+            ItemComponent itemComponent = itemMapper.getSafe(entities.get(i));
             if (itemComponent != null) {
                 // items that are dropped in the world are considered non colliding
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
@@ -1627,7 +1636,7 @@ public class OreWorld implements Disposable {
         }
 
         //player, unneeded
-        assert playerMapper.get(entity) == null;
+        assert playerMapper.getSafe(entity) == null;
 
         if (spriteMapper.has(entity)) {
             spriteMapper.create(clonedEntity);
@@ -1672,7 +1681,8 @@ public class OreWorld implements Disposable {
      */
     public int playerForID(int playerIdWhoDropped) {
         assert !isClient();
-        ImmutableArray<Entity> entities = engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
+
+        IntBag entities = m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(Playeromponent.class));
         PlayerComponent playerComponent;
         for (int i = 0; i < entities.size(); ++i) {
             playerComponent = playerMapper.get(entities.get(i));
@@ -1689,8 +1699,9 @@ public class OreWorld implements Disposable {
             return false;
         }
 
-        if (m_powerOverlaySystem.overlayVisible) {
-            m_powerOverlaySystem.leftMouseClicked();
+        PowerOverlaySystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlaySystem.class);
+        if (powerOverlaySystem.overlayVisible) {
+            powerOverlaySystem.leftMouseClicked();
             return true;
         } else {
             return true;
@@ -1704,8 +1715,9 @@ public class OreWorld implements Disposable {
             return false;
         }
 
-        if (m_powerOverlaySystem.overlayVisible) {
-            m_powerOverlaySystem.leftMouseReleased();
+        PowerOverlaySystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlaySystem.class);
+        if (powerOverlaySystem.overlayVisible) {
+            powerOverlaySystem.leftMouseReleased();
             return true;
         } else {
         }

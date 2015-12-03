@@ -30,7 +30,8 @@ public class Block {
      * meshType however, is determined by calculating the surrounding tiles and if they are of a simlar type or similar
      * blendType, then it will change the overall look of it.
      * <p>
-     * Bottom line: use meshType ONLY for rendering, use primitiveType for everything else. meshType is only a displaying
+     * Bottom line: use meshType ONLY for rendering, use primitiveType for everything else. meshType is only a
+     * displaying
      * niche of a detail, not a gameplay mechanic
      */
     public byte meshType;
@@ -40,7 +41,6 @@ public class Block {
      * (an enum)
      */
     public byte type;
-
 
     /**
      * 1:1 correspondence to the primitive type. just that it's rendered in the background with a darker color.
@@ -60,7 +60,8 @@ public class Block {
         QString texture;
 
         // I thought about using flags..but this seems better, save for the might-be-fucking-huge-constructor
-        // this will be useful for TODO: blocks that hurt or help the player's health, etc. (lava), liquids of types, etc.
+        // this will be useful for TODO: blocks that hurt or help the player's health, etc. (lava), liquids of types,
+         e tc.
         boolean collides;
 
         //TODO: animations..array of textures for animation..for destroying and other shit
@@ -80,11 +81,13 @@ public class Block {
     //static std::vector<BlockStruct> blockTypes;
     //static std::vector<WallStruct> wallTypes;
     /**
-     * if != 0 (WallType::Null), then this is an "underground wall tile" and the user cannot remove/add/change it in any way.
+     * if != 0 (WallType::Null), then this is an "underground wall tile" and the user cannot remove/add/change it in
+     * any way.
      *
      * @sa WallType
      */
-    /// NOTE: block ownership is stored in the Player class, which just stores a list of indices of tiles which the player 'owns'.
+    /// NOTE: block ownership is stored in the Player class, which just stores a list of indices of tiles which the
+    // player 'owns'.
 
     /**
      * Determines the health and texture of the Block.
@@ -130,7 +133,7 @@ public class Block {
     public static final class BlockFlags {
         public static final byte OnFireBlock = 1 << 0;
         public static final byte GrassBlock = 1 << 1;
-//        public static final int GrassBlock = 1 << 2;
+        //        public static final int GrassBlock = 1 << 2;
     }
 
 
