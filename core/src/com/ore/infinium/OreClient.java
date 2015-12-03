@@ -1,42 +1,20 @@
 package com.ore.infinium;
 
-import com.artemis.Aspect;
-import com.artemis.AspectSubscriptionManager;
 import com.artemis.ComponentMapper;
-import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
-import com.artemis.utils.IntBag;
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.profiling.GLProfiler;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
-
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
-import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.FrameworkMessage;
-import com.esotericsoftware.kryonet.Listener;
 import com.ore.infinium.components.*;
-import com.ore.infinium.systems.TileRenderer;
-
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import com.ore.infinium.systems.NetworkClientSystem;
 
 @Wire
 public class OreClient implements ApplicationListener, InputProcessor {
@@ -101,7 +79,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Thread.currentThread().setName("client render thread (GL)");
 
         m_dragAndDrop = new DragAndDrop();
-        decimalFormat.setMaximumFractionDigits(4);
 
         m_stage = new Stage(viewport = new StretchViewport(1600, 900));
         m_multiplexer = new InputMultiplexer(m_stage, this);
@@ -161,6 +138,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
 //call system, if returns false, fail and show:
+        m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connect("127.0.0.1", Network.port);
         //showFailToConnectDialog();
     }
 
@@ -461,33 +439,4 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
     }
 
-    private class ClientEntitySubscriptionListener implements EntitySubscription.SubscriptionListener {
-
-        /**
-         * Called after entities have been matched and inserted into an
-         * EntitySubscription.
-         *
-         * @param entities
-         */
-        @Override
-        public void inserted(IntBag entities) {
-
-        }
-
-        /**
-         * Called after entities have been removed from an EntitySubscription.
-         *
-         * @param entities
-         */
-        @Override
-        public void removed(IntBag entities) {
-            for (int entity = 0; entity < entities.size(); ++entity) {
-                Integer networkId = m_networkIdForEntityId.remove(entity);
-                if (networkId != null) {
-                    //a local only thing, like crosshair etc
-                    m_entityForNetworkId.remove(networkId);
-                }
-            }
-        }
-    }
 }

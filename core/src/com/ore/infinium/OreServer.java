@@ -2,12 +2,9 @@ package com.ore.infinium;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
-import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.components.*;
+import com.ore.infinium.systems.NetworkServerSystem;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -64,12 +61,19 @@ public class OreServer implements Runnable {
 
     private double SERVER_FIXED_TIMESTEP = 1.0 / 60.0 * 1000;
 
+    private NetworkServerSystem m_networkServerSystem;
+
     public OreServer() {
     }
 
     public void run() {
         Thread.currentThread().setName("server thread (main)");
+
         m_world = new OreWorld(null, this);
+
+        m_networkServerSystem = m_world.m_artemisWorld.getSystem(NetworkServerSystem.class);
+        assert m_networkServerSystem != null;
+
         m_chat = new Chat();
         m_chat.addListener(new Chat.ChatListener() {
             @Override
@@ -91,26 +95,11 @@ public class OreServer implements Runnable {
 
         //notify our local client we've started hosting our server, so he can connect now.
         connectHostLatch.countDown();
-        serverLoop();
     }
 
-    while(m_running)
-
-    {
-        while (m_accumulator >= SERVER_FIXED_TIMESTEP) {
-            sharedFrameTime = m_accumulator;
-
-            m_accumulator -= SERVER_FIXED_TIMESTEP;
-
-            processNetworkQueue();
-
-            //entityManager.update();
-            m_world.update(frameTime);
-
             if (shutdownLatch.getCount() == 0) {
-                //client told us to shutdown by triggering latch to 0, this should kill thread..
+        //client told us to shutdown by triggering latch to 0, this should kill our thread..
                 //m_serverKryo.stop(); needed?
-                m_serverKryo.close();
                 return;
             }
         }
@@ -168,13 +157,13 @@ public class OreServer implements Runnable {
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
         //tell all players including himself, that he joined
-        sendSpawnPlayerBroadcast(player);
+        m_networkServerSystem.sendSpawnPlayerBroadcast(player);
 
         //tell this player all the current players
         for (int i = 0; i < m_world.m_players.size; ++i) {
             //exclude himself, though. he already knows.
             if (m_world.m_players.get(i) != player) {
-                sendSpawnPlayer(m_world.m_players.get(i), connectionId);
+        m_networkServerSystem.sendSpawnPlayer(m_world.m_players.get(i),connectionId);
             }
         }
 
@@ -254,7 +243,7 @@ public class OreServer implements Runnable {
         for (byte i = 0; i < Inventory.maxHotbarSlots; ++i) {
             int entity = playerComponent.hotbarInventory.itemEntity(i);
             if (entity != OreWorld.ENTITY_INVALID) {
-                sendSpawnHotbarInventoryItem(entity, i, playerEntity);
+        m_networkServerSystem.sendSpawnHotbarInventoryItem(entity,i,playerEntity);
             }
         }
     }

@@ -3,6 +3,7 @@ package com.ore.infinium.systems;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -95,6 +96,8 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
                               "F9 - client/server sync debug render toggle", "F8 - client sprite debug render toggle"));
 
         GLProfiler.enable();
+
+        decimalFormat.setMaximumFractionDigits(4);
 
         junktexture = new Texture(Gdx.files.internal("entities/debug.png"));
         m_debugServerBatch = new SpriteBatch();

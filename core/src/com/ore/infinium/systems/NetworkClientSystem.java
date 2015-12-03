@@ -2,11 +2,15 @@ package com.ore.infinium.systems;
 
 import com.artemis.*;
 import com.artemis.annotations.Wire;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.IntMap;
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
+import com.esotericsoftware.kryonet.Listener;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.Network;
 import com.ore.infinium.OreClient;
@@ -48,6 +52,7 @@ public class NetworkClientSystem extends BaseSystem {
     private ComponentMapper<ItemComponent> itemMapper;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
+    private ComponentMapper<BlockComponent> blockMapper;
 
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
 
@@ -78,7 +83,12 @@ public class NetworkClientSystem extends BaseSystem {
         m_world = world;
     }
 
-    public void connect(String ip) {
+    /**
+     * connect the client network object to the given ip, at the given port
+     *
+     * @param ip
+     */
+    public void connect(String ip, int port) {
         //= new Client(16384, 8192, new JsonSerialization());
         m_clientKryo = new Client(8192, Network.bufferObjectSize);
         m_clientKryo.start();
@@ -91,7 +101,7 @@ public class NetworkClientSystem extends BaseSystem {
         new Thread("kryonet connection client thread") {
             public void run() {
                 try {
-                    m_clientKryo.connect(99999999 /*HACK, debug*/, "127.0.0.1", Network.port);
+                    m_clientKryo.connect(99999999 /*HACK, debug*/, ip, port);
                     // Server communication after connection can go here, or in Listener#connected().
 
                     Network.InitialClientData initialClientData = new Network.InitialClientData();
@@ -100,9 +110,9 @@ public class NetworkClientSystem extends BaseSystem {
 
                     //TODO generate some random thing
                     initialClientData.playerUUID = UUID.randomUUID().toString();
-                    initialClientData.versionMajor = ORE_VERSION_MAJOR;
-                    initialClientData.versionMinor = ORE_VERSION_MINOR;
-                    initialClientData.versionRevision = ORE_VERSION_REVISION;
+                    initialClientData.versionMajor = OreClient.ORE_VERSION_MAJOR;
+                    initialClientData.versionMinor = OreClient.ORE_VERSION_MINOR;
+                    initialClientData.versionRevision = OreClient.ORE_VERSION_REVISION;
 
                     m_clientKryo.sendTCP(initialClientData);
                 } catch (IOException ex) {
@@ -137,8 +147,7 @@ public class NetworkClientSystem extends BaseSystem {
                     m_world.addPlayer(m_mainPlayerEntity);
                     m_world.initClient(m_mainPlayerEntity);
 
-                    AspectSubscriptionManager aspectSubscriptionManager =
-                            m_world.m_artemisWorld.getAspectSubscriptionManager();
+                    AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
                     EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
                     subscription.addSubscriptionListener(new ClientEntitySubscriptionListener());
                 } else {
@@ -162,7 +171,7 @@ public class NetworkClientSystem extends BaseSystem {
                         (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
 
                 //HACK spawn.id, sprite!!
-                int e = m_world.m_artemisWorld.create();
+                int e = getWorld().create();
                 for (Component c : spawn.components) {
                     e.add(c);
                 }
@@ -175,7 +184,8 @@ public class NetworkClientSystem extends BaseSystem {
                 if (blockMapper.has(e) == false) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
-                    textureRegion = m_world.m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+                    textureRegion = getWorld().getSystem(TileRenderSystem.class).m_blockAtlas.findRegion(
+                            spriteComponent.textureName);
                 }
 
                 ToolComponent toolComponent = toolMapper.get(e);
@@ -319,4 +329,33 @@ public class NetworkClientSystem extends BaseSystem {
         }
     }
 
+    private class ClientEntitySubscriptionListener implements EntitySubscription.SubscriptionListener {
+
+        /**
+         * Called after entities have been matched and inserted into an
+         * EntitySubscription.
+         *
+         * @param entities
+         */
+        @Override
+        public void inserted(IntBag entities) {
+
+        }
+
+        /**
+         * Called after entities have been removed from an EntitySubscription.
+         *
+         * @param entities
+         */
+        @Override
+        public void removed(IntBag entities) {
+            for (int entity = 0; entity < entities.size(); ++entity) {
+                Integer networkId = m_networkIdForEntityId.remove(entity);
+                if (networkId != null) {
+                    //a local only thing, like crosshair etc
+                    m_entityForNetworkId.remove(networkId);
+                }
+            }
+        }
+    }
 }

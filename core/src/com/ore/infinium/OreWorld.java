@@ -1,6 +1,9 @@
 package com.ore.infinium;
 
-import com.artemis.*;
+import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
+import com.artemis.World;
+import com.artemis.WorldConfigurationBuilder;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
@@ -371,11 +374,19 @@ public class OreWorld implements Disposable {
         m_client = client;
         m_server = server;
 
+        assert isClient() ^ isServer();
+
         if (isClient()) {
 
             m_camera = new OrthographicCamera(1600 / OreWorld.PIXELS_PER_METER,
                                               900 / OreWorld.PIXELS_PER_METER);//30, 30 * (h / w));
             m_camera.setToOrtho(true, 1600 / OreWorld.PIXELS_PER_METER, 900 / OreWorld.PIXELS_PER_METER);
+
+            m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
+
+            //we don't generate the block world with noise, just init it so it isn't
+            //it isn't null
+            initializeWorld();
 
             m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
                                                                       .with(new TagManager())
@@ -385,39 +396,10 @@ public class OreWorld implements Disposable {
                                                                       .with(new PlayerSystem(this))
                                                                       .with(new PowerOverlayRenderSystem(this))
                                                                       .with(new SpriteRenderSystem(this))
-                                                                      .register(
-                                                                              new GameLoopSystemInvocationStrategy(25))
-                                                                      .build());
-
-            float w = Gdx.graphics.getWidth();
-            float h = Gdx.graphics.getHeight();
-        } else {
-
-            //hack
-            m_artemisWorld = new World(new WorldConfigurationBuilder().with(new TagManager())
-                                                                      .with(new PlayerManager())
-                                                                      .with(new MovementSystem(this))
-                                                                      .with(new PowerCircuitSystem(this))
-                                                                      .with(new PlayerSystem(this))
                                                                       .with(new TileRenderSystem(m_camera, this))
                                                                       .register(
                                                                               new GameLoopSystemInvocationStrategy(25))
                                                                       .build());
-
-        }
-
-        blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
-
-        //        assetManager = new AssetManager();
-        //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
-        //        assetManager.finishLoading();
-
-        //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
-
-        assert isClient() ^ isServer();
-        if (isClient()) {
-            m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
-            initializeWorld();
 
             m_blockPickingCrosshairEntity = m_artemisWorld.create();
             m_artemisWorld.getSystem(TagManager.class).register("crosshair", m_blockPickingCrosshairEntity);
@@ -427,11 +409,30 @@ public class OreWorld implements Disposable {
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
             spriteComponent.noClip = true;
 
-        }
+            float w = Gdx.graphics.getWidth();
+            float h = Gdx.graphics.getHeight();
+        } else {
+            blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
 
-        if (isServer()) {
+            m_artemisWorld = new World(new WorldConfigurationBuilder().with(new TagManager())
+                                                                      .with(new PlayerManager())
+                                                                      .with(new MovementSystem(this))
+                                                                      .with(new PowerCircuitSystem(this))
+                                                                      .with(new GrassBlockSystem(this))
+                                                                      .with(new PlayerSystem(this))
+                                                                      .with(new NetworkServerSystem(this, m_server))
+                                                                      .register(
+                                                                              new GameLoopSystemInvocationStrategy(25))
+                                                                      .build());
+
             generateWorld();
         }
+
+        //        assetManager = new AssetManager();
+        //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
+        //        assetManager.finishLoading();
+
+        //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
     }
 
     //TODO cleanup, can be broken down into various handlers, early returns and handling multiple cases make it
@@ -487,7 +488,7 @@ public class OreWorld implements Disposable {
         spriteComponent.noClip = true;
 
         //crosshair shoudln't be visible if the power overlay is
-        if (m_powerOverlaySystem.overlayVisible) {
+        if (m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
             spriteComponent.visible = false;
         }
 
@@ -498,12 +499,10 @@ public class OreWorld implements Disposable {
     public void initServer() {
     }
 
+    //called to spawn client player HACK: needs to be fixed/consolidated.
     public void initClient(int mainPlayer) {
         m_mainPlayerEntity = mainPlayer;
         //        velocityMapper.get(m_mainPlayerEntity);
-
-        engine.addSystem(new SpriteRenderSystem(this));
-        engine.addSystem(m_powerOverlaySystem = new PowerOverlayRenderSystem(this));
 
         SpriteComponent playerSprite = spriteMapper.get(m_mainPlayerEntity);
         playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
@@ -565,6 +564,9 @@ public class OreWorld implements Disposable {
 
     }
 
+    /**
+     * world gen, generates the initial grass of the world
+     */
     private void generateGrassTiles() {
         for (int x = 0; x < WORLD_SIZE_X; ++x) {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
@@ -863,8 +865,7 @@ public class OreWorld implements Disposable {
             updateCrosshair();
             updateItemPlacementOverlay();
 
-            PowerOverlaySystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlaySystem.class);
-            if (m_client.leftMouseDown && !powerOverlaySystem.overlayVisible) {
+            if (m_client.leftMouseDown && !m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
                 handleLeftMousePrimaryAttack();
             }
 
@@ -875,15 +876,6 @@ public class OreWorld implements Disposable {
 
                 assert component.noClip : "placement overlay found to not be in noclip mode!!!";
             }
-        }
-
-        if (isServer()) {
-
-            //            if (randomGrassTimer.milliseconds() > 500) {
-            //HACK
-            randomGrowGrass();
-            randomGrassTimer.reset();
-            //           }
         }
 
         m_artemisWorld.setDelta((float) elapsed);
@@ -954,7 +946,7 @@ public class OreWorld implements Disposable {
      *
      * @return true if placement succeeded.
      */
-    boolean attemptBlockPlacement(int x, int y, byte placedBlockType) {
+    public boolean attemptBlockPlacement(int x, int y, byte placedBlockType) {
         Block block = blockAtSafely(x, y);
 
         //attempt to place one if the area is empty
@@ -1026,154 +1018,6 @@ public class OreWorld implements Disposable {
         //   m_fluidRenderer->render();
         //    m_particleRenderer->render();
         //FIXME unused    m_quadTreeRenderer->render();
-    }
-
-    private void randomGrowGrass() {
-        for (int i = 0; i < m_players.size; ++i) {
-            int playerEntity = m_players.get(i);
-
-            PlayerComponent playerComponent = playerMapper.get(playerEntity);
-
-            LoadedViewport.PlayerViewportBlockRegion region = playerComponent.loadedViewport.blockRegionInViewport();
-
-            //each tick, resample 100 or so blocks to see if grass can grow. this may need to be
-            //reduced, but for debugging right now it's good.
-            for (int j = 0; j < 1000; ++j) {
-                int randomX = MathUtils.random(region.x, region.width);
-                int randomY = MathUtils.random(region.y, region.height);
-
-                Block block = blockAt(randomX, randomY);
-
-                //pick a random block, if it has grass, try to grow outward along its edges/spread the grass
-                if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-                    int leftBlockX = blockXSafe(randomX - 1);
-                    int leftBlockY = blockYSafe(randomY);
-
-                    int rightBlockX = blockXSafe(randomX + 1);
-                    int rightBlockY = blockYSafe(randomY);
-
-                    int topBlockX = blockXSafe(randomX);
-                    int topBlockY = blockYSafe(randomY - 1);
-
-                    int bottomBlockX = blockXSafe(randomX);
-                    int bottomBlockY = blockYSafe(randomY + 1);
-
-                    int topLeftBlockX = blockXSafe(randomX - 1);
-                    int topLeftBlockY = blockYSafe(randomY - 1);
-
-                    int topRightBlockX = blockXSafe(randomX + 1);
-                    int topRightBlockY = blockYSafe(randomY - 1);
-
-                    int bottomRightBlockX = blockXSafe(randomX + 1);
-                    int bottomRightBlockY = blockYSafe(randomY + 1);
-
-                    int bottomLeftBlockX = blockXSafe(randomX - 1);
-                    int bottomLeftBlockY = blockYSafe(randomY + 1);
-
-                    Block leftBlock = blockAt(leftBlockX, leftBlockY);
-                    Block rightBlock = blockAt(rightBlockX, rightBlockY);
-                    Block topBlock = blockAt(topBlockX, topBlockY);
-                    Block bottomBlock = blockAt(bottomBlockX, bottomBlockY);
-                    Block topLeftBlock = blockAt(topLeftBlockX, topLeftBlockY);
-                    Block topRightBlock = blockAt(topRightBlockX, topRightBlockY);
-                    Block bottomLeftBlock = blockAt(bottomLeftBlockX, bottomLeftBlockY);
-                    Block bottomRightBlock = blockAt(bottomRightBlockX, bottomRightBlockY);
-
-                    //grow left
-                    if (leftBlock.type == Block.BlockType.DirtBlockType &&
-                        !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
-
-                        int leftLeftX = blockXSafe(leftBlockX - 1);
-                        int leftLeftY = leftBlockY;
-                        Block leftLeftBlock = blockAt(leftLeftX, leftLeftY);
-
-                        if (leftLeftBlock.type == Block.BlockType.NullBlockType ||
-                            topLeftBlock.type == Block.BlockType.NullBlockType ||
-                            bottomLeftBlock.type == Block.BlockType.NullBlockType ||
-                            (bottomLeftBlock.type == Block.BlockType.DirtBlockType &&
-                             (bottomBlock.type == Block.BlockType.NullBlockType)) ||
-                            (topLeftBlock.type == Block.BlockType.DirtBlockType &&
-                             topBlock.type == Block.BlockType.NullBlockType)) {
-
-                            leftBlock.setFlag(Block.BlockFlags.GrassBlock);
-                            //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
-                            // leftLeftX, leftLeftY);
-                            m_server.sendPlayerSparseBlock(playerEntity, leftBlock, leftBlockX, leftBlockY);
-                        }
-                    }
-
-                    //grow right
-                    if (rightBlock.type == Block.BlockType.DirtBlockType &&
-                        !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
-
-                        int rightRightX = blockXSafe(rightBlockX + 1);
-                        int rightRightY = rightBlockY;
-                        Block rightRightBlock = blockAt(rightRightX, rightRightY);
-
-                        if (rightRightBlock.type == Block.BlockType.NullBlockType ||
-                            topRightBlock.type == Block.BlockType.NullBlockType ||
-                            bottomRightBlock.type == Block.BlockType.NullBlockType ||
-                            (bottomRightBlock.type == Block.BlockType.DirtBlockType &&
-                             (bottomBlock.type == Block.BlockType.NullBlockType)) ||
-                            (topRightBlock.type == Block.BlockType.DirtBlockType &&
-                             topBlock.type == Block.BlockType.NullBlockType)) {
-
-                            rightBlock.setFlag(Block.BlockFlags.GrassBlock);
-                            //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
-                            //                               m_server.sendPlayerSparseBlock(player,
-                            // rightRightBlock, rightRightX, rightRightY);
-                            m_server.sendPlayerSparseBlock(playerEntity, rightBlock, rightBlockX, rightBlockY);
-                        }
-                    }
-
-                    //grow down
-                    if (bottomBlock.type == Block.BlockType.DirtBlockType &&
-                        !bottomBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
-
-                        //only spread grass to the lower block, if that block has open space left, right, or
-                        //top left, etc. (from our perspective..the block with grass, it is our right block that
-                        //we are checking for empty)
-                        if (bottomLeftBlock.type == Block.BlockType.NullBlockType ||
-                            bottomRightBlock.type == Block.BlockType.NullBlockType ||
-                            leftBlock.type == Block.BlockType.NullBlockType ||
-                            rightBlock.type == Block.BlockType.NullBlockType) {
-
-                            bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
-
-                            m_server.sendPlayerSparseBlock(playerEntity, bottomBlock, bottomBlockX, bottomBlockY);
-                        }
-                    }
-
-                    //grow up
-                    if (topBlock.type == Block.BlockType.DirtBlockType &&
-                        !topBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
-
-                        //only spread grass to the upper block, if that block has open space left, right, or
-                        //top left, etc. (from our perspective..the block with grass, it is our right block that
-                        //we are checking for empty)
-                        if (topLeftBlock.type == Block.BlockType.NullBlockType ||
-                            topRightBlock.type == Block.BlockType.NullBlockType ||
-                            leftBlock.type == Block.BlockType.NullBlockType ||
-                            rightBlock.type == Block.BlockType.NullBlockType) {
-
-                            topBlock.setFlag(Block.BlockFlags.GrassBlock);
-
-                            m_server.sendPlayerSparseBlock(playerEntity, topBlock, topBlockX, topBlockY);
-                        }
-                    }
-
-                    //grow top-right
-                    if (topRightBlock.type == Block.BlockType.DirtBlockType) {
-                        //hack                        int topRightTopRightX = blockXSafe(topRightBlockX + 1);
-                        //hack                        int topRightTopRightY = blockYSafe(topRightBlockY + 1);
-
-                        //                        Block topRightTopRightBlock = blockAt(topRightTopRightX,
-                        // topRightTopRightY);
-
-                    }
-                }
-            }
-        }
     }
 
     private void transitionGrass() {
@@ -1491,7 +1335,8 @@ public class OreWorld implements Disposable {
         //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_SIZE_Y * BLOCK_SIZE);
 
         //check collision against entities
-        IntBag entities = m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(SpriteComponent.class));
+        IntBag entities =
+                m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(SpriteComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); ++i) {
             //it's the item we're trying to place, don't count a collision with ourselves
             if (entities.get(i) == entity) {
@@ -1528,7 +1373,7 @@ public class OreWorld implements Disposable {
         return true;
     }
 
-    private boolean entityCollides(Entity first, Entity second) {
+    private boolean entityCollides(int first, int second) {
         SpriteComponent spriteComponent1 = spriteMapper.get(first);
         SpriteComponent spriteComponent2 = spriteMapper.get(second);
 
@@ -1674,19 +1519,21 @@ public class OreWorld implements Disposable {
     }
 
     /**
-     * @param playerIdWhoDropped
+     * gets the player entity that corresponds to this player id.
+     * @param playerId
      *         the playerid of the player
      *
      * @return the player entity
      */
-    public int playerForID(int playerIdWhoDropped) {
+    public int playerForID(int playerId) {
         assert !isClient();
 
-        IntBag entities = m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(Playeromponent.class));
+        IntBag entities =
+                m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(PlayerComponent.class)).getEntities();
         PlayerComponent playerComponent;
         for (int i = 0; i < entities.size(); ++i) {
             playerComponent = playerMapper.get(entities.get(i));
-            if (playerComponent.connectionId == playerIdWhoDropped) {
+            if (playerComponent.connectionId == playerId) {
                 return entities.get(i);
             }
         }
@@ -1694,12 +1541,14 @@ public class OreWorld implements Disposable {
         throw new IllegalStateException("player id attempted to be obtained from item, but this player does not exist");
     }
 
+    //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
+    //and they can process that in there. or maybe this should be in the client..after all, a server has no key events
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if (button != Input.Buttons.LEFT) {
             return false;
         }
 
-        PowerOverlaySystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlaySystem.class);
+        PowerOverlayRenderSystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem.class);
         if (powerOverlaySystem.overlayVisible) {
             powerOverlaySystem.leftMouseClicked();
             return true;
@@ -1715,7 +1564,7 @@ public class OreWorld implements Disposable {
             return false;
         }
 
-        PowerOverlaySystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlaySystem.class);
+        PowerOverlayRenderSystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem.class);
         if (powerOverlaySystem.overlayVisible) {
             powerOverlaySystem.leftMouseReleased();
             return true;

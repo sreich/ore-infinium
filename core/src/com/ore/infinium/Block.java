@@ -110,8 +110,9 @@ public class Block {
     /**
      * properly destroys the block (sets meshtype, flags etc to defaults)
      * must be called when destroying a block.
+     * Essentially, "picks" the block from the players point of view. (aka sets it to null).
      */
-    void destroy() {
+    public void destroy() {
         type = Block.BlockType.NullBlockType;
         meshType = 0;
         wallType = 0;

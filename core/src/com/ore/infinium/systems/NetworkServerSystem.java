@@ -1,12 +1,16 @@
 package com.ore.infinium.systems;
 
 import com.artemis.BaseSystem;
+import com.artemis.Component;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
 import com.ore.infinium.*;
 import com.ore.infinium.components.*;
 
@@ -14,6 +18,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -47,14 +52,17 @@ public class NetworkServerSystem extends BaseSystem {
     private ComponentMapper<ItemComponent> itemMapper;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
+    private ComponentMapper<BlockComponent> blockMapper;
 
     private OreWorld m_world;
 
+    private OreServer m_server;
     private Server m_serverKryo;
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
 
-    public NetworkServerSystem(OreWorld world) {
+    public NetworkServerSystem(OreWorld world, OreServer server) {
         m_world = world;
+        m_server = server;
 
         try {
             //= new Server(16384, 8192, new JsonSerialization());
@@ -84,8 +92,17 @@ public class NetworkServerSystem extends BaseSystem {
 
     }
 
+    /**
+     * shuts down the network connection among other resources, for the server system
+     */
+    @Override
+    protected void dispose() {
+        m_serverKryo.close();
+    }
+
     @Override
     protected void processSystem() {
+        if (OreServer)
         processNetworkQueue();
     }
 
@@ -95,7 +112,7 @@ public class NetworkServerSystem extends BaseSystem {
      *
      * @param entityId
      */
-    private void sendSpawnPlayerBroadcast(int entityId) {
+    public void sendSpawnPlayerBroadcast(int entityId) {
         PlayerComponent playerComp = playerMapper.get(entityId);
         SpriteComponent spriteComp = spriteMapper.get(entityId);
 
@@ -112,7 +129,7 @@ public class NetworkServerSystem extends BaseSystem {
      * @param connectionId
      *         client to send to
      */
-    private void sendSpawnPlayer(int entityId, int connectionId) {
+    public void sendSpawnPlayer(int entityId, int connectionId) {
         PlayerComponent playerComp = playerMapper.get(entityId);
         SpriteComponent spriteComp = spriteMapper.get(entityId);
 
@@ -157,7 +174,7 @@ public class NetworkServerSystem extends BaseSystem {
     private Bag<Component> serializeComponents(int entityId) {
         Bag<Component> copyComponents = new Bag<>();
         Bag<Component> components = new Bag<>();
-        m_world.m_artemisWorld.getEntity(entityId).getComponents(components);
+        getWorld().getEntity(entityId).getComponents(components);
 
         for (Component component : components) {
             if (component instanceof PlayerComponent) {

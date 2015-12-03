@@ -256,7 +256,7 @@ public class Network {
         SingleBlock() {
         }
 
-        SingleBlock(Block block) {
+        public SingleBlock(Block block) {
             type = block.type;
             wallType = block.wallType;
             flags = block.flags;
@@ -277,7 +277,7 @@ public class Network {
         int x;
         int y;
 
-        SingleSparseBlock(Block _block, int x, int y) {
+        public SingleSparseBlock(Block _block, int x, int y) {
             block = new SingleBlock(_block);
             this.x = x;
             this.y = y;
