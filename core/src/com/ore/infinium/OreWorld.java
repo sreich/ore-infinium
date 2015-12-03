@@ -329,10 +329,6 @@ public class OreWorld implements Disposable {
         stoneTransitionTypes.put(EnumSet.noneOf(Transitions.class), 30);
     }
 
-    // zoom every n ms, while zoom key is held down
-    private static final int zoomInterval = 30;
-    private static OreTimer m_zoomTimer = new OreTimer();
-
     public Block[] blocks;
 
     //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
@@ -826,15 +822,16 @@ public class OreWorld implements Disposable {
         return solid;
     }
 
-    public void dispose() {
+    /**
+     * Safely shutdown the world, disposing of all the systems
+     * Each system should be designed such that it can safely shut itself down without
+     * having to interface with other systems. Though some exceptions may apply
+     */
+    public void shutdown() {
+        m_artemisWorld.dispose();
     }
 
-    public void zoom(float factor) {
-
-        m_camera.zoom *= factor;
-    }
-
-    public void update(double elapsed) {
+    public void update() {
         if (isClient()) {
             if (m_mainPlayerEntity == ENTITY_INVALID) {
                 return;
@@ -846,21 +843,6 @@ public class OreWorld implements Disposable {
             // playerSprite
             // .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
 
-            final float zoomAmount = 0.004f;
-            if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
-                if (m_zoomTimer.milliseconds() >= zoomInterval) {
-                    //zoom out
-                    zoom(1.0f + zoomAmount);
-                    m_zoomTimer.reset();
-                }
-            }
-
-            if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
-                if (m_zoomTimer.milliseconds() >= zoomInterval) {
-                    zoom(1.0f - zoomAmount);
-                    m_zoomTimer.reset();
-                }
-            }
 
             updateCrosshair();
             updateItemPlacementOverlay();
@@ -878,7 +860,6 @@ public class OreWorld implements Disposable {
             }
         }
 
-        m_artemisWorld.setDelta((float) elapsed);
         m_artemisWorld.process();
     }
 

@@ -2,9 +2,12 @@ package com.ore.infinium;
 
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
+import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.NetworkServerSystem;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -66,6 +69,9 @@ public class OreServer implements Runnable {
     public OreServer() {
     }
 
+    /**
+     * Used to initiate the server as well as to initiate it from a calling client thread
+     */
     public void run() {
         Thread.currentThread().setName("server thread (main)");
 
@@ -93,16 +99,14 @@ public class OreServer implements Runnable {
             }
         });
 
-        //notify our local client we've started hosting our server, so he can connect now.
-        connectHostLatch.countDown();
-    }
-
-            if (shutdownLatch.getCount() == 0) {
-        //client told us to shutdown by triggering latch to 0, this should kill our thread..
-                //m_serverKryo.stop(); needed?
-                return;
-            }
+        //exit the server thread when the client notifies us to,
+        //by setting the latch to 0,
+        //the client notifies us to exit it ASAP
+        while (m_world.m_server.shutdownLatch.getCount() != 0) {
+            m_world.update();
         }
+
+        m_world.shutdown();
     }
 
     /**

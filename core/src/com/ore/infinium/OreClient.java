@@ -35,6 +35,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private ComponentMapper<BlockComponent> blockMapper;
     private ComponentMapper<ToolComponent> toolMapper;
 
+    // zoom every n ms, while zoom key is held down
+    private static final int zoomInterval = 30;
+    private static OreTimer m_zoomTimer = new OreTimer();
+
     private InputMultiplexer m_multiplexer;
 
     private Stage m_stage;
@@ -194,6 +198,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         Gdx.app.exit();
     }
 
+    public void zoom(float factor) {
+        if (m_world != null) {
+            m_world.m_camera.zoom *= factor;
+        }
+    }
+
     @Override
     public void resize(int width, int height) {
         m_stage.getViewport().update(width, height, true);
@@ -226,6 +236,23 @@ public class OreClient implements ApplicationListener, InputProcessor {
         } else if (keycode == Input.Keys.I) {
             if (m_inventoryView != null) {
                 m_inventoryView.setVisible(!m_inventoryView.inventoryVisible);
+            }
+        }
+
+        //fixme hack, ERROR
+        final float zoomAmount = 0.004f;
+        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
+            if (m_zoomTimer.milliseconds() >= zoomInterval) {
+                //zoom out
+                zoom(1.0f + zoomAmount);
+                m_zoomTimer.reset();
+            }
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
+            if (m_zoomTimer.milliseconds() >= zoomInterval) {
+                zoom(1.0f - zoomAmount);
+                m_zoomTimer.reset();
             }
         }
 

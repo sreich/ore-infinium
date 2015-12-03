@@ -90,19 +90,22 @@ public class NetworkServerSystem extends BaseSystem {
             Gdx.app.exit();
         }
 
+        //notify the local client we've started hosting our server, so he can connect now.
+        m_world.m_server.connectHostLatch.countDown();
+
     }
 
     /**
-     * shuts down the network connection among other resources, for the server system
+     * shuts down the network connection and other resources, for this server network system
      */
     @Override
     protected void dispose() {
+        //m_serverKryo.stop(); needed?
         m_serverKryo.close();
     }
 
     @Override
     protected void processSystem() {
-        if (OreServer)
         processNetworkQueue();
     }
 

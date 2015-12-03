@@ -1,5 +1,10 @@
-apply plugin: 'nebula.provided-base'
-apply plugin: 'com.github.ben-manes.versions'
+//apply plugin: 'nebula.provided-base'
+//apply plugin: 'com.github.ben-manes.versions'
+
+plugins {
+    id 'nebula.provided-base' version '3.0.3'
+    id 'com.gitub.ben-manes.versions' version '0.11.3'
+}
 
 task createWrapper(type: Wrapper) {
     gradleVersion = "2.9"
@@ -23,16 +28,16 @@ buildscript {
 
         matrixCliVersion = "0.1.2"
 
-        gradleVersionsPluginVersion = "0.11.3"
+        //gradleVersionsPluginVersion = "0.11.3"
 
-        gradleExtraConfigurationsPluginVersion = "3.0.3"
+        //gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
 
     repositories {
         mavenLocal()
         mavenCentral()
 
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https:// oss.sonatype.org/ content/ repositories/ snapshots/ " }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 
         jcenter()
@@ -45,9 +50,9 @@ buildscript {
 
         // introduces support for provided scope gradle keyword.
         //3.0.3 FIXME
-        classpath "com.netflix.nebula:gradle-extra-configurations-plugin:$gradleExtraConfigurationsPluginVersion"
+        //classpath "com.netflix.nebula:gradle-extra-configurations-plugin:$gradleExtraConfigurationsPluginVersion"
 
-        classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
+        //classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
     }
 }
 
