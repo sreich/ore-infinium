@@ -34,7 +34,7 @@ public class OreServer implements Runnable {
     public CountDownLatch shutdownLatch = new CountDownLatch(1);
 
     /**
-     * entity id of hosting player.
+     * Entity id of hosting player.
      * the player that hosted this server.
      * if it is a dedicated server, this is invalid.
      * so, only valid for local client-hosting servers
