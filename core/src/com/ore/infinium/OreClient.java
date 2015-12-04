@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.ore.infinium.components.*;
+import com.ore.infinium.systems.DebugTextRenderSystem;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.PowerOverlayRenderSystem;
 
@@ -119,12 +120,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         hostAndJoin();
     }
 
-    private void handleLeftMousePrimaryAttack() {
-        Vector2 mouse = mousePositionWorldCoords();
+    public void handleLeftMousePrimaryAttack() {
+        Vector2 mouse = m_world.mousePositionWorldCoords();
 
         PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
         int itemEntity = playerComponent.getEquippedPrimaryItem();
-        if (itemEntity == ENTITY_INVALID) {
+        if (itemEntity == OreWorld.ENTITY_INVALID) {
             return;
         }
 
@@ -134,14 +135,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 return;
             }
 
-            int x = (int) (mouse.x / BLOCK_SIZE);
-            int y = (int) (mouse.y / BLOCK_SIZE);
+            int x = (int) (mouse.x / OreWorld.BLOCK_SIZE);
+            int y = (int) (mouse.y / OreWorld.BLOCK_SIZE);
 
-            Block block = blockAt(x, y);
+            Block block = m_world.blockAt(x, y);
 
             if (block.type != Block.BlockType.NullBlockType) {
                 block.destroy();
-                m_client.sendBlockPick(x, y);
+                m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendBlockPick(x, y);
             }
 
             //action performed
@@ -151,12 +152,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         BlockComponent blockComponent = blockMapper.getSafe(itemEntity);
         if (blockComponent != null) {
 
-            int x = (int) (mouse.x / BLOCK_SIZE);
-            int y = (int) (mouse.y / BLOCK_SIZE);
+            int x = (int) (mouse.x / OreWorld.BLOCK_SIZE);
+            int y = (int) (mouse.y / OreWorld.BLOCK_SIZE);
 
-            boolean blockPlaced = attemptBlockPlacement(x, y, blockComponent.blockType);
+            boolean blockPlaced = m_world.attemptBlockPlacement(x, y, blockComponent.blockType);
             if (blockPlaced) {
-                m_client.sendBlockPlace(x, y);
+                m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendBlockPlace(x, y);
             }
 
             return;
@@ -175,7 +176,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private void attemptItemPlace(float x, float y, int itemEntity) {
 
         //place the item
-        int placedItemEntity = cloneEntity(itemEntity);
+        int placedItemEntity = m_world.cloneEntity(itemEntity);
 
         ItemComponent placedItemComponent = itemMapper.get(placedItemEntity);
 
@@ -183,13 +184,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         Vector2 alignedPosition = new Vector2(x, y);
         SpriteComponent spriteComponent = spriteMapper.get(placedItemEntity);
-        alignPositionToBlocks(alignedPosition);
+        m_world.alignPositionToBlocks(alignedPosition);
 
         spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
 
         if (isPlacementValid(placedItemEntity)) {
             //hack, do more validation..
-            m_client.sendItemPlace(alignedPosition.x, alignedPosition.y);
+            m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                  .sendItemPlace(alignedPosition.x, alignedPosition.y);
         } else {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
             //because the function actually takes only the entity, to check if its size, position etc conflict with
@@ -198,9 +200,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
             //engine.removeEntity(placedItemEntity);
         }
     }
-
-
-
 
     public void toggleChatVisible() {
         if (m_chatBox.chatVisibilityState == ChatBox.ChatVisibility.Normal) {
@@ -233,7 +232,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public void dispose() {
         if (m_world != null) {
-            m_world.dispose();
+            m_world.shutdown();
         }
     }
 
@@ -306,16 +305,24 @@ public class OreClient implements ApplicationListener, InputProcessor {
             shutdown();
         } else if (keycode == Input.Keys.F7) {
         } else if (keycode == Input.Keys.F8) {
-            m_renderDebugClient = !m_renderDebugClient;
+            //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
+            // could derive from. so we could just call this, and await the return...all of the debug things could be
+            // handled
+            //directly in there. but the question is, what to do for everything else.
+            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugClient =
+                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugClient;
         } else if (keycode == Input.Keys.F9) {
-            m_renderDebugServer = !m_renderDebugServer;
+            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugServer =
+                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugServer;
         } else if (keycode == Input.Keys.F10) {
-            m_renderTiles = !m_renderTiles;
+            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderTiles =
+                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderTiles;
         } else if (keycode == Input.Keys.F11) {
             m_renderGui = !m_renderGui;
         } else if (keycode == Input.Keys.F12) {
-            m_guiDebug = !m_guiDebug;
-            m_stage.setDebugAll(m_guiDebug);
+            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_guiDebug =
+                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_guiDebug;
+            m_stage.setDebugAll(m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_guiDebug);
         } else if (keycode == Input.Keys.I) {
             if (m_inventoryView != null) {
                 m_inventoryView.setVisible(!m_inventoryView.inventoryVisible);
@@ -370,7 +377,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         } else if (keycode == Input.Keys.E) {
             //power overlay
-            m_world.m_powerOverlaySystem.overlayVisible = !m_world.m_powerOverlaySystem.overlayVisible;
+            m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible =
+                    !m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible;
+
             if (m_world.m_itemPlacementOverlayEntity != OreWorld.ENTITY_INVALID) {
                 spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible =
                         !m_world.m_artemisWorld.getSystem(PowerOverlaySystem.class).overlayVisible;
@@ -447,9 +456,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         if (m_world != null) {
             return m_world.touchDown(screenX, screenY, pointer, button);
             //hack
-            if (m_client.leftMouseDown && !m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
-                handleLeftMousePrimaryAttack();
-            }
+
 
         }
 
@@ -547,7 +554,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 return;
             }
 
-            sendHotbarEquipped(index);
+            m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendHotbarEquipped(index);
             PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
 
             m_world.clientHotbarInventoryItemSelected();

@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import com.ore.infinium.systems.NetworkClientSystem;
 
 /**
  * ***************************************************************************
@@ -166,7 +167,8 @@ public class ChatBox implements Chat.ChatListener {
 
     private void sendChat() {
         if (m_messageField.getText().length() > 0) {
-            m_client.sendChatMessage(m_messageField.getText());
+            m_client.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                           .sendChatMessage(m_messageField.getText());
             m_messageField.setText("");
         }
     }

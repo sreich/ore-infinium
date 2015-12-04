@@ -79,12 +79,12 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
     private Texture junktexture;
 
-    private boolean m_guiDebug;
+    public boolean m_guiDebug;
 
-    private boolean m_renderTiles = true;
+    public boolean m_renderTiles = true;
 
-    private boolean m_renderDebugServer = false;
-    private boolean m_renderDebugClient = false;
+    public boolean m_renderDebugServer = false;
+    public boolean m_renderDebugClient = false;
 
     public DebugTextRenderSystem(OrthographicCamera camera, OreWorld world) {
         m_world = world;

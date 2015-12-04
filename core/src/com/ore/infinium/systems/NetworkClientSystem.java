@@ -165,7 +165,8 @@ public class NetworkClientSystem extends BaseSystem {
                 m_world.loadSparseBlockUpdate(update);
             } else if (object instanceof Network.LoadedViewportMovedFromServer) {
                 Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
-                PlayerComponent c = playerMapper.get(m_mainPlayerEntity);
+                PlayerComponent c =
+                        playerMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer));
                 c.loadedViewport.rect = v.rect;
             } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
                 Network.PlayerSpawnHotbarInventoryItemFromServer spawn =
@@ -281,7 +282,7 @@ public class NetworkClientSystem extends BaseSystem {
         m_clientKryo.sendTCP(chatMessageFromClient);
     }
 
-    private void sendHotbarEquipped(byte index) {
+    public void sendHotbarEquipped(byte index) {
         Network.PlayerEquipHotbarIndexFromClient playerEquipHotbarIndexFromClient =
                 new Network.PlayerEquipHotbarIndexFromClient();
         playerEquipHotbarIndexFromClient.index = index;

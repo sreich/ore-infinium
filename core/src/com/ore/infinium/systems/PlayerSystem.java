@@ -106,7 +106,7 @@ public class PlayerSystem extends IteratingSystem {
         Vector2 center = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
         loadedViewport.centerOn(center);
 
-        m_world.m_server.sendPlayerLoadedViewportMoved(playerEntity);
+        getWorld().getSystem(NetworkServerSystem.class).sendPlayerLoadedViewportMoved(playerEntity);
         sendPlayerBlockRegion(playerEntity);
     }
 
@@ -115,7 +115,9 @@ public class PlayerSystem extends IteratingSystem {
         LoadedViewport loadedViewport = playerComponent.loadedViewport;
 
         LoadedViewport.PlayerViewportBlockRegion region = loadedViewport.blockRegionInViewport();
-        m_world.m_server.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width, region.height);
+
+        getWorld().getSystem(NetworkServerSystem.class)
+                  .sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width, region.height);
     }
 
 }

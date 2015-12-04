@@ -864,7 +864,8 @@ public class OreWorld {
 
     /**
      * Attempts to place a block at position with the type, can fail. If it succeeds it will *not*
-     * notify anything (network wise). Takes care of destroying e.g. nearby grass
+     * notify anything (network wise). If it succeeds, it will take care of destroying e.g. nearby grass,
+     * and doing whatever else may need to be done on nearby conditions
      *
      * @param x
      * @param y
@@ -1093,7 +1094,7 @@ public class OreWorld {
         spriteComponent.placementValid = isPlacementValid(m_itemPlacementOverlayEntity);
     }
 
-    private void alignPositionToBlocks(Vector2 pos) {
+    void alignPositionToBlocks(Vector2 pos) {
         pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
     }
 
