@@ -1,8 +1,3 @@
-
-task createWrapper(type: Wrapper) {
-    gradleVersion = "2.9"
-}
-
 buildscript {
     repositories {
         mavenCentral()
@@ -10,6 +5,15 @@ buildscript {
     dependencies {
     }
 }
+
+plugins {
+  id "org.sonarqube" version "1.1"
+}
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = "2.9"
+}
+
 
 def getDate() {
     def date = new Date()
