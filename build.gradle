@@ -4,6 +4,7 @@
 plugins {
     id 'nebula.provided-base' version '3.0.3'
     id 'com.gitub.ben-manes.versions' version '0.11.3'
+    id 'org.sonarqube' version '1.1'
 }
 
 task createWrapper(type: Wrapper) {
