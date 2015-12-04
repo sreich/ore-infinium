@@ -6,6 +6,7 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.NetworkClientSystem;
+import com.ore.infinium.systems.PowerOverlayRenderSystem;
 
 @Wire
 public class OreClient implements ApplicationListener, InputProcessor {
@@ -87,14 +89,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_stage = new Stage(viewport = new StretchViewport(1600, 900));
         m_multiplexer = new InputMultiplexer(m_stage, this);
 
-
         m_viewport = new ScreenViewport();
         m_viewport.setScreenBounds(0, 0, 1600, 900);
 
         Gdx.input.setInputProcessor(m_multiplexer);
 
-//HACK: this really needs to be stripped out of the client, put in a proper
-//system or something
+        //HACK: this really needs to be stripped out of the client, put in a proper
+        //system or something
         m_fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 13;
@@ -117,6 +118,89 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         hostAndJoin();
     }
+
+    private void handleLeftMousePrimaryAttack() {
+        Vector2 mouse = mousePositionWorldCoords();
+
+        PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
+        int itemEntity = playerComponent.getEquippedPrimaryItem();
+        if (itemEntity == ENTITY_INVALID) {
+            return;
+        }
+
+        ToolComponent toolComponent = toolMapper.getSafe(itemEntity);
+        if (toolComponent != null) {
+            if (toolComponent.type != ToolComponent.ToolType.Drill) {
+                return;
+            }
+
+            int x = (int) (mouse.x / BLOCK_SIZE);
+            int y = (int) (mouse.y / BLOCK_SIZE);
+
+            Block block = blockAt(x, y);
+
+            if (block.type != Block.BlockType.NullBlockType) {
+                block.destroy();
+                m_client.sendBlockPick(x, y);
+            }
+
+            //action performed
+            return;
+        }
+
+        BlockComponent blockComponent = blockMapper.getSafe(itemEntity);
+        if (blockComponent != null) {
+
+            int x = (int) (mouse.x / BLOCK_SIZE);
+            int y = (int) (mouse.y / BLOCK_SIZE);
+
+            boolean blockPlaced = attemptBlockPlacement(x, y, blockComponent.blockType);
+            if (blockPlaced) {
+                m_client.sendBlockPlace(x, y);
+            }
+
+            return;
+        }
+
+        ItemComponent itemComponent = itemMapper.getSafe(itemEntity);
+        if (itemComponent != null) {
+            if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
+                playerComponent.placeableItemTimer.reset();
+
+                attemptItemPlace(mouse.x, mouse.y, playerComponent.getEquippedPrimaryItem());
+            }
+        }
+    }
+
+    private void attemptItemPlace(float x, float y, int itemEntity) {
+
+        //place the item
+        int placedItemEntity = cloneEntity(itemEntity);
+
+        ItemComponent placedItemComponent = itemMapper.get(placedItemEntity);
+
+        placedItemComponent.state = ItemComponent.State.InWorldState;
+
+        Vector2 alignedPosition = new Vector2(x, y);
+        SpriteComponent spriteComponent = spriteMapper.get(placedItemEntity);
+        alignPositionToBlocks(alignedPosition);
+
+        spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
+
+        if (isPlacementValid(placedItemEntity)) {
+            //hack, do more validation..
+            m_client.sendItemPlace(alignedPosition.x, alignedPosition.y);
+        } else {
+            //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
+            //because the function actually takes only the entity, to check if its size, position etc conflict with
+            // anything
+
+            //engine.removeEntity(placedItemEntity);
+        }
+    }
+
+
+
 
     public void toggleChatVisible() {
         if (m_chatBox.chatVisibilityState == ChatBox.ChatVisibility.Normal) {
@@ -141,7 +225,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             e.printStackTrace();
         }
 
-//call system, if returns false, fail and show:
+        //call system, if returns false, fail and show:
         m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connect("127.0.0.1", Network.port);
         //showFailToConnectDialog();
     }
@@ -155,10 +239,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void render() {
-            if (m_renderGui) {
-                m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
-                m_stage.draw();
-            }
+        if (m_renderGui) {
+            m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
+            m_stage.draw();
         }
     }
 
@@ -363,6 +446,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
         leftMouseDown = true;
         if (m_world != null) {
             return m_world.touchDown(screenX, screenY, pointer, button);
+            //hack
+            if (m_client.leftMouseDown && !m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
+                handleLeftMousePrimaryAttack();
+            }
+
         }
 
         return false;

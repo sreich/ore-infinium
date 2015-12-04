@@ -1,9 +1,6 @@
 package com.ore.infinium;
 
-import com.artemis.Aspect;
-import com.artemis.ComponentMapper;
-import com.artemis.World;
-import com.artemis.WorldConfigurationBuilder;
+import com.artemis.*;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
@@ -17,7 +14,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
@@ -47,7 +43,7 @@ import java.util.Set;
  * ***************************************************************************
  */
 @Wire
-public class OreWorld implements Disposable {
+public class OreWorld {
     public static final float PIXELS_PER_METER = 50.0f;
     public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 3.0f;
     public static final float GRAVITY_ACCEL_CLAMP = 9.8f / PIXELS_PER_METER / 3.0f;
@@ -334,7 +330,6 @@ public class OreWorld implements Disposable {
     //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
     // them alone.
     public IntArray m_players = new IntArray();
-    public int m_mainPlayerEntity = ENTITY_INVALID;
     public OreServer m_server;
     public AssetManager assetManager;
     public OreClient m_client;
@@ -360,8 +355,10 @@ public class OreWorld implements Disposable {
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
 
     private boolean m_noClipEnabled;
-    private int m_blockPickingCrosshairEntity = ENTITY_INVALID;
-    int m_itemPlacementOverlayEntity = ENTITY_INVALID;
+
+    public static final String s_itemPlacementOverlay = "itemPlacementOverlay";
+    public static final String s_crosshair = "crosshair";
+    public static final String s_mainPlayer = "mainPlayer";
 
     World m_artemisWorld;
 
@@ -397,10 +394,10 @@ public class OreWorld implements Disposable {
                                                                               new GameLoopSystemInvocationStrategy(25))
                                                                       .build());
 
-            m_blockPickingCrosshairEntity = m_artemisWorld.create();
-            m_artemisWorld.getSystem(TagManager.class).register("crosshair", m_blockPickingCrosshairEntity);
+            int crosshair = m_artemisWorld.create();
+            m_artemisWorld.getSystem(TagManager.class).register(s_crosshair, crosshair);
 
-            SpriteComponent spriteComponent = spriteMapper.create(m_blockPickingCrosshairEntity);
+            SpriteComponent spriteComponent = spriteMapper.create(crosshair);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
             spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
             spriteComponent.noClip = true;
@@ -436,20 +433,22 @@ public class OreWorld implements Disposable {
     protected void clientHotbarInventoryItemSelected() {
         assert !isServer();
 
-        PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
+        int mainPlayer = m_artemisWorld.getSystem(TagManager.class).getEntity(s_mainPlayer).getId();
+        PlayerComponent playerComponent = playerMapper.get(mainPlayer);
         int equippedEntity = playerComponent.getEquippedPrimaryItem();
 
         //if it is here, remove it...we respawn the placement overlay further down either way.
-        if (m_itemPlacementOverlayEntity != ENTITY_INVALID) {
-            m_artemisWorld.delete(m_itemPlacementOverlayEntity);
-            m_itemPlacementOverlayEntity = ENTITY_INVALID;
+        Entity placementOverlay = m_artemisWorld.getSystem(TagManager.class).getEntity(s_itemPlacementOverlay);
+        if (placementOverlay != null) {
+            m_artemisWorld.delete(placementOverlay.getId());
         }
 
         if (equippedEntity == ENTITY_INVALID) {
             return;
         }
 
-        SpriteComponent crosshairSprite = spriteMapper.get(m_blockPickingCrosshairEntity);
+        SpriteComponent crosshairSprite =
+                spriteMapper.get(m_artemisWorld.getSystem(TagManager.class).getEntity(s_crosshair));
         crosshairSprite.visible = false;
 
         assert crosshairSprite.noClip;
@@ -475,12 +474,12 @@ public class OreWorld implements Disposable {
 
         //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its
         // entity)
-        m_itemPlacementOverlayEntity = cloneEntity(equippedEntity);
-        ItemComponent itemComponent = itemMapper.get(m_itemPlacementOverlayEntity);
+        int newPlacementOverlay = cloneEntity(equippedEntity);
+        ItemComponent itemComponent = itemMapper.get(newPlacementOverlay);
         //transition to the in world state, since the cloned source item was in the inventory state, so to would this
         itemComponent.state = ItemComponent.State.InWorldState;
 
-        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlayEntity);
+        SpriteComponent spriteComponent = spriteMapper.get(newPlacementOverlay);
         spriteComponent.noClip = true;
 
         //crosshair shoudln't be visible if the power overlay is
@@ -488,8 +487,7 @@ public class OreWorld implements Disposable {
             spriteComponent.visible = false;
         }
 
-        m_artemisWorld.getSystem(TagManager.class).register("itemPlacementOverlay", m_itemPlacementOverlayEntity);
-
+        m_artemisWorld.getSystem(TagManager.class).register(s_itemPlacementOverlay, newPlacementOverlay);
     }
 
     public void initServer() {
@@ -497,10 +495,10 @@ public class OreWorld implements Disposable {
 
     //called to spawn client player HACK: needs to be fixed/consolidated.
     public void initClient(int mainPlayer) {
-        m_mainPlayerEntity = mainPlayer;
         //        velocityMapper.get(m_mainPlayerEntity);
 
-        SpriteComponent playerSprite = spriteMapper.get(m_mainPlayerEntity);
+        SpriteComponent playerSprite =
+                spriteMapper.get(m_artemisWorld.getSystem(TagManager.class).getEntity(s_mainPlayer));
         playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
         playerSprite.sprite.flip(false, true);
     }
@@ -833,6 +831,7 @@ public class OreWorld implements Disposable {
 
     public void update() {
         if (isClient()) {
+            //fixme this is used as an indicator that we've joined..but we want something more maintainable.
             if (m_mainPlayerEntity == ENTITY_INVALID) {
                 return;
             }
@@ -847,13 +846,11 @@ public class OreWorld implements Disposable {
             updateCrosshair();
             updateItemPlacementOverlay();
 
-            if (m_client.leftMouseDown && !m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
-                handleLeftMousePrimaryAttack();
-            }
 
             //hack
-            if (m_itemPlacementOverlayEntity != ENTITY_INVALID) {
-                SpriteComponent component = spriteMapper.getSafe(m_itemPlacementOverlayEntity);
+            if (m_artemisWorld.getSystem(TagManager.class).isRegistered(s_itemPlacementOverlay)) {
+                SpriteComponent component = spriteMapper.getSafe(
+                        m_artemisWorld.getSystem(TagManager.class).getEntity(s_itemPlacementOverlay).getId());
                 assert component != null : "how the hell does it have no spritecomp?!!";
 
                 assert component.noClip : "placement overlay found to not be in noclip mode!!!";
@@ -863,58 +860,7 @@ public class OreWorld implements Disposable {
         m_artemisWorld.process();
     }
 
-    private void handleLeftMousePrimaryAttack() {
-        Vector2 mouse = mousePositionWorldCoords();
 
-        PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
-        int itemEntity = playerComponent.getEquippedPrimaryItem();
-        if (itemEntity == ENTITY_INVALID) {
-            return;
-        }
-
-        ToolComponent toolComponent = toolMapper.getSafe(itemEntity);
-        if (toolComponent != null) {
-            if (toolComponent.type != ToolComponent.ToolType.Drill) {
-                return;
-            }
-
-            int x = (int) (mouse.x / BLOCK_SIZE);
-            int y = (int) (mouse.y / BLOCK_SIZE);
-
-            Block block = blockAt(x, y);
-
-            if (block.type != Block.BlockType.NullBlockType) {
-                block.destroy();
-                m_client.sendBlockPick(x, y);
-            }
-
-            //action performed
-            return;
-        }
-
-        BlockComponent blockComponent = blockMapper.getSafe(itemEntity);
-        if (blockComponent != null) {
-
-            int x = (int) (mouse.x / BLOCK_SIZE);
-            int y = (int) (mouse.y / BLOCK_SIZE);
-
-            boolean blockPlaced = attemptBlockPlacement(x, y, blockComponent.blockType);
-            if (blockPlaced) {
-                m_client.sendBlockPlace(x, y);
-            }
-
-            return;
-        }
-
-        ItemComponent itemComponent = itemMapper.getSafe(itemEntity);
-        if (itemComponent != null) {
-            if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
-                playerComponent.placeableItemTimer.reset();
-
-                attemptItemPlace(mouse.x, mouse.y, playerComponent.getEquippedPrimaryItem());
-            }
-        }
-    }
 
     /**
      * Attempts to place a block at position with the type, can fail. If it succeeds it will *not*
@@ -947,48 +893,8 @@ public class OreWorld implements Disposable {
         return false;
     }
 
-    private void attemptItemPlace(float x, float y, int itemEntity) {
-
-        //place the item
-        int placedItemEntity = cloneEntity(itemEntity);
-
-        ItemComponent placedItemComponent = itemMapper.get(placedItemEntity);
-
-        placedItemComponent.state = ItemComponent.State.InWorldState;
-
-        Vector2 alignedPosition = new Vector2(x, y);
-        SpriteComponent spriteComponent = spriteMapper.get(placedItemEntity);
-        alignPositionToBlocks(alignedPosition);
-
-        spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
-
-        if (isPlacementValid(placedItemEntity)) {
-            //hack, do more validation..
-            m_client.sendItemPlace(alignedPosition.x, alignedPosition.y);
-        } else {
-            //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
-            //because the function actually takes only the entity, to check if its size, position etc conflict with
-            // anything
-
-            //engine.removeEntity(placedItemEntity);
-        }
-    }
-
-    private OreTimer tileRecomputeTimer = new OreTimer();
-    private OreTimer randomGrassTimer = new OreTimer();
 
     public void render(double elapsed) {
-        if (m_mainPlayerEntity == ENTITY_INVALID) {
-            return;
-        }
-
-        if (tileRecomputeTimer.milliseconds() > 60) {
-            transitionTiles();
-            transitionGrass();
-
-            tileRecomputeTimer.reset();
-        }
-
         //        m_camera.zoom *= 0.9;
         //m_lightRenderer->renderToFBO();
 
@@ -1150,7 +1056,8 @@ public class OreWorld implements Disposable {
         //PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
         //playerComponent
 
-        SpriteComponent spriteComponent = spriteMapper.get(m_blockPickingCrosshairEntity);
+        SpriteComponent spriteComponent =
+                spriteMapper.get(m_artemisWorld.getSystem(TagManager.class).getEntity(s_crosshair).getId());
 
         Vector2 mouse = mousePositionWorldCoords();
         Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE),
@@ -1172,6 +1079,7 @@ public class OreWorld implements Disposable {
         return new Vector2(finalMouse.x, finalMouse.y);
     }
 
+    @Error //hack move this into system!!
     private void updateItemPlacementOverlay() {
         if (m_itemPlacementOverlayEntity == ENTITY_INVALID) {
             return;

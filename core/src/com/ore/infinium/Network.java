@@ -201,7 +201,7 @@ public class Network {
 
         public String textureName;
 
-        public long id;
+        public int id;
 
         public Bag<Component> components;
     }
@@ -225,7 +225,7 @@ public class Network {
     }
 
     static public class EntityMovedFromServer {
-        public long id;
+        public int id;
         public Vector2 position;
     }
 

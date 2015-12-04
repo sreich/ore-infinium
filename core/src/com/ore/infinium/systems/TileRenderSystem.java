@@ -3,6 +3,7 @@ package com.ore.infinium.systems;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -34,7 +35,9 @@ import com.ore.infinium.components.*;
  */
 @Wire
 public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
-    public static int tilesInViewCountDebug;
+    //indicates if tiles should be drawn, is a debug flag.
+    private boolean debugRenderTiles;
+    public static int debugTilesInViewCount;
 
     public TextureAtlas m_blockAtlas;
     public TextureAtlas m_tilesAtlas;
@@ -55,7 +58,9 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     public IntMap<String> stoneBlockMeshes;
     public IntMap<String> grassBlockMeshes;
 
-    public TileRenderer(OrthographicCamera camera, OreWorld world) {
+    private OreWorld m_world;
+
+    public TileRenderSystem(OrthographicCamera camera, OreWorld world) {
         m_camera = camera;
         m_world = world;
         m_batch = new SpriteBatch(5000);
@@ -97,18 +102,19 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     }
 
     public void render(float elapsed) {
+        //fixme the system should be disabled and enabled when this happens
         if (m_world.m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
             return;
         }
 
-        if (!m_world.m_client.m_renderTiles) {
+        if (!debugRenderTiles) {
             return;
         }
 
-        tilesInViewCountDebug = 0;
 
         m_batch.setProjectionMatrix(m_camera.combined);
-        SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayerEntity);
+        SpriteComponent sprite =
+                spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId());
 
         Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(),
                                              0); //new Vector3(100, 200, 0);//positionComponent->position();
@@ -140,11 +146,13 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
         TextureAtlas.AtlasRegion region;
         String textureName = "";
 
+        debugTilesInViewCount = 0;
+
         //fixme all instances of findRegion need to be replaced with cached
         //versions. they're allegedly quite slow
         for (int x = startX; x < endX; ++x) {
             for (int y = startY; y < endY; ++y) {
-                ++tilesInViewDebug;
+                ++debugTilesInViewCount;
 
                 Block block = m_world.blockAt(x, y);
 
@@ -206,7 +214,6 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
             }
         }
 
-        tilesInViewCountDebug = tilesInViewDebug;
         m_batch.end();
     }
 

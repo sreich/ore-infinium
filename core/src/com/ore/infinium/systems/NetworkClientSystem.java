@@ -2,6 +2,7 @@ package com.ore.infinium.systems;
 
 import com.artemis.*;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -136,16 +137,16 @@ public class NetworkClientSystem extends BaseSystem {
 
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
 
-                if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
+                if (getWorld().getSystem(TagManager.class).isRegistered("mainPlayer")) {
 
                     m_world = new OreWorld(this, null);
 
-                    m_mainPlayerEntity = createPlayer(spawn.playerName, m_clientKryo.getID());
-                    SpriteComponent spriteComp = spriteMapper.get(m_mainPlayerEntity);
+                    int player = createPlayer(spawn.playerName, m_clientKryo.getID());
+                    SpriteComponent spriteComp = spriteMapper.get(player);
 
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
-                    m_world.addPlayer(m_mainPlayerEntity);
-                    m_world.initClient(m_mainPlayerEntity);
+                    m_world.addPlayer(player);
+                    m_world.initClient(player);
 
                     AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
                     EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
@@ -200,13 +201,13 @@ public class NetworkClientSystem extends BaseSystem {
                 //fixme this and hotbar code needs consolidation
                 Network.EntitySpawnFromServer spawn = (Network.EntitySpawnFromServer) object;
 
-                int e = m_world.m_artemisWorld.create();
+                int e = getWorld().create();
                 for (Component c : spawn.components) {
                     e.add(c);
                 }
 
                 //hack id..see above.
-                SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
+                SpriteComponent spriteComponent = spriteMapper.create(e);
                 spriteComponent.textureName = spawn.textureName;
                 spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
                 spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
@@ -215,7 +216,8 @@ public class NetworkClientSystem extends BaseSystem {
                 if (blockMapper.has(e) == false) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
-                    textureRegion = m_world.m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+                    textureRegion = getWorld().getSystem(TileRenderSystem.class).m_blockAtlas.findRegion(
+                            spriteComponent.textureName);
                 }
 
                 spriteComponent.sprite.setRegion(textureRegion);
@@ -263,7 +265,8 @@ public class NetworkClientSystem extends BaseSystem {
      * Send the command indicating (main) player moved to position
      */
     public void sendPlayerMoved() {
-        SpriteComponent sprite = spriteMapper.get(m_mainPlayerEntity);
+        int mainPlayer = getWorld().getSystem(TagManager.class).getEntity("mainPlayer").getId();
+        SpriteComponent sprite = spriteMapper.get(mainPlayer);
 
         Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
         move.position = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
