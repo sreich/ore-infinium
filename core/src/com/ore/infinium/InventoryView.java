@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import com.ore.infinium.components.ItemComponent;
+import com.ore.infinium.systems.NetworkClientSystem;
+import com.ore.infinium.systems.TileRenderSystem;
 
 /**
  * ***************************************************************************
@@ -43,17 +45,17 @@ public class InventoryView implements Inventory.SlotListener {
     //the model for this view
     private Inventory m_inventory;
 
-    private OreClient m_client;
+    private OreWorld m_world;
 
     //the hotbar inventory, for drag and drop
     private Inventory m_hotbarInventory;
     private Window m_window;
 
     public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory,
-                         DragAndDrop dragAndDrop, OreClient client) {
+                         DragAndDrop dragAndDrop, OreWorld world) {
         m_skin = skin;
         m_inventory = inventory;
-        m_client = client;
+        m_world = world;
 
         //attach to the inventory model
         m_inventory.addListener(this);
@@ -74,7 +76,8 @@ public class InventoryView implements Inventory.SlotListener {
         //window.pack();
         m_window.add(container).fill().expand();
 
-        TextureRegion region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion("dirt-00");
+        TextureRegion region =
+                m_world.m_artemisWorld.getSystem(TileRenderSystem.class).m_tilesAtlas.findRegion("dirt-00");
         Image dragImage = new Image(region);
         dragImage.setSize(32, 32);
 
@@ -136,7 +139,8 @@ public class InventoryView implements Inventory.SlotListener {
     public void set(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
 
-        TextureRegion region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion("dirt-00");
+        TextureRegion region =
+                m_world.m_artemisWorld.getSystem(TileRenderSystem.class).m_tilesAtlas.findRegion("dirt-00");
         Image slotImage = slot.itemImage;
         slotImage.setDrawable(new TextureRegionDrawable(region));
         slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
@@ -253,8 +257,10 @@ public class InventoryView implements Inventory.SlotListener {
                     //move the item from the source to the dest (from main inventory to main inventory)
                     inventory.m_inventory.setSlot(this.index,
                                                   inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
-                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
-                                                         Inventory.InventoryType.Inventory, index);
+                    inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                                    .sendInventoryMove(Inventory.InventoryType.Inventory,
+                                                                       dragWrapper.dragSourceIndex,
+                                                                       Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex);
@@ -264,8 +270,10 @@ public class InventoryView implements Inventory.SlotListener {
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
                     inventory.m_inventory.setSlot(this.index,
                                                   inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex));
-                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
-                                                         Inventory.InventoryType.Inventory, index);
+                    inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                                    .sendInventoryMove(Inventory.InventoryType.Hotbar,
+                                                                       dragWrapper.dragSourceIndex,
+                                                                       Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex);

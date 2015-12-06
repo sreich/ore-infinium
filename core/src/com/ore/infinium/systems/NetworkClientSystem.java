@@ -54,6 +54,7 @@ public class NetworkClientSystem extends BaseSystem {
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
     private ComponentMapper<BlockComponent> blockMapper;
+    private ComponentMapper<ToolComponent> toolMapper;
 
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
 
@@ -96,7 +97,7 @@ public class NetworkClientSystem extends BaseSystem {
 
         Network.register(m_clientKryo);
 
-        m_clientKryo.addListener(new ClientListener(this));
+        m_clientKryo.addListener(new ClientListener());
         m_clientKryo.setKeepAliveTCP(999999);
 
         new Thread("kryonet connection client thread") {
@@ -139,9 +140,11 @@ public class NetworkClientSystem extends BaseSystem {
 
                 if (getWorld().getSystem(TagManager.class).isRegistered("mainPlayer")) {
 
-                    m_world = new OreWorld(this, null);
+                    //fixmeasap
+                    //m_world = new OreWorld(this, null);
 
-                    int player = createPlayer(spawn.playerName, m_clientKryo.getID());
+                    //fixmeasap
+                    int player = 0;// createPlayer(spawn.playerName, m_clientKryo.getID());
                     SpriteComponent spriteComp = spriteMapper.get(player);
 
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
@@ -175,7 +178,8 @@ public class NetworkClientSystem extends BaseSystem {
                 //HACK spawn.id, sprite!!
                 int e = getWorld().create();
                 for (Component c : spawn.components) {
-                    e.add(c);
+                    EntityEdit entityEdit = getWorld().edit(e);
+                    entityEdit.add(c);
                 }
 
                 SpriteComponent spriteComponent = spriteMapper.create(e);
@@ -183,7 +187,7 @@ public class NetworkClientSystem extends BaseSystem {
                 spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
 
                 TextureRegion textureRegion;
-                if (blockMapper.has(e) == false) {
+                if (!blockMapper.has(e)) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
                     textureRegion = getWorld().getSystem(TileRenderSystem.class).m_blockAtlas.findRegion(
@@ -193,7 +197,8 @@ public class NetworkClientSystem extends BaseSystem {
                 ToolComponent toolComponent = toolMapper.get(e);
 
                 ItemComponent itemComponent = itemMapper.get(e);
-                m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
+                //fixme this indirection isn't so hot...
+                m_world.m_client.m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
 
                 //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
                 // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
@@ -204,7 +209,8 @@ public class NetworkClientSystem extends BaseSystem {
 
                 int e = getWorld().create();
                 for (Component c : spawn.components) {
-                    e.add(c);
+                    EntityEdit entityEdit = getWorld().edit(e);
+                    entityEdit.add(c);
                 }
 
                 //hack id..see above.
@@ -214,7 +220,7 @@ public class NetworkClientSystem extends BaseSystem {
                 spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
 
                 TextureRegion textureRegion;
-                if (blockMapper.has(e) == false) {
+                if (!blockMapper.has(e)) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
                     textureRegion = getWorld().getSystem(TileRenderSystem.class).m_blockAtlas.findRegion(
@@ -227,7 +233,7 @@ public class NetworkClientSystem extends BaseSystem {
                 m_entityForNetworkId.put(spawn.id, e);
             } else if (object instanceof Network.ChatMessageFromServer) {
                 Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) object;
-                m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
+                m_world.m_client.m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
             } else if (object instanceof Network.EntityMovedFromServer) {
                 Network.EntityMovedFromServer data = (Network.EntityMovedFromServer) object;
                 int entity = m_entityForNetworkId.get(data.id);
@@ -313,10 +319,10 @@ public class NetworkClientSystem extends BaseSystem {
     }
 
     class ClientListener extends Listener {
-        private OreClient m_client;
+        //private OreClient m_client;
 
-        ClientListener(OreClient client) {
-            m_client = client;
+        ClientListener() {
+            //m_client = client;
 
         }
 

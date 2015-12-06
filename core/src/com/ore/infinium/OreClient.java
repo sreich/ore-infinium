@@ -3,9 +3,7 @@ package com.ore.infinium;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -47,7 +45,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private Stage m_stage;
     private Skin m_skin;
 
-    private Chat m_chat;
+    public Chat m_chat;
     private Sidebar m_sidebar;
 
     private DragAndDrop m_dragAndDrop;
@@ -57,7 +55,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private HotbarInventoryView m_hotbarView;
     private InventoryView m_inventoryView;
 
-    private Inventory m_hotbarInventory;
+    public Inventory m_hotbarInventory;
     private Inventory m_inventory;
 
     private ScreenViewport m_viewport;
@@ -97,6 +95,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         //HACK: this really needs to be stripped out of the client, put in a proper
         //system or something
+        //fixmeasap
+        /*
         m_fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 13;
@@ -105,10 +105,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         parameter.size = 9;
 
         m_fontGenerator.dispose();
+        */
 
         m_skin = new Skin();
         m_skin.addRegions(new TextureAtlas(Gdx.files.internal("packed/ui.atlas")));
-        m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
+        //fixmeasap
+        //        m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
         m_skin.load(Gdx.files.internal("ui/ui.json"));
 
         m_chatBox = new ChatBox(this, m_stage, m_skin);
@@ -188,7 +190,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
 
-        if (isPlacementValid(placedItemEntity)) {
+        if (m_world.isPlacementValid(placedItemEntity)) {
             //hack, do more validation..
             m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
                                   .sendItemPlace(alignedPosition.x, alignedPosition.y);
@@ -372,7 +374,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     m_world.m_artemisWorld.delete(item);
                 }
 
-                m_clientKryo.sendTCP(dropItemRequestFromClient);
+                //fixmeasap
+                //m_clientKryo.sendTCP(dropItemRequestFromClient);
 
             }
         } else if (keycode == Input.Keys.E) {
@@ -380,10 +383,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible =
                     !m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible;
 
-            if (m_world.m_itemPlacementOverlayEntity != OreWorld.ENTITY_INVALID) {
-                spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible =
-                        !m_world.m_artemisWorld.getSystem(PowerOverlaySystem.class).overlayVisible;
-            }
+            //fixmeasap
+            //            if (m_world.m_itemPlacementOverlayEntity != OreWorld.ENTITY_INVALID) {
+            //                spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible =
+            //                        !m_world.m_artemisWorld.getSystem(PowerOverlaySystem.class).overlayVisible;
+            //            }
         } else if (keycode == Input.Keys.NUM_1) {
             m_hotbarInventory.selectSlot((byte) 0);
         } else if (keycode == Input.Keys.NUM_2) {
@@ -457,7 +461,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return m_world.touchDown(screenX, screenY, pointer, button);
             //hack
 
-
         }
 
         return false;
@@ -520,8 +523,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
             playerComponent.inventory = m_inventory;
 
             m_hotbarView =
-                    new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
-            m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, this);
+                    new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
+            m_inventoryView =
+                    new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
 
             playerComponent.hotbarInventory.selectSlot((byte) 0);
         }

@@ -8,6 +8,7 @@ import com.ore.infinium.systems.NetworkServerSystem;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -60,7 +61,7 @@ public class OreServer implements Runnable {
 
     private OreWorld m_world;
 
-    private Chat m_chat;
+    public Chat m_chat;
 
     private double SERVER_FIXED_TIMESTEP = 1.0 / 60.0 * 1000;
 
@@ -90,7 +91,8 @@ public class OreServer implements Runnable {
                 message.sender = line.chatSender;
                 message.timestamp = line.timestamp;
 
-                m_serverKryo.sendToAllTCP(message);
+                //fixmeasap
+                //m_serverKryo.sendToAllTCP(message);
             }
 
             @Override
@@ -115,7 +117,7 @@ public class OreServer implements Runnable {
      *
      * @return entity id
      */
-    private int createPlayer(String playerName, int connectionId) {
+    public int createPlayer(String playerName, int connectionId) {
         int player = m_world.createPlayer(playerName, connectionId);
 
         //the first player in the world, if server is hosted by the client (same machine & process)
@@ -167,7 +169,7 @@ public class OreServer implements Runnable {
         for (int i = 0; i < m_world.m_players.size; ++i) {
             //exclude himself, though. he already knows.
             if (m_world.m_players.get(i) != player) {
-        m_networkServerSystem.sendSpawnPlayer(m_world.m_players.get(i),connectionId);
+                m_networkServerSystem.sendSpawnPlayer(m_world.m_players.get(i), connectionId);
             }
         }
 
@@ -247,7 +249,7 @@ public class OreServer implements Runnable {
         for (byte i = 0; i < Inventory.maxHotbarSlots; ++i) {
             int entity = playerComponent.hotbarInventory.itemEntity(i);
             if (entity != OreWorld.ENTITY_INVALID) {
-        m_networkServerSystem.sendSpawnHotbarInventoryItem(entity,i,playerEntity);
+                m_networkServerSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity);
             }
         }
     }

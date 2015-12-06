@@ -37,7 +37,7 @@ import com.ore.infinium.components.*;
 public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     //indicates if tiles should be drawn, is a debug flag.
     private boolean debugRenderTiles;
-    public static int debugTilesInViewCount;
+    public int debugTilesInViewCount;
 
     public TextureAtlas m_blockAtlas;
     public TextureAtlas m_tilesAtlas;
@@ -102,22 +102,23 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     }
 
     public void render(float elapsed) {
-        //fixme the system should be disabled and enabled when this happens
-        if (m_world.m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
+        //fixme hack the system should be disabled and enabled when this happens
+        if (getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_mainPlayer)) {
             return;
         }
 
-        if (!debugRenderTiles) {
+        if (!debugRenderTiles)
+
+        {
             return;
         }
-
 
         m_batch.setProjectionMatrix(m_camera.combined);
         SpriteComponent sprite =
                 spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId());
 
-        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(),
-                                             0); //new Vector3(100, 200, 0);//positionComponent->position();
+        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0);
+        //new Vector3(100, 200, 0);//positionComponent->position();
         int tilesBeforeX = (int) (playerPosition.x / OreWorld.BLOCK_SIZE);
         int tilesBeforeY = (int) (playerPosition.y / OreWorld.BLOCK_SIZE);
 
@@ -125,8 +126,8 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
         final Vector3 tileSize = new Vector3(OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, 0);
         tileSize.mul(m_camera.combined);
 
-        final int tilesInView =
-                (int) (m_camera.viewportHeight / OreWorld.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
+        final int tilesInView = (int) (m_camera.viewportHeight / OreWorld.BLOCK_SIZE * m_camera.zoom);
+        //m_camera.project(tileSize);
         final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
         final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, OreWorld.WORLD_SIZE_X);
@@ -150,7 +151,9 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
         //fixme all instances of findRegion need to be replaced with cached
         //versions. they're allegedly quite slow
-        for (int x = startX; x < endX; ++x) {
+        for (int x = startX; x < endX; ++x)
+
+        {
             for (int y = startY; y < endY; ++y) {
                 ++debugTilesInViewCount;
 

@@ -3,6 +3,7 @@ package com.ore.infinium.systems;
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.artemis.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -53,11 +54,12 @@ public class MovementSystem extends IteratingSystem {
         simulate(entityId, this.getWorld().delta);
 
         if (m_world.isClient()) {
-            SpriteComponent playerSprite = spriteMapper.get(m_world.m_mainPlayerEntity);
+            int mainPlayer = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+            SpriteComponent playerSprite = spriteMapper.get(mainPlayer);
             m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
             m_world.m_camera.update();
 
-            m_world.m_client.sendPlayerMoved();
+            getWorld().getSystem(NetworkClientSystem.class).sendPlayerMoved();
         }
     }
 
@@ -340,7 +342,7 @@ public class MovementSystem extends IteratingSystem {
             //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(),
             // spriteComponent.sprite.getY()))) {
 
-            m_world.m_server.sendEntityMoved(player, entity);
+            getWorld().getSystem(NetworkServerSystem.class).sendEntityMoved(player, entity);
 
             //           }
         }

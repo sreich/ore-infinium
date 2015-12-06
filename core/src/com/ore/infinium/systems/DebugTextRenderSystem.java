@@ -1,9 +1,12 @@
 package com.ore.infinium.systems;
 
+import com.artemis.Aspect;
+import com.artemis.AspectSubscriptionManager;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
-import com.badlogic.ashley.core.Family;
+import com.artemis.managers.TagManager;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -120,17 +123,19 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     }
 
     public void render(float elapsed) {
+        TileRenderSystem tileRenderSystem = getWorld().getSystem(TileRenderSystem.class);
 
         if (frameTimer.milliseconds() > 300) {
-            frameTimeString = "Client frame time: " + decimalFormat.format(frameTime);
+            frameTimeString = "Client frame time: ";//hack + decimalFormat.format(frameTime);
             fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
             textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
             shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;
             drawCallsString = "Draw calls: " + GLProfiler.drawCalls;
 
-            if (m_server != null) {
-                frameTimeServerString = "Server frame time: " + decimalFormat.format(m_server.sharedFrameTime);
-            }
+            //hack
+            //            if (m_server != null) {
+            frameTimeServerString = "Server frame time: "; //+ decimalFormat.format(m_server.sharedFrameTime);
+            //           }
 
             frameTimer.reset();
         }
@@ -142,18 +147,19 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         textY -= 15;
         m_font.draw(m_batch, frameTimeString, 0, textY);
         textY -= 15;
-        if (m_server != null) {
-            m_font.draw(m_batch, frameTimeServerString, 0, textY);
-            textY -= 15;
+        //hack
+        //        if (m_server != null) {
+        m_font.draw(m_batch, frameTimeServerString, 0, textY);
+        textY -= 15;
 
-        }
+        //       }
 
         for (String s : debugStrings) {
             m_font.draw(m_batch, s, 0, textY);
             textY -= 15;
         }
 
-        m_font.draw(m_batch, "tiles rendered: " + TileRenderer.tilesInViewCountDebug, 0, textY);
+        m_font.draw(m_batch, "tiles rendered: " + tileRenderSystem.debugTilesInViewCount, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, textureSwitchesString, 0, textY);
         textY -= 15;
@@ -162,7 +168,9 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, drawCallsString, 0, textY);
         textY -= 15;
 
-        if (m_world != null && m_mainPlayerEntity != OreWorld.ENTITY_INVALID) {
+        //hack replace with some method of knowing we're connected and can proceed. checking for main player is dumb..
+        //this is done like..all over the place
+        if (m_world != null && getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_mainPlayer)) {
             Vector2 mousePos = m_world.mousePositionWorldCoords();
             Block block = m_world.blockAtPosition(mousePos);
 
@@ -174,14 +182,14 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             switch (block.type) {
                 case Block.BlockType.DirtBlockType:
                     if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-                        texture = m_world.m_tileRenderer.grassBlockMeshes.get(block.meshType);
+                        texture = tileRenderSystem.grassBlockMeshes.get(block.meshType);
                     } else {
-                        texture = m_world.m_tileRenderer.dirtBlockMeshes.get(block.meshType);
+                        texture = tileRenderSystem.dirtBlockMeshes.get(block.meshType);
                     }
 
                     break;
                 case Block.BlockType.StoneBlockType:
-                    texture = m_world.m_tileRenderer.stoneBlockMeshes.get(block.meshType);
+                    texture = tileRenderSystem.stoneBlockMeshes.get(block.meshType);
                     break;
             }
 
@@ -194,21 +202,22 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             textY -= 15;
         }
 
-        if (m_world != null) {
-            //hack reinstate
-            //m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
+        //     if (m_world != null) {
+        //hack reinstate
+        //m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
 
-            if (m_server != null) {
-                textY -= 15;
-                //m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0,
-                // textY);
+        //            if (m_server != null) {
+        //               textY -= 15;
+        //m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0,
+        // textY);
 
-            }
-        }
+        //      }
 
         m_batch.end();
 
-        if (m_world != null && m_renderDebugServer && false) {
+        if (m_world != null && m_renderDebugServer && false)
+
+        {
             /*
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
             m_debugServerBatch.begin();
@@ -228,12 +237,15 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             */
         }
 
-        if (m_world != null && m_renderDebugClient) {
+        if (m_world != null && m_renderDebugClient)
+
+        {
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
             m_debugServerBatch.begin();
             m_debugServerBatch.setColor(1, 0, 0, 0.5f);
 
-            ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+            AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
+            IntBag entities = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class)).getEntities();
 
             for (int i = 0; i < entities.size(); ++i) {
                 SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));

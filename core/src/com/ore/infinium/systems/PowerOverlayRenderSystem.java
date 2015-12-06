@@ -149,7 +149,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
                 //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
 
-                m_world.m_powerCircuitSystem.connectDevices(m_dragSourceEntity, dropEntity);
+                getWorld().getSystem(PowerCircuitSystem.class).connectDevices(m_dragSourceEntity, dropEntity);
 
                 //               }
 
@@ -181,6 +181,8 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_batch.setProjectionMatrix(m_world.m_client.viewport.getCamera().combined);
         m_batch.begin();
 
+        //fixmeasap this should prolly get replaced w/ scene2d elements
+        /*
         m_world.m_client.bitmapFont_8pt.setColor(1, 0, 0, 1);
 
         float fontY = 150;
@@ -194,6 +196,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_world.m_client.bitmapFont_8pt.draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
 
         m_world.m_client.bitmapFont_8pt.setColor(1, 1, 1, 1);
+        */
 
         m_batch.end();
     }
@@ -223,7 +226,8 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         SpriteComponent secondEntitySpriteComponent;
 
         SpriteComponent deviceSprite;
-        for (PowerCircuitSystem.PowerCircuit circuit : m_world.m_powerCircuitSystem.m_circuits) {
+        PowerCircuitSystem powerCircuitSystem = getWorld().getSystem(PowerCircuitSystem.class);
+        for (PowerCircuitSystem.PowerCircuit circuit : powerCircuitSystem.m_circuits) {
             //for each device, draw a power node, a "hub" of connections of sorts.
             for (int i = 0; i < circuit.generators.size; ++i) {
                 int gen = circuit.generators.get(i);

@@ -253,7 +253,7 @@ public class NetworkServerSystem extends BaseSystem {
                 }
 
                 // Store the player on the connection.
-                job.connection.player = createPlayer(name, job.connection.getID());
+                job.connection.player = m_server.createPlayer(name, job.connection.getID());
                 job.connection.playerName = name;
             } else if (job.object instanceof Network.PlayerMoveFromClient) {
                 Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
@@ -264,8 +264,8 @@ public class NetworkServerSystem extends BaseSystem {
                 //FIXME: do some verification stuff, make sure strings are safe
 
                 DateFormat date = new SimpleDateFormat("HH:mm:ss");
-                m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message,
-                                   Chat.ChatSender.Player);
+                m_server.m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message,
+                                            Chat.ChatSender.Player);
             } else if (job.object instanceof Network.PlayerMoveInventoryItemFromClient) {
                 Network.PlayerMoveInventoryItemFromClient data =
                         ((Network.PlayerMoveInventoryItemFromClient) job.object);
