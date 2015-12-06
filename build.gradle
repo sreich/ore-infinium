@@ -44,15 +44,19 @@ buildscript {
 }
 
 plugins {
-
     id 'nebula.provided-base' version '3.0.3'
     id 'com.github.ben-manes.versions' version '0.11.3'
     id 'org.sonarqube' version '1.1'
 }
 
-properties {
-    property "sonar.projectkey", "org.sreich:ore-infinium"
+sonarqube {
+    properties {
+        property "sonar.projectName", "Ore Infinium"
+        property "sonar.projectKey", "org.sreich:ore-infinium"
+
+    }
 }
+
 
 task createWrapper(type: Wrapper) {
     gradleVersion = "2.9"
