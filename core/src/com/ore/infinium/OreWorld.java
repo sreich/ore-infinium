@@ -128,6 +128,8 @@ public class OreWorld {
 
         assert isClient() ^ isServer();
 
+        blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
+
         if (isClient()) {
 
             m_camera = new OrthographicCamera(1600 / OreWorld.PIXELS_PER_METER,
@@ -164,8 +166,6 @@ public class OreWorld {
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
         } else {
-            blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
-
             m_artemisWorld = new World(new WorldConfigurationBuilder().with(new TagManager())
                                                                       .with(new PlayerManager())
                                                                       .with(new MovementSystem(this))
