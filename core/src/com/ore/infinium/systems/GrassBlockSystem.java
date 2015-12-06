@@ -31,6 +31,7 @@ import com.ore.infinium.components.*;
 
 /**
  * Handles the random growing of grass blocks in the world
+ * This is server only.
  */
 @Wire
 public class GrassBlockSystem extends BaseSystem {

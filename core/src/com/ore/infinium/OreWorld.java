@@ -140,15 +140,22 @@ public class OreWorld {
             //it isn't null
             initializeWorld();
 
+            //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
+            // class dictates this.
             m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
                                                                       .with(new TagManager())
                                                                       .with(new PlayerManager())
                                                                       .with(new MovementSystem(this))
+                                                                      .with(new NetworkClientSystem(this))
                                                                       .with(new PowerCircuitSystem(this))
+                                                                      .with(new InputSystem(m_camera, this))
+                                                                      .with(new GrassBlockSystem(this))
                                                                       .with(new PlayerSystem(this))
+                                                                      .with(new DebugTextRenderSystem(m_camera, this))
                                                                       .with(new PowerOverlayRenderSystem(this))
                                                                       .with(new SpriteRenderSystem(this))
                                                                       .with(new TileRenderSystem(m_camera, this))
+                                                                      .with(new TileTransitionSystem(m_camera, this))
                                                                       .register(
                                                                               new GameLoopSystemInvocationStrategy(25))
                                                                       .build());
