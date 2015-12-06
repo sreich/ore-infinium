@@ -4,3 +4,4 @@ packed*
 .idea*
 .gradle*
 *.iml
+matrix/*
