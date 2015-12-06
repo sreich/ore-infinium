@@ -49,6 +49,8 @@ plugins {
     id 'org.sonarqube' version '1.1'
 }
 
+/*
+//unused, gradle.properties is though
 sonarqube {
     properties {
         property "sonar.projectName", "Ore Infinium"
@@ -56,6 +58,7 @@ sonarqube {
 
     }
 }
+*/
 
 
 task createWrapper(type: Wrapper) {
