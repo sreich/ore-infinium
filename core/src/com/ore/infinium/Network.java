@@ -1,7 +1,6 @@
 package com.ore.infinium;
 
 import com.artemis.Component;
-import com.artemis.utils.Bag;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -95,7 +94,6 @@ public class Network {
         kryo.register(Object[].class);
         kryo.register(Vector2.class);
         kryo.register(Array.class);
-        kryo.register(Bag.class);
         kryo.register(Rectangle.class);
     }
 
@@ -192,7 +190,7 @@ public class Network {
         //pos not sent
 
         public int id;
-        public Bag<Component> components;
+        public Array<Component> components;
     }
 
     static public class EntitySpawnFromServer {
@@ -203,7 +201,7 @@ public class Network {
 
         public int id;
 
-        public Bag<Component> components;
+        public Array<Component> components;
     }
 
     /// some of these are so we don't serialize an entire Sprite

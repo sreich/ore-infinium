@@ -7,6 +7,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
@@ -174,11 +175,11 @@ public class NetworkServerSystem extends BaseSystem {
      *
      * @return
      */
-    private Bag<Component> serializeComponents(int entityId) {
-        Bag<Component> copyComponents = new Bag<>();
+    private Array<Component> serializeComponents(int entityId) {
         Bag<Component> components = new Bag<>();
         getWorld().getEntity(entityId).getComponents(components);
 
+        Array<Component> copyComponents = new Array<>();
         for (Component component : components) {
             if (component instanceof PlayerComponent) {
                 //skip
