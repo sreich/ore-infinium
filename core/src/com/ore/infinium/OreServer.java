@@ -1,7 +1,6 @@
 package com.ore.infinium;
 
 import com.artemis.ComponentMapper;
-import com.artemis.annotations.Wire;
 import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.NetworkServerSystem;
@@ -29,7 +28,6 @@ import java.util.concurrent.CountDownLatch;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.     *
  * ***************************************************************************
  */
-@Wire
 public class OreServer implements Runnable {
     public CountDownLatch connectHostLatch = new CountDownLatch(1);
     public CountDownLatch shutdownLatch = new CountDownLatch(1);
@@ -77,6 +75,7 @@ public class OreServer implements Runnable {
         Thread.currentThread().setName("server thread (main)");
 
         m_world = new OreWorld(null, this);
+        m_world.m_artemisWorld.inject(this, true);
 
         m_networkServerSystem = m_world.m_artemisWorld.getSystem(NetworkServerSystem.class);
         assert m_networkServerSystem != null;
