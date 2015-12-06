@@ -140,11 +140,8 @@ public class NetworkClientSystem extends BaseSystem {
 
                 if (getWorld().getSystem(TagManager.class).isRegistered("mainPlayer")) {
 
-                    //fixmeasap
-                    //m_world = new OreWorld(this, null);
-
-                    //fixmeasap
-                    int player = 0;// createPlayer(spawn.playerName, m_clientKryo.getID());
+                    //fixmeasap not ideal??
+                    int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
                     SpriteComponent spriteComp = spriteMapper.get(player);
 
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);

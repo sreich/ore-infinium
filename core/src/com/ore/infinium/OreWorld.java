@@ -109,6 +109,18 @@ public class OreWorld {
 
     World m_artemisWorld;
 
+    /**
+     * The main world, shared between both client and server, core to a lot of basic
+     * shared functionality, as well as stuff that doesn't really belong elsewhere,
+     * creates the artemis world and handles processing, as well as shutting down
+     * (when told to do so)
+     *
+     * @param client
+     *         never null..
+     * @param server
+     *         null if it is only a client, if both client and server are valid, the
+     *         this is a local hosted server, (aka singleplayer, or self-hosting)
+     */
     public OreWorld(OreClient client, OreServer server) {
 
         m_client = client;
@@ -240,7 +252,7 @@ public class OreWorld {
     public void initServer() {
     }
 
-    //called to spawn client player HACK: needs to be fixed/consolidated.
+    //called to spawn client player HACK: needs to be fixed/consolidated. fixmeasap
     public void initClient(int mainPlayer) {
         //        velocityMapper.get(m_mainPlayerEntity);
 

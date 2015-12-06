@@ -91,7 +91,7 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
 
         while (m_accumulator >= m_nsPerTick) {
             /** Process all entity systems inheriting from {@link RenderSystemMarker} */
-            for (int i = 0; i < m_renderSystems.size; i++) {
+            for (int i = 0; i < m_logicSystems.size; i++) {
                 //TODO interpolate before this
                 m_logicSystems.get(i).process();
                 updateEntityStates();
@@ -117,7 +117,7 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
 
         //float alpha = (float) m_accumulator / m_nsPerTick;
 
-        for (int i = 0; i < m_logicSystems.size; i++) {
+        for (int i = 0; i < m_renderSystems.size; i++) {
             //TODO interpolate this rendering with the state from the logic run, above
             //State state = currentState * alpha +
             //previousState * ( 1.0 - alpha );

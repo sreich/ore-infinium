@@ -3,7 +3,9 @@ package com.ore.infinium;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.badlogic.gdx.*;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
@@ -67,6 +69,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private boolean m_renderGui = true;
 
+    private BitmapFont bitmapFont_8pt;
+
+    FreeTypeFontGenerator m_fontGenerator;
+
     @Override
     public void create() {
         // for debugging kryonet
@@ -96,7 +102,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         //HACK: this really needs to be stripped out of the client, put in a proper
         //system or something
         //fixmeasap
-        /*
         m_fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 13;
@@ -105,12 +110,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         parameter.size = 9;
 
         m_fontGenerator.dispose();
-        */
 
         m_skin = new Skin();
         m_skin.addRegions(new TextureAtlas(Gdx.files.internal("packed/ui.atlas")));
-        //fixmeasap
-        //        m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
+        m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
         m_skin.load(Gdx.files.internal("ui/ui.json"));
 
         m_chatBox = new ChatBox(this, m_stage, m_skin);
@@ -215,18 +218,25 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_inventoryView.setVisible(!m_inventoryView.inventoryVisible);
     }
 
+    /**
+     * immediately hops into hosting and joining its own local server
+     */
     private void hostAndJoin() {
         m_server = new OreServer();
         m_serverThread = new Thread(m_server, "main server thread");
         m_serverThread.start();
 
         try {
+            //wait for the local server thread to report that it is live and running, before we attempt
+            // a connection to it
             m_server.connectHostLatch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         //call system, if returns false, fail and show:
+        m_world = new OreWorld(this, null);
+
         m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connect("127.0.0.1", Network.port);
         //showFailToConnectDialog();
     }
@@ -504,7 +514,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         return true;
     }
 
-    private int createPlayer(String playerName, int connectionId) {
+    public int createPlayer(String playerName, int connectionId) {
         int player = m_world.createPlayer(playerName, connectionId);
         ControllableComponent controllableComponent = controlMapper.create(player);
 

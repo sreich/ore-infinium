@@ -67,12 +67,14 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     static String textureSwitchesString = "";
     static String shaderSwitchesString = "";
     static String drawCallsString = "";
-
+    //hack this needs to be shared or something. having every damn system have its own is really dumb
+    //the client ends up using this too like that, but its own instance..
     FreeTypeFontGenerator m_fontGenerator;
 
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
 
-    private BitmapFont bitmapFont_8pt;
+    //hack dead code
+    //private BitmapFont bitmapFont_8pt;
     private BitmapFont m_font;
 
     private OreWorld m_world;
