@@ -1,7 +1,6 @@
 package com.ore.infinium;
 
 import com.artemis.*;
-import com.artemis.annotations.Wire;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
@@ -40,7 +39,6 @@ import java.util.HashMap;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.     *
  * ***************************************************************************
  */
-@Wire
 public class OreWorld {
     public static final float PIXELS_PER_METER = 50.0f;
     public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 3.0f;
@@ -154,6 +152,8 @@ public class OreWorld {
                                                                       .register(
                                                                               new GameLoopSystemInvocationStrategy(25))
                                                                       .build());
+            //inject the mappers into the world, before we start doing things
+            m_artemisWorld.inject(this, true);
 
             int crosshair = m_artemisWorld.create();
             m_artemisWorld.getSystem(TagManager.class).register(s_crosshair, crosshair);
@@ -176,6 +176,8 @@ public class OreWorld {
                                                                       .register(
                                                                               new GameLoopSystemInvocationStrategy(25))
                                                                       .build());
+            //inject the mappers into the world, before we start doing things
+            m_artemisWorld.inject(this, true);
 
             generateWorld();
         }
