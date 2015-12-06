@@ -2,6 +2,9 @@
 [![Build Status](http://sreich.net:8090/job/ore%20infinium/badge/icon)]
 (http://sreich.net:8090/job/ore%20infinium/)
 
+[![Sonarqube code analysis]]
+(http://sreich.net:9000/dashboard/index?id=org.ore.infinium)
+
 Ore Infinium, an Open Source Terraria-inspired Sci-fi game with a special focus
 on in-game tech devices energy generation/wiring and the survival through using
 these things.
