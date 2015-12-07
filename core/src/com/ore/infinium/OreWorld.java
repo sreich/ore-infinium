@@ -161,7 +161,6 @@ public class OreWorld {
                                                                       .build());
             //inject the mappers into the world, before we start doing things
             m_artemisWorld.inject(this, true);
-
             int crosshair = m_artemisWorld.create();
             m_artemisWorld.getSystem(TagManager.class).register(s_crosshair, crosshair);
 
@@ -488,11 +487,11 @@ public class OreWorld {
         m_artemisWorld.dispose();
     }
 
-    public void update() {
+    public void process() {
         if (isClient()) {
             //fixmeasap this is used as an indicator that we've joined..but we want something more maintainable.
             if (m_artemisWorld.getSystem(TagManager.class).isRegistered(s_mainPlayer)) {
-                return;
+                //return;
             }
 
             //        playerSprite.sprite.setOriginCenter();
@@ -512,6 +511,7 @@ public class OreWorld {
 
                 assert component.noClip : "placement overlay found to not be in noclip mode!!!";
             }
+
         }
 
         m_artemisWorld.process();

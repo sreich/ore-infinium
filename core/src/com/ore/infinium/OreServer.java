@@ -104,7 +104,7 @@ public class OreServer implements Runnable {
         //by setting the latch to 0,
         //the client notifies us to exit it ASAP
         while (m_world.m_server.shutdownLatch.getCount() != 0) {
-            m_world.update();
+            m_world.process();
         }
 
         m_world.shutdown();

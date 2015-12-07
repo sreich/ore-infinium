@@ -22,6 +22,8 @@ package com.ore.infinium.systems;
 import com.artemis.BaseSystem;
 import com.artemis.SystemInvocationStrategy;
 import com.artemis.utils.Bag;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 
@@ -60,8 +62,6 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
                     m_logicSystems.add(system);
                 }
             }
-
-            m_systemsSorted = true;
         }
     }
 
@@ -69,6 +69,7 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
     protected void process(Bag<BaseSystem> systems) {
         if (!m_systemsSorted) {
             addSystems(systems);
+            m_systemsSorted = true;
         }
 
         //nanoseconds
@@ -118,8 +119,9 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
         //only clear if we have something to render..aka this world is a rendering one (client)
         //else it's a server, and this will crash due to no gl context, obviously
         if (m_renderSystems.size > 0) {
-            ///            Gdx.gl.glClearColor(0, 0, 0, 1);
-            ///          Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+            //Gdx.gl.glClearColor(0, 0, 0, 1);
+            Gdx.gl.glClearColor(1, 0, 0, 1);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         }
 
         for (int i = 0; i < m_renderSystems.size; i++) {

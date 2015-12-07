@@ -254,6 +254,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
             m_stage.draw();
         }
+
+        if (m_world != null) {
+            m_world.process();
+        }
     }
 
     private void showFailToConnectDialog() {
