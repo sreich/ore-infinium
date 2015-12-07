@@ -1,7 +1,6 @@
 package com.ore.infinium;
 
 import com.artemis.ComponentMapper;
-import com.artemis.annotations.Wire;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -38,7 +37,6 @@ import com.ore.infinium.systems.TileRenderSystem;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-@Wire
 public class HotbarInventoryView implements Inventory.SlotListener {
     private Skin m_skin;
     private Table container;
@@ -64,6 +62,8 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         m_inventory = inventory;
         m_world = world;
         m_stage = stage;
+
+        m_world.m_artemisWorld.inject(this);
 
         m_hotbarInventory = hotbarInventory;
         //attach to the inventory model
