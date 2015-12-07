@@ -149,6 +149,8 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
         Image slotImage = slot.itemImage;
         //        //m_blockAtlas.findRegion("stone"));
+
+        assert region != null : "textureregion for inventory item was not found!";
         slotImage.setDrawable(new TextureRegionDrawable(region));
         slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
         slotImage.setScaling(Scaling.fit);
@@ -157,7 +159,6 @@ public class HotbarInventoryView implements Inventory.SlotListener {
 
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
         //.maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
-
     }
 
     @Override
