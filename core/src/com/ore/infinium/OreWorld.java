@@ -3,7 +3,9 @@ package com.ore.infinium;
 import com.artemis.*;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
+import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.IntBag;
+import com.artemis.utils.reflect.ClassReflection;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
@@ -128,6 +130,8 @@ public class OreWorld {
 
         blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
 
+        assert isHotspotOptimizationEnabled() : "error, hotspot optimization (artemis-odb weaving) is not enabled";
+
         if (isClient()) {
 
             m_camera = new OrthographicCamera(1600 / OreWorld.PIXELS_PER_METER,
@@ -193,6 +197,12 @@ public class OreWorld {
         //        assetManager.finishLoading();
 
         //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
+    }
+
+    private boolean isHotspotOptimizationEnabled() {
+        // hotspot optimization replaces (amongst other steps) references to entityprocessingsystem with entitysystem.
+        // so we can determine this optimization by EntityProcessingSystem missing from our system's hierarchy.
+        return !ClassReflection.isAssignableFrom(EntityProcessingSystem.class, NetworkClientSystem.class);
     }
 
     //TODO cleanup, can be broken down into various handlers, early returns and handling multiple cases make it
@@ -261,7 +271,6 @@ public class OreWorld {
     }
 
     /**
-     *
      * @param playerName
      * @param connectionId
      *

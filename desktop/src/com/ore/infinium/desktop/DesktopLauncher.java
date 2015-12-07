@@ -72,7 +72,7 @@ public class DesktopLauncher {
 
     public static void main(String[] arg) {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-//            ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
+            //            ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
             ErrorDialog dialog2 = new ErrorDialog(throwable, Thread.currentThread());
             dialog2.setVisible(true);
         });

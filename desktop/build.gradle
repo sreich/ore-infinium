@@ -2,7 +2,7 @@ apply plugin: "java"
 apply plugin: "artemis"
 
 sourceCompatibility = 1.8
-sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.main.java.srcDirs = ["src/"]
 
 project.ext.mainClassName = "com.ore.infinium.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
@@ -17,44 +17,46 @@ task run(dependsOn: classes, type: JavaExec) {
     ignoreExitValue = true
 }
 
-/*
-//old, before artemis weaving
-task dist(type: Jar) {
-    from files(sourceSets.main.output.classesDir)
-    from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir);
+def getDate() {
+    def date = new Date()
 
-    baseName = 'ore-infinium'
-    manifest {
-        attributes 'Main-Class': project.mainClassName
+    def formattedDate = date.format("yyyy-MM-dd-'time'-HH-mm_ss");
+    return formattedDate
+}
+
+version = '0.1-build-' + getDate()
+
+/**
+ * move all old output jars into desktop/libs/old, so the latest
+ * one is always in desktop/libs/<here>
+ * @return
+ */
+def moveOldFiles() {
+    def libPath = project.buildDir.getPath() + '/libs'
+    mkdir(libPath + '/old');
+
+    File libPathDir = file(libPath);
+
+    //    libPathDir.listFiles();
+    libPathDir.listFiles().each {
+        if (!it.isDirectory()) {
+            def newPath = libPath + '/old/' + it.name;
+            print(newPath);
+            it.renameTo(newPath);
+        }
     }
 }
-*/
 
+task dist(type: Jar) {
+    moveOldFiles();
 
-// Prepare folder with all dependencies exploded.
-task explodeForWeave(type: Sync, dependsOn: classes) {
-    into project.weaveDir
     from files(sourceSets.main.output.classesDir)
     from files(sourceSets.main.output.resourcesDir)
-    from {configurations.compile.collect {zipTree(it)}}
-    from files(project.assetsDir)
-}
+    from { configurations.compile.collect { zipTree(it) } }
+    from files(project.assetsDir);
 
-// Apply weaving on dependency folder.
-weave {
-    dependsOn explodeForWeave
-    enableArtemisPlugin = true
-    enablePooledWeaving = true
-    ideFriendlyPacking = true
-    optimizeEntitySystems = true
-    classesDir = project.weaveDir
-}
+    baseName = 'ore-infinium';
 
-// package woven classes into jar.
-task dist(type: Jar, dependsOn: weave) {
-    from project.weaveDir
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
@@ -70,12 +72,12 @@ eclipse {
 }
 
 task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
-  doLast {
-    def classpath = new XmlParser().parse(file(".classpath"))
-    new Node(classpath, "classpathentry", [ kind: 'src', path: 'assets' ]);
-    def writer = new FileWriter(file(".classpath"))
-    def printer = new XmlNodePrinter(new PrintWriter(writer))
-    printer.setPreserveWhitespace(true)
-    printer.print(classpath)
-  }
+    doLast {
+        def classpath = new XmlParser().parse(file(".classpath"))
+        new Node(classpath, "classpathentry", [kind: 'src', path: 'assets']);
+        def writer = new FileWriter(file(".classpath"))
+        def printer = new XmlNodePrinter(new PrintWriter(writer))
+        printer.setPreserveWhitespace(true)
+        printer.print(classpath)
+    }
 }
