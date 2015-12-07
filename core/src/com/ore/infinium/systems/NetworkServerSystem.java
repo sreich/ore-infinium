@@ -66,7 +66,7 @@ public class NetworkServerSystem extends BaseSystem {
         m_server = server;
 
         try {
-            //= new Server(16384, 8192, new JsonSerialization());
+            //m_serverKryo = new Server(16384, 8192, new JsonSerialization()) {
             m_serverKryo = new Server(Network.bufferWriteSize, 2048) {
                 protected Connection newConnection() {
                     // By providing our own connection implementation, we can store per

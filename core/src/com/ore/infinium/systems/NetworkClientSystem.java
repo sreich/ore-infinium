@@ -91,7 +91,7 @@ public class NetworkClientSystem extends BaseSystem {
      * @param ip
      */
     public void connect(String ip, int port) {
-        //= new Client(16384, 8192, new JsonSerialization());
+        //m_clientKryo = new Client(16384, 8192, new JsonSerialization());
         m_clientKryo = new Client(8192, Network.bufferObjectSize);
         m_clientKryo.start();
 
