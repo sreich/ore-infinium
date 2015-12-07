@@ -20,64 +20,67 @@ public class DesktopLauncher {
     private List<String> parameters = new ArrayList<>();
 
     @Parameter(names = "--help", help = true)
-    private static boolean help;
+    private boolean help;
 
     //client options//////
     @Parameter(names = "--pack",
                description = "Pack the images on ../assets, into ../assets/packed, and into their corresponding " +
                              "texture atlases. Only images from the packed atlases will be used, so if changes are " +
                              "made to the assets, this must be run")
-    private static boolean pack;
+    private boolean pack;
 
     @Parameter(names = "--framerate",
-               description = "the framerate value to limit the game to. Default is 60 frames per second. 0 is " +
-                             "unlimited")
-    private static int framerate = 60;
+               description = "the framerate value to limit the game to. 0 is unlimited")
+    private int framerate = 60;
 
-    @Parameter(names = "--vsync", description = "vsync enabled. Default is off")
-    private static boolean vsyncEnabled;
+    @Parameter(names = "--vsync", description = "vsync enabled.")
+    private boolean vsyncEnabled;
 
     @Parameter(names = "--resizable", description = "if set, the window will be allowed to be freely resized")
-    private static boolean resizable;
+    private boolean resizable;
 
     @Parameter(names = "--width", description = "window width")
-    private static int width = 1600;
+    private int width = 1600;
 
     @Parameter(names = "--height", description = "window height")
-    private static int height = 900;
+    private int height = 900;
     //////////////////////////
 
     //server and client network related options
     @Parameter(names = "--hostAndJoin",
                description = "immediately jumps into hosting a server and joining it locally. Basically singleplayer," +
                              " but with other people being able to join, technically.")
-    private static boolean hostAndJoin;
+    private boolean hostAndJoin;
 
-    @Parameter(names = "--host", description = "hosts a server. Additional settings that must or can be set are: port")
-    private static boolean host;
+    @Parameter(names = "--host", description = "Hosts a server. Additional settings that must or can be set are: port")
+    private boolean host;
 
     @Parameter(names = "--join",
                description = "joins a server. Additional settings that must or can be set are: ip(required), port")
-    private static boolean join;
+    private boolean join;
 
     @Parameter(names = "--playerName", description = "applies only to the client")
-    private static String playerName = "testplayerNameFromCommandLine";
+    private String playerName = "testplayerNameFromCommandLine";
 
     @Parameter(names = "--port")
-    private static int port = Network.port;
+    private int port = Network.port;
 
     @Parameter(names = "--ip", description = "applies only to the client")
     private static String ip = "localhost";
     /////////
 
     public static void main(String[] arg) {
+        new DesktopLauncher().runGame(arg);
+    }
+
+    private void runGame(String[] arg) {
         Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
             //            ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
             ErrorDialog dialog2 = new ErrorDialog(throwable, Thread.currentThread());
             dialog2.setVisible(true);
         });
 
-        JCommander jCommander = new JCommander(arg);
+        JCommander jCommander = new JCommander(this, arg);
         jCommander.setCaseSensitiveOptions(false);
         jCommander.setProgramName("Ore Infinium");
 
@@ -92,10 +95,9 @@ public class DesktopLauncher {
         config.backgroundFPS = framerate;
 
         if (help) {
+            System.out.println("Ore Infinium - an open source block building survival game.");
             //print how to use
             jCommander.usage();
-
-            System.out.println("this is a test help output");
 
             return;
         }
@@ -116,6 +118,5 @@ public class DesktopLauncher {
         LwjglInput.keyRepeatInitialTime = 0.15f;
 
         new LwjglApplication(new OreClient(), config);
-
     }
 }
