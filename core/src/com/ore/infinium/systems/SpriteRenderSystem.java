@@ -127,7 +127,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
             boolean placementGhost = false;
 
             String tag = world.getSystem(TagManager.class).getTag(world.getEntity(entity));
-            if (tag.equals("itemPlacementOverlay")) {
+            if (tag != null && tag.equals("itemPlacementOverlay")) {
 
                 placementGhost = true;
 
