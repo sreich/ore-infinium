@@ -71,6 +71,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private BitmapFont bitmapFont_8pt;
 
+    /**
+     * whether or not we're connected to the server (either local or mp).
+     * This will only be true when the player has spawned. this means,
+     * the server has spawned our player and the initial
+     * player data has been sent back, indicating to the client that it has
+     * been spawned, and under what player id.
+     */
+    public boolean connected;
+
     FreeTypeFontGenerator m_fontGenerator;
 
     @Override
@@ -101,7 +110,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         //fixme: this really needs to be stripped out of the client, put in a proper
         //system or something
-        //fixmeasap
         m_fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 13;
@@ -237,6 +245,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         //call system, if returns false, fail and show:
         m_world = new OreWorld(this, null);
 
+        m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).addListener(new NetworkConnectListener());
         m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connect("127.0.0.1", Network.port);
         //showFailToConnectDialog();
     }
@@ -345,7 +354,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
-        //fixme fixme, ERROR
+        //fixme, ERROR
         final float zoomAmount = 0.004f;
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
             if (m_zoomTimer.milliseconds() >= zoomInterval) {
@@ -388,7 +397,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     m_world.m_artemisWorld.delete(item);
                 }
 
-                //fixmeasap
+                //fixme
                 //m_clientKryo.sendTCP(dropItemRequestFromClient);
 
             }
@@ -579,4 +588,17 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
     }
 
+    private static class NetworkConnectListener implements NetworkClientSystem.NetworkClientListener {
+
+        @Override
+        public void connected() {
+
+        }
+
+        @Override
+        public void disconnected() {
+            //todo show gui, say disconnected
+
+        }
+    }
 }

@@ -102,14 +102,12 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     }
 
     public void render(float elapsed) {
-        //fixme fixme the system should be disabled and enabled when this happens
+        //fixme the system should be disabled and enabled when this happens
         if (getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_mainPlayer)) {
             return;
         }
 
-        if (!debugRenderTiles)
-
-        {
+        if (!debugRenderTiles) {
             return;
         }
 
@@ -151,9 +149,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
         //fixme all instances of findRegion need to be replaced with cached
         //versions. they're allegedly quite slow
-        for (int x = startX; x < endX; ++x)
-
-        {
+        for (int x = startX; x < endX; ++x) {
             for (int y = startY; y < endY; ++y) {
                 ++debugTilesInViewCount;
 

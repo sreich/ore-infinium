@@ -7,6 +7,7 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -81,8 +82,20 @@ public class NetworkClientSystem extends BaseSystem {
      */
     private IntMap<Integer> m_networkIdForEntityId = new IntMap<>(500);
 
+    private Array<NetworkClientListener> m_listeners = new Array<>(5);
+
     public NetworkClientSystem(OreWorld world) {
         m_world = world;
+    }
+
+    public void addListener(NetworkClientListener listener) {
+        m_listeners.add(listener);
+    }
+
+    public interface NetworkClientListener {
+        public void connected();
+
+        public void disconnected();
     }
 
     /**
@@ -138,7 +151,7 @@ public class NetworkClientSystem extends BaseSystem {
 
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
 
-                if (getWorld().getSystem(TagManager.class).isRegistered("mainPlayer")) {
+                if (!m_world.m_client.connected) {
 
                     //fixmeasap not ideal??
                     int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
@@ -146,17 +159,31 @@ public class NetworkClientSystem extends BaseSystem {
 
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
                     m_world.addPlayer(player);
-                    m_world.initClient(player);
+
+                    SpriteComponent playerSprite =
+                            spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer));
+                    playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"));
+                    playerSprite.sprite.flip(false, true);
 
                     AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
                     EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
                     subscription.addSubscriptionListener(new ClientEntitySubscriptionListener());
+
+                    m_world.m_client.connected = true;
+
+                    for (NetworkClientListener listener : m_listeners) {
+                        listener.connected();
+                    }
                 } else {
                     //FIXME cover other players joining case
                     throw new RuntimeException("fixme, other players joining not yet implemented");
                 }
             } else if (object instanceof Network.KickReason) {
                 Network.KickReason reason = (Network.KickReason) object;
+
+                for (NetworkClientListener listener : m_listeners) {
+                    listener.disconnected();
+                }
             } else if (object instanceof Network.BlockRegion) {
                 Network.BlockRegion region = (Network.BlockRegion) object;
                 m_world.loadBlockRegion(region);

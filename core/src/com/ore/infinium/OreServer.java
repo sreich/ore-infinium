@@ -90,7 +90,7 @@ public class OreServer implements Runnable {
                 message.sender = line.chatSender;
                 message.timestamp = line.timestamp;
 
-                //fixmeasap
+                //fixme
                 //m_serverKryo.sendToAllTCP(message);
             }
 

@@ -260,18 +260,7 @@ public class OreWorld {
     public void initServer() {
     }
 
-    //called to spawn client player fixme: needs to be fixed/consolidated. fixmeasap
-    public void initClient(int mainPlayer) {
-        //        velocityMapper.get(m_mainPlayerEntity);
-
-        SpriteComponent playerSprite =
-                spriteMapper.get(m_artemisWorld.getSystem(TagManager.class).getEntity(s_mainPlayer));
-        playerSprite.sprite.setRegion(m_atlas.findRegion("player-32x64"));
-        playerSprite.sprite.flip(false, true);
-    }
-
     /**
-     * adding entity to the world is callers responsibility
      *
      * @param playerName
      * @param connectionId
@@ -317,8 +306,6 @@ public class OreWorld {
 
         generateOres();
         generateGrassTiles();
-        //fixmeasap this needed??
-        //transitionTiles();
 
         counter.stop();
         String s = String.format("total world gen took (incl transitioning, etc): %s seconds", counter.current);
@@ -489,11 +476,6 @@ public class OreWorld {
 
     public void process() {
         if (isClient()) {
-            //fixmeasap this is used as an indicator that we've joined..but we want something more maintainable.
-            if (m_artemisWorld.getSystem(TagManager.class).isRegistered(s_mainPlayer)) {
-                //return;
-            }
-
             //        playerSprite.sprite.setOriginCenter();
 
             //        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f,

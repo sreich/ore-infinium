@@ -5,7 +5,6 @@ import com.artemis.AspectSubscriptionManager;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -169,9 +168,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, drawCallsString, 0, textY);
         textY -= 15;
 
-        //fixme replace with some method of knowing we're connected and can proceed. checking for main player is dumb..
-        //this is done like..all over the place
-        if (m_world != null && getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_mainPlayer)) {
+        if (m_world != null && m_world.m_client.connected) {
             Vector2 mousePos = m_world.mousePositionWorldCoords();
             Block block = m_world.blockAtPosition(mousePos);
 
