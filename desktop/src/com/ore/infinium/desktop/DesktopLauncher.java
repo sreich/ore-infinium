@@ -95,7 +95,8 @@ public class DesktopLauncher {
         config.backgroundFPS = framerate;
 
         if (help) {
-            System.out.println("Ore Infinium - an open source block building survival game.");
+            System.out.println("Ore Infinium - an open source block building survival game.\n" +
+                               "To enable assertions, you may want to pass to the Java VM, -ea");
             //print how to use
             jCommander.usage();
 

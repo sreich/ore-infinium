@@ -154,16 +154,17 @@ public class NetworkClientSystem extends BaseSystem {
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
 
                 if (!m_world.m_client.connected) {
-
                     //fixmeasap not ideal??
                     int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
                     SpriteComponent spriteComp = spriteMapper.get(player);
 
+                    TagManager tagManager = getWorld().getSystem(TagManager.class);
+                    tagManager.register(OreWorld.s_mainPlayer, player);
+
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
                     m_world.addPlayer(player);
 
-                    SpriteComponent playerSprite =
-                            spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer));
+                    SpriteComponent playerSprite = spriteMapper.get(player);
                     playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"));
                     playerSprite.sprite.flip(false, true);
 

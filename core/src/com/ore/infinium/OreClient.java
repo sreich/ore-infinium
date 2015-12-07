@@ -1,7 +1,6 @@
 package com.ore.infinium;
 
 import com.artemis.ComponentMapper;
-import com.artemis.annotations.Wire;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -19,7 +18,6 @@ import com.ore.infinium.systems.DebugTextRenderSystem;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.PowerOverlayRenderSystem;
 
-@Wire
 public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
@@ -244,6 +242,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         //call system, if returns false, fail and show:
         m_world = new OreWorld(this, null);
+        m_world.m_artemisWorld.inject(this);
 
         m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).addListener(new NetworkConnectListener(this));
         m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connect("127.0.0.1", Network.port);
