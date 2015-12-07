@@ -245,7 +245,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         //call system, if returns false, fail and show:
         m_world = new OreWorld(this, null);
 
-        m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).addListener(new NetworkConnectListener());
+        m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).addListener(new NetworkConnectListener(this));
         m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connect("127.0.0.1", Network.port);
         //showFailToConnectDialog();
     }
@@ -589,16 +589,24 @@ public class OreClient implements ApplicationListener, InputProcessor {
     }
 
     private static class NetworkConnectListener implements NetworkClientSystem.NetworkClientListener {
+        private final OreClient m_client;
 
         @Override
         public void connected() {
+            m_client.connected = true;
 
         }
 
         @Override
         public void disconnected() {
-            //todo show gui, say disconnected
+            //todo show gui, say we've disconnected
 
+            m_client.connected = false;
         }
+
+        public NetworkConnectListener(OreClient oreClient) {
+            m_client = oreClient;
+        }
+
     }
 }
