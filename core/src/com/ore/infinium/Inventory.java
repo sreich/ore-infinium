@@ -44,13 +44,20 @@ public class Inventory {
      *         entity id of player who owns this inventory
      */
     public Inventory(int _owningPlayer) {
+        owningPlayer = _owningPlayer;
+
         if (inventoryType == InventoryType.Hotbar) {
             m_slots = new int[maxHotbarSlots];
         } else {
             m_slots = new int[maxSlots];
         }
 
-        owningPlayer = _owningPlayer;
+        //null out the entire array. since it defaults to 0,
+        //but 0 is not our 'null' entity.
+        for (int i = 0; i < m_slots.length; i++) {
+            m_slots[i] = OreWorld.ENTITY_INVALID;
+        }
+
     }
 
     public void addListener(SlotListener listener) {

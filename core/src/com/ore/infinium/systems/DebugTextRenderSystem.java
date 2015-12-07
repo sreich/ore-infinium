@@ -94,9 +94,8 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     public DebugTextRenderSystem(OrthographicCamera camera, OreWorld world) {
         m_world = world;
         m_batch = new SpriteBatch();
-
         debugStrings = new ArrayList<>(
-                Arrays.asList("E - power overlay, Q - drop Item", "1-8 or mouse wheel, inventory selection",
+                Arrays.asList("E - power overlay." + " Q - drop Item", "1-8 or mouse wheel for inventory selection",
                               "F12 - gui debug", "F11 - gui render toggle", "F10 - tile render toggle",
                               "F9 - client/server sync debug render toggle", "F8 - client sprite debug render toggle"));
 
