@@ -184,7 +184,7 @@ public class ChatBox implements Chat.ChatListener {
         m_stage.setKeyboardFocus(m_messageField);
         m_notificationTimer.clear();
         m_notificationTimer.stop();
-        //HACK: here be dragons. here and there and over there.
+        //note: here be dragons. here and there and over there.
         //scroll pane seems to not want to scroll until it gets layout() called and some other voodoo stuff
         //after scrolling has been disabled and re-enabled..very odd indeed.
         scrollToBottom();

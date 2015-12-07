@@ -31,7 +31,7 @@ public class Inventory {
     //selection is hotbar only
     public byte m_selectedSlot;
     public byte m_previousSelectedSlot;
-    public int owningPlayer; //HACK? unneeded?
+    public int owningPlayer; //fixme? unneeded?
     public InventoryType inventoryType;
     Array<SlotListener> m_listeners = new Array<>();
 

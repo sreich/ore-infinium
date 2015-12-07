@@ -139,7 +139,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         TextureRegion region;
         SpriteComponent spriteComponent = spriteMapper.get(itemEntity);
         if (blockMapper.get(itemEntity) != null) {
-            //hack
+            //fixme
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem.class).m_tilesAtlas.findRegion(
                     spriteComponent.textureName.concat("-00"));
         } else {
@@ -291,7 +291,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
                 //move the item from the source to the dest (from main inventory, to this hotbar inventory)
                 inventory.m_hotbarInventory.setSlot(this.index,
                                                     inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
-                //HACK?                    inventory.m_previousSelectedSlot = index;
+                //fixme?                    inventory.m_previousSelectedSlot = index;
                 inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
                                                 .sendInventoryMove(Inventory.InventoryType.Inventory,
                                                                    dragWrapper.dragSourceIndex,

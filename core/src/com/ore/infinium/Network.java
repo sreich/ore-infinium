@@ -131,7 +131,7 @@ public class Network {
         public Chat.ChatSender sender;
     }
 
-    //hack: unneeded??
+    //fixme: unneeded??
     static public class LoadedViewportMovedFromServer {
         public Rectangle rect;
     }

@@ -99,7 +99,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         Gdx.input.setInputProcessor(m_multiplexer);
 
-        //HACK: this really needs to be stripped out of the client, put in a proper
+        //fixme: this really needs to be stripped out of the client, put in a proper
         //system or something
         //fixmeasap
         m_fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"));
@@ -194,7 +194,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
 
         if (m_world.isPlacementValid(placedItemEntity)) {
-            //hack, do more validation..
+            //todo, do more validation..
             m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
                                   .sendItemPlace(alignedPosition.x, alignedPosition.y);
         } else {
@@ -345,7 +345,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
-        //fixme hack, ERROR
+        //fixme fixme, ERROR
         final float zoomAmount = 0.004f;
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
             if (m_zoomTimer.milliseconds() >= zoomInterval) {
@@ -473,7 +473,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         leftMouseDown = true;
         if (m_world != null) {
             return m_world.touchDown(screenX, screenY, pointer, button);
-            //hack
+            //fixme
 
         }
 

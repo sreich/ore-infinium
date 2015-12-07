@@ -162,7 +162,7 @@ public class NetworkServerSystem extends BaseSystem {
         spawn.size.size.set(sprite.sprite.getWidth(), sprite.sprite.getHeight());
         spawn.textureName = sprite.textureName;
 
-        //FIXME, HACK: m_serverKryo.sendToTCP(connectionId, spawn);
+        //FIXME, fixme: m_serverKryo.sendToTCP(connectionId, spawn);
         m_serverKryo.sendToAllTCP(spawn);
     }
 
@@ -209,7 +209,7 @@ public class NetworkServerSystem extends BaseSystem {
         SpriteComponent spriteComponent = spriteMapper.get(item);
         spawn.size.size.set(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
         spawn.textureName = spriteComponent.textureName;
-        //FIXME: HACK, we need to spawn it with a texture...and figure out how to do this exactly.
+        //FIXME: fixme, we need to spawn it with a texture...and figure out how to do this exactly.
 
         m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).connectionId, spawn);
     }
@@ -321,7 +321,7 @@ public class NetworkServerSystem extends BaseSystem {
                 } else {
                     //remove item from inventory, client has already done so, because the count will be 0 after this
                     // drop
-                    // hack          m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
+                    // fixme          m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
                 }
 
                 //decrease count of equipped item
@@ -337,7 +337,7 @@ public class NetworkServerSystem extends BaseSystem {
 
                 itemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
 
-                //HACK holy god yes, make it check viewport, send to players interested..aka signup for entity adds
+                //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
                 sendSpawnEntity(droppedItem, job.connection.getID());
             } else if (job.object instanceof Network.ItemPlaceFromClient) {
                 Network.ItemPlaceFromClient data = ((Network.ItemPlaceFromClient) job.object);
@@ -461,7 +461,7 @@ public class NetworkServerSystem extends BaseSystem {
             PlayerConnection connection = (PlayerConnection) c;
             m_netQueue.add(new NetworkJob(connection, obj));
 
-            //HACK, debug
+            //fixme, debug
             c.setTimeout(999999999);
             c.setKeepAliveTCP(9999999);
         }

@@ -202,8 +202,8 @@ public class GrassBlockSystem extends BaseSystem {
 
                     //grow top-right
                     if (topRightBlock.type == Block.BlockType.DirtBlockType) {
-                        //hack                        int topRightTopRightX = blockXSafe(topRightBlockX + 1);
-                        //hack                        int topRightTopRightY = blockYSafe(topRightBlockY + 1);
+                        //fixme                        int topRightTopRightX = blockXSafe(topRightBlockX + 1);
+                        //fixme                        int topRightTopRightY = blockYSafe(topRightBlockY + 1);
 
                         //                        Block topRightTopRightBlock = blockAt(topRightTopRightX,
                         // topRightTopRightY);

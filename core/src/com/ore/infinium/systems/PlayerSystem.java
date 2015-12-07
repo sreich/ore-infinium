@@ -90,7 +90,7 @@ public class PlayerSystem extends IteratingSystem {
         float x = spriteComponent.sprite.getX();
         float y = spriteComponent.sprite.getY();
 
-        //fixme hack, we'll fix this when we get to chunking and come up with a proper solution
+        //fixme fixme, we'll fix this when we get to chunking and come up with a proper solution
         if (chunkTimer.milliseconds() > 600) {
             calculateLoadedViewport(entityId);
             chunkTimer.reset();

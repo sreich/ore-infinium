@@ -26,7 +26,7 @@ public class SpriteComponent extends Component {
     public Sprite sprite = new Sprite();
 
     public EntityCategory category;
-    //HACK yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
+    //fixme yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
     public String textureName;
 
     public boolean placementValid;

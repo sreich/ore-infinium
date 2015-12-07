@@ -102,7 +102,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     }
 
     public void render(float elapsed) {
-        //fixme hack the system should be disabled and enabled when this happens
+        //fixme fixme the system should be disabled and enabled when this happens
         if (getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_mainPlayer)) {
             return;
         }
@@ -202,7 +202,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
                 } else {
                     //draw walls
-                    //hack of course, for wall drawing
+                    //fixme of course, for wall drawing
                     textureName = dirtBlockMeshes.get(0);
                     assert textureName != null : "block mesh lookup failure type: " + block.meshType;
 

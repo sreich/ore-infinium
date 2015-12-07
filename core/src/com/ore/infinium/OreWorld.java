@@ -235,7 +235,7 @@ public class OreWorld {
                 crosshairSprite.visible = true;
 
                 //drill has no placement overlay
-                //HACK: return;
+                //fixme: return;
             }
         }
 
@@ -260,7 +260,7 @@ public class OreWorld {
     public void initServer() {
     }
 
-    //called to spawn client player HACK: needs to be fixed/consolidated. fixmeasap
+    //called to spawn client player fixme: needs to be fixed/consolidated. fixmeasap
     public void initClient(int mainPlayer) {
         //        velocityMapper.get(m_mainPlayerEntity);
 
@@ -285,7 +285,7 @@ public class OreWorld {
 
         PlayerComponent playerComponent = playerMapper.create(playerEntity);
         playerComponent.connectionId = connectionId;
-        //hack fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on
+        //fixme fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on
         // the server?? at least the component, maybe not inner sprite
         playerComponent.noClip = m_noClipEnabled;
 
@@ -406,7 +406,7 @@ public class OreWorld {
                         block.type = Block.BlockType.DirtBlockType;
                         break;
                     case 2:
-                        //hack, simulate only dirt for now. blocks[index].type = Block.BlockType.StoneBlockType;
+                        //fixme, simulate only dirt for now. blocks[index].type = Block.BlockType.StoneBlockType;
                         block.type = Block.BlockType.DirtBlockType;
                         break;
                 }
@@ -503,7 +503,7 @@ public class OreWorld {
             updateCrosshair();
             updateItemPlacementOverlay();
 
-            //hack
+            //fixme
             if (m_artemisWorld.getSystem(TagManager.class).isRegistered(s_itemPlacementOverlay)) {
                 SpriteComponent component = spriteMapper.getSafe(
                         m_artemisWorld.getSystem(TagManager.class).getEntity(s_itemPlacementOverlay).getId());

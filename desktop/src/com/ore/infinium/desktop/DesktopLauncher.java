@@ -29,7 +29,7 @@ public class DesktopLauncher {
             TexturePacker.Settings settings = new TexturePacker.Settings();
             settings.maxWidth = 512;
             settings.maxHeight = 512;
-            settings.fast = true; //hack just to speed up debugging, overrides local settings(probably??)
+            settings.fast = true; //fixme just to speed up debugging, overrides local settings(probably??)
 
             TexturePacker.process(settings, "blocks", "../assets/packed", "blocks");
             TexturePacker.process(settings, "tiles", "../assets/packed", "tiles");

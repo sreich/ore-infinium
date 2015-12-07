@@ -191,11 +191,11 @@ public class TileTransitionSystem extends IntervalSystem {
 
         grassTransitions.put(
                 EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
-                           Transitions.topLeftEmpty), 16); //hack 16, probably need one without bottom,etc
+                           Transitions.topLeftEmpty), 16); //fixme 16, probably need one without bottom,etc
 
         grassTransitions.put(
                 EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
-                           Transitions.topRightEmpty), 17); //HACK
+                           Transitions.topRightEmpty), 17); //fixme
 
         grassTransitions.put(
                 EnumSet.of(Transitions.leftDirt, Transitions.rightDirt, Transitions.topDirt, Transitions.bottomDirt,
@@ -255,7 +255,7 @@ public class TileTransitionSystem extends IntervalSystem {
                            Transitions.topLeftEmpty, Transitions.topRightEmpty, Transitions.bottomLeftEmpty,
                            Transitions.bottomRightEmpty), 31);
 
-        //hack?
+        //fixme?
 
         grassTransitions.put(EnumSet.of(Transitions.leftEmpty, Transitions.topEmpty, Transitions.rightDirt), 1);
         ////////////////////
@@ -363,9 +363,9 @@ public class TileTransitionSystem extends IntervalSystem {
                     } else if (leftEmpty && topEmpty && rightDirt && bottomDirt && !bottomRightEmpty) {
                         finalMesh = 1;
                     } else if (leftDirt && topEmpty && rightDirt && bottomDirt &&
-                               !(bottomLeftEmpty && bottomRightEmpty)) { //hack this is supsiciously different
+                               !(bottomLeftEmpty && bottomRightEmpty)) { //fixme this is supsiciously different
                         finalMesh = 2;
-                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty) { // hack check leftleftempty etc?
+                    } else if (leftDirt && bottomDirt && rightEmpty && topEmpty) { // fixme check leftleftempty etc?
                         finalMesh = 3;
                     } else if (topDirt && rightDirt && bottomDirt && leftEmpty) {
                         finalMesh = 4;
@@ -396,7 +396,7 @@ public class TileTransitionSystem extends IntervalSystem {
                     } else if (leftDirt && topDirt && bottomDirt && rightDirt && topRightEmpty) {
                         finalMesh = 17;
                     } else if (leftDirt && bottomDirt && topDirt && bottomLeftEmpty &&
-                               !topLeftEmpty) { //hack ADD TOP BOTTOM ETC
+                               !topLeftEmpty) { //fixme ADD TOP BOTTOM ETC
                         finalMesh = 18;
                     } else if (rightDirt && bottomDirt && topDirt && leftDirt && bottomRightEmpty) {
                         finalMesh = 19;
@@ -409,7 +409,7 @@ public class TileTransitionSystem extends IntervalSystem {
                     } else if (leftDirt && rightDirt && topDirt && bottomLeftEmpty && bottomRightEmpty) {
                         finalMesh = 23;
                     } else if (topDirt && rightDirt && bottomDirt && topRightEmpty && bottomRightEmpty &&
-                               leftEmpty) { //hack
+                               leftEmpty) { //fixme
                         finalMesh = 24;
                     } else if (leftDirt && topDirt && bottomDirt && topLeftEmpty && bottomLeftEmpty && rightEmpty) {
                         finalMesh = 25;

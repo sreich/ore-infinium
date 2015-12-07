@@ -133,7 +133,7 @@ public class MovementSystem extends IteratingSystem {
         ///////// velocity verlet integration
         // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
 
-        //HACK if i do 0.5f * delta, it doesn't move at all??
+        //fixme if i do 0.5f * delta, it doesn't move at all??
         // * delta
         //OLD CODE desiredPosition = ((origPosition.xy() + (oldVelocity + newVelocity)) * glm::vec2(0.5f) * dt);
 
@@ -211,7 +211,7 @@ public class MovementSystem extends IteratingSystem {
 
             //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
 
-            //HACK: obviously
+            //fixme: obviously
             //    positionComponent->setPosition(desiredPosition);
 
             //    const glm::vec3 finalPosition ;
@@ -263,7 +263,7 @@ public class MovementSystem extends IteratingSystem {
 
                     float tileRight = OreWorld.BLOCK_SIZE * (rightX - 0);
 
-                    //HACK: super small threshold to prevent sticking to right side,
+                    //fixme: super small threshold to prevent sticking to right side,
                     //i dont know why this isn't the same case as all the others. i feel like something
                     //is wrong somewhere else..doesn't make sense.
                     desiredPosition.x = tileRight - (sizeMeters.x * 0.5f) - epsilon;

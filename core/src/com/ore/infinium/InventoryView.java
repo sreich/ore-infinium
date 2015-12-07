@@ -69,7 +69,7 @@ public class InventoryView implements Inventory.SlotListener {
         container.padLeft(10).padTop(10);
 
         m_window = new Window("Inventory", m_skin);
-        //HACK;not centering or anythign, all hardcoded :(
+        //fixme;not centering or anythign, all hardcoded :(
         m_window.setPosition(900, 100);
         m_window.top().right().setSize(400, 500);
         //        window.defaults().space(4);

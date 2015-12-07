@@ -67,13 +67,13 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     static String textureSwitchesString = "";
     static String shaderSwitchesString = "";
     static String drawCallsString = "";
-    //hack this needs to be shared or something. having every damn system have its own is really dumb
+    //fixme this needs to be shared or something. having every damn system have its own is really dumb
     //the client ends up using this too like that, but its own instance..
     FreeTypeFontGenerator m_fontGenerator;
 
     static DecimalFormat decimalFormat = new DecimalFormat("#.");
 
-    //hack dead code
+    //fixme dead code
     //private BitmapFont bitmapFont_8pt;
     private BitmapFont m_font;
 
@@ -127,13 +127,13 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         TileRenderSystem tileRenderSystem = getWorld().getSystem(TileRenderSystem.class);
 
         if (frameTimer.milliseconds() > 300) {
-            frameTimeString = "Client frame time: ";//hack + decimalFormat.format(frameTime);
+            frameTimeString = "Client frame time: ";//fixme + decimalFormat.format(frameTime);
             fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
             textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
             shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;
             drawCallsString = "Draw calls: " + GLProfiler.drawCalls;
 
-            //hack
+            //fixme
             //            if (m_server != null) {
             frameTimeServerString = "Server frame time: "; //+ decimalFormat.format(m_server.sharedFrameTime);
             //           }
@@ -148,7 +148,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         textY -= 15;
         m_font.draw(m_batch, frameTimeString, 0, textY);
         textY -= 15;
-        //hack
+        //fixme
         //        if (m_server != null) {
         m_font.draw(m_batch, frameTimeServerString, 0, textY);
         textY -= 15;
@@ -169,7 +169,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, drawCallsString, 0, textY);
         textY -= 15;
 
-        //hack replace with some method of knowing we're connected and can proceed. checking for main player is dumb..
+        //fixme replace with some method of knowing we're connected and can proceed. checking for main player is dumb..
         //this is done like..all over the place
         if (m_world != null && getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_mainPlayer)) {
             Vector2 mousePos = m_world.mousePositionWorldCoords();
@@ -204,7 +204,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         }
 
         //     if (m_world != null) {
-        //hack reinstate
+        //fixme reinstate
         //m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
 
         //            if (m_server != null) {

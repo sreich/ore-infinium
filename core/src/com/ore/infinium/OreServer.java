@@ -132,7 +132,7 @@ public class OreServer implements Runnable {
         int tilex = (int) (posX / OreWorld.BLOCK_SIZE);
         int tiley = (int) (posY / OreWorld.BLOCK_SIZE);
 
-        //HACK for collision test
+        //fixme for collision test shouldn't be so...gross
         posY = 24 * OreWorld.BLOCK_SIZE;
 
         final int seaLevel = m_world.seaLevel();

@@ -103,7 +103,7 @@ public class NetworkClientSystem extends BaseSystem {
         new Thread("kryonet connection client thread") {
             public void run() {
                 try {
-                    m_clientKryo.connect(99999999 /*HACK, debug*/, ip, port);
+                    m_clientKryo.connect(99999999 /*fixme, debug*/, ip, port);
                     // Server communication after connection can go here, or in Listener#connected().
 
                     Network.InitialClientData initialClientData = new Network.InitialClientData();
@@ -172,7 +172,7 @@ public class NetworkClientSystem extends BaseSystem {
                 Network.PlayerSpawnHotbarInventoryItemFromServer spawn =
                         (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
 
-                //HACK spawn.id, sprite!!
+                //fixme spawn.id, sprite!!
                 int e = getWorld().create();
                 for (Component c : spawn.components) {
                     EntityEdit entityEdit = getWorld().edit(e);
@@ -210,7 +210,7 @@ public class NetworkClientSystem extends BaseSystem {
                     entityEdit.add(c);
                 }
 
-                //hack id..see above.
+                //fixme id..see above.
                 SpriteComponent spriteComponent = spriteMapper.create(e);
                 spriteComponent.textureName = spawn.textureName;
                 spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
