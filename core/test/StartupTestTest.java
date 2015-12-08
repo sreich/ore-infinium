@@ -21,7 +21,6 @@ public class StartupTestTest {
 
     @Test
     public void testTest1() throws Exception {
-
         Assert.assertTrue(true);
     }
 
