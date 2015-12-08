@@ -60,7 +60,7 @@ needing to fire up anything java developmenty.
 
 
 # License
-Code is licensed under GPL, assets are licensed under various more permissive licenses. (CC0 etc)
+Code is licensed under GPLv2, assets are licensed under various more permissive licenses. (CC0 etc)
 
 # Contributing
 Email me (sreich02 at gmail com), create issues, make patches, join the irc channel on freenode (channel #ore-infinium), and get involved!
