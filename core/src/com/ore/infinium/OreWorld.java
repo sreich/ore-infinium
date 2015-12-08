@@ -155,7 +155,6 @@ public class OreWorld {
                                                                       .with(new NetworkClientSystem(this))
                                                                       .with(new PowerCircuitSystem(this))
                                                                       .with(new InputSystem(m_camera, this))
-                                                                      .with(new GrassBlockSystem(this))
                                                                       .with(new PlayerSystem(this))
                                                                       .with(new DebugTextRenderSystem(m_camera, this))
                                                                       .with(new PowerOverlayRenderSystem(this))
