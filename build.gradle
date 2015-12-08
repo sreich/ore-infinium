@@ -71,7 +71,6 @@ allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-
     repositories {
         mavenLocal()
         mavenCentral()
