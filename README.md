@@ -1,11 +1,13 @@
 # ore-infinium
 
 Click build status for viewing the jenkins result (including tests run etc)
+
 [![Build Status](http://sreich.net:8090/job/ore%20infinium/badge/icon)]
 (http://sreich.net:8090/job/ore%20infinium/)
 
 Sonarqube is a pretty nice floss site that will analyze source code for duplicates, scan for issues (static analysis), and even tell you the complexity of lines, functions, files. Lots more things, very nice to view:
-[Sonarqube code analysis] (http://sreich.net:9000/dashboard/index?id=org.ore.infinium)
+
+[**Sonarqube code analysis**] (http://sreich.net:9000/dashboard/index?id=org.ore.infinium)
 
 Ore Infinium, an **Open Source** Terraria-inspired Sci-fi game with a special focus
 on in-game tech devices, energy generation/wiring and the survival through using
