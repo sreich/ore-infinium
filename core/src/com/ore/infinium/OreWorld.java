@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
 import net.mostlyoriginal.plugin.ProfilerPlugin;
+import net.mostlyoriginal.plugin.profiler.ProfilerInvocationStrategy;
 
 import java.util.HashMap;
 
@@ -149,6 +150,9 @@ public class OreWorld {
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
             m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
+                                                                      .register(
+                                                                              new GameLoopSystemInvocationStrategy(25))
+                                                                      .register(new ProfilerInvocationStrategy())
                                                                       .with(new TagManager())
                                                                       .with(new PlayerManager())
                                                                       .with(new MovementSystem(this))
@@ -161,13 +165,14 @@ public class OreWorld {
                                                                       .with(new SpriteRenderSystem(this))
                                                                       .with(new TileRenderSystem(m_camera, this))
                                                                       .with(new TileTransitionSystem(m_camera, this))
-                                                                      .register(
-                                                                              new GameLoopSystemInvocationStrategy(25))
                                                                       .build());
+            //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
+
             //inject the mappers into the world, before we start doing things
             m_artemisWorld.inject(this, true);
             int crosshair = m_artemisWorld.create();
             m_artemisWorld.getSystem(TagManager.class).register(s_crosshair, crosshair);
+            m_artemisWorld.process();
 
             SpriteComponent spriteComponent = spriteMapper.create(crosshair);
             spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);

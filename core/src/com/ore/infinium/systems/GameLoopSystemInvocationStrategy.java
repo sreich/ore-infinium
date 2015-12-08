@@ -26,6 +26,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
+import net.mostlyoriginal.plugin.profiler.SystemProfiler;
 
 public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
 
@@ -40,6 +41,9 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
     private long m_currentTime = System.nanoTime();
 
     private boolean m_systemsSorted;
+
+    protected SystemProfiler frameProfiler;
+    protected SystemProfiler[] profilers;
 
     /**
      * @param msPerTick
