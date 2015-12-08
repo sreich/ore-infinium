@@ -63,5 +63,10 @@ needing to fire up anything java developmenty.
 Code is licensed under GPL, assets are licensed under various more permissive licenses. (CC0 etc)
 
 # Contributing
-Email me, create issues, join the irc channel on freenode (#ore-infinium), and get involved!
+Email me (sreich02 at gmail com), create issues, make patches, join the irc channel on freenode (channel #ore-infinium), and get involved!
+
+freenode: http://webchat.freenode.net/?channels=#ore-infinium
+
+(of course, it's recommended you just get an IRC client. hexchat is a common one.)
+
 
