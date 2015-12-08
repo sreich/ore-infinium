@@ -139,18 +139,18 @@ public class HotbarInventoryView implements Inventory.SlotListener {
         TextureRegion region;
         SpriteComponent spriteComponent = spriteMapper.get(itemEntity);
         if (blockMapper.get(itemEntity) != null) {
-            //fixme
+            //fixme this concat is pretty...iffy
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem.class).m_tilesAtlas.findRegion(
                     spriteComponent.textureName.concat("-00"));
         } else {
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem.class).m_tilesAtlas.findRegion(
-                    spriteComponent.textureName);
+            region = m_world.m_atlas.findRegion(spriteComponent.textureName);
         }
+
+        assert region != null : "textureregion for inventory item was not found!";
 
         Image slotImage = slot.itemImage;
         //        //m_blockAtlas.findRegion("stone"));
 
-        assert region != null : "textureregion for inventory item was not found!";
         slotImage.setDrawable(new TextureRegionDrawable(region));
         slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
         slotImage.setScaling(Scaling.fit);
