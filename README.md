@@ -15,7 +15,7 @@ these things.
 
 Inspired a lot by tekkit, but I'm not a fan of its overwhelming complexity, although it has some really great gameplay ideas/mechanisms. I aim to incorporate some of these ideas, improve them where I can, improve the process and make it easier and less grueling. For instance, the wiring is done by pressing a key which shows an overlay, and dragging and dropping. So it's not actually in the physical world, which makes things much easier to manage.
 
-Written in Java 8, LibGDX, artemis-odb, KryoNet, Scene2D.ui. It is cross platform across desktop platforms.
+Written in/using some libraries such as: **Java 8, LibGDX, artemis-odb, KryoNet, Scene2D.ui**
 
 reddit: http://reddit.com/r/ore-infinium
 
