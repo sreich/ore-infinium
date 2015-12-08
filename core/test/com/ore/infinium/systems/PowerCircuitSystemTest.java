@@ -1,3 +1,9 @@
+package com.ore.infinium.systems;
+
+import com.artemis.World;
+import com.artemis.WorldConfigurationBuilder;
+import com.ore.infinium.OreWorld;
+import net.mostlyoriginal.plugin.ProfilerPlugin;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,15 +23,36 @@ import org.junit.Test;
  * You should have received a copy of the GNU General Public License        *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  *****************************************************************************/
-public class StartupTestTest {
+public class PowerCircuitSystemTest {
+    OreWorld world = new OreWorld(null, null);
 
-    @Test
-    public void testTest1() throws Exception {
-        Assert.assertTrue(true);
+    public void createArtemisWorld() {
+        world.m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
+                                                                        .with(new PowerCircuitSystem(world))
+                                                                        .build());
+        //inject the mappers into the world, before we start doing things
+        world.m_artemisWorld.inject(this, true);
+
     }
 
     @Test
     public void testTest2() throws Exception {
-        Assert.assertTrue(true);
+        Assert.assertTrue(false);
     }
+
+    @Test
+    public void connectingTwoCircuitsShouldMerge() throws Exception {
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testConnectTwoDevices() throws Exception {
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void testDisconnectDeviceFromAnotherDevice() throws Exception {
+        Assert.assertTrue(false);
+    }
+
 }

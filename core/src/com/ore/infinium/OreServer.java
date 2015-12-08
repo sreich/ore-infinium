@@ -75,6 +75,7 @@ public class OreServer implements Runnable {
         Thread.currentThread().setName("server thread (main)");
 
         m_world = new OreWorld(null, this);
+        m_world.init();
         m_world.m_artemisWorld.inject(this, true);
 
         m_networkServerSystem = m_world.m_artemisWorld.getSystem(NetworkServerSystem.class);

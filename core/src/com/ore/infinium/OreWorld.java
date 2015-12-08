@@ -107,7 +107,7 @@ public class OreWorld {
     public static final String s_crosshair = "crosshair";
     public static final String s_mainPlayer = "mainPlayer";
 
-    World m_artemisWorld;
+    public World m_artemisWorld;
 
     /**
      * The main world, shared between both client and server, core to a lot of basic
@@ -126,9 +126,11 @@ public class OreWorld {
         m_client = client;
         m_server = server;
 
-        assert isClient() ^ isServer();
-
         blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
+    }
+
+    void init() {
+        assert isClient() ^ isServer();
 
         assert isHotspotOptimizationEnabled() : "error, hotspot optimization (artemis-odb weaving) is not enabled";
 
@@ -142,7 +144,7 @@ public class OreWorld {
 
             //we don't generate the block world with noise, just init it so it isn't
             //it isn't null
-            initializeWorld();
+            initializeBlocksArray();
 
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
@@ -363,7 +365,7 @@ public class OreWorld {
         }
     }
 
-    private void initializeWorld() {
+    public void initializeBlocksArray() {
         for (int x = 0; x < WORLD_SIZE_X; ++x) {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
 

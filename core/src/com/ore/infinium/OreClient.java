@@ -242,6 +242,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         //call system, if returns false, fail and show:
         m_world = new OreWorld(this, null);
+        m_world.init();
         m_world.m_artemisWorld.inject(this);
 
         m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).addListener(new NetworkConnectListener(this));
