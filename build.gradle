@@ -16,6 +16,7 @@ buildscript {
         matrixCliVersion = "0.1.2"
 
         jcommanderVersion = "1.48"
+        junitVersion = "4.12"
         //gradleVersionsPluginVersion = "0.11.3"
 
         //gradleExtraConfigurationsPluginVersion = "3.0.3"
@@ -139,6 +140,9 @@ project(":core") {
 
         //jcommander, for command line parsing
         compile "com.beust:jcommander:$jcommanderVersion"
+
+        //junit
+        testCompile 'junit:junit:$junitVersion'
     }
 }
 
