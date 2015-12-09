@@ -2,6 +2,7 @@
  * ***************************************************************************
  * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                   *
  * Adopted from previously MIT-licensed code, by:
+ *
  * @author piotr-j
  * @author Daan van Yperen
  * *
@@ -57,6 +58,7 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
 
     protected SystemProfiler frameProfiler;
     private boolean initialized = false;
+    private boolean m_isServer;
 
     /**
      * @param msPerTick
@@ -64,7 +66,8 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
      *         Rendering is unbounded/probably bounded by libgdx's
      *         DesktopLauncher
      */
-    public GameLoopSystemInvocationStrategy(int msPerTick) {
+    public GameLoopSystemInvocationStrategy(int msPerTick, boolean isServer) {
+        m_isServer = isServer;
         m_nsPerTick = TimeUtils.millisToNanos(msPerTick);
     }
 
@@ -83,11 +86,13 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
     }
 
     protected void initialize() {
-        createFrameProfiler();
+        if (!m_isServer) {
+            createFrameProfiler();
+        }
     }
 
     private void createFrameProfiler() {
-        frameProfiler = SystemProfiler.create("Frame");
+        frameProfiler = SystemProfiler.create("Frame Profiler");
         frameProfiler.setColor(1, 1, 1, 1);
     }
 
@@ -104,16 +109,24 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
     }
 
     private SystemProfiler createSystemProfiler(BaseSystem system) {
-        SystemProfiler old = SystemProfiler.getFor(system);
-        if (old == null) {
-            old = SystemProfiler.createFor(system, world);
+        SystemProfiler old = null;
+
+        if (!m_isServer) {
+            old = SystemProfiler.getFor(system);
+            if (old == null) {
+                old = SystemProfiler.createFor(system, world);
+            }
         }
+
         return old;
     }
 
     @Override
     protected void process(Bag<BaseSystem> systems) {
-        frameProfiler.start();
+
+        if (!m_isServer) {
+            frameProfiler.start();
+        }
 
         //fixme isn't this(initialized) called automatically??
         if (!initialized) {
@@ -126,7 +139,6 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
             m_systemsSorted = true;
         }
 
-        //nanoseconds
         long newTime = System.nanoTime();
         //nanoseconds
         long frameTime = newTime - m_currentTime;
@@ -165,11 +177,6 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
         //    e.printStackTrace();
         //}
 
-        /**
-         * Uncomment this line if you use the world's delta within your systems.
-         */
-        world.setDelta(TimeUtils.nanosToMillis(frameTime));
-
         //float alpha = (float) m_accumulator / m_nsPerTick;
 
         //only clear if we have something to render..aka this world is a rendering one (client)
@@ -191,7 +198,9 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
             updateEntityStates();
         }
 
-        frameProfiler.stop();
+        if (!m_isServer) {
+            frameProfiler.stop();
+        }
     }
 }
 

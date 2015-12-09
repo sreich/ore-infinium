@@ -297,8 +297,8 @@ public class TileTransitionSystem extends IntervalSystem {
     }
 
     public TileTransitionSystem(OrthographicCamera camera, OreWorld world) {
-        //every 60 ms
-        super(Aspect.all(), 60.0f / 1000.0f);
+        //every n ms
+        super(Aspect.all(), 600.0f / 1000.0f);
         m_camera = camera;
         m_world = world;
 

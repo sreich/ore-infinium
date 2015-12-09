@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
+import com.ore.infinium.systems.profiler.SystemProfiler;
 
 /**
  * ***************************************************************************
@@ -53,6 +54,10 @@ import com.ore.infinium.components.*;
 
     @Override
     protected void processSystem() {
+        if (SystemProfiler.isRunning()) {
+            return;
+        }
+
         if (m_world.m_client.leftMouseDown && !getWorld().getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
 
             m_world.m_client.handleLeftMousePrimaryAttack();

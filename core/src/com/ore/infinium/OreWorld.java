@@ -149,8 +149,7 @@ public class OreWorld {
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
             m_artemisWorld = new World(
-                    new WorldConfigurationBuilder().register(new GameLoopSystemInvocationStrategy(25))
-                                                   .with(new ProfilerSystem(m_client.m_skin))
+                    new WorldConfigurationBuilder().register(new GameLoopSystemInvocationStrategy(25, false))
                                                    .with(new TagManager())
                                                    .with(new PlayerManager())
                                                    .with(new MovementSystem(this))
@@ -163,6 +162,7 @@ public class OreWorld {
                                                    .with(new SpriteRenderSystem(this))
                                                    .with(new TileRenderSystem(m_camera, this))
                                                    .with(new TileTransitionSystem(m_camera, this))
+                                                   .with(new ProfilerSystem(m_client.m_skin))
                                                    .build());
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
@@ -187,8 +187,8 @@ public class OreWorld {
                                                                       .with(new GrassBlockSystem(this))
                                                                       .with(new PlayerSystem(this))
                                                                       .with(new NetworkServerSystem(this, m_server))
-                                                                      .register(
-                                                                              new GameLoopSystemInvocationStrategy(25))
+                                                                      .register(new GameLoopSystemInvocationStrategy(25,
+                                                                                                                     true))
                                                                       .build());
             //inject the mappers into the world, before we start doing things
             m_artemisWorld.inject(this, true);

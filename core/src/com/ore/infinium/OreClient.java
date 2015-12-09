@@ -476,6 +476,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         leftMouseDown = true;
+
         if (m_world != null) {
             return m_world.touchDown(screenX, screenY, pointer, button);
             //fixme

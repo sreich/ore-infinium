@@ -90,9 +90,9 @@ public class SystemProfilerGUI extends Window {
 
         profilerLabels = new Table();
         profilerLabels.add().expandX().fillX();
-        profilerLabels.add(label("max", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
-        profilerLabels.add(label("lmax", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
-        profilerLabels.add(label("avg", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
+        profilerLabels.add(label("Max", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
+        profilerLabels.add(label("Local Max", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
+        profilerLabels.add(label("Average", skin, Align.right)).minWidth(MIN_LABEL_WIDTH);
 
         for (SystemProfiler profiler : SystemProfiler.get()) {
             rows.add(new ProfilerRow(profiler, skin));

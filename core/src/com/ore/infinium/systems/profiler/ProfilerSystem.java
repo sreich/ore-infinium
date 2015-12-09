@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.ore.infinium.systems.RenderSystemMarker;
 
 /**
  * Example profiling system.
@@ -17,7 +18,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
  * @author Daan van Yperen
  */
 @Wire
-public class ProfilerSystem extends BaseSystem {
+public class ProfilerSystem extends BaseSystem implements RenderSystemMarker {
 
     public static final int TOGGLE_PROFILER_KEY = Input.Keys.P;
 
