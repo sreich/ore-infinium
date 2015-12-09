@@ -140,7 +140,8 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
         m_currentTime = newTime;
         m_accumulator += frameTime;
 
-        world.setDelta(TimeUtils.millisToNanos(m_nsPerTick));
+        //convert from nanos to millis then to seconds, to get fractional second dt
+        world.setDelta(TimeUtils.nanosToMillis(m_nsPerTick) / 1000.0f);
 
         while (m_accumulator >= m_nsPerTick) {
             /** Process all entity systems inheriting from {@link RenderSystemMarker} */
@@ -174,8 +175,7 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
         //only clear if we have something to render..aka this world is a rendering one (client)
         //else it's a server, and this will crash due to no gl context, obviously
         if (m_renderSystems.size > 0) {
-            //Gdx.gl.glClearColor(0, 0, 0, 1);
-            Gdx.gl.glClearColor(1, 0, 0, 1);
+            Gdx.gl.glClearColor(.1f, .1f, .1f, 1);
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         }
 
