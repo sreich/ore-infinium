@@ -19,8 +19,7 @@ import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
-import net.mostlyoriginal.plugin.ProfilerPlugin;
-import net.mostlyoriginal.plugin.profiler.ProfilerInvocationStrategy;
+import com.ore.infinium.systems.profiler.ProfilerSystem;
 
 import java.util.HashMap;
 
@@ -149,23 +148,22 @@ public class OreWorld {
 
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
-            m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
-                                                                      .register(
-                                                                              new GameLoopSystemInvocationStrategy(25))
-                                                                      .register(new ProfilerInvocationStrategy())
-                                                                      .with(new TagManager())
-                                                                      .with(new PlayerManager())
-                                                                      .with(new MovementSystem(this))
-                                                                      .with(new NetworkClientSystem(this))
-                                                                      .with(new PowerCircuitSystem(this))
-                                                                      .with(new InputSystem(m_camera, this))
-                                                                      .with(new PlayerSystem(this))
-                                                                      .with(new DebugTextRenderSystem(m_camera, this))
-                                                                      .with(new PowerOverlayRenderSystem(this))
-                                                                      .with(new SpriteRenderSystem(this))
-                                                                      .with(new TileRenderSystem(m_camera, this))
-                                                                      .with(new TileTransitionSystem(m_camera, this))
-                                                                      .build());
+            m_artemisWorld = new World(
+                    new WorldConfigurationBuilder().register(new GameLoopSystemInvocationStrategy(25))
+                                                   .with(new ProfilerSystem(m_client.m_skin))
+                                                   .with(new TagManager())
+                                                   .with(new PlayerManager())
+                                                   .with(new MovementSystem(this))
+                                                   .with(new NetworkClientSystem(this))
+                                                   .with(new PowerCircuitSystem(this))
+                                                   .with(new InputSystem(m_camera, this))
+                                                   .with(new PlayerSystem(this))
+                                                   .with(new DebugTextRenderSystem(m_camera, this))
+                                                   .with(new PowerOverlayRenderSystem(this))
+                                                   .with(new SpriteRenderSystem(this))
+                                                   .with(new TileRenderSystem(m_camera, this))
+                                                   .with(new TileTransitionSystem(m_camera, this))
+                                                   .build());
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
             //inject the mappers into the world, before we start doing things
@@ -463,7 +461,8 @@ public class OreWorld {
     }
 
     public Block blockAt(int x, int y) {
-        assert x >= 0 && y >= 0 && x <= WORLD_SIZE_X && y <= WORLD_SIZE_Y : "block index out of range";
+        assert x >= 0 && y >= 0 && x <= WORLD_SIZE_X && y <= WORLD_SIZE_Y :
+                String.format("block index out of range. x: %d, y: %d", x, y);
 
         return blocks[x * WORLD_SIZE_Y + y];
     }

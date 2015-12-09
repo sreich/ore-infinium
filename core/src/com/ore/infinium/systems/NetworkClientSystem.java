@@ -118,6 +118,7 @@ public class NetworkClientSystem extends BaseSystem {
         new Thread("kryonet connection client thread") {
             public void run() {
                 try {
+                    Gdx.app.log("NetworkClientSystem", "client attempting to connect to server");
                     m_clientKryo.connect(99999999 /*fixme, debug*/, ip, port);
                     // Server communication after connection can go here, or in Listener#connected().
 
@@ -355,6 +356,7 @@ public class NetworkClientSystem extends BaseSystem {
 
         public void connected(Connection connection) {
             connection.setTimeout(999999999);
+            Gdx.app.log("NetworkClientSystem", "our client connected!");
         }
 
         //FIXME: do sanity checking (null etc) on both client, server

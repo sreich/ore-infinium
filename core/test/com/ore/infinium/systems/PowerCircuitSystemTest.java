@@ -3,7 +3,6 @@ package com.ore.infinium.systems;
 import com.artemis.World;
 import com.artemis.WorldConfigurationBuilder;
 import com.ore.infinium.OreWorld;
-import net.mostlyoriginal.plugin.ProfilerPlugin;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,8 +26,7 @@ public class PowerCircuitSystemTest {
     OreWorld world = new OreWorld(null, null);
 
     public void createArtemisWorld() {
-        world.m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
-                                                                        .with(new PowerCircuitSystem(world))
+        world.m_artemisWorld = new World(new WorldConfigurationBuilder().with(new PowerCircuitSystem(world))
                                                                         .build());
         //inject the mappers into the world, before we start doing things
         world.m_artemisWorld.inject(this, true);

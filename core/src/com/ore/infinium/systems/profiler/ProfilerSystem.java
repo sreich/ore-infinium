@@ -9,15 +9,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import net.mostlyoriginal.plugin.ProfilerPlugin;
-import net.mostlyoriginal.plugin.profiler.SystemProfiler;
 
 /**
  * Example profiling system.
  *
  * @author piotr-j
  * @author Daan van Yperen
- * @see ProfilerPlugin
  */
 @Wire
 public class ProfilerSystem extends BaseSystem {
@@ -27,10 +24,14 @@ public class ProfilerSystem extends BaseSystem {
     OrthographicCamera camera;
     ShapeRenderer renderer;
     Stage stage;
-    Skin skin;
+    Skin m_skin;
 
-    net.mostlyoriginal.plugin.profiler.SystemProfilerGUI gui;
+    SystemProfilerGUI gui;
     private boolean f3ButtonDown;
+
+    public ProfilerSystem(Skin skin) {
+        m_skin = skin;
+    }
 
     @Override
     protected void initialize() {
@@ -41,11 +42,11 @@ public class ProfilerSystem extends BaseSystem {
         renderer = new ShapeRenderer();
         stage = new Stage();
         stage.getBatch().setProjectionMatrix(camera.combined);
-        skin = new Skin(Gdx.files.classpath("net/mostlyoriginal/plugin/profiler/skin/uiskin.json"));
+        //m_skin = new Skin(Gdx.files.classpath("net/mostlyoriginal/plugin/profiler/skin/uiskin.json"));
 
         // setup some static config like colors etc
-        net.mostlyoriginal.plugin.profiler.SystemProfilerGUI.GRAPH_H_LINE.set(Color.ORANGE);
-        gui = new net.mostlyoriginal.plugin.profiler.SystemProfilerGUI(skin, "default");
+        SystemProfilerGUI.GRAPH_H_LINE.set(Color.ORANGE);
+        gui = new SystemProfilerGUI(m_skin, "default");
         gui.setResizeBorder(8);
         gui.show(stage);
         gui.setWidth(Gdx.graphics.getWidth());
@@ -59,7 +60,7 @@ public class ProfilerSystem extends BaseSystem {
 
         checkActivationButton();
 
-        if (net.mostlyoriginal.plugin.profiler.SystemProfiler.isRunning()) {
+        if (SystemProfiler.isRunning()) {
             processInput();
             render();
         }
@@ -81,13 +82,13 @@ public class ProfilerSystem extends BaseSystem {
     private void checkActivationButton() {
         if (Gdx.input.isKeyPressed(TOGGLE_PROFILER_KEY)) {
             if (!f3ButtonDown) {
-                if (!net.mostlyoriginal.plugin.profiler.SystemProfiler.isRunning()) {
+                if (!SystemProfiler.isRunning()) {
                     gui.setHeight(Gdx.graphics.getHeight() / 2);
-                    net.mostlyoriginal.plugin.profiler.SystemProfiler.resume();
+                    SystemProfiler.resume();
                 } else if (gui.getHeight() != Gdx.graphics.getHeight()) {
                     gui.setHeight(Gdx.graphics.getHeight());
                 } else {
-                    net.mostlyoriginal.plugin.profiler.SystemProfiler.pause();
+                    SystemProfiler.pause();
                 }
             }
             f3ButtonDown = true;
@@ -119,4 +120,5 @@ public class ProfilerSystem extends BaseSystem {
     protected void dispose() {
         SystemProfiler.dispose();
     }
+
 }

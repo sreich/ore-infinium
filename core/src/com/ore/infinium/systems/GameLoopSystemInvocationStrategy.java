@@ -1,6 +1,9 @@
 /**
  * ***************************************************************************
  * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                   *
+ * Adopted from previously MIT-licensed code, by:
+ * @author piotr-j
+ * @author Daan van Yperen
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -26,13 +29,23 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
-import net.mostlyoriginal.plugin.profiler.SystemProfiler;
+import com.ore.infinium.systems.profiler.SystemProfiler;
 
 public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
 
     //systems marked as indicating to be run only during the logic section of the loop
-    private final Array<BaseSystem> m_renderSystems = new Array<>();
-    private final Array<BaseSystem> m_logicSystems = new Array<>();
+    private final Array<SystemAndProfiler> m_renderSystems = new Array<>();
+    private final Array<SystemAndProfiler> m_logicSystems = new Array<>();
+
+    private class SystemAndProfiler {
+        BaseSystem system;
+        SystemProfiler profiler;
+
+        public SystemAndProfiler(BaseSystem _system, SystemProfiler _systemProfiler) {
+            system = _system;
+            profiler = _systemProfiler;
+        }
+    }
 
     private long m_accumulator;
 
@@ -43,7 +56,7 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
     private boolean m_systemsSorted;
 
     protected SystemProfiler frameProfiler;
-    protected SystemProfiler[] profilers;
+    private boolean initialized = false;
 
     /**
      * @param msPerTick
@@ -61,16 +74,53 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
             for (int i = 0; i < systems.size(); ++i) {
                 BaseSystem system = (BaseSystem) systemsData[i];
                 if (system instanceof RenderSystemMarker) {
-                    m_renderSystems.add(system);
+                    m_renderSystems.add(new SystemAndProfiler(system, createSystemProfiler(system)));
                 } else {
-                    m_logicSystems.add(system);
+                    m_logicSystems.add(new SystemAndProfiler(system, createSystemProfiler(system)));
                 }
             }
         }
     }
 
+    protected void initialize() {
+        createFrameProfiler();
+    }
+
+    private void createFrameProfiler() {
+        frameProfiler = SystemProfiler.create("Frame");
+        frameProfiler.setColor(1, 1, 1, 1);
+    }
+
+    private void processProfileSystem(SystemProfiler profiler, BaseSystem system) {
+        if (profiler != null) {
+            profiler.start();
+        }
+
+        system.process();
+
+        if (profiler != null) {
+            profiler.stop();
+        }
+    }
+
+    private SystemProfiler createSystemProfiler(BaseSystem system) {
+        SystemProfiler old = SystemProfiler.getFor(system);
+        if (old == null) {
+            old = SystemProfiler.createFor(system, world);
+        }
+        return old;
+    }
+
     @Override
     protected void process(Bag<BaseSystem> systems) {
+        frameProfiler.start();
+
+        //fixme isn't this(initialized) called automatically??
+        if (!initialized) {
+            initialize();
+            initialized = true;
+        }
+
         if (!m_systemsSorted) {
             addSystems(systems);
             m_systemsSorted = true;
@@ -95,8 +145,9 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
         while (m_accumulator >= m_nsPerTick) {
             /** Process all entity systems inheriting from {@link RenderSystemMarker} */
             for (int i = 0; i < m_logicSystems.size; i++) {
+                SystemAndProfiler systemAndProfiler = m_logicSystems.get(i);
                 //TODO interpolate before this
-                m_logicSystems.get(i).process();
+                processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system);
                 updateEntityStates();
             }
 
@@ -133,9 +184,14 @@ public class GameLoopSystemInvocationStrategy extends SystemInvocationStrategy {
             //State state = currentState * alpha +
             //previousState * ( 1.0 - alpha );
 
-            m_renderSystems.get(i).process();
+            SystemAndProfiler systemAndProfiler = m_renderSystems.get(i);
+            //TODO interpolate before this
+            processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system);
+
             updateEntityStates();
         }
+
+        frameProfiler.stop();
     }
 }
 

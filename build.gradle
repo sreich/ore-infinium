@@ -135,9 +135,9 @@ project(":core") {
         compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
         compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
         compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
-        compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
+        //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
 
-        //jcommander, for command line parsing
+        // jcommander for command line parsing
         compile "com.beust:jcommander:$jcommanderVersion"
 
         //junit

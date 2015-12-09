@@ -17,7 +17,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Sort;
-import net.mostlyoriginal.plugin.profiler.SystemProfiler;
 
 import java.util.Comparator;
 

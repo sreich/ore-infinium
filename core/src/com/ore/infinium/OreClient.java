@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.esotericsoftware.minlog.Log;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.DebugTextRenderSystem;
 import com.ore.infinium.systems.NetworkClientSystem;
@@ -43,7 +44,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private InputMultiplexer m_multiplexer;
 
     private Stage m_stage;
-    private Skin m_skin;
+    Skin m_skin;
 
     public Chat m_chat;
     private Sidebar m_sidebar;
@@ -83,7 +84,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
     @Override
     public void create() {
         // for debugging kryonet
-        //    Log.set(Log.LEVEL_DEBUG);
+
+        if (OreSettings.getInstance().networkLog) {
+            Log.set(Log.LEVEL_DEBUG);
+        }
+
         //        Gdx.app.setLogLevel(Application.LOG_NONE);
         //        Gdx.app.setLogLevel(Application.LOG_NONE);
         //        Log.set(Log.LEVEL_INF

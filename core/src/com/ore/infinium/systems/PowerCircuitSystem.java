@@ -147,7 +147,7 @@ public class PowerCircuitSystem extends BaseSystem {
     //fixme does not inform the server of these connections!!! or anything wirey for that matter.
 
     /**
-     * connects two power consumers together, determines how to handle data structures
+     * connects two power devices together, determines how to handle data structures
      * in between
      *
      * @param firstEntity
