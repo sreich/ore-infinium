@@ -149,7 +149,6 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
                                              m_renderDebugServer);
             spriteRenderDebug = String.format("F8 - client sprite debug render. Enabled: %s", m_renderDebugClient);
 
-
             frameTimer.reset();
         }
 
@@ -197,7 +196,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, drawCallsString, 0, textY);
         textY -= 15;
 
-        if (m_world != null && m_world.m_client.connected) {
+        if (m_world != null && getWorld().getSystem(NetworkClientSystem.class).connected) {
             Vector2 mousePos = m_world.mousePositionWorldCoords();
             Block block = m_world.blockAtPosition(mousePos);
 

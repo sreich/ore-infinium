@@ -103,7 +103,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
     public void render(float elapsed) {
         //fixme the system should be disabled and enabled when this happens
-        if (getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_mainPlayer)) {
+        if (!getWorld().getSystem(NetworkClientSystem.class).connected) {
             return;
         }
 

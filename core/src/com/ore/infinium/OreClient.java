@@ -70,15 +70,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private BitmapFont bitmapFont_8pt;
 
-    /**
-     * whether or not we're connected to the server (either local or mp).
-     * This will only be true when the player has spawned. this means,
-     * the server has spawned our player and the initial
-     * player data has been sent back, indicating to the client that it has
-     * been spawned, and under what player id.
-     */
-    public boolean connected;
-
     FreeTypeFontGenerator m_fontGenerator;
 
     @Override
@@ -411,7 +402,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible =
                     !m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible;
 
-            //fixmeasap
+            //fixme
             //            if (m_world.m_itemPlacementOverlayEntity != OreWorld.ENTITY_INVALID) {
             //                spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible =
             //                        !m_world.m_artemisWorld.getSystem(PowerOverlaySystem.class).overlayVisible;
@@ -598,15 +589,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         @Override
         public void connected() {
-            m_client.connected = true;
 
         }
 
         @Override
         public void disconnected() {
             //todo show gui, say we've disconnected
-
-            m_client.connected = false;
         }
 
         public NetworkConnectListener(OreClient oreClient) {

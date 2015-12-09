@@ -47,6 +47,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 @Wire
 public class NetworkClientSystem extends BaseSystem {
+    /**
+     * whether or not we're connected to the server (either local or mp).
+     * <p>
+     * This will only be true when the player has spawned.
+     * <p>
+     * This means, the server has spawned our player and the initial
+     * player data has been sent back, indicating to the client that it has
+     * been spawned, and under what player id.
+     */
+    public boolean connected;
 
     private ComponentMapper<PlayerComponent> playerMapper;
     private ComponentMapper<SpriteComponent> spriteMapper;
@@ -154,8 +164,8 @@ public class NetworkClientSystem extends BaseSystem {
 
                 Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
 
-                if (!m_world.m_client.connected) {
-                    //fixmeasap not ideal??
+                if (!connected) {
+                    //fixme not ideal, calling into the client to do this????
                     int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
                     SpriteComponent spriteComp = spriteMapper.get(player);
 
@@ -173,7 +183,7 @@ public class NetworkClientSystem extends BaseSystem {
                     EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
                     subscription.addSubscriptionListener(new ClientEntitySubscriptionListener());
 
-                    m_world.m_client.connected = true;
+                    connected = true;
 
                     for (NetworkClientListener listener : m_listeners) {
                         listener.connected();
@@ -397,4 +407,5 @@ public class NetworkClientSystem extends BaseSystem {
             }
         }
     }
+
 }
