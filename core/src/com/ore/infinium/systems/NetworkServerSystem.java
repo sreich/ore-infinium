@@ -401,14 +401,14 @@ public class NetworkServerSystem extends BaseSystem {
      *         entity id
      * @param x
      * @param y
-     * @param width
-     * @param height
+     * @param x2
+     * @param y2
      */
-    public void sendPlayerBlockRegion(int player, int x, int y, int width, int height) {
+    public void sendPlayerBlockRegion(int player, int x, int y, int x2, int y2) {
         //FIXME: avoid array realloc
-        Network.BlockRegion blockRegion = new Network.BlockRegion(x, y, width, height);
-        for (int blockY = y; blockY <= height; ++blockY) {
-            for (int blockX = x; blockX <= width; ++blockX) {
+        Network.BlockRegion blockRegion = new Network.BlockRegion(x, y, x2, y2);
+        for (int blockY = y; blockY <= y2; ++blockY) {
+            for (int blockX = x; blockX <= x2; ++blockX) {
 
                 Network.SingleBlock block = new Network.SingleBlock(m_world.blockAt(blockX, blockY));
 
