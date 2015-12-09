@@ -66,7 +66,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private OreServer m_server;
     private Thread m_serverThread;
 
-    private boolean m_renderGui = true;
+    public boolean m_renderGui = true;
 
     private BitmapFont bitmapFont_8pt;
 

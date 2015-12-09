@@ -66,6 +66,12 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     static String textureSwitchesString = "";
     static String shaderSwitchesString = "";
     static String drawCallsString = "";
+    static String guiDebugString = "";
+    static String tileRenderDebugString = "";
+    static String networkSyncDebug = "";
+    static String spriteRenderDebug = "";
+    static String guiRenderToggleString = "";
+
     //fixme this needs to be shared or something. having every damn system have its own is really dumb
     //the client ends up using this too like that, but its own instance..
     FreeTypeFontGenerator m_fontGenerator;
@@ -94,9 +100,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_world = world;
         m_batch = new SpriteBatch();
         debugStrings = new ArrayList<>(
-                Arrays.asList("E - power overlay." + " Q - drop Item", "1-8 or mouse wheel for inventory selection",
-                              "F12 - gui debug", "F11 - gui render toggle", "F10 - tile render toggle",
-                              "F9 - client/server sync debug render toggle", "F8 - client sprite debug render toggle"));
+                Arrays.asList("E - power overlay." + " Q - drop Item", "1-8 or mouse wheel for inventory selection"));
 
         GLProfiler.enable();
 
@@ -134,8 +138,17 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
             //fixme
             //            if (m_server != null) {
-            frameTimeServerString = "Server frame time: "; //+ decimalFormat.format(m_server.sharedFrameTime);
+            frameTimeServerString = "Server frame time: n/a"; //+ decimalFormat.format(m_server.sharedFrameTime);
             //           }
+
+            guiDebugString = String.format("F12 - gui debug. Enabled: %s", m_guiDebug);
+            guiRenderToggleString = String.format("F11 - gui render. Enabled: %s", m_world.m_client.m_renderGui);
+            tileRenderDebugString = String.format("F10 - tile render.Enabled: %s",
+                                                  getWorld().getSystem(TileRenderSystem.class).debugRenderTiles);
+            networkSyncDebug = String.format("F9 - server sprite debug render. Enabled Client: %s. Enabled Server:",
+                                             m_renderDebugServer);
+            spriteRenderDebug = String.format("F8 - client sprite debug render. Enabled: %s", m_renderDebugClient);
+
 
             frameTimer.reset();
         }
@@ -147,6 +160,22 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         textY -= 15;
         m_font.draw(m_batch, frameTimeString, 0, textY);
         textY -= 15;
+
+        m_font.draw(m_batch, guiDebugString, 0, textY);
+        textY -= 15;
+
+        m_font.draw(m_batch, guiRenderToggleString, 0, textY);
+        textY -= 15;
+
+        m_font.draw(m_batch, tileRenderDebugString, 0, textY);
+        textY -= 15;
+
+        m_font.draw(m_batch, networkSyncDebug, 0, textY);
+        textY -= 15;
+
+        m_font.draw(m_batch, spriteRenderDebug, 0, textY);
+        textY -= 15;
+
         //fixme
         //        if (m_server != null) {
         m_font.draw(m_batch, frameTimeServerString, 0, textY);
