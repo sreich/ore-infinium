@@ -36,7 +36,7 @@ import com.ore.infinium.components.*;
 @Wire
 public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     //indicates if tiles should be drawn, is a debug flag.
-    public boolean debugRenderTiles;
+    public boolean debugRenderTiles = true;
     public int debugTilesInViewCount;
 
     public TextureAtlas m_blockAtlas;
