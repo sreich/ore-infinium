@@ -45,7 +45,9 @@ Windows, Mac OS X).
 Regular builds (jar files) can be downloaded from: https://copy.com/q84maUflQnyT2C8Z
 Simply execute it by 'java -jar pathtojar'
 
-To build locally, just check out the code, run ./gradlew desktop:build
+To build locally, just check out the code. It uses a submodule currently, for the assets. So run git clone --recursive <the url>. If you've already checked out the main repo and forgot to run it with --recursive, you won't have the submodule located in ore-infinium/core/assets. So, do git submodule update --recursive
+
+To build it with gradle, from the command line, run ./gradlew desktop:build (or just run that gradle task from your IDE.
 
 # Debugging/development running
 
