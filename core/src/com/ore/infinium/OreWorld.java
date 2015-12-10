@@ -158,9 +158,9 @@ public class OreWorld {
                                                    .with(new InputSystem(m_camera, this))
                                                    .with(new PlayerSystem(this))
                                                    .with(new DebugTextRenderSystem(m_camera, this))
-                                                   .with(new PowerOverlayRenderSystem(this))
-                                                   .with(new SpriteRenderSystem(this))
                                                    .with(new TileRenderSystem(m_camera, this))
+                                                   .with(new SpriteRenderSystem(this))
+                                                   .with(new PowerOverlayRenderSystem(this))
                                                    .with(new TileTransitionSystem(m_camera, this))
                                                    .with(new ProfilerSystem(m_client.m_skin))
                                                    .build());

@@ -83,7 +83,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
     //todo sufficient until we get a spatial hash or whatever
 
-    private int entityAtPosition(Vector2 pos) {
+    private int deviceAtPosition(Vector2 pos) {
 
         SpriteComponent spriteComponent;
         IntBag entities = getEntityIds();
@@ -121,7 +121,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_world.m_camera.unproject(unprojectedMouse);
 
         //find the entity we're dragging on
-        m_dragSourceEntity = entityAtPosition(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
+        m_dragSourceEntity = deviceAtPosition(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
     }
 
     public void leftMouseReleased() {
@@ -133,7 +133,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             if (m_dragSourceEntity != OreWorld.ENTITY_INVALID) {
                 Vector2 mouse = m_world.mousePositionWorldCoords();
 
-                int dropEntity = entityAtPosition(new Vector2(mouse.x, mouse.y));
+                int dropEntity = deviceAtPosition(new Vector2(mouse.x, mouse.y));
                 //if the drop is invalid/empty, or they attempted to drop on the same spot they dragged from, ignore
                 if (dropEntity == OreWorld.ENTITY_INVALID || dropEntity == m_dragSourceEntity) {
                     m_dragSourceEntity = OreWorld.ENTITY_INVALID;

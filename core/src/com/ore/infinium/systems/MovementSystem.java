@@ -79,11 +79,7 @@ public class MovementSystem extends IteratingSystem {
         if (m_world.isServer()) {
             return;
         }
-        try {
-            Thread.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         //fixme handle noclip
         final SpriteComponent spriteComponent = spriteMapper.get(entity);
         final Vector2 origPosition = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());

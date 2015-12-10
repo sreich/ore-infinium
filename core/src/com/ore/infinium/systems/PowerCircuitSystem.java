@@ -3,6 +3,7 @@ package com.ore.infinium.systems;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
 import com.ore.infinium.OreWorld;
@@ -190,6 +191,44 @@ public class PowerCircuitSystem extends BaseSystem {
         WireConnection wireConnection = new WireConnection(firstEntity, secondEntity);
         circuit.connections.add(wireConnection);
     }
+
+    /**
+     * Disconnect two device from one another
+     * it does so by finding the WireConnection which is connecting these two devices.
+     * <p>
+     * used in situation such as "this device was destroyed/removed, cleanup connections that
+     * connect to it.
+     *
+     * @param firstEntity
+     * @param secondEntity
+     */
+    public void disconnectDevices(int firstEntity, int secondEntity) {
+    }
+
+    /**
+     * Searches for a wire in the list of circuits, removes the one under the position.
+     * Would be used in situations such as "user clicked remove on a wire, so remove it.
+     *
+     * @param position
+     *
+     * @return false if disconnect failed (no wire in range). True if it succeeded.
+     */
+    public boolean disconnectWireAtPosition(Vector2 position) {
+        for (PowerCircuit circuit : m_circuits) {
+            for (WireConnection connection : circuit.connections) {
+                int first = connection.firstEntity;
+                int second = connection.secondEntity;
+
+                SpriteComponent firstSprite = spriteMapper.get(first);
+                SpriteComponent secondSprite = spriteMapper.get(second);
+                //todo..rest of the logic..try looking for an intersection between points of these
+                //given a certain width..that is the width that is decided upon for wire thickness. (constant)
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * Forms a wire connection between any 2 devices (direction does not matter).

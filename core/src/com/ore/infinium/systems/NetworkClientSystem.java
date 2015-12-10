@@ -169,9 +169,6 @@ public class NetworkClientSystem extends BaseSystem {
                     int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
                     SpriteComponent spriteComp = spriteMapper.get(player);
 
-                    TagManager tagManager = getWorld().getSystem(TagManager.class);
-                    tagManager.register(OreWorld.s_mainPlayer, player);
-
                     spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
                     m_world.addPlayer(player);
 

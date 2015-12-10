@@ -1,6 +1,7 @@
 package com.ore.infinium;
 
 import com.artemis.ComponentMapper;
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -60,8 +61,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private Inventory m_inventory;
 
     private ScreenViewport m_viewport;
-
-    private int m_mainPlayerEntity = OreWorld.ENTITY_INVALID;
 
     private OreServer m_server;
     private Thread m_serverThread;
@@ -130,7 +129,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public void handleLeftMousePrimaryAttack() {
         Vector2 mouse = m_world.mousePositionWorldCoords();
 
-        PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
+        int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+
+        PlayerComponent playerComponent = playerMapper.get(player);
         int itemEntity = playerComponent.getEquippedPrimaryItem();
         if (itemEntity == OreWorld.ENTITY_INVALID) {
             return;
@@ -298,6 +299,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 e.printStackTrace();
             }
         }
+       
         Gdx.app.exit();
     }
 
@@ -367,15 +369,20 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
-        if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
+        if (m_world == null) {
             return false;
         }
 
-        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayerEntity);
+        if (!m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
+            return false;
+        }
+
+        int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+        ControllableComponent controllableComponent = controlMapper.get(player);
 
         if (keycode == Input.Keys.Q) {
 
-            PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
+            PlayerComponent playerComponent = playerMapper.get(player);
 
             if (playerComponent.getEquippedPrimaryItem() != OreWorld.ENTITY_INVALID) {
                 Network.HotbarDropItemRequestFromClient dropItemRequestFromClient =
@@ -442,7 +449,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         if (keycode == Input.Keys.SPACE) {
-            JumpComponent jumpComponent = jumpMapper.get(m_mainPlayerEntity);
+            JumpComponent jumpComponent = jumpMapper.get(player);
             jumpComponent.shouldJump = true;
         }
 
@@ -451,11 +458,17 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean keyUp(int keycode) {
-        if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
+        if (m_world == null) {
             return false;
         }
 
-        ControllableComponent controllableComponent = controlMapper.get(m_mainPlayerEntity);
+        if (!m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
+            return false;
+        }
+
+        int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+
+        ControllableComponent controllableComponent = controlMapper.get(player);
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             controllableComponent.desiredDirection.x = 0;
@@ -508,7 +521,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean scrolled(int amount) {
-        if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
+        if (m_world == null) {
+            return false;
+        }
+
+        if (m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
             return false;
         }
 
@@ -529,7 +546,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         ControllableComponent controllableComponent = controlMapper.create(player);
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
-        if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
             PlayerComponent playerComponent = playerMapper.get(player);
 
             m_hotbarInventory = new Inventory(player);
@@ -547,8 +563,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_inventoryView =
                     new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
 
+        TagManager tagManager = m_world.m_artemisWorld.getSystem(TagManager.class);
+        tagManager.register(OreWorld.s_mainPlayer, player);
+
+        //select the first slot, so the inventory view highlights something.
             playerComponent.hotbarInventory.selectSlot((byte) 0);
-        }
 
         //          SpriteComponent spriteComponent = spriteMapper.get(player);
         //        spriteComponent.sprite.setTexture();
@@ -574,12 +593,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         @Override
         public void selected(byte index, Inventory inventory) {
-            if (m_mainPlayerEntity == OreWorld.ENTITY_INVALID) {
-                return;
-            }
+            assert m_world != null;
+
+            int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
 
             m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendHotbarEquipped(index);
-            PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
+            PlayerComponent playerComponent = playerMapper.get(player);
 
             m_world.clientHotbarInventoryItemSelected();
         }
