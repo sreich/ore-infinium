@@ -156,6 +156,7 @@ public class OreWorld {
                                                    .with(new NetworkClientSystem(this))
                                                    .with(new PowerCircuitSystem(this))
                                                    .with(new InputSystem(m_camera, this))
+                                                   .with(new EntityOverlaySystem(this))
                                                    .with(new PlayerSystem(this))
                                                    .with(new DebugTextRenderSystem(m_camera, this))
                                                    .with(new TileRenderSystem(m_camera, this))
@@ -497,7 +498,6 @@ public class OreWorld {
             // .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
 
             updateCrosshair();
-            updateItemPlacementOverlay();
 
             //fixme
             if (m_artemisWorld.getSystem(TagManager.class).isRegistered(s_itemPlacementOverlay)) {
@@ -585,23 +585,7 @@ public class OreWorld {
         return new Vector2(finalMouse.x, finalMouse.y);
     }
 
-    //fixmeasap
-    private void updateItemPlacementOverlay() {
-        /*
-        if (m_itemPlacementOverlayEntity == ENTITY_INVALID) {
-            return;
-        }
-
-        Vector2 mouse = mousePositionWorldCoords();
-        alignPositionToBlocks(mouse);
-
-        SpriteComponent spriteComponent = spriteMapper.get(m_itemPlacementOverlayEntity);
-        spriteComponent.sprite.setPosition(mouse.x, mouse.y);
-        spriteComponent.placementValid = isPlacementValid(m_itemPlacementOverlayEntity);
-        */
-    }
-
-    void alignPositionToBlocks(Vector2 pos) {
+    public void alignPositionToBlocks(Vector2 pos) {
         pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
     }
 
@@ -698,7 +682,7 @@ public class OreWorld {
      *
      * @return true if the item can be placed where it currently resides, without any obstructions
      */
-    boolean isPlacementValid(int entity) {
+    public boolean isPlacementValid(int entity) {
         SpriteComponent spriteComponent = spriteMapper.get(entity);
         Vector2 pos = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
         Vector2 size = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
