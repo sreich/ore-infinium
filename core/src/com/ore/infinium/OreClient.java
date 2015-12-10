@@ -67,7 +67,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     public boolean m_renderGui = true;
 
-    private BitmapFont bitmapFont_8pt;
+    public BitmapFont bitmapFont_8pt;
 
     FreeTypeFontGenerator m_fontGenerator;
 
@@ -353,7 +353,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
-        //fixme, ERROR
         final float zoomAmount = 0.004f;
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
             if (m_zoomTimer.milliseconds() >= zoomInterval) {

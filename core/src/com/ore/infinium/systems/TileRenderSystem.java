@@ -124,7 +124,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
         final Vector3 tileSize = new Vector3(OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, 0);
         tileSize.mul(m_camera.combined);
 
-        final int tilesInView = (int) (m_camera.viewportHeight / OreWorld.BLOCK_SIZE * m_camera.zoom);
+        final int tilesInView = (int) ((m_camera.viewportHeight / OreWorld.BLOCK_SIZE) * m_camera.zoom);
         //m_camera.project(tileSize);
         final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);

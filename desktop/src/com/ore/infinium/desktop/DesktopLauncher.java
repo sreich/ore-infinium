@@ -52,15 +52,16 @@ public class DesktopLauncher {
         }
 
         if (oreSettings.pack) {
-            TexturePacker.Settings settings = new TexturePacker.Settings();
-            settings.maxWidth = 512;
-            settings.maxHeight = 512;
-            settings.fast = true; //fixme just to speed up debugging, overrides local settings(probably??)
+            //TexturePacker.Settings settings = new TexturePacker.Settings();
+            //settings.maxWidth = 512;
+            //settings.maxHeight = 512;
+            //            settings.pot = true;
+            //settings.fast = true; //fixme just to speed up debugging, overrides local settings(probably??)
 
-            TexturePacker.process(settings, "blocks", "../assets/packed", "blocks");
-            TexturePacker.process(settings, "tiles", "../assets/packed", "tiles");
-            TexturePacker.process(settings, "ui", "../assets/packed", "ui");
-            TexturePacker.process(settings, "entities", "../assets/packed", "entities");
+            TexturePacker.process("blocks", "../assets/packed", "blocks");
+            TexturePacker.process("tiles", "../assets/packed", "tiles");
+            TexturePacker.process("ui", "../assets/packed", "ui");
+            TexturePacker.process("entities", "../assets/packed", "entities");
         }
 
         LwjglInput.keyRepeatTime = 0.08f;

@@ -181,8 +181,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_batch.setProjectionMatrix(m_world.m_client.viewport.getCamera().combined);
         m_batch.begin();
 
-        //fixmeasap this should prolly get replaced w/ scene2d elements
-        /*
+        //fixme replace this crap w/ scene2d stuff?
         m_world.m_client.bitmapFont_8pt.setColor(1, 0, 0, 1);
 
         float fontY = 150;
@@ -196,7 +195,6 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_world.m_client.bitmapFont_8pt.draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
 
         m_world.m_client.bitmapFont_8pt.setColor(1, 1, 1, 1);
-        */
 
         m_batch.end();
     }
