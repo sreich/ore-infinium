@@ -36,6 +36,8 @@ import com.ore.infinium.components.*;
  */
 @Wire
 public class PowerCircuitSystem extends BaseSystem {
+    final static float WIRE_THICKNESS = 3.0f / OreWorld.PIXELS_PER_METER;
+
     private OreWorld m_world;
 
     /**

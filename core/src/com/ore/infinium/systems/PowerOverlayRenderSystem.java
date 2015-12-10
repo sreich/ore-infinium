@@ -268,11 +268,10 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         float rads = MathUtils.atan2(diff.y, diff.x);
         float degrees = rads * MathUtils.radiansToDegrees - 90;
 
-        float powerLineWidth = 3.0f / OreWorld.PIXELS_PER_METER;
-        float powerLineHeight = Vector2.dst(source.x, source.y, dest.x, dest.y);
+        float wireLength = Vector2.dst(source.x, source.y, dest.x, dest.y);
 
-        m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0, 0, powerLineWidth,
-                     powerLineHeight, 1.0f, 1.0f, degrees);
+        m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0, 0,
+                     PowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees);
     }
 
     private void renderPowerNode(SpriteComponent spriteComponent) {
