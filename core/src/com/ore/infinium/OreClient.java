@@ -256,14 +256,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public void render() {
+        if (m_world != null) {
+            m_world.process();
+        }
+
         if (m_renderGui) {
             m_stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
             m_stage.draw();
         }
 
-        if (m_world != null) {
-            m_world.process();
-        }
     }
 
     private void showFailToConnectDialog() {
@@ -299,7 +300,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 e.printStackTrace();
             }
         }
-       
+
         Gdx.app.exit();
     }
 
@@ -525,7 +526,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        if (m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
+        if (!m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
             return false;
         }
 
@@ -546,28 +547,26 @@ public class OreClient implements ApplicationListener, InputProcessor {
         ControllableComponent controllableComponent = controlMapper.create(player);
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
-            PlayerComponent playerComponent = playerMapper.get(player);
+        PlayerComponent playerComponent = playerMapper.get(player);
 
-            m_hotbarInventory = new Inventory(player);
-            m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
-            playerComponent.hotbarInventory = m_hotbarInventory;
+        m_hotbarInventory = new Inventory(player);
+        m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
+        playerComponent.hotbarInventory = m_hotbarInventory;
 
-            m_hotbarInventory.addListener(new HotbarSlotListener());
+        m_hotbarInventory.addListener(new HotbarSlotListener());
 
-            m_inventory = new Inventory(player);
-            m_inventory.inventoryType = Inventory.InventoryType.Inventory;
-            playerComponent.inventory = m_inventory;
+        m_inventory = new Inventory(player);
+        m_inventory.inventoryType = Inventory.InventoryType.Inventory;
+        playerComponent.inventory = m_inventory;
 
-            m_hotbarView =
-                    new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
-            m_inventoryView =
-                    new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
+        m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
+        m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
 
         TagManager tagManager = m_world.m_artemisWorld.getSystem(TagManager.class);
         tagManager.register(OreWorld.s_mainPlayer, player);
 
         //select the first slot, so the inventory view highlights something.
-            playerComponent.hotbarInventory.selectSlot((byte) 0);
+        playerComponent.hotbarInventory.selectSlot((byte) 0);
 
         //          SpriteComponent spriteComponent = spriteMapper.get(player);
         //        spriteComponent.sprite.setTexture();
