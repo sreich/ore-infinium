@@ -60,14 +60,23 @@ public class EntityOverlaySystem extends BaseSystem {
 
         //we hide/delete it either way, because we'll either (a) respawn it if it when it needs it
         //or (b) it doesn't want to be shown
-        hidePlacementOverlay();
+        deletePlacementOverlay();
 
         if (equippedPrimaryItem == OreWorld.ENTITY_INVALID) {
             //inventory is empty, we don't show crosshair or item overlay
             return;
         }
 
-        if (maybeShowCrosshair(equippedPrimaryItem)) {
+        if (tryShowCrosshair(equippedPrimaryItem)) {
+            return;
+        }
+
+        maybeShowPlacementOverlay(equippedPrimaryItem);
+    }
+
+    private void maybeShowPlacementOverlay(int equippedPrimaryItem) {
+        //placement overlay shoudln't be visible if the power overlay is, so never create it in the first place
+        if (getWorld().getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
             return;
         }
 
@@ -81,23 +90,19 @@ public class EntityOverlaySystem extends BaseSystem {
         SpriteComponent spriteComponent = spriteMapper.get(newPlacementOverlay);
         spriteComponent.noClip = true;
 
-        //placement overlay shoudln't be visible if the power overlay is
-        if (getWorld().getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
-            m_itemPlacementOverlayShown = spriteComponent.visible = false;
-        }
-
         getWorld().getSystem(TagManager.class).register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay);
-
     }
 
-    private void hidePlacementOverlay() {
+    private void deletePlacementOverlay() {
         if (m_itemPlacementOverlayShown) {
             Entity placementOverlay = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
             getWorld().delete(placementOverlay.getId());
+            assert getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_itemPlacementOverlay) == false;
+            m_itemPlacementOverlayShown = false;
         }
     }
 
-    private boolean maybeShowCrosshair(int equippedPrimaryEntity) {
+    private boolean tryShowCrosshair(int equippedPrimaryEntity) {
         SpriteComponent crosshairSprite =
                 spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_crosshair));
         assert crosshairSprite.noClip;

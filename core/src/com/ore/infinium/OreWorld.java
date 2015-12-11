@@ -821,7 +821,10 @@ public class OreWorld {
             SpriteComponent sourceComponent = spriteMapper.get(sourceEntity);
             SpriteComponent component = spriteMapper.create(clonedEntity);
             component.copyFrom(sourceComponent);
-            component.sprite.setRegion(m_atlas.findRegion(component.textureName));
+
+            if (!isServer()) {
+                component.sprite.setRegion(m_atlas.findRegion(component.textureName));
+            }
         }
 
         if (toolMapper.has(sourceEntity)) {
