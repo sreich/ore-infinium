@@ -596,9 +596,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
             int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
 
             m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendHotbarEquipped(index);
-            PlayerComponent playerComponent = playerMapper.get(player);
 
-            m_world.clientHotbarInventoryItemSelected();
+            PlayerComponent playerComponent = playerMapper.get(player);
         }
     }
 

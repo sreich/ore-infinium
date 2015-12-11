@@ -1,9 +1,12 @@
 package com.ore.infinium.systems;
 
+import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.WorldConfigurationBuilder;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.ore.infinium.OreWorld;
+import com.ore.infinium.components.SpriteComponent;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -29,6 +32,8 @@ public class PowerCircuitSystemTest {
     OreWorld world;// = new OreWorld(null, null);
     PowerCircuitSystem circuitSystem;
 
+    private ComponentMapper<SpriteComponent> spriteMapper;
+
     public void createArtemisWorld() {
         world = new OreWorld(null, null);
         world.m_artemisWorld = new World(new WorldConfigurationBuilder().with(new PowerCircuitSystem(world))
@@ -38,7 +43,7 @@ public class PowerCircuitSystemTest {
 
         //inject the mappers into the world, before we start doing things
         world.m_artemisWorld.inject(world, true);
-
+        world.m_artemisWorld.inject(this, true);
     }
 
     @Test
@@ -46,12 +51,25 @@ public class PowerCircuitSystemTest {
         assertTrue(true);
     }
 
+    /**
+     * tests that if a device that is currently unconnected to anything,
+     * when getting connected to another device that is itself, connected
+     * to other things (aka it has its own circuit). Then the connecting
+     * device should merge with the circuit of the one that already exists.
+     *
+     * @throws Exception
+     */
     @Test
     public void connectingTwoCircuitsShouldMerge() throws Exception {
 
         assertTrue(true);
     }
 
+    /**
+     * connect devices via a wire
+     *
+     * @throws Exception
+     */
     @Test
     public void testConnectTwoDevices() throws Exception {
         createArtemisWorld();
@@ -61,13 +79,20 @@ public class PowerCircuitSystemTest {
 
         Array<PowerCircuitSystem.PowerCircuit> circuits = circuitSystem.m_circuits;
 
-        assertEquals(circuits.size, 0);
+        assertEquals(0, circuits.size);
 
         circuitSystem.connectDevices(gen, light);
 
-        assertEquals(circuits.size, 1);
+        assertEquals(1, circuits.size);
     }
 
+    /**
+     * this case would handle things like, an entity died
+     * and we need to notify it to disconnect from any
+     * wires it had connected to it.
+     *
+     * @throws Exception
+     */
     @Test
     public void testDisconnectTwoDevices() throws Exception {
         createArtemisWorld();
@@ -79,16 +104,45 @@ public class PowerCircuitSystemTest {
 
         circuitSystem.connectDevices(gen, light);
 
-        assertEquals(circuits.size, 1);
+        assertEquals(1, circuits.size);
 
-        circuitSystem.disconnectDevices(gen, light);
+        circuitSystem.disconnectAllWiresFromDevice(gen);
 
-        assertEquals(circuits.size, 0);
+        assertEquals(0, circuits.size);
     }
 
+    /**
+     * disconnect a wire/connection, usually via the mouse
+     */
     @Test
-    public void testDisconnectDeviceFromAnotherDevice() throws Exception {
-        assertTrue(true);
+    public void testDisconnectWire() {
+        createArtemisWorld();
+        int gen = world.createPowerGenerator();
+        int light = world.createLight();
+
+        Array<PowerCircuitSystem.PowerCircuit> circuits = circuitSystem.m_circuits;
+
+        circuitSystem.connectDevices(gen, light);
+
+        spriteMapper.get(gen).sprite.setPosition(100, 100);
+        spriteMapper.get(light).sprite.setPosition(200, 100);
+
+        assertEquals(1, circuits.size);
+
+        circuitSystem.disconnectWireAtPosition(new Vector2(150, 100));
+
+        assertEquals(0, circuits.size);
+    }
+
+    /**
+     * test to make sure connecting device A to device B,
+     * and device B to device A..second one should fail,
+     * because they're already connected. So not more than
+     * 1 circuit should exist.
+     */
+    @Test
+    public void testConnectingTwoDevicesTwiceShouldFail() {
+
     }
 
 }

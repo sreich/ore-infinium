@@ -195,20 +195,19 @@ public class PowerCircuitSystem extends BaseSystem {
     }
 
     /**
-     * Disconnect two device from one another
-     * it does so by finding the WireConnection which is connecting these two devices.
+     * Disconnect all connections pointing to this entity
      * <p>
-     * used in situation such as "this device was destroyed/removed, cleanup connections that
+     * used in situation such as "this device was destroyed/removed, cleanup any connections that
      * connect to it.
      *
-     * @param firstEntity
-     * @param secondEntity
+     * @param entityToDisconnect
      */
-    public void disconnectDevices(int firstEntity, int secondEntity) {
+    public void disconnectAllWiresFromDevice(int entityToDisconnect) {
     }
 
     /**
-     * Searches for a wire in the list of circuits, removes the one under the position.
+     * Searches for a wire in the list of circuits, removes the one under the position,
+     * if one such exists.
      * Would be used in situations such as "user clicked remove on a wire, so remove it.
      *
      * @param position
@@ -217,7 +216,9 @@ public class PowerCircuitSystem extends BaseSystem {
      */
     public boolean disconnectWireAtPosition(Vector2 position) {
         for (PowerCircuit circuit : m_circuits) {
-            for (WireConnection connection : circuit.connections) {
+            for (int i = 0; i < circuit.connections.size; i++) {
+                WireConnection connection = circuit.connections.get(i);
+
                 int first = connection.firstEntity;
                 int second = connection.secondEntity;
 
@@ -225,12 +226,57 @@ public class PowerCircuitSystem extends BaseSystem {
                 SpriteComponent secondSprite = spriteMapper.get(second);
                 //todo..rest of the logic..try looking for an intersection between points of these
                 //given a certain width..that is the width that is decided upon for wire thickness. (constant)
+
+                Vector2 firstPosition = new Vector2(firstSprite.sprite.getX(), firstSprite.sprite.getY());
+                Vector2 secondPosition = new Vector2(secondSprite.sprite.getX(), secondSprite.sprite.getY());
+
+                if (isOnLine(firstPosition, secondPosition, WIRE_THICKNESS, position, new Vector2())) {
+                    circuit.connections.removeIndex(i);
+
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
+    /**
+     * Determine if a given point resides on a line of given thickness
+     *
+     * @param start
+     * @param end
+     * @param thickness
+     * @param point
+     * @param nearest
+     *         temporary vector
+     *
+     * @return
+     */
+
+    public static boolean isOnLine(Vector2 start, Vector2 end, float thickness, Vector2 point, Vector2 nearest) {
+        float length2 = start.dst2(end);
+
+        if (length2 == 0) {
+            return false; // length of line is zero!
+        }
+
+        float t = ((point.x - start.x) * (end.x - start.x) + (point.y - start.y) * (end.y - start.y)) / length2;
+        if (t < 0) {
+            return false; // not between start and end
+        }
+        if (t > 1) {
+            return false; // not between start and end
+        }
+
+        nearest.set(start.x + t * (end.x - start.x), start.y + t * (end.y - start.y));
+
+        if (nearest.dst2(point) > thickness * thickness) {
+            return false;
+        }
+
+        return true;
+    }
 
     /**
      * Forms a wire connection between any 2 devices (direction does not matter).

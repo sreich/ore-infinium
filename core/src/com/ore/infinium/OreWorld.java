@@ -1,6 +1,9 @@
 package com.ore.infinium;
 
-import com.artemis.*;
+import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
+import com.artemis.World;
+import com.artemis.WorldConfigurationBuilder;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
@@ -208,68 +211,6 @@ public class OreWorld {
         // hotspot optimization replaces (amongst other steps) references to entityprocessingsystem with entitysystem.
         // so we can determine this optimization by EntityProcessingSystem missing from our system's hierarchy.
         return !ClassReflection.isAssignableFrom(EntityProcessingSystem.class, NetworkClientSystem.class);
-    }
-
-    //TODO cleanup, can be broken down into various handlers, early returns and handling multiple cases make it
-    // convoluted
-    protected void clientHotbarInventoryItemSelected() {
-        assert !isServer();
-
-        int mainPlayer = m_artemisWorld.getSystem(TagManager.class).getEntity(s_mainPlayer).getId();
-        PlayerComponent playerComponent = playerMapper.get(mainPlayer);
-        int equippedEntity = playerComponent.getEquippedPrimaryItem();
-
-        //if it is here, remove it...we respawn the placement overlay further down either way.
-        Entity placementOverlay = m_artemisWorld.getSystem(TagManager.class).getEntity(s_itemPlacementOverlay);
-        if (placementOverlay != null) {
-            m_artemisWorld.delete(placementOverlay.getId());
-        }
-
-        if (equippedEntity == ENTITY_INVALID) {
-            return;
-        }
-
-        SpriteComponent crosshairSprite =
-                spriteMapper.get(m_artemisWorld.getSystem(TagManager.class).getEntity(s_crosshair));
-        crosshairSprite.visible = false;
-
-        assert crosshairSprite.noClip;
-
-        if (blockMapper.has(equippedEntity)) {
-            // if the switched to item is a block, we should show a crosshair overlay
-            crosshairSprite.visible = true;
-
-            //don't show the placement overlay for blocks, just items and other placeable things
-            return;
-        }
-
-        ToolComponent entityToolComponent = toolMapper.getSafe(equippedEntity);
-        if (entityToolComponent != null) {
-            if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
-                //drill, one of the few cases we want to show the block crosshair...
-                crosshairSprite.visible = true;
-
-                //drill has no placement overlay
-                //fixme: return;
-            }
-        }
-
-        //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its
-        // entity)
-        int newPlacementOverlay = cloneEntity(equippedEntity);
-        ItemComponent itemComponent = itemMapper.get(newPlacementOverlay);
-        //transition to the in world state, since the cloned source item was in the inventory state, so to would this
-        itemComponent.state = ItemComponent.State.InWorldState;
-
-        SpriteComponent spriteComponent = spriteMapper.get(newPlacementOverlay);
-        spriteComponent.noClip = true;
-
-        //crosshair shoudln't be visible if the power overlay is
-        if (m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
-            spriteComponent.visible = false;
-        }
-
-        m_artemisWorld.getSystem(TagManager.class).register(s_itemPlacementOverlay, newPlacementOverlay);
     }
 
     public void initServer() {

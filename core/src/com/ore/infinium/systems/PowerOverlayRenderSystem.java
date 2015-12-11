@@ -260,11 +260,12 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
     }
 
+
     private void renderWire(Vector2 source, Vector2 dest) {
         Vector2 diff = new Vector2(source.x - dest.x, source.y - dest.y);
 
         float rads = MathUtils.atan2(diff.y, diff.x);
-        float degrees = rads * MathUtils.radiansToDegrees - 90;
+        float degrees = (rads * MathUtils.radiansToDegrees) - 90;
 
         float wireLength = Vector2.dst(source.x, source.y, dest.x, dest.y);
 

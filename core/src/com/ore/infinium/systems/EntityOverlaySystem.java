@@ -38,6 +38,8 @@ public class EntityOverlaySystem extends BaseSystem {
     private ComponentMapper<ItemComponent> itemMapper;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
+    private ComponentMapper<BlockComponent> blockMapper;
+    private ComponentMapper<ToolComponent> toolMapper;
 
     public EntityOverlaySystem(OreWorld world) {
         m_world = world;
@@ -45,7 +47,87 @@ public class EntityOverlaySystem extends BaseSystem {
 
     @Override
     protected void initialize() {
-        m_world.m_client.m_hotbarInventory.addListener(new HotbarSlotListener());
+        m_world.m_client.m_hotbarInventory.addListener(new Inventory.SlotListener() {
+            @Override
+            public void countChanged(byte index, Inventory inventory) {
+            }
+
+            @Override
+            public void set(byte index, Inventory inventory) {
+
+            }
+
+            @Override
+            public void removed(byte index, Inventory inventory) {
+
+            }
+
+            @Override
+            public void selected(byte index, Inventory inventory) {
+                slotSelected(index, inventory);
+            }
+        });
+    }
+
+    #ERROR
+
+    private void slotSelected(byte index, Inventory inventory) {
+        int mainPlayer = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+        PlayerComponent playerComponent = playerMapper.get(mainPlayer);
+        int equippedEntity = playerComponent.getEquippedPrimaryItem();
+
+        //if it is here, remove it...we respawn the placement overlay further down either way.
+        Entity placementOverlay = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
+        if (placementOverlay != null) {
+            getWorld().delete(placementOverlay.getId());
+        }
+
+        if (equippedEntity == OreWorld.ENTITY_INVALID) {
+            return;
+        }
+
+        SpriteComponent crosshairSprite =
+                spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_crosshair));
+        crosshairSprite.visible = false;
+
+        assert crosshairSprite.noClip;
+
+        if (blockMapper.has(equippedEntity)) {
+            // if the switched to item is a block, we should show a crosshair overlay
+            crosshairSprite.visible = true;
+
+            //don't show the placement overlay for blocks, just items and other placeable things
+            return;
+        }
+
+        ToolComponent entityToolComponent = toolMapper.getSafe(equippedEntity);
+        if (entityToolComponent != null) {
+            if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
+                //drill, one of the few cases we want to show the block crosshair...
+                crosshairSprite.visible = true;
+
+                //drill has no placement overlay
+                //fixme: return;
+            }
+        }
+
+        //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its
+        // entity)
+        int newPlacementOverlay = m_world.cloneEntity(equippedEntity);
+        ItemComponent itemComponent = itemMapper.get(newPlacementOverlay);
+        //transition to the in world state, since the cloned source item was in the inventory state, so to would this
+        itemComponent.state = ItemComponent.State.InWorldState;
+
+        SpriteComponent spriteComponent = spriteMapper.get(newPlacementOverlay);
+        spriteComponent.noClip = true;
+
+        //crosshair shoudln't be visible if the power overlay is
+        if (getWorld().getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
+            spriteComponent.visible = false;
+        }
+
+        getWorld().getSystem(TagManager.class).register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay);
+
     }
 
     @Override
@@ -74,31 +156,11 @@ public class EntityOverlaySystem extends BaseSystem {
         spriteComponent.sprite.setPosition(mouse.x, mouse.y);
         spriteComponent.placementValid = m_world.isPlacementValid(itemPlacementOverlayEntity);
 
+        //////////////////////ERROR
+
     }
 
     @Override
     protected void end() {
-    }
-
-    private static class HotbarSlotListener implements Inventory.SlotListener {
-        @Override
-        public void countChanged(byte index, Inventory inventory) {
-
-        }
-
-        @Override
-        public void set(byte index, Inventory inventory) {
-
-        }
-
-        @Override
-        public void removed(byte index, Inventory inventory) {
-
-        }
-
-        @Override
-        public void selected(byte index, Inventory inventory) {
-
-        }
     }
 }
