@@ -8,7 +8,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntMap;
 import com.ore.infinium.Block;
@@ -67,10 +66,6 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
         m_blockAtlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
         m_tilesAtlas = new TextureAtlas(Gdx.files.internal("packed/tiles.atlas"));
-        for (TextureRegion region : m_tilesAtlas.getRegions()) {
-            //fixme: honestly idk why we need to flip each one..but we do.
-            region.flip(false, true);
-        }
 
         //dirt 16 and beyond are transition things.
         final int dirtMax = 25;
@@ -194,7 +189,8 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
                 if (!drawWallTile) {
                     region = m_tilesAtlas.findRegion(textureName);
 
-                    m_batch.draw(region, tileX, tileY, OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE);
+                    //offset y to flip orientation around to normal
+                    m_batch.draw(region, tileX, tileY + OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, -OreWorld.BLOCK_SIZE);
 
                 } else {
                     //draw walls
@@ -202,8 +198,9 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
                     textureName = dirtBlockMeshes.get(0);
                     assert textureName != null : "block mesh lookup failure type: " + block.meshType;
 
+                    //offset y to flip orientation around to normal
                     region = m_tilesAtlas.findRegion(textureName);
-                    m_batch.draw(region, tileX, tileY, OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE);
+                    m_batch.draw(region, tileX, tileY + OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, -OreWorld.BLOCK_SIZE);
 
                 }
 
