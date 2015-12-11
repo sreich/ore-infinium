@@ -174,7 +174,6 @@ public class NetworkClientSystem extends BaseSystem {
 
                     SpriteComponent playerSprite = spriteMapper.get(player);
                     playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"));
-                    playerSprite.sprite.flip(false, true);
 
                     AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
                     EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());

@@ -91,13 +91,16 @@ public class EntityOverlaySystem extends BaseSystem {
         spriteComponent.noClip = true;
 
         getWorld().getSystem(TagManager.class).register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay);
+        m_itemPlacementOverlayShown = true;
     }
 
     private void deletePlacementOverlay() {
         if (m_itemPlacementOverlayShown) {
+            assert getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_itemPlacementOverlay);
+            
             Entity placementOverlay = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
             getWorld().delete(placementOverlay.getId());
-            assert getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_itemPlacementOverlay) == false;
+
             m_itemPlacementOverlayShown = false;
         }
     }

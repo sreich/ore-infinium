@@ -139,10 +139,11 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
                 }
             }
 
+            //flip the sprite when drawn, by using negative height
             m_batch.draw(spriteComponent.sprite,
                          spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                         spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
+                         spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
 
             if (placementGhost) {
                 m_batch.setColor(1, 1, 1, 1);

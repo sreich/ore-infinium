@@ -45,7 +45,6 @@ public class SpriteComponent extends Component {
     }
 
     public SpriteComponent() {
-        sprite.flip(false, true);
     }
 
     /**
@@ -56,10 +55,6 @@ public class SpriteComponent extends Component {
      */
     public void copyFrom(SpriteComponent spriteComponent) {
         sprite = new Sprite(spriteComponent.sprite);
-
-        if (!sprite.isFlipY()) {
-            sprite.flip(false, true);
-        }
 
         textureName = spriteComponent.textureName;
         category = spriteComponent.category;
