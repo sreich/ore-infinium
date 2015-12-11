@@ -71,49 +71,30 @@ public class EntityOverlaySystem extends BaseSystem {
 
     #ERROR
 
+    private boolean m_crosshairShown;
+    private boolean m_itemPlacementOverlayShown;
+
     private void slotSelected(byte index, Inventory inventory) {
         int mainPlayer = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
         PlayerComponent playerComponent = playerMapper.get(mainPlayer);
-        int equippedEntity = playerComponent.getEquippedPrimaryItem();
+        int equippedPrimaryItem = playerComponent.getEquippedPrimaryItem();
 
-        //if it is here, remove it...we respawn the placement overlay further down either way.
-        Entity placementOverlay = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
-        if (placementOverlay != null) {
-            getWorld().delete(placementOverlay.getId());
-        }
+        //we hide/delete it either way, because we'll either (a) respawn it if it when it needs it
+        //or (b) it doesn't want to be shown
+        hidePlacementOverlay();
 
-        if (equippedEntity == OreWorld.ENTITY_INVALID) {
+        if (equippedPrimaryItem == OreWorld.ENTITY_INVALID) {
+            //inventory is empty, we don't show crosshair or item overlay
             return;
         }
 
-        SpriteComponent crosshairSprite =
-                spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_crosshair));
-        crosshairSprite.visible = false;
-
-        assert crosshairSprite.noClip;
-
-        if (blockMapper.has(equippedEntity)) {
-            // if the switched to item is a block, we should show a crosshair overlay
-            crosshairSprite.visible = true;
-
-            //don't show the placement overlay for blocks, just items and other placeable things
+        if (maybeShowCrosshair(equippedPrimaryItem)) {
             return;
-        }
-
-        ToolComponent entityToolComponent = toolMapper.getSafe(equippedEntity);
-        if (entityToolComponent != null) {
-            if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
-                //drill, one of the few cases we want to show the block crosshair...
-                crosshairSprite.visible = true;
-
-                //drill has no placement overlay
-                //fixme: return;
-            }
         }
 
         //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its
         // entity)
-        int newPlacementOverlay = m_world.cloneEntity(equippedEntity);
+        int newPlacementOverlay = m_world.cloneEntity(equippedPrimaryItem);
         ItemComponent itemComponent = itemMapper.get(newPlacementOverlay);
         //transition to the in world state, since the cloned source item was in the inventory state, so to would this
         itemComponent.state = ItemComponent.State.InWorldState;
@@ -121,12 +102,46 @@ public class EntityOverlaySystem extends BaseSystem {
         SpriteComponent spriteComponent = spriteMapper.get(newPlacementOverlay);
         spriteComponent.noClip = true;
 
-        //crosshair shoudln't be visible if the power overlay is
+        //placement overlay shoudln't be visible if the power overlay is
         if (getWorld().getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
-            spriteComponent.visible = false;
+            m_itemPlacementOverlayShown = spriteComponent.visible = false;
         }
 
         getWorld().getSystem(TagManager.class).register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay);
+
+    }
+
+    private void hidePlacementOverlay() {
+        if (m_itemPlacementOverlayShown) {
+            Entity placementOverlay = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
+            getWorld().delete(placementOverlay.getId());
+        }
+    }
+
+    private boolean maybeShowCrosshair(int equippedPrimaryEntity) {
+        SpriteComponent crosshairSprite =
+                spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_crosshair));
+        assert crosshairSprite.noClip;
+
+        m_crosshairShown = crosshairSprite.visible = false;
+
+        // if the switched to item is a block, we should show a crosshair overlay
+        if (blockMapper.has(equippedPrimaryEntity)) {
+            m_crosshairShown = crosshairSprite.visible = true;
+
+            //don't show the placement overlay for blocks, just items and other placeable things
+            return true;
+        }
+
+        ToolComponent entityToolComponent = toolMapper.getSafe(equippedPrimaryEntity);
+        if (entityToolComponent != null) {
+            if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
+                //drill, one of the few cases we want to show the block crosshair...
+                m_crosshairShown = crosshairSprite.visible = true;
+
+                return true;
+            }
+        }
 
     }
 
