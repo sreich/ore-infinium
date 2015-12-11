@@ -122,7 +122,13 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
                 continue;
             }
 
-            assert spriteComponent.sprite != null;
+            if (spriteComponent.sprite.getTexture() == null) {
+
+                boolean placementGhost = false;
+            }
+
+            assert spriteComponent.sprite != null : "sprite is null";
+            assert spriteComponent.sprite.getTexture() != null : "sprite has null texture";
 
             boolean placementGhost = false;
 

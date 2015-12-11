@@ -47,32 +47,11 @@ public class EntityOverlaySystem extends BaseSystem {
 
     @Override
     protected void initialize() {
-        m_world.m_client.m_hotbarInventory.addListener(new Inventory.SlotListener() {
-            @Override
-            public void countChanged(byte index, Inventory inventory) {
-            }
-
-            @Override
-            public void set(byte index, Inventory inventory) {
-
-            }
-
-            @Override
-            public void removed(byte index, Inventory inventory) {
-
-            }
-
-            @Override
-            public void selected(byte index, Inventory inventory) {
-                slotSelected(index, inventory);
-            }
-        });
     }
-
-    #ERROR
 
     private boolean m_crosshairShown;
     private boolean m_itemPlacementOverlayShown;
+    private boolean m_initialized;
 
     private void slotSelected(byte index, Inventory inventory) {
         int mainPlayer = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
@@ -123,8 +102,6 @@ public class EntityOverlaySystem extends BaseSystem {
                 spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_crosshair));
         assert crosshairSprite.noClip;
 
-        m_crosshairShown = crosshairSprite.visible = false;
-
         // if the switched to item is a block, we should show a crosshair overlay
         if (blockMapper.has(equippedPrimaryEntity)) {
             m_crosshairShown = crosshairSprite.visible = true;
@@ -143,6 +120,9 @@ public class EntityOverlaySystem extends BaseSystem {
             }
         }
 
+        m_crosshairShown = crosshairSprite.visible = false;
+
+        return false;
     }
 
     @Override
@@ -156,7 +136,41 @@ public class EntityOverlaySystem extends BaseSystem {
     @Override
     protected void processSystem() {
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+        if (!m_initialized && m_world.m_client.m_hotbarInventory != null) {
 
+            m_world.m_client.m_hotbarInventory.addListener(new Inventory.SlotListener() {
+                @Override
+                public void countChanged(byte index, Inventory inventory) {
+                }
+
+                @Override
+                public void set(byte index, Inventory inventory) {
+
+                }
+
+                @Override
+                public void removed(byte index, Inventory inventory) {
+
+                }
+
+                @Override
+                public void selected(byte index, Inventory inventory) {
+                    slotSelected(index, inventory);
+                }
+            });
+
+            m_initialized = true;
+        }
+
+        if (m_initialized) {
+            updateItemOverlay();
+        }
+
+        //////////////////////ERROR
+
+    }
+
+    private void updateItemOverlay() {
         Entity entity = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
         if (entity == null) {
             return;
@@ -170,9 +184,6 @@ public class EntityOverlaySystem extends BaseSystem {
         SpriteComponent spriteComponent = spriteMapper.get(itemPlacementOverlayEntity);
         spriteComponent.sprite.setPosition(mouse.x, mouse.y);
         spriteComponent.placementValid = m_world.isPlacementValid(itemPlacementOverlayEntity);
-
-        //////////////////////ERROR
-
     }
 
     @Override

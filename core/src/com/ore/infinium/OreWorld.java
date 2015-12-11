@@ -1,12 +1,10 @@
 package com.ore.infinium;
 
-import com.artemis.Aspect;
-import com.artemis.ComponentMapper;
-import com.artemis.World;
-import com.artemis.WorldConfigurationBuilder;
+import com.artemis.*;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.artemis.utils.reflect.ClassReflection;
 import com.badlogic.gdx.Gdx;
@@ -765,72 +763,101 @@ public class OreWorld {
     /**
      * Clone everything about the entity and adds it to the engine/world
      *
-     * @param entity
+     * @param sourceEntity
      *         to clone
      *
      * @return the cloned entity
      */
-    public int cloneEntity(int entity) {
+    public int cloneEntity(int sourceEntity) {
         int clonedEntity = m_artemisWorld.create();
 
         //sorted alphabetically for your pleasure
-        if (airMapper.has(entity)) {
-            airMapper.create(clonedEntity);
+        if (airMapper.has(sourceEntity)) {
+            AirComponent sourceComponent = airMapper.get(sourceEntity);
+            AirComponent component = airMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (airGeneratorMapper.has(entity)) {
-            airGeneratorMapper.create(clonedEntity);
+        if (airGeneratorMapper.has(sourceEntity)) {
+            AirGeneratorComponent sourceComponent = airGeneratorMapper.get(sourceEntity);
+            AirGeneratorComponent component = airGeneratorMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (blockMapper.has(entity)) {
-            blockMapper.create(clonedEntity);
+        if (blockMapper.has(sourceEntity)) {
+            BlockComponent sourceComponent = blockMapper.get(sourceEntity);
+            BlockComponent component = blockMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (controlMapper.has(entity)) {
-            controlMapper.create(clonedEntity);
+        if (controlMapper.has(sourceEntity)) {
+            ControllableComponent sourceComponent = controlMapper.get(sourceEntity);
+            ControllableComponent component = controlMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (healthMapper.has(entity)) {
-            healthMapper.create(clonedEntity);
+        if (healthMapper.has(sourceEntity)) {
+            HealthComponent sourceComponent = healthMapper.get(sourceEntity);
+            HealthComponent component = healthMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (itemMapper.has(entity)) {
-            itemMapper.create(clonedEntity);
+        if (itemMapper.has(sourceEntity)) {
+            ItemComponent sourceComponent = itemMapper.get(sourceEntity);
+            ItemComponent component = itemMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (jumpMapper.has(entity)) {
-            jumpMapper.create(clonedEntity);
+        if (jumpMapper.has(sourceEntity)) {
+            JumpComponent sourceComponent = jumpMapper.get(sourceEntity);
+            JumpComponent component = jumpMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
         //player, unneeded
-        assert playerMapper.getSafe(entity) == null;
+        assert playerMapper.getSafe(sourceEntity) == null;
 
-        if (spriteMapper.has(entity)) {
-            spriteMapper.create(clonedEntity);
+        if (spriteMapper.has(sourceEntity)) {
+            SpriteComponent sourceComponent = spriteMapper.get(sourceEntity);
+            SpriteComponent component = spriteMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
+            component.sprite.setRegion(m_atlas.findRegion(component.textureName));
         }
 
-        if (toolMapper.has(entity)) {
-            toolMapper.create(clonedEntity);
+        if (toolMapper.has(sourceEntity)) {
+            ToolComponent sourceComponent = toolMapper.get(sourceEntity);
+            ToolComponent component = toolMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (lightMapper.has(entity)) {
-            lightMapper.create(clonedEntity);
+        if (lightMapper.has(sourceEntity)) {
+            LightComponent sourceComponent = lightMapper.get(sourceEntity);
+            LightComponent component = lightMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (velocityMapper.has(entity)) {
-            velocityMapper.create(clonedEntity);
+        if (velocityMapper.has(sourceEntity)) {
+            VelocityComponent sourceComponent = velocityMapper.get(sourceEntity);
+            VelocityComponent component = velocityMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (powerDeviceMapper.has(entity)) {
-            powerDeviceMapper.create(clonedEntity);
+        if (powerDeviceMapper.has(sourceEntity)) {
+            PowerDeviceComponent sourceComponent = powerDeviceMapper.get(sourceEntity);
+            PowerDeviceComponent component = powerDeviceMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (powerConsumerMapper.has(entity)) {
-            powerConsumerMapper.create(clonedEntity);
+        if (powerConsumerMapper.has(sourceEntity)) {
+            PowerConsumerComponent sourceComponent = powerConsumerMapper.get(sourceEntity);
+            PowerConsumerComponent component = powerConsumerMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
-        if (powerGeneratorMapper.has(entity)) {
-            powerGeneratorMapper.create(clonedEntity);
+        if (powerGeneratorMapper.has(sourceEntity)) {
+            PowerGeneratorComponent sourceComponent = powerGeneratorMapper.get(sourceEntity);
+            PowerGeneratorComponent component = powerGeneratorMapper.create(clonedEntity);
+            component.copyFrom(sourceComponent);
         }
 
         return clonedEntity;
@@ -895,6 +922,22 @@ public class OreWorld {
         }
 
         return false;
+    }
+
+    /**
+     * gets a list of components this entity has. Mostly for debug
+     *
+     * @param entity
+     *
+     * @return
+     */
+    public Bag<Component> getComponentsForEntity(int entity) {
+        assert m_artemisWorld != null;
+
+        Bag<Component> bag = new Bag<>();
+        m_artemisWorld.getEntity(entity).getComponents(bag);
+
+        return bag;
     }
 
     public static class BlockStruct {
