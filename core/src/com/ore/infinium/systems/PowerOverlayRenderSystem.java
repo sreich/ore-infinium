@@ -91,12 +91,14 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             int currentEntity = entities.get(i);
             Entity entityBoxed = world.getEntity(currentEntity);
 
-            if (world.getSystem(TagManager.class).getTag(entityBoxed).equals("itemPlacementOverlay")) {
-                //                    tagComponent != null && tagComponent.tag.equals("itemPlacementOverlay")) {
+            String entityTag = world.getSystem(TagManager.class).getTag(entityBoxed);
+
+            //could be placement overlay, but we don't want this. skip over.
+            if (entityTag != null && entityTag.equals(OreWorld.s_itemPlacementOverlay)) {
                 continue;
             }
 
-            spriteComponent = spriteMapper.get(entities.get(i));
+            spriteComponent = spriteMapper.get(currentEntity);
 
             Rectangle rectangle =
                     new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
@@ -104,7 +106,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
                                   spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
             if (rectangle.contains(pos)) {
-                return entities.get(i);
+                return currentEntity;
             }
         }
 
@@ -259,7 +261,6 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         }
 
     }
-
 
     private void renderWire(Vector2 source, Vector2 dest) {
         Vector2 diff = new Vector2(source.x - dest.x, source.y - dest.y);
