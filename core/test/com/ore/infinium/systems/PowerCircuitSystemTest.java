@@ -106,6 +106,8 @@ public class PowerCircuitSystemTest {
 
         circuitSystem.disconnectAllWiresFromDevice(gen);
 
+        //there was only one circuit, that had our 1 wire on it.
+        //ensure there are now 0 circuits
         assertEquals(0, circuitSystem.m_circuits.size);
     }
 

@@ -70,7 +70,7 @@ public class PowerCircuitSystem extends BaseSystem {
          * if they do, the circuits are merged.
          * See generators, consumers
          */
-        Array<WireConnection> connections = new Array<>();
+        Array<PowerWireConnection> connections = new Array<>();
 
         /**
          * List of generators for faster checking of changes/recalculations, in addition to the
@@ -98,11 +98,11 @@ public class PowerCircuitSystem extends BaseSystem {
      * Each circuit is composed of >= 1 wire connections, each wire connection is composed of
      * only 2 different devices.
      */
-    public class WireConnection {
+    public class PowerWireConnection {
         int firstEntity;
         int secondEntity;
 
-        public WireConnection(int firstEntity, int secondEntity) {
+        public PowerWireConnection(int firstEntity, int secondEntity) {
             this.firstEntity = firstEntity;
             this.secondEntity = secondEntity;
         }
@@ -172,7 +172,7 @@ public class PowerCircuitSystem extends BaseSystem {
 
             //check which circuit this connection between 2 consumers belongs to
             //if none of the two consumers are in a circuit, it is a new circuit
-            for (WireConnection connection : circuit.connections) {
+            for (PowerWireConnection connection : circuit.connections) {
                 if ((connection.firstEntity == firstEntity && connection.secondEntity == secondEntity) ||
                     connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
 
@@ -184,8 +184,8 @@ public class PowerCircuitSystem extends BaseSystem {
                     connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
                     //one of the entities of this wire is in this connection, so it's a part of this circuit
                     //we don't care which one. we just add our wire to the mix
-                    WireConnection wireConnection = new WireConnection(firstEntity, secondEntity);
-                    circuit.connections.add(wireConnection);
+                    PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
+                    circuit.connections.add(powerWireConnection);
 
                     addConnection(firstEntity, secondEntity, circuit);
 
@@ -200,8 +200,8 @@ public class PowerCircuitSystem extends BaseSystem {
         addConnection(firstEntity, secondEntity, circuit);
         m_circuits.add(circuit);
 
-        WireConnection wireConnection = new WireConnection(firstEntity, secondEntity);
-        circuit.connections.add(wireConnection);
+        PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
+        circuit.connections.add(powerWireConnection);
     }
 
     /**
@@ -213,6 +213,13 @@ public class PowerCircuitSystem extends BaseSystem {
      * @param entityToDisconnect
      */
     public void disconnectAllWiresFromDevice(int entityToDisconnect) {
+        for (PowerCircuit circuit : m_circuits) {
+            //for every circuit, find a wire that has one end connected to us
+            //meaning we should disconnect this wire
+            for (PowerWireConnection powerWireConnection : circuit.connections) {
+
+            }
+        }
     }
 
     /**
@@ -231,9 +238,9 @@ public class PowerCircuitSystem extends BaseSystem {
         while (itCircuits.hasNext()) {
             PowerCircuit circuit = itCircuits.next();
 
-            Iterator<WireConnection> itWires = circuit.connections.iterator();
+            Iterator<PowerWireConnection> itWires = circuit.connections.iterator();
             while (itWires.hasNext()) {
-                WireConnection connection = itWires.next();
+                PowerWireConnection connection = itWires.next();
 
                 int first = connection.firstEntity;
                 int second = connection.secondEntity;

@@ -250,10 +250,10 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             }
 
             //draw wires of each connection, in every circuit. Wires only have a start and end point.
-            for (PowerCircuitSystem.WireConnection wireConnection : circuit.connections) {
+            for (PowerCircuitSystem.PowerWireConnection powerWireConnection : circuit.connections) {
 
-                firstEntitySpriteComponent = spriteMapper.get(wireConnection.firstEntity);
-                secondEntitySpriteComponent = spriteMapper.get(wireConnection.secondEntity);
+                firstEntitySpriteComponent = spriteMapper.get(powerWireConnection.firstEntity);
+                secondEntitySpriteComponent = spriteMapper.get(powerWireConnection.secondEntity);
 
                 //go over each output of this entity, and draw a connection from this entity to the connected dest
                 renderWire(new Vector2(firstEntitySpriteComponent.sprite.getX() +
