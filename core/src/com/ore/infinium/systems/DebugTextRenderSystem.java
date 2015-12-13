@@ -7,6 +7,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -268,7 +269,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         {
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
             m_debugServerBatch.begin();
-            m_debugServerBatch.setColor(1, 0, 0, 0.5f);
+            m_debugServerBatch.setColor(Color.MAGENTA);
 
             AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
             IntBag entities = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class)).getEntities();

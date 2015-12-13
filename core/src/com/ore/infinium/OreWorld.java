@@ -170,14 +170,6 @@ public class OreWorld {
 
             //inject the mappers into the world, before we start doing things
             m_artemisWorld.inject(this, true);
-            int crosshair = m_artemisWorld.create();
-            m_artemisWorld.getSystem(TagManager.class).register(s_crosshair, crosshair);
-            m_artemisWorld.process();
-
-            SpriteComponent spriteComponent = spriteMapper.create(crosshair);
-            spriteComponent.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
-            spriteComponent.sprite.setRegion(m_atlas.findRegion("crosshair-blockpicking"));
-            spriteComponent.noClip = true;
 
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
@@ -435,8 +427,6 @@ public class OreWorld {
             //        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f,
             // playerSprite
             // .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
-
-            updateCrosshair();
         }
 
         m_artemisWorld.process();
@@ -474,25 +464,6 @@ public class OreWorld {
         return false;
     }
 
-    private void updateCrosshair() {
-        //PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
-        //playerComponent
-
-        SpriteComponent spriteComponent =
-                spriteMapper.get(m_artemisWorld.getSystem(TagManager.class).getEntity(s_crosshair).getId());
-
-        Vector2 mouse = mousePositionWorldCoords();
-        Vector2 crosshairPosition = new Vector2(BLOCK_SIZE * MathUtils.floor(mouse.x / BLOCK_SIZE),
-                                                BLOCK_SIZE * MathUtils.floor(mouse.y / BLOCK_SIZE));
-
-        Vector2 crosshairOriginOffset =
-                new Vector2(spriteComponent.sprite.getWidth() * 0.5f, spriteComponent.sprite.getHeight() * 0.5f);
-
-        Vector2 crosshairFinalPosition = crosshairPosition.add(crosshairOriginOffset);
-
-        spriteComponent.sprite.setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y);
-    }
-
     public Vector2 mousePositionWorldCoords() {
         //libgdx can and probably will return negative mouse coords..
         Vector3 mouse = new Vector3(Math.max(Gdx.input.getX(), 0), Math.max(Gdx.input.getY(), 0), 0f);
@@ -502,7 +473,7 @@ public class OreWorld {
     }
 
     public void alignPositionToBlocks(Vector2 pos) {
-        pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
+        //pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
     }
 
     public int seaLevel() {
