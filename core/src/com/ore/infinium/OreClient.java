@@ -279,6 +279,21 @@ public class OreClient implements ApplicationListener, InputProcessor {
             m_stage.draw();
         }
 
+        final float zoomAmount = 0.004f;
+        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
+            if (m_zoomTimer.milliseconds() >= zoomInterval) {
+                //zoom out
+                zoom(1.0f + zoomAmount);
+                m_zoomTimer.reset();
+            }
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
+            if (m_zoomTimer.milliseconds() >= zoomInterval) {
+                zoom(1.0f - zoomAmount);
+                m_zoomTimer.reset();
+            }
+        }
     }
 
     private void showFailToConnectDialog() {
@@ -360,22 +375,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         } else if (keycode == Input.Keys.I) {
             if (m_inventoryView != null) {
                 m_inventoryView.setVisible(!m_inventoryView.inventoryVisible);
-            }
-        }
-
-        final float zoomAmount = 0.004f;
-        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
-            if (m_zoomTimer.milliseconds() >= zoomInterval) {
-                //zoom out
-                zoom(1.0f + zoomAmount);
-                m_zoomTimer.reset();
-            }
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
-            if (m_zoomTimer.milliseconds() >= zoomInterval) {
-                zoom(1.0f - zoomAmount);
-                m_zoomTimer.reset();
             }
         }
 

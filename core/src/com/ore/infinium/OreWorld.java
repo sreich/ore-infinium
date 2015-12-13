@@ -474,19 +474,6 @@ public class OreWorld {
         return false;
     }
 
-    public void render(double elapsed) {
-        //        m_camera.zoom *= 0.9;
-        //m_lightRenderer->renderToFBO();
-
-        //FIXME: incorporate entities into the pre-lit gamescene FBO, then render lighting as last pass
-        //m_lightRenderer->renderToBackbuffer();
-
-        //FIXME: take lighting into account, needs access to fbos though.
-        //   m_fluidRenderer->render();
-        //    m_particleRenderer->render();
-        //FIXME unused    m_quadTreeRenderer->render();
-    }
-
     private void updateCrosshair() {
         //PlayerComponent playerComponent = playerMapper.get(m_mainPlayerEntity);
         //playerComponent
@@ -554,9 +541,9 @@ public class OreWorld {
         PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.create(light);
 
         SpriteComponent sprite = spriteMapper.create(light);
-        sprite.textureName = "light-blue";
+        sprite.textureName = "light-yellow";
 
-        sprite.sprite.setSize(BLOCK_SIZE * 2, BLOCK_SIZE * 2);
+        sprite.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
 
         PowerConsumerComponent powerConsumerComponent = powerConsumerMapper.create(light);
         powerConsumerComponent.powerDemandRate = 100;

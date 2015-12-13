@@ -37,7 +37,7 @@ import com.ore.infinium.components.*;
  */
 @Wire
 public class PowerCircuitSystem extends BaseSystem {
-    final static float WIRE_THICKNESS = 3.0f / OreWorld.PIXELS_PER_METER;
+    static final float WIRE_THICKNESS = 3.0f / OreWorld.PIXELS_PER_METER;
 
     private OreWorld m_world;
 
@@ -261,9 +261,10 @@ public class PowerCircuitSystem extends BaseSystem {
                 Vector2 firstPosition = new Vector2(firstSprite.sprite.getX(), firstSprite.sprite.getY());
                 Vector2 secondPosition = new Vector2(secondSprite.sprite.getX(), secondSprite.sprite.getY());
 
-                float circleRadius2 = (float) Math.pow(WIRE_THICKNESS * 3, 2);
-                float halfBlockSize = OreWorld.BLOCK_SIZE * 0.5f;
-                Vector2 circleCenter = new Vector2(position.x - (halfBlockSize), position.y - (halfBlockSize));
+                float circleRadius2 = (float) Math.pow(WIRE_THICKNESS * 4, 2);
+                //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
+                Vector2 circleCenter =
+                        new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS * 3));
                 boolean intersects =
                         Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter, circleRadius2);
                 if (intersects) {

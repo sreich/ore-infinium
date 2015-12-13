@@ -67,7 +67,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
 
         renderEntities(world.getDelta());
-        renderDroppedEntities(world.getDelta());
+        //        renderDroppedEntities(world.getDelta());
 
     }
 
@@ -147,6 +147,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
                          spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
                          spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
 
+            //reset color for next run
             if (placementGhost) {
                 m_batch.setColor(1, 1, 1, 1);
             }

@@ -152,15 +152,70 @@ public class PowerCircuitSystemTest {
 
         circuitSystem.connectDevices(gen, light);
 
+        //wire is horizontally laid out
         spriteMapper.get(gen).sprite.setPosition(100, 100);
         spriteMapper.get(light).sprite.setPosition(200, 100);
 
-        // try to disconnect, mouse position to disconnect at
-        // is a bit above the horizontal wires position
-        boolean disconnected =
-                circuitSystem.disconnectWireAtPosition(new Vector2(150, 100.0f - OreWorld.BLOCK_SIZE / 4.0f));
+        float x = 150;
+        //try to remove it x2 wire thicknesses above where the wire actually is
+        float y = 100.0f - (PowerCircuitSystem.WIRE_THICKNESS * 3.0f);
+
+        boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(x, y));
         assertTrue(disconnected);
 
+        //sanity check for circuit cleanup
+        assertEquals(0, circuitSystem.m_circuits.size);
+    }
+
+    /**
+     * tries disconnecting a wire, from a picking position slightly below the wire itself
+     * (wire is horizontally placed)
+     */
+    @Test
+    public void testDisconnectWireSlightlyBelow() {
+        int gen = world.createPowerGenerator();
+        int light = world.createLight();
+
+        circuitSystem.connectDevices(gen, light);
+
+        //wire is horizontally laid out
+        spriteMapper.get(gen).sprite.setPosition(100, 100);
+        spriteMapper.get(light).sprite.setPosition(200, 100);
+
+        float x = 150;
+        //try to remove it x2 wire thicknesses below where the wire actually is
+        float y = 100.0f + (PowerCircuitSystem.WIRE_THICKNESS * 3.0f);
+
+        boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(x, y));
+        assertTrue(disconnected);
+
+        //sanity check for circuit cleanup
+        assertEquals(0, circuitSystem.m_circuits.size);
+    }
+
+    /**
+     * tries disconnecting a wire, from a picking position slightly left the wire itself
+     * (wire is vertically placed)
+     */
+    @Test
+    public void testDisconnectWireSlightlyLeft() {
+        int gen = world.createPowerGenerator();
+        int light = world.createLight();
+
+        circuitSystem.connectDevices(gen, light);
+
+        //wire is horizontally laid out
+        spriteMapper.get(gen).sprite.setPosition(100, 100);
+        spriteMapper.get(light).sprite.setPosition(100, 200);
+
+        float x = 100 - (PowerCircuitSystem.WIRE_THICKNESS * 3.0f);
+        //try to remove it x2 wire thicknesses below where the wire actually is
+        float y = 150.0f;
+
+        boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(x, y));
+        assertTrue(disconnected);
+
+        //sanity check for circuit cleanup
         assertEquals(0, circuitSystem.m_circuits.size);
     }
 
@@ -172,7 +227,6 @@ public class PowerCircuitSystemTest {
      */
     @Test
     public void testConnectingTwoDevicesTwiceShouldFail() {
-
     }
 
 }
