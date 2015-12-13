@@ -10,6 +10,8 @@ import com.badlogic.gdx.utils.IntArray;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
+import java.util.Iterator;
+
 /**
  * ***************************************************************************
  * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                    *
@@ -217,9 +219,14 @@ public class PowerCircuitSystem extends BaseSystem {
      * @return false if disconnect failed (no wire in range). True if it succeeded.
      */
     public boolean disconnectWireAtPosition(Vector2 position) {
-        for (PowerCircuit circuit : m_circuits) {
-            for (int i = 0; i < circuit.connections.size; i++) {
-                WireConnection connection = circuit.connections.get(i);
+
+        Iterator<PowerCircuit> itCircuits = m_circuits.iterator();
+        while (itCircuits.hasNext()) {
+            PowerCircuit circuit = itCircuits.next();
+
+            Iterator<WireConnection> itWires = circuit.connections.iterator();
+            while (itWires.hasNext()) {
+                WireConnection connection = itWires.next();
 
                 int first = connection.firstEntity;
                 int second = connection.secondEntity;
@@ -238,7 +245,14 @@ public class PowerCircuitSystem extends BaseSystem {
                 boolean intersects =
                         Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter, circleRadius2);
                 if (intersects) {
-                    circuit.connections.removeIndex(i);
+                    //wire should be destroyed. remove it from connections.
+                    itWires.remove();
+
+                    //if this circuit had only 1 element in it...it was ours. now we remove this circuit,
+                    //it is dead (has no wire connections in it)
+                    if (m_circuits.size == 1) {
+                        itCircuits.remove();
+                    }
                     return true;
                 }
             }
