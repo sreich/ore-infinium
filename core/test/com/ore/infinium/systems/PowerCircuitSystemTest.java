@@ -4,7 +4,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.SpriteComponent;
 import org.junit.Before;
@@ -77,19 +76,17 @@ public class PowerCircuitSystemTest {
 
         int light = world.createLight();
 
-        Array<PowerCircuitSystem.PowerCircuit> circuits = circuitSystem.m_circuits;
-
         //small sanity check, ensure world is getting created properly
-        assertEquals(0, circuits.size);
+        assertEquals(0, circuitSystem.m_circuits.size);
 
         circuitSystem.connectDevices(gen, light);
 
         //check they got connected, that there is now 1 circuit at least
         //which is the one this wire resides on.
-        assertEquals(1, circuits.size);
+        assertEquals(1, circuitSystem.m_circuits.size);
 
         //ensure the first circuit (ours) has 1 wire in it.
-        assertEquals(1, circuits.first().connections.size);
+        assertEquals(1, circuitSystem.m_circuits.first().connections.size);
     }
 
     /**
@@ -105,15 +102,11 @@ public class PowerCircuitSystemTest {
 
         int light = world.createLight();
 
-        Array<PowerCircuitSystem.PowerCircuit> circuits = circuitSystem.m_circuits;
-
         circuitSystem.connectDevices(gen, light);
-
-        assertEquals(1, circuits.size);
 
         circuitSystem.disconnectAllWiresFromDevice(gen);
 
-        assertEquals(0, circuits.size);
+        assertEquals(0, circuitSystem.m_circuits.size);
     }
 
     /**
@@ -154,11 +147,11 @@ public class PowerCircuitSystemTest {
 
         // try to disconnect, mouse position to disconnect at
         // is a bit above the horizontal wires position
-        boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(150, 100));
+        boolean disconnected =
+                circuitSystem.disconnectWireAtPosition(new Vector2(150, 100.0f - OreWorld.BLOCK_SIZE / 4.0f));
         assertTrue(disconnected);
 
         assertEquals(0, circuitSystem.m_circuits.size);
-
     }
 
     /**
