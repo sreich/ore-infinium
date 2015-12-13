@@ -473,7 +473,7 @@ public class OreWorld {
     }
 
     public void alignPositionToBlocks(Vector2 pos) {
-        //pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
+        pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
     }
 
     public int seaLevel() {

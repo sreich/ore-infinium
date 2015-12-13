@@ -5,7 +5,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.OreWorld;
@@ -200,8 +199,12 @@ public class EntityOverlaySystem extends BaseSystem {
         SpriteComponent spriteComponent = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_crosshair).getId());
 
         Vector2 mouse = m_world.mousePositionWorldCoords();
-        Vector2 crosshairPosition = new Vector2(OreWorld.BLOCK_SIZE * MathUtils.floor(mouse.x / OreWorld.BLOCK_SIZE),
-                                                OreWorld.BLOCK_SIZE * MathUtils.floor(mouse.y / OreWorld.BLOCK_SIZE));
+        //Vector2 crosshairPosition = new Vector2(OreWorld.BLOCK_SIZE * MathUtils.floor(mouse.x / OreWorld.BLOCK_SIZE),
+        //                                      OreWorld.BLOCK_SIZE * MathUtils.floor(mouse.y / OreWorld.BLOCK_SIZE));
+        Vector2 crosshairPosition = new Vector2(mouse);
+
+        //fixme this might not work..remove above dead code too
+        m_world.alignPositionToBlocks(crosshairPosition);
 
         Vector2 crosshairOriginOffset =
                 new Vector2(spriteComponent.sprite.getWidth() * 0.5f, spriteComponent.sprite.getHeight() * 0.5f);
