@@ -3,6 +3,7 @@ package com.ore.infinium.systems;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntArray;
@@ -231,9 +232,13 @@ public class PowerCircuitSystem extends BaseSystem {
                 Vector2 firstPosition = new Vector2(firstSprite.sprite.getX(), firstSprite.sprite.getY());
                 Vector2 secondPosition = new Vector2(secondSprite.sprite.getX(), secondSprite.sprite.getY());
 
-                if (isOnLine(firstPosition, secondPosition, WIRE_THICKNESS, position, new Vector2())) {
+                float circleRadius2 = (float) Math.pow(WIRE_THICKNESS * 3, 2);
+                float halfBlockSize = OreWorld.BLOCK_SIZE * 0.5f;
+                Vector2 circleCenter = new Vector2(position.x - (halfBlockSize), position.y - (halfBlockSize));
+                boolean intersects =
+                        Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter, circleRadius2);
+                if (intersects) {
                     circuit.connections.removeIndex(i);
-
                     return true;
                 }
             }
