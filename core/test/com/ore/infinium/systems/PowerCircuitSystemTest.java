@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.SpriteComponent;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -34,6 +35,7 @@ public class PowerCircuitSystemTest {
 
     private ComponentMapper<SpriteComponent> spriteMapper;
 
+    @Before
     public void createArtemisWorld() {
         world = new OreWorld(null, null);
         world.m_artemisWorld = new World(new WorldConfigurationBuilder().with(new PowerCircuitSystem(world)).build());
@@ -71,18 +73,23 @@ public class PowerCircuitSystemTest {
      */
     @Test
     public void testConnectTwoDevices() throws Exception {
-        createArtemisWorld();
         int gen = world.createPowerGenerator();
 
         int light = world.createLight();
 
         Array<PowerCircuitSystem.PowerCircuit> circuits = circuitSystem.m_circuits;
 
+        //small sanity check, ensure world is getting created properly
         assertEquals(0, circuits.size);
 
         circuitSystem.connectDevices(gen, light);
 
+        //check they got connected, that there is now 1 circuit at least
+        //which is the one this wire resides on.
         assertEquals(1, circuits.size);
+
+        //ensure the first circuit (ours) has 1 wire in it.
+        assertEquals(1, circuits.first().connections.size);
     }
 
     /**
@@ -94,7 +101,6 @@ public class PowerCircuitSystemTest {
      */
     @Test
     public void testDisconnectTwoDevices() throws Exception {
-        createArtemisWorld();
         int gen = world.createPowerGenerator();
 
         int light = world.createLight();
@@ -114,24 +120,45 @@ public class PowerCircuitSystemTest {
      * disconnect a wire/connection, usually via the mouse
      */
     @Test
-    public void testDisconnectWire() {
-        createArtemisWorld();
+    public void testDisconnectWireCloseToWire() {
         int gen = world.createPowerGenerator();
         int light = world.createLight();
-
-        Array<PowerCircuitSystem.PowerCircuit> circuits = circuitSystem.m_circuits;
 
         circuitSystem.connectDevices(gen, light);
 
         spriteMapper.get(gen).sprite.setPosition(100, 100);
         spriteMapper.get(light).sprite.setPosition(200, 100);
 
-        assertEquals(1, circuits.size);
-
+        //try to disconnect (pretending we're mouse picking).
+        //this pick test is for really really close/on the wire.
         boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(150, 100));
         assertTrue(disconnected);
 
-        assertEquals(0, circuits.size);
+        //should be no more circuits. this circuit only had 1 wireconnection
+        assertEquals(0, circuitSystem.m_circuits.size);
+    }
+
+    /**
+     * tries disconnecting a wire, from a picking position slightly above the wire itself
+     * (wire is horizontally placed)
+     */
+    @Test
+    public void testDisconnectWireSlightlyAbove() {
+        int gen = world.createPowerGenerator();
+        int light = world.createLight();
+
+        circuitSystem.connectDevices(gen, light);
+
+        spriteMapper.get(gen).sprite.setPosition(100, 100);
+        spriteMapper.get(light).sprite.setPosition(200, 100);
+
+        // try to disconnect, mouse position to disconnect at
+        // is a bit above the horizontal wires position
+        boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(150, 100));
+        assertTrue(disconnected);
+
+        assertEquals(0, circuitSystem.m_circuits.size);
+
     }
 
     /**

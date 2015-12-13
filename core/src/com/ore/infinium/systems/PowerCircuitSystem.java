@@ -44,10 +44,14 @@ public class PowerCircuitSystem extends BaseSystem {
     private OreWorld m_world;
 
     /**
-     * Contains each circuit
+     * Contains list of each circuit in the world.
+     * <p>
      * A circuit contains all the wire connections that are continuous/connected
      * in some form. Circuits would probably average 20 or so unique devices
      * But it could be much much more (and probably will be)
+     * <p>
+     * When devices that are on different circuits get connected, those
+     * devices are merged into the same circuit
      */
     Array<PowerCircuit> m_circuits = new Array<>();
 
@@ -57,13 +61,14 @@ public class PowerCircuitSystem extends BaseSystem {
      */
     public class PowerCircuit {
         /**
+         * List of wire connections between pairs of devices
+         * <p>
          * duplicate entities may exist across all connections
          * e.g. Wire1{ ent1, ent2 }, Wire2 { ent3, ent 1}, but
          * they would still be of the same circuit of course.
          * However, devices are unique across circuits. No devices can bridge multiple circuits,
-         * if they do, the circuits are merged. No 1 connection shall have the same device/generator at both
-         * of the endpoints.
-         * Mostly this is used for rendering. See generators, consumers
+         * if they do, the circuits are merged.
+         * See generators, consumers
          */
         Array<WireConnection> connections = new Array<>();
 
@@ -77,7 +82,9 @@ public class PowerCircuitSystem extends BaseSystem {
         /**
          * List of all the devices that consume power, connected on this circuit
          * For faster retrieval of just those, and for calculating the load usages.
-         * May be disjoint from generators, but generators have potential to consume power as well..
+         * May be disjoint from generators, but note that generators have potential to consume power as well..
+         * so there *could* be generators present in here. But they should only be treated as consumers
+         * (as they would have the PowerConsumerComponent, in addition to PowerGeneratorComponent
          *
          * @type s
          */
@@ -88,8 +95,8 @@ public class PowerCircuitSystem extends BaseSystem {
     }
 
     /**
-     * Each circuit is composed of > 1 wire connections, each wire connection is composed of
-     * only 2 devices.
+     * Each circuit is composed of >= 1 wire connections, each wire connection is composed of
+     * only 2 different devices.
      */
     public class WireConnection {
         int firstEntity;
