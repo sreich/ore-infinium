@@ -36,8 +36,7 @@ public class PowerCircuitSystemTest {
 
     public void createArtemisWorld() {
         world = new OreWorld(null, null);
-        world.m_artemisWorld = new World(new WorldConfigurationBuilder().with(new PowerCircuitSystem(world))
-                                                                        .build());
+        world.m_artemisWorld = new World(new WorldConfigurationBuilder().with(new PowerCircuitSystem(world)).build());
 
         circuitSystem = world.m_artemisWorld.getSystem(PowerCircuitSystem.class);
 
@@ -129,7 +128,8 @@ public class PowerCircuitSystemTest {
 
         assertEquals(1, circuits.size);
 
-        circuitSystem.disconnectWireAtPosition(new Vector2(150, 100));
+        boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(150, 100));
+        assertTrue(disconnected);
 
         assertEquals(0, circuits.size);
     }
