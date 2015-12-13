@@ -211,6 +211,7 @@ public class PowerCircuitSystem extends BaseSystem {
      * Would be used in situations such as "user clicked remove on a wire, so remove it.
      *
      * @param position
+     *         in world coords
      *
      * @return false if disconnect failed (no wire in range). True if it succeeded.
      */

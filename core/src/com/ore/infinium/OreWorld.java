@@ -887,19 +887,23 @@ public class OreWorld {
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
     //and they can process that in there. or maybe this should be in the client..after all, a server has no key events
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (button != Input.Buttons.LEFT) {
-            return false;
-        }
+        if (button == Input.Buttons.LEFT) {
+            PowerOverlayRenderSystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem.class);
+            if (powerOverlaySystem.overlayVisible) {
+                powerOverlaySystem.leftMouseClicked();
+            }
 
-        PowerOverlayRenderSystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem.class);
-        if (powerOverlaySystem.overlayVisible) {
-            powerOverlaySystem.leftMouseClicked();
             return true;
         } else {
-            return true;
+            //right
+            PowerOverlayRenderSystem powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem.class);
+            if (powerOverlaySystem.overlayVisible) {
+                powerOverlaySystem.rightMouseClicked();
+            }
+
         }
 
-        //return false;
+        return false;
     }
 
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {

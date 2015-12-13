@@ -7,12 +7,10 @@ import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -41,6 +39,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
     //   public TextureAtlas m_atlas;
     private OreWorld m_world;
     private SpriteBatch m_batch;
+
     private ComponentMapper<PlayerComponent> playerMapper;
     private ComponentMapper<SpriteComponent> spriteMapper;
     private ComponentMapper<ItemComponent> itemMapper;
@@ -125,11 +124,13 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         //fixme prolly make a threshold for dragging
         m_dragInProgress = true;
 
-        Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        m_world.m_camera.unproject(unprojectedMouse);
-
         //find the entity we're dragging on
-        m_dragSourceEntity = deviceAtPosition(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
+        m_dragSourceEntity = deviceAtPosition(m_world.mousePositionWorldCoords());
+    }
+
+    public void rightMouseClicked() {
+        //check if we can delete a wire
+        m_powerCircuitSystem.disconnectWireAtPosition(m_world.mousePositionWorldCoords());
     }
 
     public void leftMouseReleased() {
