@@ -437,16 +437,6 @@ public class OreWorld {
             // .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
 
             updateCrosshair();
-
-            //fixme
-            if (m_artemisWorld.getSystem(TagManager.class).isRegistered(s_itemPlacementOverlay)) {
-                SpriteComponent component = spriteMapper.getSafe(
-                        m_artemisWorld.getSystem(TagManager.class).getEntity(s_itemPlacementOverlay).getId());
-                assert component != null : "how the hell does it have no spritecomp?!!";
-
-                assert component.noClip : "placement overlay found to not be in noclip mode!!!";
-            }
-
         }
 
         m_artemisWorld.process();

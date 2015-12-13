@@ -78,9 +78,6 @@ public class OreServer implements Runnable {
         m_world.init();
         m_world.m_artemisWorld.inject(this, true);
 
-        m_networkServerSystem = m_world.m_artemisWorld.getSystem(NetworkServerSystem.class);
-        assert m_networkServerSystem != null;
-
         m_chat = new Chat();
         m_chat.addListener(new Chat.ChatListener() {
             @Override

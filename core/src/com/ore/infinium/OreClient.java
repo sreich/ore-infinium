@@ -38,6 +38,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private ComponentMapper<BlockComponent> blockMapper;
     private ComponentMapper<ToolComponent> toolMapper;
 
+    private NetworkClientSystem m_networkClientSystem;
+    private TagManager m_tagManager;
+    private DebugTextRenderSystem m_debugTextRenderSystem;
+    private PowerOverlayRenderSystem m_powerOverlayRenderSystem;
+
     // zoom every n ms, while zoom key is held down
     private static final int zoomInterval = 30;
     private static OreTimer m_zoomTimer = new OreTimer();
@@ -129,7 +134,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public void handleLeftMousePrimaryAttack() {
         Vector2 mouse = m_world.mousePositionWorldCoords();
 
-        int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+        int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
 
         PlayerComponent playerComponent = playerMapper.get(player);
         int itemEntity = playerComponent.getEquippedPrimaryItem();
@@ -150,7 +155,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             if (block.type != Block.BlockType.NullBlockType) {
                 block.destroy();
-                m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendBlockPick(x, y);
+                m_networkClientSystem.sendBlockPick(x, y);
             }
 
             //action performed
@@ -165,7 +170,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             boolean blockPlaced = m_world.attemptBlockPlacement(x, y, blockComponent.blockType);
             if (blockPlaced) {
-                m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendBlockPlace(x, y);
+                m_networkClientSystem.sendBlockPlace(x, y);
             }
 
             return;
@@ -198,8 +203,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         if (m_world.isPlacementValid(placedItemEntity)) {
             //todo, do more validation..
-            m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
-                                  .sendItemPlace(alignedPosition.x, alignedPosition.y);
+            m_networkClientSystem.sendItemPlace(alignedPosition.x, alignedPosition.y);
         } else {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
             //because the function actually takes only the entity, to check if its size, position etc conflict with
@@ -242,8 +246,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_world.init();
         m_world.m_artemisWorld.inject(this);
 
-        m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).addListener(new NetworkConnectListener(this));
-        m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connect("127.0.0.1", Network.port);
+        m_networkClientSystem.addListener(new NetworkConnectListener(this));
+        m_networkClientSystem.connect("127.0.0.1", Network.port);
         //showFailToConnectDialog();
     }
 
@@ -333,20 +337,16 @@ public class OreClient implements ApplicationListener, InputProcessor {
             // could derive from. so we could just call this, and await the return...all of the debug things could be
             // handled
             //directly in there. but the question is, what to do for everything else.
-            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugClient =
-                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugClient;
+            m_debugTextRenderSystem.m_renderDebugClient = !m_debugTextRenderSystem.m_renderDebugClient;
         } else if (keycode == Input.Keys.F9) {
-            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugServer =
-                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderDebugServer;
+            m_debugTextRenderSystem.m_renderDebugServer = !m_debugTextRenderSystem.m_renderDebugServer;
         } else if (keycode == Input.Keys.F10) {
-            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderTiles =
-                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_renderTiles;
+            m_debugTextRenderSystem.m_renderTiles = !m_debugTextRenderSystem.m_renderTiles;
         } else if (keycode == Input.Keys.F11) {
             m_renderGui = !m_renderGui;
         } else if (keycode == Input.Keys.F12) {
-            m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_guiDebug =
-                    !m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_guiDebug;
-            m_stage.setDebugAll(m_world.m_artemisWorld.getSystem(DebugTextRenderSystem.class).m_guiDebug);
+            m_debugTextRenderSystem.m_guiDebug = !m_debugTextRenderSystem.m_guiDebug;
+            m_stage.setDebugAll(m_debugTextRenderSystem.m_guiDebug);
         } else if (keycode == Input.Keys.I) {
             if (m_inventoryView != null) {
                 m_inventoryView.setVisible(!m_inventoryView.inventoryVisible);
@@ -374,11 +374,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        if (!m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
+        if (!m_networkClientSystem.connected) {
             return false;
         }
 
-        int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+        int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
         ControllableComponent controllableComponent = controlMapper.get(player);
 
         if (keycode == Input.Keys.Q) {
@@ -407,7 +407,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         } else if (keycode == Input.Keys.E) {
             //power overlay
-            m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).toggleOverlay();
+            m_powerOverlayRenderSystem.toggleOverlay();
         } else if (keycode == Input.Keys.NUM_1) {
             m_hotbarInventory.selectSlot((byte) 0);
         } else if (keycode == Input.Keys.NUM_2) {
@@ -456,11 +456,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        if (!m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
+        if (!m_networkClientSystem.connected) {
             return false;
         }
 
-        int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+        int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
 
         ControllableComponent controllableComponent = controlMapper.get(player);
 
@@ -519,7 +519,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        if (!m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).connected) {
+        if (!m_networkClientSystem.connected) {
             return false;
         }
 
@@ -555,8 +555,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
         m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
 
-        TagManager tagManager = m_world.m_artemisWorld.getSystem(TagManager.class);
-        tagManager.register(OreWorld.s_mainPlayer, player);
+        m_tagManager.register(OreWorld.s_mainPlayer, player);
 
         //select the first slot, so the inventory view highlights something.
         playerComponent.hotbarInventory.selectSlot((byte) 0);
@@ -587,9 +586,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         public void selected(byte index, Inventory inventory) {
             assert m_world != null;
 
-            int player = m_world.m_artemisWorld.getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+            int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
 
-            m_world.m_artemisWorld.getSystem(NetworkClientSystem.class).sendHotbarEquipped(index);
+            m_networkClientSystem.sendHotbarEquipped(index);
 
             PlayerComponent playerComponent = playerMapper.get(player);
         }
@@ -613,4 +612,5 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
     }
+
 }
