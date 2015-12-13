@@ -36,24 +36,30 @@ import java.util.Comparator;
 public class SystemProfilerGUI extends Window {
     public static final Color GRAPH_V_LINE = new Color(0.6f, 0.6f, 0.6f, 1);
     public static final Color GRAPH_H_LINE = new Color(0.25f, 0.25f, 0.25f, 1);
-    public static float FADE_TIME = 0.3f;
-    public static float PRECISION = 0.01f;
-    public static String FORMAT = "%.2f";
-    public static String STYLE_SMALL = "default";
+    public static final float FADE_TIME = 0.3f;
+    public static final float PRECISION = 0.01f;
+    public static final String FORMAT = "%.2f";
+    public static final String STYLE_SMALL = "default";
+
+    private static final float NANO_MULTI = 1 / 1000000f;
+
     /**
      * Min width of label with values
      */
-    public static float MIN_LABEL_WIDTH = 75;
-    public static float GRAPH_MIN_WIDTH = 300;
-    public static float GRAPH_MIN_HEIGHT = 200;
+    public static final float MIN_LABEL_WIDTH = 75;
+    public static final float GRAPH_MIN_WIDTH = 300;
+    public static final float GRAPH_MIN_HEIGHT = 200;
     /**
      * How many systems to graph at most
      */
-    public static int DRAW_MAX_COUNT = 15;
+    public static final int DRAW_MAX_COUNT = 15;
     /**
      * How often should text update
      */
-    public static float REFRESH_RATE = 0.25f;
+    public static final float REFRESH_RATE = 0.25f;
+
+    private Vector2 temp = new Vector2();
+    float refreshTimer = REFRESH_RATE;
 
     protected Skin skin;
     protected Table profilerLabels;
@@ -123,7 +129,6 @@ public class SystemProfilerGUI extends Window {
         renderGraph(renderer);
     }
 
-    float refreshTimer = REFRESH_RATE;
     Comparator<ProfilerRow> byAvg = new Comparator<ProfilerRow>() {
         @Override
         public int compare(ProfilerRow o1, ProfilerRow o2) {
@@ -178,8 +183,6 @@ public class SystemProfilerGUI extends Window {
         }
     }
 
-    private Vector2 temp = new Vector2();
-
     /**
      * Render graph for profilers, should be called after {@link Stage#draw()} so it is on top of the gui
      *
@@ -220,8 +223,6 @@ public class SystemProfilerGUI extends Window {
             renderer.line(x, y + i * sep, x + width, y + i * sep);
         }
     }
-
-    private static final float NANO_MULTI = 1 / 1000000f;
 
     static Comparator<SystemProfiler> byLocalMax = new Comparator<SystemProfiler>() {
         @Override

@@ -21,9 +21,30 @@ public class SystemProfiler implements ArtemisProfiler {
      */
     public static int SAMPLES = 60 * 5;
     private static boolean RUNNING = false;
+    boolean drawGraph = true;
+    private long startTime;
 
     private static Array<SystemProfiler> profilers = new Array<>();
     private static ObjectMap<String, SystemProfiler> profilerByName = new ObjectMap<>();
+
+    /*
+        If this profiler was already added via SystemProfiler.add()
+     */
+    private boolean added;
+
+    protected long[] times = new long[SAMPLES];
+    protected int index;
+    protected long max;
+    protected int lastMaxCounter;
+    protected long localMax;
+    protected long localMaxIndex;
+    protected int samples;
+
+    protected long total;
+
+    protected Color color;
+    protected String name;
+    protected BaseSystem system;
 
     /**
      * Add manually created profiler
@@ -146,25 +167,6 @@ public class SystemProfiler implements ArtemisProfiler {
         profilerByName.clear();
     }
 
-    /*
-        If this profiler was already added via SystemProfiler.add()
-     */
-    private boolean added;
-
-    protected long[] times = new long[SAMPLES];
-    protected int index;
-    protected long max;
-    protected int lastMaxCounter;
-    protected long localMax;
-    protected long localMaxIndex;
-    protected int samples;
-
-    protected long total;
-
-    protected Color color;
-    protected String name;
-    protected BaseSystem system;
-
     public SystemProfiler() {
     }
 
@@ -216,8 +218,6 @@ public class SystemProfiler implements ArtemisProfiler {
         }
         SystemProfiler.add(this);
     }
-
-    private long startTime;
 
     @Override
     public void start() {
@@ -319,8 +319,6 @@ public class SystemProfiler implements ArtemisProfiler {
         }
         color.set(r, g, b, a);
     }
-
-    boolean drawGraph = true;
 
     public boolean getDrawGraph() {
         return drawGraph;
