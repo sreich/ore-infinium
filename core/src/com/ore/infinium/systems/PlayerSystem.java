@@ -28,7 +28,7 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-@Wire
+@Wire(failOnNull = false)
 public class PlayerSystem extends IteratingSystem {
     private OreWorld m_world;
 
@@ -38,6 +38,8 @@ public class PlayerSystem extends IteratingSystem {
     private ComponentMapper<ItemComponent> itemMapper;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
+
+    private NetworkServerSystem m_networkServerSystem;
 
     private OreTimer chunkTimer = new OreTimer();
 
@@ -106,7 +108,7 @@ public class PlayerSystem extends IteratingSystem {
         Vector2 center = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
         loadedViewport.centerOn(center);
 
-        getWorld().getSystem(NetworkServerSystem.class).sendPlayerLoadedViewportMoved(playerEntity);
+        m_networkServerSystem.sendPlayerLoadedViewportMoved(playerEntity);
         sendPlayerBlockRegion(playerEntity);
     }
 
@@ -116,8 +118,7 @@ public class PlayerSystem extends IteratingSystem {
 
         LoadedViewport.PlayerViewportBlockRegion region = loadedViewport.blockRegionInViewport();
 
-        getWorld().getSystem(NetworkServerSystem.class)
-                  .sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width, region.height);
+        m_networkServerSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width, region.height);
     }
 
 }

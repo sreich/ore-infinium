@@ -2,6 +2,7 @@ package com.ore.infinium.systems;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
+import com.artemis.World;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.IteratingSystem;
@@ -28,7 +29,7 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-@Wire
+@Wire(failOnNull = false)
 public class MovementSystem extends IteratingSystem {
     private OreWorld m_world;
 
@@ -39,9 +40,25 @@ public class MovementSystem extends IteratingSystem {
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
 
+    private NetworkServerSystem m_networkServerSystem;
+    private NetworkClientSystem m_networkClientSystem;
+
+    private TagManager m_tagManager;
+
     public MovementSystem(OreWorld world) {
         super(Aspect.all(SpriteComponent.class, VelocityComponent.class));
         m_world = world;
+
+    }
+
+    @Override
+    protected void setWorld(World world) {
+        super.setWorld(world);
+    }
+
+    @Override
+    protected void initialize() {
+
     }
 
     @Override
@@ -54,12 +71,12 @@ public class MovementSystem extends IteratingSystem {
         simulate(entityId, this.getWorld().delta);
 
         if (m_world.isClient()) {
-            int mainPlayer = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+            int mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
             SpriteComponent playerSprite = spriteMapper.get(mainPlayer);
             m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
             m_world.m_camera.update();
 
-            getWorld().getSystem(NetworkClientSystem.class).sendPlayerMoved();
+            m_networkClientSystem.sendPlayerMoved();
         }
     }
 
@@ -342,9 +359,10 @@ public class MovementSystem extends IteratingSystem {
             //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(),
             // spriteComponent.sprite.getY()))) {
 
-            getWorld().getSystem(NetworkServerSystem.class).sendEntityMoved(player, entity);
+            m_networkServerSystem.sendEntityMoved(player, entity);
 
             //           }
         }
     }
+
 }

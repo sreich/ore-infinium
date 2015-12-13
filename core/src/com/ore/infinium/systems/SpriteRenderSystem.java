@@ -40,6 +40,8 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
 
+    private TagManager m_tagManager;
+
     public SpriteRenderSystem(OreWorld world) {
         m_world = world;
     }
@@ -127,7 +129,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
             boolean placementGhost = false;
 
-            String tag = world.getSystem(TagManager.class).getTag(world.getEntity(entity));
+            String tag = m_tagManager.getTag(world.getEntity(entity));
             if (tag != null && tag.equals("itemPlacementOverlay")) {
 
                 placementGhost = true;
@@ -150,4 +152,5 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
             }
         }
     }
+
 }

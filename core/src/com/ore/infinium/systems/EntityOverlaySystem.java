@@ -41,6 +41,10 @@ public class EntityOverlaySystem extends BaseSystem {
     private ComponentMapper<BlockComponent> blockMapper;
     private ComponentMapper<ToolComponent> toolMapper;
 
+    private PowerOverlayRenderSystem m_powerOverlayRenderSystem;
+
+    private TagManager m_tagManager;
+
     public EntityOverlaySystem(OreWorld world) {
         m_world = world;
     }
@@ -50,11 +54,13 @@ public class EntityOverlaySystem extends BaseSystem {
     }
 
     private boolean m_crosshairShown;
-    private boolean m_itemPlacementOverlayShown;
+
+    /// this overlay actually gets deleted/recloned from the inventory item, each switch
+    private boolean m_itemPlacementOverlayExists;
     private boolean m_initialized;
 
     private void slotSelected(byte index, Inventory inventory) {
-        int mainPlayer = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId();
+        int mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
         PlayerComponent playerComponent = playerMapper.get(mainPlayer);
         int equippedPrimaryItem = playerComponent.getEquippedPrimaryItem();
 
@@ -76,7 +82,7 @@ public class EntityOverlaySystem extends BaseSystem {
 
     private void maybeShowPlacementOverlay(int equippedPrimaryItem) {
         //placement overlay shoudln't be visible if the power overlay is, so never create it in the first place
-        if (getWorld().getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
+        if (m_powerOverlayRenderSystem.overlayVisible) {
             return;
         }
 
@@ -90,24 +96,23 @@ public class EntityOverlaySystem extends BaseSystem {
         SpriteComponent spriteComponent = spriteMapper.get(newPlacementOverlay);
         spriteComponent.noClip = true;
 
-        getWorld().getSystem(TagManager.class).register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay);
-        m_itemPlacementOverlayShown = true;
+        m_tagManager.register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay);
+        m_itemPlacementOverlayExists = true;
     }
 
     private void deletePlacementOverlay() {
-        if (m_itemPlacementOverlayShown) {
-            assert getWorld().getSystem(TagManager.class).isRegistered(OreWorld.s_itemPlacementOverlay);
-            
-            Entity placementOverlay = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
+        if (m_itemPlacementOverlayExists) {
+            assert m_tagManager.isRegistered(OreWorld.s_itemPlacementOverlay);
+
+            Entity placementOverlay = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay);
             getWorld().delete(placementOverlay.getId());
 
-            m_itemPlacementOverlayShown = false;
+            m_itemPlacementOverlayExists = false;
         }
     }
 
     private boolean tryShowCrosshair(int equippedPrimaryEntity) {
-        SpriteComponent crosshairSprite =
-                spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_crosshair));
+        SpriteComponent crosshairSprite = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_crosshair));
         assert crosshairSprite.noClip;
 
         // if the switched to item is a block, we should show a crosshair overlay
@@ -172,14 +177,18 @@ public class EntityOverlaySystem extends BaseSystem {
 
         if (m_initialized) {
             updateItemOverlay();
+            updateCrosshair();
         }
 
         //////////////////////ERROR
 
     }
 
+    private void updateCrosshair() {
+    }
+
     private void updateItemOverlay() {
-        Entity entity = getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_itemPlacementOverlay);
+        Entity entity = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay);
         if (entity == null) {
             return;
         }
@@ -194,7 +203,32 @@ public class EntityOverlaySystem extends BaseSystem {
         spriteComponent.placementValid = m_world.isPlacementValid(itemPlacementOverlayEntity);
     }
 
+    /**
+     * sets the overlays visible or not. only toggles the overall hiding.
+     * if they don't exist for whatever reason, this method will not
+     * do anything to them.
+     *
+     * @param visible
+     */
+    public void setOverlaysVisible(boolean visible) {
+        setPlacementOverlayVisible(visible);
+        setCrosshairVisible(visible);
+    }
+
+    private void setCrosshairVisible(boolean visible) {
+        //getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_crosshair);
+    }
+
+    public void setPlacementOverlayVisible(boolean visible) {
+        //if item placement overlay doesn't exist, no need to hide it
+        if (m_itemPlacementOverlayExists) {
+            int entity = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay).getId();
+            spriteMapper.get(entity).visible = visible;
+        }
+    }
+
     @Override
     protected void end() {
     }
+
 }

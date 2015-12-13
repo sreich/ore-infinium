@@ -369,6 +369,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         }
 
+        //everything below here requires a world. it's terrible, i know...fixme
         if (m_world == null) {
             return false;
         }
@@ -406,14 +407,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             }
         } else if (keycode == Input.Keys.E) {
             //power overlay
-            m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible =
-                    !m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).overlayVisible;
-
-            //fixme
-            //            if (m_world.m_itemPlacementOverlayEntity != OreWorld.ENTITY_INVALID) {
-            //                spriteMapper.get(m_world.m_itemPlacementOverlayEntity).visible =
-            //                        !m_world.m_artemisWorld.getSystem(PowerOverlaySystem.class).overlayVisible;
-            //            }
+            m_world.m_artemisWorld.getSystem(PowerOverlayRenderSystem.class).toggleOverlay();
         } else if (keycode == Input.Keys.NUM_1) {
             m_hotbarInventory.selectSlot((byte) 0);
         } else if (keycode == Input.Keys.NUM_2) {

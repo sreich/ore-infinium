@@ -44,6 +44,8 @@ import com.ore.infinium.systems.profiler.SystemProfiler;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
 
+    private PowerOverlayRenderSystem m_powerOverlayRenderSystem;
+
     private OreWorld m_world;
 
     public InputSystem(OrthographicCamera camera, OreWorld world) {
@@ -54,11 +56,12 @@ import com.ore.infinium.systems.profiler.SystemProfiler;
 
     @Override
     protected void processSystem() {
+        //ignore input if the profiler is shown
         if (SystemProfiler.isRunning()) {
             return;
         }
 
-        if (m_world.m_client.leftMouseDown && !getWorld().getSystem(PowerOverlayRenderSystem.class).overlayVisible) {
+        if (m_world.m_client.leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible) {
 
             m_world.m_client.handleLeftMousePrimaryAttack();
         }

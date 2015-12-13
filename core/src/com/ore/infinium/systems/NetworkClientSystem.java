@@ -67,6 +67,9 @@ public class NetworkClientSystem extends BaseSystem {
     private ComponentMapper<BlockComponent> blockMapper;
     private ComponentMapper<ToolComponent> toolMapper;
 
+    private TagManager m_tagManager;
+    private TileRenderSystem m_tileRenderer;
+
     private ConcurrentLinkedQueue<Object> m_netQueue = new ConcurrentLinkedQueue<>();
 
     private OreWorld m_world;
@@ -202,8 +205,7 @@ public class NetworkClientSystem extends BaseSystem {
                 m_world.loadSparseBlockUpdate(update);
             } else if (object instanceof Network.LoadedViewportMovedFromServer) {
                 Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
-                PlayerComponent c =
-                        playerMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer));
+                PlayerComponent c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
                 c.loadedViewport.rect = v.rect;
             } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
                 Network.PlayerSpawnHotbarInventoryItemFromServer spawn =
@@ -224,8 +226,7 @@ public class NetworkClientSystem extends BaseSystem {
                 if (!blockMapper.has(e)) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
-                    textureRegion = getWorld().getSystem(TileRenderSystem.class).m_blockAtlas.findRegion(
-                            spriteComponent.textureName);
+                    textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
                 }
 
                 ToolComponent toolComponent = toolMapper.get(e);
@@ -257,8 +258,7 @@ public class NetworkClientSystem extends BaseSystem {
                 if (!blockMapper.has(e)) {
                     textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
                 } else {
-                    textureRegion = getWorld().getSystem(TileRenderSystem.class).m_blockAtlas.findRegion(
-                            spriteComponent.textureName);
+                    textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
                 }
 
                 spriteComponent.sprite.setRegion(textureRegion);
@@ -306,7 +306,7 @@ public class NetworkClientSystem extends BaseSystem {
      * Send the command indicating (main) player moved to position
      */
     public void sendPlayerMoved() {
-        int mainPlayer = getWorld().getSystem(TagManager.class).getEntity("mainPlayer").getId();
+        int mainPlayer = m_tagManager.getEntity("mainPlayer").getId();
         SpriteComponent sprite = spriteMapper.get(mainPlayer);
 
         Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
@@ -403,5 +403,4 @@ public class NetworkClientSystem extends BaseSystem {
             }
         }
     }
-
 }

@@ -3,6 +3,7 @@ package com.ore.infinium.systems;
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
@@ -33,6 +34,7 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+@Wire
 public class PowerOverlayRenderSystem extends IteratingSystem implements RenderSystemMarker {
     public static int spriteCount;
     public boolean overlayVisible = false;
@@ -45,6 +47,10 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
+
+    private EntityOverlaySystem m_entityOverlaySystem;
+    private PowerCircuitSystem m_powerCircuitSystem;
+    private TagManager m_tagManager;
 
     //    public Sprite outputNode = new Sprite();
 
@@ -91,7 +97,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             int currentEntity = entities.get(i);
             Entity entityBoxed = world.getEntity(currentEntity);
 
-            String entityTag = world.getSystem(TagManager.class).getTag(entityBoxed);
+            String entityTag = m_tagManager.getTag(entityBoxed);
 
             //could be placement overlay, but we don't want this. skip over.
             if (entityTag != null && entityTag.equals(OreWorld.s_itemPlacementOverlay)) {
@@ -151,7 +157,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
                 //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
 
-                getWorld().getSystem(PowerCircuitSystem.class).connectDevices(m_dragSourceEntity, dropEntity);
+                m_powerCircuitSystem.connectDevices(m_dragSourceEntity, dropEntity);
 
                 //               }
 
@@ -226,7 +232,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         SpriteComponent secondEntitySpriteComponent;
 
         SpriteComponent deviceSprite;
-        PowerCircuitSystem powerCircuitSystem = getWorld().getSystem(PowerCircuitSystem.class);
+        PowerCircuitSystem powerCircuitSystem = m_powerCircuitSystem;
         for (PowerCircuitSystem.PowerCircuit circuit : powerCircuitSystem.m_circuits) {
             //for each device, draw a power node, a "hub" of connections of sorts.
             for (int i = 0; i < circuit.generators.size; ++i) {
@@ -283,6 +289,20 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
                      (powerNodeWidth * 0.5f),
                      spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * powerNodeOffsetRatioY) -
                      (powerNodeHeight * 0.5f), powerNodeWidth, powerNodeHeight);
+    }
+
+    /**
+     * handle toggling the state of if the wire editing overlay is shown.
+     * including hiding other things that should not be shown while this is.
+     * as well as turning on/off some state that should not be on.
+     */
+    public void toggleOverlay() {
+        overlayVisible = !overlayVisible;
+
+        //also, turn off/on the overlays, like crosshairs, itemplacement overlays and stuff.
+        //when wire overlay is visible, the entity overlays should be off.
+        m_entityOverlaySystem.setEnabled(!overlayVisible);
+        m_entityOverlaySystem.setOverlaysVisible(!overlayVisible);
     }
 
 }

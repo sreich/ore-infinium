@@ -45,6 +45,8 @@ public class GrassBlockSystem extends BaseSystem {
     private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
 
+    private NetworkServerSystem m_networkServerSystem;
+
     public GrassBlockSystem(OreWorld world) {
         m_world = world;
     }
@@ -131,8 +133,8 @@ public class GrassBlockSystem extends BaseSystem {
                             //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
                             // leftLeftX, leftLeftY);
 
-                            getWorld().getSystem(NetworkServerSystem.class)
-                                      .sendPlayerSparseBlock(playerEntity, leftBlock, leftBlockX, leftBlockY);
+                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, leftBlock, leftBlockX,
+                                                                        leftBlockY);
                         }
                     }
 
@@ -157,8 +159,8 @@ public class GrassBlockSystem extends BaseSystem {
                             //                               m_server.sendPlayerSparseBlock(player,
                             // rightRightBlock, rightRightX, rightRightY);
 
-                            getWorld().getSystem(NetworkServerSystem.class)
-                                      .sendPlayerSparseBlock(playerEntity, rightBlock, rightBlockX, rightBlockY);
+                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, rightBlock, rightBlockX,
+                                                                        rightBlockY);
                         }
                     }
 
@@ -176,8 +178,8 @@ public class GrassBlockSystem extends BaseSystem {
 
                             bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                            getWorld().getSystem(NetworkServerSystem.class)
-                                      .sendPlayerSparseBlock(playerEntity, bottomBlock, bottomBlockX, bottomBlockY);
+                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, bottomBlock, bottomBlockX,
+                                                                        bottomBlockY);
                         }
                     }
 
@@ -195,8 +197,7 @@ public class GrassBlockSystem extends BaseSystem {
 
                             topBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                            getWorld().getSystem(NetworkServerSystem.class)
-                                      .sendPlayerSparseBlock(playerEntity, topBlock, topBlockX, topBlockY);
+                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, topBlock, topBlockX, topBlockY);
                         }
                     }
 

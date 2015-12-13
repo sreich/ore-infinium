@@ -56,6 +56,9 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
 
+    private NetworkClientSystem m_networkClientSystem;
+    private TileRenderSystem m_tileRenderSystem;
+
     static private ArrayList<String> debugStrings;
 
     static OreTimer frameTimer = new OreTimer();
@@ -127,8 +130,6 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     }
 
     public void render(float elapsed) {
-        TileRenderSystem tileRenderSystem = getWorld().getSystem(TileRenderSystem.class);
-
         if (frameTimer.milliseconds() > 300) {
             frameTimeString = "Client frame time: ";//fixme + decimalFormat.format(frameTime);
             fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
@@ -143,8 +144,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
             guiDebugString = String.format("F12 - gui debug. Enabled: %s", m_guiDebug);
             guiRenderToggleString = String.format("F11 - gui render. Enabled: %s", m_world.m_client.m_renderGui);
-            tileRenderDebugString = String.format("F10 - tile render.Enabled: %s",
-                                                  getWorld().getSystem(TileRenderSystem.class).debugRenderTiles);
+            tileRenderDebugString = String.format("F10 - tile render.Enabled: %s", m_tileRenderSystem.debugRenderTiles);
             networkSyncDebug = String.format("F9 - server sprite debug render. Enabled Client: %s. Enabled Server:",
                                              m_renderDebugServer);
             spriteRenderDebug = String.format("F8 - client sprite debug render. Enabled: %s", m_renderDebugClient);
@@ -187,7 +187,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             textY -= 15;
         }
 
-        m_font.draw(m_batch, "tiles rendered: " + tileRenderSystem.debugTilesInViewCount, 0, textY);
+        m_font.draw(m_batch, "tiles rendered: " + m_tileRenderSystem.debugTilesInViewCount, 0, textY);
         textY -= 15;
         m_font.draw(m_batch, textureSwitchesString, 0, textY);
         textY -= 15;
@@ -196,7 +196,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, drawCallsString, 0, textY);
         textY -= 15;
 
-        if (m_world != null && getWorld().getSystem(NetworkClientSystem.class).connected) {
+        if (m_world != null && m_networkClientSystem.connected) {
             Vector2 mousePos = m_world.mousePositionWorldCoords();
             Block block = m_world.blockAtPosition(mousePos);
 
@@ -208,14 +208,14 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             switch (block.type) {
                 case Block.BlockType.DirtBlockType:
                     if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-                        texture = tileRenderSystem.grassBlockMeshes.get(block.meshType);
+                        texture = m_tileRenderSystem.grassBlockMeshes.get(block.meshType);
                     } else {
-                        texture = tileRenderSystem.dirtBlockMeshes.get(block.meshType);
+                        texture = m_tileRenderSystem.dirtBlockMeshes.get(block.meshType);
                     }
 
                     break;
                 case Block.BlockType.StoneBlockType:
-                    texture = tileRenderSystem.stoneBlockMeshes.get(block.meshType);
+                    texture = m_tileRenderSystem.stoneBlockMeshes.get(block.meshType);
                     break;
             }
 

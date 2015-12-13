@@ -52,6 +52,9 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
 
+    private NetworkClientSystem m_networkClientSystem;
+    private TagManager m_tagManager;
+
     // <byte mesh type, string texture name>
     public IntMap<String> dirtBlockMeshes;
     public IntMap<String> stoneBlockMeshes;
@@ -98,7 +101,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
     public void render(float elapsed) {
         //fixme the system should be disabled and enabled when this happens
-        if (!getWorld().getSystem(NetworkClientSystem.class).connected) {
+        if (!m_networkClientSystem.connected) {
             return;
         }
 
@@ -107,8 +110,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
         }
 
         m_batch.setProjectionMatrix(m_camera.combined);
-        SpriteComponent sprite =
-                spriteMapper.get(getWorld().getSystem(TagManager.class).getEntity(OreWorld.s_mainPlayer).getId());
+        SpriteComponent sprite = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer).getId());
 
         Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0);
         //new Vector3(100, 200, 0);//positionComponent->position();
