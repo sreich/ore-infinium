@@ -20,6 +20,8 @@ import com.ore.infinium.systems.DebugTextRenderSystem;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.PowerOverlayRenderSystem;
 
+import java.io.IOException;
+
 public class OreClient implements ApplicationListener, InputProcessor {
     public final static int ORE_VERSION_MAJOR = 0;
     public final static int ORE_VERSION_MINOR = 1;
@@ -247,7 +249,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_world.m_artemisWorld.inject(this);
 
         m_networkClientSystem.addListener(new NetworkConnectListener(this));
-        m_networkClientSystem.connect("127.0.0.1", Network.port);
+
+        try {
+            m_networkClientSystem.connect("127.0.0.1", Network.port);
+        } catch (IOException e) {
+            e.printStackTrace();
+            //fuck. gonna have to show the fail to connect dialog.
+            //could be a socket error..or anything, i guess
+            System.exit(1);
+        }
         //showFailToConnectDialog();
     }
 

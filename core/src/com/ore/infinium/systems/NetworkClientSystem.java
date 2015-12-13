@@ -118,7 +118,7 @@ public class NetworkClientSystem extends BaseSystem {
      *
      * @param ip
      */
-    public void connect(String ip, int port) {
+    public void connect(String ip, int port) throws IOException {
         //m_clientKryo = new Client(16384, 8192, new JsonSerialization());
         m_clientKryo = new Client(8192, Network.bufferObjectSize);
         m_clientKryo.start();
@@ -147,8 +147,9 @@ public class NetworkClientSystem extends BaseSystem {
 
                     m_clientKryo.sendTCP(initialClientData);
                 } catch (IOException ex) {
-
-                    ex.printStackTrace();
+                    //fixme this is horrible..but i can't figure out how to rethrow it back to the calling thread
+                    //throw new IOException("tesssst");
+                    //                    ex.printStackTrace();
                     System.exit(1);
                 }
             }

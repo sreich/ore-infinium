@@ -10,8 +10,6 @@ import com.badlogic.gdx.utils.IntArray;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
-import java.util.Iterator;
-
 /**
  * ***************************************************************************
  * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                    *
@@ -63,14 +61,14 @@ public class PowerCircuitSystem extends BaseSystem {
         /**
          * List of wire connections between pairs of devices
          * <p>
-         * duplicate entities may exist across all connections
+         * duplicate entities may exist across all wireConnections
          * e.g. Wire1{ ent1, ent2 }, Wire2 { ent3, ent 1}, but
          * they would still be of the same circuit of course.
          * However, devices are unique across circuits. No devices can bridge multiple circuits,
          * if they do, the circuits are merged.
          * See generators, consumers
          */
-        Array<PowerWireConnection> connections = new Array<>();
+        Array<PowerWireConnection> wireConnections = new Array<>();
 
         /**
          * List of generators for faster checking of changes/recalculations, in addition to the
@@ -172,7 +170,7 @@ public class PowerCircuitSystem extends BaseSystem {
 
             //check which circuit this connection between 2 consumers belongs to
             //if none of the two consumers are in a circuit, it is a new circuit
-            for (PowerWireConnection connection : circuit.connections) {
+            for (PowerWireConnection connection : circuit.wireConnections) {
                 if ((connection.firstEntity == firstEntity && connection.secondEntity == secondEntity) ||
                     connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
 
@@ -185,7 +183,7 @@ public class PowerCircuitSystem extends BaseSystem {
                     //one of the entities of this wire is in this connection, so it's a part of this circuit
                     //we don't care which one. we just add our wire to the mix
                     PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
-                    circuit.connections.add(powerWireConnection);
+                    circuit.wireConnections.add(powerWireConnection);
 
                     addConnection(firstEntity, secondEntity, circuit);
 
@@ -201,23 +199,34 @@ public class PowerCircuitSystem extends BaseSystem {
         m_circuits.add(circuit);
 
         PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
-        circuit.connections.add(powerWireConnection);
+        circuit.wireConnections.add(powerWireConnection);
     }
 
     /**
-     * Disconnect all connections pointing to this entity
+     * Disconnect all wireConnections pointing to this entity
      * <p>
-     * used in situation such as "this device was destroyed/removed, cleanup any connections that
+     * used in situation such as "this device was destroyed/removed, cleanup any wireConnections that
      * connect to it.
      *
      * @param entityToDisconnect
      */
     public void disconnectAllWiresFromDevice(int entityToDisconnect) {
-        for (PowerCircuit circuit : m_circuits) {
-            //for every circuit, find a wire that has one end connected to us
-            //meaning we should disconnect this wire
-            for (PowerWireConnection powerWireConnection : circuit.connections) {
 
+        for (int itCircuit = 0; itCircuit < m_circuits.size; ++itCircuit) {
+            PowerCircuit circuit = m_circuits.get(itCircuit);
+
+            for (int itWire = 0; itWire < circuit.wireConnections.size; ++itWire) {
+                PowerWireConnection wireConnection = circuit.wireConnections.get(itWire);
+
+                if (wireConnection.firstEntity == entityToDisconnect ||
+                    wireConnection.secondEntity == entityToDisconnect) {
+                    circuit.wireConnections.removeIndex(itWire);
+
+                    //if we removed the last wire connection, cleanup this empty circuit
+                    if (circuit.wireConnections.size == 0) {
+                        m_circuits.removeIndex(itCircuit);
+                    }
+                }
             }
         }
     }
@@ -232,15 +241,14 @@ public class PowerCircuitSystem extends BaseSystem {
      *
      * @return false if disconnect failed (no wire in range). True if it succeeded.
      */
+
     public boolean disconnectWireAtPosition(Vector2 position) {
 
-        Iterator<PowerCircuit> itCircuits = m_circuits.iterator();
-        while (itCircuits.hasNext()) {
-            PowerCircuit circuit = itCircuits.next();
+        for (int itCircuits = 0; itCircuits < m_circuits.size; ++itCircuits) {
+            PowerCircuit circuit = m_circuits.get(itCircuits);
 
-            Iterator<PowerWireConnection> itWires = circuit.connections.iterator();
-            while (itWires.hasNext()) {
-                PowerWireConnection connection = itWires.next();
+            for (int itWires = 0; itWires < circuit.wireConnections.size; ++itWires) {
+                PowerWireConnection connection = circuit.wireConnections.get(itWires);
 
                 int first = connection.firstEntity;
                 int second = connection.secondEntity;
@@ -259,13 +267,12 @@ public class PowerCircuitSystem extends BaseSystem {
                 boolean intersects =
                         Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter, circleRadius2);
                 if (intersects) {
-                    //wire should be destroyed. remove it from connections.
-                    itWires.remove();
+                    //wire should be destroyed. remove it from wireConnections.
+                    circuit.wireConnections.removeIndex(itWires);
 
-                    //if this circuit had only 1 element in it...it was ours. now we remove this circuit,
-                    //it is dead (has no wire connections in it)
-                    if (m_circuits.size == 1) {
-                        itCircuits.remove();
+                    //cleanup dead circuit, if we removed the last wire from it.
+                    if (circuit.wireConnections.size == 0) {
+                        m_circuits.removeIndex(itCircuits);
                     }
                     return true;
                 }
@@ -314,7 +321,7 @@ public class PowerCircuitSystem extends BaseSystem {
 
     /**
      * Forms a wire connection between any 2 devices (direction does not matter).
-     * Note, A single connection creates a circuit, additional connections should only be a part of one circuit.
+     * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
      *
      * @param firstEntity
      * @param secondEntity

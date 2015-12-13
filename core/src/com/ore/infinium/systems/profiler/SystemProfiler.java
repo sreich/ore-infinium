@@ -19,7 +19,7 @@ public class SystemProfiler implements ArtemisProfiler {
     /**
      * Samples to store per system, only changes before initialization have effect
      */
-    public static int SAMPLES = 60 * 5;
+    public static final int SAMPLES = 60 * 5;
     private static boolean RUNNING = false;
     boolean drawGraph = true;
     private long startTime;

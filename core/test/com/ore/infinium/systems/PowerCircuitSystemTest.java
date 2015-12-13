@@ -86,7 +86,7 @@ public class PowerCircuitSystemTest {
         assertEquals(1, circuitSystem.m_circuits.size);
 
         //ensure the first circuit (ours) has 1 wire in it.
-        assertEquals(1, circuitSystem.m_circuits.first().connections.size);
+        assertEquals(1, circuitSystem.m_circuits.first().wireConnections.size);
     }
 
     /**
@@ -97,18 +97,26 @@ public class PowerCircuitSystemTest {
      * @throws Exception
      */
     @Test
-    public void testDisconnectTwoDevices() throws Exception {
+    public void testDisconnectDevice() throws Exception {
+
         int gen = world.createPowerGenerator();
 
         int light = world.createLight();
 
         circuitSystem.connectDevices(gen, light);
 
+        // connect placeholders to fill in. there's possibly more room for error
+        // if there's more than one (eg array issues)
+        int placeholder1 = world.createPowerGenerator();
+        int placeholder2 = world.createLight();
+        circuitSystem.connectDevices(placeholder1, placeholder2);
+        //
+
         circuitSystem.disconnectAllWiresFromDevice(gen);
 
-        //there was only one circuit, that had our 1 wire on it.
-        //ensure there are now 0 circuits
-        assertEquals(0, circuitSystem.m_circuits.size);
+        //there were 2 circuits
+        //1 had our wire, 1 did not. now there should be only 1
+        assertEquals(1, circuitSystem.m_circuits.size);
     }
 
     /**

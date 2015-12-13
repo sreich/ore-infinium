@@ -28,23 +28,23 @@ import java.io.StringWriter;
 
 @SuppressWarnings("serial")
 public class ErrorDialog extends JDialog {
-    private static Dimension MESSAGE_SIZE    = new Dimension(600,200);
-    private static Dimension STACKTRACE_SIZE = new Dimension(600,300);
-    private static Dimension TOTAL_SIZE      = new Dimension(600,500);
+    private static Dimension MESSAGE_SIZE = new Dimension(600, 200);
+    private static Dimension STACKTRACE_SIZE = new Dimension(600, 300);
+    private static Dimension TOTAL_SIZE = new Dimension(600, 500);
 
     static String NEWLINE = "\r\n";
-    static String INDENT  = "    ";
+    static String INDENT = "    ";
 
     private boolean m_showDetails;
     private JComponent m_errorMessage;
     private JComponent m_mainComponent;
-    private JScrollPane  _details;
+    private JScrollPane _details;
     private JTextPane m_stackTracePane;
     private final Throwable m_exception;
     private Thread m_thread;
 
-    public ErrorDialog(Throwable t, Thread  thread) {
-       // super();
+    public ErrorDialog(Throwable t, Thread thread) {
+        // super();
 
         m_thread = thread;
         m_exception = t;
@@ -52,20 +52,18 @@ public class ErrorDialog extends JDialog {
         m_mainComponent = createContent();
 
         setTitle(t.getClass().getName());
-//        setModal(true);
+        //        setModal(true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
 
         getContentPane().add(m_mainComponent);
 
         pack();
-//        SwingHelper.position(this, owner);
+        //        SwingHelper.position(this, owner);
     }
 
     /**
      * Creates the display with the top-level exception message
      * followed by a pane (that toggles) for detailed stack traces.
-     *
      */
     JComponent createContent() {
         final JButton showDetails = new JButton("Show Details >>");
@@ -106,7 +104,6 @@ public class ErrorDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 Gdx.app.exit();
-                System.exit(1);
             }
         });
 
@@ -130,7 +127,6 @@ public class ErrorDialog extends JDialog {
 
     /**
      * Creates a non-editable widget to display the error message.
-     *
      */
     JComponent createErrorMessage(Throwable t) {
         String txt = t.getLocalizedMessage();
@@ -149,8 +145,7 @@ public class ErrorDialog extends JDialog {
     JScrollPane createDetailedMessage(Throwable t) {
         m_stackTracePane = new JTextPane();
         m_stackTracePane.setEditable(false);
-        JScrollPane pane = new JScrollPane(m_stackTracePane,
-                                           JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+        JScrollPane pane = new JScrollPane(m_stackTracePane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
         return pane;

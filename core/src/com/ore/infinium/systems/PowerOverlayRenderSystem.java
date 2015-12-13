@@ -235,7 +235,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         SpriteComponent deviceSprite;
         PowerCircuitSystem powerCircuitSystem = m_powerCircuitSystem;
         for (PowerCircuitSystem.PowerCircuit circuit : powerCircuitSystem.m_circuits) {
-            //for each device, draw a power node, a "hub" of connections of sorts.
+            //for each device, draw a power node, a "hub" of wireConnections of sorts.
             for (int i = 0; i < circuit.generators.size; ++i) {
                 int gen = circuit.generators.get(i);
                 deviceSprite = spriteMapper.get(gen);
@@ -250,7 +250,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             }
 
             //draw wires of each connection, in every circuit. Wires only have a start and end point.
-            for (PowerCircuitSystem.PowerWireConnection powerWireConnection : circuit.connections) {
+            for (PowerCircuitSystem.PowerWireConnection powerWireConnection : circuit.wireConnections) {
 
                 firstEntitySpriteComponent = spriteMapper.get(powerWireConnection.firstEntity);
                 secondEntitySpriteComponent = spriteMapper.get(powerWireConnection.secondEntity);
