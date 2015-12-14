@@ -183,12 +183,17 @@ public class OreClient implements ApplicationListener, InputProcessor {
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset();
 
-                attemptItemPlace(mouse.x, mouse.y, playerComponent.getEquippedPrimaryItem());
+                attemptItemPlace(playerComponent.getEquippedPrimaryItem());
             }
         }
     }
 
-    private void attemptItemPlace(float x, float y, int itemEntity) {
+    /**
+     * Placement position is determined by the current position of the overlay
+     *
+     * @param itemEntity
+     */
+    private void attemptItemPlace(int itemEntity) {
 
         //place the item
         int placedItemEntity = m_world.cloneEntity(itemEntity);
@@ -197,15 +202,18 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         placedItemComponent.state = ItemComponent.State.InWorldState;
 
-        Vector2 alignedPosition = new Vector2(x, y);
         SpriteComponent spriteComponent = spriteMapper.get(placedItemEntity);
-        m_world.alignPositionToBlocks(alignedPosition);
 
-        spriteComponent.sprite.setPosition(alignedPosition.x, alignedPosition.y);
+        int placementOverlay = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay).getId();
+        SpriteComponent placementOverlaySprite = spriteMapper.get(placementOverlay);
+
+        float placeX = placementOverlaySprite.sprite.getX();
+        float placeY = placementOverlaySprite.sprite.getY();
+        spriteComponent.sprite.setPosition(placeX, placeY);
 
         if (m_world.isPlacementValid(placedItemEntity)) {
             //todo, do more validation..
-            m_networkClientSystem.sendItemPlace(alignedPosition.x, alignedPosition.y);
+            m_networkClientSystem.sendItemPlace(placeX, placeY);
         } else {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
             //because the function actually takes only the entity, to check if its size, position etc conflict with

@@ -514,7 +514,7 @@ public class OreWorld {
         SpriteComponent sprite = spriteMapper.create(light);
         sprite.textureName = "light-yellow";
 
-        sprite.sprite.setSize(BLOCK_SIZE, BLOCK_SIZE);
+        sprite.sprite.setSize(16 / OreWorld.PIXELS_PER_METER, 16 / OreWorld.PIXELS_PER_METER);
 
         PowerConsumerComponent powerConsumerComponent = powerConsumerMapper.create(light);
         powerConsumerComponent.powerDemandRate = 100;
