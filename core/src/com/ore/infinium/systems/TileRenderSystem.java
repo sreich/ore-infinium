@@ -114,14 +114,14 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
         Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0);
         //new Vector3(100, 200, 0);//positionComponent->position();
-        int tilesBeforeX = (int) (playerPosition.x / OreWorld.BLOCK_SIZE);
-        int tilesBeforeY = (int) (playerPosition.y / OreWorld.BLOCK_SIZE);
+        int tilesBeforeX = (int) playerPosition.x;
+        int tilesBeforeY = (int) playerPosition.y;
 
         // determine what the size of the tiles are but convert that to our zoom level
-        final Vector3 tileSize = new Vector3(OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, 0);
+        final Vector3 tileSize = new Vector3(1, 1, 0);
         tileSize.mul(m_camera.combined);
 
-        final int tilesInView = (int) ((m_camera.viewportHeight / OreWorld.BLOCK_SIZE) * m_camera.zoom);
+        final int tilesInView = (int) ((m_camera.viewportHeight) * m_camera.zoom);
         //m_camera.project(tileSize);
         final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
@@ -152,8 +152,8 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
                 Block block = m_world.blockAt(x, y);
 
-                float tileX = OreWorld.BLOCK_SIZE * (float) x;
-                float tileY = OreWorld.BLOCK_SIZE * (float) y;
+                float tileX = (float) x;
+                float tileY = (float) y;
 
                 boolean drawWallTile = false;
 
@@ -192,7 +192,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
                     region = m_tilesAtlas.findRegion(textureName);
 
                     //offset y to flip orientation around to normal
-                    m_batch.draw(region, tileX, tileY + OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, -OreWorld.BLOCK_SIZE);
+                    m_batch.draw(region, tileX, tileY + 1, 1, -1);
 
                 } else {
                     //draw walls
@@ -202,7 +202,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
                     //offset y to flip orientation around to normal
                     region = m_tilesAtlas.findRegion(textureName);
-                    m_batch.draw(region, tileX, tileY + OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE, -OreWorld.BLOCK_SIZE);
+                    m_batch.draw(region, tileX, tileY + 1, 1, -1);
 
                 }
 

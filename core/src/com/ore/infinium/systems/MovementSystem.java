@@ -180,8 +180,8 @@ public class MovementSystem extends IteratingSystem {
 
         Vector2 itemPosition = new Vector2(itemSpriteComponent.sprite.getX(), itemSpriteComponent.sprite.getY());
 
-        int x = (int) (itemPosition.x / OreWorld.BLOCK_SIZE);
-        int y = (int) (itemPosition.y / OreWorld.BLOCK_SIZE);
+        int x = (int) itemPosition.x;
+        int y = (int) itemPosition.y;
 
         int playerEntityWhoDropped = m_world.playerForID(itemComponent.playerIdWhoDropped);
 
@@ -257,11 +257,11 @@ public class MovementSystem extends IteratingSystem {
         final Vector2 sizeMeters = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
         //FIXME: this whole thing needs a way better solution, it's horrible.
-        final float epsilon = OreWorld.BLOCK_SIZE * 0.01f;
-        int leftX = (int) ((desiredPosition.x - sizeMeters.x * 0.5f) / OreWorld.BLOCK_SIZE);
-        int rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)) / OreWorld.BLOCK_SIZE);
-        int topY = (int) ((desiredPosition.y - sizeMeters.y * 0.5f) / OreWorld.BLOCK_SIZE);
-        int bottomY = (int) ((desiredPosition.y + (sizeMeters.y * 0.5f)) / OreWorld.BLOCK_SIZE);
+        final float epsilon = 1 * 0.01f;
+        int leftX = (int) ((desiredPosition.x - sizeMeters.x * 0.5f));
+        int rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)));
+        int topY = (int) ((desiredPosition.y - sizeMeters.y * 0.5f));
+        int bottomY = (int) ((desiredPosition.y + (sizeMeters.y * 0.5f)));
 
         int oldTopY = topY;
 
@@ -278,7 +278,7 @@ public class MovementSystem extends IteratingSystem {
                     velocity.x = 0.0f;
                     collision = true;
 
-                    float tileRight = OreWorld.BLOCK_SIZE * (rightX - 0);
+                    float tileRight = (rightX - 0);
 
                     //fixme: super small threshold to prevent sticking to right side,
                     //i dont know why this isn't the same case as all the others. i feel like something
@@ -295,7 +295,7 @@ public class MovementSystem extends IteratingSystem {
                     velocity.x = 0.0f;
                     collision = true;
 
-                    float tileLeft = OreWorld.BLOCK_SIZE * (leftX + 1);
+                    float tileLeft = (leftX + 1);
                     desiredPosition.x = tileLeft + (sizeMeters.x * 0.5f) + epsilon;
                     break;
                 } // else noop, move freely
@@ -305,8 +305,8 @@ public class MovementSystem extends IteratingSystem {
         topY = oldTopY;
         // recalculate startx, etc. now that we reperformed x position
         // y was not touched, so no need
-        leftX = (int) ((desiredPosition.x - (sizeMeters.x * 0.5f)) / OreWorld.BLOCK_SIZE);
-        rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)) / OreWorld.BLOCK_SIZE);
+        leftX = (int) ((desiredPosition.x - (sizeMeters.x * 0.5f)));
+        rightX = (int) ((desiredPosition.x + (sizeMeters.x * 0.5f)));
         collision = false;
 
         //qCDebug(ORE_IMPORTANT) << "y collision test: bottomy: " << bottomY << " leftX: " << leftX << " topY: " <<
@@ -323,7 +323,7 @@ public class MovementSystem extends IteratingSystem {
                     collision = true;
 
                     //indexes are top-left remember, due to how it's rendered and such.
-                    float tileTop = OreWorld.BLOCK_SIZE * (bottomY);
+                    float tileTop = (bottomY);
                     desiredPosition.y = tileTop - (sizeMeters.y * 0.5f);
                     break;
                 } // else noop, move freely
@@ -337,7 +337,7 @@ public class MovementSystem extends IteratingSystem {
                     collision = true;
 
                     //indexes are top-left remember, due to how it's rendered and such.
-                    float tileBottom = OreWorld.BLOCK_SIZE * (topY + 0);
+                    float tileBottom = topY;
                     desiredPosition.y = tileBottom + (sizeMeters.y * 0.5f) + epsilon;
                     break;
                 } // else noop, move freely

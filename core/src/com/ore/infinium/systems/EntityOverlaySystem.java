@@ -59,7 +59,7 @@ public class EntityOverlaySystem extends BaseSystem {
         m_tagManager.register(OreWorld.s_crosshair, crosshair);
 
         SpriteComponent spriteComponent = spriteMapper.create(crosshair);
-        spriteComponent.sprite.setSize(OreWorld.BLOCK_SIZE, OreWorld.BLOCK_SIZE);
+        spriteComponent.sprite.setSize(1, 1);
         spriteComponent.sprite.setRegion(m_world.m_atlas.findRegion("crosshair-blockpicking"));
         spriteComponent.noClip = true;
     }

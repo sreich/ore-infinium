@@ -74,7 +74,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_powerCircuitTooltipEntity = world.create();
 
         SpriteComponent tooltipSprite = spriteMapper.create(m_powerCircuitTooltipEntity);
-        tooltipSprite.sprite.setSize(32 / OreWorld.PIXELS_PER_METER, 32 / OreWorld.PIXELS_PER_METER);
+        tooltipSprite.sprite.setSize(1, 1);
         tooltipSprite.textureName = "debug";
         tooltipSprite.sprite.setRegion(m_world.m_atlas.findRegion(tooltipSprite.textureName));
         tooltipSprite.noClip = true;
@@ -281,8 +281,8 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
     }
 
     private void renderPowerNode(SpriteComponent spriteComponent) {
-        float powerNodeWidth = 20.0f / OreWorld.PIXELS_PER_METER;
-        float powerNodeHeight = 20.0f / OreWorld.PIXELS_PER_METER;
+        float powerNodeWidth = 1;
+        float powerNodeHeight = 1;
 
         m_batch.draw(m_world.m_atlas.findRegion("power-node-circle"),
                      spriteComponent.sprite.getX() + (spriteComponent.sprite.getWidth() * powerNodeOffsetRatioX) -

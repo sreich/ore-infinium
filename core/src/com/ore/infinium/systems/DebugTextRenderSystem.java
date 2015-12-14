@@ -201,8 +201,8 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             Vector2 mousePos = m_world.mousePositionWorldCoords();
             Block block = m_world.blockAtPosition(mousePos);
 
-            int x = (int) (mousePos.x / OreWorld.BLOCK_SIZE);
-            int y = (int) (mousePos.y / OreWorld.BLOCK_SIZE);
+            int x = (int) mousePos.x;
+            int y = (int) mousePos.y;
 
             String texture = "";
 

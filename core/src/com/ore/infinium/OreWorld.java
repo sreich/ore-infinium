@@ -43,11 +43,9 @@ import java.util.HashMap;
  * ***************************************************************************
  */
 public class OreWorld {
-    public static final float PIXELS_PER_METER = 50.0f;
-    public static final float GRAVITY_ACCEL = 9.8f / PIXELS_PER_METER / 3.0f;
-    public static final float GRAVITY_ACCEL_CLAMP = 9.8f / PIXELS_PER_METER / 3.0f;
+    public static final float GRAVITY_ACCEL = 9.8f / 3.0f;
+    public static final float GRAVITY_ACCEL_CLAMP = 9.8f / 3.0f;
 
-    public static final float BLOCK_SIZE = (16.0f / PIXELS_PER_METER);
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
     public static final int WORLD_SIZE_X = 1000; //2400
@@ -73,6 +71,7 @@ public class OreWorld {
                        new BlockStruct("stone", BlockStruct.Collision.True, BlockStruct.BlockCategory.Ore));
     }
 
+    //each unit is 1 block, in the game world
     public Block[] blocks;
 
     //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
@@ -137,9 +136,8 @@ public class OreWorld {
 
         if (isClient()) {
 
-            m_camera = new OrthographicCamera(1600 / OreWorld.PIXELS_PER_METER,
-                                              900 / OreWorld.PIXELS_PER_METER);//30, 30 * (h / w));
-            m_camera.setToOrtho(true, 1600 / OreWorld.PIXELS_PER_METER, 900 / OreWorld.PIXELS_PER_METER);
+            m_camera = new OrthographicCamera(1600, 900);//30, 30 * (h / w));
+            m_camera.setToOrtho(true, 1600, 900);
 
             m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
 
@@ -226,10 +224,9 @@ public class OreWorld {
         playerComponent.playerName = playerName;
         playerComponent.loadedViewport.setRect(
                 new Rectangle(0, 0, LoadedViewport.MAX_VIEWPORT_WIDTH, LoadedViewport.MAX_VIEWPORT_HEIGHT));
-        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX() / OreWorld.BLOCK_SIZE,
-                                                            playerSprite.sprite.getY() / OreWorld.BLOCK_SIZE));
+        playerComponent.loadedViewport.centerOn(new Vector2(playerSprite.sprite.getX(), playerSprite.sprite.getY()));
 
-        playerSprite.sprite.setSize(OreWorld.BLOCK_SIZE * 2, OreWorld.BLOCK_SIZE * 3);
+        playerSprite.sprite.setSize(2, 3);
         controlMapper.create(playerEntity);
 
         playerSprite.textureName = "player1Standing1";
@@ -367,8 +364,8 @@ public class OreWorld {
     }
 
     public Block blockAtPosition(Vector2 pos) {
-        int x = MathUtils.clamp((int) Math.floor(pos.x / BLOCK_SIZE), 0, WORLD_SIZE_X - 1);
-        int y = MathUtils.clamp((int) Math.floor(pos.y / BLOCK_SIZE), 0, WORLD_SIZE_Y - 1);
+        int x = MathUtils.clamp((int) Math.floor(pos.x), 0, WORLD_SIZE_X - 1);
+        int y = MathUtils.clamp((int) Math.floor(pos.y), 0, WORLD_SIZE_Y - 1);
         return blockAt(x, y);
     }
 
@@ -473,7 +470,7 @@ public class OreWorld {
     }
 
     public void alignPositionToBlocks(Vector2 pos) {
-        pos.set(BLOCK_SIZE * MathUtils.floor(pos.x / BLOCK_SIZE), BLOCK_SIZE * MathUtils.floor(pos.y / BLOCK_SIZE));
+        pos.set(MathUtils.floor(pos.x), MathUtils.floor(pos.y));
     }
 
     public int seaLevel() {
@@ -494,8 +491,7 @@ public class OreWorld {
         SpriteComponent blockSprite = spriteMapper.create(block);
         blockSprite.textureName = blockTypes.get(blockComponent.blockType).textureName;
 
-        //warning fixme size is fucked
-        blockSprite.sprite.setSize(32 / OreWorld.PIXELS_PER_METER, 32 / OreWorld.PIXELS_PER_METER);
+        blockSprite.sprite.setSize(1, 1);
 
         ItemComponent itemComponent = itemMapper.create(block);
         itemComponent.stackSize = 800;
@@ -514,7 +510,7 @@ public class OreWorld {
         SpriteComponent sprite = spriteMapper.create(light);
         sprite.textureName = "light-yellow";
 
-        sprite.sprite.setSize(16 / OreWorld.PIXELS_PER_METER, 16 / OreWorld.PIXELS_PER_METER);
+        sprite.sprite.setSize(1, 1);
 
         PowerConsumerComponent powerConsumerComponent = powerConsumerMapper.create(light);
         powerConsumerComponent.powerDemandRate = 100;
@@ -534,8 +530,7 @@ public class OreWorld {
         SpriteComponent sprite = spriteMapper.create(power);
         sprite.textureName = "air-generator-64x64";
 
-        //warning fixme size is fucked
-        sprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
+        sprite.sprite.setSize(4, 4);
 
         PowerGeneratorComponent powerComponent = powerGeneratorMapper.create(power);
         powerComponent.powerSupplyRate = 100;
@@ -554,8 +549,7 @@ public class OreWorld {
         SpriteComponent airSprite = spriteMapper.create(air);
         airSprite.textureName = "air-generator-64x64";
 
-        //warning fixme size is fucked
-        airSprite.sprite.setSize(BLOCK_SIZE * 4, BLOCK_SIZE * 4);
+        airSprite.sprite.setSize(4, 4);
 
         AirGeneratorComponent airComponent = airGeneratorMapper.create(air);
         airComponent.airOutputRate = 100;
@@ -575,11 +569,11 @@ public class OreWorld {
         Vector2 size = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
         float epsilon = 0.001f;
-        int startX = (int) ((pos.x - (size.x * 0.5f)) / BLOCK_SIZE + epsilon);
-        int startY = (int) ((pos.y - (size.y * 0.5f)) / BLOCK_SIZE + epsilon);
+        int startX = (int) ((pos.x - (size.x * 0.5f)) + epsilon);
+        int startY = (int) ((pos.y - (size.y * 0.5f)) + epsilon);
 
-        int endX = (int) ((pos.x + (size.x * 0.5f)) / BLOCK_SIZE + 0);
-        int endY = (int) ((pos.y + (size.y * 0.5f - epsilon)) / BLOCK_SIZE + 1);
+        int endX = (int) ((pos.x + (size.x * 0.5f)));
+        int endY = (int) ((pos.y + (size.y * 0.5f - epsilon)) + 1);
 
         if (!(startX >= 0 && startY >= 0 && endX <= WORLD_SIZE_X && endY <= WORLD_SIZE_Y)) {
             //fixme

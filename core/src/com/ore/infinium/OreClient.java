@@ -150,8 +150,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 return;
             }
 
-            int x = (int) (mouse.x / OreWorld.BLOCK_SIZE);
-            int y = (int) (mouse.y / OreWorld.BLOCK_SIZE);
+            int x = (int) (mouse.x);
+            int y = (int) (mouse.y);
 
             Block block = m_world.blockAt(x, y);
 
@@ -167,8 +167,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
         BlockComponent blockComponent = blockMapper.getSafe(itemEntity);
         if (blockComponent != null) {
 
-            int x = (int) (mouse.x / OreWorld.BLOCK_SIZE);
-            int y = (int) (mouse.y / OreWorld.BLOCK_SIZE);
+            int x = (int) (mouse.x);
+            int y = (int) (mouse.y);
 
             boolean blockPlaced = m_world.attemptBlockPlacement(x, y, blockComponent.blockType);
             if (blockPlaced) {

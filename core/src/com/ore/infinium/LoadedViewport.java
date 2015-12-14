@@ -62,9 +62,6 @@ public class LoadedViewport {
      *         center point
      */
     public void centerOn(Vector2 pos) {
-        pos.x /= OreWorld.BLOCK_SIZE;
-        pos.y /= OreWorld.BLOCK_SIZE;
-
         float halfWidth = (MAX_VIEWPORT_WIDTH / 2);
         float halfHeight = (MAX_VIEWPORT_HEIGHT / 2);
 

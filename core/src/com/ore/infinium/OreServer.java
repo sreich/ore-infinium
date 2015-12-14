@@ -124,14 +124,13 @@ public class OreServer implements Runnable {
 
         //TODO:make better server player first-spawning code
         //TODO: (much later) make it try to load the player position from previous world data, if any.
-        float posX = 2600.0f / OreWorld.PIXELS_PER_METER;
-        float posY = 2 * OreWorld.BLOCK_SIZE; //start at the overground
+        float posX = 200;
+        float posY = 2; //start at the overground
+        int tilex = (int) (posX);
+        int tiley = (int) (posY);
 
-        int tilex = (int) (posX / OreWorld.BLOCK_SIZE);
-        int tiley = (int) (posY / OreWorld.BLOCK_SIZE);
-
-        //fixme for collision test shouldn't be so...gross
-        posY = 24 * OreWorld.BLOCK_SIZE;
+        //fixme for collision test shouldn't be so...gross. as of 2015-12-14 idk wtf this is, delete it
+        posY = 24;
 
         final int seaLevel = m_world.seaLevel();
 
@@ -193,7 +192,7 @@ public class OreServer implements Runnable {
         toolSprite.textureName = "drill";
 
         //warning fixme size is fucked
-        toolSprite.sprite.setSize(32 / OreWorld.PIXELS_PER_METER, 32 / OreWorld.PIXELS_PER_METER);
+        toolSprite.sprite.setSize(2, 2);
 
         ItemComponent itemComponent = itemMapper.create(tool);
 
