@@ -136,8 +136,8 @@ public class OreWorld {
 
         if (isClient()) {
 
-            float width = 1600 / 16;
-            float height = 900 / 16;
+            float width = OreSettings.getInstance().width / BLOCK_SIZE_PIXELS;
+            float height = OreSettings.getInstance().height / BLOCK_SIZE_PIXELS;
             m_camera = new OrthographicCamera(width, height);//30, 30 * (h / w));
             m_camera.setToOrtho(true, width, height);
 
@@ -159,9 +159,9 @@ public class OreWorld {
                                                    .with(new InputSystem(m_camera, this))
                                                    .with(new EntityOverlaySystem(this))
                                                    .with(new PlayerSystem(this))
-                                                   .with(new DebugTextRenderSystem(m_camera, this))
                                                    .with(new TileRenderSystem(m_camera, this))
                                                    .with(new SpriteRenderSystem(this))
+                                                   .with(new DebugTextRenderSystem(m_camera, this))
                                                    .with(new PowerOverlayRenderSystem(this))
                                                    .with(new TileTransitionSystem(m_camera, this))
                                                    .with(new ProfilerSystem(m_client.m_skin))

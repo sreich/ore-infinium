@@ -100,11 +100,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_dragAndDrop = new DragAndDrop();
 
-        m_stage = new Stage(viewport = new StretchViewport(1600, 900));
+        m_stage = new Stage(
+                viewport = new StretchViewport(OreSettings.getInstance().width, OreSettings.getInstance().height));
         m_multiplexer = new InputMultiplexer(m_stage, this);
-
-        m_viewport = new ScreenViewport();
-        m_viewport.setScreenBounds(0, 0, 1600, 900);
 
         Gdx.input.setInputProcessor(m_multiplexer);
 

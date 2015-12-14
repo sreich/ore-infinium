@@ -190,6 +190,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
                 // scenarios..)
                 if (!drawWallTile) {
                     region = m_tilesAtlas.findRegion(textureName);
+                    assert region != null : "texture region for tile was null. textureName: " + textureName;
 
                     //offset y to flip orientation around to normal
                     m_batch.draw(region, tileX, tileY + 1, 1, -1);

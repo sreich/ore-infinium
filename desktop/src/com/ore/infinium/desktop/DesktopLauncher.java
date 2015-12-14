@@ -33,6 +33,7 @@ public class DesktopLauncher {
         jCommander.parse(arg);
 
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+        config.useGL30 = true;
         config.title = "Ore Infinium";
 
         config.width = oreSettings.width;
