@@ -1,7 +1,5 @@
 package com.ore.infinium;
 
-import com.badlogic.gdx.Gdx;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -103,7 +101,7 @@ public class ErrorDialog extends JDialog {
         quit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                Gdx.app.exit();
+                System.exit(1);
             }
         });
 
