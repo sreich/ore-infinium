@@ -136,8 +136,10 @@ public class OreWorld {
 
         if (isClient()) {
 
-            m_camera = new OrthographicCamera(1600, 900);//30, 30 * (h / w));
-            m_camera.setToOrtho(true, 1600, 900);
+            float width = 1600 / 16;
+            float height = 900 / 16;
+            m_camera = new OrthographicCamera(width, height);//30, 30 * (h / w));
+            m_camera.setToOrtho(true, width, height);
 
             m_atlas = new TextureAtlas(Gdx.files.internal("packed/entities.atlas"));
 
@@ -341,7 +343,7 @@ public class OreWorld {
                 }
 
                 //                if (underground) {
-                    block.wallType = Block.WallType.DirtUndergroundWallType;
+                block.wallType = Block.WallType.DirtUndergroundWallType;
                 //               }
 
                 //                blocks[dragSourceIndex].wallType = Block::Wall

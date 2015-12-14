@@ -158,7 +158,7 @@ public class PowerCircuitSystemTest {
 
         float x = 150;
         //try to remove it x2 wire thicknesses above where the wire actually is
-        float y = 100.0f - (PowerCircuitSystem.WIRE_THICKNESS * 3.0f);
+        float y = 100.0f - (PowerCircuitSystem.WIRE_THICKNESS * 1.0f);
 
         boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(x, y));
         assertTrue(disconnected);
