@@ -34,7 +34,6 @@ import com.ore.infinium.components.*;
  */
 @Wire
 public class PowerOverlayRenderSystem extends IteratingSystem implements RenderSystemMarker {
-    public static int spriteCount;
     public boolean overlayVisible = false;
     //   public TextureAtlas m_atlas;
     private OreWorld m_world;

@@ -327,7 +327,7 @@ public class OreWorld {
                     continue;
                 }
 
-                boolean underground = true;
+                //              boolean underground = true;
 
                 switch (MathUtils.random(0, 3)) {
                     case 0:
@@ -343,9 +343,9 @@ public class OreWorld {
                         break;
                 }
 
-                if (underground) {
+                //                if (underground) {
                     block.wallType = Block.WallType.DirtUndergroundWallType;
-                }
+                //               }
 
                 //                blocks[dragSourceIndex].wallType = Block::Wall
             }
@@ -367,8 +367,8 @@ public class OreWorld {
     }
 
     public Block blockAtPosition(Vector2 pos) {
-        int x = MathUtils.clamp((int) (pos.x / BLOCK_SIZE), 0, WORLD_SIZE_X - 1);
-        int y = MathUtils.clamp((int) (pos.y / BLOCK_SIZE), 0, WORLD_SIZE_Y - 1);
+        int x = MathUtils.clamp((int) Math.floor(pos.x / BLOCK_SIZE), 0, WORLD_SIZE_X - 1);
+        int y = MathUtils.clamp((int) Math.floor(pos.y / BLOCK_SIZE), 0, WORLD_SIZE_Y - 1);
         return blockAt(x, y);
     }
 
