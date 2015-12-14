@@ -272,7 +272,7 @@ public class OreServer implements Runnable {
         toolComponent.type = ToolComponent.ToolType.Drill;
 
         SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
-        spriteComponent.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
+        spriteComponent.sprite.setSize(2, 2);
         spriteComponent.textureName = "pickaxeWooden1";
         tool.add(spriteComponent);
 

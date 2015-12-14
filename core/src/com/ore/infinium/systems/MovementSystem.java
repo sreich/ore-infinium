@@ -136,9 +136,9 @@ public class MovementSystem extends IteratingSystem {
         newVelocity.x *= 0.8f;
 
         //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2
-        // (maxMovementSpeed, 9999999999999));//(9.8f / PIXELS_PER_METER) * 4.0));
+        // (maxMovementSpeed, 9999999999999));//(9.8f) * 4.0));
         //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2
-        // (maxMovementSpeed, (9.8f / PIXELS_PER_METER) * 4.0));
+        // (maxMovementSpeed, (9.8f ) * 4.0));
 
         //clamp both axes between some max/min values..
         Vector2 dt = new Vector2(delta, delta);
@@ -215,7 +215,7 @@ public class MovementSystem extends IteratingSystem {
 
         //clamp both axes between some max/min values..
         //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2
-        // (maxMovementSpeed, 9.8f / PIXELS_PER_METER /10.0f));
+        // (maxMovementSpeed, 9.8f /10.0f));
 
         //reset velocity once it gets small enough, and consider it non-moved.
         float epsilon = 0.00001f;

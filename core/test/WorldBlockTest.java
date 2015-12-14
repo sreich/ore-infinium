@@ -52,8 +52,7 @@ public class WorldBlockTest {
         //our marker block. the rest of the ones in the world are NullBlockType
         world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
 
-        assertEquals(world.blockAt(10, 10),
-                     world.blockAtPosition(new Vector2(OreWorld.BLOCK_SIZE * 10.0f, OreWorld.BLOCK_SIZE * 10.0f)));
+        assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f)));
     }
 
     @Test
@@ -61,8 +60,7 @@ public class WorldBlockTest {
         world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
 
         //ensure one block to the right is different(that we're on the right unit scale or whatever)
-        assertNotEquals(world.blockAt(10, 10),
-                        world.blockAtPosition(new Vector2(OreWorld.BLOCK_SIZE * 11.0f, OreWorld.BLOCK_SIZE * 10.0f)));
+        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(11.0f, 10.0f)));
     }
 
     @Test
@@ -70,24 +68,21 @@ public class WorldBlockTest {
         world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
 
         //ensure one block to left is different
-        assertNotEquals(world.blockAt(10, 10),
-                        world.blockAtPosition(new Vector2(OreWorld.BLOCK_SIZE * 9.0f, OreWorld.BLOCK_SIZE * 10.0f)));
+        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(9.0f, 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionPartialLeft() {
         world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
 
-        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(
-                new Vector2(OreWorld.BLOCK_SIZE * 10.0f - (OreWorld.BLOCK_SIZE * 0.1f), OreWorld.BLOCK_SIZE * 10.0f)));
+        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f - (0.1f), 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionPartialAbove() {
         world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
 
-        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(
-                new Vector2(OreWorld.BLOCK_SIZE * 10.0f, OreWorld.BLOCK_SIZE * 10.0f - (OreWorld.BLOCK_SIZE * 0.1f))));
+        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f - (0.1f))));
     }
 
     @Test
@@ -95,8 +90,7 @@ public class WorldBlockTest {
         world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
 
         //ensure half a block below, we are still on the same block
-        assertEquals(world.blockAt(10, 10), world.blockAtPosition(
-                new Vector2(OreWorld.BLOCK_SIZE * 10.0f, OreWorld.BLOCK_SIZE * 10.0f + (OreWorld.BLOCK_SIZE * 0.4f))));
+        assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f + (0.4f))));
     }
 
     @Test
@@ -104,9 +98,7 @@ public class WorldBlockTest {
         world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
 
         //ensure 0.9 a block right-down, we are still on the same block
-        assertEquals(world.blockAt(10, 10), world.blockAtPosition(
-                new Vector2(OreWorld.BLOCK_SIZE * 10.0f + (OreWorld.BLOCK_SIZE * 0.9f),
-                            OreWorld.BLOCK_SIZE * 10.0f + (OreWorld.BLOCK_SIZE * 0.9f))));
+        assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f + (0.9f), 10.0f + (0.9f))));
     }
 
     @Test
