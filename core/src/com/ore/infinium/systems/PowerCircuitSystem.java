@@ -284,43 +284,6 @@ public class PowerCircuitSystem extends BaseSystem {
     }
 
     /**
-     * Determine if a given point resides on a line of given thickness
-     *
-     * @param start
-     * @param end
-     * @param thickness
-     * @param point
-     * @param nearest
-     *         temporary vector
-     *
-     * @return
-     */
-
-    public static boolean isOnLine(Vector2 start, Vector2 end, float thickness, Vector2 point, Vector2 nearest) {
-        float length2 = start.dst2(end);
-
-        if (length2 == 0) {
-            return false; // length of line is zero!
-        }
-
-        float t = ((point.x - start.x) * (end.x - start.x) + (point.y - start.y) * (end.y - start.y)) / length2;
-        if (t < 0) {
-            return false; // not between start and end
-        }
-        if (t > 1) {
-            return false; // not between start and end
-        }
-
-        nearest.set(start.x + t * (end.x - start.x), start.y + t * (end.y - start.y));
-
-        if (nearest.dst2(point) > thickness * thickness) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * Forms a wire connection between any 2 devices (direction does not matter).
      * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
      *

@@ -225,8 +225,13 @@ public class EntityOverlaySystem extends BaseSystem {
         Vector2 mouse = m_world.mousePositionWorldCoords();
         m_world.alignPositionToBlocks(mouse);
 
+
         SpriteComponent spriteComponent = spriteMapper.get(itemPlacementOverlayEntity);
-        spriteComponent.sprite.setPosition(mouse.x, mouse.y);
+
+        float halfWidth = spriteComponent.sprite.getWidth() * 0.5f;
+        float halfHeight = spriteComponent.sprite.getHeight() * 0.5f;
+
+        spriteComponent.sprite.setPosition(mouse.x + halfWidth, mouse.y + halfHeight);
         spriteComponent.placementValid = m_world.isPlacementValid(itemPlacementOverlayEntity);
     }
 
