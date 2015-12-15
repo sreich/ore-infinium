@@ -9,8 +9,7 @@ import com.ore.infinium.components.SpriteComponent;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /******************************************************************************
  * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                *
@@ -61,8 +60,69 @@ public class PowerCircuitSystemTest {
      */
     @Test
     public void connectingTwoCircuitsShouldMerge() throws Exception {
+        int gen1 = world.createPowerGenerator();
+        int light1 = world.createLight();
 
-        assertTrue(true);
+        //small sanity check, ensure world is getting created properly
+        assertEquals(0, circuitSystem.m_circuits.size);
+
+        boolean connected = circuitSystem.connectDevices(gen1, light1);
+        assertTrue(connected);
+
+        //check they got connected, that there is now 1 circuit at least
+        //which is the one this wire resides on.
+        assertEquals(1, circuitSystem.m_circuits.size);
+
+        //ensure the first circuit (ours) has 1 wire in it.
+        assertEquals(1, circuitSystem.m_circuits.first().wireConnections.size);
+
+        int gen2 = world.createPowerGenerator();
+        int light2 = world.createLight();
+        connected = circuitSystem.connectDevices(gen2, light2);
+        assertTrue(connected);
+        //ensure there are 2 circuits now, and they each only have 1 wire
+        assertEquals(2, circuitSystem.m_circuits.size);
+        assertEquals(1, circuitSystem.m_circuits.get(0).wireConnections.size);
+        assertEquals(1, circuitSystem.m_circuits.get(1).wireConnections.size);
+
+        //so there were 4 devices, 2 on one circuit. 2 on another.
+        //now we draw a wire from one of those on one circuit, to the 2nd circuit
+        //it should merge to 1 circuit, and the wires move over
+        connected = circuitSystem.connectDevices(gen2, light1);
+        assertTrue(connected);
+        assertEquals(1, circuitSystem.m_circuits.size);
+    }
+
+    /**
+     * test to make sure connecting device A to device B,
+     * and device B to device A..second one should fail,
+     * because they're already connected. So not more than
+     * 1 circuit should exist.
+     */
+    @Test
+    public void testConnectingTwoDevicesTwiceShouldFail() {
+        int gen = world.createPowerGenerator();
+
+        int light = world.createLight();
+
+        //small sanity check, ensure world is getting created properly
+        assertEquals(0, circuitSystem.m_circuits.size);
+
+        boolean connected = circuitSystem.connectDevices(gen, light);
+        assertTrue(connected);
+
+        //check they got connected, that there is now 1 circuit at least
+        //which is the one this wire resides on.
+        assertEquals(1, circuitSystem.m_circuits.size);
+
+        //ensure the first circuit (ours) has 1 wire in it.
+        assertEquals(1, circuitSystem.m_circuits.first().wireConnections.size);
+
+        connected = circuitSystem.connectDevices(gen, light);
+        assertFalse(connected);
+        //ensure it didn't return false and lie and actually add them still
+        assertEquals(1, circuitSystem.m_circuits.size);
+        assertEquals(1, circuitSystem.m_circuits.first().wireConnections.size);
     }
 
     /**
@@ -79,7 +139,8 @@ public class PowerCircuitSystemTest {
         //small sanity check, ensure world is getting created properly
         assertEquals(0, circuitSystem.m_circuits.size);
 
-        circuitSystem.connectDevices(gen, light);
+        boolean connected = circuitSystem.connectDevices(gen, light);
+        assertTrue(connected);
 
         //check they got connected, that there is now 1 circuit at least
         //which is the one this wire resides on.
@@ -109,7 +170,8 @@ public class PowerCircuitSystemTest {
         // if there's more than one (eg array issues)
         int placeholder1 = world.createPowerGenerator();
         int placeholder2 = world.createLight();
-        circuitSystem.connectDevices(placeholder1, placeholder2);
+        boolean connected = circuitSystem.connectDevices(placeholder1, placeholder2);
+        assertTrue(connected);
         //
 
         circuitSystem.disconnectAllWiresFromDevice(gen);
@@ -127,7 +189,8 @@ public class PowerCircuitSystemTest {
         int gen = world.createPowerGenerator();
         int light = world.createLight();
 
-        circuitSystem.connectDevices(gen, light);
+        boolean connected = circuitSystem.connectDevices(gen, light);
+        assertTrue(connected);
 
         spriteMapper.get(gen).sprite.setPosition(100, 100);
         spriteMapper.get(light).sprite.setPosition(200, 100);
@@ -150,7 +213,8 @@ public class PowerCircuitSystemTest {
         int gen = world.createPowerGenerator();
         int light = world.createLight();
 
-        circuitSystem.connectDevices(gen, light);
+        boolean connected = circuitSystem.connectDevices(gen, light);
+        assertTrue(connected);
 
         //wire is horizontally laid out
         spriteMapper.get(gen).sprite.setPosition(100, 100);
@@ -202,7 +266,8 @@ public class PowerCircuitSystemTest {
         int gen = world.createPowerGenerator();
         int light = world.createLight();
 
-        circuitSystem.connectDevices(gen, light);
+        boolean connected = circuitSystem.connectDevices(gen, light);
+        assertTrue(connected);
 
         //wire is horizontally laid out
         spriteMapper.get(gen).sprite.setPosition(100, 100);
@@ -219,14 +284,5 @@ public class PowerCircuitSystemTest {
         assertEquals(0, circuitSystem.m_circuits.size);
     }
 
-    /**
-     * test to make sure connecting device A to device B,
-     * and device B to device A..second one should fail,
-     * because they're already connected. So not more than
-     * 1 circuit should exist.
-     */
-    @Test
-    public void testConnectingTwoDevicesTwiceShouldFail() {
-    }
 
 }

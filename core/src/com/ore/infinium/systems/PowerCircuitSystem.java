@@ -164,42 +164,86 @@ public class PowerCircuitSystem extends BaseSystem {
      * @param firstEntity
      * @param secondEntity
      */
-    void connectDevices(int firstEntity, int secondEntity) {
-        for (PowerCircuit circuit : m_circuits) {
-            //
+    boolean connectDevices(int firstEntity, int secondEntity) {
+        if (firstEntity == secondEntity) {
+            //disallow connection with itself
+            return false;
+        }
 
-            //check which circuit this connection between 2 consumers belongs to
-            //if none of the two consumers are in a circuit, it is a new circuit
+        boolean mergeCircuits = false;
+
+        for (PowerCircuit circuit : m_circuits) {
             for (PowerWireConnection connection : circuit.wireConnections) {
+                //scan for these exact device endpoints already having a connection.
+                //do not allow device 1 and device 2 to have two connections between each other
+                //(aka duplicate wires)
                 if ((connection.firstEntity == firstEntity && connection.secondEntity == secondEntity) ||
                     connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
-
-                    //connection exists in this circuit already, deny
-                    return;
-                }
-
-                if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
-                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
-                    //one of the entities of this wire is in this connection, so it's a part of this circuit
-                    //we don't care which one. we just add our wire to the mix
-                    PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
-                    circuit.wireConnections.add(powerWireConnection);
-
-                    addConnection(firstEntity, secondEntity, circuit);
-
-                    return;
+                    return false;
                 }
             }
         }
 
+        PowerCircuit previousCircuit = null;
+        //scan again, this time we'll find places to add it in. it is a valid add, somewhere..
+        for (int itCircuit = 0; itCircuit < m_circuits.size; ++itCircuit) {
+            PowerCircuit circuit = m_circuits.get(itCircuit);
+
+            for (PowerWireConnection connection : circuit.wireConnections) {
+                //check which circuit this connection between 2 devices belongs to
+                //if none of the two devices are in a circuit, it is a new circuit,
+                //and we will add our wire to the mix. it doesn't matter which one was found
+                //(since connections only exist on the same circuit)
+                if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
+                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
+                    //make a new wire, add it to this circuit, as one of these entities is in this circuit
+
+                    //////////////////////////// second scan, looking for circuits we can merge with
+                    for (int itCircuit2 = 0; itCircuit2 < m_circuits.size; ++itCircuit2) {
+                        PowerCircuit circuit2 = m_circuits.get(itCircuit2);
+
+                        for (int itWires2 = 0; itWires2 < circuit.wireConnections.size; ++itWires2) {
+                            PowerWireConnection connection2 = circuit2.wireConnections.get(itWires2);
+                            if (itCircuit2 == itCircuit) {
+                                //we're only checking if one of these devices is on another circuit
+                                //but this is the same one, so skip it.
+                                continue;
+                            }
+
+                            //see if we can bridge a connection between these circuits. if true, we can move
+                            //all connections from this (itCircuit), or the other (itCircuit2). it shouldn't matter.
+                            if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
+                                connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
+                                addWireConnection(firstEntity, secondEntity, circuit);
+                                //todo merge these
+                                return true;
+                            }
+                        }
+                    }
+                    //////////////////////////////////////
+
+                    previousCircuit = circuit;
+                }
+            }
+        }
+
+        //indicator, we set only if one of the 2 device endpoints we're adding is already on a circuit
+        //if it finds a case where it happens, it records it in case attempting to merge circuits doesn't work
+        //in which case, it'll (after the big loop), we'll add this wire to the last circuit we remember it can
+        //be a part of
+        if (previousCircuit != null) {
+            addWireConnection(firstEntity, secondEntity, previousCircuit);
+            return true;
+        }
+
+        //we made it this far, so no endpoints of this connection exist in any circuits, make a new circuit
+        //just for these
         PowerCircuit circuit = new PowerCircuit();
 
-        //connection nonexistent in any circuits, make a new circuit
-        addConnection(firstEntity, secondEntity, circuit);
+        addWireConnection(firstEntity, secondEntity, circuit);
         m_circuits.add(circuit);
 
-        PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
-        circuit.wireConnections.add(powerWireConnection);
+        return true;
     }
 
     /**
@@ -291,9 +335,12 @@ public class PowerCircuitSystem extends BaseSystem {
      * @param secondEntity
      * @param circuit
      */
-    private void addConnection(int firstEntity, int secondEntity, PowerCircuit circuit) {
+    private void addWireConnection(int firstEntity, int secondEntity, PowerCircuit circuit) {
         //cannot connect to a non-device
         assert powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity);
+
+        PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
+        circuit.wireConnections.add(powerWireConnection);
 
         if (powerConsumerMapper.get(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
             circuit.consumers.add(firstEntity);
