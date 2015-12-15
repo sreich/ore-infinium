@@ -220,8 +220,30 @@ public class PowerCircuitSystem extends BaseSystem {
                                 circuit.wireConnections.addAll(circuit2.wireConnections);
 
                                 //transfer over our running list of consumers and stuff too
-                                circuit.consumers.addAll(circuit2.consumers);
-                                circuit.generators.addAll(circuit2.generators);
+
+                                for (int itConsumers = 0; itConsumers < circuit2.consumers.size; ++itConsumers) {
+                                    int consumer = circuit2.consumers.get(itConsumers);
+
+                                    //circuit2 is getting merged with 1, and deleted.
+                                    //but only merge over devices in the consumer list and generator
+                                    //list that are not already in that list.
+                                    //remember, a wire can have a pair of <dev1, dev2>, and another one
+                                    //could have <dev3, dev4). in this case we're connecting dev3 to dev 2
+                                    //(or whichever, doesn't matter.). that means we've got a duplicate device in
+                                    //the consumers, because @see addWireConnection adds it for us
+                                    if (!circuit.consumers.contains(consumer)) {
+                                        circuit.consumers.add(consumer);
+                                    }
+                                }
+
+                                //same thing for gens
+                                for (int itGenerators = 0; itGenerators < circuit2.generators.size; ++itGenerators) {
+                                    int generator = circuit2.generators.get(itGenerators);
+
+                                    if (!circuit.generators.contains(generator)) {
+                                        circuit.generators.add(generator);
+                                    }
+                                }
 
                                 circuit2.wireConnections.clear();
                                 circuit2.consumers.clear();
