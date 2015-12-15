@@ -85,12 +85,19 @@ public class PowerCircuitSystemTest {
         assertEquals(1, circuitSystem.m_circuits.get(0).wireConnections.size);
         assertEquals(1, circuitSystem.m_circuits.get(1).wireConnections.size);
 
+        assertEquals(1, circuitSystem.m_circuits.get(1).consumers.size);
+        assertEquals(1, circuitSystem.m_circuits.get(1).generators.size);
+
         //so there were 4 devices, 2 on one circuit. 2 on another.
         //now we draw a wire from one of those on one circuit, to the 2nd circuit
         //it should merge to 1 circuit, and the wires move over
         connected = circuitSystem.connectDevices(gen2, light1);
         assertTrue(connected);
         assertEquals(1, circuitSystem.m_circuits.size);
+
+        //should now have 2 of each...2 gen's,  2 consumers. all in 1 circuit
+        assertEquals(2, circuitSystem.m_circuits.first().generators.size);
+        assertEquals(2, circuitSystem.m_circuits.first().consumers.size);
     }
 
     /**
@@ -283,6 +290,5 @@ public class PowerCircuitSystemTest {
         //sanity check for circuit cleanup
         assertEquals(0, circuitSystem.m_circuits.size);
     }
-
 
 }

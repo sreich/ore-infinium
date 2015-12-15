@@ -214,8 +214,21 @@ public class PowerCircuitSystem extends BaseSystem {
                             //all connections from this (itCircuit), or the other (itCircuit2). it shouldn't matter.
                             if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
                                 connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
-                                addWireConnection(firstEntity, secondEntity, circuit);
-                                //todo merge these
+                                addWireConnection(firstEntity, secondEntity, circuit2);
+
+                                // merge the connections from this circuit to the other one now.
+                                circuit.wireConnections.addAll(circuit2.wireConnections);
+
+                                //transfer over our running list of consumers and stuff too
+                                circuit.consumers.addAll(circuit2.consumers);
+                                circuit.generators.addAll(circuit2.generators);
+
+                                circuit2.wireConnections.clear();
+                                circuit2.consumers.clear();
+                                circuit2.generators.clear();
+                                //remove that old dead empty circuit
+                                m_circuits.removeIndex(itCircuit2);
+
                                 return true;
                             }
                         }
