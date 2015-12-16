@@ -11,6 +11,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -63,9 +67,19 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
     private static final float powerNodeOffsetRatioX = 0.1f;
     private static final float powerNodeOffsetRatioY = 0.1f;
 
-    public PowerOverlayRenderSystem(OreWorld world) {
+    private final Stage m_stage;
+    private final Skin m_skin;
+
+    private Table m_container;
+
+    public static final int POWER_OVERLAY_STAGE_Z = 5000;
+
+    public PowerOverlayRenderSystem(OreWorld world, Stage stage, Skin skin) {
         super(Aspect.all(PowerDeviceComponent.class));
+
         m_world = world;
+        m_stage = stage;
+        m_skin = skin;
     }
 
     @Override
@@ -79,6 +93,19 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         tooltipSprite.textureName = "debug";
         tooltipSprite.sprite.setRegion(m_world.m_atlas.findRegion(tooltipSprite.textureName));
         tooltipSprite.noClip = true;
+
+        m_container = new Table(m_skin);
+        m_container.setFillParent(true);
+        m_container.top().left().setSize(800, 100);
+        m_container.padLeft(10).padTop(10);
+
+        Label label = new Label("TEEEEEESTSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSTTTTTTTTTTTTTTTTTTTTTt", m_skin);
+        m_container.add(label);
+
+        m_container.defaults().space(4);
+
+        m_container.setZIndex(POWER_OVERLAY_STAGE_Z);
+        m_stage.addActor(m_container);
     }
 
     @Override

@@ -51,7 +51,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private InputMultiplexer m_multiplexer;
 
-    private Stage m_stage;
+    Stage m_stage;
     Skin m_skin;
 
     public Chat m_chat;
