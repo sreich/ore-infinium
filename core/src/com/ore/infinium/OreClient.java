@@ -397,29 +397,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         ControllableComponent controllableComponent = controlMapper.get(player);
 
         if (keycode == Input.Keys.Q) {
-
-            PlayerComponent playerComponent = playerMapper.get(player);
-
-            if (playerComponent.getEquippedPrimaryItem() != OreWorld.ENTITY_INVALID) {
-                Network.HotbarDropItemRequestFromClient dropItemRequestFromClient =
-                        new Network.HotbarDropItemRequestFromClient();
-                dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
-                // decrement count, we assume it'll get spawned shortly. delete in-inventory entity if necessary
-                // server assumes we already do so
-                int itemEntity = playerComponent.getEquippedPrimaryItem();
-                ItemComponent itemComponent = itemMapper.get(itemEntity);
-                if (itemComponent.stackSize > 1) {
-                    //decrement count, server has already done so. we assume here that it went through properly.
-                    itemComponent.stackSize -= 1;
-                } else {
-                    int item = playerComponent.hotbarInventory.takeItem(dropItemRequestFromClient.index);
-                    m_world.m_artemisWorld.delete(item);
-                }
-
-                //fixme
-                //m_clientKryo.sendTCP(dropItemRequestFromClient);
-
-            }
+            attemptItemDrop();
         } else if (keycode == Input.Keys.E) {
             //power overlay
             m_powerOverlayRenderSystem.toggleOverlay();
@@ -463,6 +441,32 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         return true;
+    }
+
+    private void attemptItemDrop() {
+        int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
+        PlayerComponent playerComponent = playerMapper.get(player);
+
+        if (playerComponent.getEquippedPrimaryItem() != OreWorld.ENTITY_INVALID) {
+            Network.HotbarDropItemRequestFromClient dropItemRequestFromClient =
+                    new Network.HotbarDropItemRequestFromClient();
+            dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
+
+            // decrement count, we assume it'll get spawned shortly when the server tells us to.
+            // delete in-inventory entity if necessary server assumes we already do so
+            int itemEntity = playerComponent.getEquippedPrimaryItem();
+            ItemComponent itemComponent = itemMapper.get(itemEntity);
+            if (itemComponent.stackSize > 1) {
+                //decrement count, server has already done so. we assume here that it went through properly.
+                itemComponent.stackSize -= 1;
+            } else {
+                //delete it, server knows/assumes we already did, since there are no more left
+                int item = playerComponent.hotbarInventory.takeItem(dropItemRequestFromClient.index);
+                m_world.m_artemisWorld.delete(item);
+            }
+
+            m_networkClientSystem.m_clientKryo.sendTCP(dropItemRequestFromClient);
+        }
     }
 
     @Override

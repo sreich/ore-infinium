@@ -41,8 +41,8 @@ public class Network {
         kryo.register(Chat.ChatSender.class);
         kryo.register(PlayerMoveInventoryItemFromClient.class);
         kryo.register(Inventory.InventoryType.class);
-        kryo.register(KickReason.class);
-        kryo.register(KickReason.Reason.class);
+        kryo.register(DisconnectReason.class);
+        kryo.register(DisconnectReason.Reason.class);
         kryo.register(PlayerSpawnedFromServer.class);
         kryo.register(PowerDeviceComponent.class);
         kryo.register(PlayerMoveFromClient.class);
@@ -231,7 +231,7 @@ public class Network {
         public byte index;
     }
 
-    static public class KickReason {
+    static public class DisconnectReason {
         public Reason reason;
 
         public enum Reason {

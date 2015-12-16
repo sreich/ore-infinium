@@ -101,7 +101,7 @@ public class NetworkServerSystem extends BaseSystem {
      */
     @Override
     protected void dispose() {
-        //m_serverKryo.stop(); needed?
+        //m_serverKryo.stop(); fixme needed?
         m_serverKryo.close();
     }
 
@@ -220,137 +220,27 @@ public class NetworkServerSystem extends BaseSystem {
     }
 
     private void processNetworkQueue() {
+        //todo all needs verification. right now it just goes "ok client, i'll do whatever you say"
+        //for most things
         for (NetworkJob job = m_netQueue.poll(); job != null; job = m_netQueue.poll()) {
             if (job.object instanceof Network.InitialClientData) {
-                Network.InitialClientData data = ((Network.InitialClientData) job.object);
-                String name = data.playerName;
-
-                if (name == null) {
-                    job.connection.close();
-                    return;
-                }
-
-                name = name.trim();
-
-                if (name.length() == 0) {
-                    job.connection.close();
-                    return;
-                }
-
-                String uuid = data.playerUUID;
-                if (uuid == null) {
-                    job.connection.close();
-                    return;
-                }
-
-                if (data.versionMajor != OreClient.ORE_VERSION_MAJOR ||
-                    data.versionMinor != OreClient.ORE_VERSION_MINOR ||
-                    data.versionRevision != OreClient.ORE_VERSION_MINOR) {
-                    Network.KickReason reason = new Network.KickReason();
-                    reason.reason = Network.KickReason.Reason.VersionMismatch;
-
-                    job.connection.sendTCP(reason);
-                    job.connection.close();
-                }
-
-                // Store the player on the connection.
-                job.connection.player = m_server.createPlayer(name, job.connection.getID());
-                job.connection.playerName = name;
+                receiveInitialClientData(job);
             } else if (job.object instanceof Network.PlayerMoveFromClient) {
-                Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
-                SpriteComponent sprite = spriteMapper.get(job.connection.player);
-                sprite.sprite.setPosition(data.position.x, data.position.y);
+                receivePlayerMove(job);
             } else if (job.object instanceof Network.ChatMessageFromClient) {
-                Network.ChatMessageFromClient data = ((Network.ChatMessageFromClient) job.object);
-                //FIXME: do some verification stuff, make sure strings are safe
-
-                DateFormat date = new SimpleDateFormat("HH:mm:ss");
-                m_server.m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message,
-                                            Chat.ChatSender.Player);
+                receiveChatMessage(job);
             } else if (job.object instanceof Network.PlayerMoveInventoryItemFromClient) {
-                Network.PlayerMoveInventoryItemFromClient data =
-                        ((Network.PlayerMoveInventoryItemFromClient) job.object);
-                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
-
-                //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
-                if (data.sourceType == data.destType && data.sourceIndex == data.destIndex) {
-                    //todo kick client, cheating
-                }
-
-                Inventory sourceInventory;
-                if (data.sourceType == Inventory.InventoryType.Hotbar) {
-                    sourceInventory = playerComponent.hotbarInventory;
-                } else {
-                    sourceInventory = playerComponent.inventory;
-                }
-
-                Inventory destInventory;
-                if (data.destType == Inventory.InventoryType.Hotbar) {
-                    destInventory = playerComponent.hotbarInventory;
-                } else {
-                    destInventory = playerComponent.inventory;
-                }
-
-                destInventory.setSlot(data.destIndex, sourceInventory.takeItem(data.sourceIndex));
+                receivePlayerMoveInventoryItem(job);
             } else if (job.object instanceof Network.BlockPickFromClient) {
-                Network.BlockPickFromClient data = ((Network.BlockPickFromClient) job.object);
-                //FIXME verify..everything absolutely everything all over this networking portion....this is horrible
-                // obviously
-                m_world.blockAt(data.x, data.y).destroy();
+                receiveBlockPick(job);
             } else if (job.object instanceof Network.BlockPlaceFromClient) {
-                Network.BlockPlaceFromClient data = ((Network.BlockPlaceFromClient) job.object);
-                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
-
-                int item = playerComponent.getEquippedPrimaryItem();
-                BlockComponent blockComponent = blockMapper.get(item);
-
-                m_world.attemptBlockPlacement(data.x, data.y, blockComponent.blockType);
+                receiveBlockPlace(job);
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
-                Network.PlayerEquipHotbarIndexFromClient data = ((Network.PlayerEquipHotbarIndexFromClient) job.object);
-                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
-
-                playerComponent.hotbarInventory.selectSlot(data.index);
+                receivePlayerEquipHotbarIndex(job);
             } else if (job.object instanceof Network.HotbarDropItemRequestFromClient) {
-                Network.HotbarDropItemRequestFromClient data = ((Network.HotbarDropItemRequestFromClient) job.object);
-                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
-
-                int itemToDrop = playerComponent.hotbarInventory.itemEntity(data.index);
-                ItemComponent itemToDropComponent = itemMapper.get(itemToDrop);
-                if (itemToDropComponent.stackSize > 1) {
-                    itemToDropComponent.stackSize -= 1;
-                } else {
-                    //remove item from inventory, client has already done so, because the count will be 0 after this
-                    // drop
-                    // fixme          m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
-                }
-
-                //decrease count of equipped item
-                int droppedItem = m_world.cloneEntity(itemToDrop);
-
-                ItemComponent itemDroppedComponent = itemMapper.get(droppedItem);
-                itemDroppedComponent.state = ItemComponent.State.DroppedInWorld;
-                itemDroppedComponent.justDropped = true;
-                itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionId;
-
-                SpriteComponent playerSprite = spriteMapper.get(job.connection.player);
-                SpriteComponent itemSprite = spriteMapper.get(droppedItem);
-
-                itemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
-
-                //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
-                sendSpawnEntity(droppedItem, job.connection.getID());
+                receiveHotbarDropItem(job);
             } else if (job.object instanceof Network.ItemPlaceFromClient) {
-                Network.ItemPlaceFromClient data = ((Network.ItemPlaceFromClient) job.object);
-
-                PlayerComponent playerComponent = playerMapper.get(job.connection.player);
-
-                int placedItem = m_world.cloneEntity(playerComponent.getEquippedPrimaryItem());
-
-                ItemComponent itemComponent = itemMapper.get(placedItem);
-                itemComponent.state = ItemComponent.State.InWorldState;
-
-                SpriteComponent spriteComponent = spriteMapper.get(placedItem);
-                spriteComponent.sprite.setPosition(data.x, data.y);
+                receiveItemPlace(job);
             } else {
                 if (!(job.object instanceof FrameworkMessage.KeepAlive)) {
                     Gdx.app.log("client network", "unhandled network receiving class");
@@ -358,6 +248,151 @@ public class NetworkServerSystem extends BaseSystem {
                 }
             }
         }
+    }
+
+    private void receiveInitialClientData(NetworkJob job) {
+        Network.InitialClientData data = ((Network.InitialClientData) job.object);
+        String name = data.playerName;
+
+        if (name == null) {
+            job.connection.close();
+            return;
+        }
+
+        name = name.trim();
+
+        if (name.length() == 0) {
+            job.connection.close();
+            return;
+        }
+
+        String uuid = data.playerUUID;
+        if (uuid == null) {
+            job.connection.close();
+            return;
+        }
+
+        if (data.versionMajor != OreClient.ORE_VERSION_MAJOR ||
+            data.versionMinor != OreClient.ORE_VERSION_MINOR ||
+            data.versionRevision != OreClient.ORE_VERSION_MINOR) {
+            Network.DisconnectReason reason = new Network.DisconnectReason();
+            reason.reason = Network.DisconnectReason.Reason.VersionMismatch;
+
+            job.connection.sendTCP(reason);
+            job.connection.close();
+        }
+
+        // Store the player on the connection.
+        job.connection.player = m_server.createPlayer(name, job.connection.getID());
+        job.connection.playerName = name;
+    }
+
+    private void receivePlayerMove(NetworkJob job) {
+        Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
+        SpriteComponent sprite = spriteMapper.get(job.connection.player);
+        sprite.sprite.setPosition(data.position.x, data.position.y);
+    }
+
+    private void receiveChatMessage(NetworkJob job) {
+        Network.ChatMessageFromClient data = ((Network.ChatMessageFromClient) job.object);
+        //FIXME: do some verification stuff, make sure strings are safe
+
+        DateFormat date = new SimpleDateFormat("HH:mm:ss");
+        m_server.m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message,
+                                    Chat.ChatSender.Player);
+    }
+
+    private void receiveItemPlace(NetworkJob job) {
+        Network.ItemPlaceFromClient data = ((Network.ItemPlaceFromClient) job.object);
+
+        PlayerComponent playerComponent = playerMapper.get(job.connection.player);
+
+        int placedItem = m_world.cloneEntity(playerComponent.getEquippedPrimaryItem());
+
+        ItemComponent itemComponent = itemMapper.get(placedItem);
+        itemComponent.state = ItemComponent.State.InWorldState;
+
+        SpriteComponent spriteComponent = spriteMapper.get(placedItem);
+        spriteComponent.sprite.setPosition(data.x, data.y);
+    }
+
+    private void receiveHotbarDropItem(NetworkJob job) {
+        Network.HotbarDropItemRequestFromClient data = ((Network.HotbarDropItemRequestFromClient) job.object);
+        PlayerComponent playerComponent = playerMapper.get(job.connection.player);
+
+        int itemToDrop = playerComponent.hotbarInventory.itemEntity(data.index);
+        ItemComponent itemToDropComponent = itemMapper.get(itemToDrop);
+        if (itemToDropComponent.stackSize > 1) {
+            itemToDropComponent.stackSize -= 1;
+        } else {
+            //remove item from inventory, client has already done so, because the count will be 0 after this
+            // drop
+            // fixme          m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
+        }
+
+        //decrease count of equipped item
+        int droppedItem = m_world.cloneEntity(itemToDrop);
+
+        ItemComponent itemDroppedComponent = itemMapper.get(droppedItem);
+        itemDroppedComponent.state = ItemComponent.State.DroppedInWorld;
+        itemDroppedComponent.justDropped = true;
+        itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionId;
+
+        SpriteComponent playerSprite = spriteMapper.get(job.connection.player);
+        SpriteComponent itemSprite = spriteMapper.get(droppedItem);
+
+        itemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
+
+        //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
+        sendSpawnEntity(droppedItem, job.connection.getID());
+    }
+
+    private void receivePlayerEquipHotbarIndex(NetworkJob job) {
+        Network.PlayerEquipHotbarIndexFromClient data = ((Network.PlayerEquipHotbarIndexFromClient) job.object);
+        PlayerComponent playerComponent = playerMapper.get(job.connection.player);
+
+        playerComponent.hotbarInventory.selectSlot(data.index);
+    }
+
+    private void receiveBlockPlace(NetworkJob job) {
+        Network.BlockPlaceFromClient data = ((Network.BlockPlaceFromClient) job.object);
+        PlayerComponent playerComponent = playerMapper.get(job.connection.player);
+
+        int item = playerComponent.getEquippedPrimaryItem();
+        BlockComponent blockComponent = blockMapper.get(item);
+
+        m_world.attemptBlockPlacement(data.x, data.y, blockComponent.blockType);
+    }
+
+    private void receiveBlockPick(NetworkJob job) {
+        Network.BlockPickFromClient data = ((Network.BlockPickFromClient) job.object);
+        m_world.blockAt(data.x, data.y).destroy();
+    }
+
+    private void receivePlayerMoveInventoryItem(NetworkJob job) {
+        Network.PlayerMoveInventoryItemFromClient data = ((Network.PlayerMoveInventoryItemFromClient) job.object);
+        PlayerComponent playerComponent = playerMapper.get(job.connection.player);
+
+        //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
+        if (data.sourceType == data.destType && data.sourceIndex == data.destIndex) {
+            //todo kick client, cheating
+        }
+
+        Inventory sourceInventory;
+        if (data.sourceType == Inventory.InventoryType.Hotbar) {
+            sourceInventory = playerComponent.hotbarInventory;
+        } else {
+            sourceInventory = playerComponent.inventory;
+        }
+
+        Inventory destInventory;
+        if (data.destType == Inventory.InventoryType.Hotbar) {
+            destInventory = playerComponent.hotbarInventory;
+        } else {
+            destInventory = playerComponent.inventory;
+        }
+
+        destInventory.setSlot(data.destIndex, sourceInventory.takeItem(data.sourceIndex));
     }
 
     /**
@@ -390,8 +425,7 @@ public class NetworkServerSystem extends BaseSystem {
         sparseBlockUpdate.blocks.add(new Network.SingleSparseBlock(block, x, y));
 
         //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
-        // purpose ofo
-        //this. so put it in a queue, etc..
+        // purpose of this. so put it in a queue, etc..
         PlayerComponent playerComponent = playerMapper.get(player);
         m_serverKryo.sendToTCP(playerComponent.connectionId, sparseBlockUpdate);
     }

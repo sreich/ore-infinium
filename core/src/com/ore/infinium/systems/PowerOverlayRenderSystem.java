@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
@@ -103,7 +104,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_container.add(label);
 
         m_container.defaults().space(4);
-
+        Stack stack;
         m_container.setZIndex(POWER_OVERLAY_STAGE_Z);
         m_stage.addActor(m_container);
     }

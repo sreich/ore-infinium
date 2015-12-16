@@ -134,6 +134,10 @@ public class PowerCircuitSystem extends BaseSystem {
             return;
         }
 
+        calculateSupplyAndDemandRates();
+    }
+
+    private void calculateSupplyAndDemandRates() {
         for (PowerCircuit circuit : m_circuits) {
 
             circuit.totalDemand = 0;
@@ -169,8 +173,6 @@ public class PowerCircuitSystem extends BaseSystem {
             //disallow connection with itself
             return false;
         }
-
-        boolean mergeCircuits = false;
 
         for (PowerCircuit circuit : m_circuits) {
             for (PowerWireConnection connection : circuit.wireConnections) {

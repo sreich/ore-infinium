@@ -13,10 +13,7 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
-import com.ore.infinium.Inventory;
-import com.ore.infinium.Network;
-import com.ore.infinium.OreClient;
-import com.ore.infinium.OreWorld;
+import com.ore.infinium.*;
 import com.ore.infinium.components.*;
 
 import java.io.IOException;
@@ -74,7 +71,7 @@ public class NetworkClientSystem extends BaseSystem {
 
     private OreWorld m_world;
 
-    private Client m_clientKryo;
+    public Client m_clientKryo;
 
     /**
      * the network id is a special id that is used to refer to an entity across
@@ -135,17 +132,7 @@ public class NetworkClientSystem extends BaseSystem {
                     m_clientKryo.connect(99999999 /*fixme, debug*/, ip, port);
                     // Server communication after connection can go here, or in Listener#connected().
 
-                    Network.InitialClientData initialClientData = new Network.InitialClientData();
-
-                    initialClientData.playerName = "testplayername";
-
-                    //TODO generate some random thing
-                    initialClientData.playerUUID = UUID.randomUUID().toString();
-                    initialClientData.versionMajor = OreClient.ORE_VERSION_MAJOR;
-                    initialClientData.versionMinor = OreClient.ORE_VERSION_MINOR;
-                    initialClientData.versionRevision = OreClient.ORE_VERSION_REVISION;
-
-                    m_clientKryo.sendTCP(initialClientData);
+                    sendInitialClientData();
                 } catch (IOException ex) {
                     //fixme this is horrible..but i can't figure out how to rethrow it back to the calling thread
                     //throw new IOException("tesssst");
@@ -157,138 +144,180 @@ public class NetworkClientSystem extends BaseSystem {
 
     }
 
+    private void sendInitialClientData() {
+        Network.InitialClientData initialClientData = new Network.InitialClientData();
+
+        initialClientData.playerName = OreSettings.getInstance().playerName;
+
+        //TODO generate some random thing
+        initialClientData.playerUUID = UUID.randomUUID().toString();
+        initialClientData.versionMajor = OreClient.ORE_VERSION_MAJOR;
+        initialClientData.versionMinor = OreClient.ORE_VERSION_MINOR;
+        initialClientData.versionRevision = OreClient.ORE_VERSION_REVISION;
+
+        m_clientKryo.sendTCP(initialClientData);
+    }
+
     @Override
     protected void processSystem() {
         processNetworkQueue();
     }
 
     private void processNetworkQueue() {
-        for (Object object = m_netQueue.poll(); object != null; object = m_netQueue.poll()) {
-            if (object instanceof Network.PlayerSpawnedFromServer) {
-
-                Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) object;
-
-                if (!connected) {
-                    //fixme not ideal, calling into the client to do this????
-                    int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
-                    SpriteComponent spriteComp = spriteMapper.get(player);
-
-                    spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
-                    m_world.addPlayer(player);
-
-                    SpriteComponent playerSprite = spriteMapper.get(player);
-                    playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"));
-
-                    AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
-                    EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
-                    subscription.addSubscriptionListener(new ClientEntitySubscriptionListener());
-
-                    connected = true;
-
-                    for (NetworkClientListener listener : m_listeners) {
-                        listener.connected();
-                    }
-                } else {
-                    //FIXME cover other players joining case
-                    throw new RuntimeException("fixme, other players joining not yet implemented");
-                }
-            } else if (object instanceof Network.KickReason) {
-                Network.KickReason reason = (Network.KickReason) object;
-
-                for (NetworkClientListener listener : m_listeners) {
-                    listener.disconnected();
-                }
-            } else if (object instanceof Network.BlockRegion) {
-                Network.BlockRegion region = (Network.BlockRegion) object;
-                m_world.loadBlockRegion(region);
-            } else if (object instanceof Network.SparseBlockUpdate) {
-                Network.SparseBlockUpdate update = (Network.SparseBlockUpdate) object;
-                m_world.loadSparseBlockUpdate(update);
-            } else if (object instanceof Network.LoadedViewportMovedFromServer) {
-                Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) object;
-                PlayerComponent c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
-                c.loadedViewport.rect = v.rect;
-            } else if (object instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
-                Network.PlayerSpawnHotbarInventoryItemFromServer spawn =
-                        (Network.PlayerSpawnHotbarInventoryItemFromServer) object;
-
-                //fixme spawn.id, sprite!!
-                int e = getWorld().create();
-                for (Component c : spawn.components) {
-                    EntityEdit entityEdit = getWorld().edit(e);
-                    entityEdit.add(c);
-                }
-
-                SpriteComponent spriteComponent = spriteMapper.create(e);
-                spriteComponent.textureName = spawn.textureName;
-                spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
-
-                TextureRegion textureRegion;
-                if (!blockMapper.has(e)) {
-                    textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
-                } else {
-                    textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
-                }
-
-                ToolComponent toolComponent = toolMapper.get(e);
-
-                ItemComponent itemComponent = itemMapper.get(e);
-                //fixme this indirection isn't so hot...
-                m_world.m_client.m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
-
-                //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
-                // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
-
-            } else if (object instanceof Network.EntitySpawnFromServer) {
-                //fixme this and hotbar code needs consolidation
-                Network.EntitySpawnFromServer spawn = (Network.EntitySpawnFromServer) object;
-
-                int e = getWorld().create();
-                for (Component c : spawn.components) {
-                    EntityEdit entityEdit = getWorld().edit(e);
-                    entityEdit.add(c);
-                }
-
-                //fixme id..see above.
-                SpriteComponent spriteComponent = spriteMapper.create(e);
-                spriteComponent.textureName = spawn.textureName;
-                spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
-                spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
-
-                TextureRegion textureRegion;
-                if (!blockMapper.has(e)) {
-                    textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
-                } else {
-                    textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
-                }
-
-                spriteComponent.sprite.setRegion(textureRegion);
-
-                m_networkIdForEntityId.put(e, spawn.id);
-                m_entityForNetworkId.put(spawn.id, e);
-            } else if (object instanceof Network.ChatMessageFromServer) {
-                Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) object;
-                m_world.m_client.m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
-            } else if (object instanceof Network.EntityMovedFromServer) {
-                Network.EntityMovedFromServer data = (Network.EntityMovedFromServer) object;
-                int entity = m_entityForNetworkId.get(data.id);
-                assert entity != OreWorld.ENTITY_INVALID;
-
-                SpriteComponent spriteComponent = spriteMapper.get(entity);
-                spriteComponent.sprite.setPosition(data.position.x, data.position.y);
+        for (Object receivedObject = m_netQueue.poll(); receivedObject != null; receivedObject = m_netQueue.poll()) {
+            if (receivedObject instanceof Network.PlayerSpawnedFromServer) {
+                receivePlayerSpawn(receivedObject);
+            } else if (receivedObject instanceof Network.DisconnectReason) {
+                receiveDisconnectReason(receivedObject);
+            } else if (receivedObject instanceof Network.BlockRegion) {
+                receiveBlockRegion(receivedObject);
+            } else if (receivedObject instanceof Network.SparseBlockUpdate) {
+                receiveSparseBlockUpdate(receivedObject);
+            } else if (receivedObject instanceof Network.LoadedViewportMovedFromServer) {
+                receiveLoadedViewportMoved(receivedObject);
+            } else if (receivedObject instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
+                receivePlayerSpawnHotbarInventoryItem(receivedObject);
+            } else if (receivedObject instanceof Network.EntitySpawnFromServer) {
+                receiveEntitySpawn(receivedObject);
+            } else if (receivedObject instanceof Network.ChatMessageFromServer) {
+                receiveChatMessage(receivedObject);
+            } else if (receivedObject instanceof Network.EntityMovedFromServer) {
+                receiveEntityMoved(receivedObject);
             } else {
-                if (!(object instanceof FrameworkMessage.KeepAlive)) {
+                if (!(receivedObject instanceof FrameworkMessage.KeepAlive)) {
                     Gdx.app.log("client network", "unhandled network receiving class");
                     assert false;
                 }
             }
-
-            // if (object instanceof ChatMessage) {
-            //         ChatMessage chatMessage = (ChatMessage)object;
-            //         chatFrame.addMessage(chatMessage.text);
-            //         return;
-            // }
         }
+    }
+
+    private void receivePlayerSpawnHotbarInventoryItem(Object receivedObject) {
+        Network.PlayerSpawnHotbarInventoryItemFromServer spawn =
+                (Network.PlayerSpawnHotbarInventoryItemFromServer) receivedObject;
+
+        //fixme spawn.id, sprite!!
+        int e = getWorld().create();
+        for (Component c : spawn.components) {
+            EntityEdit entityEdit = getWorld().edit(e);
+            entityEdit.add(c);
+        }
+
+        SpriteComponent spriteComponent = spriteMapper.create(e);
+        spriteComponent.textureName = spawn.textureName;
+        spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
+
+        TextureRegion textureRegion;
+        if (!blockMapper.has(e)) {
+            textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+        } else {
+            textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+        }
+
+        ToolComponent toolComponent = toolMapper.get(e);
+
+        ItemComponent itemComponent = itemMapper.get(e);
+        //fixme this indirection isn't so hot...
+        m_world.m_client.m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
+
+        //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
+        // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
+    }
+
+    private void receiveChatMessage(Object receivedObject) {
+        Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) receivedObject;
+        m_world.m_client.m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
+    }
+
+    private void receiveEntityMoved(Object receivedObject) {
+        Network.EntityMovedFromServer data = (Network.EntityMovedFromServer) receivedObject;
+        int entity = m_entityForNetworkId.get(data.id);
+        assert entity != OreWorld.ENTITY_INVALID;
+
+        SpriteComponent spriteComponent = spriteMapper.get(entity);
+        spriteComponent.sprite.setPosition(data.position.x, data.position.y);
+    }
+
+    private void receiveEntitySpawn(Object receivedObject) {
+        //fixme this and hotbar code needs consolidation
+        Network.EntitySpawnFromServer spawn = (Network.EntitySpawnFromServer) receivedObject;
+
+        int e = getWorld().create();
+        for (Component c : spawn.components) {
+            EntityEdit entityEdit = getWorld().edit(e);
+            entityEdit.add(c);
+        }
+
+        //fixme id..see above.
+        SpriteComponent spriteComponent = spriteMapper.create(e);
+        spriteComponent.textureName = spawn.textureName;
+        spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
+        spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+
+        TextureRegion textureRegion;
+        if (!blockMapper.has(e)) {
+            textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+        } else {
+            textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+        }
+
+        spriteComponent.sprite.setRegion(textureRegion);
+
+        m_networkIdForEntityId.put(e, spawn.id);
+        m_entityForNetworkId.put(spawn.id, e);
+    }
+
+    private void receiveLoadedViewportMoved(Object receivedObject) {
+        Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) receivedObject;
+        PlayerComponent c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
+        c.loadedViewport.rect = v.rect;
+    }
+
+    private void receiveSparseBlockUpdate(Object receivedObject) {
+        Network.SparseBlockUpdate update = (Network.SparseBlockUpdate) receivedObject;
+        m_world.loadSparseBlockUpdate(update);
+    }
+
+    private void receiveDisconnectReason(Object receivedObject) {
+        Network.DisconnectReason reason = (Network.DisconnectReason) receivedObject;
+
+        for (NetworkClientListener listener : m_listeners) {
+            listener.disconnected();
+        }
+    }
+
+    private void receivePlayerSpawn(Object receivedObject) {
+        Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) receivedObject;
+
+        if (!connected) {
+            //fixme not ideal, calling into the client to do this????
+            int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
+            SpriteComponent spriteComp = spriteMapper.get(player);
+
+            spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+            m_world.addPlayer(player);
+
+            SpriteComponent playerSprite = spriteMapper.get(player);
+            playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"));
+
+            AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
+            EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
+            subscription.addSubscriptionListener(new ClientEntitySubscriptionListener());
+
+            connected = true;
+
+            for (NetworkClientListener listener : m_listeners) {
+                listener.connected();
+            }
+        } else {
+            //FIXME cover other players joining case
+            throw new RuntimeException("fixme, other players joining not yet implemented");
+        }
+    }
+
+    private void receiveBlockRegion(Object receivedObject) {
+        Network.BlockRegion region = (Network.BlockRegion) receivedObject;
+        m_world.loadBlockRegion(region);
     }
 
     public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, byte sourceIndex,
