@@ -4,6 +4,7 @@ import com.artemis.Component;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
+import com.ore.infinium.OreWorld;
 
 /**
  * ***************************************************************************
@@ -24,9 +25,9 @@ import com.ore.infinium.OreTimer;
  * ***************************************************************************
  */
 public class PlayerComponent extends Component {
-    public final static float jumpVelocity = 5.0f;
-    public final static float movementSpeed = .8f;
-    public final static float maxMovementSpeed = movementSpeed * 1;
+    public final static float jumpVelocity = OreWorld.GRAVITY_ACCEL * 4;
+    public final static float movementSpeed = 2.8f;
+    public final static float maxMovementSpeed = movementSpeed * 1.2f;
 
     public String playerName;
     /**

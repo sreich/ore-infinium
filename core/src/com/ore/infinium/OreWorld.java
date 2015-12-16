@@ -43,8 +43,8 @@ import java.util.HashMap;
  * ***************************************************************************
  */
 public class OreWorld {
-    public static final float GRAVITY_ACCEL = 9.8f / 3.0f;
-    public static final float GRAVITY_ACCEL_CLAMP = 9.8f / 3.0f;
+    public static final float GRAVITY_ACCEL = 0.5f;
+    public static final float GRAVITY_ACCEL_CLAMP = 0.5f;
 
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
