@@ -5,7 +5,6 @@ import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -68,7 +67,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
 
         renderEntities(world.getDelta());
-        //        renderDroppedEntities(world.getDelta());
+        renderDroppedEntities(world.getDelta());
 
     }
 
@@ -96,8 +95,8 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
             m_batch.draw(spriteComponent.sprite,
                          spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                         spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
+                         spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
         }
     }
 
@@ -144,8 +143,8 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
             //flip the sprite when drawn, by using negative height
             m_batch.draw(spriteComponent.sprite,
-                         spriteComponent.sprite.getX() - MathUtils.floor(spriteComponent.sprite.getWidth() * 0.5f),
-                         spriteComponent.sprite.getY() + MathUtils.floor(spriteComponent.sprite.getHeight() * 0.5f),
+                         spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                         spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
                          spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
 
             //reset color for next run

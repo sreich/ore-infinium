@@ -71,8 +71,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
     private final Skin m_skin;
 
     private Table m_container;
-
-    public static final int POWER_OVERLAY_STAGE_Z = 50000000;
+    private Table m_totalStatsTable;
 
     public PowerOverlayRenderSystem(OreWorld world, Stage stage, Skin skin) {
         super(Aspect.all(PowerDeviceComponent.class));
@@ -95,16 +94,26 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         tooltipSprite.noClip = true;
 
         m_container = new Table(m_skin);
-        //        m_container.setFillParent(true);
-        m_container.top().left().setSize(800, 100);
-        m_container.padLeft(10).padTop(10);
+        m_container.setFillParent(true);
+        m_container.row().expand();
+        //      m_container.padLeft(10).padTop(10);
+        //        m_container.set
+
+        m_totalStatsTable = new Table(m_skin);
+        m_totalStatsTable.bottom().right().setSize(400, 100);
+        m_totalStatsTable.setBackground("default-pane");
+
+        m_totalStatsTable.row().fill();
 
         Label label = new Label("TEEEEEESTSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSTTTTTTTTTTTTTTTTTTTTTt", m_skin);
-        m_container.add(label);
+        m_totalStatsTable.add(label);
 
-        m_container.defaults().space(4);
+        m_container.add(m_totalStatsTable);
+
+        //        m_container.defaults().space(4);
+        m_container.setVisible(false);
+
         m_stage.addActor(m_container);
-        m_container.setZIndex(POWER_OVERLAY_STAGE_Z);
     }
 
     @Override
@@ -330,6 +339,12 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         //when wire overlay is visible, the entity overlays should be off.
         m_entityOverlaySystem.setEnabled(!overlayVisible);
         m_entityOverlaySystem.setOverlaysVisible(!overlayVisible);
+
+        if (overlayVisible) {
+            m_container.toFront();
+        }
+
+        m_container.setVisible(overlayVisible);
     }
 
 }
