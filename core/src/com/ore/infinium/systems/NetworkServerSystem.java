@@ -58,7 +58,7 @@ public class NetworkServerSystem extends BaseSystem {
     private OreWorld m_world;
 
     private OreServer m_server;
-    private Server m_serverKryo;
+    public Server m_serverKryo;
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
 
     public NetworkServerSystem(OreWorld world, OreServer server) {
