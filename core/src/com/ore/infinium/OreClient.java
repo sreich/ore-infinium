@@ -538,6 +538,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
+        if (m_powerOverlayRenderSystem.overlayVisible) {
+            //don't allow item/inventory selection during this
+            return false;
+        }
+
         int index = m_hotbarInventory.m_selectedSlot;
         if (amount > 0) {
             //right, inventory selection scrolling does not wrap around.
