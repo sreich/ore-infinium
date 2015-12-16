@@ -14,7 +14,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
@@ -73,7 +72,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
     private Table m_container;
 
-    public static final int POWER_OVERLAY_STAGE_Z = 5000;
+    public static final int POWER_OVERLAY_STAGE_Z = 50000000;
 
     public PowerOverlayRenderSystem(OreWorld world, Stage stage, Skin skin) {
         super(Aspect.all(PowerDeviceComponent.class));
@@ -96,7 +95,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         tooltipSprite.noClip = true;
 
         m_container = new Table(m_skin);
-        m_container.setFillParent(true);
+        //        m_container.setFillParent(true);
         m_container.top().left().setSize(800, 100);
         m_container.padLeft(10).padTop(10);
 
@@ -104,9 +103,8 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_container.add(label);
 
         m_container.defaults().space(4);
-        Stack stack;
-        m_container.setZIndex(POWER_OVERLAY_STAGE_Z);
         m_stage.addActor(m_container);
+        m_container.setZIndex(POWER_OVERLAY_STAGE_Z);
     }
 
     @Override

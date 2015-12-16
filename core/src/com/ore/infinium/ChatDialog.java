@@ -26,7 +26,7 @@ import com.ore.infinium.systems.NetworkClientSystem;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ChatBox implements Chat.ChatListener {
+public class ChatDialog implements Chat.ChatListener {
     private final Stage m_stage;
     private final Skin m_skin;
     private final OreClient m_client;
@@ -50,7 +50,7 @@ public class ChatBox implements Chat.ChatListener {
         Label chatTextLabel;
     }
 
-    public ChatBox(OreClient client, Stage stage, Skin skin) {
+    public ChatDialog(OreClient client, Stage stage, Skin skin) {
         m_client = client;
         m_stage = stage;
         m_skin = skin;
@@ -83,7 +83,7 @@ public class ChatBox implements Chat.ChatListener {
         container.add(m_send).right();
 
         stage.setKeyboardFocus(m_send);
-//        container.background("default-window");
+        //        container.background("default-window");
 
         container.layout();
         m_scrollPaneTable.layout();
@@ -153,15 +153,15 @@ public class ChatBox implements Chat.ChatListener {
 
         boolean notification = chatVisibility == ChatVisibility.Notification;
 
-//        m_messageField.setVisible(!notification);
+        //        m_messageField.setVisible(!notification);
         m_messageField.setDisabled(notification);
         m_send.setVisible(!notification);
-//        m_scroll.setScrollingDisabled(notification, notification);
+        //        m_scroll.setScrollingDisabled(notification, notification);
 
         scrollToBottom();
         Touchable touchable = notification ? Touchable.disabled : Touchable.enabled;
-//        m_scrollPaneTable.setTouchable(touchable);
-//        m_scroll.setTouchable(touchable);
+        //        m_scrollPaneTable.setTouchable(touchable);
+        //        m_scroll.setTouchable(touchable);
         chatVisibilityState = chatVisibility;
     }
 

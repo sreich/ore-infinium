@@ -60,7 +60,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private DragAndDrop m_dragAndDrop;
 
     private Dialog dialog;
-    private ChatBox m_chatBox;
+    private ChatDialog m_chatDialog;
     private HotbarInventoryView m_hotbarView;
     private InventoryView m_inventoryView;
 
@@ -122,9 +122,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_skin.add("myfont", bitmapFont_8pt, BitmapFont.class);
         m_skin.load(Gdx.files.internal("ui/ui.json"));
 
-        m_chatBox = new ChatBox(this, m_stage, m_skin);
+        m_chatDialog = new ChatDialog(this, m_stage, m_skin);
         m_chat = new Chat();
-        m_chat.addListener(m_chatBox);
+        m_chat.addListener(m_chatDialog);
 
         m_sidebar = new Sidebar(m_stage, m_skin, this);
 
@@ -222,10 +222,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
     }
 
     public void toggleChatVisible() {
-        if (m_chatBox.chatVisibilityState == ChatBox.ChatVisibility.Normal) {
-            m_chatBox.closeChatDialog();
+        if (m_chatDialog.chatVisibilityState == ChatDialog.ChatVisibility.Normal) {
+            m_chatDialog.closeChatDialog();
         } else {
-            m_chatBox.openChatDialog();
+            m_chatDialog.openChatDialog();
         }
     }
 
