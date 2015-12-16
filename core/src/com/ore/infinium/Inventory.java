@@ -64,7 +64,7 @@ public class Inventory {
         m_listeners.add(listener);
     }
 
-    public void setCount(byte index, byte newCount) {
+    public void setCount(byte index, int newCount) {
         itemMapper.get(m_slots[index]).stackSize = newCount;
 
         for (SlotListener listener : m_listeners) {

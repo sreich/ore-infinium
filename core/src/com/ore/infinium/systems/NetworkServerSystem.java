@@ -219,9 +219,15 @@ public class NetworkServerSystem extends BaseSystem {
 
     }
 
+    /**
+     * NOTE: most of these commands the server is receiving, are just requests.
+     * The server should verify that they are valid to do. If they are not, it will
+     * just ignore them. Movement is one of the main notable exceptions, although
+     * it still verifies it is within a reasonable threshold
+     * fixme actually none of that happens :) but this is the plan :D
+     * right now it just goes "ok client, i'll do whatever you say" for most things
+     */
     private void processNetworkQueue() {
-        //todo all needs verification. right now it just goes "ok client, i'll do whatever you say"
-        //for most things
         for (NetworkJob job = m_netQueue.poll(); job != null; job = m_netQueue.poll()) {
             if (job.object instanceof Network.InitialClientData) {
                 receiveInitialClientData(job);
@@ -237,7 +243,7 @@ public class NetworkServerSystem extends BaseSystem {
                 receiveBlockPlace(job);
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
                 receivePlayerEquipHotbarIndex(job);
-            } else if (job.object instanceof Network.HotbarDropItemRequestFromClient) {
+            } else if (job.object instanceof Network.HotbarDropItemFromClient) {
                 receiveHotbarDropItem(job);
             } else if (job.object instanceof Network.ItemPlaceFromClient) {
                 receiveItemPlace(job);
@@ -317,20 +323,19 @@ public class NetworkServerSystem extends BaseSystem {
     }
 
     private void receiveHotbarDropItem(NetworkJob job) {
-        Network.HotbarDropItemRequestFromClient data = ((Network.HotbarDropItemRequestFromClient) job.object);
+        Network.HotbarDropItemFromClient data = ((Network.HotbarDropItemFromClient) job.object);
         PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
         int itemToDrop = playerComponent.hotbarInventory.itemEntity(data.index);
         ItemComponent itemToDropComponent = itemMapper.get(itemToDrop);
+        //decrease count of equipped item
         if (itemToDropComponent.stackSize > 1) {
             itemToDropComponent.stackSize -= 1;
         } else {
-            //remove item from inventory, client has already done so, because the count will be 0 after this
-            // drop
-            // fixme          m_world.engine.removeEntity(playerComponent.hotbarInventory.takeItem(data.index));
+            //remove item from inventory, client has already done so, because the count will be 0 after this drop
+            getWorld().delete(playerComponent.hotbarInventory.takeItem(data.index));
         }
 
-        //decrease count of equipped item
         int droppedItem = m_world.cloneEntity(itemToDrop);
 
         ItemComponent itemDroppedComponent = itemMapper.get(droppedItem);

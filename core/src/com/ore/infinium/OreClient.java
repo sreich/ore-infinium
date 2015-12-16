@@ -448,9 +448,9 @@ public class OreClient implements ApplicationListener, InputProcessor {
         PlayerComponent playerComponent = playerMapper.get(player);
 
         if (playerComponent.getEquippedPrimaryItem() != OreWorld.ENTITY_INVALID) {
-            Network.HotbarDropItemRequestFromClient dropItemRequestFromClient =
-                    new Network.HotbarDropItemRequestFromClient();
-            dropItemRequestFromClient.index = playerComponent.hotbarInventory.m_selectedSlot;
+            Network.HotbarDropItemFromClient dropItemRequestFromClient = new Network.HotbarDropItemFromClient();
+            byte currentEquippedIndex = playerComponent.hotbarInventory.m_selectedSlot;
+            dropItemRequestFromClient.index = currentEquippedIndex;
 
             // decrement count, we assume it'll get spawned shortly when the server tells us to.
             // delete in-inventory entity if necessary server assumes we already do so
@@ -459,6 +459,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             if (itemComponent.stackSize > 1) {
                 //decrement count, server has already done so. we assume here that it went through properly.
                 itemComponent.stackSize -= 1;
+                m_hotbarInventory.setCount(currentEquippedIndex, itemComponent.stackSize);
             } else {
                 //delete it, server knows/assumes we already did, since there are no more left
                 int item = playerComponent.hotbarInventory.takeItem(dropItemRequestFromClient.index);
@@ -568,12 +569,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_hotbarInventory = new Inventory(player);
         m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
+        m_world.m_artemisWorld.inject(m_hotbarInventory, true);
         playerComponent.hotbarInventory = m_hotbarInventory;
 
         m_hotbarInventory.addListener(new HotbarSlotListener());
 
         m_inventory = new Inventory(player);
         m_inventory.inventoryType = Inventory.InventoryType.Inventory;
+        m_world.m_artemisWorld.inject(m_inventory, true);
         playerComponent.inventory = m_inventory;
 
         m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);

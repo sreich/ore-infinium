@@ -50,7 +50,7 @@ public class Network {
         kryo.register(BlockPlaceFromClient.class);
         kryo.register(ItemPlaceFromClient.class);
         kryo.register(PlayerEquipHotbarIndexFromClient.class);
-        kryo.register(HotbarDropItemRequestFromClient.class);
+        kryo.register(HotbarDropItemFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
         kryo.register(EntityMovedFromServer.class);
@@ -227,7 +227,7 @@ public class Network {
         public Vector2 position;
     }
 
-    static public class HotbarDropItemRequestFromClient {
+    static public class HotbarDropItemFromClient {
         public byte index;
     }
 
