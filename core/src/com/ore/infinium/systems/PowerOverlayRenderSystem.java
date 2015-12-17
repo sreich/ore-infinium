@@ -73,6 +73,12 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
     private Table m_container;
     private Table m_totalStatsTable;
 
+    private int currentCircuitSupply = -1;
+    private int currentCircuitDemand = -1;
+
+    private Label m_circuitSupplyLabel;
+    private Label m_circuitDemandLabel;
+
     public PowerOverlayRenderSystem(OreWorld world, Stage stage, Skin skin) {
         super(Aspect.all(PowerDeviceComponent.class));
 
@@ -95,20 +101,33 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
         m_container = new Table(m_skin);
         m_container.setFillParent(true);
-        m_container.row().expand();
         //      m_container.padLeft(10).padTop(10);
         //        m_container.set
 
         m_totalStatsTable = new Table(m_skin);
-        m_totalStatsTable.bottom().right().setSize(400, 100);
+        m_totalStatsTable.top().left().pad(0, 6, 0, 0);
         m_totalStatsTable.setBackground("default-pane");
 
-        m_totalStatsTable.row().fill();
+        Label headerLabel = new Label("Power Circuit Stats", m_skin);
+        m_totalStatsTable.add(headerLabel).left();
 
-        Label label = new Label("TEEEEEESTSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSTTTTTTTTTTTTTTTTTTTTTt", m_skin);
-        m_totalStatsTable.add(label);
+        m_totalStatsTable.row();
 
-        m_container.add(m_totalStatsTable);
+        Label demandLabel = new Label("Circuit Demand:", m_skin);
+        m_totalStatsTable.add(demandLabel).left();
+
+        m_circuitDemandLabel = new Label("-1", m_skin);
+        m_totalStatsTable.add(m_circuitDemandLabel);
+
+        m_totalStatsTable.row();
+
+        Label supplyLabel = new Label("Circuit Supply:", m_skin);
+        m_totalStatsTable.add(supplyLabel).left();
+
+        m_circuitSupplyLabel = new Label("-1", m_skin);
+        m_totalStatsTable.add(m_circuitSupplyLabel);
+
+        m_container.add(m_totalStatsTable).expand().bottom().right().size(400, 100);
 
         //        m_container.defaults().space(4);
         m_container.setVisible(false);
@@ -123,7 +142,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
     //todo sufficient until we get a spatial hash or whatever
 
-    private int deviceAtPosition(Vector2 pos) {
+    private int entityAtPosition(Vector2 pos) {
 
         SpriteComponent spriteComponent;
         IntBag entities = getEntityIds();
@@ -160,7 +179,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_dragInProgress = true;
 
         //find the entity we're dragging on
-        m_dragSourceEntity = deviceAtPosition(m_world.mousePositionWorldCoords());
+        m_dragSourceEntity = entityAtPosition(m_world.mousePositionWorldCoords());
     }
 
     public void rightMouseClicked() {
@@ -177,7 +196,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             if (m_dragSourceEntity != OreWorld.ENTITY_INVALID) {
                 Vector2 mouse = m_world.mousePositionWorldCoords();
 
-                int dropEntity = deviceAtPosition(new Vector2(mouse.x, mouse.y));
+                int dropEntity = entityAtPosition(new Vector2(mouse.x, mouse.y));
                 //if the drop is invalid/empty, or they attempted to drop on the same spot they dragged from, ignore
                 if (dropEntity == OreWorld.ENTITY_INVALID || dropEntity == m_dragSourceEntity) {
                     m_dragSourceEntity = OreWorld.ENTITY_INVALID;
@@ -241,6 +260,35 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_world.m_client.bitmapFont_8pt.setColor(1, 1, 1, 1);
 
         m_batch.end();
+
+        updateCircuitStats();
+    }
+
+    private void updateCircuitStats() {
+        Vector2 mouse = m_world.mousePositionWorldCoords();
+
+        int dropEntity = entityAtPosition(new Vector2(mouse.x, mouse.y));
+        if (dropEntity != OreWorld.ENTITY_INVALID) {
+            PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.getSafe(dropEntity);
+            if (powerDeviceComponent == null || powerDeviceComponent.owningCircuit == null) {
+                return;
+            }
+
+            currentCircuitDemand = powerDeviceComponent.owningCircuit.totalDemand;
+            currentCircuitSupply = powerDeviceComponent.owningCircuit.totalSupply;
+
+            m_circuitDemandLabel.setText(String.valueOf(currentCircuitDemand));
+            m_circuitSupplyLabel.setText(String.valueOf(currentCircuitSupply));
+        } else {
+            //reset them both and update the labels
+            if (currentCircuitDemand != -1) {
+                currentCircuitDemand = -1;
+                currentCircuitSupply = -1;
+
+                m_circuitDemandLabel.setText(String.valueOf(currentCircuitDemand));
+                m_circuitSupplyLabel.setText(String.valueOf(currentCircuitSupply));
+            }
+        }
     }
 
     private void renderEntities(float delta) {
