@@ -1,6 +1,7 @@
 package com.ore.infinium.components;
 
 import com.artemis.Component;
+import com.ore.infinium.systems.PowerCircuitSystem;
 
 /**
  * ***************************************************************************
@@ -28,11 +29,17 @@ import com.artemis.Component;
 public class PowerDeviceComponent extends Component {
 
     /**
+     * circuit that this device resides on
+     */
+    public PowerCircuitSystem.PowerCircuit owningCircuit;
+
+    /**
      * copy a component (similar to copy constructor)
      *
      * @param component
      *         component to copy from, into this instance
      */
     public void copyFrom(PowerDeviceComponent component) {
+        owningCircuit = component.owningCircuit;
     }
 }

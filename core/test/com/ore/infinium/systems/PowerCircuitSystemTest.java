@@ -5,6 +5,7 @@ import com.artemis.World;
 import com.artemis.WorldConfigurationBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.OreWorld;
+import com.ore.infinium.components.PowerDeviceComponent;
 import com.ore.infinium.components.SpriteComponent;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,6 +33,7 @@ public class PowerCircuitSystemTest {
     PowerCircuitSystem circuitSystem;
 
     private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<PowerDeviceComponent> deviceMapper;
 
     @Before
     public void createArtemisWorld() {
@@ -89,6 +91,11 @@ public class PowerCircuitSystemTest {
         assertEquals(1, circuitSystem.m_circuits.get(1).consumers.size);
         assertEquals(1, circuitSystem.m_circuits.get(1).generators.size);
 
+        //ensure that all devices owning circuit, the one used for fast reverse lookups
+        //are separate circuits
+        assertNotEquals(deviceMapper.get(gen1), deviceMapper.get(gen2).owningCircuit);
+        assertNotEquals(deviceMapper.get(light1), deviceMapper.get(light2).owningCircuit);
+
         //so there were 4 devices, 2 on one circuit. 2 on another.
         //now we draw a wire from one of those on one circuit, to the 2nd circuit
         //it should merge to 1 circuit, and all of the wires move over
@@ -99,6 +106,12 @@ public class PowerCircuitSystemTest {
         //should now have 2 of each...2 gen's,  2 consumers. all in 1 circuit
         assertEquals(2, circuitSystem.m_circuits.first().generators.size);
         assertEquals(2, circuitSystem.m_circuits.first().consumers.size);
+
+        //ensure that all the devices' reverse circuit lookup now point to the right circuit.
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen1).owningCircuit);
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light1).owningCircuit);
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen2).owningCircuit);
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light2).owningCircuit);
     }
 
     /**
@@ -156,6 +169,10 @@ public class PowerCircuitSystemTest {
 
         //ensure the first circuit (ours) has 1 wire in it.
         assertEquals(1, circuitSystem.m_circuits.first().wireConnections.size);
+
+        //ensure owning circuit reverse lookup is updated properly
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen).owningCircuit);
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light).owningCircuit);
     }
 
     /**

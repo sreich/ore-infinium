@@ -218,8 +218,18 @@ public class PowerCircuitSystem extends BaseSystem {
                                 connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
                                 addWireConnection(firstEntity, secondEntity, circuit2);
 
-                                // merge the connections from this circuit to the other one now.
-                                circuit.wireConnections.addAll(circuit2.wireConnections);
+                                for (int itWireConnections = 0; itWireConnections < circuit2.wireConnections.size;
+                                     ++itWireConnections) {
+
+                                    //update the owning circuit of the ones getting moved over,
+                                    // to now point to the new one they reside on
+                                    int movedEntity1 = circuit2.wireConnections.get(itWireConnections).firstEntity;
+                                    int movedEntity2 = circuit2.wireConnections.get(itWireConnections).secondEntity;
+                                    updateDevicesOwningCircuit(movedEntity1, movedEntity2, circuit);
+
+                                    // merge the connections from this circuit to the other one now.
+                                    circuit.wireConnections.add(circuit2.wireConnections.get(itWireConnections));
+                                }
 
                                 //transfer over our running list of consumers and stuff too
 
@@ -365,6 +375,19 @@ public class PowerCircuitSystem extends BaseSystem {
     }
 
     /**
+     * Updates the circuit that this device resides on. Used for faster reverse lookups
+     *
+     * @param firstEntity
+     * @param secondEntity
+     * @param circuit
+     *         the new circuit to update them to
+     */
+    private void updateDevicesOwningCircuit(int firstEntity, int secondEntity, PowerCircuit circuit) {
+        powerDeviceMapper.get(firstEntity).owningCircuit = circuit;
+        powerDeviceMapper.get(secondEntity).owningCircuit = circuit;
+    }
+
+    /**
      * Forms a wire connection between any 2 devices (direction does not matter).
      * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
      *
@@ -378,6 +401,8 @@ public class PowerCircuitSystem extends BaseSystem {
 
         PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
         circuit.wireConnections.add(powerWireConnection);
+
+        updateDevicesOwningCircuit(firstEntity, secondEntity, circuit);
 
         if (powerConsumerMapper.get(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
             circuit.consumers.add(firstEntity);
