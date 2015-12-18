@@ -31,7 +31,7 @@ public class PowerDeviceComponent extends Component {
     /**
      * circuit that this device resides on
      */
-    public PowerCircuitSystem.PowerCircuit owningCircuit;
+    public transient PowerCircuitSystem.PowerCircuit owningCircuit;
 
     /**
      * copy a component (similar to copy constructor)

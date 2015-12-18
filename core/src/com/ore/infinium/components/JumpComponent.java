@@ -30,7 +30,7 @@ public class JumpComponent extends Component {
     public boolean jumpRequested;
     //ms, interval between allowed jumps
     public int jumpInterval = 400;
-    public OreTimer jumpTimer = new OreTimer();
+    public transient OreTimer jumpTimer = new OreTimer();
 
     /**
      * copy a component (similar to copy constructor)

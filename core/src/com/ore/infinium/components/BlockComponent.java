@@ -20,6 +20,12 @@ import com.artemis.Component;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+
+/**
+ * used for blocks when they are held in the inventory or dropped in the world.
+ * they're not used for sending tile regions of course, that would be expensive.
+ * only arrays are used there.
+ */
 public class BlockComponent extends Component {
     public byte blockType;
 
