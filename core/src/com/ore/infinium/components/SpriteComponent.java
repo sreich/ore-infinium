@@ -23,7 +23,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
  */
 public class SpriteComponent extends Component {
 
-    public Sprite sprite = new Sprite();
+    public transient Sprite sprite = new Sprite();
 
     public EntityCategory category;
     //fixme yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
