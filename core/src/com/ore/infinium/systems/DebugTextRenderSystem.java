@@ -1,10 +1,8 @@
 package com.ore.infinium.systems;
 
-import com.artemis.Aspect;
-import com.artemis.AspectSubscriptionManager;
-import com.artemis.BaseSystem;
-import com.artemis.ComponentMapper;
+import com.artemis.*;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -14,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.Block;
 import com.ore.infinium.OreTimer;
@@ -57,6 +56,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
 
+    private TagManager m_tagManager;
     private NetworkClientSystem m_networkClientSystem;
     private TileRenderSystem m_tileRenderSystem;
 
@@ -171,6 +171,10 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         textY -= 15;
 
         m_font.draw(m_batch, networkSyncDebug, 0, textY);
+        textY -= 15;
+
+        printInfoForEntityAtPosition(textY);
+
         textY -= 15;
 
         m_font.draw(m_batch, spriteRenderDebug, 0, textY);
@@ -288,6 +292,50 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
         GLProfiler.reset();
 
+    }
+
+    private void printInfoForEntityAtPosition(int textY) {
+        Vector2 mousePos = m_world.mousePositionWorldCoords();
+
+        AspectSubscriptionManager aspectSubscriptionManager = world.getAspectSubscriptionManager();
+        EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class));
+        IntBag entities = entitySubscription.getEntities();
+
+        ItemComponent itemComponent;
+
+        String entityAtPositionLabel = "Entity at position: n/a";
+        for (int i = 0; i < entities.size(); ++i) {
+            int currentEntity = entities.get(i);
+
+            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+
+            Entity entityBoxed = world.getEntity(currentEntity);
+
+            String entityTag = m_tagManager.getTag(entityBoxed);
+
+            //could be placement overlay, but we don't want this. skip over.
+            if (entityTag != null) {
+                if (entityTag.equals(OreWorld.s_itemPlacementOverlay) || entityTag.equals(OreWorld.s_crosshair)) {
+                    continue;
+                }
+            }
+
+            spriteComponent = spriteMapper.get(currentEntity);
+
+            Rectangle rectangle =
+                    new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
+                                  spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                                  spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+
+            if (rectangle.contains(mousePos)) {
+
+                entityAtPositionLabel = String.format("Entity at position: x: %f, y: %f", spriteComponent.sprite.getX(),
+                                                      spriteComponent.sprite.getY());
+                break;
+            }
+        }
+
+        m_font.draw(m_batch, entityAtPositionLabel, 0, textY);
     }
 
 }

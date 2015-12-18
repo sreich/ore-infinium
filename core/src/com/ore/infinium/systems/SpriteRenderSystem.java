@@ -5,6 +5,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -67,7 +68,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
 
         renderEntities(world.getDelta());
-        renderDroppedEntities(world.getDelta());
+        //        renderDroppedEntities(world.getDelta());
 
     }
 
@@ -86,9 +87,13 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
             itemComponent = itemMapper.getSafe(entities.get(i));
-            //don't draw in-inventory or dropped items
+            //don't draw in-inventory or not dropped items
             if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
                 continue;
+            }
+
+            if (entities.get(i) == 14) {
+                itemComponent = null;
             }
 
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
@@ -114,7 +119,8 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
             itemComponent = itemMapper.getSafe(entity);
             //don't draw in-inventory or dropped items
-            if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
+            if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
+                //hack
                 continue;
             }
 
@@ -141,10 +147,11 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
                 }
             }
 
+            float x = spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f);
+            float y = spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f);
+
             //flip the sprite when drawn, by using negative height
-            m_batch.draw(spriteComponent.sprite,
-                         spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                         spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
+            m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) / 16.0f,
                          spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
 
             //reset color for next run

@@ -169,6 +169,9 @@ public class MovementSystem extends IteratingSystem {
     }
 
     private void simulateDroppedItem(int item, float delta) {
+        if (true) {
+            return;
+        }
         ItemComponent itemComponent = itemMapper.get(item);
         if (itemComponent.state != ItemComponent.State.DroppedInWorld) {
             return;
