@@ -30,6 +30,8 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 
         jcenter()
+
+        maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
     }
 
     dependencies {
@@ -77,6 +79,7 @@ allprojects {
 
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
     }
 }
 
@@ -139,9 +142,11 @@ project(":core") {
 
         // jcommander for command line parsing
         compile "com.beust:jcommander:$jcommanderVersion"
-
         //junit
         testCompile 'junit:junit:$junitVersion'
+
+        //tween engine
+        compile 'org.sreich:tween-engine-api:6.3.3'
     }
 }
 

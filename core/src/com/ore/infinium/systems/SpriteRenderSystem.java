@@ -1,9 +1,14 @@
 package com.ore.infinium.systems;
 
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenEquations;
+import aurelienribon.tweenengine.TweenManager;
 import com.artemis.*;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.utils.IntBag;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.OreWorld;
@@ -43,6 +48,8 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
     private TagManager m_tagManager;
 
+    private TweenManager m_tweenManager;
+
     public SpriteRenderSystem(OreWorld world) {
         m_world = world;
     }
@@ -50,6 +57,10 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
     @Override
     protected void initialize() {
         m_batch = new SpriteBatch();
+        m_tweenManager = new TweenManager();
+        Tween.registerAccessor(Sprite.class, new SpriteTween());
+        //default is 3, but color requires 4 (rgba)
+        Tween.setCombinedAttributesLimit(4);
     }
 
     @Override
@@ -60,21 +71,30 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
     @Override
     protected void begin() {
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
-        m_batch.begin();
+        //       m_batch.begin();
     }
 
     @Override
     protected void processSystem() {
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
 
+        m_tweenManager.update(world.getDelta());
+
+        m_batch.begin();
         renderEntities(world.getDelta());
-        //        renderDroppedEntities(world.getDelta());
+        m_batch.end();
+
+        m_batch.begin();
+        renderDroppedEntities(world.getDelta());
+        m_batch.end();
+        //restore color
+        m_batch.setColor(Color.WHITE);
 
     }
 
     @Override
     protected void end() {
-        m_batch.end();
+        //        m_batch.end();
     }
 
     //fixme probably also droppedblocks?
@@ -92,18 +112,48 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
                 continue;
             }
 
-            if (entities.get(i) == 14) {
-                itemComponent = null;
-            }
-
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
+            if (!m_tweenManager.containsTarget(spriteComponent.sprite)) {
+                Tween.to(spriteComponent.sprite, SpriteTween.SCALE, .8f)
+                     .target(0, 0)
+                     .ease(TweenEquations.easeInOutBack)
+                     .repeatYoyo(Tween.INFINITY, 0.0f)
+                     .start(m_tweenManager);
+
+                Tween.to(spriteComponent.sprite, SpriteTween.ALPHA, .8f).target(0, 0).ease(TweenEquations.easeInOutBack)
+
+                     .repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager);
+            }
+
+            /*
             m_batch.draw(spriteComponent.sprite,
                          spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
                          spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
                          spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
+            */
+            m_batch.setColor(spriteComponent.sprite.getColor());
+
+            float x = spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f);
+            float y = spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f);
+
+            //flip the sprite when drawn, by using negative height
+            float scaleX = spriteComponent.sprite.getScaleX();
+            float scaleY = spriteComponent.sprite.getScaleY();
+
+            float width = spriteComponent.sprite.getWidth();
+            float height = -spriteComponent.sprite.getHeight();
+
+            float originX = width * 0.5f;
+            float originY = height * 0.5f;
+            //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
+
+            m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) / 16.0f,
+                         originX, originY, width, height, scaleX, scaleY, rotation);
         }
     }
+
+    static float rotation;
 
     private void renderEntities(float delta) {
         //todo need to exclude blocks?
@@ -119,7 +169,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
             itemComponent = itemMapper.getSafe(entity);
             //don't draw in-inventory or dropped items
-            if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
+            if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
                 //hack
                 continue;
             }
@@ -151,8 +201,17 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
             float y = spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f);
 
             //flip the sprite when drawn, by using negative height
+            float scaleX = 1;
+            float scaleY = 1;
+
+            float width = spriteComponent.sprite.getWidth();
+            float height = -spriteComponent.sprite.getHeight();
+
+            float originX = width * 0.5f;
+            float originY = height * 0.5f;
+
             m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) / 16.0f,
-                         spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
+                         originX, originY, width, height, scaleX, scaleY, rotation);
 
             //reset color for next run
             if (placementGhost) {
