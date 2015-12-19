@@ -2,6 +2,7 @@ package com.ore.infinium.systems;
 
 import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenEquations;
 import aurelienribon.tweenengine.TweenManager;
 import aurelienribon.tweenengine.equations.Sine;
 import com.artemis.*;
@@ -125,13 +126,13 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
                         .repeatYoyo(Tween.INFINITY, 0.0f)
                         .start(m_tweenManager);
 
-/*
-                Tween.to(spriteComponent.sprite, SpriteTween.COLOR, .8f)
-                     .target(0, 0, 1, 0.6f)
-                     .ease(TweenEquations.easeInOutBack)
+                Color glow = Color.GOLDENROD;
+                Tween.to(spriteComponent.sprite, SpriteTween.COLOR, 2.8f)
+
+                     .target(glow.r, glow.g, glow.b, 1)
+                     .ease(TweenEquations.easeInOutSine)
                      .repeatYoyo(Tween.INFINITY, 0.0f)
                      .start(m_tweenManager);
-                     */
             }
 
             /*
