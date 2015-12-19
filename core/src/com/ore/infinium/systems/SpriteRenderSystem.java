@@ -1,8 +1,9 @@
 package com.ore.infinium.systems;
 
+import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
-import aurelienribon.tweenengine.TweenEquations;
 import aurelienribon.tweenengine.TweenManager;
+import aurelienribon.tweenengine.equations.Sine;
 import com.artemis.*;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
@@ -115,11 +116,15 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
             if (!m_tweenManager.containsTarget(spriteComponent.sprite)) {
-                Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f)
-                     .target(0.5f, 0.5f)
-                     .ease(TweenEquations.easeInOutBack)
-                     .repeatYoyo(Tween.INFINITY, 0.0f)
-                     .start(m_tweenManager);
+
+                Timeline.createSequence()
+                        .push(Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f)
+                                   .target(0.2f, 0.2f)
+                                   .ease(Sine.IN))
+                        .push(Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f).target(.5f, .5f).ease(Sine.OUT))
+                        .repeatYoyo(Tween.INFINITY, 0.0f)
+                        .start(m_tweenManager);
+
 /*
                 Tween.to(spriteComponent.sprite, SpriteTween.COLOR, .8f)
                      .target(0, 0, 1, 0.6f)

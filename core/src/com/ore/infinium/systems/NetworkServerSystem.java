@@ -344,9 +344,9 @@ public class NetworkServerSystem extends BaseSystem {
         itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionId;
 
         SpriteComponent playerSprite = spriteMapper.get(job.connection.player);
-        SpriteComponent itemSprite = spriteMapper.get(droppedItem);
+        SpriteComponent droppedItemSprite = spriteMapper.get(droppedItem);
 
-        itemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
+        droppedItemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
 
         //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
         sendSpawnEntity(droppedItem, job.connection.getID());

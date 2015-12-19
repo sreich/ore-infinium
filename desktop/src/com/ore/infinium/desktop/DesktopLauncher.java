@@ -58,7 +58,7 @@ public class DesktopLauncher {
             //settings.maxHeight = 512;
             //            settings.pot = true;
             //settings.fast = true; //fixme just to speed up debugging, overrides local settings(probably??)
-
+            //lwjglfiles().internal("blah")
             TexturePacker.process("blocks", "../assets/packed", "blocks");
             TexturePacker.process("tiles", "../assets/packed", "tiles");
             TexturePacker.process("ui", "../assets/packed", "ui");
