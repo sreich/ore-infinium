@@ -115,15 +115,18 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
             if (!m_tweenManager.containsTarget(spriteComponent.sprite)) {
-                Tween.to(spriteComponent.sprite, SpriteTween.SCALE, .8f)
-                     .target(0, 0)
+                Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f)
+                     .target(0.5f, 0.5f)
                      .ease(TweenEquations.easeInOutBack)
                      .repeatYoyo(Tween.INFINITY, 0.0f)
                      .start(m_tweenManager);
-
-                Tween.to(spriteComponent.sprite, SpriteTween.ALPHA, .8f).target(0, 0).ease(TweenEquations.easeInOutBack)
-
-                     .repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager);
+/*
+                Tween.to(spriteComponent.sprite, SpriteTween.COLOR, .8f)
+                     .target(0, 0, 1, 0.6f)
+                     .ease(TweenEquations.easeInOutBack)
+                     .repeatYoyo(Tween.INFINITY, 0.0f)
+                     .start(m_tweenManager);
+                     */
             }
 
             /*
