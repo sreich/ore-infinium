@@ -27,8 +27,9 @@ public class ItemComponent extends Component {
     public int maxStackSize;
 
     /**
-     * The id of the player who dropped the item in the world
+     * The id of the player (not entity id!!) who dropped the item in the world
      * Unused if the item is not in a dropped state.
+     * Utilized for record keeping of ownership
      */
     public int playerIdWhoDropped;
     public State state = State.InWorldState;

@@ -322,6 +322,11 @@ public class NetworkServerSystem extends BaseSystem {
         spriteComponent.sprite.setPosition(data.x, data.y);
     }
 
+    /**
+     * request to drop an item from the hotbar inventory
+     *
+     * @param job
+     */
     private void receiveHotbarDropItem(NetworkJob job) {
         Network.HotbarDropItemFromClient data = ((Network.HotbarDropItemFromClient) job.object);
         PlayerComponent playerComponent = playerMapper.get(job.connection.player);

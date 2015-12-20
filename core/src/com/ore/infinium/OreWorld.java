@@ -498,6 +498,8 @@ public class OreWorld {
     public int createLight() {
         int light = m_artemisWorld.create();
 
+        velocityMapper.create(light);
+
         ItemComponent itemComponent = itemMapper.create(light);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
@@ -517,6 +519,8 @@ public class OreWorld {
 
     public int createPowerGenerator() {
         int power = m_artemisWorld.create();
+
+        velocityMapper.create(power);
 
         ItemComponent itemComponent = itemMapper.create(power);
         itemComponent.stackSize = 800;
@@ -540,6 +544,8 @@ public class OreWorld {
         ItemComponent itemComponent = itemMapper.create(air);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
+
+        velocityMapper.create(air);
 
         PowerDeviceComponent power = powerDeviceMapper.create(air);
 
@@ -814,8 +820,6 @@ public class OreWorld {
      * @return the player entity
      */
     public int playerForID(int playerId) {
-        assert worldInstanceType != WorldInstanceType.Server;
-
         IntBag entities =
                 m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(PlayerComponent.class)).getEntities();
         PlayerComponent playerComponent;

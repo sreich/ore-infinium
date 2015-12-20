@@ -12,12 +12,12 @@ buildscript {
         artemisContribVersion = '1.1.0'
         kryonetVersion = '2.22.0-RC1'
 
-
         matrixCliVersion = "0.1.2"
 
         jcommanderVersion = "1.48"
         junitVersion = "4.12"
-        //gradleVersionsPluginVersion = "0.11.3"
+        tweenEngineVersion = "6.3.3"
+        gradleVersionsPluginVersion = "0.11.3"
 
         //gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
@@ -43,7 +43,7 @@ buildscript {
         //3.0.3 FIXME
         //classpath "com.netflix.nebula:gradle-extra-configurations-plugin:$gradleExtraConfigurationsPluginVersion"
 
-        //classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
+        classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
     }
 }
 
@@ -52,18 +52,6 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.11.3'
     id 'org.sonarqube' version '1.1'
 }
-
-/*
-//unused, gradle.properties is though
-sonarqube {
-    properties {
-        property "sonar.projectName", "Ore Infinium"
-        property "sonar.projectKey", "org.sreich:ore-infinium"
-
-    }
-}
-*/
-
 
 task createWrapper(type: Wrapper) {
     gradleVersion = "2.9"
@@ -99,7 +87,6 @@ project(":desktop") {
 project(":core") {
     apply plugin: "java"
 
-    //    sourceSets.test.java.srcDirs = ["test/"]
     configurations {
         provided
     }
@@ -128,7 +115,6 @@ project(":core") {
 
         //artemis-odb
         compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-        compile "net.onedaybeard.artemis:artemis-odb-serializer-json-libgdx:$artemisVersion"
 
         // Artemis-odb annotation processor (see https://github.com/junkdog/artemis-odb/wiki/EntityFactory)
         provided "net.onedaybeard.artemis:artemis-odb-processor:$artemisVersion"
@@ -143,10 +129,10 @@ project(":core") {
         // jcommander for command line parsing
         compile "com.beust:jcommander:$jcommanderVersion"
         //junit
-        testCompile 'junit:junit:$junitVersion'
+        testCompile "junit:junit:$junitVersion"
 
         //tween engine
-        compile 'org.sreich:tween-engine-api:6.3.3'
+        compile "org.sreich:tween-engine-api:$tweenEngineVersion"
     }
 }
 
