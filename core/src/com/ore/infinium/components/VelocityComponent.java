@@ -34,4 +34,11 @@ public class VelocityComponent extends Component {
     public void copyFrom(VelocityComponent velocityComponent) {
         velocity.set(velocityComponent.velocity);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("velocityComponent.velocity: ").append(velocity).append('\n');
+        return builder.toString();
+    }
 }

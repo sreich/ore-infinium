@@ -44,4 +44,14 @@ public class JumpComponent extends Component {
         jumpRequested = jumpComponent.jumpRequested;
         jumpInterval = jumpComponent.jumpInterval;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("jumpComponent.canJump: ").append(canJump).append('\n');
+        builder.append("jumpComponent.shouldJump: ").append(shouldJump).append('\n');
+        builder.append("jumpComponent.jumpRequested: ").append(jumpRequested).append('\n');
+        builder.append("jumpComponent.jumpInterval: ").append(jumpInterval).append('\n');
+        return builder.toString();
+    }
 }

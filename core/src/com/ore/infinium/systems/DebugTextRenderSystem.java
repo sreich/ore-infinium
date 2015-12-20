@@ -14,6 +14,8 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.ore.infinium.Block;
 import com.ore.infinium.OreSettings;
 import com.ore.infinium.OreTimer;
@@ -50,12 +52,21 @@ import java.util.Arrays;
 @Wire
 public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMarker {
 
-    private ComponentMapper<PlayerComponent> playerMapper;
-    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<AirComponent> airMapper;
+    private ComponentMapper<AirGeneratorComponent> airGeneratormapper;
+    private ComponentMapper<BlockComponent> blockMapper;
     private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<HealthComponent> healthMapper;
     private ComponentMapper<ItemComponent> itemMapper;
-    private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
+    private ComponentMapper<LightComponent> lightMapper;
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
+    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
+    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ToolComponent> toolMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
 
     private TagManager m_tagManager;
     private NetworkClientSystem m_networkClientSystem;
@@ -101,8 +112,9 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     public boolean m_renderDebugServer = false;
     public boolean m_renderDebugClient = false;
 
-    private final int TEXT_Y_SPACING = 15;
-    private final int TEXT_X_RIGHT = OreSettings.getInstance().width - 250;
+    private final int TEXT_Y_SPACING = 8;
+    private final int TEXT_X_RIGHT = OreSettings.getInstance().width - 350;
+    private final int TEXT_X_LEFT = 6;
 
     private int m_textYRight;
     private int m_textYLeft;
@@ -125,8 +137,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
         parameter.size = 9;
         m_font = m_fontGenerator.generateFont(parameter);
-        //        m_font.setColor(26f / 255f, 152f / 255f, 1, 1);
-        m_font.setColor(234f / 255f, 28f / 255f, 164f / 255f, 1);
+        m_font.setColor(Color.ORANGE);
 
         m_fontGenerator.dispose();
 
@@ -147,7 +158,9 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
         if (frameTimer.milliseconds() > 300) {
             frameTimeString = "Client frame time: ";//fixme + decimalFormat.format(frameTime);
-            fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
+            fpsString =
+                    "FPS: " + Gdx.graphics.getFramesPerSecond() + " (" + 1000.0f / Gdx.graphics.getFramesPerSecond() +
+                    " ms)";
             textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings;
             shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches;
             drawCallsString = "Draw calls: " + GLProfiler.drawCalls;
@@ -168,50 +181,49 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         }
 
         m_batch.begin();
-
-        m_font.draw(m_batch, fpsString, 0, m_textYLeft);
-        m_textYLeft -= TEXT_Y_SPACING;
-        m_font.draw(m_batch, frameTimeString, 0, m_textYLeft);
-        m_textYLeft -= TEXT_Y_SPACING;
-
-        m_font.draw(m_batch, guiDebugString, 0, m_textYLeft);
-        m_textYLeft -= TEXT_Y_SPACING;
-
-        m_font.draw(m_batch, guiRenderToggleString, 0, m_textYLeft);
-        m_textYLeft -= TEXT_Y_SPACING;
-
-        m_font.draw(m_batch, tileRenderDebugString, 0, m_textYLeft);
-        m_textYLeft -= TEXT_Y_SPACING;
-
-        m_font.draw(m_batch, networkSyncDebug, 0, m_textYLeft);
-        m_textYLeft -= TEXT_Y_SPACING;
-
         printInfoForEntityAtPosition(m_textYLeft);
 
+        m_font.draw(m_batch, fpsString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
-
-        m_font.draw(m_batch, spriteRenderDebug, 0, m_textYLeft);
+        m_font.draw(m_batch, frameTimeString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
         //fixme
         //        if (m_server != null) {
-        m_font.draw(m_batch, frameTimeServerString, 0, m_textYLeft);
+        m_font.draw(m_batch, frameTimeServerString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
         //       }
 
+        m_font.draw(m_batch, guiDebugString, TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
+        m_font.draw(m_batch, guiRenderToggleString, TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
+        m_font.draw(m_batch, tileRenderDebugString, TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
+        m_font.draw(m_batch, networkSyncDebug, TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
+        m_font.draw(m_batch, spriteRenderDebug, TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
         for (String s : debugStrings) {
-            m_font.draw(m_batch, s, 0, m_textYLeft);
+            m_font.draw(m_batch, s, TEXT_X_LEFT, m_textYLeft);
             m_textYLeft -= TEXT_Y_SPACING;
         }
+        //extra spacing
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        m_font.draw(m_batch, "tiles rendered: " + m_tileRenderSystem.debugTilesInViewCount, 0, m_textYLeft);
+        m_font.draw(m_batch, "tiles rendered: " + m_tileRenderSystem.debugTilesInViewCount, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
-        m_font.draw(m_batch, textureSwitchesString, 0, m_textYLeft);
+        m_font.draw(m_batch, textureSwitchesString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
-        m_font.draw(m_batch, shaderSwitchesString, 0, m_textYLeft);
+        m_font.draw(m_batch, shaderSwitchesString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
-        m_font.draw(m_batch, drawCallsString, 0, m_textYLeft);
+        m_font.draw(m_batch, drawCallsString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
         Vector2 mousePos = m_world.mousePositionWorldCoords();
@@ -240,7 +252,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
                                  block.type, block.meshType, block.wallType, texture,
                                  block.hasFlag(Block.BlockFlags.GrassBlock));
 
-        m_font.draw(m_batch, s, 0, m_textYLeft);
+        m_font.draw(m_batch, s, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
         AspectSubscriptionManager clientAspectSubscriptionManager =
@@ -248,7 +260,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         EntitySubscription clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all());
         IntBag clientEntities = clientEntitySubscription.getEntities();
 
-        m_font.draw(m_batch, "client entities: " + clientEntities.size(), 0, m_textYLeft);
+        m_font.draw(m_batch, "client entities: " + clientEntities.size(), TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
         assert m_world.m_server != null;
@@ -260,7 +272,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
                     m_world.m_server.m_world.m_artemisWorld.getAspectSubscriptionManager();
             EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all());
             IntBag serverEntities = entitySubscription.getEntities();
-            m_font.draw(m_batch, "server entities: " + serverEntities.size(), 0, m_textYLeft);
+            m_font.draw(m_batch, "server entities: " + serverEntities.size(), TEXT_X_LEFT, m_textYLeft);
             m_textYLeft -= TEXT_Y_SPACING;
 
         }
@@ -322,14 +334,27 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class));
         IntBag entities = entitySubscription.getEntities();
 
-        ItemComponent itemComponent;
+        int entityUnderMouse = -1;
 
-        int entity = -1;
-        String entityAtPositionLabel = "Entity at position: n/a";
+        AirComponent airComponent = null;
+        AirGeneratorComponent airGeneratorComponent = null;
+        BlockComponent blockComponent = null;
+        ControllableComponent controllableComponent = null;
+        HealthComponent healthComponent = null;
+        ItemComponent itemComponent = null;
+        JumpComponent jumpComponent = null;
+        LightComponent lightComponent = null;
+        PlayerComponent playerComponent = null;
+        PowerConsumerComponent powerConsumerComponent = null;
+        PowerDeviceComponent powerDeviceComponent = null;
+        PowerGeneratorComponent powerGeneratorComponent = null;
+        SpriteComponent spriteComponent = null;
+        ToolComponent toolComponent = null;
+        VelocityComponent velocityComponent = null;
+
+        Array<Component> components = new Array<>();
         for (int i = 0; i < entities.size(); ++i) {
             int currentEntity = entities.get(i);
-
-            SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
             Entity entityBoxed = world.getEntity(currentEntity);
 
@@ -342,7 +367,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
                 }
             }
 
-            spriteComponent = spriteMapper.get(currentEntity);
+            spriteComponent = spriteMapper.getSafe(currentEntity);
 
             Rectangle rectangle =
                     new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
@@ -350,19 +375,39 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
                                   spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
             if (rectangle.contains(mousePos)) {
+                components.add(airComponent = airMapper.getSafe(currentEntity));
+                components.add(airGeneratorComponent = airGeneratormapper.getSafe(currentEntity));
+                components.add(blockComponent = blockMapper.getSafe(currentEntity));
+                components.add(controllableComponent = controlMapper.getSafe(currentEntity));
+                components.add(healthComponent = healthMapper.getSafe(currentEntity));
+                components.add(itemComponent = itemMapper.getSafe(currentEntity));
+                components.add(jumpComponent = jumpMapper.getSafe(currentEntity));
+                components.add(lightComponent = lightMapper.getSafe(currentEntity));
+                components.add(playerComponent = playerMapper.getSafe(currentEntity));
+                components.add(powerConsumerComponent = powerConsumerMapper.getSafe(currentEntity));
+                components.add(powerDeviceComponent = powerDeviceMapper.getSafe(currentEntity));
+                components.add(powerGeneratorComponent = powerGeneratorMapper.getSafe(currentEntity));
+                components.add(spriteComponent);
+                components.add(toolComponent = toolMapper.getSafe(currentEntity));
+                components.add(velocityComponent = velocityMapper.getSafe(currentEntity));
 
-                entityAtPositionLabel = String.format("Entity at position: x: %f, y: %f", spriteComponent.sprite.getX(),
-                                                      spriteComponent.sprite.getY());
-                entity = currentEntity;
+                entityUnderMouse = currentEntity;
                 break;
             }
         }
 
-        m_font.draw(m_batch, entityAtPositionLabel, TEXT_X_RIGHT, m_textYRight);
+        m_font.draw(m_batch, "entity id: " + entityUnderMouse, TEXT_X_RIGHT, m_textYRight);
         m_textYRight -= TEXT_Y_SPACING;
 
-        m_font.draw(m_batch, "entity id: " + entity, TEXT_X_RIGHT, m_textYRight);
-        m_textYRight -= TEXT_Y_SPACING;
+        StringBuilder builder = new StringBuilder(300);
+        for (Component c : components) {
+            if (c == null) {
+                continue;
+            }
+
+            builder.append(c.toString());
+        }
+        m_font.draw(m_batch, builder.toString(), TEXT_X_RIGHT, m_textYRight);
+
     }
-
 }

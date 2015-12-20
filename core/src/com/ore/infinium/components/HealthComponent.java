@@ -36,4 +36,12 @@ public class HealthComponent extends Component {
         maxHealth = healthComponent.maxHealth;
         health = healthComponent.health;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("healthComponent.maxHealth: ").append(maxHealth).append('\n');
+        builder.append("healthComponent.health: ").append(health).append('\n');
+        return builder.toString();
+    }
 }

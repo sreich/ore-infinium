@@ -38,4 +38,11 @@ public class BlockComponent extends Component {
     public void copyFrom(BlockComponent blockComponent) {
         blockType = blockComponent.blockType;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("blockComponent.blockType: ").append(blockType).append('\n');
+        return builder.toString();
+    }
 }

@@ -37,4 +37,11 @@ public class PowerGeneratorComponent extends Component {
     }
 
     public int powerSupplyRate;
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("powerGeneratorComponent.powerSupplyRate: ").append(powerSupplyRate).append('\n');
+        return builder.toString();
+    }
 }

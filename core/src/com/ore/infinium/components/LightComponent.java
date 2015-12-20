@@ -33,4 +33,11 @@ public class LightComponent extends Component {
     public void copyFrom(LightComponent lightComponent) {
         radius = lightComponent.radius;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("lightComponent.radius: ").append(radius).append('\n');
+        return builder.toString();
+    }
 }

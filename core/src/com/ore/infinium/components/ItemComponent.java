@@ -51,15 +51,15 @@ public class ItemComponent extends Component {
 
     public enum ItemType {
         Torch,
-        Container,
         // chesticles
+        Container,
         Weapon,
         Armor,
-        Vegetation,
         // we be plantin' trees and shit
-        Block,
+        Vegetation,
         // blocks are handled super specially. they have different placement rules, and they are not rendered as an
         // Entity, but something totally different.
+        Block,
         Tool
     }
 
@@ -86,5 +86,16 @@ public class ItemComponent extends Component {
         state = itemComponent.state;
         inventoryIndex = itemComponent.inventoryIndex;
         justDropped = itemComponent.justDropped;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("itemComponent.stackSize: ").append(stackSize).append('\n');
+        builder.append("itemComponent.maxStackSize: ").append(maxStackSize).append('\n');
+        builder.append("itemComponent.playerIdWhoDropped: ").append(playerIdWhoDropped).append('\n');
+        builder.append("itemComponent.state: ").append(state.toString()).append('\n');
+        builder.append("itemComponent.justDropped: ").append(justDropped).append('\n');
+        return builder.toString();
     }
 }

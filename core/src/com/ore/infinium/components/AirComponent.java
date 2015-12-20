@@ -44,4 +44,14 @@ public class AirComponent extends Component {
         air = airComponent.air;
         healthDecreaseRate = airComponent.healthDecreaseRate;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("airComponent.air: ").append(air).append('\n');
+        builder.append("airComponent.maxAir: ").append(maxAir).append('\n');
+        builder.append("airComponent.decreaseRate: ").append(decreaseRate).append('\n');
+        builder.append("airComponent.healthDecreaseRate: ").append(healthDecreaseRate).append('\n');
+        return builder.toString();
+    }
 }

@@ -33,4 +33,11 @@ public class ControllableComponent extends Component {
     public void copyFrom(ControllableComponent controllableComponent) {
         desiredDirection.set(controllableComponent.desiredDirection);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("controllableComponent.desiredDirection: ").append(desiredDirection).append('\n');
+        return builder.toString();
+    }
 }

@@ -61,4 +61,14 @@ public class SpriteComponent extends Component {
         noClip = spriteComponent.noClip;
         placementValid = spriteComponent.placementValid;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("spriteComponent.category: ").append(category).append('\n');
+        builder.append("spriteComponent.textureName: ").append(textureName).append('\n');
+        builder.append("spriteComponent.visible: ").append(visible).append('\n');
+        builder.append("spriteComponent.noClip: ").append(noClip).append('\n');
+        return builder.toString();
+    }
 }

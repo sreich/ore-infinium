@@ -50,4 +50,13 @@ public class ToolComponent extends Component {
         material = toolComponent.material;
         attackRadius = toolComponent.attackRadius;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("toolComponent.type: ").append(type).append('\n');
+        builder.append("toolComponent.material: ").append(material).append('\n');
+        builder.append("toolComponent.attackRadius: ").append(attackRadius).append('\n');
+        return builder.toString();
+    }
 }

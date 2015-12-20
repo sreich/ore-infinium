@@ -33,7 +33,15 @@ public class PowerConsumerComponent extends Component {
      *         component to copy from, into this instance
      */
     public void copyFrom(PowerConsumerComponent component) {
+        powerDemandRate = component.powerDemandRate;
     }
 
     public int powerDemandRate;
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("powerConsumerComponent.powerDemandRate: ").append(powerDemandRate).append('\n');
+        return builder.toString();
+    }
 }

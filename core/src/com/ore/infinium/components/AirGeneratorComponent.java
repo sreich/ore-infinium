@@ -35,4 +35,11 @@ public class AirGeneratorComponent extends Component {
     public void copyFrom(AirGeneratorComponent airGeneratorComponent) {
         airOutputRate = airGeneratorComponent.airOutputRate;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("airGeneraatorComponent.airOutputRate: ").append(airOutputRate).append('\n');
+        return builder.toString();
+    }
 }

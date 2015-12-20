@@ -40,6 +40,12 @@ public class PowerDeviceComponent extends Component {
      *         component to copy from, into this instance
      */
     public void copyFrom(PowerDeviceComponent component) {
-        owningCircuit = component.owningCircuit;
+        //fixme crap
+        //owningCircuit = component.owningCircuit;
+    }
+
+    @Override
+    public String toString() {
+        return "";
     }
 }

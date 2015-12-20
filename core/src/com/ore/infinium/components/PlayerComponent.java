@@ -1,6 +1,7 @@
 package com.ore.infinium.components;
 
 import com.artemis.Component;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
@@ -62,4 +63,13 @@ public class PlayerComponent extends Component {
     /**
      * note, has no copyFrom method, as it is should never be copied
      */
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("playerComponent.playerName: ").append(playerName).append('\n');
+        builder.append("playerComponent.connectionId: ").append(connectionId).append('\n');
+        builder.append("playerComponent.killed: ").append(killed).append('\n');
+        return builder.toString();
+    }
 }
