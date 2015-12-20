@@ -67,7 +67,16 @@ public class MovementSystem extends IteratingSystem {
         // position so it can broadcast.
         // but nothing else.
         //server will simulate everything else(except players), and broadcast positions
-        simulate(entityId, this.getWorld().delta);
+        simulate(entityId, getWorld().delta);
+
+        //fixme maybe make a dropped component?
+        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
+            ItemComponent itemComponent = itemMapper.getSafe(entityId);
+
+            if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
+                simulateDroppedItem(entityId, getWorld().delta);
+            }
+        }
 
         if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             int mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
@@ -80,13 +89,7 @@ public class MovementSystem extends IteratingSystem {
     }
 
     private void simulate(int entity, float delta) {
-        //fixme maybe make a dropped component?
         if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
-            ItemComponent itemComponent = itemMapper.getSafe(entity);
-            if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
-                simulateDroppedItem(entity, delta);
-            }
-
             //server doesn't process past here. client tells us where they are.
             //fixme, though we do need to eventually at least half-ass verify it, which
             //means doing it on server as well

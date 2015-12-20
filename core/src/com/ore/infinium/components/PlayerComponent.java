@@ -26,8 +26,8 @@ import com.ore.infinium.OreWorld;
  * ***************************************************************************
  */
 public class PlayerComponent extends Component {
-    public final static float jumpVelocity = OreWorld.GRAVITY_ACCEL * 4;
-    public final static float movementSpeed = 2.8f;
+    public final static float jumpVelocity = OreWorld.GRAVITY_ACCEL * 18;
+    public final static float movementSpeed = 3.5f;
     public final static float maxMovementSpeed = movementSpeed * 1.2f;
 
     public String playerName;

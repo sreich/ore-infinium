@@ -219,8 +219,14 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
             float originX = width * 0.5f;
             float originY = height * 0.5f;
 
-            m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) / 16.0f,
-                         originX, originY, width, height, scaleX, scaleY, rotation);
+            //this prevents some jiggling of static items when player is moving, when the objects pos is
+            // not rounded to a reasonable flat number,
+            //but for the player it means they jiggle on all movement.
+            //m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) /
+            // 16.0f,
+            //            originX, originY, width, height, scaleX, scaleY, rotation);
+
+            m_batch.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
 
             //reset color for next run
             if (placementGhost) {
