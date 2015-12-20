@@ -461,7 +461,7 @@ public class NetworkServerSystem extends BaseSystem {
 
     /**
      * @param player
-     *         entity id
+     *         entity id of the player
      * @param entity
      *         entity id of entity that moved
      */

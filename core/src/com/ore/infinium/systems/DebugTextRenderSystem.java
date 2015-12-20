@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.Block;
+import com.ore.infinium.OreSettings;
 import com.ore.infinium.OreTimer;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
@@ -100,6 +101,12 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     public boolean m_renderDebugServer = false;
     public boolean m_renderDebugClient = false;
 
+    private final int TEXT_Y_SPACING = 15;
+    private final int TEXT_X_RIGHT = OreSettings.getInstance().width - 250;
+
+    private int m_textYRight;
+    private int m_textYLeft;
+
     public DebugTextRenderSystem(OrthographicCamera camera, OreWorld world) {
         m_world = world;
         m_batch = new SpriteBatch();
@@ -131,6 +138,13 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     }
 
     public void render(float elapsed) {
+        if (m_world == null || !m_networkClientSystem.connected) {
+            return;
+        }
+
+        m_textYRight = OreSettings.getInstance().height - 120;
+        m_textYLeft = OreSettings.getInstance().height - 130;
+
         if (frameTimer.milliseconds() > 300) {
             frameTimeString = "Client frame time: ";//fixme + decimalFormat.format(frameTime);
             fpsString = "FPS: " + Gdx.graphics.getFramesPerSecond();
@@ -155,98 +169,105 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
         m_batch.begin();
 
-        int textY = Gdx.graphics.getHeight() - 130;
-        m_font.draw(m_batch, fpsString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, frameTimeString, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, fpsString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+        m_font.draw(m_batch, frameTimeString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        m_font.draw(m_batch, guiDebugString, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, guiDebugString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        m_font.draw(m_batch, guiRenderToggleString, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, guiRenderToggleString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        m_font.draw(m_batch, tileRenderDebugString, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, tileRenderDebugString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        m_font.draw(m_batch, networkSyncDebug, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, networkSyncDebug, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        printInfoForEntityAtPosition(textY);
+        printInfoForEntityAtPosition(m_textYLeft);
 
-        textY -= 15;
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        m_font.draw(m_batch, spriteRenderDebug, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, spriteRenderDebug, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
         //fixme
         //        if (m_server != null) {
-        m_font.draw(m_batch, frameTimeServerString, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, frameTimeServerString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
         //       }
 
         for (String s : debugStrings) {
-            m_font.draw(m_batch, s, 0, textY);
-            textY -= 15;
+            m_font.draw(m_batch, s, 0, m_textYLeft);
+            m_textYLeft -= TEXT_Y_SPACING;
         }
 
-        m_font.draw(m_batch, "tiles rendered: " + m_tileRenderSystem.debugTilesInViewCount, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, textureSwitchesString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, shaderSwitchesString, 0, textY);
-        textY -= 15;
-        m_font.draw(m_batch, drawCallsString, 0, textY);
-        textY -= 15;
+        m_font.draw(m_batch, "tiles rendered: " + m_tileRenderSystem.debugTilesInViewCount, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+        m_font.draw(m_batch, textureSwitchesString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+        m_font.draw(m_batch, shaderSwitchesString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+        m_font.draw(m_batch, drawCallsString, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        if (m_world != null && m_networkClientSystem.connected) {
-            Vector2 mousePos = m_world.mousePositionWorldCoords();
-            Block block = m_world.blockAtPosition(mousePos);
+        Vector2 mousePos = m_world.mousePositionWorldCoords();
+        Block block = m_world.blockAtPosition(mousePos);
 
-            int x = (int) mousePos.x;
-            int y = (int) mousePos.y;
+        int x = (int) mousePos.x;
+        int y = (int) mousePos.y;
 
-            String texture = "";
+        String texture = "";
 
-            switch (block.type) {
-                case Block.BlockType.DirtBlockType:
-                    if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
-                        texture = m_tileRenderSystem.grassBlockMeshes.get(block.meshType);
-                    } else {
-                        texture = m_tileRenderSystem.dirtBlockMeshes.get(block.meshType);
-                    }
+        switch (block.type) {
+            case Block.BlockType.DirtBlockType:
+                if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    texture = m_tileRenderSystem.grassBlockMeshes.get(block.meshType);
+                } else {
+                    texture = m_tileRenderSystem.dirtBlockMeshes.get(block.meshType);
+                }
 
-                    break;
-                case Block.BlockType.StoneBlockType:
-                    texture = m_tileRenderSystem.stoneBlockMeshes.get(block.meshType);
-                    break;
-            }
-
-            String s =
-                    String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s", x, y,
-                                  block.type, block.meshType, block.wallType, texture,
-                                  block.hasFlag(Block.BlockFlags.GrassBlock));
-
-            m_font.draw(m_batch, s, 0, textY);
-            textY -= 15;
+                break;
+            case Block.BlockType.StoneBlockType:
+                texture = m_tileRenderSystem.stoneBlockMeshes.get(block.meshType);
+                break;
         }
 
-        //     if (m_world != null) {
-        //fixme reinstate
-        //m_font.draw(m_batch, "client entities: " + m_world.engine.getEntities().size(), 0, textY);
+        String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s", x, y,
+                                 block.type, block.meshType, block.wallType, texture,
+                                 block.hasFlag(Block.BlockFlags.GrassBlock));
 
-        //            if (m_server != null) {
-        //               textY -= 15;
-        //m_font.draw(m_batch, "server entities: " + m_server.m_world.engine.getEntities().size(), 0,
-        // textY);
+        m_font.draw(m_batch, s, 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
-        //      }
+        AspectSubscriptionManager clientAspectSubscriptionManager =
+                m_world.m_artemisWorld.getAspectSubscriptionManager();
+        EntitySubscription clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all());
+        IntBag clientEntities = clientEntitySubscription.getEntities();
+
+        m_font.draw(m_batch, "client entities: " + clientEntities.size(), 0, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
+        assert m_world.m_server != null;
+        //debug text only gets run on client. but this block can only be run when we have direct
+        //access to the server (meaning he hosted it and is playing it)
+        if (m_world.m_server != null) {
+
+            AspectSubscriptionManager aspectSubscriptionManager =
+                    m_world.m_server.m_world.m_artemisWorld.getAspectSubscriptionManager();
+            EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all());
+            IntBag serverEntities = entitySubscription.getEntities();
+            m_font.draw(m_batch, "server entities: " + serverEntities.size(), 0, m_textYLeft);
+            m_textYLeft -= TEXT_Y_SPACING;
+
+        }
 
         m_batch.end();
 
-        if (m_world != null && m_renderDebugServer && false)
+        if (m_renderDebugServer && false)
 
         {
             /*
@@ -268,7 +289,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             */
         }
 
-        if (m_world != null && m_renderDebugClient)
+        if (m_renderDebugClient)
 
         {
             m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
@@ -303,6 +324,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
         ItemComponent itemComponent;
 
+        int entity = -1;
         String entityAtPositionLabel = "Entity at position: n/a";
         for (int i = 0; i < entities.size(); ++i) {
             int currentEntity = entities.get(i);
@@ -331,11 +353,16 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
                 entityAtPositionLabel = String.format("Entity at position: x: %f, y: %f", spriteComponent.sprite.getX(),
                                                       spriteComponent.sprite.getY());
+                entity = currentEntity;
                 break;
             }
         }
 
-        m_font.draw(m_batch, entityAtPositionLabel, 0, textY);
+        m_font.draw(m_batch, entityAtPositionLabel, TEXT_X_RIGHT, m_textYRight);
+        m_textYRight -= TEXT_Y_SPACING;
+
+        m_font.draw(m_batch, "entity id: " + entity, TEXT_X_RIGHT, m_textYRight);
+        m_textYRight -= TEXT_Y_SPACING;
     }
 
 }

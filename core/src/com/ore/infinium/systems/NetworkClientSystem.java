@@ -185,8 +185,7 @@ public class NetworkClientSystem extends BaseSystem {
                 receiveEntityMoved(receivedObject);
             } else {
                 if (!(receivedObject instanceof FrameworkMessage.KeepAlive)) {
-                    Gdx.app.log("client network", "unhandled network receiving class");
-                    assert false;
+                    assert false : "unhandled network receiving class in network client";
                 }
             }
         }
@@ -304,7 +303,6 @@ public class NetworkClientSystem extends BaseSystem {
             SpriteComponent spriteComp = spriteMapper.get(player);
 
             spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
-            m_world.addPlayer(player);
 
             SpriteComponent playerSprite = spriteMapper.get(player);
             playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"));

@@ -16,7 +16,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.IntArray;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
@@ -76,7 +75,6 @@ public class OreWorld {
 
     //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
     // them alone.
-    public IntArray m_players = new IntArray();
     public OreServer m_server;
     public AssetManager assetManager;
     public OreClient m_client;
@@ -109,6 +107,36 @@ public class OreWorld {
 
     public World m_artemisWorld;
 
+    public enum WorldInstanceType {
+        Client,
+        Server
+    }
+
+    public enum WorldConnectionType {
+        Client,
+        Server,
+
+        /**
+         * Client is hosting a server and has itself,
+         * connected to this server (localhost)
+         */
+        ClientHostingServer
+    }
+
+    /**
+     * who owns/is running this exact world instance. If it is the server, or a client.
+     * Note that if the connection type is only a client, obviously a server
+     * world type will never exist
+     */
+    public WorldInstanceType worldInstanceType;
+
+    /**
+     * The type of connection that this entire game process (not just
+     * this world), resides on. e.g. client only, server only,
+     * or client hosting server
+     */
+    public WorldConnectionType worldConnectionType;
+
     /**
      * The main world, shared between both client and server, core to a lot of basic
      * shared functionality, as well as stuff that doesn't really belong elsewhere,
@@ -121,8 +149,10 @@ public class OreWorld {
      *         null if it is only a client, if both client and server are valid, the
      *         this is a local hosted server, (aka singleplayer, or self-hosting)
      */
-    public OreWorld(OreClient client, OreServer server) {
-
+    public OreWorld(OreClient client, OreServer server, WorldInstanceType worldInstanceType,
+                    WorldConnectionType worldConnectionType) {
+        this.worldInstanceType = worldInstanceType;
+        this.worldConnectionType = worldConnectionType;
         m_client = client;
         m_server = server;
 
@@ -130,12 +160,9 @@ public class OreWorld {
     }
 
     void init() {
-        assert isClient() ^ isServer();
-
         assert isHotspotOptimizationEnabled() : "error, hotspot optimization (artemis-odb weaving) is not enabled";
 
         if (isClient()) {
-
             float width = OreSettings.getInstance().width / BLOCK_SIZE_PIXELS;
             float height = OreSettings.getInstance().height / BLOCK_SIZE_PIXELS;
             m_camera = new OrthographicCamera(width, height);//30, 30 * (h / w));
@@ -356,14 +383,6 @@ public class OreWorld {
         //                block.type = Block.BlockType.DirtBlockType;
         //            }
         //        }
-    }
-
-    public boolean isServer() {
-        return m_server != null;
-    }
-
-    public boolean isClient() {
-        return m_client != null;
     }
 
     public Block blockAtPosition(Vector2 pos) {
@@ -809,10 +828,6 @@ public class OreWorld {
         }
 
         return clonedEntity;
-    }
-
-    public void addPlayer(int playerEntity) {
-        m_players.add(playerEntity);
     }
 
     /**

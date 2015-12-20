@@ -69,7 +69,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private ScreenViewport m_viewport;
 
-    private OreServer m_server;
+    public OreServer m_server;
     private Thread m_serverThread;
 
     public boolean m_renderGui = true;
@@ -250,7 +250,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         //call system, if returns false, fail and show:
-        m_world = new OreWorld(this, null);
+        m_world = new OreWorld(this, m_server);
         m_world.init();
         m_world.m_artemisWorld.inject(this);
 

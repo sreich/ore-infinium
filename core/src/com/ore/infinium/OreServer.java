@@ -1,6 +1,10 @@
 package com.ore.infinium;
 
+import com.artemis.Aspect;
+import com.artemis.AspectSubscriptionManager;
 import com.artemis.ComponentMapper;
+import com.artemis.EntitySubscription;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.NetworkServerSystem;
@@ -57,7 +61,7 @@ public class OreServer implements Runnable {
     private ComponentMapper<HealthComponent> healthMapper;
     private ComponentMapper<LightComponent> lightMapper;
 
-    private OreWorld m_world;
+    public OreWorld m_world;
 
     public Chat m_chat;
 
@@ -160,11 +164,15 @@ public class OreServer implements Runnable {
         //tell all players including himself, that he joined
         m_networkServerSystem.sendSpawnPlayerBroadcast(player);
 
-        //tell this player all the current players
-        for (int i = 0; i < m_world.m_players.size; ++i) {
+        AspectSubscriptionManager aspectSubscriptionManager = m_world.m_artemisWorld.getAspectSubscriptionManager();
+        EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent.class));
+        IntBag entities = entitySubscription.getEntities();
+        //tell this player all the current players that are on the server right now
+        for (int i = 0; i < entities.size(); ++i) {
             //exclude himself, though. he already knows.
-            if (m_world.m_players.get(i) != player) {
-                m_networkServerSystem.sendSpawnPlayer(m_world.m_players.get(i), connectionId);
+            int entity = entities.get(i);
+            if (entity != player) {
+                m_networkServerSystem.sendSpawnPlayer(entity, connectionId);
             }
         }
 

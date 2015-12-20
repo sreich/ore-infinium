@@ -1,11 +1,10 @@
 package com.ore.infinium.systems;
 
-import com.artemis.Aspect;
-import com.artemis.ComponentMapper;
-import com.artemis.World;
+import com.artemis.*;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.IteratingSystem;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.OreWorld;
@@ -82,17 +81,21 @@ public class MovementSystem extends IteratingSystem {
 
     private void simulate(int entity, float delta) {
         //fixme maybe make a dropped component?
-        if (controlMapper.getSafe(entity) == null) {
-            if (m_world.isServer()) {
-                ItemComponent itemComponent = itemMapper.getSafe(entity);
-                if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
-                    simulateDroppedItem(entity, delta);
-                }
+        if (m_world.isServer()) {
+            ItemComponent itemComponent = itemMapper.getSafe(entity);
+            if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
+                simulateDroppedItem(entity, delta);
             }
+        }
 
+        //it isn't a player or npc or anything that can be controlled
+        if (!controlMapper.has(entity)) {
             return;
         }
 
+        //server doesn't process past here. client tells us where they are.
+        //fixme, though we do need to eventually at least half-ass verify it, which
+        //means doing it on server as well
         if (m_world.isServer()) {
             return;
         }
@@ -169,14 +172,8 @@ public class MovementSystem extends IteratingSystem {
     }
 
     private void simulateDroppedItem(int item, float delta) {
-        if (true) {
-            return;
-        }
         ItemComponent itemComponent = itemMapper.get(item);
-        if (itemComponent.state != ItemComponent.State.DroppedInWorld) {
-            return;
-            //only interested in simulating gravity for dropped items
-        }
+        assert itemComponent.state == ItemComponent.State.DroppedInWorld;
 
         SpriteComponent itemSpriteComponent = spriteMapper.get(item);
         VelocityComponent itemVelocityComponent = velocityMapper.get(item);
@@ -228,16 +225,6 @@ public class MovementSystem extends IteratingSystem {
             itemVelocityComponent.velocity.set(itemNewVelocity);
             Vector2 desiredPosition = itemPosition.add(itemOldVelocity.add(itemNewVelocity.scl(0.5f * delta)));
             Vector2 finalPosition = performCollision(desiredPosition, item);
-
-            //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
-
-            //fixme: obviously
-            //    positionComponent->setPosition(desiredPosition);
-
-            //    const glm::vec3 finalPosition ;
-
-            //qCDebug(ORE_IMPORTANT) << "dropped item opsition: " << desiredPosition << " Id: " << entity.getId() <<
-            // " velcotiy: " << v;
 
             itemSpriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
             maybeSendEntityMoved(item);
@@ -356,9 +343,14 @@ public class MovementSystem extends IteratingSystem {
     }
 
     private void maybeSendEntityMoved(int entity) {
-        SpriteComponent spriteComponent = spriteMapper.get(entity);
-        for (int player = 0; player < m_world.m_players.size; ++player) {
+        AspectSubscriptionManager aspectSubscriptionManager = m_world.m_artemisWorld.getAspectSubscriptionManager();
+        EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent.class));
+        IntBag entities = entitySubscription.getEntities();
+
+        for (int i = 0; i < entities.size(); ++i) {
+            int player = entities.get(i);
             PlayerComponent playerComponent = playerMapper.get(player);
+
             //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(),
             // spriteComponent.sprite.getY()))) {
 
