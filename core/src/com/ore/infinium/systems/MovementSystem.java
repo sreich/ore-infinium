@@ -44,6 +44,9 @@ public class MovementSystem extends IteratingSystem {
 
     private TagManager m_tagManager;
 
+    //lowest value we want to represent before killing velocity
+    private final float VELOCITY_MINIMUM_CUTOFF = 0.005f;
+
     public MovementSystem(OreWorld world) {
         super(Aspect.all(SpriteComponent.class, VelocityComponent.class));
         m_world = world;
@@ -131,20 +134,18 @@ public class MovementSystem extends IteratingSystem {
 
         newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta);
 
-        final float epsilon = 0.00001f;
-        if (Math.abs(newVelocity.x) < epsilon && Math.abs(newVelocity.y) < epsilon) {
-            //gets small enough velocity, cease movement/sleep object.
-            newVelocity.set(0.0f, 0.0f);
-        }
-
+        //bleed velocity a bit
         newVelocity.x *= 0.8f;
 
-        //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2
-        // (maxMovementSpeed, 9999999999999));//(9.8f) * 4.0));
-        //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2
-        // (maxMovementSpeed, (9.8f ) * 4.0));
+        //gets small enough velocity, cease movement/sleep object.
+        //on both x and y, independently
+        if (Math.abs(newVelocity.x) < VELOCITY_MINIMUM_CUTOFF) {
+            newVelocity.x = 0;
+        }
+        if (Math.abs(newVelocity.y) < VELOCITY_MINIMUM_CUTOFF) {
+            newVelocity.y = 0;
+        }
 
-        //clamp both axes between some max/min values..
         Vector2 dt = new Vector2(delta, delta);
         //        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent
         // .maxMovementSpeed);
@@ -154,21 +155,16 @@ public class MovementSystem extends IteratingSystem {
         ///////// velocity verlet integration
         // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
 
-        //fixme if i do 0.5f * delta, it doesn't move at all??
-        // * delta
-        //OLD CODE desiredPosition = ((origPosition.xy() + (oldVelocity + newVelocity)) * glm::vec2(0.5f) * dt);
-
         //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
 
+        //todo  clamp both axes between some max/min values..
         velocityComponent.velocity.set(newVelocity.x, newVelocity.y);
 
-        // newVelocity is now invalid, note.
+        // newVelocity is now invalid, note (vector reference modification).
         Vector2 desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)));
         final Vector2 finalPosition = performCollision(desiredPosition, entity);
 
         spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
-        //        Gdx.app.log("player pos", finalPosition.toString());
-
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
     }
 
@@ -197,6 +193,7 @@ public class MovementSystem extends IteratingSystem {
             acceleration.y += -OreWorld.GRAVITY_ACCEL * 8.0f;
 
             //only add player velocity the firstEntity tick, as soon as they drop it.
+            //so that we can throw things harder using players current speed
             itemComponent.justDropped = false;
         }
 
@@ -214,15 +211,16 @@ public class MovementSystem extends IteratingSystem {
         itemNewVelocity.y =
                 MathUtils.clamp(itemNewVelocity.y, -OreWorld.GRAVITY_ACCEL_CLAMP * 10, OreWorld.GRAVITY_ACCEL_CLAMP);
 
-        //clamp both axes between some max/min values..
-        //    newVelocity = glm::clamp(newVelocity, glm::vec2(-maxMovementSpeed, PLAYER_JUMP_VELOCITY), glm::vec2
-        // (maxMovementSpeed, 9.8f /10.0f));
+        //gets small enough velocity, cease movement/sleep object.
+        //on both x and y, independently
+        if (Math.abs(itemNewVelocity.x) < VELOCITY_MINIMUM_CUTOFF) {
+            itemNewVelocity.x = 0;
+        }
+        if (Math.abs(itemNewVelocity.y) < VELOCITY_MINIMUM_CUTOFF) {
+            itemNewVelocity.y = 0;
+        }
 
-        //reset velocity once it gets small enough, and consider it non-moved.
-        float epsilon = 0.00001f;
-        if (Math.abs(itemNewVelocity.x) < epsilon && Math.abs(itemNewVelocity.y) < epsilon) {
-            itemNewVelocity.setZero();
-        } else {
+        if (!itemNewVelocity.isZero()) {
             itemVelocityComponent.velocity.set(itemNewVelocity);
             Vector2 desiredPosition = itemPosition.add(itemOldVelocity.add(itemNewVelocity.scl(0.5f * delta)));
             Vector2 finalPosition = performCollision(desiredPosition, item);
@@ -230,6 +228,7 @@ public class MovementSystem extends IteratingSystem {
             itemSpriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
             maybeSendEntityMoved(item);
         }
+
     }
 
     /**

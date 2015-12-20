@@ -24,7 +24,7 @@ import com.badlogic.gdx.math.Vector2;
 public class VelocityComponent extends Component {
 
     public Vector2 velocity = new Vector2();
-
+   
     /**
      * copy a component (similar to copy constructor)
      *
