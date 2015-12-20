@@ -37,7 +37,7 @@ public class PowerCircuitSystemTest {
 
     @Before
     public void createArtemisWorld() {
-        world = new OreWorld(null, null);
+        world = new OreWorld(null, null, OreWorld.WorldInstanceType.Server);
         world.m_artemisWorld = new World(new WorldConfigurationBuilder().with(new PowerCircuitSystem(world)).build());
 
         circuitSystem = world.m_artemisWorld.getSystem(PowerCircuitSystem.class);

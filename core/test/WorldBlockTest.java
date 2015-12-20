@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  *****************************************************************************/
 public class WorldBlockTest {
-    OreWorld world = new OreWorld(null, null);
+    OreWorld world = new OreWorld(null, null, OreWorld.WorldInstanceType.Server);
 
     @Before
     public void createWorldAndinitializeBlocksArray() {

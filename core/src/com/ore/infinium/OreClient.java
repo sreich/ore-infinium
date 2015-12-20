@@ -250,7 +250,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         }
 
         //call system, if returns false, fail and show:
-        m_world = new OreWorld(this, m_server);
+        m_world = new OreWorld(this, m_server, OreWorld.WorldInstanceType.ClientHostingServer);
         m_world.init();
         m_world.m_artemisWorld.inject(this);
 

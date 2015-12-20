@@ -130,9 +130,6 @@ public class PowerCircuitSystem extends BaseSystem {
         * informing it of the outcomes, and the changes can be sent over the
         * wire and consumed by this system
         */
-        if (m_world.isClient()) {
-            //FIXME            return;
-        }
 
         calculateSupplyAndDemandRates();
     }

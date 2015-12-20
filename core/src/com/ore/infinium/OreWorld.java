@@ -107,35 +107,18 @@ public class OreWorld {
 
     public World m_artemisWorld;
 
-    public enum WorldInstanceType {
-        Client,
-        Server
-    }
-
-    public enum WorldConnectionType {
-        Client,
-        Server,
-
-        /**
-         * Client is hosting a server and has itself,
-         * connected to this server (localhost)
-         */
-        ClientHostingServer
-    }
-
     /**
      * who owns/is running this exact world instance. If it is the server, or a client.
      * Note that if the connection type is only a client, obviously a server
      * world type will never exist
      */
-    public WorldInstanceType worldInstanceType;
+    public enum WorldInstanceType {
+        Client,
+        Server,
+        ClientHostingServer
+    }
 
-    /**
-     * The type of connection that this entire game process (not just
-     * this world), resides on. e.g. client only, server only,
-     * or client hosting server
-     */
-    public WorldConnectionType worldConnectionType;
+    public WorldInstanceType worldInstanceType;
 
     /**
      * The main world, shared between both client and server, core to a lot of basic
@@ -149,10 +132,9 @@ public class OreWorld {
      *         null if it is only a client, if both client and server are valid, the
      *         this is a local hosted server, (aka singleplayer, or self-hosting)
      */
-    public OreWorld(OreClient client, OreServer server, WorldInstanceType worldInstanceType,
-                    WorldConnectionType worldConnectionType) {
+    public OreWorld(OreClient client, OreServer server, WorldInstanceType worldInstanceType) {
+
         this.worldInstanceType = worldInstanceType;
-        this.worldConnectionType = worldConnectionType;
         m_client = client;
         m_server = server;
 
@@ -162,7 +144,8 @@ public class OreWorld {
     void init() {
         assert isHotspotOptimizationEnabled() : "error, hotspot optimization (artemis-odb weaving) is not enabled";
 
-        if (isClient()) {
+        if (worldInstanceType == WorldInstanceType.Client ||
+            worldInstanceType == WorldInstanceType.ClientHostingServer) {
             float width = OreSettings.getInstance().width / BLOCK_SIZE_PIXELS;
             float height = OreSettings.getInstance().height / BLOCK_SIZE_PIXELS;
             m_camera = new OrthographicCamera(width, height);//30, 30 * (h / w));
@@ -201,7 +184,7 @@ public class OreWorld {
 
             float w = Gdx.graphics.getWidth();
             float h = Gdx.graphics.getHeight();
-        } else {
+        } else if (worldInstanceType == WorldInstanceType.Server) {
             m_artemisWorld = new World(new WorldConfigurationBuilder().with(new TagManager())
                                                                       .with(new PlayerManager())
                                                                       .with(new MovementSystem(this))
@@ -440,14 +423,6 @@ public class OreWorld {
     }
 
     public void process() {
-        if (isClient()) {
-            //        playerSprite.sprite.setOriginCenter();
-
-            //        m_camera.position.set(playerSprite.sprite.getX() + playerSprite.sprite.getWidth() * 0.5f,
-            // playerSprite
-            // .sprite.getY() + playerSprite.sprite.getHeight() * 0.5f, 0);
-        }
-
         m_artemisWorld.process();
     }
 
@@ -786,7 +761,7 @@ public class OreWorld {
             SpriteComponent component = spriteMapper.create(clonedEntity);
             component.copyFrom(sourceComponent);
 
-            if (!isServer()) {
+            if (worldInstanceType != WorldInstanceType.Server) {
                 component.sprite.setRegion(m_atlas.findRegion(component.textureName));
             }
         }
@@ -839,7 +814,7 @@ public class OreWorld {
      * @return the player entity
      */
     public int playerForID(int playerId) {
-        assert !isClient();
+        assert worldInstanceType != WorldInstanceType.Server;
 
         IntBag entities =
                 m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(PlayerComponent.class)).getEntities();

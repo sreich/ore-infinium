@@ -55,7 +55,7 @@ public class PlayerSystem extends IteratingSystem {
         super.inserted(entityId);
 
         //client does nothing as of yet, with this
-        if (m_world.isClient()) {
+        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return;
         }
 
@@ -72,7 +72,7 @@ public class PlayerSystem extends IteratingSystem {
 
     @Override
     protected void process(int entityId) {
-        if (m_world.isClient()) {
+        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return;
         }
 

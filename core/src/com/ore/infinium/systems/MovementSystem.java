@@ -69,7 +69,7 @@ public class MovementSystem extends IteratingSystem {
         //server will simulate everything else(except players), and broadcast positions
         simulate(entityId, this.getWorld().delta);
 
-        if (m_world.isClient()) {
+        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             int mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
             SpriteComponent playerSprite = spriteMapper.get(mainPlayer);
             m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
@@ -81,22 +81,20 @@ public class MovementSystem extends IteratingSystem {
 
     private void simulate(int entity, float delta) {
         //fixme maybe make a dropped component?
-        if (m_world.isServer()) {
+        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
             ItemComponent itemComponent = itemMapper.getSafe(entity);
             if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
                 simulateDroppedItem(entity, delta);
             }
+
+            //server doesn't process past here. client tells us where they are.
+            //fixme, though we do need to eventually at least half-ass verify it, which
+            //means doing it on server as well
+            return;
         }
 
         //it isn't a player or npc or anything that can be controlled
         if (!controlMapper.has(entity)) {
-            return;
-        }
-
-        //server doesn't process past here. client tells us where they are.
-        //fixme, though we do need to eventually at least half-ass verify it, which
-        //means doing it on server as well
-        if (m_world.isServer()) {
             return;
         }
 
