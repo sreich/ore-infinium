@@ -189,8 +189,8 @@ public class MovementSystem extends IteratingSystem {
 
         if (itemComponent.justDropped) {
             //acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
-            acceleration.x += 2;//Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
-            acceleration.y += -OreWorld.GRAVITY_ACCEL * 8.0f;
+            acceleration.x += 0.5f;//Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
+            acceleration.y += -OreWorld.GRAVITY_ACCEL * 3.0f;
 
             //only add player velocity the firstEntity tick, as soon as they drop it.
             //so that we can throw things harder using players current speed
@@ -202,7 +202,7 @@ public class MovementSystem extends IteratingSystem {
 
         itemNewVelocity.add(acceleration);
 
-        itemNewVelocity.x *= 0.95f;
+        itemNewVelocity.x *= 0.55f;
 
         itemNewVelocity.x =
                 MathUtils.clamp(itemNewVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent.maxMovementSpeed);

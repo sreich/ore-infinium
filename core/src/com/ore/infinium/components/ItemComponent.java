@@ -1,6 +1,7 @@
 package com.ore.infinium.components;
 
 import com.artemis.Component;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * ***************************************************************************
@@ -25,6 +26,19 @@ public class ItemComponent extends Component {
     public int stackSize;
     //the max a single item stack can hold
     public int maxStackSize;
+
+    /**
+     * the size of the item before the drop
+     * we reduce the size of all dropped items in the world,
+     * temporarily. if they get picked up, we'd like to restore
+     * this back to normal, but since we modify the original
+     * size, we have no idea what it is.
+     * This is serialized over the network,  unfortunately it is
+     * for each item. we may want a better method. if this becomes a
+     * problem network/bandwidth wise
+     * (todo)
+     */
+    public Vector2 sizeBeforeDrop;
 
     /**
      * The id of the player (not entity id!!) who dropped the item in the world
