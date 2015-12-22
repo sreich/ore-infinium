@@ -351,6 +351,13 @@ public class NetworkServerSystem extends BaseSystem {
         SpriteComponent playerSprite = spriteMapper.get(job.connection.player);
         SpriteComponent droppedItemSprite = spriteMapper.get(droppedItem);
 
+        itemDroppedComponent.sizeBeforeDrop =
+                new Vector2(droppedItemSprite.sprite.getX(), droppedItemSprite.sprite.getY());
+
+        //shrink the size of all dropped items, but also store the original size first, so we can revert later
+        droppedItemSprite.sprite.setSize(droppedItemSprite.sprite.getWidth() * 0.5f,
+                                         droppedItemSprite.sprite.getHeight() * 0.5f);
+
         droppedItemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
 
         //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds

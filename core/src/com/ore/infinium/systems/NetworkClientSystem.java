@@ -253,15 +253,6 @@ public class NetworkClientSystem extends BaseSystem {
         spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
         spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
 
-        ItemComponent itemComponent = itemMapper.getSafe(e);
-        if (itemComponent != null) {
-            if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
-                //initial drop, set scale to smaller. when it gets picked up we can enlarge it again
-                //this is to visually modify the size and logically, without size being lossy.
-                spriteComponent.sprite.setScale(0.5f, 0.5f);
-            }
-        }
-
         TextureRegion textureRegion;
         if (!blockMapper.has(e)) {
             textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
