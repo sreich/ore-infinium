@@ -131,6 +131,12 @@ public class OreClient implements ApplicationListener, InputProcessor {
         hostAndJoin();
     }
 
+    private static class PlayerBlockDig {
+        private int health;
+        private int msLastDig;
+    }
+
+
     public void handleLeftMousePrimaryAttack() {
         Vector2 mouse = m_world.mousePositionWorldCoords();
 
@@ -155,7 +161,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             if (block.type != Block.BlockType.NullBlockType) {
                 block.destroy();
-                m_networkClientSystem.sendBlockPick(x, y);
+                m_networkClientSystem.sendBlockDigProgressReport(x, y);
             }
 
             //action performed

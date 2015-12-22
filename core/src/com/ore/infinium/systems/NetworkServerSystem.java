@@ -55,6 +55,8 @@ public class NetworkServerSystem extends BaseSystem {
     private ComponentMapper<JumpComponent> jumpMapper;
     private ComponentMapper<BlockComponent> blockMapper;
 
+    private BlockDiggingSystem m_blockDiggingSystem;
+
     private OreWorld m_world;
 
     private OreServer m_server;
@@ -237,8 +239,8 @@ public class NetworkServerSystem extends BaseSystem {
                 receiveChatMessage(job);
             } else if (job.object instanceof Network.PlayerMoveInventoryItemFromClient) {
                 receivePlayerMoveInventoryItem(job);
-            } else if (job.object instanceof Network.BlockPickFromClient) {
-                receiveBlockPick(job);
+            } else if (job.object instanceof Network.BlockDigProgressReportFromClient) {
+                receiveBlockDigProgressReport(job);
             } else if (job.object instanceof Network.BlockPlaceFromClient) {
                 receiveBlockPlace(job);
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
@@ -381,9 +383,21 @@ public class NetworkServerSystem extends BaseSystem {
         m_world.attemptBlockPlacement(data.x, data.y, blockComponent.blockType);
     }
 
-    private void receiveBlockPick(NetworkJob job) {
-        Network.BlockPickFromClient data = ((Network.BlockPickFromClient) job.object);
-        m_world.blockAt(data.x, data.y).destroy();
+    /**
+     * receives progress report which says which block at which position is at what health.
+     * the server can keep track of this, calculate it, and make sure that the player isn't cheating
+     * and digging too fast, or too many at a time.
+     * <p>
+     * <p>
+     * after some timeout, if nothing is heard for a block, it is assumed to have timed out and no longer
+     * interested in digging. it will then be canceled.
+     *
+     * @param job
+     */
+    private void receiveBlockDigProgressReport(NetworkJob job) {
+        Network.BlockDigProgressReportFromClient data = ((Network.BlockDigProgressReportFromClient) job.object);
+        //todo verification to ensure the player isn't cheating us
+        //todo for block digging we must ensure that the player say..didn't send 500 of these
     }
 
     private void receivePlayerMoveInventoryItem(NetworkJob job) {

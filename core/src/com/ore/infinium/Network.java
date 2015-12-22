@@ -46,7 +46,7 @@ public class Network {
         kryo.register(PlayerSpawnedFromServer.class);
         kryo.register(PowerDeviceComponent.class);
         kryo.register(PlayerMoveFromClient.class);
-        kryo.register(BlockPickFromClient.class);
+        kryo.register(BlockDigProgressReportFromClient.class);
         kryo.register(BlockPlaceFromClient.class);
         kryo.register(ItemPlaceFromClient.class);
         kryo.register(PlayerEquipHotbarIndexFromClient.class);
@@ -151,9 +151,10 @@ public class Network {
         public int second;
     }
 
-    static public class BlockPickFromClient {
+    static public class BlockDigProgressReportFromClient {
         public int x;
         public int y;
+        public int health;
     }
 
     static public class BlockPlaceFromClient {
@@ -311,4 +312,5 @@ public class Network {
             y2 = _y2;
         }
     }
+
 }
