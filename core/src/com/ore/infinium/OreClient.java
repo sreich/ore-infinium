@@ -136,7 +136,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         private int msLastDig;
     }
 
-
     public void handleLeftMousePrimaryAttack() {
         Vector2 mouse = m_world.mousePositionWorldCoords();
 
@@ -160,8 +159,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
             Block block = m_world.blockAt(x, y);
 
             if (block.type != Block.BlockType.NullBlockType) {
-                block.destroy();
-                m_networkClientSystem.sendBlockDigProgressReport(x, y);
+                //block.destroy();
+                short blockHealth = m_world.blockTypes.get(block.type).blockHealth;
+                playerComponent.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
+                m_networkClientSystem.sendBlockDigHealthReport(x, y, blockHealth);
             }
 
             //action performed

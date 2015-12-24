@@ -63,14 +63,16 @@ public class OreWorld {
 
     static {
         blockTypes.put(Block.BlockType.NullBlockType,
-                       new BlockStruct("", BlockStruct.Collision.False, BlockStruct.BlockCategory.Null));
+                       new BlockStruct("", BlockStruct.Collision.False, BlockStruct.BlockCategory.Null, (short) 0));
         blockTypes.put(Block.BlockType.DirtBlockType,
-                       new BlockStruct("dirt", BlockStruct.Collision.True, BlockStruct.BlockCategory.Dirt));
+                       new BlockStruct("dirt", BlockStruct.Collision.True, BlockStruct.BlockCategory.Dirt,
+                                       (short) 300));
         blockTypes.put(Block.BlockType.StoneBlockType,
-                       new BlockStruct("stone", BlockStruct.Collision.True, BlockStruct.BlockCategory.Ore));
+                       new BlockStruct("stone", BlockStruct.Collision.True, BlockStruct.BlockCategory.Ore,
+                                       (short) 500));
     }
 
-    //each unit is 1 block, in the game world
+    //each unit is 1 block(16x16 px), in the game world
     public Block[] blocks;
 
     //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
@@ -190,6 +192,7 @@ public class OreWorld {
                                                                       .with(new MovementSystem(this))
                                                                       .with(new PowerCircuitSystem(this))
                                                                       .with(new GrassBlockSystem(this))
+                                                                      .with(new BlockDiggingSystem(this))
                                                                       .with(new PlayerSystem(this))
                                                                       .with(new NetworkServerSystem(this, m_server))
                                                                       .register(new GameLoopSystemInvocationStrategy(25,
@@ -211,6 +214,7 @@ public class OreWorld {
     private boolean isHotspotOptimizationEnabled() {
         // hotspot optimization replaces (amongst other steps) references to entityprocessingsystem with entitysystem.
         // so we can determine this optimization by EntityProcessingSystem missing from our system's hierarchy.
+        //this is for artemis-odb optimization, ing annotations. it helps inline some calls
         return !ClassReflection.isAssignableFrom(EntityProcessingSystem.class, NetworkClientSystem.class);
     }
 
@@ -888,8 +892,17 @@ public class OreWorld {
 
     public static class BlockStruct {
         public String textureName; //e.g. "dirt", "stone", etc.
+        /**
+         * whether or not things should collide with this block
+         */
         Collision collision;
+
         public BlockCategory category;
+
+        /**
+         * max starting health of the block
+         */
+        public short blockHealth;
 
         //if this type is a type of ore (like stone, copper, ...)
         public enum BlockCategory {
@@ -904,10 +917,11 @@ public class OreWorld {
             False
         }
 
-        BlockStruct(String textureName, Collision collides, BlockCategory category) {
+        BlockStruct(String textureName, Collision collides, BlockCategory category, short blockHealth) {
             this.textureName = textureName;
             this.collision = collides;
             this.category = category;
+            this.blockHealth = blockHealth;
         }
     }
 }

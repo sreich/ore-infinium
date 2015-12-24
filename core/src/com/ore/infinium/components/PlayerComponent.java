@@ -40,6 +40,11 @@ public class PlayerComponent extends Component {
     public boolean killed;
     public OreTimer placeableItemTimer = new OreTimer();
 
+    /**
+     * current health of a block that is getting damaged.
+     */
+    public transient float damagedBlockHealth = 500;
+
     //ms
     public static final int placeableItemDelay = 300;
 

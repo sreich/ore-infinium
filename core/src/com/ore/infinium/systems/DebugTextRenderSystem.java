@@ -226,6 +226,11 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, drawCallsString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
+        float damagedBlockHealth =
+                playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer).getId()).damagedBlockHealth;
+        m_font.draw(m_batch, "blockHealth: " + damagedBlockHealth + " / ??", TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
         Vector2 mousePos = m_world.mousePositionWorldCoords();
         Block block = m_world.blockAtPosition(mousePos);
 

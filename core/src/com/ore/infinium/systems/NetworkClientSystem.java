@@ -359,30 +359,15 @@ public class NetworkClientSystem extends BaseSystem {
     }
 
     /**
-     * this should be sent when a block starts getting picked
-     * to inform the server that you've begun attacking a block.
-     */
-    public void sendBlockPickStart(int x, int y) {
-        Network.BlockDigProgressReportFromClient blockDigFromClient = new Network.BlockDigProgressReportFromClient();
-        blockDigFromClient.x = x;
-        blockDigFromClient.y = y;
-        m_clientKryo.sendTCP(blockDigFromClient);
-    }
-
-    public void sendBlockPickAbort() {
-
-    }
-
-    /**
      * tell server that we are trying to pick this block
      * (either for the first time, or are continuing to do it),
-     * and send periodic updates on its health
+     * by sending periodic updates on its health
      *
      * @param x
      * @param y
      */
-    public void sendBlockDigProgressReport(int x, int y, int health) {
-        Network.BlockDigProgressReportFromClient blockDigFromClient = new Network.BlockDigProgressReportFromClient();
+    public void sendBlockDigHealthReport(int x, int y, short health) {
+        Network.BlockDigHealthReportFromClient blockDigFromClient = new Network.BlockDigHealthReportFromClient();
         blockDigFromClient.x = x;
         blockDigFromClient.y = y;
         blockDigFromClient.health = health;

@@ -26,6 +26,10 @@ public class ToolComponent extends Component {
     public ToolMaterial material = ToolMaterial.Wood;
     public float attackRadius = 10.0f;
 
+    public transient int attackIntervalms = 500;
+
+    public int blockDamage = 20;
+
     public enum ToolType {
         Drill,
         Axe,

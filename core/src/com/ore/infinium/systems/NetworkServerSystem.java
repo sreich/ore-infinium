@@ -239,8 +239,8 @@ public class NetworkServerSystem extends BaseSystem {
                 receiveChatMessage(job);
             } else if (job.object instanceof Network.PlayerMoveInventoryItemFromClient) {
                 receivePlayerMoveInventoryItem(job);
-            } else if (job.object instanceof Network.BlockDigProgressReportFromClient) {
-                receiveBlockDigProgressReport(job);
+            } else if (job.object instanceof Network.BlockDigHealthReportFromClient) {
+                receiveBlockDigHealthReport(job);
             } else if (job.object instanceof Network.BlockPlaceFromClient) {
                 receiveBlockPlace(job);
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
@@ -394,8 +394,8 @@ public class NetworkServerSystem extends BaseSystem {
      *
      * @param job
      */
-    private void receiveBlockDigProgressReport(NetworkJob job) {
-        Network.BlockDigProgressReportFromClient data = ((Network.BlockDigProgressReportFromClient) job.object);
+    private void receiveBlockDigHealthReport(NetworkJob job) {
+        Network.BlockDigHealthReportFromClient data = ((Network.BlockDigHealthReportFromClient) job.object);
         //todo verification to ensure the player isn't cheating us
         //todo for block digging we must ensure that the player say..didn't send 500 of these
     }
