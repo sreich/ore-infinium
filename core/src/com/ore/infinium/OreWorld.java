@@ -59,17 +59,18 @@ public class OreWorld {
     /**
      * looks up the texture prefix name for each block type. e.g. DirtBlockType -> "dirt", etc.
      */
-    public static final HashMap<Byte, BlockStruct> blockTypes = new HashMap<>();
+    public static final HashMap<Byte, BlockAttributes> blockAttributes = new HashMap<>();
 
     static {
-        blockTypes.put(Block.BlockType.NullBlockType,
-                       new BlockStruct("", BlockStruct.Collision.False, BlockStruct.BlockCategory.Null, (short) 0));
-        blockTypes.put(Block.BlockType.DirtBlockType,
-                       new BlockStruct("dirt", BlockStruct.Collision.True, BlockStruct.BlockCategory.Dirt,
-                                       (short) 300));
-        blockTypes.put(Block.BlockType.StoneBlockType,
-                       new BlockStruct("stone", BlockStruct.Collision.True, BlockStruct.BlockCategory.Ore,
-                                       (short) 500));
+        blockAttributes.put(Block.BlockType.NullBlockType,
+                            new BlockAttributes("", BlockAttributes.Collision.False, BlockAttributes.BlockCategory.Null,
+                                                (short) 0));
+        blockAttributes.put(Block.BlockType.DirtBlockType, new BlockAttributes("dirt", BlockAttributes.Collision.True,
+                                                                               BlockAttributes.BlockCategory.Dirt,
+                                                                               (short) 600));
+        blockAttributes.put(Block.BlockType.StoneBlockType, new BlockAttributes("stone", BlockAttributes.Collision.True,
+                                                                                BlockAttributes.BlockCategory.Ore,
+                                                                                (short) 800));
     }
 
     //each unit is 1 block(16x16 px), in the game world
@@ -490,7 +491,7 @@ public class OreWorld {
         blockComponent.blockType = blockType;
 
         SpriteComponent blockSprite = spriteMapper.create(block);
-        blockSprite.textureName = blockTypes.get(blockComponent.blockType).textureName;
+        blockSprite.textureName = blockAttributes.get(blockComponent.blockType).textureName;
 
         blockSprite.sprite.setSize(1, 1);
 
@@ -890,7 +891,7 @@ public class OreWorld {
         return bag;
     }
 
-    public static class BlockStruct {
+    public static class BlockAttributes {
         public String textureName; //e.g. "dirt", "stone", etc.
         /**
          * whether or not things should collide with this block
@@ -902,7 +903,7 @@ public class OreWorld {
         /**
          * max starting health of the block
          */
-        public short blockHealth;
+        public short blockTotalHealth;
 
         //if this type is a type of ore (like stone, copper, ...)
         public enum BlockCategory {
@@ -917,11 +918,11 @@ public class OreWorld {
             False
         }
 
-        BlockStruct(String textureName, Collision collides, BlockCategory category, short blockHealth) {
+        BlockAttributes(String textureName, Collision collides, BlockCategory category, short blockTotalHealth) {
             this.textureName = textureName;
             this.collision = collides;
             this.category = category;
-            this.blockHealth = blockHealth;
+            this.blockTotalHealth = blockTotalHealth;
         }
     }
 }

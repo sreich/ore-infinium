@@ -352,8 +352,8 @@ public class TileTransitionSystem extends IntervalSystem {
                     boolean bottomLeftEmpty = bottomLeftBlock.type == Block.BlockType.NullBlockType;
                     boolean bottomRightEmpty = bottomRightBlock.type == Block.BlockType.NullBlockType;
 
-                    boolean leftOre =
-                            m_world.blockTypes.get(leftBlock.type).category == OreWorld.BlockStruct.BlockCategory.Ore;
+                    boolean leftOre = m_world.blockAttributes.get(leftBlock.type).category ==
+                                      OreWorld.BlockAttributes.BlockCategory.Ore;
 
                     byte finalMesh = -1;
 

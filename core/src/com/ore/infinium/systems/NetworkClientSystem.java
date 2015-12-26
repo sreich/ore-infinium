@@ -288,9 +288,10 @@ public class NetworkClientSystem extends BaseSystem {
     private void receivePlayerSpawn(Object receivedObject) {
         Network.PlayerSpawnedFromServer spawn = (Network.PlayerSpawnedFromServer) receivedObject;
 
+        //it is our main player (the client's player, aka us)
         if (!connected) {
             //fixme not ideal, calling into the client to do this????
-            int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID());
+            int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID(), true);
             SpriteComponent spriteComp = spriteMapper.get(player);
 
             spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);

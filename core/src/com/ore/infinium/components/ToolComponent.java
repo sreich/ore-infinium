@@ -28,7 +28,8 @@ public class ToolComponent extends Component {
 
     public transient int attackIntervalms = 500;
 
-    public int blockDamage = 20;
+    //damage tool does to blocks
+    public int blockDamage;
 
     public enum ToolType {
         Drill,

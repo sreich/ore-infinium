@@ -6,6 +6,7 @@ import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
 import com.ore.infinium.OreWorld;
+import com.ore.infinium.utils.Vector2i;
 
 /**
  * ***************************************************************************
@@ -43,7 +44,12 @@ public class PlayerComponent extends Component {
     /**
      * current health of a block that is getting damaged.
      */
-    public transient float damagedBlockHealth = 500;
+    public transient short damagedBlockHealth = 500;
+
+    /**
+     * this and
+     */
+    public transient Vector2i lastDiggingBlock;
 
     //ms
     public static final int placeableItemDelay = 300;
@@ -51,8 +57,9 @@ public class PlayerComponent extends Component {
     //    public Vector2 mousePositionWorldCoords;
     //    public boolean mouseLeftButtonHeld;
     //    public boolean mouseRightButtonHeld;
-    public int ping;
-    public boolean noClip;
+    public transient int ping;
+    public transient boolean noClip;
+
     public LoadedViewport loadedViewport = new LoadedViewport();
     public Inventory hotbarInventory;
     public Inventory inventory;

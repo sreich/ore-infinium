@@ -157,7 +157,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
 
                 boolean drawWallTile = false;
 
-                //String textureName = World.blockTypes.get(block.type).textureName;
+                //String textureName = World.blockAttributes.get(block.type).textureName;
                 if (block.type == Block.BlockType.DirtBlockType) {
 
                     if (block.hasFlag(Block.BlockFlags.GrassBlock)) {

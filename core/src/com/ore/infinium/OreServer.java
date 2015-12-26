@@ -189,19 +189,19 @@ public class OreServer implements Runnable {
     private void loadHotbarInventory(int playerEntity) {
         //TODO: load the player's inventory and hotbarinventory from file..for now, initialize *the whole thing* with
         // bullshit
-        int tool = m_world.m_artemisWorld.create();
-        velocityMapper.create(tool);
+        final int drill = m_world.m_artemisWorld.create();
+        velocityMapper.create(drill);
 
-        ToolComponent toolComponent = toolMapper.create(tool);
-        toolComponent.type = ToolComponent.ToolType.Drill;
+        ToolComponent drillToolComponent = toolMapper.create(drill);
+        drillToolComponent.type = ToolComponent.ToolType.Drill;
+        drillToolComponent.blockDamage = 50;
 
-        SpriteComponent toolSprite = spriteMapper.create(tool);
+        SpriteComponent toolSprite = spriteMapper.create(drill);
         toolSprite.textureName = "drill";
 
-        //warning fixme size is fucked
         toolSprite.sprite.setSize(2, 2);
 
-        ItemComponent itemComponent = itemMapper.create(tool);
+        ItemComponent itemComponent = itemMapper.create(drill);
 
         final int stackSize = 64000;
         itemComponent.stackSize = stackSize;
@@ -210,9 +210,9 @@ public class OreServer implements Runnable {
         itemComponent.state = ItemComponent.State.InInventoryState;
 
         PlayerComponent playerComponent = playerMapper.get(playerEntity);
-        playerComponent.hotbarInventory.setSlot((byte) 0, tool);
+        playerComponent.hotbarInventory.setSlot((byte) 0, drill);
 
-        int dirtBlock = m_world.m_artemisWorld.create();
+        final int dirtBlock = m_world.m_artemisWorld.create();
         m_world.createBlockItem(dirtBlock, Block.BlockType.DirtBlockType);
 
         ItemComponent dirtBlockItemComponent = itemMapper.get(dirtBlock);
@@ -221,7 +221,7 @@ public class OreServer implements Runnable {
 
         playerComponent.hotbarInventory.setSlot((byte) 1, dirtBlock);
 
-        int stoneBlock = m_world.m_artemisWorld.create();
+        final int stoneBlock = m_world.m_artemisWorld.create();
         m_world.createBlockItem(stoneBlock, Block.BlockType.StoneBlockType);
 
         ItemComponent stoneBlockItemComponent = itemMapper.get(stoneBlock);
@@ -230,7 +230,7 @@ public class OreServer implements Runnable {
 
         playerComponent.hotbarInventory.setSlot((byte) 2, stoneBlock);
 
-        int powerGen = m_world.createPowerGenerator();
+        final int powerGen = m_world.createPowerGenerator();
         ItemComponent powerGenItem = itemMapper.get(powerGen);
         powerGenItem.inventoryIndex = 3;
         powerGenItem.state = ItemComponent.State.InInventoryState;
@@ -238,7 +238,7 @@ public class OreServer implements Runnable {
         playerComponent.hotbarInventory.setSlot((byte) 3, powerGen);
 
         for (byte i = 4; i < 7; ++i) {
-            int light = m_world.createLight();
+            final int light = m_world.createLight();
 
             ItemComponent lightItemComponent = itemMapper.get(light);
             lightItemComponent.stackSize = MathUtils.random(10, 5000);
@@ -250,7 +250,7 @@ public class OreServer implements Runnable {
         }
 
         for (byte i = 0; i < Inventory.maxHotbarSlots; ++i) {
-            int entity = playerComponent.hotbarInventory.itemEntity(i);
+            final int entity = playerComponent.hotbarInventory.itemEntity(i);
             if (entity != OreWorld.ENTITY_INVALID) {
                 m_networkServerSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity);
             }

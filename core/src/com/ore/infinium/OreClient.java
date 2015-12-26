@@ -19,6 +19,7 @@ import com.ore.infinium.components.*;
 import com.ore.infinium.systems.DebugTextRenderSystem;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.PowerOverlayRenderSystem;
+import com.ore.infinium.utils.Vector2i;
 
 import java.io.IOException;
 
@@ -153,16 +154,24 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 return;
             }
 
-            int x = (int) (mouse.x);
-            int y = (int) (mouse.y);
+            int blockX = (int) (mouse.x);
+            int blockY = (int) (mouse.y);
 
-            Block block = m_world.blockAt(x, y);
+            Block block = m_world.blockAt(blockX, blockY);
 
             if (block.type != Block.BlockType.NullBlockType) {
+                short blockTotalHealth = m_world.blockAttributes.get(block.type).blockTotalHealth;
                 //block.destroy();
-                short blockHealth = m_world.blockTypes.get(block.type).blockHealth;
+                if (playerComponent.lastDiggingBlock.x != blockX || playerComponent.lastDiggingBlock.y != blockY) {
+                    //it's a different block. we must've aborted digging the old one, reset to total health.
+                    //and reset last dug indices
+                    playerComponent.damagedBlockHealth = blockTotalHealth;
+                    playerComponent.lastDiggingBlock.x = blockX;
+                    playerComponent.lastDiggingBlock.y = blockY;
+                }
+
                 playerComponent.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
-                m_networkClientSystem.sendBlockDigHealthReport(x, y, blockHealth);
+                //m_networkClientSystem.sendBlockDigHealthReport(x, y, blockHealth);
             }
 
             //action performed
@@ -537,6 +546,25 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
+        if (m_world != null && m_networkClientSystem.connected) {
+
+            Vector2 mouse = m_world.mousePositionWorldCoords();
+
+            int blockX = (int) (mouse.x);
+            int blockY = (int) (mouse.y);
+
+            Block block = m_world.blockAt(blockX, blockY);
+
+            PlayerComponent playerComponent = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
+            //check if we moved mouse position enough to fall on a different block. if so, abort digging
+            //if it was ever in progress
+            if (playerComponent.lastDiggingBlock.x != blockX || playerComponent.lastDiggingBlock.y != blockY) {
+                playerComponent.lastDiggingBlock.x = -1;
+                playerComponent.lastDiggingBlock.y = -1;
+                playerComponent.damagedBlockHealth = 0;
+            }
+        }
+
         return false;
     }
 
@@ -567,7 +595,15 @@ public class OreClient implements ApplicationListener, InputProcessor {
         return true;
     }
 
-    public int createPlayer(String playerName, int connectionId) {
+    /**
+     * @param playerName
+     * @param connectionId
+     * @param mainPlayer
+     *         true if we should spawn our clients player (first player we get)
+     *
+     * @return
+     */
+    public int createPlayer(String playerName, int connectionId, boolean mainPlayer) {
         int player = m_world.createPlayer(playerName, connectionId);
         ControllableComponent controllableComponent = controlMapper.create(player);
 
@@ -589,7 +625,10 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_hotbarView = new HotbarInventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
         m_inventoryView = new InventoryView(m_stage, m_skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world);
 
-        m_tagManager.register(OreWorld.s_mainPlayer, player);
+        if (mainPlayer) {
+            m_tagManager.register(OreWorld.s_mainPlayer, player);
+            playerComponent.lastDiggingBlock = new Vector2i();
+        }
 
         //select the first slot, so the inventory view highlights something.
         playerComponent.hotbarInventory.selectSlot((byte) 0);

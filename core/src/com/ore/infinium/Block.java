@@ -78,7 +78,7 @@ public class Block {
     };
     */
 
-    //static std::vector<BlockStruct> blockTypes;
+    //static std::vector<BlockStruct> blockAttributes;
     //static std::vector<WallStruct> wallTypes;
     /**
      * if != 0 (WallType::Null), then this is an "underground wall tile" and the user cannot remove/add/change it in
