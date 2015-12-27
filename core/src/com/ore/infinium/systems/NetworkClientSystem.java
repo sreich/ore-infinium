@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.IntMap;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
@@ -165,11 +166,17 @@ public class NetworkClientSystem extends BaseSystem {
         m_clientKryo.sendTCP(initialClientData);
     }
 
+    public long lastPingUpdate = 0;
+
     @Override
     protected void processSystem() {
         processNetworkQueue();
 
-        m_clientKryo.updateReturnTripTime();
+        if (TimeUtils.timeSinceMillis(lastPingUpdate) > 1000) {
+            lastPingUpdate = System.currentTimeMillis();
+            m_clientKryo.updateReturnTripTime();
+            int time = m_clientKryo.getReturnTripTime();
+        }
     }
 
     private void processNetworkQueue() {

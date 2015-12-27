@@ -81,6 +81,7 @@ public class NetworkServerSystem extends BaseSystem {
 
             Network.register(m_serverKryo);
             m_serverKryo.addListener(new ServerListener());
+            //m_serverKryo.addListener(new Listener.LagListener(100, 100, new ServerListener()));
 
             try {
                 m_serverKryo.bind(Network.PORT);
