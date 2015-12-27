@@ -111,7 +111,7 @@ public class NetworkClientSystem extends BaseSystem {
     }
 
     /**
-     * connect the client network object to the given ip, at the given port
+     * connect the client network object to the given ip, at the given PORT
      *
      * @param ip
      */
@@ -122,7 +122,14 @@ public class NetworkClientSystem extends BaseSystem {
 
         Network.register(m_clientKryo);
 
-        m_clientKryo.addListener(new ClientListener());
+        int lagMinMs = OreSettings.getInstance().lagMinMs;
+        int lagMaxMs = OreSettings.getInstance().lagMaxMs;
+        if (lagMinMs == 0 && lagMaxMs == 0) {
+            //network latency debug switches unset, regular connection.
+            m_clientKryo.addListener(new ClientListener());
+        } else {
+            m_clientKryo.addListener(new Listener.LagListener(lagMinMs, lagMaxMs, new ClientListener()));
+        }
         m_clientKryo.setKeepAliveTCP(999999);
 
         new Thread("kryonet connection client thread") {
@@ -161,6 +168,8 @@ public class NetworkClientSystem extends BaseSystem {
     @Override
     protected void processSystem() {
         processNetworkQueue();
+
+        m_clientKryo.updateReturnTripTime();
     }
 
     private void processNetworkQueue() {
@@ -183,6 +192,7 @@ public class NetworkClientSystem extends BaseSystem {
                 receiveChatMessage(receivedObject);
             } else if (receivedObject instanceof Network.EntityMovedFromServer) {
                 receiveEntityMoved(receivedObject);
+            } else if (receivedObject instanceof FrameworkMessage.Ping) {
             } else {
                 if (!(receivedObject instanceof FrameworkMessage.KeepAlive)) {
                     assert false : "unhandled network receiving class in network client";
@@ -409,6 +419,13 @@ public class NetworkClientSystem extends BaseSystem {
         }
 
         public void disconnected(Connection connection) {
+        }
+    }
+
+    class ClientStupidListener extends Listener.LagListener {
+
+        public ClientStupidListener(int lagMillisMin, int lagMillisMax, Listener listener) {
+            super(lagMillisMin, lagMillisMax, listener);
         }
     }
 

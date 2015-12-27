@@ -282,6 +282,10 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
         }
 
+        m_font.draw(m_batch, "ping: " + m_networkClientSystem.m_clientKryo.getReturnTripTime(), TEXT_X_LEFT,
+                    m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
         m_batch.end();
 
         if (m_renderDebugServer && false)

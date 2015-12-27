@@ -83,7 +83,7 @@ public class NetworkServerSystem extends BaseSystem {
             m_serverKryo.addListener(new ServerListener());
 
             try {
-                m_serverKryo.bind(Network.port);
+                m_serverKryo.bind(Network.PORT);
             } catch (BindException e) {
                 throw e;
             }
@@ -249,10 +249,14 @@ public class NetworkServerSystem extends BaseSystem {
                 receiveHotbarDropItem(job);
             } else if (job.object instanceof Network.ItemPlaceFromClient) {
                 receiveItemPlace(job);
+            } else if (job.object instanceof FrameworkMessage.Ping) {
+                FrameworkMessage.Ping ping = (FrameworkMessage.Ping) job.object;
+                if (ping.isReply) {
+
+                }
             } else {
                 if (!(job.object instanceof FrameworkMessage.KeepAlive)) {
-                    Gdx.app.log("client network", "unhandled network receiving class");
-                    assert false;
+                    assert false : "unhandled network receiving class, received from client (on server)";
                 }
             }
         }

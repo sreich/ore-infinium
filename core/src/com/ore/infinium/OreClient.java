@@ -171,7 +171,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
                 }
 
                 playerComponent.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
-                //m_networkClientSystem.sendBlockDigHealthReport(x, y, blockHealth);
+                m_networkClientSystem.sendBlockDigHealthReport(blockX, blockY, playerComponent.damagedBlockHealth);
             }
 
             //action performed
@@ -273,7 +273,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         m_networkClientSystem.addListener(new NetworkConnectListener(this));
 
         try {
-            m_networkClientSystem.connect("127.0.0.1", Network.port);
+            m_networkClientSystem.connect("127.0.0.1", Network.PORT);
         } catch (IOException e) {
             e.printStackTrace();
             //fuck. gonna have to show the fail to connect dialog.
@@ -553,7 +553,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             int blockX = (int) (mouse.x);
             int blockY = (int) (mouse.y);
 
-            Block block = m_world.blockAt(blockX, blockY);
+            Block block = m_world.blockAtSafely(blockX, blockY);
 
             PlayerComponent playerComponent = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
             //check if we moved mouse position enough to fall on a different block. if so, abort digging

@@ -28,7 +28,7 @@ import com.ore.infinium.components.*;
  * ***************************************************************************
  */
 public class Network {
-    static public final int port = 54553;
+    static public final int PORT = 54553;
     static public final int bufferObjectSize = 255032;
     static public final int bufferWriteSize = 250536;
 

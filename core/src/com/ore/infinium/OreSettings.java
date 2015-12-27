@@ -87,13 +87,22 @@ public class OreSettings {
     public String playerName = "testplayerNameFromCommandLine";
 
     @Parameter(names = "--port")
-    public int port = Network.port;
+    public int port = Network.PORT;
 
     @Parameter(names = "--ip", description = "applies only to the client")
     public String ip = "localhost";
 
     @Parameter(names = "--networkLog", description = "enable network (kryonet) debug logging to system out")
     public boolean networkLog;
+
+    @Parameter(names = "--lagMin",
+               description = "emulates a slow network guaranteed to have this much latency. For network debugging.")
+    public int lagMinMs = 0;
+
+    @Parameter(names = "--lagMax",
+               description = "emulates a slow network guaranteed to have less than this much latency. For network " +
+                             "debugging.")
+    public int lagMaxMs = 0;
     /////////
 
     private OreSettings() {

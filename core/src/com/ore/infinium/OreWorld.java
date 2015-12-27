@@ -67,10 +67,10 @@ public class OreWorld {
                                                 (short) 0));
         blockAttributes.put(Block.BlockType.DirtBlockType, new BlockAttributes("dirt", BlockAttributes.Collision.True,
                                                                                BlockAttributes.BlockCategory.Dirt,
-                                                                               (short) 600));
+                                                                               (short) 200));
         blockAttributes.put(Block.BlockType.StoneBlockType, new BlockAttributes("stone", BlockAttributes.Collision.True,
                                                                                 BlockAttributes.BlockCategory.Ore,
-                                                                                (short) 800));
+                                                                                (short) 300));
     }
 
     //each unit is 1 block(16x16 px), in the game world
