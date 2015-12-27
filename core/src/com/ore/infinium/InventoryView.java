@@ -1,7 +1,7 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.core.Entity;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Scaling;
 import com.ore.infinium.components.ItemComponent;
+import com.ore.infinium.systems.NetworkClientSystem;
+import com.ore.infinium.systems.TileRenderSystem;
 
 /**
  * ***************************************************************************
@@ -31,10 +33,11 @@ import com.ore.infinium.components.ItemComponent;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+@Wire
 public class InventoryView implements Inventory.SlotListener {
     public boolean inventoryVisible;
 
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
+    private ComponentMapper<ItemComponent> itemMapper;
 
     private Skin m_skin;
     private SlotElement[] m_slots = new SlotElement[Inventory.maxSlots];
@@ -42,16 +45,17 @@ public class InventoryView implements Inventory.SlotListener {
     //the model for this view
     private Inventory m_inventory;
 
-    private OreClient m_client;
+    private OreWorld m_world;
 
     //the hotbar inventory, for drag and drop
     private Inventory m_hotbarInventory;
     private Window m_window;
 
-    public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory, DragAndDrop dragAndDrop, OreClient client) {
+    public InventoryView(Stage stage, Skin skin, Inventory hotbarInventory, Inventory inventory,
+                         DragAndDrop dragAndDrop, OreWorld world) {
         m_skin = skin;
         m_inventory = inventory;
-        m_client = client;
+        m_world = world;
 
         //attach to the inventory model
         m_inventory.addListener(this);
@@ -65,14 +69,15 @@ public class InventoryView implements Inventory.SlotListener {
         container.padLeft(10).padTop(10);
 
         m_window = new Window("Inventory", m_skin);
-        //HACK;not centering or anythign, all hardcoded :(
+        //fixme;not centering or anythign, all hardcoded :(
         m_window.setPosition(900, 100);
         m_window.top().right().setSize(400, 500);
-//        window.defaults().space(4);
+        //        window.defaults().space(4);
         //window.pack();
         m_window.add(container).fill().expand();
 
-        TextureRegion region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion("dirt-00");
+        TextureRegion region =
+                m_world.m_artemisWorld.getSystem(TileRenderSystem.class).m_tilesAtlas.findRegion("dirt-00");
         Image dragImage = new Image(region);
         dragImage.setSize(32, 32);
 
@@ -100,7 +105,7 @@ public class InventoryView implements Inventory.SlotListener {
                 element.itemCountLabel = itemName;
 
                 container.add(slotTable).size(50, 50);
-//            window.add(slotTable).fill().size(50, 50);
+                //            window.add(slotTable).fill().size(50, 50);
 
                 dragAndDrop.addSource(new InventoryDragSource(slotTable, i, dragImage, this));
 
@@ -109,7 +114,6 @@ public class InventoryView implements Inventory.SlotListener {
 
             container.row();
         }
-
 
         stage.addActor(m_window);
         setVisible(false);
@@ -127,7 +131,7 @@ public class InventoryView implements Inventory.SlotListener {
 
     @Override
     public void countChanged(byte index, Inventory inventory) {
-        ItemComponent itemComponent = itemMapper.get(inventory.item(index));
+        ItemComponent itemComponent = itemMapper.get(inventory.itemEntity(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
@@ -135,14 +139,15 @@ public class InventoryView implements Inventory.SlotListener {
     public void set(byte index, Inventory inventory) {
         SlotElement slot = m_slots[index];
 
-        TextureRegion region = m_client.m_world.m_tileRenderer.m_tilesAtlas.findRegion("dirt-00");
+        TextureRegion region =
+                m_world.m_artemisWorld.getSystem(TileRenderSystem.class).m_tilesAtlas.findRegion("dirt-00");
         Image slotImage = slot.itemImage;
         slotImage.setDrawable(new TextureRegionDrawable(region));
         slotImage.setSize(region.getRegionWidth(), region.getRegionHeight());
         slotImage.setScaling(Scaling.fit);
 
-        Entity item = inventory.item(index);
-        ItemComponent itemComponent = itemMapper.get(item);
+        int itemEntity = inventory.itemEntity(index);
+        ItemComponent itemComponent = itemMapper.get(itemEntity);
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
 
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
@@ -176,7 +181,7 @@ public class InventoryView implements Inventory.SlotListener {
 
         public DragAndDrop.Payload dragStart(InputEvent event, float x, float y, int pointer) {
             //invalid drag start, ignore.
-            if (inventoryView.m_inventory.item(index) == null) {
+            if (inventoryView.m_inventory.itemEntity(index) == OreWorld.ENTITY_INVALID) {
                 return null;
             }
 
@@ -228,7 +233,7 @@ public class InventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.m_inventory.item(index) == null) {
+                if (inventory.m_inventory.itemEntity(index) == OreWorld.ENTITY_INVALID) {
                     //only make it green if the slot is empty
                     return true;
                 }
@@ -247,11 +252,15 @@ public class InventoryView implements Inventory.SlotListener {
             InventorySlotDragWrapper dragWrapper = (InventorySlotDragWrapper) payload.getObject();
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_inventory.item(this.index) == null) {
+            if (inventory.m_inventory.itemEntity(this.index) == OreWorld.ENTITY_INVALID) {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.m_inventory.setSlot(this.index, inventory.m_inventory.item(dragWrapper.dragSourceIndex));
-                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
+                    inventory.m_inventory.setSlot(this.index,
+                                                  inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex));
+                    inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                                    .sendInventoryMove(Inventory.InventoryType.Inventory,
+                                                                       dragWrapper.dragSourceIndex,
+                                                                       Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex);
@@ -259,8 +268,12 @@ public class InventoryView implements Inventory.SlotListener {
                     //hotbar inventory
 
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
-                    inventory.m_inventory.setSlot(this.index, inventory.m_hotbarInventory.item(dragWrapper.dragSourceIndex));
-                    inventory.m_client.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex, Inventory.InventoryType.Inventory, index);
+                    inventory.m_inventory.setSlot(this.index,
+                                                  inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex));
+                    inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                                    .sendInventoryMove(Inventory.InventoryType.Hotbar,
+                                                                       dragWrapper.dragSourceIndex,
+                                                                       Inventory.InventoryType.Inventory, index);
 
                     //remove the source item
                     inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex);

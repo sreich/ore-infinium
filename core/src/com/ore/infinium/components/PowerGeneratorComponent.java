@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -25,17 +24,24 @@ import com.badlogic.gdx.utils.Pool;
 /**
  * Any device that can generate some amount of power on a circuit
  */
-public class PowerGeneratorComponent extends Component implements Pool.Poolable {
+public class PowerGeneratorComponent extends Component {
 
-    public void reset() {
-
-    }
-
-    public PowerGeneratorComponent() {
-    }
-
-    public PowerGeneratorComponent(PowerGeneratorComponent component) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(PowerGeneratorComponent component) {
+        powerSupplyRate = component.powerSupplyRate;
     }
 
     public int powerSupplyRate;
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("powerGeneratorComponent.powerSupplyRate: ").append(powerSupplyRate).append('\n');
+        return builder.toString();
+    }
 }

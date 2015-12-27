@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -25,17 +24,24 @@ import com.badlogic.gdx.utils.Pool;
 /**
  * Any device on a circuit that can consume some amount of power
  */
-public class PowerConsumerComponent extends Component implements Pool.Poolable {
+public class PowerConsumerComponent extends Component {
 
-    public void reset() {
-
-    }
-
-    public PowerConsumerComponent() {
-    }
-
-    public PowerConsumerComponent(PowerConsumerComponent component) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(PowerConsumerComponent component) {
+        powerDemandRate = component.powerDemandRate;
     }
 
     public int powerDemandRate;
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("powerConsumerComponent.powerDemandRate: ").append(powerDemandRate).append('\n');
+        return builder.toString();
+    }
 }

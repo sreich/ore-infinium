@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,15 +20,16 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ToolComponent extends Component implements Pool.Poolable {
+public class ToolComponent extends Component {
 
     public ToolType type = ToolType.Drill;
     public ToolMaterial material = ToolMaterial.Wood;
     public float attackRadius = 10.0f;
 
-    public void reset() {
+    public transient int attackIntervalms = 500;
 
-    }
+    //damage tool does to blocks
+    public int blockDamage;
 
     public enum ToolType {
         Drill,
@@ -44,12 +44,24 @@ public class ToolComponent extends Component implements Pool.Poolable {
         Diamond
     }
 
-    public ToolComponent() {
-    }
-
-    public ToolComponent(ToolComponent toolComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param toolComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(ToolComponent toolComponent) {
         type = toolComponent.type;
         material = toolComponent.material;
         attackRadius = toolComponent.attackRadius;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("toolComponent.type: ").append(type).append('\n');
+        builder.append("toolComponent.material: ").append(material).append('\n');
+        builder.append("toolComponent.attackRadius: ").append(attackRadius).append('\n');
+        return builder.toString();
     }
 }

@@ -1,9 +1,19 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.utils.ImmutableArray;
+import aurelienribon.tweenengine.Timeline;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenEquations;
+import aurelienribon.tweenengine.TweenManager;
+import aurelienribon.tweenengine.equations.Sine;
+import com.artemis.*;
+import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
+import com.artemis.utils.IntBag;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.ore.infinium.World;
+import com.badlogic.gdx.math.MathUtils;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
@@ -24,115 +34,205 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class SpriteRenderSystem extends EntitySystem {
+@Wire
+public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker {
     public static int spriteCount;
 
-    private World m_world;
+    private OreWorld m_world;
     private SpriteBatch m_batch;
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<JumpComponent> jumpMapper;
 
-    public SpriteRenderSystem(World world) {
+    private TagManager m_tagManager;
+
+    private TweenManager m_tweenManager;
+
+    public SpriteRenderSystem(OreWorld world) {
         m_world = world;
     }
 
     @Override
-    public void addedToEngine(Engine engine) {
+    protected void initialize() {
         m_batch = new SpriteBatch();
+        m_tweenManager = new TweenManager();
+        Tween.registerAccessor(Sprite.class, new SpriteTween());
+        //default is 3, but color requires 4 (rgba)
+        Tween.setCombinedAttributesLimit(4);
     }
 
     @Override
-    public void removedFromEngine(Engine engine) {
+    protected void dispose() {
         m_batch.dispose();
     }
 
     @Override
-    public void update(float delta) {
-//        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+    protected void begin() {
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
+        //       m_batch.begin();
+    }
+
+    @Override
+    protected void processSystem() {
+        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+
+        m_tweenManager.update(world.getDelta());
+
         m_batch.begin();
-
-        renderEntities(delta);
-        renderDroppedEntities(delta);
-
+        renderEntities(world.getDelta());
         m_batch.end();
+
+        m_batch.begin();
+        renderDroppedEntities(world.getDelta());
+        m_batch.end();
+        //restore color
+        m_batch.setColor(Color.WHITE);
+
+    }
+
+    @Override
+    protected void end() {
+        //        m_batch.end();
     }
 
     //fixme probably also droppedblocks?
     private void renderDroppedEntities(float delta) {
-        //fixme obviously this is very inefficient...
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+        //fixme obviously this is very inefficient...but dunno if it'll ever be an issue.
+        AspectSubscriptionManager aspectSubscriptionManager = world.getAspectSubscriptionManager();
+        EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class));
+        IntBag entities = entitySubscription.getEntities();
 
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = itemMapper.get(entities.get(i));
-            //don't draw in-inventory or dropped items
+            itemComponent = itemMapper.getSafe(entities.get(i));
+            //don't draw in-inventory or not dropped items
             if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
                 continue;
             }
 
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
+            if (!m_tweenManager.containsTarget(spriteComponent.sprite)) {
+
+                Timeline.createSequence()
+                        .push(Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f)
+                                   .target(0.2f, 0.2f)
+                                   .ease(Sine.IN))
+                        .push(Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f).target(.5f, .5f).ease(Sine.OUT))
+                        .repeatYoyo(Tween.INFINITY, 0.0f)
+                        .start(m_tweenManager);
+
+                Color glow = Color.GOLDENROD;
+                Tween.to(spriteComponent.sprite, SpriteTween.COLOR, 2.8f)
+
+                     .target(glow.r, glow.g, glow.b, 1)
+                     .ease(TweenEquations.easeInOutSine)
+                     .repeatYoyo(Tween.INFINITY, 0.0f)
+                     .start(m_tweenManager);
+            }
+
+            /*
             m_batch.draw(spriteComponent.sprite,
                          spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                         spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
+                         spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
+            */
+            m_batch.setColor(spriteComponent.sprite.getColor());
+
+            float x = spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f);
+            float y = spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f);
+
+            //flip the sprite when drawn, by using negative height
+            float scaleX = spriteComponent.sprite.getScaleX();
+            float scaleY = spriteComponent.sprite.getScaleY();
+
+            float width = spriteComponent.sprite.getWidth();
+            float height = -spriteComponent.sprite.getHeight();
+
+            float originX = width * 0.5f;
+            float originY = height * 0.5f;
+            //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
+
+            m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) / 16.0f,
+                         originX, originY, width, height, scaleX, scaleY, rotation);
         }
     }
 
+    static float rotation;
+
     private void renderEntities(float delta) {
         //todo need to exclude blocks?
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(SpriteComponent.class).get());
+        AspectSubscriptionManager aspectSubscriptionManager = world.getAspectSubscriptionManager();
+        EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class));
+        IntBag entities = entitySubscription.getEntities();
 
         ItemComponent itemComponent;
-        TagComponent tagComponent;
         SpriteComponent spriteComponent;
 
         for (int i = 0; i < entities.size(); ++i) {
-            itemComponent = itemMapper.get(entities.get(i));
+            int entity = entities.get(i);
+
+            itemComponent = itemMapper.getSafe(entity);
             //don't draw in-inventory or dropped items
             if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
+                //hack
                 continue;
             }
 
-            spriteComponent = spriteMapper.get(entities.get(i));
+            spriteComponent = spriteMapper.get(entity);
 
             if (!spriteComponent.visible) {
                 continue;
             }
 
-            assert spriteComponent.sprite != null;
+            assert spriteComponent.sprite != null : "sprite is null";
+            assert spriteComponent.sprite.getTexture() != null : "sprite has null texture";
 
             boolean placementGhost = false;
 
-            tagComponent = tagMapper.get(entities.get(i));
-            if (tagComponent != null) {
-                if (tagComponent.tag.equals("itemPlacementOverlay")) {
+            String tag = m_tagManager.getTag(world.getEntity(entity));
+            if (tag != null && tag.equals("itemPlacementOverlay")) {
 
-                    placementGhost = true;
+                placementGhost = true;
 
-                    if (spriteComponent.placementValid) {
-                        m_batch.setColor(0, 1, 0, 0.6f);
-                    } else {
-                        m_batch.setColor(1, 0, 0, 0.6f);
-                    }
+                if (spriteComponent.placementValid) {
+                    m_batch.setColor(0, 1, 0, 0.6f);
+                } else {
+                    m_batch.setColor(1, 0, 0, 0.6f);
                 }
             }
 
-            m_batch.draw(spriteComponent.sprite,
-                         spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+            float x = spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f);
+            float y = spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f);
 
+            //flip the sprite when drawn, by using negative height
+            float scaleX = 1;
+            float scaleY = 1;
+
+            float width = spriteComponent.sprite.getWidth();
+            float height = -spriteComponent.sprite.getHeight();
+
+            float originX = width * 0.5f;
+            float originY = height * 0.5f;
+
+            //this prevents some jiggling of static items when player is moving, when the objects pos is
+            // not rounded to a reasonable flat number,
+            //but for the player it means they jiggle on all movement.
+            //m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) /
+            // 16.0f,
+            //            originX, originY, width, height, scaleX, scaleY, rotation);
+
+            m_batch.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
+
+            //reset color for next run
             if (placementGhost) {
                 m_batch.setColor(1, 1, 1, 1);
             }
         }
     }
+
 }

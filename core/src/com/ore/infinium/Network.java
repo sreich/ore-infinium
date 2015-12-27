@@ -1,6 +1,6 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.Component;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -28,7 +28,7 @@ import com.ore.infinium.components.*;
  * ***************************************************************************
  */
 public class Network {
-    static public final int port = 54553;
+    static public final int PORT = 54553;
     static public final int bufferObjectSize = 255032;
     static public final int bufferWriteSize = 250536;
 
@@ -41,16 +41,16 @@ public class Network {
         kryo.register(Chat.ChatSender.class);
         kryo.register(PlayerMoveInventoryItemFromClient.class);
         kryo.register(Inventory.InventoryType.class);
-        kryo.register(KickReason.class);
-        kryo.register(KickReason.Reason.class);
+        kryo.register(DisconnectReason.class);
+        kryo.register(DisconnectReason.Reason.class);
         kryo.register(PlayerSpawnedFromServer.class);
         kryo.register(PowerDeviceComponent.class);
         kryo.register(PlayerMoveFromClient.class);
-        kryo.register(BlockPickFromClient.class);
+        kryo.register(BlockDigHealthReportFromClient.class);
         kryo.register(BlockPlaceFromClient.class);
         kryo.register(ItemPlaceFromClient.class);
         kryo.register(PlayerEquipHotbarIndexFromClient.class);
-        kryo.register(HotbarDropItemRequestFromClient.class);
+        kryo.register(HotbarDropItemFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
         kryo.register(EntityMovedFromServer.class);
@@ -120,7 +120,6 @@ public class Network {
 
     }
 
-
     static public class ChatMessageFromClient {
         public String message;
     }
@@ -132,7 +131,7 @@ public class Network {
         public Chat.ChatSender sender;
     }
 
-    //hack: unneeded??
+    //fixme: unneeded??
     static public class LoadedViewportMovedFromServer {
         public Rectangle rect;
     }
@@ -152,9 +151,10 @@ public class Network {
         public int second;
     }
 
-    static public class BlockPickFromClient {
+    static public class BlockDigHealthReportFromClient {
         public int x;
         public int y;
+        public short health;
     }
 
     static public class BlockPlaceFromClient {
@@ -175,11 +175,10 @@ public class Network {
     }
 
     //is that needed????
-//    static public class PlayerHotbarInventoryItemCountChanged {
-//        int dragSourceIndex;
-//        int newCount;
-//    }
-
+    //    static public class PlayerHotbarInventoryItemCountChanged {
+    //        int dragSourceIndex;
+    //        int newCount;
+    //    }
 
     static public class PlayerSpawnHotbarInventoryItemFromServer {
         public SizePacket size = new SizePacket();
@@ -201,7 +200,7 @@ public class Network {
 
         public String textureName;
 
-        public long id;
+        public int id;
 
         public Array<Component> components;
     }
@@ -225,15 +224,15 @@ public class Network {
     }
 
     static public class EntityMovedFromServer {
-        public long id;
+        public int id;
         public Vector2 position;
     }
 
-    static public class HotbarDropItemRequestFromClient {
+    static public class HotbarDropItemFromClient {
         public byte index;
     }
 
-    static public class KickReason {
+    static public class DisconnectReason {
         public Reason reason;
 
         public enum Reason {
@@ -256,7 +255,7 @@ public class Network {
         SingleBlock() {
         }
 
-        SingleBlock(Block block) {
+        public SingleBlock(Block block) {
             type = block.type;
             wallType = block.wallType;
             flags = block.flags;
@@ -277,7 +276,7 @@ public class Network {
         int x;
         int y;
 
-        SingleSparseBlock(Block _block, int x, int y) {
+        public SingleSparseBlock(Block _block, int x, int y) {
             block = new SingleBlock(_block);
             this.x = x;
             this.y = y;
@@ -313,4 +312,5 @@ public class Network {
             y2 = _y2;
         }
     }
+
 }

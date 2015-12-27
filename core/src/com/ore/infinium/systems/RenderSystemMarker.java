@@ -1,11 +1,6 @@
-package com.ore.infinium.components;
-
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
-
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                   *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -21,18 +16,15 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class TagComponent extends Component implements Pool.Poolable {
 
-    public void reset() {
+package com.ore.infinium.systems;
 
-    }
-
-    public String tag;
-
-    public TagComponent() {
-    }
-
-    public TagComponent(TagComponent tagComponent) {
-        tag = new String(tag);
-    }
+/**
+ * A marker interface that indicates that this system should only be
+ * processed by the render portion of the game loop. Separating the logic
+ * and the render ticks, so that we can decide how often to process them (how
+ * many ms per frame, etc)
+ */
+public interface RenderSystemMarker {
 }
+

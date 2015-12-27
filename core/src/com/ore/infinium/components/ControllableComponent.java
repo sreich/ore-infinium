@@ -1,8 +1,7 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.Component;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Pool;
 
 /**
  * ***************************************************************************
@@ -22,18 +21,23 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ControllableComponent extends Component implements Pool.Poolable {
-
+public class ControllableComponent extends Component {
     public Vector2 desiredDirection = new Vector2();
 
-    public void reset() {
-
-    }
-
-    public ControllableComponent() {
-    }
-
-    public ControllableComponent(ControllableComponent controllableComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param controllableComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(ControllableComponent controllableComponent) {
         desiredDirection.set(controllableComponent.desiredDirection);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("controllableComponent.desiredDirection: ").append(desiredDirection).append('\n');
+        return builder.toString();
     }
 }

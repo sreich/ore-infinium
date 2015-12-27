@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 import com.ore.infinium.OreTimer;
 
 /**
@@ -22,7 +21,7 @@ import com.ore.infinium.OreTimer;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class JumpComponent extends Component implements Pool.Poolable {
+public class JumpComponent extends Component {
 
     //for physics jumping abilities..
     public boolean canJump;
@@ -31,19 +30,28 @@ public class JumpComponent extends Component implements Pool.Poolable {
     public boolean jumpRequested;
     //ms, interval between allowed jumps
     public int jumpInterval = 400;
-    public OreTimer jumpTimer = new OreTimer();
+    public transient OreTimer jumpTimer = new OreTimer();
 
-    public void reset() {
-
-    }
-
-    public JumpComponent() {
-    }
-
-    public JumpComponent(JumpComponent jumpComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param jumpComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(JumpComponent jumpComponent) {
         canJump = jumpComponent.canJump;
         shouldJump = jumpComponent.shouldJump;
         jumpRequested = jumpComponent.jumpRequested;
         jumpInterval = jumpComponent.jumpInterval;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("jumpComponent.canJump: ").append(canJump).append('\n');
+        builder.append("jumpComponent.shouldJump: ").append(shouldJump).append('\n');
+        builder.append("jumpComponent.jumpRequested: ").append(jumpRequested).append('\n');
+        builder.append("jumpComponent.jumpInterval: ").append(jumpInterval).append('\n');
+        return builder.toString();
     }
 }

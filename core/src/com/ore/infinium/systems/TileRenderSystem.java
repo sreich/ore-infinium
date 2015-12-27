@@ -1,74 +1,74 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.ComponentMapper;
-import com.badlogic.ashley.systems.IntervalSystem;
+import com.artemis.BaseSystem;
+import com.artemis.ComponentMapper;
+import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntMap;
 import com.ore.infinium.Block;
-import com.ore.infinium.World;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                        *
- * *
- * This program is free software; you can redistribute it and/or             *
- * modify it under the terms of the GNU General Public License as            *
- * published by the Free Software Foundation; either version 2 of            *
- * the License, or (at your option) any later version.                       *
- * *
- * This program is distributed in the hope that it will be useful,           *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of            *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the             *
- * GNU General Public License for more details.                              *
- * *
- * You should have received a copy of the GNU General Public License         *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.     *
+ * Copyright (C) 2014, 2015 by Shaun Reich <sreich02@gmail.com>
+ * <p>
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * ***************************************************************************
  */
-public class TileRenderer extends IntervalSystem {
-    public static int tilesInViewCountDebug;
+@Wire
+public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
+    //indicates if tiles should be drawn, is a debug flag.
+    public boolean debugRenderTiles = true;
+    public int debugTilesInViewCount;
 
     public TextureAtlas m_blockAtlas;
     public TextureAtlas m_tilesAtlas;
 
-    float elapsed;
-
-    private World m_world;
     private OrthographicCamera m_camera;
 
     private SpriteBatch m_batch;
 
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ControllableComponent> controlMapper = ComponentMapper.getFor(ControllableComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<JumpComponent> jumpMapper = ComponentMapper.getFor(JumpComponent.class);
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ControllableComponent> controlMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<JumpComponent> jumpMapper;
+
+    private NetworkClientSystem m_networkClientSystem;
+    private TagManager m_tagManager;
 
     // <byte mesh type, string texture name>
     public IntMap<String> dirtBlockMeshes;
     public IntMap<String> stoneBlockMeshes;
     public IntMap<String> grassBlockMeshes;
 
-    public TileRenderer(OrthographicCamera camera, World world, float interval) {
-        super(interval);
-        elapsed = interval;
+    private OreWorld m_world;
 
+    public TileRenderSystem(OrthographicCamera camera, OreWorld world) {
         m_camera = camera;
         m_world = world;
         m_batch = new SpriteBatch(5000);
 
         m_blockAtlas = new TextureAtlas(Gdx.files.internal("packed/blocks.atlas"));
         m_tilesAtlas = new TextureAtlas(Gdx.files.internal("packed/tiles.atlas"));
-        for (TextureRegion region : m_tilesAtlas.getRegions()) {
-            region.flip(false, true);
-        }
 
         //dirt 16 and beyond are transition things.
         final int dirtMax = 25;
@@ -94,33 +94,40 @@ public class TileRenderer extends IntervalSystem {
         }
     }
 
-    public void render(double elapsed) {
-        if (m_world.m_mainPlayer == null) {
+    @Override
+    protected void processSystem() {
+        render(world.getDelta());
+    }
+
+    public void render(float elapsed) {
+        //fixme the system should be disabled and enabled when this happens
+        if (!m_networkClientSystem.connected) {
             return;
         }
 
-        if (!m_world.m_client.m_renderTiles) {
+        if (!debugRenderTiles) {
             return;
         }
-
-        tilesInViewCountDebug = 0;
 
         m_batch.setProjectionMatrix(m_camera.combined);
-        SpriteComponent sprite = spriteMapper.get(m_world.m_mainPlayer);
+        SpriteComponent sprite = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer).getId());
 
-        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0); //new Vector3(100, 200, 0);//positionComponent->position();
-        int tilesBeforeX = (int) (playerPosition.x / World.BLOCK_SIZE);
-        int tilesBeforeY = (int) (playerPosition.y / World.BLOCK_SIZE);
+        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0);
+        //new Vector3(100, 200, 0);//positionComponent->position();
+        int tilesBeforeX = (int) playerPosition.x;
+        int tilesBeforeY = (int) playerPosition.y;
 
         // determine what the size of the tiles are but convert that to our zoom level
-        final Vector3 tileSize = new Vector3(World.BLOCK_SIZE, World.BLOCK_SIZE, 0);
+        final Vector3 tileSize = new Vector3(1, 1, 0);
         tileSize.mul(m_camera.combined);
 
-        final int tilesInView = (int) (m_camera.viewportHeight / World.BLOCK_SIZE * m_camera.zoom);//m_camera.project(tileSize);
+        final int tilesInView = (int) ((m_camera.viewportHeight) * m_camera.zoom);
+        //m_camera.project(tileSize);
         final int startX = Math.max(tilesBeforeX - (tilesInView) - 2, 0);
         final int startY = Math.max(tilesBeforeY - (tilesInView) - 2, 0);
-        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, World.WORLD_SIZE_X);
-        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, World.WORLD_SIZE_Y);
+        final int endX = Math.min(tilesBeforeX + (tilesInView) + 2, OreWorld.WORLD_SIZE_X);
+        final int endY = Math.min(tilesBeforeY + (tilesInView) + 2, OreWorld.WORLD_SIZE_Y);
+
       /*
       if (Math.abs(startX) != startX) {
           //qCDebug(ORE_TILE_RENDERER) << "FIXME, WENT INTO NEGATIVE COLUMN!!";
@@ -130,25 +137,27 @@ public class TileRenderer extends IntervalSystem {
       }
       */
 
-        //FIXME: this needs to be cached..it's supposedly very slow.
         m_batch.begin();
 
         TextureAtlas.AtlasRegion region;
-        int tilesInViewDebug = 0;
         String textureName = "";
 
+        debugTilesInViewCount = 0;
+
+        //fixme all instances of findRegion need to be replaced with cached
+        //versions. they're allegedly quite slow
         for (int x = startX; x < endX; ++x) {
             for (int y = startY; y < endY; ++y) {
-                ++tilesInViewDebug;
+                ++debugTilesInViewCount;
 
                 Block block = m_world.blockAt(x, y);
 
-                float tileX = World.BLOCK_SIZE * (float) x;
-                float tileY = World.BLOCK_SIZE * (float) y;
+                float tileX = (float) x;
+                float tileY = (float) y;
 
                 boolean drawWallTile = false;
 
-                //String textureName = World.blockTypes.get(block.type).textureName;
+                //String textureName = World.blockAttributes.get(block.type).textureName;
                 if (block.type == Block.BlockType.DirtBlockType) {
 
                     if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
@@ -170,26 +179,31 @@ public class TileRenderer extends IntervalSystem {
                         drawWallTile = true;
                     }
                 } else {
-                    assert false : "unhaneld block";
+                    assert false : "unhandled block";
                 }
 
                 if (drawWallTile) {
                     m_batch.setColor(0.5f, 0.5f, 0.5f, 1);
                 }
 
-                //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some* scenarios..)
+                //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some*
+                // scenarios..)
                 if (!drawWallTile) {
                     region = m_tilesAtlas.findRegion(textureName);
+                    assert region != null : "texture region for tile was null. textureName: " + textureName;
 
-                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                    //offset y to flip orientation around to normal
+                    m_batch.draw(region, tileX, tileY + 1, 1, -1);
 
                 } else {
                     //draw walls
-                    //hack of course, for wall drawing
+                    //fixme of course, for wall drawing
                     textureName = dirtBlockMeshes.get(0);
                     assert textureName != null : "block mesh lookup failure type: " + block.meshType;
+
+                    //offset y to flip orientation around to normal
                     region = m_tilesAtlas.findRegion(textureName);
-                    m_batch.draw(region, tileX, tileY, World.BLOCK_SIZE, World.BLOCK_SIZE);
+                    m_batch.draw(region, tileX, tileY + 1, 1, -1);
 
                 }
 
@@ -199,15 +213,7 @@ public class TileRenderer extends IntervalSystem {
             }
         }
 
-        tilesInViewCountDebug = tilesInViewDebug;
         m_batch.end();
     }
 
-    /**
-     * The processing logic of the system should be placed here.
-     */
-    @Override
-    protected void updateInterval() {
-        render(elapsed);
-    }
 }

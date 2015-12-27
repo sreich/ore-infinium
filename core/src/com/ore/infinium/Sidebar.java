@@ -26,6 +26,11 @@ import com.badlogic.gdx.utils.Align;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+
+/**
+ * class that is an action  bar on the side of the screen.
+ * simply gives quick actions to things like chat, inventory..etc.
+ */
 public class Sidebar {
     private Skin m_skin;
     private Table container;
@@ -62,41 +67,5 @@ public class Sidebar {
         });
 
         stage.addActor(container);
-
-
-
-        /*
-        for (int i = 0; i < Inventory.maxHotbarSlots; ++i) {
-
-            Image slotImage = new Image();
-
-            SlotElement element = new SlotElement();
-            m_slots[i] = element;
-
-            element.itemImage = slotImage;
-
-            Table slotTable = new Table(m_skin);
-            element.table = slotTable;
-            slotTable.setTouchable(Touchable.enabled);
-            slotTable.addListener(new SlotClickListener(this, i));
-
-            slotTable.add(slotImage);
-            slotTable.background("default-pane");
-
-            slotTable.row();
-
-            Label itemCount = new Label(null, m_skin);
-            slotTable.add(itemCount).bottom().fill();
-            element.itemCountLabel = itemCount;
-
-//            container.add(slotTable).size(50, 50);
-            container.add(slotTable).fill().size(50, 50);
-            setHotbarSlotVisible(i, false);
-
-            dragAndDrop.addSource(new HotbarDragSource(slotTable, i, dragImage, this));
-
-            dragAndDrop.addTarget(new HotbarDragTarget(slotTable, i, this));
-        }
-        */
     }
 }

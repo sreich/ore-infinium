@@ -1,8 +1,7 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.Component;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.utils.Pool;
 
 /**
  * ***************************************************************************
@@ -22,12 +21,12 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class SpriteComponent extends Component implements Pool.Poolable {
+public class SpriteComponent extends Component {
 
-    public Sprite sprite = new Sprite();
+    public transient Sprite sprite = new Sprite();
 
     public EntityCategory category;
-    //HACK yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
+    //fixme yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
     public String textureName;
 
     public boolean placementValid;
@@ -35,14 +34,10 @@ public class SpriteComponent extends Component implements Pool.Poolable {
 
     /*
      * enabled, ignore this and every entity that can ever check for collisions against it,
-     * or overlaps (useful for ignoring some on-screen client-only items like tooltips, which technically don't exist in the world)
+     * or overlaps (useful for ignoring some on-screen client-only items like tooltips, which technically don't exist
+      * in the world)
      */
     public boolean noClip = false;
-
-    public void reset() {
-        // eh?, may have to set everything like alpha etc back to normal..
-
-    }
 
     public enum EntityCategory {
         Character,
@@ -50,18 +45,30 @@ public class SpriteComponent extends Component implements Pool.Poolable {
     }
 
     public SpriteComponent() {
-        sprite.flip(false, true);
     }
 
-    public SpriteComponent(SpriteComponent spriteComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param spriteComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(SpriteComponent spriteComponent) {
         sprite = new Sprite(spriteComponent.sprite);
-        if (!sprite.isFlipY()) {
-            sprite.flip(false, true);
-        }
 
         textureName = spriteComponent.textureName;
         category = spriteComponent.category;
         noClip = spriteComponent.noClip;
         placementValid = spriteComponent.placementValid;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("spriteComponent.category: ").append(category).append('\n');
+        builder.append("spriteComponent.textureName: ").append(textureName).append('\n');
+        builder.append("spriteComponent.visible: ").append(visible).append('\n');
+        builder.append("spriteComponent.noClip: ").append(noClip).append('\n');
+        return builder.toString();
     }
 }

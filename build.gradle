@@ -1,88 +1,155 @@
 buildscript {
-    repositories {
-        mavenCentral()
+
+    ext {
+        //use + for latest
+        appName = 'ore-infinium'
+
+        gdxVersion = '1.7.1'
+
+        aiVersion = '1.6.0'
+
+        artemisVersion = '1.2.1'
+        artemisContribVersion = '1.1.0'
+        kryonetVersion = '2.22.0-RC1'
+
+        matrixCliVersion = "0.1.2"
+
+        jcommanderVersion = "1.48"
+        junitVersion = "4.12"
+        tweenEngineVersion = "6.3.3"
+        gradleVersionsPluginVersion = "0.11.3"
+
+        //gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+
+        jcenter()
+
+        maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
+    }
+
     dependencies {
+        // lib for artemis-odb weaving.
+        // see https://github.com/junkdog/artemis-odb/wiki/Bytecode-weaving
+        classpath "net.onedaybeard.artemis:artemis-odb-gradle-plugin:$artemisVersion"
+
+        // introduces support for provided scope gradle keyword.
+        //3.0.3 FIXME
+        //classpath "com.netflix.nebula:gradle-extra-configurations-plugin:$gradleExtraConfigurationsPluginVersion"
+
+        classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
     }
 }
 
 plugins {
-  id "org.sonarqube" version "1.1"
+    id 'nebula.provided-base' version '3.0.3'
+    id 'com.github.ben-manes.versions' version '0.11.3'
+    id 'org.sonarqube' version '1.1'
 }
 
 task createWrapper(type: Wrapper) {
     gradleVersion = "2.9"
 }
 
-
-def getDate() {
-    def date = new Date()
-
-    def formattedDate = date.format("yyyy-MM-dd-'time'-HH-mm");
-    return formattedDate
-}
-
 allprojects {
     apply plugin: "eclipse"
     apply plugin: "idea"
 
-    version = '0.1-build-' + getDate()
-
-    ext {
-        appName = 'ore-infinium'
-        gdxVersion = '1.7.1'
-        //roboVMVersion = '1.0.0-beta-01'
-        ashleyVersion = '1.3.3'
-        aiVersion = '1.4.0'
-        artemisVersion = '1.2.1'
-        //use + for latest
-    }
-
     repositories {
+        mavenLocal()
         mavenCentral()
+
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
     }
 }
 
 project(":desktop") {
     apply plugin: "java"
 
-
     dependencies {
+
         compile project(":core")
         compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-        compile "com.esotericsoftware:kryonet:2.22.0-RC1"
-        compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
     }
 }
 
 project(":core") {
     apply plugin: "java"
 
-//    sourceSets.test.java.srcDirs = ["test/"]
+    configurations {
+        provided
+    }
+
+    sourceSets {
+        // run the annotation processor compile time.
+        main {
+            compileClasspath += [configurations.provided]
+        }
+    }
 
     dependencies {
-
+        // libgdx core
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
 
-        //       testCompile "junit:junit:4.11+"
-
+        //libgdx addons
         compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
 
-        compile "com.esotericsoftware:kryonet:2.22.0-RC1"
+        //junit
+        testCompile "junit:junit:4.12"
 
+        // kryonet
+        compile "com.esotericsoftware:kryonet:$kryonetVersion"
+
+        //artemis-odb
         compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
 
-        compile "net.mostlyoriginal.artemis-odb:contrib-core:1.1.0"
-        compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:1.1.0"
+        // Artemis-odb annotation processor (see https://github.com/junkdog/artemis-odb/wiki/EntityFactory)
+        provided "net.onedaybeard.artemis:artemis-odb-processor:$artemisVersion"
+
+        // Artemis-odb bonus functionality (systems, events, components).
+        compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
+        compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
+        compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
+        compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
+        //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
+
+        // jcommander for command line parsing
+        compile "com.beust:jcommander:$jcommanderVersion"
+        //junit
+        testCompile "junit:junit:$junitVersion"
+
+        //tween engine
+        compile "org.sreich:tween-engine-api:$tweenEngineVersion"
     }
+}
+
+project(":matrix") {
+    apply plugin: "java"
+
+    dependencies {
+        compile project(":core")
+        compile "net.onedaybeard.ecs:matrix-cli:$matrixCliVersion"
+    }
+
+    task generateMatrix(type: JavaExec) {
+        classpath = sourceSets.main.runtimeClasspath
+        main = 'com.artemis.cli.CliApplication'
+        args '-c', "$rootProject.projectDir/core/build/classes/main/", '-l', "$rootProject.ext.appName"
+    }
+    build.finalizedBy generateMatrix
 }
 
 tasks.eclipse.doLast {

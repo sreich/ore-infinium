@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,21 +20,28 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class HealthComponent extends Component implements Pool.Poolable {
+public class HealthComponent extends Component {
 
     public int maxHealth = 25000;
     //current air level
     public int health = maxHealth;
 
-    public void reset() {
-
-    }
-
-    public HealthComponent() {
-    }
-
-    public HealthComponent(HealthComponent healthComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param healthComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(HealthComponent healthComponent) {
         maxHealth = healthComponent.maxHealth;
         health = healthComponent.health;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("healthComponent.maxHealth: ").append(maxHealth).append('\n');
+        builder.append("healthComponent.health: ").append(health).append('\n');
+        return builder.toString();
     }
 }

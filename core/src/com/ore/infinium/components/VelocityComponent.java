@@ -1,8 +1,7 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.Component;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Pool;
 
 /**
  * ***************************************************************************
@@ -22,18 +21,24 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class VelocityComponent extends Component implements Pool.Poolable {
+public class VelocityComponent extends Component {
 
     public Vector2 velocity = new Vector2();
-
-    public void reset() {
-
-    }
-
-    public VelocityComponent() {
-    }
-
-    public VelocityComponent(VelocityComponent velocityComponent) {
+   
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param velocityComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(VelocityComponent velocityComponent) {
         velocity.set(velocityComponent.velocity);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("velocityComponent.velocity: ").append(velocity).append('\n');
+        return builder.toString();
     }
 }

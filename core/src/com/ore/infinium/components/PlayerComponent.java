@@ -1,11 +1,12 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
+import com.badlogic.gdx.utils.StringBuilder;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
+import com.ore.infinium.OreWorld;
+import com.ore.infinium.utils.Vector2i;
 
 /**
  * ***************************************************************************
@@ -25,10 +26,10 @@ import com.ore.infinium.OreTimer;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class PlayerComponent extends Component implements Pool.Poolable {
-    public final static float jumpVelocity = 5.0f;
-    public final static float movementSpeed = .8f;
-    public final static float maxMovementSpeed = movementSpeed * 1;
+public class PlayerComponent extends Component {
+    public final static float jumpVelocity = OreWorld.GRAVITY_ACCEL * 18;
+    public final static float movementSpeed = 3.5f;
+    public final static float maxMovementSpeed = movementSpeed * 1.2f;
 
     public String playerName;
     /**
@@ -40,24 +41,47 @@ public class PlayerComponent extends Component implements Pool.Poolable {
     public boolean killed;
     public OreTimer placeableItemTimer = new OreTimer();
 
+    /**
+     * current health of a block that is getting damaged.
+     */
+    public transient short damagedBlockHealth = 500;
+
+    /**
+     * this and
+     */
+    public transient Vector2i lastDiggingBlock;
+
     //ms
     public static final int placeableItemDelay = 300;
 
     //    public Vector2 mousePositionWorldCoords;
-//    public boolean mouseLeftButtonHeld;
-//    public boolean mouseRightButtonHeld;
-    public int ping;
-    public boolean noClip;
+    //    public boolean mouseLeftButtonHeld;
+    //    public boolean mouseRightButtonHeld;
+    public transient int ping;
+    public transient boolean noClip;
+
     public LoadedViewport loadedViewport = new LoadedViewport();
     public Inventory hotbarInventory;
     public Inventory inventory;
-    public Entity equippedItemAnimator;
+    //public int equippedItemAnimator;
 
-    public Entity equippedPrimaryItem() {
-        return hotbarInventory.item(hotbarInventory.m_selectedSlot);
+    /**
+     * @return entity id that is equipped as primary
+     */
+    public int getEquippedPrimaryItem() {
+        return hotbarInventory.itemEntity(hotbarInventory.m_selectedSlot);
     }
 
-    public void reset() {
+    /**
+     * note, has no copyFrom method, as it is should never be copied
+     */
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("playerComponent.playerName: ").append(playerName).append('\n');
+        builder.append("playerComponent.connectionId: ").append(connectionId).append('\n');
+        builder.append("playerComponent.killed: ").append(killed).append('\n');
+        return builder.toString();
     }
 }

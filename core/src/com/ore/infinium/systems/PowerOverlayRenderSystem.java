@@ -1,14 +1,21 @@
 package com.ore.infinium.systems;
 
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.Gdx;
+import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
+import com.artemis.Entity;
+import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
+import com.artemis.systems.IteratingSystem;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
-import com.ore.infinium.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
 /**
@@ -29,74 +36,128 @@ import com.ore.infinium.components.*;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class PowerOverlayRenderSystem extends EntitySystem {
-    public static int spriteCount;
+@Wire
+public class PowerOverlayRenderSystem extends IteratingSystem implements RenderSystemMarker {
     public boolean overlayVisible = false;
     //   public TextureAtlas m_atlas;
-    private World m_world;
-    private SpriteBatch m_batch;
-    private ComponentMapper<PlayerComponent> playerMapper = ComponentMapper.getFor(PlayerComponent.class);
-    private ComponentMapper<SpriteComponent> spriteMapper = ComponentMapper.getFor(SpriteComponent.class);
-    private ComponentMapper<ItemComponent> itemMapper = ComponentMapper.getFor(ItemComponent.class);
-    private ComponentMapper<VelocityComponent> velocityMapper = ComponentMapper.getFor(VelocityComponent.class);
-    private ComponentMapper<TagComponent> tagMapper = ComponentMapper.getFor(TagComponent.class);
-    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper =
-            ComponentMapper.getFor(PowerDeviceComponent.class);
-    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper =
-            ComponentMapper.getFor(PowerGeneratorComponent.class);
 
-//    public Sprite outputNode = new Sprite();
+    private OreWorld m_world;
+    private SpriteBatch m_batch;
+
+    private ComponentMapper<PlayerComponent> playerMapper;
+    private ComponentMapper<SpriteComponent> spriteMapper;
+    private ComponentMapper<ItemComponent> itemMapper;
+    private ComponentMapper<VelocityComponent> velocityMapper;
+    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
+    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
+
+    private EntityOverlaySystem m_entityOverlaySystem;
+    private PowerCircuitSystem m_powerCircuitSystem;
+    private TagManager m_tagManager;
+
+    //    public Sprite outputNode = new Sprite();
 
     private boolean m_leftClicked;
     private boolean m_dragInProgress;
-    private Entity dragSourceEntity;
+    private int m_dragSourceEntity;
 
     //displays info for the current circuit
-    private Entity m_powerCircuitTooltip;
+    private int m_powerCircuitTooltipEntity;
 
     private static final float powerNodeOffsetRatioX = 0.1f;
     private static final float powerNodeOffsetRatioY = 0.1f;
 
-    public PowerOverlayRenderSystem(World world) {
+    private final Stage m_stage;
+    private final Skin m_skin;
+
+    private Table m_container;
+    private Table m_totalStatsTable;
+
+    private int currentCircuitSupply = -1;
+    private int currentCircuitDemand = -1;
+
+    private Label m_circuitSupplyLabel;
+    private Label m_circuitDemandLabel;
+
+    public PowerOverlayRenderSystem(OreWorld world, Stage stage, Skin skin) {
+        super(Aspect.all(PowerDeviceComponent.class));
+
         m_world = world;
+        m_stage = stage;
+        m_skin = skin;
     }
 
     @Override
-    public void addedToEngine(Engine engine) {
+    protected void initialize() {
         m_batch = new SpriteBatch();
 
-        m_powerCircuitTooltip = m_world.engine.createEntity();
+        m_powerCircuitTooltipEntity = world.create();
 
-        SpriteComponent tooltipSprite = m_world.engine.createComponent(SpriteComponent.class);
-        tooltipSprite.sprite.setSize(32 / World.PIXELS_PER_METER, 32 / World.PIXELS_PER_METER);
+        SpriteComponent tooltipSprite = spriteMapper.create(m_powerCircuitTooltipEntity);
+        tooltipSprite.sprite.setSize(1, 1);
         tooltipSprite.textureName = "debug";
         tooltipSprite.sprite.setRegion(m_world.m_atlas.findRegion(tooltipSprite.textureName));
         tooltipSprite.noClip = true;
-        m_powerCircuitTooltip.add(tooltipSprite);
 
-        m_world.engine.addEntity(m_powerCircuitTooltip);
+        m_container = new Table(m_skin);
+        m_container.setFillParent(true);
+        //      m_container.padLeft(10).padTop(10);
+        //        m_container.set
+
+        m_totalStatsTable = new Table(m_skin);
+        m_totalStatsTable.top().left().pad(0, 6, 0, 0);
+        m_totalStatsTable.setBackground("default-pane");
+
+        Label headerLabel = new Label("Power Circuit Stats", m_skin);
+        m_totalStatsTable.add(headerLabel).left();
+
+        m_totalStatsTable.row();
+
+        Label demandLabel = new Label("Circuit Demand:", m_skin);
+        m_totalStatsTable.add(demandLabel).left();
+
+        m_circuitDemandLabel = new Label("-1", m_skin);
+        m_totalStatsTable.add(m_circuitDemandLabel);
+
+        m_totalStatsTable.row();
+
+        Label supplyLabel = new Label("Circuit Supply:", m_skin);
+        m_totalStatsTable.add(supplyLabel).left();
+
+        m_circuitSupplyLabel = new Label("-1", m_skin);
+        m_totalStatsTable.add(m_circuitSupplyLabel);
+
+        m_container.add(m_totalStatsTable).expand().bottom().right().size(400, 100);
+
+        //        m_container.defaults().space(4);
+        m_container.setVisible(false);
+
+        m_stage.addActor(m_container);
     }
 
     @Override
-    public void removedFromEngine(Engine engine) {
+    protected void dispose() {
         m_batch.dispose();
     }
 
     //todo sufficient until we get a spatial hash or whatever
 
-    private Entity entityAtPosition(Vector2 pos) {
+    private int entityAtPosition(Vector2 pos) {
 
-        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PowerDeviceComponent.class).get());
         SpriteComponent spriteComponent;
-        TagComponent tagComponent;
+        IntBag entities = getEntityIds();
         for (int i = 0; i < entities.size(); ++i) {
-            tagComponent = tagMapper.get(entities.get(i));
+            int currentEntity = entities.get(i);
+            Entity entityBoxed = world.getEntity(currentEntity);
 
-            if (tagComponent != null && tagComponent.tag.equals("itemPlacementOverlay")) {
+            String entityTag = m_tagManager.getTag(entityBoxed);
+
+            //could be placement overlay, but we don't want this. skip over.
+            if (entityTag != null && entityTag.equals(OreWorld.s_itemPlacementOverlay)) {
                 continue;
             }
 
-            spriteComponent = spriteMapper.get(entities.get(i));
+            spriteComponent = spriteMapper.get(currentEntity);
 
             Rectangle rectangle =
                     new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
@@ -104,11 +165,11 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                                   spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
 
             if (rectangle.contains(pos)) {
-                return entities.get(i);
+                return currentEntity;
             }
         }
 
-        return null;
+        return OreWorld.ENTITY_INVALID;
     }
 
     public void leftMouseClicked() {
@@ -117,11 +178,13 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         //fixme prolly make a threshold for dragging
         m_dragInProgress = true;
 
-        Vector3 unprojectedMouse = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        m_world.m_camera.unproject(unprojectedMouse);
-
         //find the entity we're dragging on
-        dragSourceEntity = entityAtPosition(new Vector2(unprojectedMouse.x, unprojectedMouse.y));
+        m_dragSourceEntity = entityAtPosition(m_world.mousePositionWorldCoords());
+    }
+
+    public void rightMouseClicked() {
+        //check if we can delete a wire
+        m_powerCircuitSystem.disconnectWireAtPosition(m_world.mousePositionWorldCoords());
     }
 
     public void leftMouseReleased() {
@@ -130,48 +193,50 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         if (m_dragInProgress) {
             //check if drag can be connected
 
-            if (dragSourceEntity != null) {
+            if (m_dragSourceEntity != OreWorld.ENTITY_INVALID) {
                 Vector2 mouse = m_world.mousePositionWorldCoords();
 
-                Entity dropEntity = entityAtPosition(new Vector2(mouse.x, mouse.y));
+                int dropEntity = entityAtPosition(new Vector2(mouse.x, mouse.y));
                 //if the drop is invalid/empty, or they attempted to drop on the same spot they dragged from, ignore
-                if (dropEntity == null || dropEntity == dragSourceEntity) {
-                    dragSourceEntity = null;
+                if (dropEntity == OreWorld.ENTITY_INVALID || dropEntity == m_dragSourceEntity) {
+                    m_dragSourceEntity = OreWorld.ENTITY_INVALID;
                     m_dragInProgress = false;
                     return;
                 }
 
-                PowerDeviceComponent sourcePowerDeviceComponent = powerDeviceMapper.get(dragSourceEntity);
+                PowerDeviceComponent sourcePowerDeviceComponent = powerDeviceMapper.get(m_dragSourceEntity);
                 PowerDeviceComponent dropPowerDeviceComponent = powerDeviceMapper.get(dropEntity);
 
                 //              if (!sourcePowerDeviceComponent.outputEntities.contains(dropEntity, true) &&
-                //                     !dropPowerDeviceComponent.outputEntities.contains(dragSourceEntity, true)) {
+                //                     !dropPowerDeviceComponent.outputEntities.contains(m_dragSourceEntity, true)) {
 
-//                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
+                //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
 
-                m_world.m_powerCircuitSystem.connectDevices(dragSourceEntity, dropEntity);
+                m_powerCircuitSystem.connectDevices(m_dragSourceEntity, dropEntity);
 
                 //               }
 
-                dragSourceEntity = null;
+                m_dragSourceEntity = OreWorld.ENTITY_INVALID;
             }
 
             m_dragInProgress = false;
         }
     }
 
+    /**
+     * Process the system.
+     */
     @Override
-    public void update(float delta) {
+    protected void process(int entityId) {
         if (!overlayVisible) {
             return;
         }
 
-
-//        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_batch.begin();
 
-        renderEntities(delta);
+        renderEntities(this.getWorld().delta);
 
         m_batch.end();
 
@@ -179,6 +244,7 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         m_batch.setProjectionMatrix(m_world.m_client.viewport.getCamera().combined);
         m_batch.begin();
 
+        //fixme replace this crap w/ scene2d stuff?
         m_world.m_client.bitmapFont_8pt.setColor(1, 0, 0, 1);
 
         float fontY = 150;
@@ -194,6 +260,35 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         m_world.m_client.bitmapFont_8pt.setColor(1, 1, 1, 1);
 
         m_batch.end();
+
+        updateCircuitStats();
+    }
+
+    private void updateCircuitStats() {
+        Vector2 mouse = m_world.mousePositionWorldCoords();
+
+        int dropEntity = entityAtPosition(new Vector2(mouse.x, mouse.y));
+        if (dropEntity != OreWorld.ENTITY_INVALID) {
+            PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.getSafe(dropEntity);
+            if (powerDeviceComponent == null || powerDeviceComponent.owningCircuit == null) {
+                return;
+            }
+
+            currentCircuitDemand = powerDeviceComponent.owningCircuit.totalDemand;
+            currentCircuitSupply = powerDeviceComponent.owningCircuit.totalSupply;
+
+            m_circuitDemandLabel.setText(String.valueOf(currentCircuitDemand));
+            m_circuitSupplyLabel.setText(String.valueOf(currentCircuitSupply));
+        } else {
+            //reset them both and update the labels
+            if (currentCircuitDemand != -1) {
+                currentCircuitDemand = -1;
+                currentCircuitSupply = -1;
+
+                m_circuitDemandLabel.setText(String.valueOf(currentCircuitDemand));
+                m_circuitSupplyLabel.setText(String.valueOf(currentCircuitSupply));
+            }
+        }
     }
 
     private void renderEntities(float delta) {
@@ -201,19 +296,19 @@ public class PowerOverlayRenderSystem extends EntitySystem {
 
         Vector2 mouse = m_world.mousePositionWorldCoords();
 
-        SpriteComponent tooltipSprite = spriteMapper.get(m_powerCircuitTooltip);
-//        tooltipSprite.sprite.setPosition(mouse.x, mouse.y);
+        SpriteComponent tooltipSprite = spriteMapper.get(m_powerCircuitTooltipEntity);
+        //        tooltipSprite.sprite.setPosition(mouse.x, mouse.y);
 
-        if (m_dragInProgress && dragSourceEntity != null) {
-            SpriteComponent dragSpriteComponent = spriteMapper.get(dragSourceEntity);
+        if (m_dragInProgress && m_dragSourceEntity != OreWorld.ENTITY_INVALID) {
+            SpriteComponent dragSpriteComponent = spriteMapper.get(m_dragSourceEntity);
 
             m_batch.setColor(1, 1, 0, 0.5f);
 
             //in the middle of a drag, draw powernode from source, to mouse position
             renderWire(new Vector2(mouse.x, mouse.y), new Vector2(
                     dragSpriteComponent.sprite.getX() + dragSpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
-                    dragSpriteComponent.sprite.getY() + dragSpriteComponent.sprite.getHeight() *
-                                                        powerNodeOffsetRatioY));
+                    dragSpriteComponent.sprite.getY() +
+                    dragSpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY));
             m_batch.setColor(1, 1, 1, 1);
         }
 
@@ -221,24 +316,27 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         SpriteComponent secondEntitySpriteComponent;
 
         SpriteComponent deviceSprite;
-        for (PowerCircuitSystem.PowerCircuit circuit : m_world.m_powerCircuitSystem.m_circuits) {
-            //for each device, draw a power node, a "hub" of connections of sorts.
-            for (Entity gen : circuit.generators) {
+        PowerCircuitSystem powerCircuitSystem = m_powerCircuitSystem;
+        for (PowerCircuitSystem.PowerCircuit circuit : powerCircuitSystem.m_circuits) {
+            //for each device, draw a power node, a "hub" of wireConnections of sorts.
+            for (int i = 0; i < circuit.generators.size; ++i) {
+                int gen = circuit.generators.get(i);
                 deviceSprite = spriteMapper.get(gen);
                 renderPowerNode(deviceSprite);
             }
 
             //do the same for devices. devices(consumers)
-            for (Entity device : circuit.consumers) {
+            for (int i = 0; i < circuit.consumers.size; ++i) {
+                int device = circuit.consumers.get(i);
                 deviceSprite = spriteMapper.get(device);
                 renderPowerNode(deviceSprite);
             }
 
             //draw wires of each connection, in every circuit. Wires only have a start and end point.
-            for (PowerCircuitSystem.WireConnection wireConnection : circuit.connections) {
+            for (PowerCircuitSystem.PowerWireConnection powerWireConnection : circuit.wireConnections) {
 
-                firstEntitySpriteComponent = spriteMapper.get(wireConnection.first);
-                secondEntitySpriteComponent = spriteMapper.get(wireConnection.second);
+                firstEntitySpriteComponent = spriteMapper.get(powerWireConnection.firstEntity);
+                secondEntitySpriteComponent = spriteMapper.get(powerWireConnection.secondEntity);
 
                 //go over each output of this entity, and draw a connection from this entity to the connected dest
                 renderWire(new Vector2(firstEntitySpriteComponent.sprite.getX() +
@@ -258,18 +356,17 @@ public class PowerOverlayRenderSystem extends EntitySystem {
         Vector2 diff = new Vector2(source.x - dest.x, source.y - dest.y);
 
         float rads = MathUtils.atan2(diff.y, diff.x);
-        float degrees = rads * MathUtils.radiansToDegrees - 90;
+        float degrees = (rads * MathUtils.radiansToDegrees) - 90;
 
-        float powerLineWidth = 3.0f / World.PIXELS_PER_METER;
-        float powerLineHeight = Vector2.dst(source.x, source.y, dest.x, dest.y);
+        float wireLength = Vector2.dst(source.x, source.y, dest.x, dest.y);
 
-        m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0, 0, powerLineWidth,
-                     powerLineHeight, 1.0f, 1.0f, degrees);
+        m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0, 0,
+                     PowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees);
     }
 
     private void renderPowerNode(SpriteComponent spriteComponent) {
-        float powerNodeWidth = 20.0f / World.PIXELS_PER_METER;
-        float powerNodeHeight = 20.0f / World.PIXELS_PER_METER;
+        float powerNodeWidth = 1;
+        float powerNodeHeight = 1;
 
         m_batch.draw(m_world.m_atlas.findRegion("power-node-circle"),
                      spriteComponent.sprite.getX() + (spriteComponent.sprite.getWidth() * powerNodeOffsetRatioX) -
@@ -277,4 +374,25 @@ public class PowerOverlayRenderSystem extends EntitySystem {
                      spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * powerNodeOffsetRatioY) -
                      (powerNodeHeight * 0.5f), powerNodeWidth, powerNodeHeight);
     }
+
+    /**
+     * handle toggling the state of if the wire editing overlay is shown.
+     * including hiding other things that should not be shown while this is.
+     * as well as turning on/off some state that should not be on.
+     */
+    public void toggleOverlay() {
+        overlayVisible = !overlayVisible;
+
+        //also, turn off/on the overlays, like crosshairs, itemplacement overlays and stuff.
+        //when wire overlay is visible, the entity overlays should be off.
+        m_entityOverlaySystem.setEnabled(!overlayVisible);
+        m_entityOverlaySystem.setOverlaysVisible(!overlayVisible);
+
+        if (overlayVisible) {
+            m_container.toFront();
+        }
+
+        m_container.setVisible(overlayVisible);
+    }
+
 }

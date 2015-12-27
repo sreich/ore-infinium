@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,18 +20,24 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class LightComponent extends Component implements Pool.Poolable {
+public class LightComponent extends Component {
 
     public float radius = 10.0f;
 
-    public void reset() {
-
-    }
-
-    public LightComponent() {
-    }
-
-    public LightComponent(LightComponent lightComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param lightComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(LightComponent lightComponent) {
         radius = lightComponent.radius;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("lightComponent.radius: ").append(radius).append('\n');
+        return builder.toString();
     }
 }

@@ -62,6 +62,14 @@ There are some command line commands that can be passed to it. Find them by runn
 
 # License
 Code is licensed under GPLv2, assets are licensed under a more permissive license. (CC0)
+* --pack
+** used for automatically packing assets into spritesheets, necessary for
+debugging or any testing..I'm not sure if it actually works at runtime, outside
+of a build/dev environment.
+
+The goal is to make it easily repack them so people can test without
+needing to fire up anything java developmenty.
+
 
 # Contributing and Contact
 Email me (sreich02 at gmail com), feel free to ask questions and get help, create issues, make patches, join the irc channel on freenode (channel #ore-infinium), and get involved!

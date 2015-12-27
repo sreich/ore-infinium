@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
+import com.ore.infinium.systems.NetworkClientSystem;
 
 /**
  * ***************************************************************************
@@ -25,7 +26,7 @@ import com.badlogic.gdx.utils.Timer;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ChatBox implements Chat.ChatListener {
+public class ChatDialog implements Chat.ChatListener {
     private final Stage m_stage;
     private final Skin m_skin;
     private final OreClient m_client;
@@ -49,7 +50,7 @@ public class ChatBox implements Chat.ChatListener {
         Label chatTextLabel;
     }
 
-    public ChatBox(OreClient client, Stage stage, Skin skin) {
+    public ChatDialog(OreClient client, Stage stage, Skin skin) {
         m_client = client;
         m_stage = stage;
         m_skin = skin;
@@ -82,7 +83,7 @@ public class ChatBox implements Chat.ChatListener {
         container.add(m_send).right();
 
         stage.setKeyboardFocus(m_send);
-//        container.background("default-window");
+        //        container.background("default-window");
 
         container.layout();
         m_scrollPaneTable.layout();
@@ -152,21 +153,22 @@ public class ChatBox implements Chat.ChatListener {
 
         boolean notification = chatVisibility == ChatVisibility.Notification;
 
-//        m_messageField.setVisible(!notification);
+        //        m_messageField.setVisible(!notification);
         m_messageField.setDisabled(notification);
         m_send.setVisible(!notification);
-//        m_scroll.setScrollingDisabled(notification, notification);
+        //        m_scroll.setScrollingDisabled(notification, notification);
 
         scrollToBottom();
         Touchable touchable = notification ? Touchable.disabled : Touchable.enabled;
-//        m_scrollPaneTable.setTouchable(touchable);
-//        m_scroll.setTouchable(touchable);
+        //        m_scrollPaneTable.setTouchable(touchable);
+        //        m_scroll.setTouchable(touchable);
         chatVisibilityState = chatVisibility;
     }
 
     private void sendChat() {
         if (m_messageField.getText().length() > 0) {
-            m_client.sendChatMessage(m_messageField.getText());
+            m_client.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                           .sendChatMessage(m_messageField.getText());
             m_messageField.setText("");
         }
     }
@@ -182,7 +184,7 @@ public class ChatBox implements Chat.ChatListener {
         m_stage.setKeyboardFocus(m_messageField);
         m_notificationTimer.clear();
         m_notificationTimer.stop();
-        //HACK: here be dragons. here and there and over there.
+        //note: here be dragons. here and there and over there.
         //scroll pane seems to not want to scroll until it gets layout() called and some other voodoo stuff
         //after scrolling has been disabled and re-enabled..very odd indeed.
         scrollToBottom();

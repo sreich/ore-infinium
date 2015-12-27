@@ -1,10 +1,8 @@
 package com.ore.infinium;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-
-import java.util.HashSet;
+import com.badlogic.gdx.utils.IntMap;
 
 /**
  * ***************************************************************************
@@ -46,14 +44,17 @@ public class LoadedViewport {
 
     //x, y, top left. in # of blocks (index units)
     public Rectangle rect;
-    HashSet<Entity> loadedEntities;
+    /**
+     * int entityid
+     */
+    IntMap loadedEntities;
 
     public void setRect(Rectangle _rect) {
         rect = _rect;
     }
 
-    public boolean exists(Entity e) {
-        return loadedEntities.contains(e);
+    public boolean exists(int entity) {
+        return loadedEntities.containsKey(entity);
     }
 
     /**
@@ -61,17 +62,14 @@ public class LoadedViewport {
      *         center point
      */
     public void centerOn(Vector2 pos) {
-        pos.x /= World.BLOCK_SIZE;
-        pos.y /= World.BLOCK_SIZE;
-
         float halfWidth = (MAX_VIEWPORT_WIDTH / 2);
         float halfHeight = (MAX_VIEWPORT_HEIGHT / 2);
 
         rect.x = Math.max(0.0f, pos.x - halfWidth);
         rect.y = Math.max(0.0f, pos.y - halfHeight);
 
-        rect.width = Math.min(World.WORLD_SIZE_X, pos.x + (halfWidth));
-        rect.height = Math.min(World.WORLD_SIZE_Y, pos.y + (halfHeight));
+        rect.width = Math.min(OreWorld.WORLD_SIZE_X, pos.x + (halfWidth));
+        rect.height = Math.min(OreWorld.WORLD_SIZE_Y, pos.y + (halfHeight));
     }
 
     public boolean contains(Vector2 pos) {

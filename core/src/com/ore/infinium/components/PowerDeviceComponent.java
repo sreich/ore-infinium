@@ -1,7 +1,7 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
+import com.ore.infinium.systems.PowerCircuitSystem;
 
 /**
  * ***************************************************************************
@@ -26,15 +26,26 @@ import com.badlogic.gdx.utils.Pool;
  * A power device is anything that can reside on a circuit. Whether a consumer
  * or a generator.
  */
-public class PowerDeviceComponent extends Component implements Pool.Poolable {
+public class PowerDeviceComponent extends Component {
 
-    public void reset() {
+    /**
+     * circuit that this device resides on
+     */
+    public transient PowerCircuitSystem.PowerCircuit owningCircuit;
 
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(PowerDeviceComponent component) {
+        //fixme crap
+        //owningCircuit = component.owningCircuit;
     }
 
-    public PowerDeviceComponent() {
-    }
-
-    public PowerDeviceComponent(PowerDeviceComponent component) {
+    @Override
+    public String toString() {
+        return "";
     }
 }

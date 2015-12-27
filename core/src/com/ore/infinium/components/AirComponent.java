@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,7 +20,7 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class AirComponent extends Component implements Pool.Poolable {
+public class AirComponent extends Component {
 
     //air amount that is decreased per each interval
     public int decreaseRate = 10;
@@ -32,18 +31,27 @@ public class AirComponent extends Component implements Pool.Poolable {
     //amount to decrease health per interval, when run without air
     public int healthDecreaseRate = 10;
 
-    public void reset() {
-
-    }
-
-    public AirComponent() {
-    }
-
-    public AirComponent(AirComponent airComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param airComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(AirComponent airComponent) {
         decreaseRate = airComponent.decreaseRate;
         decreaseInterval = airComponent.decreaseInterval;
         maxAir = airComponent.maxAir;
         air = airComponent.air;
         healthDecreaseRate = airComponent.healthDecreaseRate;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("airComponent.air: ").append(air).append('\n');
+        builder.append("airComponent.maxAir: ").append(maxAir).append('\n');
+        builder.append("airComponent.decreaseRate: ").append(decreaseRate).append('\n');
+        builder.append("airComponent.healthDecreaseRate: ").append(healthDecreaseRate).append('\n');
+        return builder.toString();
     }
 }

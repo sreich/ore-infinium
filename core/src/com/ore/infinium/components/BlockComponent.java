@@ -1,7 +1,6 @@
 package com.ore.infinium.components;
 
-import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.utils.Pool;
+import com.artemis.Component;
 
 /**
  * ***************************************************************************
@@ -21,18 +20,29 @@ import com.badlogic.gdx.utils.Pool;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class BlockComponent extends Component implements Pool.Poolable {
 
+/**
+ * used for blocks when they are held in the inventory or dropped in the world.
+ * they're not used for sending tile regions of course, that would be expensive.
+ * only arrays are used there.
+ */
+public class BlockComponent extends Component {
     public byte blockType;
 
-    public void reset() {
-
-    }
-
-    public BlockComponent() {
-    }
-
-    public BlockComponent(BlockComponent blockComponent) {
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param blockComponent
+     *         component to copy from, into this instance
+     */
+    public void copyFrom(BlockComponent blockComponent) {
         blockType = blockComponent.blockType;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("blockComponent.blockType: ").append(blockType).append('\n');
+        return builder.toString();
     }
 }
