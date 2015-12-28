@@ -168,10 +168,17 @@ public class OreClient implements ApplicationListener, InputProcessor {
                     playerComponent.damagedBlockHealth = blockTotalHealth;
                     playerComponent.lastDiggingBlock.x = blockX;
                     playerComponent.lastDiggingBlock.y = blockY;
+
+                    //inform server we're beginning to dig this block. it will track our time.
+                    m_networkClientSystem.sendBlockDigBegin(blockX, blockY);
                 }
 
                 playerComponent.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
-                m_networkClientSystem.sendBlockDigHealthReport(blockX, blockY, playerComponent.damagedBlockHealth);
+
+                if (playerComponent.damagedBlockHealth <= 0) {
+                    //we killed the block
+                    m_networkClientSystem.sendBlockDigFinish();
+                }
             }
 
             //action performed

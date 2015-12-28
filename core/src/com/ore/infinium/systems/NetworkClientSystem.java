@@ -384,11 +384,15 @@ public class NetworkClientSystem extends BaseSystem {
      * @param x
      * @param y
      */
-    public void sendBlockDigHealthReport(int x, int y, short health) {
-        Network.BlockDigHealthReportFromClient blockDigFromClient = new Network.BlockDigHealthReportFromClient();
+    public void sendBlockDigBegin(int x, int y) {
+        Network.BlockDigBeginFromClient blockDigFromClient = new Network.BlockDigBeginFromClient();
         blockDigFromClient.x = x;
         blockDigFromClient.y = y;
-        blockDigFromClient.health = health;
+        m_clientKryo.sendTCP(blockDigFromClient);
+    }
+
+    public void sendBlockDigFinish() {
+        Network.BlockDigFinishFromClient blockDigFromClient = new Network.BlockDigFinishFromClient();
         m_clientKryo.sendTCP(blockDigFromClient);
     }
 

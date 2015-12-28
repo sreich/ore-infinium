@@ -4,7 +4,7 @@ buildscript {
         //use + for latest
         appName = 'ore-infinium'
 
-        gdxVersion = '1.7.1'
+        gdxVersion = '1.7.2'
 
         aiVersion = '1.6.0'
 

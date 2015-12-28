@@ -124,7 +124,7 @@ public class NetworkServerSystem extends BaseSystem {
         SpriteComponent spriteComp = spriteMapper.get(entityId);
 
         Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
-        spawn.connectionId = playerComp.connectionId;
+        spawn.connectionId = playerComp.connectionPlayerId;
         spawn.playerName = playerComp.playerName;
         spawn.pos.pos = new Vector2(spriteComp.sprite.getX(), spriteComp.sprite.getY());
         m_serverKryo.sendToAllTCP(spawn);
@@ -141,14 +141,14 @@ public class NetworkServerSystem extends BaseSystem {
         SpriteComponent spriteComp = spriteMapper.get(entityId);
 
         Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
-        spawn.connectionId = playerComp.connectionId;
+        spawn.connectionId = playerComp.connectionPlayerId;
         spawn.playerName = playerComp.playerName;
         spawn.pos.pos = new Vector2(spriteComp.sprite.getX(), spriteComp.sprite.getY());
         m_serverKryo.sendToTCP(connectionId, spawn);
     }
 
     /**
-     * send the connectionId a notification about an entity having been spawned.
+     * send the connectionPlayerId a notification about an entity having been spawned.
      * the client should then spawn this entity immediately.
      *
      * @param entityId
@@ -165,7 +165,7 @@ public class NetworkServerSystem extends BaseSystem {
         spawn.size.size.set(sprite.sprite.getWidth(), sprite.sprite.getHeight());
         spawn.textureName = sprite.textureName;
 
-        //FIXME, fixme: m_serverKryo.sendToTCP(connectionId, spawn);
+        //FIXME, fixme: m_serverKryo.sendToTCP(connectionPlayerId, spawn);
         m_serverKryo.sendToAllTCP(spawn);
     }
 
@@ -214,7 +214,7 @@ public class NetworkServerSystem extends BaseSystem {
         spawn.textureName = spriteComponent.textureName;
         //FIXME: fixme, we need to spawn it with a texture...and figure out how to do this exactly.
 
-        m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).connectionId, spawn);
+        m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).connectionPlayerId, spawn);
     }
 
     //fixme even needed???
@@ -240,8 +240,10 @@ public class NetworkServerSystem extends BaseSystem {
                 receiveChatMessage(job);
             } else if (job.object instanceof Network.PlayerMoveInventoryItemFromClient) {
                 receivePlayerMoveInventoryItem(job);
-            } else if (job.object instanceof Network.BlockDigHealthReportFromClient) {
-                receiveBlockDigHealthReport(job);
+            } else if (job.object instanceof Network.BlockDigBeginFromClient) {
+                receiveBlockDigBegin(job);
+            } else if (job.object instanceof Network.BlockDigFinishFromClient) {
+                receiveBlockDigFinish(job);
             } else if (job.object instanceof Network.BlockPlaceFromClient) {
                 receiveBlockPlace(job);
             } else if (job.object instanceof Network.PlayerEquipHotbarIndexFromClient) {
@@ -261,6 +263,11 @@ public class NetworkServerSystem extends BaseSystem {
                 }
             }
         }
+    }
+
+    private void receiveBlockDigFinish(NetworkJob job) {
+        Network.BlockDigFinishFromClient data = ((Network.BlockDigFinishFromClient) job.object);
+        m_blockDiggingSystem.blockDiggingFinished(data.x, data.y);
     }
 
     private void receiveInitialClientData(NetworkJob job) {
@@ -353,7 +360,7 @@ public class NetworkServerSystem extends BaseSystem {
         ItemComponent itemDroppedComponent = itemMapper.get(droppedItem);
         itemDroppedComponent.state = ItemComponent.State.DroppedInWorld;
         itemDroppedComponent.justDropped = true;
-        itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionId;
+        itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionPlayerId;
 
         SpriteComponent playerSprite = spriteMapper.get(job.connection.player);
         SpriteComponent droppedItemSprite = spriteMapper.get(droppedItem);
@@ -399,8 +406,8 @@ public class NetworkServerSystem extends BaseSystem {
      *
      * @param job
      */
-    private void receiveBlockDigHealthReport(NetworkJob job) {
-        Network.BlockDigHealthReportFromClient data = ((Network.BlockDigHealthReportFromClient) job.object);
+    private void receiveBlockDigBegin(NetworkJob job) {
+        Network.BlockDigBeginFromClient data = ((Network.BlockDigBeginFromClient) job.object);
         //todo verification to ensure the player isn't cheating us
         //todo for block digging we must ensure that the player say..didn't send 500 of these
     }
@@ -445,7 +452,7 @@ public class NetworkServerSystem extends BaseSystem {
         Network.LoadedViewportMovedFromServer v = new Network.LoadedViewportMovedFromServer();
         v.rect = playerComponent.loadedViewport.rect;
 
-        m_serverKryo.sendToTCP(playerComponent.connectionId, v);
+        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, v);
     }
 
     /**
@@ -463,7 +470,7 @@ public class NetworkServerSystem extends BaseSystem {
         //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
         // purpose of this. so put it in a queue, etc..
         PlayerComponent playerComponent = playerMapper.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionId, sparseBlockUpdate);
+        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, sparseBlockUpdate);
     }
 
     /**
@@ -487,7 +494,7 @@ public class NetworkServerSystem extends BaseSystem {
         }
 
         PlayerComponent playerComponent = playerMapper.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionId, blockRegion);
+        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, blockRegion);
     }
 
     /**
@@ -504,7 +511,7 @@ public class NetworkServerSystem extends BaseSystem {
         move.position = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
 
         PlayerComponent playerComponent = playerMapper.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionId, move);
+        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, move);
     }
 
     static class PlayerConnection extends Connection {

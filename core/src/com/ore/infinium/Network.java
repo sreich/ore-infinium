@@ -46,7 +46,8 @@ public class Network {
         kryo.register(PlayerSpawnedFromServer.class);
         kryo.register(PowerDeviceComponent.class);
         kryo.register(PlayerMoveFromClient.class);
-        kryo.register(BlockDigHealthReportFromClient.class);
+        kryo.register(BlockDigBeginFromClient.class);
+        kryo.register(BlockDigFinishFromClient.class);
         kryo.register(BlockPlaceFromClient.class);
         kryo.register(ItemPlaceFromClient.class);
         kryo.register(PlayerEquipHotbarIndexFromClient.class);
@@ -151,10 +152,21 @@ public class Network {
         public int second;
     }
 
-    static public class BlockDigHealthReportFromClient {
+    static public class BlockDigBeginFromClient {
         public int x;
         public int y;
-        public short health;
+    }
+
+    /**
+     * sent when client knows it finished digging a block
+     * at x,y successfully.
+     * server will verify it is true.
+     * if this packet is not sent, the server will eventually time out
+     * the dig(cancel it), for that block.
+     */
+    static public class BlockDigFinishFromClient {
+        public int x;
+        public int y;
     }
 
     static public class BlockPlaceFromClient {

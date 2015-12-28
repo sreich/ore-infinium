@@ -6,7 +6,6 @@ import com.artemis.World;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -40,7 +39,7 @@ public class BlockDiggingSystem extends BaseSystem {
     private ComponentMapper<JumpComponent> jumpMapper;
 
     private NetworkServerSystem m_networkServerSystem;
-    private NetworkClientSystem m_networkClientSystem;
+    private GameTickSystem m_gameTickSystem;
 
     private TagManager m_tagManager;
 
@@ -48,11 +47,15 @@ public class BlockDiggingSystem extends BaseSystem {
         int x;
         int y;
         /**
-         * ms time when the dig request for this block was started
+         * the tick when the dig request for this block was started
          */
-        long msDigStart;
+        long digStartTick;
 
-        int health;
+        /**
+         * player id (connection id) associated with this dig request
+         * NOT entity id.
+         */
+        int playerId;
 
         //todo verify that there aren't too many blocks all at once from the same player
         //she could in theory send 500 block updates..requiring only the time for 1 block dig
@@ -74,13 +77,21 @@ public class BlockDiggingSystem extends BaseSystem {
         super.setWorld(world);
     }
 
+    //todo when the equipped item changes, abort all active digs for that player
     @Override
     protected void processSystem() {
         for (int i = 0; i < m_blocksToDig.size; i++) {
             BlockToDig blockToDig = m_blocksToDig.get(i);
 
-            //after so many ms, we assume it times out
-            if (TimeUtils.timeSinceMillis(blockToDig.msDigStart) > 300) {
+            m_world.playerForID(blockToDig.playerId)
+
+            long expectedTickEnd = 0;
+
+            //when actual ticks surpass our expected ticks, by so much
+            //we assume this requests times out
+
+            //hack
+            if (expectedTickEnd > m_gameTickSystem.ticks /* + 10 */) {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
@@ -100,18 +111,10 @@ public class BlockDiggingSystem extends BaseSystem {
     }
 
     /**
-     * we got a progress report on the health status
-     * (from client -> server), of a block
-     * We'll save the block we're talking about, the health and the time
-     * it was received at.
-     * <p>
-     * Eventually without a progress update, we assume they're no longer digging this block.
-     *
      * @param x
      * @param y
-     * @param health
      */
-    public void blockHealthUpdateProgressReport(int x, int y, int health) {
+    public void blockDiggingFinished(int x, int y) {
         for (BlockToDig blockToDig : m_blocksToDig) {
             if (blockToDig.x == x && blockToDig.y == y) {
                 //this is our block
@@ -124,7 +127,6 @@ public class BlockDiggingSystem extends BaseSystem {
         BlockToDig blockToDig = new BlockToDig();
         blockToDig.x = x;
         blockToDig.y = y;
-        blockToDig.msDigStart = TimeUtils.millis();
-        blockToDig.health = health;
+        blockToDig.digStartTick = m_gameTickSystem.ticks;
     }
 }

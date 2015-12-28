@@ -32,12 +32,13 @@ public class PlayerComponent extends Component {
     public final static float maxMovementSpeed = movementSpeed * 1.2f;
 
     public String playerName;
+
     /**
      * Unique and utilized only by players, is not global or related to generic entity id's
      * Is used to identify the players, for knowing which one the network is talking about,
      * and is also very useful for kicking/banning.
      */
-    public int connectionId = -1;
+    public int connectionPlayerId = -1;
     public boolean killed;
     public OreTimer placeableItemTimer = new OreTimer();
 
@@ -80,7 +81,7 @@ public class PlayerComponent extends Component {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("playerComponent.playerName: ").append(playerName).append('\n');
-        builder.append("playerComponent.connectionId: ").append(connectionId).append('\n');
+        builder.append("playerComponent.connectionPlayerId: ").append(connectionPlayerId).append('\n');
         builder.append("playerComponent.killed: ").append(killed).append('\n');
         return builder.toString();
     }

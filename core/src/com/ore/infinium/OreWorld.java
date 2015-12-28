@@ -172,6 +172,7 @@ public class OreWorld {
                                                    .with(new InputSystem(m_camera, this))
                                                    .with(new EntityOverlaySystem(this))
                                                    .with(new PlayerSystem(this))
+                                                   .with(new GameTickSystem(this))
                                                    .with(new TileRenderSystem(m_camera, this))
                                                    .with(new SpriteRenderSystem(this))
                                                    .with(new DebugTextRenderSystem(m_camera, this))
@@ -192,6 +193,7 @@ public class OreWorld {
                                                                       .with(new PlayerManager())
                                                                       .with(new MovementSystem(this))
                                                                       .with(new PowerCircuitSystem(this))
+                                                                      .with(new GameTickSystem(this))
                                                                       .with(new GrassBlockSystem(this))
                                                                       .with(new BlockDiggingSystem(this))
                                                                       .with(new PlayerSystem(this))
@@ -234,7 +236,7 @@ public class OreWorld {
         velocityMapper.create(playerEntity);
 
         PlayerComponent playerComponent = playerMapper.create(playerEntity);
-        playerComponent.connectionId = connectionId;
+        playerComponent.connectionPlayerId = connectionId;
         //fixme fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on
         // the server?? at least the component, maybe not inner sprite
         playerComponent.noClip = m_noClipEnabled;
@@ -830,7 +832,7 @@ public class OreWorld {
         PlayerComponent playerComponent;
         for (int i = 0; i < entities.size(); ++i) {
             playerComponent = playerMapper.get(entities.get(i));
-            if (playerComponent.connectionId == playerId) {
+            if (playerComponent.connectionPlayerId == playerId) {
                 return entities.get(i);
             }
         }
