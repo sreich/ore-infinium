@@ -14,6 +14,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.ore.infinium.*;
 import com.ore.infinium.components.*;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -408,8 +409,7 @@ public class NetworkServerSystem extends BaseSystem {
      */
     private void receiveBlockDigBegin(NetworkJob job) {
         Network.BlockDigBeginFromClient data = ((Network.BlockDigBeginFromClient) job.object);
-        //todo verification to ensure the player isn't cheating us
-        //todo for block digging we must ensure that the player say..didn't send 500 of these
+        m_blockDiggingSystem.blockDiggingBegin(data.x, data.y);
     }
 
     private void receivePlayerMoveInventoryItem(NetworkJob job) {
@@ -456,19 +456,33 @@ public class NetworkServerSystem extends BaseSystem {
     }
 
     /**
+     * Broadcasts to every player -- only the ones who can view it! --
+     * an updated block.
+     * Does this by checking to see if the block falls within their loaded chunks
+     *
+     * @param block
+     * @param x
+     * @param y
+     */
+    public void sendSparseBlockBroadcast(Block block, int x, int y) {
+        throw new NotImplementedException();
+    }
+
+    /**
      * @param player
      *         entity id
      * @param block
      * @param x
      * @param y
      */
-    public void sendPlayerSparseBlock(int player, Block block, int x, int y) {
+    public void sendPlayerSingleBlock(int player, Block block, int x, int y) {
         Network.SparseBlockUpdate sparseBlockUpdate = new Network.SparseBlockUpdate();
 
         sparseBlockUpdate.blocks.add(new Network.SingleSparseBlock(block, x, y));
 
         //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
-        // purpose of this. so put it in a queue, etc..
+        // purpose of this, whcih is to reduce the need to send an entire packet for 1 block. queue them up.
+        // so put it in a queue, etc so we can deliver it when we need to..
         PlayerComponent playerComponent = playerMapper.get(player);
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, sparseBlockUpdate);
     }

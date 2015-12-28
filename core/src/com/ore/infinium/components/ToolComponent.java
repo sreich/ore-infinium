@@ -26,8 +26,6 @@ public class ToolComponent extends Component {
     public ToolMaterial material = ToolMaterial.Wood;
     public float attackRadius = 10.0f;
 
-    public transient int attackIntervalms = 500;
-
     //damage tool does to blocks
     public int blockDamage;
 

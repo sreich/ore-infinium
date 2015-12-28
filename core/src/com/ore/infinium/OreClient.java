@@ -132,11 +132,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         hostAndJoin();
     }
 
-    private static class PlayerBlockDig {
-        private int health;
-        private int msLastDig;
-    }
-
     public void handleLeftMousePrimaryAttack() {
         Vector2 mouse = m_world.mousePositionWorldCoords();
 

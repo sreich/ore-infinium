@@ -133,7 +133,7 @@ public class GrassBlockSystem extends BaseSystem {
                             //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
                             // leftLeftX, leftLeftY);
 
-                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, leftBlock, leftBlockX,
+                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, leftBlock, leftBlockX,
                                                                         leftBlockY);
                         }
                     }
@@ -159,7 +159,7 @@ public class GrassBlockSystem extends BaseSystem {
                             //                               m_server.sendPlayerSparseBlock(player,
                             // rightRightBlock, rightRightX, rightRightY);
 
-                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, rightBlock, rightBlockX,
+                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, rightBlock, rightBlockX,
                                                                         rightBlockY);
                         }
                     }
@@ -178,7 +178,7 @@ public class GrassBlockSystem extends BaseSystem {
 
                             bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, bottomBlock, bottomBlockX,
+                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, bottomBlock, bottomBlockX,
                                                                         bottomBlockY);
                         }
                     }
@@ -197,7 +197,7 @@ public class GrassBlockSystem extends BaseSystem {
 
                             topBlock.setFlag(Block.BlockFlags.GrassBlock);
 
-                            m_networkServerSystem.sendPlayerSparseBlock(playerEntity, topBlock, topBlockX, topBlockY);
+                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, topBlock, topBlockX, topBlockY);
                         }
                     }
 

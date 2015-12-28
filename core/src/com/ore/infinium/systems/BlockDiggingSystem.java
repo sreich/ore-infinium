@@ -6,6 +6,7 @@ import com.artemis.World;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.badlogic.gdx.utils.Array;
+import com.ore.infinium.Block;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -37,6 +38,7 @@ public class BlockDiggingSystem extends BaseSystem {
     private ComponentMapper<ItemComponent> itemMapper;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
+    private ComponentMapper<ToolComponent> toolMapper;
 
     private NetworkServerSystem m_networkServerSystem;
     private GameTickSystem m_gameTickSystem;
@@ -56,6 +58,14 @@ public class BlockDiggingSystem extends BaseSystem {
          * NOT entity id.
          */
         int playerId;
+
+        /**
+         * whether or not we've received from client as this block
+         * being finished digging. if this gets sent to soon, it's disregarded
+         * and will eventually timeout. if it sent too late, that too, will time out.
+         * The client might lie too, so be sure to double check.
+         */
+        boolean clientSaysItFinished;
 
         //todo verify that there aren't too many blocks all at once from the same player
         //she could in theory send 500 block updates..requiring only the time for 1 block dig
@@ -83,26 +93,52 @@ public class BlockDiggingSystem extends BaseSystem {
         for (int i = 0; i < m_blocksToDig.size; i++) {
             BlockToDig blockToDig = m_blocksToDig.get(i);
 
-            m_world.playerForID(blockToDig.playerId)
+            Block block = m_world.blockAt(blockToDig.x, blockToDig.y);
 
-            long expectedTickEnd = 0;
-
-            //when actual ticks surpass our expected ticks, by so much
-            //we assume this requests times out
-
-            //hack
-            if (expectedTickEnd > m_gameTickSystem.ticks /* + 10 */) {
+            //it's already dug, must've happened sometime since, external (to this system)
+            //so cancel this request, don't notify anything.
+            if (block.type == Block.BlockType.NullBlockType) {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
 
-            if (blockToDig.health <= 0) {
-                //block is okay to kill
-                m_world.blockAt(blockToDig.x, blockToDig.y).destroy();
-                //todo tell all clients that it was officially dug
+            int playerEntityId = m_world.playerForID(blockToDig.playerId);
+            PlayerComponent playerComponent = playerMapper.get(playerEntityId);
+
+            int equippedItemEntityId = playerComponent.getEquippedPrimaryItem();
+            ToolComponent toolComponent = toolMapper.getSafe(equippedItemEntityId);
+
+            //player no longer even has an item that can break stuff, equipped.
+            //this queued request will now be canceled.
+            if (toolComponent == null) {
+                m_blocksToDig.removeIndex(i);
+                continue;
             }
 
-            //todo verify that it's not too fast
+            short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+
+            //this many ticks after start tick, it should be done.
+            long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
+
+            //when actual ticks surpass our expected ticks, by so much
+            //we assume this request times out
+            if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
+
+                OreWorld.log("server, block digging system",
+                             "processSystem block digging request timed out. this could be normal.");
+                m_blocksToDig.removeIndex(i);
+                continue;
+            }
+
+                //block is okay to kill
+            block.destroy();
+            //todo tell all clients that it was officially dug--first we want to implement chunking
+            // though!!
+            m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, block, blockToDig.x, blockToDig.y);
+
+            //remove fulfilled request from our queue.
+            m_blocksToDig.removeIndex(i);
+
         }
     }
 
@@ -117,13 +153,29 @@ public class BlockDiggingSystem extends BaseSystem {
     public void blockDiggingFinished(int x, int y) {
         for (BlockToDig blockToDig : m_blocksToDig) {
             if (blockToDig.x == x && blockToDig.y == y) {
-                //this is our block
+                //this is our block, mark it as the client thinking/saying(or lying) it finished
+                blockToDig.clientSaysItFinished = true;
 
                 return;
             }
         }
 
-        //got here, need to create a new one (hasn't been dug yet)
+        //if it was never found, forget about it.
+        OreWorld.log("server, block digging system",
+                     "blockDiggingFinished message received from a client, but this block dig queued request " +
+                     "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)");
+    }
+
+    public void blockDiggingBegin(int x, int y) {
+        if (m_world.blockAt(x, y).type == Block.BlockType.NullBlockType) {
+            //odd. they sent us a block pick request, but it is already null on our end.
+            //perhaps just a harmless latency thing. ignore.
+            OreWorld.log("server, block digging system",
+                         "blockDiggingBegin we got the request to dig a block that is already null/dug. this is " +
+                         "likely just a latency issue ");
+            return;
+        }
+
         BlockToDig blockToDig = new BlockToDig();
         blockToDig.x = x;
         blockToDig.y = y;
