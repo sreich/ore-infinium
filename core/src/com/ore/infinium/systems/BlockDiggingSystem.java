@@ -2,7 +2,6 @@ package com.ore.infinium.systems;
 
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
-import com.artemis.World;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.badlogic.gdx.utils.Array;
@@ -82,11 +81,6 @@ public class BlockDiggingSystem extends BaseSystem {
     protected void dispose() {
     }
 
-    @Override
-    protected void setWorld(World world) {
-        super.setWorld(world);
-    }
-
     //todo when the equipped item changes, abort all active digs for that player
     @Override
     protected void processSystem() {
@@ -120,6 +114,17 @@ public class BlockDiggingSystem extends BaseSystem {
             //this many ticks after start tick, it should be done.
             long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
 
+            if (blockToDig.clientSaysItFinished && m_gameTickSystem.ticks >= expectedTickEnd) {
+                block.destroy();
+                //todo tell all clients that it was officially dug--but first we want to implement chunking
+                // though!!
+                m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, block, blockToDig.x, blockToDig.y);
+
+                //remove fulfilled request from our queue.
+                m_blocksToDig.removeIndex(i);
+            }
+
+
             //when actual ticks surpass our expected ticks, by so much
             //we assume this request times out
             if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
@@ -129,15 +134,6 @@ public class BlockDiggingSystem extends BaseSystem {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
-
-                //block is okay to kill
-            block.destroy();
-            //todo tell all clients that it was officially dug--first we want to implement chunking
-            // though!!
-            m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, block, blockToDig.x, blockToDig.y);
-
-            //remove fulfilled request from our queue.
-            m_blocksToDig.removeIndex(i);
 
         }
     }
