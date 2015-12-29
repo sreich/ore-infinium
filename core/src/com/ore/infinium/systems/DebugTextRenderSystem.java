@@ -112,7 +112,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     public boolean m_renderDebugServer = false;
     public boolean m_renderDebugClient = false;
 
-    private final int TEXT_Y_SPACING = 8;
+    private final int TEXT_Y_SPACING = 10;
     private final int TEXT_X_RIGHT = OreSettings.getInstance().width - 350;
     private final int TEXT_X_LEFT = 6;
 
@@ -134,6 +134,8 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
         m_fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.borderColor = Color.ORANGE;
+        parameter.borderWidth = 0.2f;
 
         parameter.size = 9;
         m_font = m_fontGenerator.generateFont(parameter);

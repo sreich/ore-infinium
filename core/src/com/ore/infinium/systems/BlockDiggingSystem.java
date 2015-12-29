@@ -124,7 +124,6 @@ public class BlockDiggingSystem extends BaseSystem {
                 m_blocksToDig.removeIndex(i);
             }
 
-
             //when actual ticks surpass our expected ticks, by so much
             //we assume this request times out
             if (m_gameTickSystem.ticks > expectedTickEnd + 10) {

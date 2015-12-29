@@ -156,7 +156,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
             if (block.type != Block.BlockType.NullBlockType) {
                 short blockTotalHealth = m_world.blockAttributes.get(block.type).blockTotalHealth;
-                //block.destroy();
                 if (playerComponent.lastDiggingBlock.x != blockX || playerComponent.lastDiggingBlock.y != blockY) {
                     //it's a different block. we must've aborted digging the old one, reset to total health.
                     //and reset last dug indices
