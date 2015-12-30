@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.minlog.Log;
 import com.ore.infinium.components.*;
+import com.ore.infinium.systems.ClientBlockDiggingSystem;
 import com.ore.infinium.systems.DebugTextRenderSystem;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.PowerOverlayRenderSystem;
@@ -45,6 +46,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     private TagManager m_tagManager;
     private DebugTextRenderSystem m_debugTextRenderSystem;
     private PowerOverlayRenderSystem m_powerOverlayRenderSystem;
+    private ClientBlockDiggingSystem m_clientBlockDiggingSystem;
 
     // zoom every n ms, while zoom key is held down
     private static final int zoomInterval = 30;
@@ -140,42 +142,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
         PlayerComponent playerComponent = playerMapper.get(player);
         int itemEntity = playerComponent.getEquippedPrimaryItem();
         if (itemEntity == OreWorld.ENTITY_INVALID) {
-            return;
-        }
-
-        ToolComponent toolComponent = toolMapper.getSafe(itemEntity);
-        if (toolComponent != null) {
-            if (toolComponent.type != ToolComponent.ToolType.Drill) {
-                return;
-            }
-
-            int blockX = (int) (mouse.x);
-            int blockY = (int) (mouse.y);
-
-            Block block = m_world.blockAt(blockX, blockY);
-
-            if (block.type != Block.BlockType.NullBlockType) {
-                short blockTotalHealth = m_world.blockAttributes.get(block.type).blockTotalHealth;
-                if (playerComponent.lastDiggingBlock.x != blockX || playerComponent.lastDiggingBlock.y != blockY) {
-                    //it's a different block. we must've aborted digging the old one, reset to total health.
-                    //and reset last dug indices
-                    playerComponent.damagedBlockHealth = blockTotalHealth;
-                    playerComponent.lastDiggingBlock.x = blockX;
-                    playerComponent.lastDiggingBlock.y = blockY;
-
-                    //inform server we're beginning to dig this block. it will track our time.
-                    m_networkClientSystem.sendBlockDigBegin(blockX, blockY);
-                }
-
-                playerComponent.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
-
-                if (playerComponent.damagedBlockHealth <= 0) {
-                    //we killed the block
-                    m_networkClientSystem.sendBlockDigFinish();
-                }
-            }
-
-            //action performed
             return;
         }
 

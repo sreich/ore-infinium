@@ -56,7 +56,7 @@ public class NetworkServerSystem extends BaseSystem {
     private ComponentMapper<JumpComponent> jumpMapper;
     private ComponentMapper<BlockComponent> blockMapper;
 
-    private BlockDiggingSystem m_blockDiggingSystem;
+    private ServerBlockDiggingSystem m_Server_blockDiggingSystem;
 
     private OreWorld m_world;
 
@@ -268,7 +268,7 @@ public class NetworkServerSystem extends BaseSystem {
 
     private void receiveBlockDigFinish(NetworkJob job) {
         Network.BlockDigFinishFromClient data = ((Network.BlockDigFinishFromClient) job.object);
-        m_blockDiggingSystem.blockDiggingFinished(data.x, data.y);
+        m_Server_blockDiggingSystem.blockDiggingFinished(data.x, data.y);
     }
 
     private void receiveInitialClientData(NetworkJob job) {
@@ -409,7 +409,7 @@ public class NetworkServerSystem extends BaseSystem {
      */
     private void receiveBlockDigBegin(NetworkJob job) {
         Network.BlockDigBeginFromClient data = ((Network.BlockDigBeginFromClient) job.object);
-        m_blockDiggingSystem.blockDiggingBegin(data.x, data.y);
+        m_Server_blockDiggingSystem.blockDiggingBegin(data.x, data.y);
     }
 
     private void receivePlayerMoveInventoryItem(NetworkJob job) {

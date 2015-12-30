@@ -6,7 +6,6 @@ import com.ore.infinium.Inventory;
 import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreTimer;
 import com.ore.infinium.OreWorld;
-import com.ore.infinium.utils.Vector2i;
 
 /**
  * ***************************************************************************
@@ -41,16 +40,6 @@ public class PlayerComponent extends Component {
     public int connectionPlayerId = -1;
     public boolean killed;
     public OreTimer placeableItemTimer = new OreTimer();
-
-    /**
-     * current health of a block that is getting damaged.
-     */
-    public transient short damagedBlockHealth = 500;
-
-    /**
-     * this and
-     */
-    public transient Vector2i lastDiggingBlock;
 
     //ms
     public static final int placeableItemDelay = 300;

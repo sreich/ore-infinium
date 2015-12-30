@@ -173,6 +173,7 @@ public class OreWorld {
                                                    .with(new EntityOverlaySystem(this))
                                                    .with(new PlayerSystem(this))
                                                    .with(new GameTickSystem(this))
+                                                   .with(new ClientBlockDiggingSystem(this, m_client))
                                                    .with(new TileRenderSystem(m_camera, this))
                                                    .with(new SpriteRenderSystem(this))
                                                    .with(new DebugTextRenderSystem(m_camera, this))
@@ -195,7 +196,7 @@ public class OreWorld {
                                                                       .with(new PowerCircuitSystem(this))
                                                                       .with(new GameTickSystem(this))
                                                                       .with(new GrassBlockSystem(this))
-                                                                      .with(new BlockDiggingSystem(this))
+                                                                      .with(new ServerBlockDiggingSystem(this))
                                                                       .with(new PlayerSystem(this))
                                                                       .with(new NetworkServerSystem(this, m_server))
                                                                       .register(new GameLoopSystemInvocationStrategy(25,

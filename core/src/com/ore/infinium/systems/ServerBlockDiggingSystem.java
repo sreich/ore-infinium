@@ -28,7 +28,7 @@ import com.ore.infinium.components.*;
  * ***************************************************************************
  */
 @Wire(failOnNull = false)
-public class BlockDiggingSystem extends BaseSystem {
+public class ServerBlockDiggingSystem extends BaseSystem {
     private OreWorld m_world;
 
     private ComponentMapper<PlayerComponent> playerMapper;
@@ -72,7 +72,7 @@ public class BlockDiggingSystem extends BaseSystem {
 
     private Array<BlockToDig> m_blocksToDig = new Array<>();
 
-    public BlockDiggingSystem(OreWorld world) {
+    public ServerBlockDiggingSystem(OreWorld world) {
         m_world = world;
 
     }
