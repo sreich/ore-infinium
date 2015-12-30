@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.StringBuilder;
-import com.ore.infinium.Block;
+import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreSettings;
 import com.ore.infinium.OreTimer;
 import com.ore.infinium.OreWorld;
@@ -234,7 +234,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_textYLeft -= TEXT_Y_SPACING;
 
         Vector2 mousePos = m_world.mousePositionWorldCoords();
-        Block block = m_world.blockAtPosition(mousePos);
+        OreBlock block = m_world.blockAtPosition(mousePos);
 
         int x = (int) mousePos.x;
         int y = (int) mousePos.y;
@@ -242,22 +242,22 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         String texture = "";
 
         switch (block.type) {
-            case Block.BlockType.DirtBlockType:
-                if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+            case OreBlock.BlockType.DirtBlockType:
+                if (block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
                     texture = m_tileRenderSystem.grassBlockMeshes.get(block.meshType);
                 } else {
                     texture = m_tileRenderSystem.dirtBlockMeshes.get(block.meshType);
                 }
 
                 break;
-            case Block.BlockType.StoneBlockType:
+            case OreBlock.BlockType.StoneBlockType:
                 texture = m_tileRenderSystem.stoneBlockMeshes.get(block.meshType);
                 break;
         }
 
         String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s", x, y,
                                  block.type, block.meshType, block.wallType, texture,
-                                 block.hasFlag(Block.BlockFlags.GrassBlock));
+                                 block.hasFlag(OreBlock.BlockFlags.GrassBlock));
 
         m_font.draw(m_batch, s, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;

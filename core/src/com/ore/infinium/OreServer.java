@@ -213,7 +213,7 @@ public class OreServer implements Runnable {
         playerComponent.hotbarInventory.setSlot((byte) 0, drill);
 
         final int dirtBlock = m_world.m_artemisWorld.create();
-        m_world.createBlockItem(dirtBlock, Block.BlockType.DirtBlockType);
+        m_world.createBlockItem(dirtBlock, OreBlock.BlockType.DirtBlockType);
 
         ItemComponent dirtBlockItemComponent = itemMapper.get(dirtBlock);
         dirtBlockItemComponent.inventoryIndex = 1;
@@ -222,7 +222,7 @@ public class OreServer implements Runnable {
         playerComponent.hotbarInventory.setSlot((byte) 1, dirtBlock);
 
         final int stoneBlock = m_world.m_artemisWorld.create();
-        m_world.createBlockItem(stoneBlock, Block.BlockType.StoneBlockType);
+        m_world.createBlockItem(stoneBlock, OreBlock.BlockType.StoneBlockType);
 
         ItemComponent stoneBlockItemComponent = itemMapper.get(stoneBlock);
         stoneBlockItemComponent.inventoryIndex = 2;

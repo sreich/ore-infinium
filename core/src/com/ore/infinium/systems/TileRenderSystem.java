@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.IntMap;
-import com.ore.infinium.Block;
+import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -150,7 +150,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
             for (int y = startY; y < endY; ++y) {
                 ++debugTilesInViewCount;
 
-                Block block = m_world.blockAt(x, y);
+                OreBlock block = m_world.blockAt(x, y);
 
                 float tileX = (float) x;
                 float tileY = (float) y;
@@ -158,21 +158,21 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
                 boolean drawWallTile = false;
 
                 //String textureName = World.blockAttributes.get(block.type).textureName;
-                if (block.type == Block.BlockType.DirtBlockType) {
+                if (block.type == OreBlock.BlockType.DirtBlockType) {
 
-                    if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    if (block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
                         textureName = grassBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure";
                     } else {
                         textureName = dirtBlockMeshes.get(block.meshType);
                         assert textureName != null : "block mesh lookup failure type: " + block.meshType;
                     }
-                } else if (block.type == Block.BlockType.StoneBlockType) {
+                } else if (block.type == OreBlock.BlockType.StoneBlockType) {
                     textureName = stoneBlockMeshes.get(block.meshType);
                     assert textureName != null : "block mesh lookup failure type: " + block.meshType;
 
-                } else if (block.type == Block.BlockType.NullBlockType) {
-                    if (block.wallType == Block.WallType.NullWallType) {
+                } else if (block.type == OreBlock.BlockType.NullBlockType) {
+                    if (block.wallType == OreBlock.WallType.NullWallType) {
                         //we can skip a draw call iff the wall, and block is null
                         continue;
                     } else {

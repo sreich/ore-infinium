@@ -5,7 +5,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.badlogic.gdx.utils.Array;
-import com.ore.infinium.Block;
+import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -87,11 +87,11 @@ public class ServerBlockDiggingSystem extends BaseSystem {
         for (int i = 0; i < m_blocksToDig.size; i++) {
             BlockToDig blockToDig = m_blocksToDig.get(i);
 
-            Block block = m_world.blockAt(blockToDig.x, blockToDig.y);
+            OreBlock block = m_world.blockAt(blockToDig.x, blockToDig.y);
 
             //it's already dug, must've happened sometime since, external (to this system)
             //so cancel this request, don't notify anything.
-            if (block.type == Block.BlockType.NullBlockType) {
+            if (block.type == OreBlock.BlockType.NullBlockType) {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
@@ -162,7 +162,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
     }
 
     public void blockDiggingBegin(int x, int y) {
-        if (m_world.blockAt(x, y).type == Block.BlockType.NullBlockType) {
+        if (m_world.blockAt(x, y).type == OreBlock.BlockType.NullBlockType) {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
             OreWorld.log("server, block digging system",

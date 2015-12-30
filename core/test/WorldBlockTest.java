@@ -1,5 +1,5 @@
 import com.badlogic.gdx.math.Vector2;
-import com.ore.infinium.Block;
+import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,10 +39,10 @@ public class WorldBlockTest {
     public void testBlockSolid() throws Exception {
         assertTrue(true);
 
-        world.blockAt(500, 500).type = Block.BlockType.NullBlockType;
+        world.blockAt(500, 500).type = OreBlock.BlockType.NullBlockType;
         assertFalse(world.isBlockSolid(500, 500));
 
-        world.blockAt(100, 100).type = Block.BlockType.CopperBlockType;
+        world.blockAt(100, 100).type = OreBlock.BlockType.CopperBlockType;
         assertTrue(world.isBlockSolid(100, 100));
     }
 
@@ -50,14 +50,14 @@ public class WorldBlockTest {
     @Test
     public void testBlockAtPositionExactly() throws Exception {
         //our marker block. the rest of the ones in the world are NullBlockType
-        world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
+        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
 
         assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionOneBlockRight() {
-        world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
+        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
 
         //ensure one block to the right is different(that we're on the right unit scale or whatever)
         assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(11.0f, 10.0f)));
@@ -65,7 +65,7 @@ public class WorldBlockTest {
 
     @Test
     public void testBlockAtPositionOneBlockLeft() {
-        world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
+        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
 
         //ensure one block to left is different
         assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(9.0f, 10.0f)));
@@ -73,21 +73,21 @@ public class WorldBlockTest {
 
     @Test
     public void testBlockAtPositionPartialLeft() {
-        world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
+        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
 
         assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f - (0.1f), 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionPartialAbove() {
-        world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
+        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
 
         assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f - (0.1f))));
     }
 
     @Test
     public void testBlockAtPositionPartialBelow() {
-        world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
+        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
 
         //ensure half a block below, we are still on the same block
         assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f + (0.4f))));
@@ -95,7 +95,7 @@ public class WorldBlockTest {
 
     @Test
     public void testBlockAtPositionPartialBottomRight() {
-        world.blockAt(10, 10).type = Block.BlockType.CopperBlockType;
+        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
 
         //ensure 0.9 a block right-down, we are still on the same block
         assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f + (0.9f), 10.0f + (0.9f))));

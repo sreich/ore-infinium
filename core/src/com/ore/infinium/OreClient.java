@@ -520,7 +520,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             int blockX = (int) (mouse.x);
             int blockY = (int) (mouse.y);
 
-            Block block = m_world.blockAtSafely(blockX, blockY);
+            OreBlock block = m_world.blockAtSafely(blockX, blockY);
 
             PlayerComponent playerComponent = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
             //check if we moved mouse position enough to fall on a different block. if so, abort digging

@@ -32,7 +32,7 @@ import com.ore.infinium.OreWorld;
     /**
      * increased by 1 every update()
      */
-    public long ticks;
+    private long ticks;
 
     public GameTickSystem(OreWorld world) {
         m_world = world;
@@ -49,4 +49,7 @@ import com.ore.infinium.OreWorld;
         ticks += 1;
     }
 
+    public long getTicks() {
+        return ticks;
+    }
 }

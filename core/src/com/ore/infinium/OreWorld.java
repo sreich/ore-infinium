@@ -62,19 +62,19 @@ public class OreWorld {
     public static final HashMap<Byte, BlockAttributes> blockAttributes = new HashMap<>();
 
     static {
-        blockAttributes.put(Block.BlockType.NullBlockType,
+        blockAttributes.put(OreBlock.BlockType.NullBlockType,
                             new BlockAttributes("", BlockAttributes.Collision.False, BlockAttributes.BlockCategory.Null,
                                                 (short) 0));
-        blockAttributes.put(Block.BlockType.DirtBlockType, new BlockAttributes("dirt", BlockAttributes.Collision.True,
-                                                                               BlockAttributes.BlockCategory.Dirt,
-                                                                               (short) 200));
-        blockAttributes.put(Block.BlockType.StoneBlockType, new BlockAttributes("stone", BlockAttributes.Collision.True,
-                                                                                BlockAttributes.BlockCategory.Ore,
-                                                                                (short) 300));
+        blockAttributes.put(OreBlock.BlockType.DirtBlockType,
+                            new BlockAttributes("dirt", BlockAttributes.Collision.True,
+                                                BlockAttributes.BlockCategory.Dirt, (short) 200));
+        blockAttributes.put(OreBlock.BlockType.StoneBlockType,
+                            new BlockAttributes("stone", BlockAttributes.Collision.True,
+                                                BlockAttributes.BlockCategory.Ore, (short) 300));
     }
 
     //each unit is 1 block(16x16 px), in the game world
-    public Block[] blocks;
+    public OreBlock[] blocks;
 
     //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
     // them alone.
@@ -141,7 +141,7 @@ public class OreWorld {
         m_client = client;
         m_server = server;
 
-        blocks = new Block[WORLD_SIZE_Y * WORLD_SIZE_X];
+        blocks = new OreBlock[WORLD_SIZE_Y * WORLD_SIZE_X];
     }
 
     void init() {
@@ -282,15 +282,15 @@ public class OreWorld {
     private void generateGrassTiles() {
         for (int x = 0; x < WORLD_SIZE_X; ++x) {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
-                Block block = blockAt(x, y);
+                OreBlock block = blockAt(x, y);
 
                 //fixme check biomes and their ranges
                 //fill the surface/exposed dirt blocks with grass blocks
-                if (block.type == Block.BlockType.DirtBlockType) {
-                    Block topBlock = blockAtSafely(x, y - 1);
+                if (block.type == OreBlock.BlockType.DirtBlockType) {
+                    OreBlock topBlock = blockAtSafely(x, y - 1);
 
-                    if (topBlock.type == Block.BlockType.NullBlockType) {
-                        block.setFlag(Block.BlockFlags.GrassBlock);
+                    if (topBlock.type == OreBlock.BlockType.NullBlockType) {
+                        block.setFlag(OreBlock.BlockFlags.GrassBlock);
                         y = WORLD_SIZE_Y;
                     }
                 }
@@ -299,18 +299,18 @@ public class OreWorld {
 
         for (int x = 0; x < WORLD_SIZE_X; ++x) {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
-                Block block = blockAt(x, y);
+                OreBlock block = blockAt(x, y);
 
-                if (block.type == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
-                    Block topBlock = blockAtSafely(x, y - 1);
-                    Block bottomBlock = blockAtSafely(x, y + 1);
-                    Block bottomLeftBlock = blockAtSafely(x - 1, y + 1);
-                    Block bottomRightBlock = blockAtSafely(x + 1, y + 1);
+                if (block.type == OreBlock.BlockType.DirtBlockType && block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
+                    OreBlock topBlock = blockAtSafely(x, y - 1);
+                    OreBlock bottomBlock = blockAtSafely(x, y + 1);
+                    OreBlock bottomLeftBlock = blockAtSafely(x - 1, y + 1);
+                    OreBlock bottomRightBlock = blockAtSafely(x + 1, y + 1);
 
                     //                    boolean leftEmpty =
 
-                    if (topBlock.type == Block.BlockType.NullBlockType) {
-                        block.setFlag(Block.BlockFlags.GrassBlock);
+                    if (topBlock.type == OreBlock.BlockType.NullBlockType) {
+                        block.setFlag(OreBlock.BlockFlags.GrassBlock);
                     }
                 }
             }
@@ -322,8 +322,8 @@ public class OreWorld {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
 
                 int index = x * WORLD_SIZE_Y + y;
-                blocks[index] = new Block();
-                blocks[index].type = Block.BlockType.NullBlockType;
+                blocks[index] = new OreBlock();
+                blocks[index].type = OreBlock.BlockType.NullBlockType;
             }
         }
     }
@@ -335,10 +335,10 @@ public class OreWorld {
                 int index = x * WORLD_SIZE_Y + y;
 
                 //java wants me to go through each and every block and initialize them..
-                Block block = new Block();
+                OreBlock block = new OreBlock();
                 blocks[index] = block;
-                block.type = Block.BlockType.NullBlockType;
-                block.wallType = Block.WallType.NullWallType;
+                block.type = OreBlock.BlockType.NullBlockType;
+                block.wallType = OreBlock.WallType.NullWallType;
 
                 //create some sky
                 if (y <= seaLevel()) {
@@ -349,20 +349,20 @@ public class OreWorld {
 
                 switch (MathUtils.random(0, 3)) {
                     case 0:
-                        block.type = Block.BlockType.NullBlockType;
+                        block.type = OreBlock.BlockType.NullBlockType;
                         break;
 
                     case 1:
-                        block.type = Block.BlockType.DirtBlockType;
+                        block.type = OreBlock.BlockType.DirtBlockType;
                         break;
                     case 2:
                         //fixme, simulate only dirt for now. blocks[index].type = Block.BlockType.StoneBlockType;
-                        block.type = Block.BlockType.DirtBlockType;
+                        block.type = OreBlock.BlockType.DirtBlockType;
                         break;
                 }
 
                 //                if (underground) {
-                block.wallType = Block.WallType.DirtUndergroundWallType;
+                block.wallType = OreBlock.WallType.DirtUndergroundWallType;
                 //               }
 
                 //                blocks[dragSourceIndex].wallType = Block::Wall
@@ -376,7 +376,7 @@ public class OreWorld {
         //        }
     }
 
-    public Block blockAtPosition(Vector2 pos) {
+    public OreBlock blockAtPosition(Vector2 pos) {
         int x = MathUtils.clamp((int) Math.floor(pos.x), 0, WORLD_SIZE_X - 1);
         int y = MathUtils.clamp((int) Math.floor(pos.y), 0, WORLD_SIZE_Y - 1);
         return blockAt(x, y);
@@ -390,7 +390,7 @@ public class OreWorld {
      *
      * @return
      */
-    public Block blockAtSafely(int x, int y) {
+    public OreBlock blockAtSafely(int x, int y) {
         return blocks[blockXSafe(x) * WORLD_SIZE_Y + blockYSafe(y)];
     }
 
@@ -402,7 +402,7 @@ public class OreWorld {
         return MathUtils.clamp(y, 0, WORLD_SIZE_Y - 1);
     }
 
-    public Block blockAt(int x, int y) {
+    public OreBlock blockAt(int x, int y) {
         assert x >= 0 && y >= 0 && x <= WORLD_SIZE_X && y <= WORLD_SIZE_Y :
                 String.format("block index out of range. x: %d, y: %d", x, y);
 
@@ -414,7 +414,7 @@ public class OreWorld {
 
         byte type = blockAt(x, y).type;
 
-        if (type == Block.BlockType.NullBlockType) {
+        if (type == OreBlock.BlockType.NullBlockType) {
             solid = false;
         }
 
@@ -447,16 +447,16 @@ public class OreWorld {
      * @return true if placement succeeded.
      */
     public boolean attemptBlockPlacement(int x, int y, byte placedBlockType) {
-        Block block = blockAtSafely(x, y);
+        OreBlock block = blockAtSafely(x, y);
 
         //attempt to place one if the area is empty
-        if (block.type == Block.BlockType.NullBlockType) {
+        if (block.type == OreBlock.BlockType.NullBlockType) {
             block.type = placedBlockType;
 
-            Block bottomBlock = blockAtSafely(x, y + 1);
-            if (bottomBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+            OreBlock bottomBlock = blockAtSafely(x, y + 1);
+            if (bottomBlock.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
                 //remove grass flag here.
-                bottomBlock.unsetFlag(Block.BlockFlags.GrassBlock);
+                bottomBlock.unsetFlag(OreBlock.BlockFlags.GrassBlock);
             }
 
             return true;
@@ -596,7 +596,7 @@ public class OreWorld {
         //check collision against blocks first
         for (int x = startX; x < endX; ++x) {
             for (int y = startY; y < endY; ++y) {
-                if (blockAt(x, y).type != Block.BlockType.NullBlockType) {
+                if (blockAt(x, y).type != OreBlock.BlockType.NullBlockType) {
                     return false;
                 }
             }
@@ -685,7 +685,7 @@ public class OreWorld {
         log("sparse block update", "loaded, count: " + update.blocks.size);
 
         for (Network.SingleSparseBlock sparseBlock : update.blocks) {
-            Block originalBlock = blockAt(sparseBlock.x, sparseBlock.y);
+            OreBlock originalBlock = blockAt(sparseBlock.x, sparseBlock.y);
             originalBlock.type = sparseBlock.block.type;
             originalBlock.wallType = sparseBlock.block.wallType;
             originalBlock.flags = sparseBlock.block.flags;
@@ -696,7 +696,7 @@ public class OreWorld {
         int sourceIndex = 0;
         for (int y = region.y; y <= region.y2; ++y) {
             for (int x = region.x; x <= region.x2; ++x) {
-                Block origBlock = blockAt(x, y);
+                OreBlock origBlock = blockAt(x, y);
                 Network.SingleBlock srcBlock = region.blocks.get(sourceIndex);
                 origBlock.type = srcBlock.type;
                 origBlock.wallType = srcBlock.wallType;

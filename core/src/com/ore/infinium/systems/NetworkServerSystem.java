@@ -464,7 +464,7 @@ public class NetworkServerSystem extends BaseSystem {
      * @param x
      * @param y
      */
-    public void sendSparseBlockBroadcast(Block block, int x, int y) {
+    public void sendSparseBlockBroadcast(OreBlock block, int x, int y) {
         throw new NotImplementedException();
     }
 
@@ -475,7 +475,7 @@ public class NetworkServerSystem extends BaseSystem {
      * @param x
      * @param y
      */
-    public void sendPlayerSingleBlock(int player, Block block, int x, int y) {
+    public void sendPlayerSingleBlock(int player, OreBlock block, int x, int y) {
         Network.SparseBlockUpdate sparseBlockUpdate = new Network.SparseBlockUpdate();
 
         sparseBlockUpdate.blocks.add(new Network.SingleSparseBlock(block, x, y));

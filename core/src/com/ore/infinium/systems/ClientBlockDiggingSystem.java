@@ -6,8 +6,8 @@ import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.ore.infinium.Block;
 import com.ore.infinium.Inventory;
+import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreClient;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
@@ -48,6 +48,10 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
     private TagManager m_tagManager;
 
+    /**
+     * the client only uses this to ensure it doesn't send a dig
+     * begin/finish more than once per block..
+     */
     public static class BlockToDig {
         int x;
         int y;
@@ -67,7 +71,8 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         /**
          * current health of a block that is getting damaged.
          */
-        public short damagedBlockHealth = 500;
+        public short damagedBlockHealth = -1;
+        public short totalBlockHealth = -1;
     }
 
     private Array<BlockToDig> m_blocksToDig = new Array<>();
@@ -105,43 +110,69 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
     private void itemSelected() {
         //changed item, cancel all active digging requests!!
-        m_blocksToDig.clear();
+        //        m_blocksToDig.clear();
+        //redundant?? we do this on each tick anyways, and event based
+        //means we need to handle more cases (player world loading and starting
+        // at a non-tool item selected.., etc)
     }
 
     //todo when the equipped item changes, abort all active digs
     @Override
     protected void processSystem() {
-        if (ableToDig()) {
+        Vector2 mouse = m_world.mousePositionWorldCoords();
+        //todo check if block is null
+
+        if (ableToDigAtPosition(blockToDig.x, blockToDig.y)) {
             attemptDig();
         }
 
-        for (int i = 0; i < m_blocksToDig.size; i++) {
+        expireOldDigRequests();
+    }
+
+    private void expireOldDigRequests() {
+        if (m_blocksToDig.size == 0) {
+            return;
+        }
+
+        int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
+
+        PlayerComponent playerComponent = playerMapper.get(player);
+        int itemEntity = playerComponent.getEquippedPrimaryItem();
+
+        ToolComponent toolComponent = toolMapper.getSafe(itemEntity);
+
+        for (int i = 0; i < m_blocksToDig.size; ++i) {
             BlockToDig blockToDig = m_blocksToDig.get(i);
 
-            Block block = m_world.blockAt(blockToDig.x, blockToDig.y);
+            OreBlock block = m_world.blockAt(blockToDig.x, blockToDig.y);
 
-            //it's already dug, must've happened sometime since, external (to this system)
-            //so cancel this request, don't notify anything.
+            /*
             if (block.type == Block.BlockType.NullBlockType) {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
+            */
 
             short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
-            //this many ticks after start tick, it should be done.
-            long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
+            if (ableToDigAtPosition(blockToDig.x, blockToDig.y)) {
 
-            if (blockToDig.clientSaysItFinished && m_gameTickSystem.ticks >= expectedTickEnd) {
-                m_blocksToDig.removeIndex(i);
             }
 
-            //when actual ticks surpass our expected ticks, by so much
-            //we assume this request times out
-            if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
+            if (toolComponent != null) {
+                //this many ticks after start tick, it should be done.
+                long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
+
+                //when actual ticks surpass our expected ticks, by so much
+                //we assume this request times out
+                if (m_gameTickSystem.getTicks() > expectedTickEnd + 10) {
+                    m_blocksToDig.removeIndex(i);
+                }
+            } else {
+                //not even a thing that can drill etc!!
+                //remove the request
 
                 m_blocksToDig.removeIndex(i);
-                continue;
             }
 
         }
@@ -153,42 +184,6 @@ public class ClientBlockDiggingSystem extends BaseSystem {
     }
 
     /**
-     * @param x
-     * @param y
-     */
-    public void blockDiggingFinished(int x, int y) {
-        for (BlockToDig blockToDig : m_blocksToDig) {
-            if (blockToDig.x == x && blockToDig.y == y) {
-                //this is our block, mark it as the client thinking/saying(or lying) it finished
-                blockToDig.clientSaysItFinished = true;
-
-                return;
-            }
-        }
-
-        //if it was never found, forget about it.
-        OreWorld.log("server, block digging system",
-                     "blockDiggingFinished message received from a client, but this block dig queued request " +
-                     "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)");
-    }
-
-    public void blockDiggingBegin(int x, int y) {
-        if (m_world.blockAt(x, y).type == Block.BlockType.NullBlockType) {
-            //odd. they sent us a block pick request, but it is already null on our end.
-            //perhaps just a harmless latency thing. ignore.
-            OreWorld.log("server, block digging system",
-                         "blockDiggingBegin we got the request to dig a block that is already null/dug. this is " +
-                         "likely just a latency issue ");
-            return;
-        }
-
-        BlockToDig blockToDig = new BlockToDig();
-        blockToDig.x = x;
-        blockToDig.y = y;
-        blockToDig.digStartTick = m_gameTickSystem.ticks;
-    }
-
-    /**
      * if the player is able/desiring to dig.
      * <p>
      * checks if the players mouse is down,
@@ -196,10 +191,15 @@ public class ClientBlockDiggingSystem extends BaseSystem {
      * an item that can dig blocks is equipped and able,
      * and so on.
      *
+     * @param x
+     * @param y
+     *
      * @return
      */
-    public boolean ableToDig() {
+    public boolean ableToDigAtPosition(int x, int y) {
         int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
+        //FIXME make this receive a vector, look at block at position,
+        //see if he has the right drill type etc to even ATTEMPT a block dig
 
         PlayerComponent playerComponent = playerMapper.get(player);
         int itemEntity = playerComponent.getEquippedPrimaryItem();
@@ -216,8 +216,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             return false;
         }
 
-        Vector2 mouse = m_world.mousePositionWorldCoords();
-        //todo check if block is null
+        OreBlock block = m_world.blockAt(x, y);
 
         return true;
     }
@@ -235,45 +234,53 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
         Vector2 mouse = m_world.mousePositionWorldCoords();
 
-        ToolComponent toolComponent = toolMapper.getSafe(itemEntity);
+        //guaranteed to have a tool, we already check that in the method call before this
+        ToolComponent toolComponent = toolMapper.get(itemEntity);
 
         int blockX = (int) (mouse.x);
         int blockY = (int) (mouse.y);
 
-        Block block = m_world.blockAt(blockX, blockY);
+        OreBlock block = m_world.blockAt(blockX, blockY);
 
-        //if any of these blocks is what we're trying to dig,
-        //and if it's not already had a finished packet sent,
+        //if any of these blocks is what we're trying to dig
         //then we need to continue digging them
         boolean found = false;
         for (BlockToDig blockToDig : m_blocksToDig) {
-            short blockTotalHealth = m_world.blockAttributes.get(block.type).blockTotalHealth;
             //block.destroy();
             if (blockToDig.x == blockX || blockToDig.y == blockY) {
                 found = true;
 
             }
 
-            blockToDig.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
+            //only decrement block health if it has some
+            if (blockToDig.damagedBlockHealth > 0) {
+                blockToDig.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
+            }
 
+            // only send dig finish packet once per block
             if (blockToDig.damagedBlockHealth <= 0 && !blockToDig.finishSent) {
                 //we killed the block
                 m_networkClientSystem.sendBlockDigFinish();
+                blockToDig.finishSent = true;
             }
         }
 
         if (!found) {
 
             //inform server we're beginning to dig this block. it will track our time.
+            //we will too, but mostly just so we know not to send these requests again
             m_networkClientSystem.sendBlockDigBegin(blockX, blockY);
 
+            short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+
             BlockToDig blockToDig = new BlockToDig();
+            blockToDig.damagedBlockHealth = totalBlockHealth;
+            blockToDig.totalBlockHealth = totalBlockHealth;
+            blockToDig.digStartTick = m_gameTickSystem.getTicks();
             blockToDig.x = blockX;
             blockToDig.y = blockY;
 
             m_blocksToDig.add(blockToDig);
         }
-
-        return;
     }
 }

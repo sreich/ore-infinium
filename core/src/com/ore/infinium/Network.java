@@ -68,7 +68,7 @@ public class Network {
         kryo.register(SparseBlockUpdate.class);
         kryo.register(SingleSparseBlock.class);
         kryo.register(SingleBlock.class);
-        kryo.register(Block.BlockType.class);
+        kryo.register(OreBlock.BlockType.class);
 
         //components
         kryo.register(AirComponent.class);
@@ -267,7 +267,7 @@ public class Network {
         SingleBlock() {
         }
 
-        public SingleBlock(Block block) {
+        public SingleBlock(OreBlock block) {
             type = block.type;
             wallType = block.wallType;
             flags = block.flags;
@@ -288,7 +288,7 @@ public class Network {
         int x;
         int y;
 
-        public SingleSparseBlock(Block _block, int x, int y) {
+        public SingleSparseBlock(OreBlock _block, int x, int y) {
             block = new SingleBlock(_block);
             this.x = x;
             this.y = y;

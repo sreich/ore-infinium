@@ -18,7 +18,7 @@ package com.ore.infinium;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class Block {
+public class OreBlock {
     /**
      * Which mesh sprite to use, aka subsprite.
      * This is utilized to cleanly decide which exact sprite(e.g. full block, corner pieces, etc.) to show for whatever
@@ -113,7 +113,7 @@ public class Block {
      * Essentially, "picks" the block from the players point of view. (aka sets it to null).
      */
     public void destroy() {
-        type = Block.BlockType.NullBlockType;
+        type = OreBlock.BlockType.NullBlockType;
         meshType = 0;
         wallType = 0;
         flags = 0;

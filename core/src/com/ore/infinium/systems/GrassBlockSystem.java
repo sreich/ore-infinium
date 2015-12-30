@@ -5,8 +5,8 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
-import com.ore.infinium.Block;
 import com.ore.infinium.LoadedViewport;
+import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -75,10 +75,10 @@ public class GrassBlockSystem extends BaseSystem {
                 int randomX = MathUtils.random(region.x, region.width);
                 int randomY = MathUtils.random(region.y, region.height);
 
-                Block block = m_world.blockAt(randomX, randomY);
+                OreBlock block = m_world.blockAt(randomX, randomY);
 
                 //pick a random block, if it has grass, try to grow outward along its edges/spread the grass
-                if (block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                if (block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
                     int leftBlockX = m_world.blockXSafe(randomX - 1);
                     int leftBlockY = m_world.blockYSafe(randomY);
 
@@ -104,32 +104,32 @@ public class GrassBlockSystem extends BaseSystem {
                     int bottomLeftBlockY = m_world.blockYSafe(randomY + 1);
 
                     //fixme move these upwards, so i can access them and divide this whole thing into method calls
-                    Block leftBlock = m_world.blockAt(leftBlockX, leftBlockY);
-                    Block rightBlock = m_world.blockAt(rightBlockX, rightBlockY);
-                    Block topBlock = m_world.blockAt(topBlockX, topBlockY);
-                    Block bottomBlock = m_world.blockAt(bottomBlockX, bottomBlockY);
-                    Block topLeftBlock = m_world.blockAt(topLeftBlockX, topLeftBlockY);
-                    Block topRightBlock = m_world.blockAt(topRightBlockX, topRightBlockY);
-                    Block bottomLeftBlock = m_world.blockAt(bottomLeftBlockX, bottomLeftBlockY);
-                    Block bottomRightBlock = m_world.blockAt(bottomRightBlockX, bottomRightBlockY);
+                    OreBlock leftBlock = m_world.blockAt(leftBlockX, leftBlockY);
+                    OreBlock rightBlock = m_world.blockAt(rightBlockX, rightBlockY);
+                    OreBlock topBlock = m_world.blockAt(topBlockX, topBlockY);
+                    OreBlock bottomBlock = m_world.blockAt(bottomBlockX, bottomBlockY);
+                    OreBlock topLeftBlock = m_world.blockAt(topLeftBlockX, topLeftBlockY);
+                    OreBlock topRightBlock = m_world.blockAt(topRightBlockX, topRightBlockY);
+                    OreBlock bottomLeftBlock = m_world.blockAt(bottomLeftBlockX, bottomLeftBlockY);
+                    OreBlock bottomRightBlock = m_world.blockAt(bottomRightBlockX, bottomRightBlockY);
 
                     //grow left
-                    if (leftBlock.type == Block.BlockType.DirtBlockType &&
-                        !leftBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    if (leftBlock.type == OreBlock.BlockType.DirtBlockType &&
+                        !leftBlock.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
 
                         int leftLeftX = m_world.blockXSafe(leftBlockX - 1);
                         int leftLeftY = leftBlockY;
-                        Block leftLeftBlock = m_world.blockAt(leftLeftX, leftLeftY);
+                        OreBlock leftLeftBlock = m_world.blockAt(leftLeftX, leftLeftY);
 
-                        if (leftLeftBlock.type == Block.BlockType.NullBlockType ||
-                            topLeftBlock.type == Block.BlockType.NullBlockType ||
-                            bottomLeftBlock.type == Block.BlockType.NullBlockType ||
-                            (bottomLeftBlock.type == Block.BlockType.DirtBlockType &&
-                             (bottomBlock.type == Block.BlockType.NullBlockType)) ||
-                            (topLeftBlock.type == Block.BlockType.DirtBlockType &&
-                             topBlock.type == Block.BlockType.NullBlockType)) {
+                        if (leftLeftBlock.type == OreBlock.BlockType.NullBlockType ||
+                            topLeftBlock.type == OreBlock.BlockType.NullBlockType ||
+                            bottomLeftBlock.type == OreBlock.BlockType.NullBlockType ||
+                            (bottomLeftBlock.type == OreBlock.BlockType.DirtBlockType &&
+                             (bottomBlock.type == OreBlock.BlockType.NullBlockType)) ||
+                            (topLeftBlock.type == OreBlock.BlockType.DirtBlockType &&
+                             topBlock.type == OreBlock.BlockType.NullBlockType)) {
 
-                            leftBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            leftBlock.setFlag(OreBlock.BlockFlags.GrassBlock);
                             //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
                             // leftLeftX, leftLeftY);
 
@@ -139,22 +139,22 @@ public class GrassBlockSystem extends BaseSystem {
                     }
 
                     //grow right
-                    if (rightBlock.type == Block.BlockType.DirtBlockType &&
-                        !rightBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    if (rightBlock.type == OreBlock.BlockType.DirtBlockType &&
+                        !rightBlock.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
 
                         int rightRightX = m_world.blockXSafe(rightBlockX + 1);
                         int rightRightY = rightBlockY;
-                        Block rightRightBlock = m_world.blockAt(rightRightX, rightRightY);
+                        OreBlock rightRightBlock = m_world.blockAt(rightRightX, rightRightY);
 
-                        if (rightRightBlock.type == Block.BlockType.NullBlockType ||
-                            topRightBlock.type == Block.BlockType.NullBlockType ||
-                            bottomRightBlock.type == Block.BlockType.NullBlockType ||
-                            (bottomRightBlock.type == Block.BlockType.DirtBlockType &&
-                             (bottomBlock.type == Block.BlockType.NullBlockType)) ||
-                            (topRightBlock.type == Block.BlockType.DirtBlockType &&
-                             topBlock.type == Block.BlockType.NullBlockType)) {
+                        if (rightRightBlock.type == OreBlock.BlockType.NullBlockType ||
+                            topRightBlock.type == OreBlock.BlockType.NullBlockType ||
+                            bottomRightBlock.type == OreBlock.BlockType.NullBlockType ||
+                            (bottomRightBlock.type == OreBlock.BlockType.DirtBlockType &&
+                             (bottomBlock.type == OreBlock.BlockType.NullBlockType)) ||
+                            (topRightBlock.type == OreBlock.BlockType.DirtBlockType &&
+                             topBlock.type == OreBlock.BlockType.NullBlockType)) {
 
-                            rightBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            rightBlock.setFlag(OreBlock.BlockFlags.GrassBlock);
                             //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
                             //                               m_server.sendPlayerSparseBlock(player,
                             // rightRightBlock, rightRightX, rightRightY);
@@ -165,18 +165,18 @@ public class GrassBlockSystem extends BaseSystem {
                     }
 
                     //grow down
-                    if (bottomBlock.type == Block.BlockType.DirtBlockType &&
-                        !bottomBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    if (bottomBlock.type == OreBlock.BlockType.DirtBlockType &&
+                        !bottomBlock.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
 
                         //only spread grass to the lower block, if that block has open space left, right, or
                         //top left, etc. (from our perspective..the block with grass, it is our right block that
                         //we are checking for empty)
-                        if (bottomLeftBlock.type == Block.BlockType.NullBlockType ||
-                            bottomRightBlock.type == Block.BlockType.NullBlockType ||
-                            leftBlock.type == Block.BlockType.NullBlockType ||
-                            rightBlock.type == Block.BlockType.NullBlockType) {
+                        if (bottomLeftBlock.type == OreBlock.BlockType.NullBlockType ||
+                            bottomRightBlock.type == OreBlock.BlockType.NullBlockType ||
+                            leftBlock.type == OreBlock.BlockType.NullBlockType ||
+                            rightBlock.type == OreBlock.BlockType.NullBlockType) {
 
-                            bottomBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            bottomBlock.setFlag(OreBlock.BlockFlags.GrassBlock);
 
                             m_networkServerSystem.sendPlayerSingleBlock(playerEntity, bottomBlock, bottomBlockX,
                                                                         bottomBlockY);
@@ -184,25 +184,25 @@ public class GrassBlockSystem extends BaseSystem {
                     }
 
                     //grow up
-                    if (topBlock.type == Block.BlockType.DirtBlockType &&
-                        !topBlock.hasFlag(Block.BlockFlags.GrassBlock)) {
+                    if (topBlock.type == OreBlock.BlockType.DirtBlockType &&
+                        !topBlock.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
 
                         //only spread grass to the upper block, if that block has open space left, right, or
                         //top left, etc. (from our perspective..the block with grass, it is our right block that
                         //we are checking for empty)
-                        if (topLeftBlock.type == Block.BlockType.NullBlockType ||
-                            topRightBlock.type == Block.BlockType.NullBlockType ||
-                            leftBlock.type == Block.BlockType.NullBlockType ||
-                            rightBlock.type == Block.BlockType.NullBlockType) {
+                        if (topLeftBlock.type == OreBlock.BlockType.NullBlockType ||
+                            topRightBlock.type == OreBlock.BlockType.NullBlockType ||
+                            leftBlock.type == OreBlock.BlockType.NullBlockType ||
+                            rightBlock.type == OreBlock.BlockType.NullBlockType) {
 
-                            topBlock.setFlag(Block.BlockFlags.GrassBlock);
+                            topBlock.setFlag(OreBlock.BlockFlags.GrassBlock);
 
                             m_networkServerSystem.sendPlayerSingleBlock(playerEntity, topBlock, topBlockX, topBlockY);
                         }
                     }
 
                     //grow top-right
-                    if (topRightBlock.type == Block.BlockType.DirtBlockType) {
+                    if (topRightBlock.type == OreBlock.BlockType.DirtBlockType) {
                         //fixme                        int topRightTopRightX = blockXSafe(topRightBlockX + 1);
                         //fixme                        int topRightTopRightY = blockYSafe(topRightBlockY + 1);
 

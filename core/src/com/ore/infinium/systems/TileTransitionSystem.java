@@ -6,7 +6,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
-import com.ore.infinium.Block;
+import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -314,43 +314,43 @@ public class TileTransitionSystem extends IntervalSystem {
         for (int x = 0; x < OreWorld.WORLD_SIZE_X; ++x) {
             for (int y = 0; y < OreWorld.WORLD_SIZE_Y; ++y) {
 
-                Block leftLeftBlock = m_world.blockAtSafely(x - 2, y);
-                Block rightRightBlock = m_world.blockAtSafely(x + 2, y);
-                Block leftBlock = m_world.blockAtSafely(x - 1, y);
-                Block rightBlock = m_world.blockAtSafely(x + 1, y);
-                Block topBlock = m_world.blockAtSafely(x, y - 1);
-                Block bottomBlock = m_world.blockAtSafely(x, y + 1);
+                OreBlock leftLeftBlock = m_world.blockAtSafely(x - 2, y);
+                OreBlock rightRightBlock = m_world.blockAtSafely(x + 2, y);
+                OreBlock leftBlock = m_world.blockAtSafely(x - 1, y);
+                OreBlock rightBlock = m_world.blockAtSafely(x + 1, y);
+                OreBlock topBlock = m_world.blockAtSafely(x, y - 1);
+                OreBlock bottomBlock = m_world.blockAtSafely(x, y + 1);
 
-                Block topLeftBlock = m_world.blockAtSafely(x - 1, y - 1);
-                Block topRightBlock = m_world.blockAtSafely(x + 1, y - 1);
-                Block bottomLeftBlock = m_world.blockAtSafely(x - 1, y + 1);
-                Block bottomRightBlock = m_world.blockAtSafely(x + 1, y + 1);
+                OreBlock topLeftBlock = m_world.blockAtSafely(x - 1, y - 1);
+                OreBlock topRightBlock = m_world.blockAtSafely(x + 1, y - 1);
+                OreBlock bottomLeftBlock = m_world.blockAtSafely(x - 1, y + 1);
+                OreBlock bottomRightBlock = m_world.blockAtSafely(x + 1, y + 1);
 
-                Block block = m_world.blockAtSafely(x, y);
-                if (block.type == Block.BlockType.DirtBlockType && block.hasFlag(Block.BlockFlags.GrassBlock)) {
+                OreBlock block = m_world.blockAtSafely(x, y);
+                if (block.type == OreBlock.BlockType.DirtBlockType && block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
 
                     //should have grass on left side of this block..or not.
-                    boolean leftEmpty = leftBlock.type == Block.BlockType.NullBlockType;
-                    boolean leftLeftEmpty = leftLeftBlock.type == Block.BlockType.NullBlockType;
+                    boolean leftEmpty = leftBlock.type == OreBlock.BlockType.NullBlockType;
+                    boolean leftLeftEmpty = leftLeftBlock.type == OreBlock.BlockType.NullBlockType;
 
-                    boolean rightEmpty = rightBlock.type == Block.BlockType.NullBlockType;
-                    boolean rightRightEmpty = rightRightBlock.type == Block.BlockType.NullBlockType;
+                    boolean rightEmpty = rightBlock.type == OreBlock.BlockType.NullBlockType;
+                    boolean rightRightEmpty = rightRightBlock.type == OreBlock.BlockType.NullBlockType;
 
-                    boolean topEmpty = topBlock.type == Block.BlockType.NullBlockType;
+                    boolean topEmpty = topBlock.type == OreBlock.BlockType.NullBlockType;
 
-                    boolean bottomEmpty = bottomBlock.type == Block.BlockType.NullBlockType;
+                    boolean bottomEmpty = bottomBlock.type == OreBlock.BlockType.NullBlockType;
 
                     //if block to the left is dirt..
-                    boolean leftDirt = leftBlock.type == Block.BlockType.DirtBlockType;
-                    boolean rightDirt = rightBlock.type == Block.BlockType.DirtBlockType;
-                    boolean topDirt = topBlock.type == Block.BlockType.DirtBlockType;
-                    boolean bottomDirt = bottomBlock.type == Block.BlockType.DirtBlockType;
+                    boolean leftDirt = leftBlock.type == OreBlock.BlockType.DirtBlockType;
+                    boolean rightDirt = rightBlock.type == OreBlock.BlockType.DirtBlockType;
+                    boolean topDirt = topBlock.type == OreBlock.BlockType.DirtBlockType;
+                    boolean bottomDirt = bottomBlock.type == OreBlock.BlockType.DirtBlockType;
 
                     //handled a bit differently,
-                    boolean topLeftEmpty = topLeftBlock.type == Block.BlockType.NullBlockType;
-                    boolean topRightEmpty = topRightBlock.type == Block.BlockType.NullBlockType;
-                    boolean bottomLeftEmpty = bottomLeftBlock.type == Block.BlockType.NullBlockType;
-                    boolean bottomRightEmpty = bottomRightBlock.type == Block.BlockType.NullBlockType;
+                    boolean topLeftEmpty = topLeftBlock.type == OreBlock.BlockType.NullBlockType;
+                    boolean topRightEmpty = topRightBlock.type == OreBlock.BlockType.NullBlockType;
+                    boolean bottomLeftEmpty = bottomLeftBlock.type == OreBlock.BlockType.NullBlockType;
+                    boolean bottomRightEmpty = bottomRightBlock.type == OreBlock.BlockType.NullBlockType;
 
                     boolean leftOre = m_world.blockAttributes.get(leftBlock.type).category ==
                                       OreWorld.BlockAttributes.BlockCategory.Ore;
@@ -461,14 +461,14 @@ public class TileTransitionSystem extends IntervalSystem {
             for (int y = 0; y < OreWorld.WORLD_SIZE_Y; ++y) {
                 int index = x * OreWorld.WORLD_SIZE_Y + y;
 
-                if (m_world.blocks[index].type == Block.BlockType.NullBlockType) {
+                if (m_world.blocks[index].type == OreBlock.BlockType.NullBlockType) {
                     continue;
                 }
 
-                if (m_world.blocks[index].type == Block.BlockType.DirtBlockType) {
+                if (m_world.blocks[index].type == OreBlock.BlockType.DirtBlockType) {
                     //fixme may be able to be made generic. MAYBE.
                     transitionDirtTile(x, y);
-                } else if (m_world.blocks[index].type == Block.BlockType.StoneBlockType) {
+                } else if (m_world.blocks[index].type == OreBlock.BlockType.StoneBlockType) {
                     transitionStoneTile(x, y);
                 }
             }
