@@ -180,7 +180,7 @@ public class MovementSystem extends IteratingSystem {
         int x = (int) itemPosition.x;
         int y = (int) itemPosition.y;
 
-        int playerEntityWhoDropped = m_world.playerForID(itemComponent.playerIdWhoDropped);
+        int playerEntityWhoDropped = m_world.playerEntityForPlayerID(itemComponent.playerIdWhoDropped);
 
         VelocityComponent playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped);
         Vector2 playerVelocity = new Vector2(playerVelocityComponent.velocity);

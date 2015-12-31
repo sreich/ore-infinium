@@ -121,7 +121,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
             final OreBlock block = m_world.blockAt(blockToDig.x, blockToDig.y);
 
-            final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+            //final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
             if (!ableToDigAtIndex(blockToDig.x, blockToDig.y)) {
                 //not even a thing that can dig, or they are no longer digging
@@ -130,8 +130,10 @@ public class ClientBlockDiggingSystem extends BaseSystem {
                 continue;
             }
 
+            float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
+
             //this many ticks after start tick, it should have already been destroyed
-            final long expectedTickEnd = blockToDig.digStartTick + (totalBlockHealth / toolComponent.blockDamage);
+            final long expectedTickEnd = blockToDig.digStartTick + (int) (blockToDig.totalBlockHealth / damagePerTick);
 
             //when actual ticks surpass our expected ticks, by so much
             //we assume this request times out
@@ -219,7 +221,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
             //only decrement block health if it has some
             if (blockToDig.damagedBlockHealth > 0) {
-                blockToDig.damagedBlockHealth -= (m_world.m_artemisWorld.getDelta() * toolComponent.blockDamage);
+                blockToDig.damagedBlockHealth -= (getWorld().getDelta() * toolComponent.blockDamage);
             }
 
             // only send dig finish packet once per block
@@ -227,7 +229,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
                 blockToDig.finishSent = true;
 
                 //we killed the block
-                m_networkClientSystem.sendBlockDigFinish();
+                m_networkClientSystem.sendBlockDigFinish(blockX, blockY);
             }
         }
 

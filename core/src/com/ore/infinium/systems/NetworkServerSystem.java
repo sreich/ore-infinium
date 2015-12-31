@@ -409,7 +409,7 @@ public class NetworkServerSystem extends BaseSystem {
      */
     private void receiveBlockDigBegin(NetworkJob job) {
         Network.BlockDigBeginFromClient data = ((Network.BlockDigBeginFromClient) job.object);
-        m_Server_blockDiggingSystem.blockDiggingBegin(data.x, data.y);
+        m_Server_blockDiggingSystem.blockDiggingBegin(data.x, data.y, job.connection.player);
     }
 
     private void receivePlayerMoveInventoryItem(NetworkJob job) {

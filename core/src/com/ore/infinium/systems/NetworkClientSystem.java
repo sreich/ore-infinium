@@ -391,8 +391,10 @@ public class NetworkClientSystem extends BaseSystem {
         m_clientKryo.sendTCP(blockDigFromClient);
     }
 
-    public void sendBlockDigFinish() {
+    public void sendBlockDigFinish(int blockX, int blockY) {
         Network.BlockDigFinishFromClient blockDigFromClient = new Network.BlockDigFinishFromClient();
+        blockDigFromClient.x = blockX;
+        blockDigFromClient.y = blockY;
         m_clientKryo.sendTCP(blockDigFromClient);
     }
 

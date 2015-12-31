@@ -96,7 +96,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 continue;
             }
 
-            int playerEntityId = m_world.playerForID(blockToDig.playerId);
+            int playerEntityId = m_world.playerEntityForPlayerID(blockToDig.playerId);
             PlayerComponent playerComponent = playerMapper.get(playerEntityId);
 
             int equippedItemEntityId = playerComponent.getEquippedPrimaryItem();
@@ -111,13 +111,17 @@ public class ServerBlockDiggingSystem extends BaseSystem {
 
             short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
-            //this many ticks after start tick, it should be done.
-            long expectedTickEnd = blockToDig.digStartTick + (totalBlockHealth / toolComponent.blockDamage);
+            float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
+
+            //this many ticks after start tick, it should have already been destroyed
+            final long expectedTickEnd = blockToDig.digStartTick + (int) (totalBlockHealth / damagePerTick);
 
             if (blockToDig.clientSaysItFinished && m_gameTickSystem.getTicks() >= expectedTickEnd) {
                 block.destroy();
                 //todo tell all clients that it was officially dug--but first we want to implement chunking
                 // though!!
+
+                OreWorld.log("server, block digging system", "processSystem block succeeded. sending");
                 m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, block, blockToDig.x, blockToDig.y);
 
                 //remove fulfilled request from our queue.
@@ -133,7 +137,6 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                              "processSystem block digging request timed out. this could be normal.");
                 m_blocksToDig.removeIndex(i);
             }
-
         }
     }
 
@@ -150,6 +153,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
             if (blockToDig.x == x && blockToDig.y == y) {
                 //this is our block, mark it as the client thinking/saying(or lying) it finished
                 blockToDig.clientSaysItFinished = true;
+                OreWorld.log("server, block digging system", "blockDiggingFinished - client said so it finished");
 
                 return;
             }
@@ -161,7 +165,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                      "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)");
     }
 
-    public void blockDiggingBegin(int x, int y) {
+    public void blockDiggingBegin(int x, int y, int playerEntity) {
         if (m_world.blockAt(x, y).type == OreBlock.BlockType.NullBlockType) {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
@@ -172,8 +176,10 @@ public class ServerBlockDiggingSystem extends BaseSystem {
         }
 
         BlockToDig blockToDig = new BlockToDig();
+        blockToDig.playerId = playerMapper.get(playerEntity).connectionPlayerId;
         blockToDig.x = x;
         blockToDig.y = y;
         blockToDig.digStartTick = m_gameTickSystem.getTicks();
+        m_blocksToDig.add(blockToDig);
     }
 }

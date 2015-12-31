@@ -682,7 +682,7 @@ public class OreWorld {
     }
 
     public void loadSparseBlockUpdate(Network.SparseBlockUpdate update) {
-        log("sparse block update", "loaded, count: " + update.blocks.size);
+        //log("sparse block update", "loaded, count: " + update.blocks.size);
 
         for (Network.SingleSparseBlock sparseBlock : update.blocks) {
             OreBlock originalBlock = blockAt(sparseBlock.x, sparseBlock.y);
@@ -692,6 +692,7 @@ public class OreWorld {
         }
     }
 
+    //todo this is reallllly bad, extremely frequent loads
     public void loadBlockRegion(Network.BlockRegion region) {
         int sourceIndex = 0;
         for (int y = region.y; y <= region.y2; ++y) {
@@ -708,7 +709,7 @@ public class OreWorld {
             }
         }
 
-        log("block region", String.format("loaded %s tiles", sourceIndex));
+        //log("block region", String.format("loaded %s tiles", sourceIndex));
 
         //fixme should re transition tiles in this area
     }
@@ -827,7 +828,7 @@ public class OreWorld {
      *
      * @return the player entity
      */
-    public int playerForID(int playerId) {
+    public int playerEntityForPlayerID(int playerId) {
         IntBag entities =
                 m_artemisWorld.getAspectSubscriptionManager().get(Aspect.all(PlayerComponent.class)).getEntities();
         PlayerComponent playerComponent;

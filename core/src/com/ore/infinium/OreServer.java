@@ -128,12 +128,12 @@ public class OreServer implements Runnable {
         //TODO:make better server player first-spawning code
         //TODO: (much later) make it try to load the player position from previous world data, if any.
         float posX = 200;
-        float posY = 2; //start at the overground
+        float posY = 0; //start at the overground
         int tilex = (int) (posX);
         int tiley = (int) (posY);
 
         //fixme for collision test shouldn't be so...gross. as of 2015-12-14 idk wtf this is, delete it
-        posY = 24;
+        posY = 34;
 
         final int seaLevel = m_world.seaLevel();
 
