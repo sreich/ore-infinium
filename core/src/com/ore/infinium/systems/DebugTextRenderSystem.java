@@ -71,6 +71,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     private TagManager m_tagManager;
     private NetworkClientSystem m_networkClientSystem;
     private TileRenderSystem m_tileRenderSystem;
+    private ClientBlockDiggingSystem m_clientBlockDiggingSystem;
 
     static private ArrayList<String> debugStrings;
 
@@ -228,16 +229,17 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, drawCallsString, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
-        float damagedBlockHealth =
-                playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer).getId()).damagedBlockHealth;
-        m_font.draw(m_batch, "blockHealth: " + damagedBlockHealth + " / ??", TEXT_X_LEFT, m_textYLeft);
-        m_textYLeft -= TEXT_Y_SPACING;
-
         Vector2 mousePos = m_world.mousePositionWorldCoords();
         OreBlock block = m_world.blockAtPosition(mousePos);
 
         int x = (int) mousePos.x;
         int y = (int) mousePos.y;
+
+        short damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y);
+        short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+
+        m_font.draw(m_batch, "blockHealth: " + damagedBlockHealth + " / " + totalBlockHealth, TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
 
         String texture = "";
 
@@ -421,4 +423,5 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, builder.toString(), TEXT_X_RIGHT, m_textYRight);
 
     }
+
 }

@@ -274,4 +274,14 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             m_blocksToDig.add(blockToDig);
         }
     }
+
+    public short blockHealthAtIndex(int x, int y) {
+        for (BlockToDig blockToDig : m_blocksToDig) {
+            if (blockToDig.x == x && blockToDig.y == y) {
+                return blockToDig.damagedBlockHealth;
+            }
+        }
+
+        return -1;
+    }
 }

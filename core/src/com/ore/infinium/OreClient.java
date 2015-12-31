@@ -20,7 +20,6 @@ import com.ore.infinium.systems.ClientBlockDiggingSystem;
 import com.ore.infinium.systems.DebugTextRenderSystem;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.PowerOverlayRenderSystem;
-import com.ore.infinium.utils.Vector2i;
 
 import java.io.IOException;
 
@@ -513,25 +512,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     @Override
     public boolean mouseMoved(int screenX, int screenY) {
-        if (m_world != null && m_networkClientSystem.connected) {
-
-            Vector2 mouse = m_world.mousePositionWorldCoords();
-
-            int blockX = (int) (mouse.x);
-            int blockY = (int) (mouse.y);
-
-            OreBlock block = m_world.blockAtSafely(blockX, blockY);
-
-            PlayerComponent playerComponent = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
-            //check if we moved mouse position enough to fall on a different block. if so, abort digging
-            //if it was ever in progress
-            if (playerComponent.lastDiggingBlock.x != blockX || playerComponent.lastDiggingBlock.y != blockY) {
-                playerComponent.lastDiggingBlock.x = -1;
-                playerComponent.lastDiggingBlock.y = -1;
-                playerComponent.damagedBlockHealth = 0;
-            }
-        }
-
         return false;
     }
 
@@ -594,7 +574,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         if (mainPlayer) {
             m_tagManager.register(OreWorld.s_mainPlayer, player);
-            playerComponent.lastDiggingBlock = new Vector2i();
         }
 
         //select the first slot, so the inventory view highlights something.
