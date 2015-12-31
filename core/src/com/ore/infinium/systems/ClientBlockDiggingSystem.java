@@ -125,7 +125,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         int blockX = (int) (mouse.x);
         int blockY = (int) (mouse.y);
 
-        if (ableToDigAtPosition(blockX, blockY)) {
+        if (ableToDigAtIndex(blockX, blockY)) {
             dig();
         }
 
@@ -149,37 +149,24 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
             OreBlock block = m_world.blockAt(blockToDig.x, blockToDig.y);
 
-            /*
-            if (block.type == Block.BlockType.NullBlockType) {
+            short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+
+            if (!ableToDigAtIndex(blockToDig.x, blockToDig.y)) {
+                //not even a thing that can drill etc!!
+                //remove the request
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
-            */
 
-            short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+            //this many ticks after start tick, it should have already been destroyed
+            long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
 
-            if (ableToDigAtPosition(blockToDig.x, blockToDig.y)) {
-
-            }
-
-            if (toolComponent != null) {
-                //this many ticks after start tick, it should be done.
-                long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
-
-                //when actual ticks surpass our expected ticks, by so much
-                //we assume this request times out
-                if (m_gameTickSystem.getTicks() > expectedTickEnd + 10) {
-                    m_blocksToDig.removeIndex(i);
-                }
-            } else {
-                //not even a thing that can drill etc!!
-                //remove the request
-
+            //when actual ticks surpass our expected ticks, by so much
+            //we assume this request times out
+            if (m_gameTickSystem.getTicks() > expectedTickEnd + 10) {
                 m_blocksToDig.removeIndex(i);
             }
-
         }
-
     }
 
     @Override
@@ -196,7 +183,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
      *
      * @return
      */
-    public boolean ableToDigAtPosition(int x, int y) {
+    public boolean ableToDigAtIndex(int x, int y) {
         int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
         //FIXME make this receive a vector, look at block at position,
         //see if he has the right drill type etc to even ATTEMPT a block dig
@@ -227,7 +214,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
     /**
      * dig at the player mouse position.
      * does not verify if it can or should be done,
-     * but does
+     * but does handle telling the server it will be/is finished digging
      */
     public void dig() {
         int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
@@ -262,9 +249,10 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
             // only send dig finish packet once per block
             if (blockToDig.damagedBlockHealth <= 0 && !blockToDig.finishSent) {
+                blockToDig.finishSent = true;
+
                 //we killed the block
                 m_networkClientSystem.sendBlockDigFinish();
-                blockToDig.finishSent = true;
             }
         }
 

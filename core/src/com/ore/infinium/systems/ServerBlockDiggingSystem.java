@@ -84,7 +84,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
     //todo when the equipped item changes, abort all active digs for that player
     @Override
     protected void processSystem() {
-        for (int i = 0; i < m_blocksToDig.size; i++) {
+        for (int i = 0; i < m_blocksToDig.size; ++i) {
             BlockToDig blockToDig = m_blocksToDig.get(i);
 
             OreBlock block = m_world.blockAt(blockToDig.x, blockToDig.y);
@@ -114,7 +114,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
             //this many ticks after start tick, it should be done.
             long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
 
-            if (blockToDig.clientSaysItFinished && m_gameTickSystem.ticks >= expectedTickEnd) {
+            if (blockToDig.clientSaysItFinished && m_gameTickSystem.getTicks() >= expectedTickEnd) {
                 block.destroy();
                 //todo tell all clients that it was officially dug--but first we want to implement chunking
                 // though!!
@@ -122,16 +122,16 @@ public class ServerBlockDiggingSystem extends BaseSystem {
 
                 //remove fulfilled request from our queue.
                 m_blocksToDig.removeIndex(i);
+                continue;
             }
 
             //when actual ticks surpass our expected ticks, by so much
             //we assume this request times out
-            if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
+            if (m_gameTickSystem.getTicks() > expectedTickEnd + 10) {
 
                 OreWorld.log("server, block digging system",
                              "processSystem block digging request timed out. this could be normal.");
                 m_blocksToDig.removeIndex(i);
-                continue;
             }
 
         }
@@ -174,6 +174,6 @@ public class ServerBlockDiggingSystem extends BaseSystem {
         BlockToDig blockToDig = new BlockToDig();
         blockToDig.x = x;
         blockToDig.y = y;
-        blockToDig.digStartTick = m_gameTickSystem.ticks;
+        blockToDig.digStartTick = m_gameTickSystem.getTicks();
     }
 }
