@@ -122,8 +122,11 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         Vector2 mouse = m_world.mousePositionWorldCoords();
         //todo check if block is null
 
-        if (ableToDigAtPosition(blockToDig.x, blockToDig.y)) {
-            attemptDig();
+        int blockX = (int) (mouse.x);
+        int blockY = (int) (mouse.y);
+
+        if (ableToDigAtPosition(blockX, blockY)) {
+            dig();
         }
 
         expireOldDigRequests();
@@ -184,12 +187,9 @@ public class ClientBlockDiggingSystem extends BaseSystem {
     }
 
     /**
-     * if the player is able/desiring to dig.
      * <p>
-     * checks if the players mouse is down,
-     * we are in an active input state (no GUI is open),
-     * an item that can dig blocks is equipped and able,
-     * and so on.
+     * checks if an item that can dig blocks is equipped and able
+     * to pick the bloxk at the given block indices
      *
      * @param x
      * @param y
@@ -217,16 +217,19 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         }
 
         OreBlock block = m_world.blockAt(x, y);
+        if (block.type == OreBlock.BlockType.NullBlockType) {
+            return false;
+        }
 
         return true;
     }
 
     /**
-     * attempt to dig at the player mouse position.
-     * <p>
-     * etc.
+     * dig at the player mouse position.
+     * does not verify if it can or should be done,
+     * but does
      */
-    public void attemptDig() {
+    public void dig() {
         int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
 
         PlayerComponent playerComponent = playerMapper.get(player);
