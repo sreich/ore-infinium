@@ -112,7 +112,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
             short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
             //this many ticks after start tick, it should be done.
-            long expectedTickEnd = totalBlockHealth / toolComponent.blockDamage;
+            long expectedTickEnd = blockToDig.digStartTick + (totalBlockHealth / toolComponent.blockDamage);
 
             if (blockToDig.clientSaysItFinished && m_gameTickSystem.getTicks() >= expectedTickEnd) {
                 block.destroy();

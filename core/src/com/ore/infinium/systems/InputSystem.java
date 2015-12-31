@@ -51,7 +51,6 @@ import com.ore.infinium.systems.profiler.SystemProfiler;
     public InputSystem(OrthographicCamera camera, OreWorld world) {
         m_camera = camera;
         m_world = world;
-
     }
 
     @Override

@@ -160,6 +160,11 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         ItemComponent itemComponent = itemMapper.getSafe(itemEntity);
         if (itemComponent != null) {
+            //ignore tools and such, can't place those
+            if (toolMapper.has(itemEntity)) {
+                return;
+            }
+
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset();
 
