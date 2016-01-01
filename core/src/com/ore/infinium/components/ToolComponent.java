@@ -27,7 +27,7 @@ public class ToolComponent extends Component {
     public float attackRadius = 10.0f;
 
     //damage tool does to blocks
-    public int blockDamage;
+    public float blockDamage;
 
     public enum ToolType {
         Drill,

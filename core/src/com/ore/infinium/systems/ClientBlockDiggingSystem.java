@@ -70,8 +70,11 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         /**
          * current health of a block that is getting damaged.
          */
-        public short damagedBlockHealth = -1;
-        public short totalBlockHealth = -1;
+        public float damagedBlockHealth = -1;
+        public float totalBlockHealth = -1;
+
+        //hack
+        public short ticksTook = 0;
     }
 
     private Array<BlockToDig> m_blocksToDig = new Array<>();
@@ -222,6 +225,11 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             //only decrement block health if it has some
             if (blockToDig.damagedBlockHealth > 0) {
                 blockToDig.damagedBlockHealth -= (getWorld().getDelta() * toolComponent.blockDamage);
+                blockToDig.ticksTook += 1;
+
+                OreWorld.log("client, block digging system",
+                             "processSystem damaged block health" + blockToDig.damagedBlockHealth + " damagepertick: " +
+                             (getWorld().getDelta() * toolComponent.blockDamage));
             }
 
             // only send dig finish packet once per block
@@ -230,6 +238,10 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
                 //we killed the block
                 m_networkClientSystem.sendBlockDigFinish(blockX, blockY);
+
+                OreWorld.log("client, block digging system",
+                             "processSystem finish! tick taken:  " + blockToDig.ticksTook);
+                return;
             }
         }
 
@@ -239,7 +251,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             //we will too, but mostly just so we know not to send these requests again
             m_networkClientSystem.sendBlockDigBegin(blockX, blockY);
 
-            final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+            final float totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
             BlockToDig blockToDig = new BlockToDig();
             blockToDig.damagedBlockHealth = totalBlockHealth;
@@ -252,7 +264,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         }
     }
 
-    public short blockHealthAtIndex(int x, int y) {
+    public float blockHealthAtIndex(int x, int y) {
         for (BlockToDig blockToDig : m_blocksToDig) {
             if (blockToDig.x == x && blockToDig.y == y) {
                 return blockToDig.damagedBlockHealth;

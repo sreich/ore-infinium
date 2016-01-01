@@ -109,7 +109,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 continue;
             }
 
-            short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+            float totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
             float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
 
@@ -128,6 +128,9 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
+            OreWorld.log("server, block digging system",
+                         "processSystem server doesn't think it's been dug long enough, damagepertick: " +
+                         damagePerTick);
 
             //when actual ticks surpass our expected ticks, by so much
             //we assume this request times out

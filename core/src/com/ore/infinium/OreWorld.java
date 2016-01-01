@@ -907,7 +907,7 @@ public class OreWorld {
         /**
          * max starting health of the block
          */
-        public short blockTotalHealth;
+        public float blockTotalHealth;
 
         //if this type is a type of ore (like stone, copper, ...)
         public enum BlockCategory {

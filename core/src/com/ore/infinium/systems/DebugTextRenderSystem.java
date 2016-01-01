@@ -232,11 +232,11 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         Vector2 mousePos = m_world.mousePositionWorldCoords();
         OreBlock block = m_world.blockAtPosition(mousePos);
 
-        int x = (int) mousePos.x;
-        int y = (int) mousePos.y;
+        final int x = (int) mousePos.x;
+        final int y = (int) mousePos.y;
 
-        short damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y);
-        short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+        final float damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y);
+        final float totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
         m_font.draw(m_batch, "blockHealth: " + damagedBlockHealth + " / " + totalBlockHealth, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
