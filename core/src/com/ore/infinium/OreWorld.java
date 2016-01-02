@@ -483,11 +483,10 @@ public class OreWorld {
     }
 
     /**
-     * @param block
-     *         block entity id
      * @param blockType
      */
-    public void createBlockItem(int block, byte blockType) {
+    public int createBlockItem(byte blockType) {
+        final int block = m_artemisWorld.create();
         velocityMapper.create(block);
 
         BlockComponent blockComponent = blockMapper.create(block);
@@ -501,6 +500,8 @@ public class OreWorld {
         ItemComponent itemComponent = itemMapper.create(block);
         itemComponent.stackSize = 800;
         itemComponent.maxStackSize = 900;
+
+        return block;
     }
 
     public int createLight() {

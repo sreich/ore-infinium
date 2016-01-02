@@ -155,7 +155,7 @@ public class NetworkServerSystem extends BaseSystem {
      * @param entityId
      * @param connectionId
      */
-    private void sendSpawnEntity(int entityId, int connectionId) {
+    public void sendSpawnEntity(int entityId, int connectionId) {
         Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
         spawn.components = serializeComponents(entityId);
         spawn.id = entityId;
@@ -367,7 +367,7 @@ public class NetworkServerSystem extends BaseSystem {
         SpriteComponent droppedItemSprite = spriteMapper.get(droppedItem);
 
         itemDroppedComponent.sizeBeforeDrop =
-                new Vector2(droppedItemSprite.sprite.getX(), droppedItemSprite.sprite.getY());
+                new Vector2(droppedItemSprite.sprite.getWidth(), droppedItemSprite.sprite.getHeight());
 
         //shrink the size of all dropped items, but also store the original size first, so we can revert later
         droppedItemSprite.sprite.setSize(droppedItemSprite.sprite.getWidth() * 0.5f,

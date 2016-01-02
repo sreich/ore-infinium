@@ -4,6 +4,7 @@ import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.TagManager;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
@@ -117,13 +118,27 @@ public class ServerBlockDiggingSystem extends BaseSystem {
             final long expectedTickEnd = blockToDig.digStartTick + (int) (totalBlockHealth / damagePerTick);
 
             if (blockToDig.clientSaysItFinished && m_gameTickSystem.getTicks() >= expectedTickEnd) {
-                block.destroy();
                 //todo tell all clients that it was officially dug--but first we want to implement chunking
                 // though!!
 
                 OreWorld.log("server, block digging system", "processSystem block succeeded. sending");
                 m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, block, blockToDig.x, blockToDig.y);
 
+                final int droppedBlock = m_world.createBlockItem(block.type);
+                SpriteComponent spriteComponent = spriteMapper.get(droppedBlock);
+                spriteComponent.sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f);
+                spriteComponent.sprite.setSize(0.5f, 0.5f);
+
+                ItemComponent itemComponent = itemMapper.get(droppedBlock);
+                itemComponent.sizeBeforeDrop = new Vector2(1, 1);
+
+                itemComponent.stackSize = 1;
+                itemComponent.state = ItemComponent.State.DroppedInWorld;
+                itemComponent.playerIdWhoDropped = playerComponent.connectionPlayerId;
+
+                m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
+
+                block.destroy();
                 //remove fulfilled request from our queue.
                 m_blocksToDig.removeIndex(i);
                 continue;

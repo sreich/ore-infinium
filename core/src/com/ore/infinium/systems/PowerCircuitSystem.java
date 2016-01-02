@@ -151,7 +151,7 @@ public class PowerCircuitSystem extends BaseSystem {
                 int consumer = circuit.consumers.get(j);
 
                 PowerConsumerComponent consumerComponent = powerConsumerMapper.get(consumer);
-                circuit.totalSupply += consumerComponent.powerDemandRate;
+                circuit.totalDemand += consumerComponent.powerDemandRate;
             }
         }
     }

@@ -194,7 +194,7 @@ public class OreServer implements Runnable {
 
         ToolComponent drillToolComponent = toolMapper.create(drill);
         drillToolComponent.type = ToolComponent.ToolType.Drill;
-        drillToolComponent.blockDamage = 50;
+        drillToolComponent.blockDamage = 400;
 
         SpriteComponent toolSprite = spriteMapper.create(drill);
         toolSprite.textureName = "drill";
@@ -212,8 +212,7 @@ public class OreServer implements Runnable {
         PlayerComponent playerComponent = playerMapper.get(playerEntity);
         playerComponent.hotbarInventory.setSlot((byte) 0, drill);
 
-        final int dirtBlock = m_world.m_artemisWorld.create();
-        m_world.createBlockItem(dirtBlock, OreBlock.BlockType.DirtBlockType);
+        final int dirtBlock = m_world.createBlockItem(OreBlock.BlockType.DirtBlockType);
 
         ItemComponent dirtBlockItemComponent = itemMapper.get(dirtBlock);
         dirtBlockItemComponent.inventoryIndex = 1;
@@ -221,8 +220,7 @@ public class OreServer implements Runnable {
 
         playerComponent.hotbarInventory.setSlot((byte) 1, dirtBlock);
 
-        final int stoneBlock = m_world.m_artemisWorld.create();
-        m_world.createBlockItem(stoneBlock, OreBlock.BlockType.StoneBlockType);
+        final int stoneBlock = m_world.createBlockItem(OreBlock.BlockType.StoneBlockType);
 
         ItemComponent stoneBlockItemComponent = itemMapper.get(stoneBlock);
         stoneBlockItemComponent.inventoryIndex = 2;
