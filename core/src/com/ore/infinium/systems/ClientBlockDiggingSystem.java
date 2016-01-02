@@ -226,10 +226,6 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             if (blockToDig.damagedBlockHealth > 0) {
                 blockToDig.damagedBlockHealth -= (getWorld().getDelta() * toolComponent.blockDamage);
                 blockToDig.ticksTook += 1;
-
-                OreWorld.log("client, block digging system",
-                             "processSystem damaged block health" + blockToDig.damagedBlockHealth + " damagepertick: " +
-                             (getWorld().getDelta() * toolComponent.blockDamage));
             }
 
             // only send dig finish packet once per block

@@ -143,9 +143,6 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
-            OreWorld.log("server, block digging system",
-                         "processSystem server doesn't think it's been dug long enough, damagepertick: " +
-                         damagePerTick);
 
             //when actual ticks surpass our expected ticks, by so much
             //we assume this request times out
