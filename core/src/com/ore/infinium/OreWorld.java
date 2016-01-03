@@ -553,7 +553,7 @@ public class OreWorld {
         SpriteComponent sprite = spriteMapper.create(power);
         sprite.textureName = "air-generator-64x64";
 
-        sprite.sprite.setSize(3, 3);
+        sprite.sprite.setSize(4, 4);
 
         PowerGeneratorComponent powerComponent = powerGeneratorMapper.create(power);
         powerComponent.powerSupplyRate = 100;

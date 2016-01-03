@@ -115,7 +115,8 @@ public class OreBlock {
     public void destroy() {
         type = OreBlock.BlockType.NullBlockType;
         meshType = 0;
-        wallType = 0;
+        //don't think we wanna nullify that??
+        //wallType = 0;
         flags = 0;
     }
 
