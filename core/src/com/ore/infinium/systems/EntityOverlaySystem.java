@@ -204,7 +204,8 @@ public class EntityOverlaySystem extends BaseSystem {
         Vector2 crosshairPosition = new Vector2(mouse);
 
         //fixme this might not work..remove above dead code too
-        m_world.alignPositionToBlocks(crosshairPosition);
+        m_world.alignPositionToBlocks(crosshairPosition, new Vector2(spriteComponent.sprite.getWidth(),
+                                                                     spriteComponent.sprite.getHeight()));
 
         Vector2 crosshairOriginOffset =
                 new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
@@ -223,10 +224,11 @@ public class EntityOverlaySystem extends BaseSystem {
 
         int itemPlacementOverlayEntity = entity.getId();
 
-        Vector2 mouse = m_world.mousePositionWorldCoords();
-        m_world.alignPositionToBlocks(mouse);
-
         SpriteComponent spriteComponent = spriteMapper.get(itemPlacementOverlayEntity);
+
+        Vector2 mouse = m_world.mousePositionWorldCoords();
+        m_world.alignPositionToBlocks(mouse, new Vector2(spriteComponent.sprite.getWidth(),
+                                                         spriteComponent.sprite.getHeight()));
 
         float halfWidth = 0.0f;//spriteComponent.sprite.getWidth() * 0.5f;
         float halfHeight = 0.0f;//spriteComponent.sprite.getHeight() * 0.5f;

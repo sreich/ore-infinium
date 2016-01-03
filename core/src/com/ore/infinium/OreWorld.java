@@ -474,8 +474,21 @@ public class OreWorld {
         return new Vector2(finalMouse.x, finalMouse.y);
     }
 
-    public void alignPositionToBlocks(Vector2 pos) {
-        pos.set(MathUtils.floor(pos.x), MathUtils.floor(pos.y));
+    public void alignPositionToBlocks(Vector2 pos, Vector2 size) {
+        float x = MathUtils.floor(pos.x);
+        float y = MathUtils.floor(pos.y);
+
+        //if size is odd,  it won't look aligned properly
+        if (size.x % 2 == 1) {
+            x -= 0.5f;
+        }
+
+        //odd
+        if (size.y % 2 == 1) {
+            y -= 0.5f;
+        }
+
+        pos.set(x, y);
     }
 
     public int seaLevel() {
@@ -540,7 +553,7 @@ public class OreWorld {
         SpriteComponent sprite = spriteMapper.create(power);
         sprite.textureName = "air-generator-64x64";
 
-        sprite.sprite.setSize(4, 4);
+        sprite.sprite.setSize(3, 3);
 
         PowerGeneratorComponent powerComponent = powerGeneratorMapper.create(power);
         powerComponent.powerSupplyRate = 100;
