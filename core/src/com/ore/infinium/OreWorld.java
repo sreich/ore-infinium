@@ -290,7 +290,7 @@ public class OreWorld {
                 //fixme check biomes and their ranges
                 //fill the surface/exposed dirt blocks with grass blocks
                 if (block.type == OreBlock.BlockType.DirtBlockType) {
-                    OreBlock topBlock = blockAtSafely(x, y - 1);
+                    OreBlock topBlock = blockTypeSafely(x, y - 1);
 
                     if (topBlock.type == OreBlock.BlockType.NullBlockType) {
                         block.setFlag(OreBlock.BlockFlags.GrassBlock);
@@ -302,18 +302,21 @@ public class OreWorld {
 
         for (int x = 0; x < WORLD_SIZE_X; ++x) {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
-                OreBlock block = blockAt(x, y);
+                byte blockType = blockType(x, y);
+                byte blockFlags = blockFlags(x, y);
 
-                if (block.type == OreBlock.BlockType.DirtBlockType && block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
-                    OreBlock topBlock = blockAtSafely(x, y - 1);
-                    OreBlock bottomBlock = blockAtSafely(x, y + 1);
-                    OreBlock bottomLeftBlock = blockAtSafely(x - 1, y + 1);
-                    OreBlock bottomRightBlock = blockAtSafely(x + 1, y + 1);
+                if (blockType == OreBlock.BlockType.DirtBlockType &&
+                    OreBlock.hasFlag(blockFlags, OreBlock.BlockFlags.GrassBlock)) {
+
+                    OreBlock topBlock = blockTypeSafely(x, y - 1);
+                    OreBlock bottomBlock = blockTypeSafely(x, y + 1);
+                    OreBlock bottomLeftBlock = blockTypeSafely(x - 1, y + 1);
+                    OreBlock bottomRightBlock = blockTypeSafely(x + 1, y + 1);
 
                     //                    boolean leftEmpty =
 
                     if (topBlock.type == OreBlock.BlockType.NullBlockType) {
-                        block.setFlag(OreBlock.BlockFlags.GrassBlock);
+                        setBlockFlags(OreBlock.setFlag(blockFlags, OreBlock.BlockFlags.GrassBlock));
                     }
                 }
             }
@@ -382,7 +385,7 @@ public class OreWorld {
         //        }
     }
 
-    public OreBlock blockAtPosition(Vector2 pos) {
+    public OreBlock blockTypeAtPosition(Vector2 pos) {
         int x = MathUtils.clamp((int) Math.floor(pos.x), 0, WORLD_SIZE_X - 1);
         int y = MathUtils.clamp((int) Math.floor(pos.y), 0, WORLD_SIZE_Y - 1);
         return blockAt(x, y);
@@ -396,7 +399,7 @@ public class OreWorld {
      *
      * @return
      */
-    public OreBlock blockAtSafely(int x, int y) {
+    public byte blockTypeSafely(int x, int y) {
         return blocks[blockXSafe(x) * WORLD_SIZE_Y + blockYSafe(y)];
     }
 
@@ -428,40 +431,105 @@ public class OreWorld {
     //blocks[(x * 2400 + y) * 4 + i] where i = 0, 1, 2 or 3
     public byte blockType(int x, int y) {
         assert x >= 0 && y >= 0 &&
-               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_INDEX_FLAGS + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
-               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_INDEX_FLAGS + OreBlock.BLOCK_FIELD_INDEX_TYPE :
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE :
                 String.format("blockType index out of range. x: %d, y: %d", x, y);
 
         //todo can change it to bitshift if we want to...the jvm should already know to do this though..but idk
         //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
-        return (byte) blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_INDEX_FLAGS +
-                             OreBlock.BLOCK_FIELD_INDEX_TYPE];
+        return (byte) blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE];
     }
 
     public byte blockWallType(int x, int y) {
-        return (byte) 1;
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE :
+                String.format("blockWallType index out of range. x: %d, y: %d", x, y);
+
+        return (byte) blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE];
     }
 
     public byte blockMeshType(int x, int y) {
-        return (byte) 1;
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE :
+                String.format("blockMeshType index out of range. x: %d, y: %d", x, y);
+        return (byte) blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE];
     }
 
     public byte blockFlags(int x, int y) {
-        return (byte) 1;
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS :
+                String.format("blockFlags index out of range. x: %d, y: %d", x, y);
+        return (byte) blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS];
     }
 
+    public void setBlockType(int x, int y, byte type) {
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE :
+                String.format("setBlockType index out of range. x: %d, y: %d", x, y);
 
-    public OreBlock blockAt(int x, int y) {
-        assert x >= 0 && y >= 0 && x <= WORLD_SIZE_X && y <= WORLD_SIZE_Y :
-                String.format("block index out of range. x: %d, y: %d", x, y);
+        //todo can change it to bitshift if we want to...the jvm should already know to do this though..but idk
+        //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE] = type;
+    }
 
-        return blocks[x * WORLD_SIZE_Y + y];
+    public void setBlockWallType(int x, int y, byte wallType) {
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE :
+                String.format("setBlockWallType index out of range. x: %d, y: %d", x, y);
+
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE] = wallType;
+    }
+
+    public void setBlockMeshType(int x, int y, byte meshType) {
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE :
+                String.format("setBlockMeshType index out of range. x: %d, y: %d", x, y);
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE] = meshType;
+    }
+
+    /**
+     * overwrites the blocks current flags, to now be the provided flags
+     *
+     * @param x
+     * @param y
+     * @param flags
+     */
+    public void setBlockFlags(int x, int y, byte flags) {
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS :
+                String.format("setBlockFlags index out of range. x: %d, y: %d", x, y);
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS] = flags;
+    }
+
+    public void disableBlockFlag(int x, int y, byte flagToEnable) {
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS :
+                String.format("enableBlockFlags index out of range. x: %d, y: %d", x, y);
+
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS] &= ~flagToEnable;
+    }
+
+    public void enableBlockFlag(int x, int y, byte flagToEnable) {
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS :
+                String.format("enableBlockFlags index out of range. x: %d, y: %d", x, y);
+
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS] |= flagToEnable;
     }
 
     public boolean isBlockSolid(int x, int y) {
         boolean solid = true;
 
-        byte type = blockAt(x, y).type;
+        byte type = blockType(x, y);
 
         if (type == OreBlock.BlockType.NullBlockType) {
             solid = false;
@@ -479,6 +547,12 @@ public class OreWorld {
         m_artemisWorld.dispose();
     }
 
+    /**
+     * main world processing,
+     * will handle all logic/render processing,
+     * as it delegates this to the ECS, which handles
+     * ordering and so on.
+     */
     public void process() {
         m_artemisWorld.process();
     }
@@ -496,13 +570,13 @@ public class OreWorld {
      * @return true if placement succeeded.
      */
     public boolean attemptBlockPlacement(int x, int y, byte placedBlockType) {
-        OreBlock block = blockAtSafely(x, y);
+        OreBlock block = blockTypeSafely(x, y);
 
         //attempt to place one if the area is empty
         if (block.type == OreBlock.BlockType.NullBlockType) {
             block.type = placedBlockType;
 
-            OreBlock bottomBlock = blockAtSafely(x, y + 1);
+            OreBlock bottomBlock = blockTypeSafely(x, y + 1);
             if (bottomBlock.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
                 //remove grass flag here.
                 bottomBlock.unsetFlag(OreBlock.BlockFlags.GrassBlock);
@@ -659,7 +733,7 @@ public class OreWorld {
         //check collision against blocks first
         for (int x = startX; x < endX; ++x) {
             for (int y = startY; y < endY; ++y) {
-                if (blockAt(x, y).type != OreBlock.BlockType.NullBlockType) {
+                if (blockType(x, y) != OreBlock.BlockType.NullBlockType) {
                     return false;
                 }
             }

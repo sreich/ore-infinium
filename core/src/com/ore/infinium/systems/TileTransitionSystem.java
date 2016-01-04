@@ -314,19 +314,19 @@ public class TileTransitionSystem extends IntervalSystem {
         for (int x = 0; x < OreWorld.WORLD_SIZE_X; ++x) {
             for (int y = 0; y < OreWorld.WORLD_SIZE_Y; ++y) {
 
-                OreBlock leftLeftBlock = m_world.blockAtSafely(x - 2, y);
-                OreBlock rightRightBlock = m_world.blockAtSafely(x + 2, y);
-                OreBlock leftBlock = m_world.blockAtSafely(x - 1, y);
-                OreBlock rightBlock = m_world.blockAtSafely(x + 1, y);
-                OreBlock topBlock = m_world.blockAtSafely(x, y - 1);
-                OreBlock bottomBlock = m_world.blockAtSafely(x, y + 1);
+                OreBlock leftLeftBlock = m_world.blockTypeSafely(x - 2, y);
+                OreBlock rightRightBlock = m_world.blockTypeSafely(x + 2, y);
+                OreBlock leftBlock = m_world.blockTypeSafely(x - 1, y);
+                OreBlock rightBlock = m_world.blockTypeSafely(x + 1, y);
+                OreBlock topBlock = m_world.blockTypeSafely(x, y - 1);
+                OreBlock bottomBlock = m_world.blockTypeSafely(x, y + 1);
 
-                OreBlock topLeftBlock = m_world.blockAtSafely(x - 1, y - 1);
-                OreBlock topRightBlock = m_world.blockAtSafely(x + 1, y - 1);
-                OreBlock bottomLeftBlock = m_world.blockAtSafely(x - 1, y + 1);
-                OreBlock bottomRightBlock = m_world.blockAtSafely(x + 1, y + 1);
+                OreBlock topLeftBlock = m_world.blockTypeSafely(x - 1, y - 1);
+                OreBlock topRightBlock = m_world.blockTypeSafely(x + 1, y - 1);
+                OreBlock bottomLeftBlock = m_world.blockTypeSafely(x - 1, y + 1);
+                OreBlock bottomRightBlock = m_world.blockTypeSafely(x + 1, y + 1);
 
-                OreBlock block = m_world.blockAtSafely(x, y);
+                OreBlock block = m_world.blockTypeSafely(x, y);
                 if (block.type == OreBlock.BlockType.DirtBlockType && block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
 
                     //should have grass on left side of this block..or not.

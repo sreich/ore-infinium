@@ -19,6 +19,8 @@ package com.ore.infinium;
  * ***************************************************************************
  */
 public class OreBlock {
+    private OreBlock() {
+    }
 
     /**
      * number of byte fields we use for each block.
@@ -70,47 +72,8 @@ public class OreBlock {
      */
     public byte wallType;
 
-    /*
-    struct BlockStruct {
-        //TODO: add "flammable"
-        BlockStruct(const QString& _texture, bool _collides) {
-            texture = _texture;
-            collides = _collides;
-        }
-
-        BlockStruct() {
-        }
-        QString texture;
-
-        // I thought about using flags..but this seems better, save for the might-be-fucking-huge-constructor
-        // this will be useful for TODO: blocks that hurt or help the player's health, etc. (lava), liquids of types,
-         e tc.
-        boolean collides;
-
-        //TODO: animations..array of textures for animation..for destroying and other shit
-    };
-
-    struct WallStruct {
-        WallStruct(const QString& _texture) {
-            texture = _texture;
-        }
-
-        WallStruct() {
-        }
-        QString texture;
-    };
-    */
-
-    //static std::vector<BlockStruct> blockAttributes;
-    //static std::vector<WallStruct> wallTypes;
-    /**
-     * if != 0 (WallType::Null), then this is an "underground wall tile" and the user cannot remove/add/change it in
-     * any way.
-     *
-     * @sa WallType
-     */
-    /// NOTE: block ownership is stored in the Player class, which just stores a list of indices of tiles which the
-    // player 'owns'.
+    // TODO: blocks that hurt or help the player's health, etc. (lava), liquids of types,
+    //TODO: animations..array of textures for animation..for destroying and other shit
 
     /**
      * Determines the health and texture of the Block.
@@ -128,53 +91,32 @@ public class OreBlock {
         public static final byte DirtUndergroundWallType = 2;
     }
 
-    public byte flags;
-
     /**
      * properly destroys the block (sets meshtype, flags etc to defaults)
      * must be called when destroying a block.
      * Essentially, "picks" the block from the players point of view. (aka sets it to null).
      */
     public void destroy() {
-        type = OreBlock.BlockType.NullBlockType;
-        meshType = 0;
-        //don't think we wanna nullify that??
-        //wallType = 0;
-        flags = 0;
-    }
-
-    public final void setFlag(byte flag) {
-        flags |= flag;
+        //type = OreBlock.BlockType.NullBlockType;
+        //meshType = 0;
+        //don't think we wanna nullify that?? //wallType = 0;
+        // flags = 0;
     }
 
     public final boolean hasFlag(byte flag) {
         return (this.flags & flag) != 0;
     }
 
-    public void unsetFlag(byte flag) {
-        this.flags &= ~flag;
-    }
-
     public static final class BlockFlags {
         public static final byte OnFireBlock = 1 << 0;
         public static final byte GrassBlock = 1 << 1;
         //        public static final int GrassBlock = 1 << 2;
-    }
-
-
-
-    /*
-    public static enum BlockFlags {
-        OnFireBlockFlag((byte) (1 << 0)),
+       /*
         SunlightVisible((byte) (1 << 1)),
         GrassBlock((byte) (1 << 2));
 
         /// theoretically more things belong in here. except i ran out of ideas :(
         // OnFireBlockFlag(1 << 0)
-        BlockFlags(byte blah) {
-
-        }
-
+        */
     }
-    */
 }

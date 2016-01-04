@@ -32,17 +32,17 @@ public class WorldBlockTest {
 
     @Test
     public void testBlockArrayInitialized() {
-        assertNotNull(world.blockAt(200, 200));
+        assertNotNull(world.blocks);
     }
 
     @Test
     public void testBlockSolid() throws Exception {
         assertTrue(true);
 
-        world.blockAt(500, 500).type = OreBlock.BlockType.NullBlockType;
+        world.setBlockType(500, 500, OreBlock.BlockType.NullBlockType);
         assertFalse(world.isBlockSolid(500, 500));
 
-        world.blockAt(100, 100).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(100, 100, OreBlock.BlockType.CopperBlockType);
         assertTrue(world.isBlockSolid(100, 100));
     }
 
@@ -50,63 +50,63 @@ public class WorldBlockTest {
     @Test
     public void testBlockAtPositionExactly() throws Exception {
         //our marker block. the rest of the ones in the world are NullBlockType
-        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
-        assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f)));
+        assertEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(10.0f, 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionOneBlockRight() {
-        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
         //ensure one block to the right is different(that we're on the right unit scale or whatever)
-        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(11.0f, 10.0f)));
+        assertNotEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(11.0f, 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionOneBlockLeft() {
-        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
         //ensure one block to left is different
-        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(9.0f, 10.0f)));
+        assertNotEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(9.0f, 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionPartialLeft() {
-        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
-        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f - (0.1f), 10.0f)));
+        assertNotEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(10.0f - (0.1f), 10.0f)));
     }
 
     @Test
     public void testBlockAtPositionPartialAbove() {
-        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
-        assertNotEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f - (0.1f))));
+        assertNotEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(10.0f, 10.0f - (0.1f))));
     }
 
     @Test
     public void testBlockAtPositionPartialBelow() {
-        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
         //ensure half a block below, we are still on the same block
-        assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f, 10.0f + (0.4f))));
+        assertEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(10.0f, 10.0f + (0.4f))));
     }
 
     @Test
     public void testBlockAtPositionPartialBottomRight() {
-        world.blockAt(10, 10).type = OreBlock.BlockType.CopperBlockType;
+        world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
         //ensure 0.9 a block right-down, we are still on the same block
-        assertEquals(world.blockAt(10, 10), world.blockAtPosition(new Vector2(10.0f + (0.9f), 10.0f + (0.9f))));
+        assertEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(10.0f + (0.9f), 10.0f + (0.9f))));
     }
 
     @Test
     public void testBlockAtSafely() throws Exception {
-        assertEquals(world.blockAtSafely(600, 600), world.blockAt(600, 600));
+        assertEquals(world.blockTypeSafely(600, 600), world.blockType(600, 600));
         //test that it should wrap to the bounds of the array
-        assertEquals(world.blockAtSafely(-1, 0), world.blockAt(0, 0));
-        assertEquals(world.blockAtSafely(0, -1), world.blockAt(0, 0));
+        assertEquals(world.blockTypeSafely(-1, 0), world.blockType(0, 0));
+        assertEquals(world.blockTypeSafely(0, -1), world.blockType(0, 0));
     }
 
     public void createArtemisWorld() {

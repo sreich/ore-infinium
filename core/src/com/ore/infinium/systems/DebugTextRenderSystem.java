@@ -230,7 +230,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_textYLeft -= TEXT_Y_SPACING;
 
         Vector2 mousePos = m_world.mousePositionWorldCoords();
-        OreBlock block = m_world.blockAtPosition(mousePos);
+        OreBlock block = m_world.blockTypeAtPosition(mousePos);
 
         final int x = (int) mousePos.x;
         final int y = (int) mousePos.y;
