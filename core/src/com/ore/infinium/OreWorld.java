@@ -47,8 +47,8 @@ public class OreWorld {
 
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
-    public static final int WORLD_SIZE_X = 1000; //2400
-    public static final int WORLD_SIZE_Y = 1000; //8400
+    public static final int WORLD_SIZE_X = 2400; //2400
+    public static final int WORLD_SIZE_Y = 8400; //8400
     public static final int WORLD_SEA_LEVEL = 50;
 
     /**
@@ -74,7 +74,8 @@ public class OreWorld {
     }
 
     //each unit is 1 block(16x16 px), in the game world
-    public OreBlock[] blocks;
+    //public OreBlock[] blocks;
+    public byte[] blocks;
 
     //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
     // them alone.
@@ -141,7 +142,9 @@ public class OreWorld {
         m_client = client;
         m_server = server;
 
-        blocks = new OreBlock[WORLD_SIZE_Y * WORLD_SIZE_X];
+        //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
+        //        blocks = new OreBlock[WORLD_SIZE_Y * WORLD_SIZE_X];
+        blocks = new byte[WORLD_SIZE_Y * WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT];
     }
 
     void init() {
@@ -318,6 +321,8 @@ public class OreWorld {
     }
 
     public void initializeBlocksArray() {
+        //NEEDED?? hack
+            /*
         for (int x = 0; x < WORLD_SIZE_X; ++x) {
             for (int y = 0; y < WORLD_SIZE_Y; ++y) {
 
@@ -326,6 +331,7 @@ public class OreWorld {
                 blocks[index].type = OreBlock.BlockType.NullBlockType;
             }
         }
+        */
     }
 
     private void generateOres() {
@@ -394,13 +400,56 @@ public class OreWorld {
         return blocks[blockXSafe(x) * WORLD_SIZE_Y + blockYSafe(y)];
     }
 
-    public int blockXSafe(int x) {
-        return MathUtils.clamp(x, 0, WORLD_SIZE_X - 1);
+    /**
+     * take a possibly-unsafe x block index,
+     * and return a safe (clamped) one
+     *
+     * @param x
+     *
+     * @return
+     */
+    //    public int blockXSafe(int x) {
+    //       return MathUtils.clamp(x, 0, (WORLD_SIZE_X) - 1);
+    //  }
+
+    /**
+     * take a possibly-unsafe y block index,
+     * and return a safe (clamped) one
+     *
+     * @param y
+     *
+     * @return
+     */
+    // public int blockYSafe(int y) {
+    //    return MathUtils.clamp(y, 0, (WORLD_SIZE_Y) - 1);
+    //    }
+    //hack these above methods must be made into their individual ones matching below (one for each)??
+
+    //blocks[(x * 2400 + y) * 4 + i] where i = 0, 1, 2 or 3
+    public byte blockType(int x, int y) {
+        assert x >= 0 && y >= 0 &&
+               x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_INDEX_FLAGS + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
+               y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_INDEX_FLAGS + OreBlock.BLOCK_FIELD_INDEX_TYPE :
+                String.format("blockType index out of range. x: %d, y: %d", x, y);
+
+        //todo can change it to bitshift if we want to...the jvm should already know to do this though..but idk
+        //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
+        return (byte) blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_INDEX_FLAGS +
+                             OreBlock.BLOCK_FIELD_INDEX_TYPE];
     }
 
-    public int blockYSafe(int y) {
-        return MathUtils.clamp(y, 0, WORLD_SIZE_Y - 1);
+    public byte blockWallType(int x, int y) {
+        return (byte) 1;
     }
+
+    public byte blockMeshType(int x, int y) {
+        return (byte) 1;
+    }
+
+    public byte blockFlags(int x, int y) {
+        return (byte) 1;
+    }
+
 
     public OreBlock blockAt(int x, int y) {
         assert x >= 0 && y >= 0 && x <= WORLD_SIZE_X && y <= WORLD_SIZE_Y :

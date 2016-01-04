@@ -19,6 +19,29 @@ package com.ore.infinium;
  * ***************************************************************************
  */
 public class OreBlock {
+
+    /**
+     * number of byte fields we use for each block.
+     * because they're all stored in one array, as primitives.
+     * <p>
+     * As follows are:
+     * -meshType
+     * -type
+     * -wallType
+     * -flags
+     */
+    public static final int BLOCK_FIELD_COUNT = 4;
+
+    /**
+     * index offset within the big byte block array,
+     * since BLOCK_FIELD_COUNT elements are stored for each
+     * actual block
+     */
+    public static final int BLOCK_FIELD_INDEX_TYPE = 0;
+    public static final int BLOCK_FIELD_INDEX_MESHTYPE = 1;
+    public static final int BLOCK_FIELD_INDEX_WALLTYPE = 2;
+    public static final int BLOCK_FIELD_INDEX_FLAGS = 3;
+
     /**
      * Which mesh sprite to use, aka subsprite.
      * This is utilized to cleanly decide which exact sprite(e.g. full block, corner pieces, etc.) to show for whatever
