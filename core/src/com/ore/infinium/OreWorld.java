@@ -47,8 +47,8 @@ public class OreWorld {
 
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
-    public static final int WORLD_SIZE_X = 2400; //2400
-    public static final int WORLD_SIZE_Y = 8400; //8400
+    public static final int WORLD_SIZE_X = 1000; //2400
+    public static final int WORLD_SIZE_Y = 1000; //8400
     public static final int WORLD_SEA_LEVEL = 50;
 
     /**
@@ -380,7 +380,6 @@ public class OreWorld {
         //            }
         //        }
     }
-
 
     /**
      * safely return a block at x, y, clamped at world bounds
@@ -875,7 +874,7 @@ public class OreWorld {
             }
         }
 
-        //log("block region", String.format("loaded %s tiles", sourceIndex));
+        log("client block region", String.format("loaded %s tile index", sourceIndex));
 
         //fixme should re transition tiles in this area
     }

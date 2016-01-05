@@ -500,10 +500,10 @@ public class NetworkServerSystem extends BaseSystem {
     public void sendPlayerBlockRegion(int player, int x, int y, int x2, int y2) {
         //FIXME: avoid array realloc
         Network.BlockRegion blockRegion = new Network.BlockRegion(x, y, x2, y2);
-        int count = (x2 - x) * (y2 - y);
+        int count = (x2 - x + 1) * (y2 - y + 1);
 
         blockRegion.blocks = new byte[count * Network.BlockRegion.BLOCK_FIELD_COUNT];
-        int blockCount = 0;
+        int blockIndex = 0;
         for (int blockY = y; blockY <= y2; ++blockY) {
             for (int blockX = x; blockX <= x2; ++blockX) {
 
@@ -511,14 +511,16 @@ public class NetworkServerSystem extends BaseSystem {
                 final byte wallType = m_world.blockWallType(blockX, blockY);
                 final byte flags = m_world.blockFlags(blockX, blockY);
 
-                blockRegion.blocks[blockCount * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT +
                                    Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE] = blockType;
-                blockRegion.blocks[blockCount * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT +
                                    Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE] = wallType;
-                blockRegion.blocks[blockCount * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT +
                                    Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS] = flags;
+                ++blockIndex;
             }
         }
+        OreWorld.log("networkserversystem", "sendplayerblockregion blockcount: " + blockIndex);
 
         PlayerComponent playerComponent = playerMapper.get(player);
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, blockRegion);
