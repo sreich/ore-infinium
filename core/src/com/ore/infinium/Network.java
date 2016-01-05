@@ -92,6 +92,7 @@ public class Network {
 
         // primitives/builtin
         kryo.register(String[].class);
+        kryo.register(byte[].class);
         kryo.register(Object[].class);
         kryo.register(Vector2.class);
         kryo.register(Array.class);
