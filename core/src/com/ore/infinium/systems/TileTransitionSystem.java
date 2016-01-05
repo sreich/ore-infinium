@@ -3,8 +3,10 @@ package com.ore.infinium.systems;
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.artemis.systems.IntervalSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
@@ -41,6 +43,8 @@ public class TileTransitionSystem extends IntervalSystem {
     private ComponentMapper<ItemComponent> itemMapper;
     private ComponentMapper<VelocityComponent> velocityMapper;
     private ComponentMapper<JumpComponent> jumpMapper;
+
+    private TagManager m_tagManager;
 
     private OreWorld m_world;
 
@@ -305,13 +309,17 @@ public class TileTransitionSystem extends IntervalSystem {
 
     @Override
     protected void processSystem() {
-        transitionTiles();
-        transitionGrass();
+        final int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
+        PlayerComponent playerComponent = playerMapper.get(player);
+        LoadedViewport.PlayerViewportBlockRegion blockRegion = playerComponent.loadedViewport.blockRegionInViewport();
+
+        transitionTiles(blockRegion);
+        transitionGrass(blockRegion);
     }
 
-    private void transitionGrass() {
-        for (int x = 0; x < OreWorld.WORLD_SIZE_X; ++x) {
-            for (int y = 0; y < OreWorld.WORLD_SIZE_Y; ++y) {
+    private void transitionGrass(LoadedViewport.PlayerViewportBlockRegion blockRegion) {
+        for (int y = blockRegion.y; y <= blockRegion.height; ++y) {
+            for (int x = blockRegion.x; x <= blockRegion.width; ++x) {
 
                 final byte leftLeftBlockType = m_world.blockTypeSafely(x - 2, y);
                 final byte rightRightBlockType = m_world.blockTypeSafely(x + 2, y);
@@ -456,9 +464,9 @@ public class TileTransitionSystem extends IntervalSystem {
     }
     */
 
-    private void transitionTiles() {
-        for (int x = 0; x < OreWorld.WORLD_SIZE_X; ++x) {
-            for (int y = 0; y < OreWorld.WORLD_SIZE_Y; ++y) {
+    private void transitionTiles(LoadedViewport.PlayerViewportBlockRegion blockRegion) {
+        for (int y = blockRegion.y; y <= blockRegion.height; ++y) {
+            for (int x = blockRegion.x; x <= blockRegion.width; ++x) {
 
                 final byte type = m_world.blockType(x, y);
                 if (type == OreBlock.BlockType.NullBlockType) {

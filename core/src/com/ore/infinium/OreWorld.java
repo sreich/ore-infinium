@@ -47,8 +47,8 @@ public class OreWorld {
 
     public static final float BLOCK_SIZE_PIXELS = 16.0f;
 
-    public static final int WORLD_SIZE_X = 1000; //2400
-    public static final int WORLD_SIZE_Y = 1000; //8400
+    public static final int WORLD_SIZE_X = 2400; //2400
+    public static final int WORLD_SIZE_Y = 8400; //8400
     public static final int WORLD_SEA_LEVEL = 50;
 
     /**
