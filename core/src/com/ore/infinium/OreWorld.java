@@ -871,8 +871,6 @@ public class OreWorld {
                 setBlockFlags(x, y, region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT +
                                                   Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS]);
 
-                //fixme wall type as well
-
                 ++sourceIndex;
             }
         }
