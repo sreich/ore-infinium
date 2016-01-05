@@ -122,8 +122,6 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         for (int i = 0; i < m_blocksToDig.size; ++i) {
             final BlockToDig blockToDig = m_blocksToDig.get(i);
 
-            final OreBlock block = m_world.blockAt(blockToDig.x, blockToDig.y);
-
             //final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
             if (!ableToDigAtIndex(blockToDig.x, blockToDig.y)) {
@@ -184,8 +182,8 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             return false;
         }
 
-        final OreBlock block = m_world.blockAt(x, y);
-        if (block.type == OreBlock.BlockType.NullBlockType) {
+        final byte blockType = m_world.blockType(x, y);
+        if (blockType == OreBlock.BlockType.NullBlockType) {
             return false;
         }
 
@@ -211,7 +209,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
         final int blockX = (int) (mouse.x);
         final int blockY = (int) (mouse.y);
 
-        final OreBlock block = m_world.blockAt(blockX, blockY);
+        final byte blockType = m_world.blockType(blockX, blockY);
 
         //if any of these blocks is what we're trying to dig
         //then we need to continue digging them
@@ -247,7 +245,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             //we will too, but mostly just so we know not to send these requests again
             m_networkClientSystem.sendBlockDigBegin(blockX, blockY);
 
-            final float totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+            final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).blockTotalHealth;
 
             BlockToDig blockToDig = new BlockToDig();
             blockToDig.damagedBlockHealth = totalBlockHealth;

@@ -59,18 +59,18 @@ public class OreBlock {
      * displaying
      * niche of a detail, not a gameplay mechanic
      */
-    public byte meshType;
+    //public byte meshType;
 
     /**
      * The type of tile this is, 0-255 is valid and can be compared with the world's definition of tile types
      * (an enum)
      */
-    public byte type;
+    //public byte type;
 
     /**
      * 1:1 correspondence to the primitive type. just that it's rendered in the background with a darker color.
      */
-    public byte wallType;
+    //public byte wallType;
 
     // TODO: blocks that hurt or help the player's health, etc. (lava), liquids of types,
     //TODO: animations..array of textures for animation..for destroying and other shit
@@ -91,20 +91,8 @@ public class OreBlock {
         public static final byte DirtUndergroundWallType = 2;
     }
 
-    /**
-     * properly destroys the block (sets meshtype, flags etc to defaults)
-     * must be called when destroying a block.
-     * Essentially, "picks" the block from the players point of view. (aka sets it to null).
-     */
     public void destroy() {
-        //type = OreBlock.BlockType.NullBlockType;
-        //meshType = 0;
-        //don't think we wanna nullify that?? //wallType = 0;
-        // flags = 0;
-    }
 
-    public final boolean hasFlag(byte flag) {
-        return (this.flags & flag) != 0;
     }
 
     public static final class BlockFlags {

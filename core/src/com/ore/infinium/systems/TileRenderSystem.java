@@ -150,29 +150,33 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
             for (int y = startY; y < endY; ++y) {
                 ++debugTilesInViewCount;
 
-                OreBlock block = m_world.blockAt(x, y);
+                final byte blockType = m_world.blockType(x, y);
+                final byte blockMeshType = m_world.blockMeshType(x, y);
+                final byte blockWallType = m_world.blockWallType(x, y);
 
-                float tileX = (float) x;
-                float tileY = (float) y;
+                final boolean hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock);
 
                 boolean drawWallTile = false;
 
-                //String textureName = World.blockAttributes.get(block.type).textureName;
-                if (block.type == OreBlock.BlockType.DirtBlockType) {
+                final float tileX = (float) x;
+                final float tileY = (float) y;
 
-                    if (block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
-                        textureName = grassBlockMeshes.get(block.meshType);
+                //String textureName = World.blockAttributes.get(block.type).textureName;
+                if (blockType == OreBlock.BlockType.DirtBlockType) {
+
+                    if (hasGrass) {
+                        textureName = grassBlockMeshes.get(blockMeshType);
                         assert textureName != null : "block mesh lookup failure";
                     } else {
-                        textureName = dirtBlockMeshes.get(block.meshType);
-                        assert textureName != null : "block mesh lookup failure type: " + block.meshType;
+                        textureName = dirtBlockMeshes.get(blockMeshType);
+                        assert textureName != null : "block mesh lookup failure type: " + blockMeshType;
                     }
-                } else if (block.type == OreBlock.BlockType.StoneBlockType) {
-                    textureName = stoneBlockMeshes.get(block.meshType);
-                    assert textureName != null : "block mesh lookup failure type: " + block.meshType;
+                } else if (blockType == OreBlock.BlockType.StoneBlockType) {
+                    textureName = stoneBlockMeshes.get(blockMeshType);
+                    assert textureName != null : "block mesh lookup failure type: " + blockMeshType;
 
-                } else if (block.type == OreBlock.BlockType.NullBlockType) {
-                    if (block.wallType == OreBlock.WallType.NullWallType) {
+                } else if (blockType == OreBlock.BlockType.NullBlockType) {
+                    if (blockWallType == OreBlock.WallType.NullWallType) {
                         //we can skip a draw call iff the wall, and block is null
                         continue;
                     } else {
@@ -199,7 +203,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
                     //draw walls
                     //fixme of course, for wall drawing
                     textureName = dirtBlockMeshes.get(0);
-                    assert textureName != null : "block mesh lookup failure type: " + block.meshType;
+                    assert textureName != null : "block mesh lookup failure type: " + blockMeshType;
 
                     //offset y to flip orientation around to normal
                     region = m_tilesAtlas.findRegion(textureName);

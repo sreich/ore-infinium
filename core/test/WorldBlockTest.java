@@ -1,4 +1,3 @@
-import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import org.junit.Before;
@@ -46,6 +45,7 @@ public class WorldBlockTest {
         assertTrue(world.isBlockSolid(100, 100));
     }
 
+    /*
     //tile origin is top left
     @Test
     public void testBlockAtPositionExactly() throws Exception {
@@ -100,6 +100,7 @@ public class WorldBlockTest {
         //ensure 0.9 a block right-down, we are still on the same block
         assertEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(10.0f + (0.9f), 10.0f + (0.9f))));
     }
+    */
 
     @Test
     public void testBlockAtSafely() throws Exception {

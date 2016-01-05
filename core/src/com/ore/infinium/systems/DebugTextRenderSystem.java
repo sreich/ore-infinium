@@ -230,36 +230,39 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_textYLeft -= TEXT_Y_SPACING;
 
         Vector2 mousePos = m_world.mousePositionWorldCoords();
-        OreBlock block = m_world.blockTypeAtPosition(mousePos);
-
         final int x = (int) mousePos.x;
         final int y = (int) mousePos.y;
 
+        final byte blockType = m_world.blockType(x, y);
+        final byte blockMeshType = m_world.blockMeshType(x, y);
+        final byte blockWallType = m_world.blockWallType(x, y);
+        final boolean hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock);
+
+
         final float damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y);
-        final float totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+        final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).blockTotalHealth;
 
         m_font.draw(m_batch, "blockHealth: " + damagedBlockHealth + " / " + totalBlockHealth, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
         String texture = "";
 
-        switch (block.type) {
+        switch (blockType) {
             case OreBlock.BlockType.DirtBlockType:
-                if (block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
-                    texture = m_tileRenderSystem.grassBlockMeshes.get(block.meshType);
+                if (hasGrass) {
+                    texture = m_tileRenderSystem.grassBlockMeshes.get(blockMeshType);
                 } else {
-                    texture = m_tileRenderSystem.dirtBlockMeshes.get(block.meshType);
+                    texture = m_tileRenderSystem.dirtBlockMeshes.get(blockMeshType);
                 }
 
                 break;
             case OreBlock.BlockType.StoneBlockType:
-                texture = m_tileRenderSystem.stoneBlockMeshes.get(block.meshType);
+                texture = m_tileRenderSystem.stoneBlockMeshes.get(blockMeshType);
                 break;
         }
 
         String s = String.format("tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s", x, y,
-                                 block.type, block.meshType, block.wallType, texture,
-                                 block.hasFlag(OreBlock.BlockFlags.GrassBlock));
+                                 blockType, blockMeshType, blockWallType, texture, hasGrass);
 
         m_font.draw(m_batch, s, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;

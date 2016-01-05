@@ -460,25 +460,27 @@ public class NetworkServerSystem extends BaseSystem {
      * an updated block.
      * Does this by checking to see if the block falls within their loaded chunks
      *
-     * @param block
      * @param x
      * @param y
      */
-    public void sendSparseBlockBroadcast(OreBlock block, int x, int y) {
+    public void sendSparseBlockBroadcast(int x, int y) {
         throw new NotImplementedException();
     }
 
     /**
      * @param player
      *         entity id
-     * @param block
      * @param x
      * @param y
      */
-    public void sendPlayerSingleBlock(int player, OreBlock block, int x, int y) {
+    public void sendPlayerSingleBlock(int player, int x, int y) {
         Network.SparseBlockUpdate sparseBlockUpdate = new Network.SparseBlockUpdate();
 
-        sparseBlockUpdate.blocks.add(new Network.SingleSparseBlock(block, x, y));
+        //fixme just use a plain ol' byte array for all of these
+        final byte blockType = m_world.blockType(x, y);
+        final byte wallType = m_world.blockWallType(x, y);
+        final byte flags = m_world.blockFlags(x, y);
+        sparseBlockUpdate.blocks.add(new Network.SingleSparseBlock(x, y, blockType, wallType, flags));
 
         //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
         // purpose of this, whcih is to reduce the need to send an entire packet for 1 block. queue them up.
@@ -501,7 +503,10 @@ public class NetworkServerSystem extends BaseSystem {
         for (int blockY = y; blockY <= y2; ++blockY) {
             for (int blockX = x; blockX <= x2; ++blockX) {
 
-                Network.SingleBlock block = new Network.SingleBlock(m_world.blockAt(blockX, blockY));
+                final byte blockType = m_world.blockType(blockX, blockY);
+                final byte wallType = m_world.blockWallType(blockX, blockY);
+                final byte flags = m_world.blockFlags(blockX, blockY);
+                Network.SingleBlock block = new Network.SingleBlock(blockType, wallType, flags);
 
                 blockRegion.blocks.add(block);
             }

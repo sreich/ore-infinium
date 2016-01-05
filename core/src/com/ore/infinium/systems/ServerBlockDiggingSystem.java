@@ -88,19 +88,19 @@ public class ServerBlockDiggingSystem extends BaseSystem {
         for (int i = 0; i < m_blocksToDig.size; ++i) {
             BlockToDig blockToDig = m_blocksToDig.get(i);
 
-            OreBlock block = m_world.blockAt(blockToDig.x, blockToDig.y);
+            final byte blockType = m_world.blockType(blockToDig.x, blockToDig.y);
 
             //it's already dug, must've happened sometime since, external (to this system)
             //so cancel this request, don't notify anything.
-            if (block.type == OreBlock.BlockType.NullBlockType) {
+            if (blockType == OreBlock.BlockType.NullBlockType) {
                 m_blocksToDig.removeIndex(i);
                 continue;
             }
 
-            int playerEntityId = m_world.playerEntityForPlayerID(blockToDig.playerId);
+            final int playerEntityId = m_world.playerEntityForPlayerID(blockToDig.playerId);
             PlayerComponent playerComponent = playerMapper.get(playerEntityId);
 
-            int equippedItemEntityId = playerComponent.getEquippedPrimaryItem();
+            final int equippedItemEntityId = playerComponent.getEquippedPrimaryItem();
             ToolComponent toolComponent = toolMapper.getSafe(equippedItemEntityId);
 
             //player no longer even has an item that can break stuff, equipped.
@@ -110,9 +110,9 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 continue;
             }
 
-            float totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
+            final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).blockTotalHealth;
 
-            float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
+            final float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
 
             //this many ticks after start tick, it should have already been destroyed
             final long expectedTickEnd = blockToDig.digStartTick + (int) (totalBlockHealth / damagePerTick);
@@ -122,9 +122,9 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 // though!!
 
                 OreWorld.log("server, block digging system", "processSystem block succeeded. sending");
-                m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, block, blockToDig.x, blockToDig.y);
+                m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y);
 
-                final int droppedBlock = m_world.createBlockItem(block.type);
+                final int droppedBlock = m_world.createBlockItem(blockType);
                 SpriteComponent spriteComponent = spriteMapper.get(droppedBlock);
                 spriteComponent.sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f);
                 spriteComponent.sprite.setSize(0.5f, 0.5f);
@@ -138,7 +138,8 @@ public class ServerBlockDiggingSystem extends BaseSystem {
 
                 m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
 
-                block.destroy();
+                m_world.destroyBlock(blockToDig.x, blockToDig.y);
+
                 //remove fulfilled request from our queue.
                 m_blocksToDig.removeIndex(i);
                 continue;
@@ -181,7 +182,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
     }
 
     public void blockDiggingBegin(int x, int y, int playerEntity) {
-        if (m_world.blockAt(x, y).type == OreBlock.BlockType.NullBlockType) {
+        if (m_world.blockType(x, y) == OreBlock.BlockType.NullBlockType) {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
             OreWorld.log("server, block digging system",

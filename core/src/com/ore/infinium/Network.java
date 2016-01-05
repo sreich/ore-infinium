@@ -267,10 +267,10 @@ public class Network {
         SingleBlock() {
         }
 
-        public SingleBlock(OreBlock block) {
-            type = block.type;
-            wallType = block.wallType;
-            flags = block.flags;
+        public SingleBlock(byte _type, byte _wallType, byte _flags) {
+            type = _type;
+            wallType = _wallType;
+            flags = _flags;
         }
 
         byte type;
@@ -288,8 +288,8 @@ public class Network {
         int x;
         int y;
 
-        public SingleSparseBlock(OreBlock _block, int x, int y) {
-            block = new SingleBlock(_block);
+        public SingleSparseBlock(int x, int y, byte type, byte wallType, byte flags) {
+            block = new SingleBlock(type, wallType, flags);
             this.x = x;
             this.y = y;
         }

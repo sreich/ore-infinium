@@ -5,7 +5,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalSystem;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.OreBlock;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
@@ -314,46 +313,47 @@ public class TileTransitionSystem extends IntervalSystem {
         for (int x = 0; x < OreWorld.WORLD_SIZE_X; ++x) {
             for (int y = 0; y < OreWorld.WORLD_SIZE_Y; ++y) {
 
-                OreBlock leftLeftBlock = m_world.blockTypeSafely(x - 2, y);
-                OreBlock rightRightBlock = m_world.blockTypeSafely(x + 2, y);
-                OreBlock leftBlock = m_world.blockTypeSafely(x - 1, y);
-                OreBlock rightBlock = m_world.blockTypeSafely(x + 1, y);
-                OreBlock topBlock = m_world.blockTypeSafely(x, y - 1);
-                OreBlock bottomBlock = m_world.blockTypeSafely(x, y + 1);
+                final byte leftLeftBlockType = m_world.blockTypeSafely(x - 2, y);
+                final byte rightRightBlockType = m_world.blockTypeSafely(x + 2, y);
+                final byte leftBlockType = m_world.blockTypeSafely(x - 1, y);
+                final byte rightBlockType = m_world.blockTypeSafely(x + 1, y);
+                final byte topBlockType = m_world.blockTypeSafely(x, y - 1);
+                final byte bottomBlockType = m_world.blockTypeSafely(x, y + 1);
 
-                OreBlock topLeftBlock = m_world.blockTypeSafely(x - 1, y - 1);
-                OreBlock topRightBlock = m_world.blockTypeSafely(x + 1, y - 1);
-                OreBlock bottomLeftBlock = m_world.blockTypeSafely(x - 1, y + 1);
-                OreBlock bottomRightBlock = m_world.blockTypeSafely(x + 1, y + 1);
+                final byte topLeftBlockType = m_world.blockTypeSafely(x - 1, y - 1);
+                final byte topRightBlockType = m_world.blockTypeSafely(x + 1, y - 1);
+                final byte bottomLeftBlockType = m_world.blockTypeSafely(x - 1, y + 1);
+                final byte bottomRightBlockType = m_world.blockTypeSafely(x + 1, y + 1);
 
-                OreBlock block = m_world.blockTypeSafely(x, y);
-                if (block.type == OreBlock.BlockType.DirtBlockType && block.hasFlag(OreBlock.BlockFlags.GrassBlock)) {
+                final byte blockType = m_world.blockTypeSafely(x, y);
+                final boolean blockHasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock);
+                if (blockType == OreBlock.BlockType.DirtBlockType && blockHasGrass) {
 
                     //should have grass on left side of this block..or not.
-                    boolean leftEmpty = leftBlock.type == OreBlock.BlockType.NullBlockType;
-                    boolean leftLeftEmpty = leftLeftBlock.type == OreBlock.BlockType.NullBlockType;
+                    final boolean leftEmpty = leftBlockType == OreBlock.BlockType.NullBlockType;
+                    final boolean leftLeftEmpty = leftLeftBlockType == OreBlock.BlockType.NullBlockType;
 
-                    boolean rightEmpty = rightBlock.type == OreBlock.BlockType.NullBlockType;
-                    boolean rightRightEmpty = rightRightBlock.type == OreBlock.BlockType.NullBlockType;
+                    final boolean rightEmpty = rightBlockType == OreBlock.BlockType.NullBlockType;
+                    final boolean rightRightEmpty = rightRightBlockType == OreBlock.BlockType.NullBlockType;
 
-                    boolean topEmpty = topBlock.type == OreBlock.BlockType.NullBlockType;
+                    final boolean topEmpty = topBlockType == OreBlock.BlockType.NullBlockType;
 
-                    boolean bottomEmpty = bottomBlock.type == OreBlock.BlockType.NullBlockType;
+                    final boolean bottomEmpty = bottomBlockType == OreBlock.BlockType.NullBlockType;
 
                     //if block to the left is dirt..
-                    boolean leftDirt = leftBlock.type == OreBlock.BlockType.DirtBlockType;
-                    boolean rightDirt = rightBlock.type == OreBlock.BlockType.DirtBlockType;
-                    boolean topDirt = topBlock.type == OreBlock.BlockType.DirtBlockType;
-                    boolean bottomDirt = bottomBlock.type == OreBlock.BlockType.DirtBlockType;
+                    final boolean leftDirt = leftBlockType == OreBlock.BlockType.DirtBlockType;
+                    final boolean rightDirt = rightBlockType == OreBlock.BlockType.DirtBlockType;
+                    final boolean topDirt = topBlockType == OreBlock.BlockType.DirtBlockType;
+                    final boolean bottomDirt = bottomBlockType == OreBlock.BlockType.DirtBlockType;
 
                     //handled a bit differently,
-                    boolean topLeftEmpty = topLeftBlock.type == OreBlock.BlockType.NullBlockType;
-                    boolean topRightEmpty = topRightBlock.type == OreBlock.BlockType.NullBlockType;
-                    boolean bottomLeftEmpty = bottomLeftBlock.type == OreBlock.BlockType.NullBlockType;
-                    boolean bottomRightEmpty = bottomRightBlock.type == OreBlock.BlockType.NullBlockType;
+                    final boolean topLeftEmpty = topLeftBlockType == OreBlock.BlockType.NullBlockType;
+                    final boolean topRightEmpty = topRightBlockType == OreBlock.BlockType.NullBlockType;
+                    final boolean bottomLeftEmpty = bottomLeftBlockType == OreBlock.BlockType.NullBlockType;
+                    final boolean bottomRightEmpty = bottomRightBlockType == OreBlock.BlockType.NullBlockType;
 
-                    boolean leftOre = m_world.blockAttributes.get(leftBlock.type).category ==
-                                      OreWorld.BlockAttributes.BlockCategory.Ore;
+                    final boolean leftOre = OreWorld.blockAttributes.get(leftBlockType).category ==
+                                            OreWorld.BlockAttributes.BlockCategory.Ore;
 
                     byte finalMesh = -1;
 
@@ -430,7 +430,7 @@ public class TileTransitionSystem extends IntervalSystem {
                         finalMesh = 15;
                     }
 
-                    block.meshType = finalMesh;
+                    m_world.setBlockMeshType(x, y, finalMesh);
 
                     if (finalMesh == -1) {
                         assert false : "invalid mesh type retrieval, for some reason";
@@ -459,16 +459,16 @@ public class TileTransitionSystem extends IntervalSystem {
     private void transitionTiles() {
         for (int x = 0; x < OreWorld.WORLD_SIZE_X; ++x) {
             for (int y = 0; y < OreWorld.WORLD_SIZE_Y; ++y) {
-                int index = x * OreWorld.WORLD_SIZE_Y + y;
 
-                if (m_world.blocks[index].type == OreBlock.BlockType.NullBlockType) {
+                final byte type = m_world.blockType(x, y);
+                if (type == OreBlock.BlockType.NullBlockType) {
                     continue;
                 }
 
-                if (m_world.blocks[index].type == OreBlock.BlockType.DirtBlockType) {
+                if (type == OreBlock.BlockType.DirtBlockType) {
                     //fixme may be able to be made generic. MAYBE.
                     transitionDirtTile(x, y);
-                } else if (m_world.blocks[index].type == OreBlock.BlockType.StoneBlockType) {
+                } else if (type == OreBlock.BlockType.StoneBlockType) {
                     transitionStoneTile(x, y);
                 }
             }
@@ -476,16 +476,15 @@ public class TileTransitionSystem extends IntervalSystem {
     }
 
     private void transitionStoneTile(int x, int y) {
-        int index = x * OreWorld.WORLD_SIZE_Y + y;
         //essentially, if the *other* tiles in question are the same blocks, we should
         //merge/transition with them.
 
         Set<Transitions> result = EnumSet.noneOf(Transitions.class);
 
-        boolean leftMerge = shouldTileTransitionWith(x, y, x - 1, y);
-        boolean rightMerge = shouldTileTransitionWith(x, y, x + 1, y);
-        boolean topMerge = shouldTileTransitionWith(x, y, x, y - 1);
-        boolean bottomMerge = shouldTileTransitionWith(x, y, x, y + 1);
+        final boolean leftMerge = shouldTileTransitionWith(x, y, x - 1, y);
+        final boolean rightMerge = shouldTileTransitionWith(x, y, x + 1, y);
+        final boolean topMerge = shouldTileTransitionWith(x, y, x, y - 1);
+        final boolean bottomMerge = shouldTileTransitionWith(x, y, x, y + 1);
 
         if (leftMerge) {
             result.add(Transitions.left);
@@ -503,22 +502,21 @@ public class TileTransitionSystem extends IntervalSystem {
             result.add(Transitions.bottom);
         }
 
-        Integer lookup = stoneTransitionTypes.get(result);
+        final Integer lookup = stoneTransitionTypes.get(result);
         assert lookup != null : "transition lookup failure!";
-        m_world.blocks[index].meshType = (byte) lookup.intValue();
+        m_world.setBlockMeshType(x, y, (byte) lookup.intValue());
     }
 
     private void transitionDirtTile(int x, int y) {
-        int index = x * OreWorld.WORLD_SIZE_Y + y;
         //essentially, if the *other* tiles in question are the same blocks, we should
         //merge/transition with them.
 
         Set<Transitions> result = EnumSet.noneOf(Transitions.class);
 
-        boolean leftMerge = shouldTileTransitionWith(x, y, x - 1, y);
-        boolean rightMerge = shouldTileTransitionWith(x, y, x + 1, y);
-        boolean topMerge = shouldTileTransitionWith(x, y, x, y - 1);
-        boolean bottomMerge = shouldTileTransitionWith(x, y, x, y + 1);
+        final boolean leftMerge = shouldTileTransitionWith(x, y, x - 1, y);
+        final boolean rightMerge = shouldTileTransitionWith(x, y, x + 1, y);
+        final boolean topMerge = shouldTileTransitionWith(x, y, x, y - 1);
+        final boolean bottomMerge = shouldTileTransitionWith(x, y, x, y + 1);
 
         if (leftMerge) {
             result.add(Transitions.left);
@@ -536,9 +534,9 @@ public class TileTransitionSystem extends IntervalSystem {
             result.add(Transitions.bottom);
         }
 
-        Integer lookup = dirtTransitionTypes.get(result);
+        final Integer lookup = dirtTransitionTypes.get(result);
         assert lookup != null : "transition lookup failure!";
-        m_world.blocks[index].meshType = (byte) lookup.intValue();
+        m_world.setBlockMeshType(x, y, (byte) lookup.intValue());
     }
 
     /**
@@ -554,12 +552,8 @@ public class TileTransitionSystem extends IntervalSystem {
      */
     private boolean shouldTileTransitionWith(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
         boolean isMatched = false;
-        int srcIndex = MathUtils.clamp(sourceTileX * OreWorld.WORLD_SIZE_Y + sourceTileY, 0,
-                                       OreWorld.WORLD_SIZE_Y * OreWorld.WORLD_SIZE_X - 1);
-        int nearbyIndex = MathUtils.clamp(nearbyTileX * OreWorld.WORLD_SIZE_Y + nearbyTileY, 0,
-                                          OreWorld.WORLD_SIZE_Y * OreWorld.WORLD_SIZE_X - 1);
 
-        if (m_world.blocks[srcIndex].type == m_world.blocks[nearbyIndex].type) {
+        if (m_world.blockTypeSafely(sourceTileX, sourceTileY) == m_world.blockTypeSafely(nearbyTileX, nearbyTileY)) {
             //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
             //some may be exceptions??
             isMatched = true;
