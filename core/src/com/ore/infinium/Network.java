@@ -307,8 +307,18 @@ public class Network {
     }
 
     static public class BlockRegion {
-        public Array<Network.SingleBlock> blocks = new Array<>();
-        //start and end indices, inclusive
+        public static final int BLOCK_FIELD_COUNT = 3;
+        public static final int BLOCK_FIELD_INDEX_TYPE = 0;
+        public static final int BLOCK_FIELD_INDEX_WALLTYPE = 1;
+        public static final int BLOCK_FIELD_INDEX_FLAGS = 2;
+
+        /**
+         * uses similar logic as world
+         * amount of fields per each block. e.g. every 3 bytes
+         * is for each block. but we don't send mesh type
+         */
+        public byte[] blocks;
+        //start and end indices, inclusive(a rect)
         public int x;
         public int y;
         public int x2;

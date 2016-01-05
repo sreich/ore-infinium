@@ -860,13 +860,16 @@ public class OreWorld {
 
     //todo this is reallllly bad, extremely frequent loads
     public void loadBlockRegion(Network.BlockRegion region) {
+
         int sourceIndex = 0;
         for (int y = region.y; y <= region.y2; ++y) {
             for (int x = region.x; x <= region.x2; ++x) {
-                Network.SingleBlock srcBlock = region.blocks.get(sourceIndex);
-                setBlockType(x, y, srcBlock.type);
-                setBlockWallType(x, y, srcBlock.wallType);
-                setBlockFlags(x, y, srcBlock.flags);
+                setBlockType(x, y, region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                                                 Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE]);
+                setBlockWallType(x, y, region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                                                     Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE]);
+                setBlockFlags(x, y, region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                                                  Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS]);
 
                 //fixme wall type as well
 

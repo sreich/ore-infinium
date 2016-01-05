@@ -500,15 +500,23 @@ public class NetworkServerSystem extends BaseSystem {
     public void sendPlayerBlockRegion(int player, int x, int y, int x2, int y2) {
         //FIXME: avoid array realloc
         Network.BlockRegion blockRegion = new Network.BlockRegion(x, y, x2, y2);
+        int count = (x2 - x) * (y2 - y);
+
+        blockRegion.blocks = new byte[count * Network.BlockRegion.BLOCK_FIELD_COUNT];
+        int blockCount = 0;
         for (int blockY = y; blockY <= y2; ++blockY) {
             for (int blockX = x; blockX <= x2; ++blockX) {
 
                 final byte blockType = m_world.blockType(blockX, blockY);
                 final byte wallType = m_world.blockWallType(blockX, blockY);
                 final byte flags = m_world.blockFlags(blockX, blockY);
-                Network.SingleBlock block = new Network.SingleBlock(blockType, wallType, flags);
 
-                blockRegion.blocks.add(block);
+                blockRegion.blocks[blockCount * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                                   Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE] = blockType;
+                blockRegion.blocks[blockCount * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                                   Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE] = wallType;
+                blockRegion.blocks[blockCount * Network.BlockRegion.BLOCK_FIELD_COUNT +
+                                   Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS] = flags;
             }
         }
 
