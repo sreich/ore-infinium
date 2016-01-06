@@ -31,7 +31,7 @@ import com.ore.infinium.components.*;
 
 /**
  * system that handled all the power circuits/wire connections, can look them up,
- * connect them, remove them, etc., and it also will process them each tick and
+ * connect them, remove them, etc., and it also will process them each tick (if server) and
  * calculate their current statuses, e.g. how much electricity was generated,
  * consumed, etc...
  */

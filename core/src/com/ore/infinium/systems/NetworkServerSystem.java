@@ -520,7 +520,7 @@ public class NetworkServerSystem extends BaseSystem {
                 ++blockIndex;
             }
         }
-        OreWorld.log("networkserversystem", "sendplayerblockregion blockcount: " + blockIndex);
+        //OreWorld.log("networkserversystem", "sendplayerblockregion blockcount: " + blockIndex);
 
         PlayerComponent playerComponent = playerMapper.get(player);
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, blockRegion);

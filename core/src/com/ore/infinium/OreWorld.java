@@ -857,7 +857,6 @@ public class OreWorld {
         }
     }
 
-    //todo this is reallllly bad, extremely frequent loads
     public void loadBlockRegion(Network.BlockRegion region) {
 
         int sourceIndex = 0;
@@ -874,7 +873,7 @@ public class OreWorld {
             }
         }
 
-        log("client block region", String.format("loaded %s tile index", sourceIndex));
+        //log("client block region", String.format("loaded %s tile index", sourceIndex));
 
         //fixme should re transition tiles in this area
     }

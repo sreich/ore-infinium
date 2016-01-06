@@ -109,6 +109,8 @@ public class PlayerSystem extends IteratingSystem {
         loadedViewport.centerOn(center);
 
         m_networkServerSystem.sendPlayerLoadedViewportMoved(playerEntity);
+
+        //todo send only partials depending on direction they're traveling(distance from origin).
         sendPlayerBlockRegion(playerEntity);
     }
 
