@@ -193,6 +193,7 @@ public class Network {
     //        int newCount;
     //    }
 
+    //todo make itemcomponent.inventoryIndex transient, send that instead through the packets
     static public class PlayerSpawnHotbarInventoryItemFromServer {
         public SizePacket size = new SizePacket();
 

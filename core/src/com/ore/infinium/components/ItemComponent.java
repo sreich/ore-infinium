@@ -33,7 +33,7 @@ public class ItemComponent extends Component {
      * temporarily. if they get picked up, we'd like to restore
      * this back to normal, but since we modify the original
      * size, we have no idea what it is.
-     *
+     * <p>
      * This is serialized over the network,  unfortunately it is
      * for each item. we may want a better method. if this becomes a
      * problem network/bandwidth wise
@@ -52,12 +52,12 @@ public class ItemComponent extends Component {
     /**
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
-    public transient byte inventoryIndex;
+    public byte inventoryIndex;
 
     /**
      * flag to indicate the item was *just* dropped this frame and has not yet
      * had velocity integrated yet.
-     *
+     * <p>
      * Only set by the server, when an item is dropped, it receives the drop request
      * from the client, server will simulate the dropped item and tell the clients.
      */
