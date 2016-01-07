@@ -732,6 +732,23 @@ public class OreWorld {
         return air;
     }
 
+    public int createTree() {
+        int tree = m_artemisWorld.create();
+        ItemComponent itemComponent = itemMapper.create(tree);
+        itemComponent.stackSize = 800;
+        itemComponent.maxStackSize = 900;
+
+        SpriteComponent airSprite = spriteMapper.create(tree);
+        airSprite.textureName = "air-generator-64x64";
+
+        airSprite.sprite.setSize(4, 4);
+
+        AirGeneratorComponent airComponent = airGeneratorMapper.create(tree);
+        airComponent.airOutputRate = 100;
+
+        return tree;
+    }
+
     /**
      * @param entity
      *         entity id
