@@ -33,6 +33,7 @@ public class ItemComponent extends Component {
      * temporarily. if they get picked up, we'd like to restore
      * this back to normal, but since we modify the original
      * size, we have no idea what it is.
+     *
      * This is serialized over the network,  unfortunately it is
      * for each item. we may want a better method. if this becomes a
      * problem network/bandwidth wise
@@ -47,15 +48,20 @@ public class ItemComponent extends Component {
      */
     public int playerIdWhoDropped;
     public State state = State.InWorldState;
+
     /**
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
-    public byte inventoryIndex;
+    public transient byte inventoryIndex;
+
     /**
      * flag to indicate the item was *just* dropped this frame and has not yet
      * had velocity integrated yet.
+     *
+     * Only set by the server, when an item is dropped, it receives the drop request
+     * from the client, server will simulate the dropped item and tell the clients.
      */
-    public boolean justDropped;
+    public transient boolean justDropped;
 
     public enum ItemProperties {
         Placeable,
@@ -64,28 +70,10 @@ public class ItemComponent extends Component {
         Usable
     }
 
-    public enum ItemType {
-        Torch,
-        // chesticles
-        Container,
-        Weapon,
-        Armor,
-        // we be plantin' trees and shit
-        Vegetation,
-        // blocks are handled super specially. they have different placement rules, and they are not rendered as an
-        // Entity, but something totally different.
-        Block,
-        Tool
-    }
-
     public enum State {
         InWorldState,
         InInventoryState,
         DroppedInWorld
-    }
-
-    public enum PlacementHints {
-
     }
 
     /**
