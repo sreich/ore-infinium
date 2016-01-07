@@ -12,10 +12,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.PerformanceCounter;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.*;
@@ -267,15 +264,42 @@ public class OreWorld {
     }
 
     private void generateWorld() {
+
+        Gdx.app.log("server world gen", "worldgen starting");
         PerformanceCounter counter = new PerformanceCounter("test");
         counter.start();
 
         generateOres();
         generateGrassTiles();
+        generateTrees();
 
         counter.stop();
         String s = String.format("total world gen took (incl transitioning, etc): %s seconds", counter.current);
         Gdx.app.log("", s);
+
+    }
+
+    public static int randomRange(int start, int end, RandomXS128 rand) {
+        return start + rand.nextInt(end - start + 1);
+    }
+
+    private void generateTrees() {
+        RandomXS128 rand = new RandomXS128();
+        //        for (int y = 0; y < WORLD_SIZE_Y; ++y) {
+        //       }
+        //randomRange(, 20, rand)
+        SpriteComponent spriteComponent;
+        for (int x = 0; x < WORLD_SIZE_X - 50; x += 5) {
+            int tree = createTree();
+            spriteComponent = spriteMapper.get(tree);
+            float halfTreeHeight = spriteComponent.sprite.getHeight();
+
+            int y = seaLevel() - (int) halfTreeHeight;
+
+            //final byte blockType = blockType(x, y);
+
+            spriteComponent.sprite.setPosition(x, y);
+        }
 
     }
 
@@ -734,17 +758,10 @@ public class OreWorld {
 
     public int createTree() {
         int tree = m_artemisWorld.create();
-        ItemComponent itemComponent = itemMapper.create(tree);
-        itemComponent.stackSize = 800;
-        itemComponent.maxStackSize = 900;
 
-        SpriteComponent airSprite = spriteMapper.create(tree);
-        airSprite.textureName = "air-generator-64x64";
-
-        airSprite.sprite.setSize(4, 4);
-
-        AirGeneratorComponent airComponent = airGeneratorMapper.create(tree);
-        airComponent.airOutputRate = 100;
+        SpriteComponent sprite = spriteMapper.create(tree);
+        sprite.textureName = "air-generator-64x64";
+        sprite.sprite.setSize(2, 6);
 
         return tree;
     }
