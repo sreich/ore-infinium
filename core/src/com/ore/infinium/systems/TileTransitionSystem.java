@@ -46,6 +46,8 @@ public class TileTransitionSystem extends IntervalSystem {
 
     private TagManager m_tagManager;
 
+    private NetworkClientSystem m_networkClientSystem;
+
     private OreWorld m_world;
 
     /**
@@ -309,6 +311,10 @@ public class TileTransitionSystem extends IntervalSystem {
 
     @Override
     protected void processSystem() {
+        if (!m_networkClientSystem.connected) {
+            return;
+        }
+       
         final int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
         PlayerComponent playerComponent = playerMapper.get(player);
         LoadedViewport.PlayerViewportBlockRegion blockRegion = playerComponent.loadedViewport.blockRegionInViewport();
