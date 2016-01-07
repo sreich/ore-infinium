@@ -34,12 +34,21 @@ import com.ore.infinium.components.*;
  * connect them, remove them, etc., and it also will process them each tick (if server) and
  * calculate their current statuses, e.g. how much electricity was generated,
  * consumed, etc...
+ * <p>
+ * This is a server-only system
  */
 @Wire
-public class PowerCircuitSystem extends BaseSystem {
+public class ServerPowerCircuitSystem extends BaseSystem {
     static final float WIRE_THICKNESS = 0.5f;
 
     private OreWorld m_world;
+
+    /**
+     * serves as a global (cross-network) identifier
+     * for circuits
+     */
+    private int m_circuitId = 0;
+
 
     /**
      * Contains list of each circuit in the world.
@@ -71,13 +80,14 @@ public class PowerCircuitSystem extends BaseSystem {
         Array<PowerWireConnection> wireConnections = new Array<>();
 
         /**
+         * Entity id
          * List of generators for faster checking of changes/recalculations, in addition to the
-         * wire connection list
-         * Is disjoint from devices.
+         * wire connection list is disjoint from devices.
          */
         IntArray generators = new IntArray();
 
         /**
+         * Entity id
          * List of all the devices that consume power, connected on this circuit
          * For faster retrieval of just those, and for calculating the load usages.
          * May be disjoint from generators, but note that generators have potential to consume power as well..
@@ -90,6 +100,8 @@ public class PowerCircuitSystem extends BaseSystem {
 
         int totalSupply;
         int totalDemand;
+
+        int circuitId = -1;
     }
 
     /**
@@ -104,6 +116,7 @@ public class PowerCircuitSystem extends BaseSystem {
             this.firstEntity = firstEntity;
             this.secondEntity = secondEntity;
         }
+
     }
 
     private ComponentMapper<PlayerComponent> playerMapper;
@@ -114,7 +127,7 @@ public class PowerCircuitSystem extends BaseSystem {
     private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
 
-    public PowerCircuitSystem(OreWorld world) {
+    public ServerPowerCircuitSystem(OreWorld world) {
         m_world = world;
     }
 
@@ -352,7 +365,7 @@ public class PowerCircuitSystem extends BaseSystem {
                 float circleRadius2 = (float) Math.pow(WIRE_THICKNESS * 4, 2);
                 //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
                 Vector2 circleCenter =
-                        new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS * 3));
+                        new Vector2(position.x - 0, position.y - (ServerPowerCircuitSystem.WIRE_THICKNESS * 3));
                 boolean intersects =
                         Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter, circleRadius2);
                 if (intersects) {

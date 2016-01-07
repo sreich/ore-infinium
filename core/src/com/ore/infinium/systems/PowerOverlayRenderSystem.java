@@ -52,7 +52,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
     private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
 
     private EntityOverlaySystem m_entityOverlaySystem;
-    private PowerCircuitSystem m_powerCircuitSystem;
+    private ServerPowerCircuitSystem m_Server_powerCircuitSystem;
     private TagManager m_tagManager;
 
     //    public Sprite outputNode = new Sprite();
@@ -184,7 +184,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
     public void rightMouseClicked() {
         //check if we can delete a wire
-        m_powerCircuitSystem.disconnectWireAtPosition(m_world.mousePositionWorldCoords());
+        m_Server_powerCircuitSystem.disconnectWireAtPosition(m_world.mousePositionWorldCoords());
     }
 
     public void leftMouseReleased() {
@@ -212,7 +212,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
                 //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
 
-                m_powerCircuitSystem.connectDevices(m_dragSourceEntity, dropEntity);
+                m_Server_powerCircuitSystem.connectDevices(m_dragSourceEntity, dropEntity);
 
                 //               }
 
@@ -316,8 +316,8 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         SpriteComponent secondEntitySpriteComponent;
 
         SpriteComponent deviceSprite;
-        PowerCircuitSystem powerCircuitSystem = m_powerCircuitSystem;
-        for (PowerCircuitSystem.PowerCircuit circuit : powerCircuitSystem.m_circuits) {
+        ServerPowerCircuitSystem serverPowerCircuitSystem = m_Server_powerCircuitSystem;
+        for (ServerPowerCircuitSystem.PowerCircuit circuit : serverPowerCircuitSystem.m_circuits) {
             //for each device, draw a power node, a "hub" of wireConnections of sorts.
             for (int i = 0; i < circuit.generators.size; ++i) {
                 int gen = circuit.generators.get(i);
@@ -333,7 +333,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             }
 
             //draw wires of each connection, in every circuit. Wires only have a start and end point.
-            for (PowerCircuitSystem.PowerWireConnection powerWireConnection : circuit.wireConnections) {
+            for (ServerPowerCircuitSystem.PowerWireConnection powerWireConnection : circuit.wireConnections) {
 
                 firstEntitySpriteComponent = spriteMapper.get(powerWireConnection.firstEntity);
                 secondEntitySpriteComponent = spriteMapper.get(powerWireConnection.secondEntity);
@@ -361,7 +361,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         float wireLength = Vector2.dst(source.x, source.y, dest.x, dest.y);
 
         m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0, 0,
-                     PowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees);
+                     ServerPowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees);
     }
 
     private void renderPowerNode(SpriteComponent spriteComponent) {

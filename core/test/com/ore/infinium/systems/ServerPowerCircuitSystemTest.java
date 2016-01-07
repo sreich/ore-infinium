@@ -28,9 +28,9 @@ import static org.junit.Assert.*;
  * You should have received a copy of the GNU General Public License        *
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  *****************************************************************************/
-public class PowerCircuitSystemTest {
+public class ServerPowerCircuitSystemTest {
     OreWorld world;// = new OreWorld(null, null);
-    PowerCircuitSystem circuitSystem;
+    ServerPowerCircuitSystem circuitSystem;
 
     private ComponentMapper<SpriteComponent> spriteMapper;
     private ComponentMapper<PowerDeviceComponent> deviceMapper;
@@ -38,9 +38,10 @@ public class PowerCircuitSystemTest {
     @Before
     public void createArtemisWorld() {
         world = new OreWorld(null, null, OreWorld.WorldInstanceType.Server);
-        world.m_artemisWorld = new World(new WorldConfigurationBuilder().with(new PowerCircuitSystem(world)).build());
+        world.m_artemisWorld =
+                new World(new WorldConfigurationBuilder().with(new ServerPowerCircuitSystem(world)).build());
 
-        circuitSystem = world.m_artemisWorld.getSystem(PowerCircuitSystem.class);
+        circuitSystem = world.m_artemisWorld.getSystem(ServerPowerCircuitSystem.class);
 
         //inject the mappers into the world, before we start doing things
         world.m_artemisWorld.inject(world, true);
@@ -247,7 +248,7 @@ public class PowerCircuitSystemTest {
 
         float x = 150;
         //try to remove it x2 wire thicknesses above where the wire actually is
-        float y = 100.0f - (PowerCircuitSystem.WIRE_THICKNESS * 1.0f);
+        float y = 100.0f - (ServerPowerCircuitSystem.WIRE_THICKNESS * 1.0f);
 
         boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(x, y));
         assertTrue(disconnected);
@@ -273,7 +274,7 @@ public class PowerCircuitSystemTest {
 
         float x = 150;
         //try to remove it x2 wire thicknesses below where the wire actually is
-        float y = 100.0f + (PowerCircuitSystem.WIRE_THICKNESS * 3.0f);
+        float y = 100.0f + (ServerPowerCircuitSystem.WIRE_THICKNESS * 3.0f);
 
         boolean disconnected = circuitSystem.disconnectWireAtPosition(new Vector2(x, y));
         assertTrue(disconnected);
@@ -298,7 +299,7 @@ public class PowerCircuitSystemTest {
         spriteMapper.get(gen).sprite.setPosition(100, 100);
         spriteMapper.get(light).sprite.setPosition(100, 200);
 
-        float x = 100 - (PowerCircuitSystem.WIRE_THICKNESS * 3.0f);
+        float x = 100 - (ServerPowerCircuitSystem.WIRE_THICKNESS * 3.0f);
         //try to remove it x2 wire thicknesses below where the wire actually is
         float y = 150.0f;
 
