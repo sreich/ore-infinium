@@ -136,7 +136,9 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 itemComponent.state = ItemComponent.State.DroppedInWorld;
                 itemComponent.playerIdWhoDropped = playerComponent.connectionPlayerId;
 
-                m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
+                //hack this isnt 'needed i don't think because the server network entity system
+                //auto finds and spawns it
+                // m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
 
                 m_world.destroyBlock(blockToDig.x, blockToDig.y);
 

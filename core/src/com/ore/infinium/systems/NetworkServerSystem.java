@@ -196,6 +196,7 @@ public class NetworkServerSystem extends BaseSystem {
         spawn.textureName = sprite.textureName;
 
         //FIXME, fixme: m_serverKryo.sendToTCP(connectionPlayerId, spawn);
+        //todo check if in viewport
         m_serverKryo.sendToAllTCP(spawn);
     }
     */
@@ -223,7 +224,7 @@ public class NetworkServerSystem extends BaseSystem {
             spawn.size.size.set(sprite.sprite.getWidth(), sprite.sprite.getHeight());
             spawn.textureName = sprite.textureName;
 
-            spawnMultiple.entitySpawn.add();
+            spawnMultiple.entitySpawn.add(spawn);
         }
 
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple);
@@ -440,7 +441,7 @@ public class NetworkServerSystem extends BaseSystem {
         droppedItemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
 
         //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
-        sendSpawnEntity(droppedItem, job.connection.getID());
+        //sendSpawnEntity(droppedItem, job.connection.getID());
     }
 
     private void receivePlayerEquipHotbarIndex(NetworkJob job) {

@@ -35,7 +35,13 @@ import com.ore.infinium.components.*;
  * and every player/client, and which (we think/hope) are
  *
  * entities should not be spawned manually, as this system
- * will take care of it
+ * will take care of it, as well as notifying of destruction.
+ *
+ * each tick it checks which entities should be added or removed
+ * to the client's viewport region, compared to what we know/think
+ * is already spawned on that client. and sends out appropriate net
+ * commands
+ *
  */ public class ServerNetworkEntitySystem extends IteratingSystem {
     private OreWorld m_world;
 
@@ -48,8 +54,6 @@ import com.ore.infinium.components.*;
 
     private NetworkServerSystem m_networkServerSystem;
     private SpatialSystem m_spatialSystem;
-
-    private ConnectionListener m_connectionListener;
 
     private Array<PlayerEntitiesInViewport> m_playerEntities = new Array<>();
 
@@ -77,14 +81,14 @@ import com.ore.infinium.components.*;
          * will be removed. this does not mean they will actually be removed from the world,
          * since this is just a "which entities does this client have in viewport"
          */
-        IntArray entitiesSpawned = new IntArray();
+        IntArray entitiesSpawned = new IntArray(false, 16);
     }
 
     public ServerNetworkEntitySystem(OreWorld world) {
         super(Aspect.one(SpriteComponent.class));
 
         m_world = world;
-        m_networkServerSystem.addConnectionListener(m_connectionListener = new ConnectionListener());
+        m_networkServerSystem.addConnectionListener(new ConnectionListener());
     }
 
     private class ConnectionListener implements NetworkServerSystem.NetworkServerConnectionListener {
@@ -146,7 +150,7 @@ import com.ore.infinium.components.*;
             IntBag fill = new IntBag();
             m_spatialSystem.m_tree.get(fill, viewport.x, viewport.y, viewport.width, viewport.height);
 
-            //hack copy to intarray
+            //hack copy to intarray only because the quadtree uses an intbag
             IntArray entitiesInRegion = new IntArray(false, 100);
             for (int i = 0; i < fill.size(); i++) {
                 entitiesInRegion.add(fill.get(i));
@@ -154,6 +158,9 @@ import com.ore.infinium.components.*;
 
             //remove the set of entities we think we have spawned, from the ones that are actually there.
             entitiesInRegion.removeAll(playerEntity.entitiesSpawned);
+
+            //add these new ones in..
+            playerEntity.entitiesSpawned.addAll(entitiesInRegion);
 
             //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
             m_networkServerSystem.sendSpawnMultipleEntities(entitiesInRegion, playerComponent.connectionPlayerId);

@@ -195,8 +195,9 @@ public class NetworkClientSystem extends BaseSystem {
                 receiveLoadedViewportMoved(receivedObject);
             } else if (receivedObject instanceof Network.PlayerSpawnHotbarInventoryItemFromServer) {
                 receivePlayerSpawnHotbarInventoryItem(receivedObject);
-            } else if (receivedObject instanceof Network.EntitySpawnFromServer) {
-                receiveEntitySpawn(receivedObject);
+                //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
+            } else if (receivedObject instanceof Network.EntitySpawnMultipleFromServer) {
+                receiveMultipleEntitySpawn(receivedObject);
             } else if (receivedObject instanceof Network.ChatMessageFromServer) {
                 receiveChatMessage(receivedObject);
             } else if (receivedObject instanceof Network.EntityMovedFromServer) {
@@ -256,6 +257,7 @@ public class NetworkClientSystem extends BaseSystem {
         spriteComponent.sprite.setPosition(data.position.x, data.position.y);
     }
 
+    /*
     private void receiveEntitySpawn(Object receivedObject) {
         //fixme this and hotbar code needs consolidation
         Network.EntitySpawnFromServer spawn = (Network.EntitySpawnFromServer) receivedObject;
@@ -283,6 +285,39 @@ public class NetworkClientSystem extends BaseSystem {
 
         m_networkIdForEntityId.put(e, spawn.id);
         m_entityForNetworkId.put(spawn.id, e);
+    }
+    */
+
+    private void receiveMultipleEntitySpawn(Object receivedObject) {
+        //fixme this and hotbar code needs consolidation
+        Network.EntitySpawnMultipleFromServer spawnFromServer = (Network.EntitySpawnMultipleFromServer) receivedObject;
+
+        for (Network.EntitySpawnFromServer spawn : spawnFromServer.entitySpawn) {
+
+            int e = getWorld().create();
+            for (Component c : spawn.components) {
+                EntityEdit entityEdit = getWorld().edit(e);
+                entityEdit.add(c);
+            }
+
+            //fixme id..see above.
+            SpriteComponent spriteComponent = spriteMapper.create(e);
+            spriteComponent.textureName = spawn.textureName;
+            spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
+            spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+
+            TextureRegion textureRegion;
+            if (!blockMapper.has(e)) {
+                textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+            } else {
+                textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+            }
+
+            spriteComponent.sprite.setRegion(textureRegion);
+
+            m_networkIdForEntityId.put(e, spawn.id);
+            m_entityForNetworkId.put(spawn.id, e);
+        }
     }
 
     private void receiveLoadedViewportMoved(Object receivedObject) {
