@@ -306,12 +306,17 @@ public class NetworkClientSystem extends BaseSystem {
             spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
             spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
 
+            assert spriteComponent.textureName != null;
+
             TextureRegion textureRegion;
             if (!blockMapper.has(e)) {
                 textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
             } else {
                 textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
             }
+
+            assert textureRegion != null :
+                    "texture region is null on receiving entity spawn and reverse lookup of texture for this entity";
 
             spriteComponent.sprite.setRegion(textureRegion);
 
