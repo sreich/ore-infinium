@@ -208,6 +208,10 @@ public class Network {
         public Array<Component> components;
     }
 
+    static public class EntitySpawnMultipleFromServer {
+        public Array<EntitySpawnFromServer> entitySpawn;
+    }
+
     static public class EntitySpawnFromServer {
         public SizePacket size = new SizePacket();
         public PositionPacket pos = new PositionPacket();

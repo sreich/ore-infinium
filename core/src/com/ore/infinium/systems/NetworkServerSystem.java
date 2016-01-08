@@ -8,6 +8,7 @@ import com.artemis.utils.Bag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntArray;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.FrameworkMessage;
 import com.esotericsoftware.kryonet.Listener;
@@ -64,6 +65,28 @@ public class NetworkServerSystem extends BaseSystem {
     public Server m_serverKryo;
     public ConcurrentLinkedQueue<NetworkJob> m_netQueue = new ConcurrentLinkedQueue<>();
 
+    private Array<NetworkServerConnectionListener> m_connectionListeners = new Array<>();
+
+    /**
+     * Listener for notifying when a player has joined/disconnected,
+     * systems and such interested can subscribe.
+     */
+    interface NetworkServerConnectionListener {
+        /**
+         * note this does not indicate when a connection *actually*
+         * first happened, since we wouldn't have a player object,
+         * and it wouldn't be valid yet.
+         *
+         * @param playerEntityId
+         */
+        default void playerConnected(int playerEntityId) {
+
+        }
+
+        default void playerDisconnected(int playerEntityId) {
+        }
+    }
+
     public NetworkServerSystem(OreWorld world, OreServer server) {
         m_world = world;
         m_server = server;
@@ -99,6 +122,10 @@ public class NetworkServerSystem extends BaseSystem {
         //notify the local client we've started hosting our server, so he can connect now.
         m_world.m_server.connectHostLatch.countDown();
 
+    }
+
+    public void addConnectionListener(NetworkServerConnectionListener listener) {
+        m_connectionListeners.add(listener);
     }
 
     /**
@@ -156,6 +183,7 @@ public class NetworkServerSystem extends BaseSystem {
      * @param entityId
      * @param connectionId
      */
+    /*
     public void sendSpawnEntity(int entityId, int connectionId) {
         Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
         spawn.components = serializeComponents(entityId);
@@ -169,6 +197,36 @@ public class NetworkServerSystem extends BaseSystem {
 
         //FIXME, fixme: m_serverKryo.sendToTCP(connectionPlayerId, spawn);
         m_serverKryo.sendToAllTCP(spawn);
+    }
+    */
+
+    /**
+     * used for batch sending of heaps of entities to get spawned for the player/client
+     *
+     * @param entitiesToSpawn
+     * @param connectionPlayerId
+     */
+    public void sendSpawnMultipleEntities(IntArray entitiesToSpawn, int connectionPlayerId) {
+        Network.EntitySpawnMultipleFromServer spawnMultiple = new Network.EntitySpawnMultipleFromServer();
+        spawnMultiple.entitySpawn = new Array<>(false, entitiesToSpawn.size);
+
+        for (int i = 0; i < entitiesToSpawn.size; ++i) {
+            int entityId = entitiesToSpawn.get(i);
+
+            Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
+            spawn.id = entityId;
+            spawn.components = serializeComponents(entityId);
+
+            SpriteComponent sprite = spriteMapper.get(entityId);
+
+            spawn.pos.pos.set(sprite.sprite.getX(), sprite.sprite.getY());
+            spawn.size.size.set(sprite.sprite.getWidth(), sprite.sprite.getHeight());
+            spawn.textureName = sprite.textureName;
+
+            spawnMultiple.entitySpawn.add();
+        }
+
+        m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple);
     }
 
     /**
@@ -307,6 +365,11 @@ public class NetworkServerSystem extends BaseSystem {
         // Store the player on the connection.
         job.connection.player = m_server.createPlayer(name, job.connection.getID());
         job.connection.playerName = name;
+
+        //notify to everyone it connected
+        for (NetworkServerConnectionListener connectionListener : m_connectionListeners) {
+            connectionListener.playerConnected(job.connection.player);
+        }
     }
 
     private void receivePlayerMove(NetworkJob job) {
@@ -575,9 +638,10 @@ public class NetworkServerSystem extends BaseSystem {
 
         @Override
         public void connected(Connection connection) {
-            Thread.currentThread().setName("server thread (main)");
-
             super.connected(connection);
+
+            //for more easily seeing which thread is which.
+            Thread.currentThread().setName("server thread (main)");
         }
 
         @Override

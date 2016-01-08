@@ -191,11 +191,13 @@ public class OreWorld {
             float h = Gdx.graphics.getHeight();
         } else if (worldInstanceType == WorldInstanceType.Server) {
             m_artemisWorld = new World(new WorldConfigurationBuilder().with(new TagManager())
+                                                                      .with(new SpatialSystem(this))
                                                                       .with(new PlayerManager())
                                                                       .with(new MovementSystem(this))
                                                                       .with(new ServerPowerCircuitSystem(this))
                                                                       .with(new GameTickSystem(this))
                                                                       .with(new GrassBlockSystem(this))
+                                                                      .with(new ServerNetworkEntitySystem(this))
                                                                       .with(new ServerBlockDiggingSystem(this))
                                                                       .with(new PlayerSystem(this))
                                                                       .with(new NetworkServerSystem(this, m_server))
