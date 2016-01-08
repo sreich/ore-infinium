@@ -88,6 +88,10 @@ import com.ore.infinium.components.*;
         super(Aspect.one(SpriteComponent.class));
 
         m_world = world;
+    }
+
+    @Override
+    protected void initialize() {
         m_networkServerSystem.addConnectionListener(new ConnectionListener());
     }
 
@@ -162,8 +166,11 @@ import com.ore.infinium.components.*;
             //add these new ones in..
             playerEntity.entitiesSpawned.addAll(entitiesInRegion);
 
-            //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
-            m_networkServerSystem.sendSpawnMultipleEntities(entitiesInRegion, playerComponent.connectionPlayerId);
+            if (playerEntity.entitiesSpawned.size > 0) {
+                //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
+                m_networkServerSystem.sendSpawnMultipleEntities(playerEntity.entitiesSpawned,
+                                                                playerComponent.connectionPlayerId);
+            }
         }
     }
 }

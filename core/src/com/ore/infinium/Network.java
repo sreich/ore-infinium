@@ -54,6 +54,7 @@ public class Network {
         kryo.register(HotbarDropItemFromClient.class);
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
+        kryo.register(EntitySpawnMultipleFromServer.class);
         kryo.register(EntityMovedFromServer.class);
         kryo.register(PlayerSpawnHotbarInventoryItemFromServer.class);
         kryo.register(ItemComponent.State.class);

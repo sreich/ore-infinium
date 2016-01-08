@@ -208,6 +208,8 @@ public class NetworkServerSystem extends BaseSystem {
      * @param connectionPlayerId
      */
     public void sendSpawnMultipleEntities(IntArray entitiesToSpawn, int connectionPlayerId) {
+        assert entitiesToSpawn.size > 0 : "server told to spawn 0 entities, this is impossible";
+
         Network.EntitySpawnMultipleFromServer spawnMultiple = new Network.EntitySpawnMultipleFromServer();
         spawnMultiple.entitySpawn = new Array<>(false, entitiesToSpawn.size);
 
@@ -227,6 +229,8 @@ public class NetworkServerSystem extends BaseSystem {
             spawnMultiple.entitySpawn.add(spawn);
         }
 
+        OreWorld.log("networkserversystem",
+                     String.format("sending spawn multiple for %d entities", spawnMultiple.entitySpawn.size));
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple);
     }
 
