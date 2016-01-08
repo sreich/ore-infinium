@@ -294,11 +294,6 @@ public class OreServer implements Runnable {
 
     private class HotbarInventorySlotListener implements Inventory.SlotListener {
         @Override
-        public void countChanged(byte index, Inventory inventory) {
-
-        }
-
-        @Override
         public void set(byte index, Inventory inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
             //or an overloaded method for dragging
@@ -309,14 +304,6 @@ public class OreServer implements Runnable {
             //            }
         }
 
-        @Override
-        public void removed(byte index, Inventory inventory) {
-
-        }
-
-        @Override
-        public void selected(byte index, Inventory inventory) {
-        }
     }
 
 }

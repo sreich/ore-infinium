@@ -592,21 +592,6 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private class HotbarSlotListener implements Inventory.SlotListener {
         @Override
-        public void countChanged(byte index, Inventory inventory) {
-
-        }
-
-        @Override
-        public void set(byte index, Inventory inventory) {
-
-        }
-
-        @Override
-        public void removed(byte index, Inventory inventory) {
-
-        }
-
-        @Override
         public void selected(byte index, Inventory inventory) {
             assert m_world != null;
 
@@ -623,7 +608,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         @Override
         public void connected() {
-
+            //todo surely there's some first-time connection stuff we must do?
         }
 
         @Override

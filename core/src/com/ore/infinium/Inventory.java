@@ -31,7 +31,9 @@ public class Inventory {
     //selection is hotbar only
     public byte m_selectedSlot;
     public byte m_previousSelectedSlot;
+
     public int owningPlayer; //fixme? unneeded?
+
     public InventoryType inventoryType;
     Array<SlotListener> m_listeners = new Array<>();
 
@@ -126,13 +128,17 @@ public class Inventory {
     }
 
     public interface SlotListener {
-        void countChanged(byte index, Inventory inventory);
+        default void countChanged(byte index, Inventory inventory) {
+        }
 
-        void set(byte index, Inventory inventory);
+        default void set(byte index, Inventory inventory) {
+        }
 
-        void removed(byte index, Inventory inventory);
+        default void removed(byte index, Inventory inventory) {
+        }
 
-        void selected(byte index, Inventory inventory);
+        default void selected(byte index, Inventory inventory) {
+        }
     }
 
 }

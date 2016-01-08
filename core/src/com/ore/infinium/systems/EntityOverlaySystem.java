@@ -164,20 +164,6 @@ public class EntityOverlaySystem extends BaseSystem {
 
             m_world.m_client.m_hotbarInventory.addListener(new Inventory.SlotListener() {
                 @Override
-                public void countChanged(byte index, Inventory inventory) {
-                }
-
-                @Override
-                public void set(byte index, Inventory inventory) {
-
-                }
-
-                @Override
-                public void removed(byte index, Inventory inventory) {
-
-                }
-
-                @Override
                 public void selected(byte index, Inventory inventory) {
                     slotSelected(index, inventory);
                 }
@@ -260,9 +246,4 @@ public class EntityOverlaySystem extends BaseSystem {
             spriteMapper.get(entity).visible = visible;
         }
     }
-
-    @Override
-    protected void end() {
-    }
-
 }

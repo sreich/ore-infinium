@@ -162,11 +162,6 @@ public class InventoryView implements Inventory.SlotListener {
         slot.itemCountLabel.setText(null);
     }
 
-    //unused
-    @Override
-    public void selected(byte index, Inventory inventory) {
-    }
-
     private static class InventoryDragSource extends DragAndDrop.Source {
         private final byte index;
         private Image dragImage;

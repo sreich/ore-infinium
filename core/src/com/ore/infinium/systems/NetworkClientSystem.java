@@ -104,11 +104,13 @@ public class NetworkClientSystem extends BaseSystem {
     }
 
     public interface NetworkClientListener {
-        public void connected();
+        default void connected() {
+        }
 
         //todo send a disconnection reason along with the disconnect event. to eg differentiate between a kick or a
         // connection loss, or a server shutdown
-        public void disconnected();
+        default void disconnected() {
+        }
     }
 
     /**

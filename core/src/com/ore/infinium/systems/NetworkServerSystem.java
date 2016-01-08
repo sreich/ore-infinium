@@ -71,6 +71,7 @@ public class NetworkServerSystem extends BaseSystem {
         try {
             //m_serverKryo = new Server(16384, 8192, new JsonSerialization()) {
             m_serverKryo = new Server(Network.bufferWriteSize, 2048) {
+                @Override
                 protected Connection newConnection() {
                     // By providing our own connection implementation, we can store per
                     // connection state without a connection ID to state look up.
