@@ -216,6 +216,23 @@ public class NetworkServerSystem extends BaseSystem {
         for (int i = 0; i < entitiesToSpawn.size; ++i) {
             int entityId = entitiesToSpawn.get(i);
 
+            if (playerMapper.has(entityId)) {
+                //skip players we don't know how to spawn them automatically yet
+                continue;
+
+                /*
+                fixme hack ignore all players. we dont' spawn them, but we're gonna
+                need to rethink this. right now it is split between this generic spawning,
+                and player spawning, which is a specific packet type sent out.
+                we could make clients smart enough to know if that is their player..maybe
+                also the bigger issue is we have no idea how to render them.
+                i'm a bit confused in general as to how textures of entities will get rendered,
+                or rather, which texture they know to use. once i make animations, this will
+                make it that much harder. i'm not sure what a good model is to follow after,
+                for animation states. especially when they relate to ECS.
+                */
+            }
+
             Network.EntitySpawnFromServer spawn = new Network.EntitySpawnFromServer();
             spawn.id = entityId;
             spawn.components = serializeComponents(entityId);
