@@ -81,7 +81,7 @@ import com.ore.infinium.components.*;
          * will be removed. this does not mean they will actually be removed from the world,
          * since this is just a "which entities does this client have in viewport"
          */
-        IntArray entitiesSpawned = new IntArray(false, 16);
+        IntArray knownEntities = new IntArray(false, 16);
     }
 
     public ServerNetworkEntitySystem(OreWorld world) {
@@ -128,11 +128,11 @@ import com.ore.infinium.components.*;
         // remove entity from client list
 
         for (PlayerEntitiesInViewport playerEntity : m_playerEntities) {
-            for (int i = 0; i < playerEntity.entitiesSpawned.size; i++) {
-                int ent = playerEntity.entitiesSpawned.get(i);
+            for (int i = 0; i < playerEntity.knownEntities.size; i++) {
+                int ent = playerEntity.knownEntities.get(i);
 
                 if (ent == entityId) {
-                    playerEntity.entitiesSpawned.removeIndex(i);
+                    playerEntity.knownEntities.removeIndex(i);
                 }
             }
         }
@@ -145,7 +145,7 @@ import com.ore.infinium.components.*;
         //for each player, check their list of entities spawned in their viewport,
         //compare with our list of entities that actually exist (spatial query)
         for (PlayerEntitiesInViewport playerEntity : m_playerEntities) {
-            //playerEntity.entitiesSpawned;
+            //playerEntity.knownEntities;
 
             PlayerComponent playerComponent = playerMapper.get(playerEntity.playerEntityId);
             LoadedViewport.PlayerViewportBlockRegion viewport = playerComponent.loadedViewport.blockRegionInViewport();
@@ -160,13 +160,13 @@ import com.ore.infinium.components.*;
                 entitiesInRegion.add(fill.get(i));
             }
 
-            //remove the set of entities we think we have spawned, from the ones that are actually there.
-            entitiesInRegion.removeAll(playerEntity.entitiesSpawned);
-
-            //add these new ones in..
-            playerEntity.entitiesSpawned.addAll(entitiesInRegion);
+            //remove the set of entities we know the client has spawned, from the ones that are actually there.
+            entitiesInRegion.removeAll(playerEntity.knownEntities);
 
             if (entitiesInRegion.size > 0) {
+                //add these new ones in..as we tell the client to spawn them properly
+                playerEntity.knownEntities.addAll(entitiesInRegion);
+
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 m_networkServerSystem.sendSpawnMultipleEntities(entitiesInRegion, playerComponent.connectionPlayerId);
             }
