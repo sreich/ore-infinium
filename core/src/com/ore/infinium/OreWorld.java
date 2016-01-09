@@ -762,8 +762,8 @@ public class OreWorld {
         int tree = m_artemisWorld.create();
 
         SpriteComponent sprite = spriteMapper.create(tree);
-        sprite.textureName = "air-generator-64x64";
-        sprite.sprite.setSize(2, 6);
+        sprite.textureName = "flora/tree-02";
+        sprite.sprite.setSize(5, 13);
 
         return tree;
     }
