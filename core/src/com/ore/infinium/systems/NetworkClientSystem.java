@@ -8,7 +8,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntMap;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
@@ -18,6 +17,7 @@ import com.ore.infinium.*;
 import com.ore.infinium.components.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -86,12 +86,12 @@ public class NetworkClientSystem extends BaseSystem {
      * id is, so we can do things like move it around, perform actions etc on it.
      */
     // the internal (client) entity for the network(server's) entity ID
-    private IntMap<Integer> m_entityForNetworkId = new IntMap<>(500);
+    private HashMap<Integer, Integer> m_entityForNetworkId = new HashMap<>(500);
     // map to reverse lookup, the long (server) entity ID for the given Entity
     /**
      * <client entity, server entity>
      */
-    private IntMap<Integer> m_networkIdForEntityId = new IntMap<>(500);
+    private HashMap<Integer, Integer> m_networkIdForEntityId = new HashMap<>(500);
 
     private Array<NetworkClientListener> m_listeners = new Array<>(5);
 
@@ -299,7 +299,7 @@ public class NetworkClientSystem extends BaseSystem {
             m_world.m_artemisWorld.delete(networkEntityId);
 
             //no need to remove the entity maps, we're subscribed to do that already.
-            assert m_entityForNetworkId.size == m_networkIdForEntityId.size :
+            assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
                     "destroy, network id and entity id maps are out of sync(size mismatch)";
         }
     }
@@ -338,13 +338,14 @@ public class NetworkClientSystem extends BaseSystem {
 
             spriteComponent.sprite.setRegion(textureRegion);
 
-            boolean resultNull = m_networkIdForEntityId.put(e, spawn.id) == null;
-            boolean result2Null = m_entityForNetworkId.put(spawn.id, e) == null;
+            Integer result1 = m_networkIdForEntityId.put(e, spawn.id);
+            Integer result2 = m_entityForNetworkId.put(spawn.id, e);
 
-            assert !resultNull : "put failed for spawning, into entity bidirectional map, resultNull";
-            assert !result2Null : "put failed for spawning, into entity bidirectional map, result2Null";
+            assert result1 == null :
+                    "put failed for spawning, into entity bidirectional map, value already existed id: " + e;
+            assert result2 == null : "put failed for spawning, into entity bidirectional map, value already existed";
 
-            assert m_entityForNetworkId.size == m_networkIdForEntityId.size :
+            assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
                     "spawn, network id and entity id maps are out of sync(size mismatch)";
         }
     }
@@ -536,7 +537,7 @@ public class NetworkClientSystem extends BaseSystem {
                 }
             }
 
-            assert m_entityForNetworkId.size == m_networkIdForEntityId.size :
+            assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
                     "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch";
         }
     }

@@ -55,6 +55,7 @@ public class Network {
         kryo.register(LoadedViewportMovedFromServer.class);
         kryo.register(EntitySpawnFromServer.class);
         kryo.register(EntitySpawnMultipleFromServer.class);
+        kryo.register(EntityDestroyMultipleFromServer.class);
         kryo.register(EntityMovedFromServer.class);
         kryo.register(PlayerSpawnHotbarInventoryItemFromServer.class);
         kryo.register(ItemComponent.State.class);
@@ -94,8 +95,10 @@ public class Network {
         // primitives/builtin
         kryo.register(String[].class);
         kryo.register(byte[].class);
+        kryo.register(int[].class);
         kryo.register(Object[].class);
         kryo.register(Vector2.class);
+        kryo.register(IntArray.class);
         kryo.register(Array.class);
         kryo.register(Rectangle.class);
     }
