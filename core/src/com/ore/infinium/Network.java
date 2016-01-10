@@ -213,6 +213,10 @@ public class Network {
         public Array<EntitySpawnFromServer> entitySpawn;
     }
 
+    static public class EntityDestroyMultipleFromServer {
+        public IntArray entitiesToDestroy;
+    }
+
     static public class EntitySpawnFromServer {
         public SizePacket size = new SizePacket();
         public PositionPacket pos = new PositionPacket();

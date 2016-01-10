@@ -198,6 +198,8 @@ public class NetworkClientSystem extends BaseSystem {
                 //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
             } else if (receivedObject instanceof Network.EntitySpawnMultipleFromServer) {
                 receiveMultipleEntitySpawn(receivedObject);
+            } else if (receivedObject instanceof Network.EntityDestroyMultipleFromServer) {
+                receiveMultipleEntityDestroy(receivedObject);
             } else if (receivedObject instanceof Network.ChatMessageFromServer) {
                 receiveChatMessage(receivedObject);
             } else if (receivedObject instanceof Network.EntityMovedFromServer) {
@@ -288,6 +290,20 @@ public class NetworkClientSystem extends BaseSystem {
     }
     */
 
+    private void receiveMultipleEntityDestroy(Object receivedObject) {
+        Network.EntityDestroyMultipleFromServer destroyFromServer =
+                (Network.EntityDestroyMultipleFromServer) receivedObject;
+        for (int i = 0; i < destroyFromServer.entitiesToDestroy.size; i++) {
+            int networkEntityId = destroyFromServer.entitiesToDestroy.get(i);
+
+            m_world.m_artemisWorld.delete(networkEntityId);
+
+            //no need to remove the entity maps, we're subscribed to do that already.
+            assert m_entityForNetworkId.size == m_networkIdForEntityId.size :
+                    "destroy, network id and entity id maps are out of sync(size mismatch)";
+        }
+    }
+
     private void receiveMultipleEntitySpawn(Object receivedObject) {
         //fixme this and hotbar code needs consolidation
         Network.EntitySpawnMultipleFromServer spawnFromServer = (Network.EntitySpawnMultipleFromServer) receivedObject;
@@ -320,8 +336,14 @@ public class NetworkClientSystem extends BaseSystem {
 
             spriteComponent.sprite.setRegion(textureRegion);
 
-            m_networkIdForEntityId.put(e, spawn.id);
-            m_entityForNetworkId.put(spawn.id, e);
+            boolean resultNull = m_networkIdForEntityId.put(e, spawn.id) == null;
+            boolean result2Null = m_entityForNetworkId.put(spawn.id, e) == null;
+
+            assert !resultNull : "put failed for spawning, into entity bidirectional map, resultNull";
+            assert !result2Null : "put failed for spawning, into entity bidirectional map, result2Null";
+
+            assert m_entityForNetworkId.size == m_networkIdForEntityId.size :
+                    "spawn, network id and entity id maps are out of sync(size mismatch)";
         }
     }
 
@@ -511,6 +533,9 @@ public class NetworkClientSystem extends BaseSystem {
                     m_entityForNetworkId.remove(networkId);
                 }
             }
+
+            assert m_entityForNetworkId.size == m_networkIdForEntityId.size :
+                    "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch";
         }
     }
 }

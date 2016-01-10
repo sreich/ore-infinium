@@ -251,6 +251,17 @@ public class NetworkServerSystem extends BaseSystem {
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple);
     }
 
+    public void sendDestroyMultipleEntities(IntArray entitiesToDestroy, int connectionPlayerId) {
+        assert entitiesToDestroy.size > 0 : "server told to destroy 0 entities, this is impossible";
+
+        Network.EntityDestroyMultipleFromServer destroyMultiple = new Network.EntityDestroyMultipleFromServer();
+        destroyMultiple.entitiesToDestroy = entitiesToDestroy;
+
+        OreWorld.log("networkserversystem",
+                     String.format("sending destroy multiple for %d entities", destroyMultiple.entitiesToDestroy.size));
+        m_serverKryo.sendToTCP(connectionPlayerId, destroyMultiple);
+    }
+
     /**
      * Copies components into another array, skipping things that are not meant to be serialized
      * For instance, it does not serialize at all some bigger or useless things, like SpriteComponent,
