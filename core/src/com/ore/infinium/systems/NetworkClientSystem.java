@@ -308,6 +308,8 @@ public class NetworkClientSystem extends BaseSystem {
         //fixme this and hotbar code needs consolidation
         Network.EntitySpawnMultipleFromServer spawnFromServer = (Network.EntitySpawnMultipleFromServer) receivedObject;
 
+        OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
+
         for (Network.EntitySpawnFromServer spawn : spawnFromServer.entitySpawn) {
 
             int e = getWorld().create();

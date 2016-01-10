@@ -81,7 +81,7 @@ import com.ore.infinium.components.*;
          * will be removed. this does not mean they will actually be removed from the world,
          * since this is just a "which entities does this client have in viewport"
          */
-        IntArray knownEntities = new IntArray(false, 16);
+        IntArray knownEntities = new IntArray();
     }
 
     public ServerNetworkEntitySystem(OreWorld world) {
@@ -161,11 +161,10 @@ import com.ore.infinium.components.*;
             }
 
             //list of entities we'll need to tell the client we no longer want him to have
-            IntArray entitiesToDestroy = new IntArray(false, 20);
-            IntArray entitiesToSpawn = new IntArray(false, 20);
+            IntArray entitiesToDestroy = new IntArray();
+            IntArray entitiesToSpawn = new IntArray();
 
-            //(1)entity exists in known entities (spawned on client), but not in actual. (moved offscreen)
-            //remove from known, tell client he needs to delete that.
+            //entity doesn't exist in known entities, but does in actual. send spawn, add to known list
             for (int j = 0; j < entitiesInRegion.size; j++) {
                 final int entityInRegion = entitiesInRegion.get(j);
 
@@ -183,10 +182,12 @@ import com.ore.infinium.components.*;
                 if (!entityFoundInKnown) {
                     //add to spawn list
                     entitiesToSpawn.add(entityInRegion);
+                    playerEntity.knownEntities.add(entityInRegion);
                 }
             }
 
-            //(2)entity doesn't exist in known entities, but does in actual. send spawn, add to known list
+            //entity exists in known entities (spawned on client), but not in actual. (moved offscreen)
+            //remove from known, tell client he needs to delete that.
             for (int i = 0; i < playerEntity.knownEntities.size; i++) {
                 final int entityKnown = playerEntity.knownEntities.get(i);
 
@@ -204,22 +205,23 @@ import com.ore.infinium.components.*;
                     //exists on client still, but we know it shouldn't (possibly went offscreen)
                     //add to list to tell it to destroy
                     entitiesToDestroy.add(entityKnown);
+
+                    //assume client will delete it now.
+                    playerEntity.knownEntities.removeIndex(i);
                 }
+
             }
 
-            //remove the set of entities we know the client has spawned, from the ones that are actually there.
-            //entitiesInRegion.removeAll(playerEntity.knownEntities);
+            if (entitiesToDestroy.size > 0) {
+                m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
+                                                                  playerComponent.connectionPlayerId);
+            }
 
             if (entitiesToSpawn.size > 0) {
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 m_networkServerSystem.sendSpawnMultipleEntities(entitiesToSpawn, playerComponent.connectionPlayerId);
             }
 
-            if (entitiesToDestroy.size > 0) {
-                m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
-                                                                  playerComponent.connectionPlayerId);
-
-            }
         }
     }
 }

@@ -211,7 +211,7 @@ public class NetworkServerSystem extends BaseSystem {
         assert entitiesToSpawn.size > 0 : "server told to spawn 0 entities, this is impossible";
 
         Network.EntitySpawnMultipleFromServer spawnMultiple = new Network.EntitySpawnMultipleFromServer();
-        spawnMultiple.entitySpawn = new Array<>(false, entitiesToSpawn.size);
+        spawnMultiple.entitySpawn = new Array<>(false, 16);
 
         for (int i = 0; i < entitiesToSpawn.size; ++i) {
             int entityId = entitiesToSpawn.get(i);
