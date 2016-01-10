@@ -298,10 +298,20 @@ public class NetworkClientSystem extends BaseSystem {
 
             m_world.m_artemisWorld.delete(networkEntityId);
 
-            //no need to remove the entity maps, we're subscribed to do that already.
-            assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
-                    "destroy, network id and entity id maps are out of sync(size mismatch)";
+            //cleanup the maps
+            Integer networkId = m_networkIdForEntityId.remove(networkEntityId);
+            if (networkId != null) {
+                //a local only thing, like crosshair etc
+                m_entityForNetworkId.remove(networkId);
+            }
         }
+
+        assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
+                "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch";
+
+        //no need to remove the entity maps, we're subscribed to do that already.
+        assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
+                "destroy, network id and entity id maps are out of sync(size mismatch)";
     }
 
     private void receiveMultipleEntitySpawn(Object receivedObject) {
