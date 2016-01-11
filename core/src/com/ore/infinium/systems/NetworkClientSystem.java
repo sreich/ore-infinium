@@ -304,7 +304,8 @@ public class NetworkClientSystem extends BaseSystem {
                 Integer networkId = m_networkIdForEntityId.remove(localId);
                 assert networkId != null : "network id null on remove/destroy, but localid wasn't";
             } else {
-                assert false : "told to delete entity on client, but it doesn't exist. desynced";
+                assert false : "told to delete entity on client, but it doesn't exist. desynced. network id: " +
+                               networkEntityId;
             }
 
             assert m_world.m_artemisWorld.getEntity(localId) != null :
