@@ -11,6 +11,8 @@ import com.ore.infinium.LoadedViewport;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
+import java.util.HashSet;
+
 /**
  * ***************************************************************************
  * Copyright (C) 2016 by Shaun Reich <sreich02@gmail.com>                    *
@@ -180,6 +182,11 @@ import com.ore.infinium.components.*;
                 }
 
                 if (!entityFoundInKnown) {
+                    if (playerMapper.has(entityInRegion)) {
+                        //hack gotta rethink player spawn/destroying
+                        continue;
+                    }
+
                     //add to spawn list
                     entitiesToSpawn.add(entityInRegion);
                     playerEntity.knownEntities.add(entityInRegion);
@@ -202,6 +209,10 @@ import com.ore.infinium.components.*;
                 }
 
                 if (!entityFoundInRegion) {
+                    if (playerMapper.has(entityKnown)) {
+                        //hack gotta rethink player spawn/destroying
+                        continue;
+                    }
                     //exists on client still, but we know it shouldn't (possibly went offscreen)
                     //add to list to tell it to destroy
                     entitiesToDestroy.add(entityKnown);
@@ -211,6 +222,18 @@ import com.ore.infinium.components.*;
                 }
 
             }
+
+            HashSet<Integer> hashSet = new HashSet<>();
+            for (int i = 0; i < entitiesToSpawn.size; ++i) {
+                hashSet.add(entitiesToSpawn.get(i));
+            }
+            assert entitiesToSpawn.size == hashSet.size() : "ENTITIES TO SPAWN HAD DUPES";
+
+            hashSet.clear();
+            for (int i = 0; i < entitiesToDestroy.size; ++i) {
+                hashSet.add(entitiesToDestroy.get(i));
+            }
+            assert entitiesToDestroy.size == hashSet.size() : "ENTITIES TO destroy HAD DUPES";
 
             if (entitiesToDestroy.size > 0) {
                 m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,

@@ -238,7 +238,6 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         final byte blockWallType = m_world.blockWallType(x, y);
         final boolean hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock);
 
-
         final float damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y);
         final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).blockTotalHealth;
 
@@ -280,12 +279,19 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         //access to the server (meaning he hosted it and is playing it)
         if (m_world.m_server != null) {
 
+            /*
+            //fixme this has multithreading issues, obviously
+            //we can fix this by having the server push entities over, or something.
+            //or just the count. if we do just the count though, we can't get the 'actual'
+            //object positions below. but there may be another way (like making a special system for it,
+            //that will avoid interpolation..or something)
             AspectSubscriptionManager aspectSubscriptionManager =
                     m_world.m_server.m_world.m_artemisWorld.getAspectSubscriptionManager();
             EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all());
             IntBag serverEntities = entitySubscription.getEntities();
             m_font.draw(m_batch, "server entities: " + serverEntities.size(), TEXT_X_LEFT, m_textYLeft);
             m_textYLeft -= TEXT_Y_SPACING;
+            */
 
         }
 

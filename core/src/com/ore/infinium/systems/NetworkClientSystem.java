@@ -85,11 +85,14 @@ public class NetworkClientSystem extends BaseSystem {
      * since we normally receive a server entity id, and we must determine what *our* (clients) entity
      * id is, so we can do things like move it around, perform actions etc on it.
      */
-    // the internal (client) entity for the network(server's) entity ID
-    private HashMap<Integer, Integer> m_entityForNetworkId = new HashMap<>(500);
-    // map to reverse lookup, the long (server) entity ID for the given Entity
+
     /**
-     * <client entity, server entity>
+     * the internal (client)/local entity(value) for the network(server's) entity ID(key)
+     */
+    private HashMap<Integer, Integer> m_entityForNetworkId = new HashMap<>(500);
+
+    /**
+     * client entity(key), server entity(value)
      */
     private HashMap<Integer, Integer> m_networkIdForEntityId = new HashMap<>(500);
 
@@ -296,14 +299,17 @@ public class NetworkClientSystem extends BaseSystem {
         for (int i = 0; i < destroyFromServer.entitiesToDestroy.size; i++) {
             int networkEntityId = destroyFromServer.entitiesToDestroy.get(i);
 
-            m_world.m_artemisWorld.delete(networkEntityId);
-
             //cleanup the maps
-            Integer networkId = m_networkIdForEntityId.remove(networkEntityId);
-            if (networkId != null) {
-                //a local only thing, like crosshair etc
-                m_entityForNetworkId.remove(networkId);
+            Integer localId;
+            localId = m_entityForNetworkId.remove(networkEntityId);
+            if (localId != null) {
+                Integer networkId = m_networkIdForEntityId.remove(networkEntityId);
+                assert networkId != null : "network id null on remove/destroy, but localid wasn't";
+            } else {
+                assert false : "told to delete entity on client, but it doesn't exist. desynced";
             }
+
+            m_world.m_artemisWorld.delete(localId);
         }
 
         assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
