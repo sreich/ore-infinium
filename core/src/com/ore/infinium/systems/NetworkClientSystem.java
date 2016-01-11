@@ -84,15 +84,14 @@ public class NetworkClientSystem extends BaseSystem {
      * as well as for referring to future ones, and we make a map of <server entity, client entity>,
      * since we normally receive a server entity id, and we must determine what *our* (clients) entity
      * id is, so we can do things like move it around, perform actions etc on it.
-     */
-
-    /**
-     * the internal (client)/local entity(value) for the network(server's) entity ID(key)
+     * <p>
+     * <p>
+     * server remote entity ID(key), client local entity id(key)
      */
     private HashMap<Integer, Integer> m_entityForNetworkId = new HashMap<>(500);
 
     /**
-     * client entity(key), server entity(value)
+     * client local entity id(key), server remote entity ID(value)
      */
     private HashMap<Integer, Integer> m_networkIdForEntityId = new HashMap<>(500);
 
@@ -299,23 +298,17 @@ public class NetworkClientSystem extends BaseSystem {
         for (int i = 0; i < destroyFromServer.entitiesToDestroy.size; i++) {
             int networkEntityId = destroyFromServer.entitiesToDestroy.get(i);
 
-            if (networkEntityId == 13) {
-                assert false;
-            }
-
             //cleanup the maps
-            Integer localId;
-            localId = m_entityForNetworkId.remove(networkEntityId);
+            Integer localId = m_entityForNetworkId.remove(networkEntityId);
             if (localId != null) {
-                Integer networkId = m_networkIdForEntityId.remove(networkEntityId);
+                Integer networkId = m_networkIdForEntityId.remove(localId);
                 assert networkId != null : "network id null on remove/destroy, but localid wasn't";
             } else {
                 assert false : "told to delete entity on client, but it doesn't exist. desynced";
             }
 
-            if (localId == 13) {
-                assert false;
-            }
+            assert m_world.m_artemisWorld.getEntity(localId) != null :
+                    "entity doesn't exist locally, but we tried to delete it from the map";
             m_world.m_artemisWorld.delete(localId);
         }
 
@@ -336,6 +329,17 @@ public class NetworkClientSystem extends BaseSystem {
         for (Network.EntitySpawnFromServer spawn : spawnFromServer.entitySpawn) {
 
             int e = getWorld().create();
+            if (e == 55) {
+                //our problem entity...found that 55 is returning on create...
+                //but when spawn.id is 13 (network id), create() returns 55.
+                //but it has already been added to the map!! so already created!!
+
+                //previous value in map, assoaciated with local entity 55,
+                //was remote entity 71. for some reason that never gets deleted?
+                //ACTUALLY seems the getentitymanager isactive(55) reports false.
+                //so it is deleted on here! but never removed!!?? how!!
+                int b = 2;
+            }
             for (Component c : spawn.components) {
                 EntityEdit entityEdit = getWorld().edit(e);
                 entityEdit.add(c);
@@ -363,6 +367,8 @@ public class NetworkClientSystem extends BaseSystem {
 
             //hack issue..as i move left, we'll eventually receive a spawn for net id 13, localid 55
             //ths first map put() fails, already existent, and that would overwrite it(leak).
+            //this means the key already exists, aka the local entity id. which could only mean
+            //we didn't add it right, or we never removed it properly
             if (spawn.id == 13) {
                 int a = 1;
             }

@@ -108,6 +108,11 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
         ItemComponent itemComponent;
         for (int i = 0; i < entities.size(); ++i) {
+            //hack fixmeasap
+            if (entities.get(i) == 55) {
+                int c = 2;
+            }
+
             itemComponent = itemMapper.getSafe(entities.get(i));
             //don't draw in-inventory or not dropped items
             if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {

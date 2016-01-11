@@ -213,6 +213,10 @@ import java.util.HashSet;
                         //hack gotta rethink player spawn/destroying
                         continue;
                     }
+
+                    if (entityKnown == 71) {
+                        int a = 2;
+                    }
                     //exists on client still, but we know it shouldn't (possibly went offscreen)
                     //add to list to tell it to destroy
                     entitiesToDestroy.add(entityKnown);
