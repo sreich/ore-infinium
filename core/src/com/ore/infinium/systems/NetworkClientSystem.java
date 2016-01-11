@@ -299,6 +299,10 @@ public class NetworkClientSystem extends BaseSystem {
         for (int i = 0; i < destroyFromServer.entitiesToDestroy.size; i++) {
             int networkEntityId = destroyFromServer.entitiesToDestroy.get(i);
 
+            if (networkEntityId == 13) {
+                assert false;
+            }
+
             //cleanup the maps
             Integer localId;
             localId = m_entityForNetworkId.remove(networkEntityId);
@@ -309,6 +313,9 @@ public class NetworkClientSystem extends BaseSystem {
                 assert false : "told to delete entity on client, but it doesn't exist. desynced";
             }
 
+            if (localId == 13) {
+                assert false;
+            }
             m_world.m_artemisWorld.delete(localId);
         }
 
@@ -354,11 +361,21 @@ public class NetworkClientSystem extends BaseSystem {
 
             spriteComponent.sprite.setRegion(textureRegion);
 
+            //hack issue..as i move left, we'll eventually receive a spawn for net id 13, localid 55
+            //ths first map put() fails, already existent, and that would overwrite it(leak).
+            if (spawn.id == 13) {
+                int a = 1;
+            }
+
             Integer result1 = m_networkIdForEntityId.put(e, spawn.id);
             Integer result2 = m_entityForNetworkId.put(spawn.id, e);
 
-            assert result1 == null :
-                    "put failed for spawning, into entity bidirectional map, value already existed id: " + e;
+            if (result1 != null) {
+                assert false :
+                        "put failed for spawning, into entity bidirectional map, value already existed id: " + e +
+                        " networkid: " + spawn.id;
+            }
+
             assert result2 == null : "put failed for spawning, into entity bidirectional map, value already existed";
 
             assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :

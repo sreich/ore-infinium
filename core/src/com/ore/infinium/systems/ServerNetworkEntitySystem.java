@@ -223,6 +223,7 @@ import java.util.HashSet;
 
             }
 
+            ////////////////// debug testing, to ensure validity
             HashSet<Integer> hashSet = new HashSet<>();
             for (int i = 0; i < entitiesToSpawn.size; ++i) {
                 hashSet.add(entitiesToSpawn.get(i));
@@ -234,6 +235,21 @@ import java.util.HashSet;
                 hashSet.add(entitiesToDestroy.get(i));
             }
             assert entitiesToDestroy.size == hashSet.size() : "ENTITIES TO destroy HAD DUPES";
+
+            hashSet.clear();
+
+            for (int i = 0; i < playerEntity.knownEntities.size; i++) {
+                hashSet.add(playerEntity.knownEntities.get(i));
+            }
+
+            for (int i = 0; i < entitiesToSpawn.size; i++) {
+                if (hashSet.contains(entitiesToSpawn.get(i))) {
+                } else {
+                    assert false;
+                }
+            }
+
+            ////////////////////
 
             if (entitiesToDestroy.size > 0) {
                 m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
