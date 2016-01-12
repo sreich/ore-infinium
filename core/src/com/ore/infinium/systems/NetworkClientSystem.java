@@ -295,17 +295,30 @@ public class NetworkClientSystem extends BaseSystem {
     private void receiveMultipleEntityDestroy(Object receivedObject) {
         Network.EntityDestroyMultipleFromServer destroyFromServer =
                 (Network.EntityDestroyMultipleFromServer) receivedObject;
+
+        String debug = "receiveMultipleEntityDestroy [ ";
         for (int i = 0; i < destroyFromServer.entitiesToDestroy.size; i++) {
             int networkEntityId = destroyFromServer.entitiesToDestroy.get(i);
 
+
             //cleanup the maps
             Integer localId = m_entityForNetworkId.remove(networkEntityId);
+
+            //hack debug
+
             if (localId != null) {
+                debug += "networkid:" + networkEntityId + " localid: " + localId.intValue() + ", ";
+
                 Integer networkId = m_networkIdForEntityId.remove(localId);
                 assert networkId != null : "network id null on remove/destroy, but localid wasn't";
             } else {
+                //debug!!
+                debug += "networkid:" + networkEntityId + " localid: " + localId + ", ";
+                OreWorld.log("networkclientsystem", debug);
+
                 assert false : "told to delete entity on client, but it doesn't exist. desynced. network id: " +
                                networkEntityId;
+
             }
 
             assert m_world.m_artemisWorld.getEntity(localId) != null :
@@ -319,28 +332,25 @@ public class NetworkClientSystem extends BaseSystem {
         //no need to remove the entity maps, we're subscribed to do that already.
         assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
                 "destroy, network id and entity id maps are out of sync(size mismatch)";
+
+        debug += ']';
+
+        OreWorld.log("networkclientsystem", debug);
     }
 
     private void receiveMultipleEntitySpawn(Object receivedObject) {
         //fixme this and hotbar code needs consolidation
         Network.EntitySpawnMultipleFromServer spawnFromServer = (Network.EntitySpawnMultipleFromServer) receivedObject;
 
-        OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
+        //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
+        String debug = "receiveMultipleEntitySpawn [ ";
         for (Network.EntitySpawnFromServer spawn : spawnFromServer.entitySpawn) {
 
             int e = getWorld().create();
-            if (e == 55) {
-                //our problem entity...found that 55 is returning on create...
-                //but when spawn.id is 13 (network id), create() returns 55.
-                //but it has already been added to the map!! so already created!!
 
-                //previous value in map, assoaciated with local entity 55,
-                //was remote entity 71. for some reason that never gets deleted?
-                //ACTUALLY seems the getentitymanager isactive(55) reports false.
-                //so it is deleted on here! but never removed!!?? how!!
-                int b = 2;
-            }
+            debug += "networkid: " + spawn.id + " localid: " + e;
+
             for (Component c : spawn.components) {
                 EntityEdit entityEdit = getWorld().edit(e);
                 entityEdit.add(c);
@@ -366,14 +376,6 @@ public class NetworkClientSystem extends BaseSystem {
 
             spriteComponent.sprite.setRegion(textureRegion);
 
-            //hack issue..as i move left, we'll eventually receive a spawn for net id 13, localid 55
-            //ths first map put() fails, already existent, and that would overwrite it(leak).
-            //this means the key already exists, aka the local entity id. which could only mean
-            //we didn't add it right, or we never removed it properly
-            if (spawn.id == 13) {
-                int a = 1;
-            }
-
             Integer result1 = m_networkIdForEntityId.put(e, spawn.id);
             Integer result2 = m_entityForNetworkId.put(spawn.id, e);
 
@@ -388,6 +390,8 @@ public class NetworkClientSystem extends BaseSystem {
             assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
                     "spawn, network id and entity id maps are out of sync(size mismatch)";
         }
+
+        OreWorld.log("networkclientsystem", debug);
     }
 
     private void receiveLoadedViewportMoved(Object receivedObject) {
