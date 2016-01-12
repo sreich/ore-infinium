@@ -413,13 +413,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
             controllableComponent.desiredDirection.x = 1;
         }
-        
-        if (keycode == Input.Keys.UP) {
 
+        if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
+            controllableComponent.desiredDirection.y = -1;
         }
 
-        if (keycode == Input.Keys.DOWN) {
-
+        if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
+            controllableComponent.desiredDirection.y = 1;
         }
 
         if (keycode == Input.Keys.SPACE) {
@@ -477,6 +477,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
             controllableComponent.desiredDirection.x = 0;
+        }
+
+        if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
+            controllableComponent.desiredDirection.y = 0;
+        }
+
+        if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
+            controllableComponent.desiredDirection.y = 0;
         }
 
         return false;

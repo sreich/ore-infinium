@@ -7,6 +7,7 @@ import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.ore.infinium.OreSettings;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
 
@@ -104,6 +105,12 @@ public class MovementSystem extends IteratingSystem {
             return;
         }
 
+        //noclip and is a player
+        if (OreSettings.getInstance().noclip && playerMapper.has(entity)) {
+            simulateNoClip(entity, delta);
+            return;
+        }
+
         //fixme handle noclip
         final SpriteComponent spriteComponent = spriteMapper.get(entity);
         final Vector2 origPosition = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
@@ -166,6 +173,15 @@ public class MovementSystem extends IteratingSystem {
 
         spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
+    }
+
+    private void simulateNoClip(int entity, float delta) {
+        final SpriteComponent spriteComponent = spriteMapper.get(entity);
+        final Vector2 desiredDirection = controlMapper.get(entity).desiredDirection;
+        float x = spriteComponent.sprite.getX();
+        float y = spriteComponent.sprite.getY();
+        spriteComponent.sprite.setPosition(x + desiredDirection.x * PlayerComponent.movementSpeed * 6.0f * delta,
+                                           y + desiredDirection.y * PlayerComponent.movementSpeed * 6.0f * delta);
     }
 
     private void simulateDroppedItem(int item, float delta) {
