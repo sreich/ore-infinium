@@ -103,8 +103,17 @@ public class OreSettings {
                description = "emulates a slow network guaranteed to have less than this much latency. For network " +
                              "debugging.")
     public int lagMaxMs = 0;
+
+    @Parameter(names = "--noclip",
+               description = "enable noclip. the server will verify if authorized (if it's a local game server, then " +
+                             "it is always authorized.")
+    public boolean noclip;
     /////////
+
+    /// lock movement of player to continue moving right
+    public boolean lockRight;
 
     private OreSettings() {
     }
+
 }

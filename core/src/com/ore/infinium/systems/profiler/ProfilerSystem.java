@@ -20,7 +20,7 @@ import com.ore.infinium.systems.RenderSystemMarker;
 @Wire
 public class ProfilerSystem extends BaseSystem implements RenderSystemMarker {
 
-    public static final int TOGGLE_PROFILER_KEY = Input.Keys.P;
+    public static final int TOGGLE_PROFILER_KEY = Input.Keys.F7;
 
     OrthographicCamera camera;
     ShapeRenderer renderer;

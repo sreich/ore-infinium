@@ -413,7 +413,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
             controllableComponent.desiredDirection.x = 1;
         }
-
+        
         if (keycode == Input.Keys.UP) {
 
         }

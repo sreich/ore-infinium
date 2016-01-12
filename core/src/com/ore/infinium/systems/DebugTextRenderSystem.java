@@ -148,13 +148,23 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
     @Override
     protected void processSystem() {
+        if (m_world == null || !m_networkClientSystem.connected) {
+            return;
+        }
+
+        int playerid = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
+        PlayerComponent playerComponent = playerMapper.get(playerid);
+        ControllableComponent controllableComponent = controlMapper.get(playerid);
+        //debug for forcing constant movement
+        if (OreSettings.getInstance().lockRight) {
+            OreSettings.getInstance().lockRight = false;
+            controllableComponent.desiredDirection.x = 1;
+        }
+
         render(world.getDelta());
     }
 
     public void render(float elapsed) {
-        if (m_world == null || !m_networkClientSystem.connected) {
-            return;
-        }
 
         m_textYRight = OreSettings.getInstance().height - 120;
         m_textYLeft = OreSettings.getInstance().height - 130;
@@ -213,6 +223,9 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, spriteRenderDebug, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
+        m_font.draw(m_batch, "F7 - system profiler toggle", TEXT_X_LEFT, m_textYLeft);
+        m_textYLeft -= TEXT_Y_SPACING;
+
         for (String s : debugStrings) {
             m_font.draw(m_batch, s, TEXT_X_LEFT, m_textYLeft);
             m_textYLeft -= TEXT_Y_SPACING;
@@ -266,8 +279,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, s, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
-        AspectSubscriptionManager clientAspectSubscriptionManager =
-                m_world.m_artemisWorld.getAspectSubscriptionManager();
+        AspectSubscriptionManager clientAspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
         EntitySubscription clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all());
         IntBag clientEntities = clientEntitySubscription.getEntities();
 
@@ -352,7 +364,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     private void printInfoForEntityAtPosition(int textY) {
         Vector2 mousePos = m_world.mousePositionWorldCoords();
 
-        AspectSubscriptionManager aspectSubscriptionManager = world.getAspectSubscriptionManager();
+        AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
         EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent.class));
         IntBag entities = entitySubscription.getEntities();
 

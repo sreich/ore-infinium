@@ -9,9 +9,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.NetworkServerSystem;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -256,9 +253,7 @@ public class OreServer implements Runnable {
     }
 
     private void sendServerMessage(String message) {
-        DateFormat date = new SimpleDateFormat("HH:mm:ss");
-        String timestamp = date.format(new Date());
-        m_chat.addChatLine(timestamp, "", message, Chat.ChatSender.Server);
+        m_chat.addChatLine(Chat.timestamp(), "", message, Chat.ChatSender.Server);
     }
 
     /**

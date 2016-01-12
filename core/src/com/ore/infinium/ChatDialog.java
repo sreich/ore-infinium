@@ -167,10 +167,52 @@ public class ChatDialog implements Chat.ChatListener {
 
     private void sendChat() {
         if (m_messageField.getText().length() > 0) {
-            m_client.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
-                                           .sendChatMessage(m_messageField.getText());
+            if (!processLocalChatCommands()) {
+                m_client.m_world.m_artemisWorld.getSystem(NetworkClientSystem.class)
+                                               .sendChatMessage(m_messageField.getText());
+            }
+
             m_messageField.setText("");
         }
+    }
+
+    /**
+     * processes local chat commands like /help, /admin
+     * /whateverelse
+     *
+     * @return true if it was a command, false if not
+     */
+    private boolean processLocalChatCommands() {
+        String chat = m_messageField.getText();
+        switch (chat) {
+            case "/noclip": {
+                OreSettings.getInstance().noclip = !OreSettings.getInstance().noclip;
+
+                String response = "noclip is now: " + OreSettings.getInstance().noclip;
+                sendLocalChat(response);
+                return true;
+            }
+
+            case "/lockright": {
+                OreSettings.getInstance().lockRight = !OreSettings.getInstance().lockRight;
+
+                String response = "lock right is: " + OreSettings.getInstance().lockRight;
+                sendLocalChat(response);
+                return true;
+            }
+
+            case "/help": {
+                String response =
+                        "type /help for this message." + "/noclip if authorized, ignores collisions for your player";
+                sendLocalChat(response);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void sendLocalChat(String message) {
+        m_client.m_chat.addLocalChatLine(Chat.timestamp(), message);
     }
 
     private void scrollToBottom() {

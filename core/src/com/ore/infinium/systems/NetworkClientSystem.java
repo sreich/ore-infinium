@@ -86,7 +86,7 @@ public class NetworkClientSystem extends BaseSystem {
      * id is, so we can do things like move it around, perform actions etc on it.
      * <p>
      * <p>
-     * server remote entity ID(key), client local entity id(key)
+     * server remote entity ID(key), client local entity id(value)
      */
     private HashMap<Integer, Integer> m_entityForNetworkId = new HashMap<>(500);
 
@@ -300,19 +300,17 @@ public class NetworkClientSystem extends BaseSystem {
         for (int i = 0; i < destroyFromServer.entitiesToDestroy.size; i++) {
             int networkEntityId = destroyFromServer.entitiesToDestroy.get(i);
 
-
             //cleanup the maps
             Integer localId = m_entityForNetworkId.remove(networkEntityId);
 
-            //hack debug
-
             if (localId != null) {
+                //hack debug
                 debug += "networkid:" + networkEntityId + " localid: " + localId.intValue() + ", ";
 
                 Integer networkId = m_networkIdForEntityId.remove(localId);
                 assert networkId != null : "network id null on remove/destroy, but localid wasn't";
             } else {
-                //debug!!
+                //hack debug
                 debug += "networkid:" + networkEntityId + " localid: " + localId + ", ";
                 OreWorld.log("networkclientsystem", debug);
 
@@ -349,7 +347,7 @@ public class NetworkClientSystem extends BaseSystem {
 
             int e = getWorld().create();
 
-            debug += "networkid: " + spawn.id + " localid: " + e;
+            debug += " networkid: " + spawn.id + " localid: " + e;
 
             for (Component c : spawn.components) {
                 EntityEdit entityEdit = getWorld().edit(e);
@@ -574,7 +572,7 @@ public class NetworkClientSystem extends BaseSystem {
         @Override
         public void removed(IntBag entities) {
             for (int entity = 0; entity < entities.size(); ++entity) {
-                Integer networkId = m_networkIdForEntityId.remove(entity);
+                Integer networkId = null;//= m_networkIdForEntityId.remove(entity);
                 if (networkId != null) {
                     //a local only thing, like crosshair etc
                     m_entityForNetworkId.remove(networkId);

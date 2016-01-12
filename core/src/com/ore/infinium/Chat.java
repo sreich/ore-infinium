@@ -2,6 +2,10 @@ package com.ore.infinium;
 
 import com.badlogic.gdx.utils.Array;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * ***************************************************************************
  * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                *
@@ -27,7 +31,13 @@ public class Chat {
     public enum ChatSender {
         Player,
         Admin,
-        Server
+        Server,
+
+        /**
+         * if the chat message is a local only one/command, like e.g. /help
+         * unused by server
+         */
+        Local
     }
 
     public static class ChatLine {
@@ -35,8 +45,28 @@ public class Chat {
         String timestamp;
         String playerName;
         String chatText;
+
     }
-    
+
+    public static String timestamp() {
+        DateFormat date = new SimpleDateFormat("HH:mm:ss");
+        return date.format(new Date());
+    }
+
+    public void addLocalChatLine(String timestamp, String line) {
+        ChatLine chatLine = new ChatLine();
+        chatLine.timestamp = timestamp;
+        chatLine.chatText = line;
+        chatLine.playerName = "";
+        chatLine.chatSender = ChatSender.Local;
+
+        m_chatLines.add(chatLine);
+
+        for (ChatListener listener : m_listeners) {
+            listener.lineAdded(chatLine);
+        }
+    }
+
     public void addChatLine(String timestamp, String playerName, String line, ChatSender sender) {
         ChatLine chatLine = new ChatLine();
         chatLine.timestamp = timestamp;
@@ -45,7 +75,7 @@ public class Chat {
         chatLine.chatSender = sender;
 
         m_chatLines.add(chatLine);
-        
+
         for (ChatListener listener : m_listeners) {
             listener.lineAdded(chatLine);
         }
@@ -57,6 +87,7 @@ public class Chat {
 
     public interface ChatListener {
         public void lineAdded(ChatLine line);
+
         public void cleared();
     }
 }
