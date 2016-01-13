@@ -212,7 +212,7 @@ public class ChatDialog implements Chat.ChatListener {
     }
 
     private void sendLocalChat(String message) {
-        m_client.m_chat.addLocalChatLine(Chat.timestamp(), message);
+        m_client.m_chat.addLocalChatLine(Chat.Companion.timestamp(), message);
     }
 
     private void scrollToBottom() {
@@ -247,15 +247,15 @@ public class ChatDialog implements Chat.ChatListener {
 
         ChatElement element = new ChatElement();
 
-        Label timeStampLabel = new Label(line.timestamp, m_skin);
+        Label timeStampLabel = new Label(line.getTimestamp(), m_skin);
         m_scrollPaneTable.add(timeStampLabel).top().left().fill().padRight(4);//.expandX();
         element.timestampLabel = timeStampLabel;
 
-        Label playerNameLabel = new Label(line.playerName, m_skin);
+        Label playerNameLabel = new Label(line.getPlayerName(), m_skin);
         m_scrollPaneTable.add(playerNameLabel).top().left().fill().padRight(4);
         element.playerNameLabel = playerNameLabel;
 
-        Label messageLabel = new Label(line.chatText, m_skin);
+        Label messageLabel = new Label(line.getChatText(), m_skin);
         messageLabel.setWrap(true);
         m_scrollPaneTable.add(messageLabel).expandX().fill();
         element.chatTextLabel = messageLabel;

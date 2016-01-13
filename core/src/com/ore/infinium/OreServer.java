@@ -84,10 +84,10 @@ public class OreServer implements Runnable {
             @Override
             public void lineAdded(Chat.ChatLine line) {
                 Network.ChatMessageFromServer message = new Network.ChatMessageFromServer();
-                message.message = line.chatText;
-                message.playerName = line.playerName;
-                message.sender = line.chatSender;
-                message.timestamp = line.timestamp;
+                message.message = line.getChatText();
+                message.playerName = line.getPlayerName();
+                message.sender = line.getChatSender();
+                message.timestamp = line.getTimestamp();
 
                 m_networkServerSystem.m_serverKryo.sendToAllTCP(message);
             }
@@ -253,7 +253,7 @@ public class OreServer implements Runnable {
     }
 
     private void sendServerMessage(String message) {
-        m_chat.addChatLine(Chat.timestamp(), "", message, Chat.ChatSender.Server);
+        m_chat.addChatLine(Chat.Companion.timestamp(), "", message, Chat.ChatSender.Server);
     }
 
     /**
