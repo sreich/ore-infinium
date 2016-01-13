@@ -114,7 +114,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
     public boolean m_renderDebugClient = false;
 
     private final int TEXT_Y_SPACING = 10;
-    private final int TEXT_X_RIGHT = OreSettings.getInstance().width - 350;
+    private final int TEXT_X_RIGHT = OreSettings.width - 350;
     private final int TEXT_X_LEFT = 6;
 
     private int m_textYRight;
@@ -156,8 +156,8 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         PlayerComponent playerComponent = playerMapper.get(playerid);
         ControllableComponent controllableComponent = controlMapper.get(playerid);
         //debug for forcing constant movement
-        if (OreSettings.getInstance().lockRight) {
-            OreSettings.getInstance().lockRight = false;
+        if (OreSettings.lockRight) {
+            OreSettings.lockRight = false;
             controllableComponent.desiredDirection.x = 1;
         }
 
@@ -166,8 +166,8 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
 
     public void render(float elapsed) {
 
-        m_textYRight = OreSettings.getInstance().height - 120;
-        m_textYLeft = OreSettings.getInstance().height - 130;
+        m_textYRight = OreSettings.height - 120;
+        m_textYLeft = OreSettings.height - 130;
 
         if (frameTimer.milliseconds() > 300) {
             frameTimeString = "Client frame time: ";//fixme + decimalFormat.format(frameTime);

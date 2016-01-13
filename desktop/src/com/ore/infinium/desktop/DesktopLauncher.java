@@ -22,12 +22,10 @@ public class DesktopLauncher {
             dialog2.setVisible(true);
         });
 
-        OreSettings oreSettings = OreSettings.getInstance();
-
         //inject jcommander into OreSettings, to properly parse args
         //into respective annotated variables
         JCommander jCommander = new JCommander();
-        jCommander.addObject(oreSettings);
+        jCommander.addObject(OreSettings.INSTANCE);
         jCommander.setCaseSensitiveOptions(false);
         jCommander.setProgramName("Ore Infinium");
         jCommander.parse(arg);
@@ -36,14 +34,14 @@ public class DesktopLauncher {
         config.useGL30 = true;
         config.title = "Ore Infinium";
 
-        config.width = oreSettings.width;
-        config.height = oreSettings.height;
-        config.resizable = oreSettings.resizable;
-        config.vSyncEnabled = oreSettings.vsyncEnabled;
-        config.foregroundFPS = oreSettings.framerate;
-        config.backgroundFPS = oreSettings.framerate;
+        config.width = OreSettings.width;
+        config.height = OreSettings.height;
+        config.resizable = OreSettings.resizable;
+        config.vSyncEnabled = OreSettings.vsyncEnabled;
+        config.foregroundFPS = OreSettings.framerate;
+        config.backgroundFPS = OreSettings.framerate;
 
-        if (oreSettings.help) {
+        if (OreSettings.help) {
             System.out.println("Ore Infinium - an open source block building survival game.\n" +
                                "To enable assertions, you may want to pass to the Java VM, -ea");
             //print how to use
@@ -52,7 +50,7 @@ public class DesktopLauncher {
             return;
         }
 
-        if (oreSettings.pack) {
+        if (OreSettings.pack) {
             //TexturePacker.Settings settings = new TexturePacker.Settings();
             //settings.maxWidth = 512;
             //settings.maxHeight = 512;

@@ -127,8 +127,8 @@ public class NetworkClientSystem extends BaseSystem {
 
         Network.register(m_clientKryo);
 
-        int lagMinMs = OreSettings.getInstance().lagMinMs;
-        int lagMaxMs = OreSettings.getInstance().lagMaxMs;
+        int lagMinMs = OreSettings.lagMinMs;
+        int lagMaxMs = OreSettings.lagMaxMs;
         if (lagMinMs == 0 && lagMaxMs == 0) {
             //network latency debug switches unset, regular connection.
             m_clientKryo.addListener(new ClientListener());
@@ -159,7 +159,7 @@ public class NetworkClientSystem extends BaseSystem {
     private void sendInitialClientData() {
         Network.InitialClientData initialClientData = new Network.InitialClientData();
 
-        initialClientData.playerName = OreSettings.getInstance().playerName;
+        initialClientData.playerName = OreSettings.playerName;
 
         //TODO generate some random thing
         initialClientData.playerUUID = UUID.randomUUID().toString();

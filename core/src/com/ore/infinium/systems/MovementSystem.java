@@ -106,7 +106,7 @@ public class MovementSystem extends IteratingSystem {
         }
 
         //noclip and is a player
-        if (OreSettings.getInstance().noclip && playerMapper.has(entity)) {
+        if (OreSettings.noclip && playerMapper.has(entity)) {
             simulateNoClip(entity, delta);
             return;
         }

@@ -84,7 +84,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
     public void create() {
         // for debugging kryonet
 
-        if (OreSettings.getInstance().networkLog) {
+        if (OreSettings.networkLog) {
             Log.set(Log.LEVEL_DEBUG);
         }
 
@@ -102,8 +102,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         m_dragAndDrop = new DragAndDrop();
 
-        m_stage = new Stage(
-                viewport = new StretchViewport(OreSettings.getInstance().width, OreSettings.getInstance().height));
+        m_stage = new Stage(viewport = new StretchViewport(OreSettings.width, OreSettings.height));
         m_multiplexer = new InputMultiplexer(m_stage, this);
 
         Gdx.input.setInputProcessor(m_multiplexer);

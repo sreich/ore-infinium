@@ -1,4 +1,5 @@
 apply plugin: "java"
+apply plugin: 'kotlin'
 apply plugin: "artemis"
 
 sourceCompatibility = 1.8
@@ -24,4 +25,19 @@ weave {
 
 classes.finalizedBy weave
 
-dependencies {}
+dependencies { compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" }
+buildscript {
+    ext.kotlin_version = '1.0.0-beta-4584'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+repositories {
+    mavenCentral()
+}
+sourceSets {
+    main.java.srcDirs += 'src/main/kotlin'
+}

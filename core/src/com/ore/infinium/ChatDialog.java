@@ -186,17 +186,17 @@ public class ChatDialog implements Chat.ChatListener {
         String chat = m_messageField.getText();
         switch (chat) {
             case "/noclip": {
-                OreSettings.getInstance().noclip = !OreSettings.getInstance().noclip;
+                OreSettings.noclip = !OreSettings.noclip;
 
-                String response = "noclip is now: " + OreSettings.getInstance().noclip;
+                String response = "noclip is now: " + OreSettings.noclip;
                 sendLocalChat(response);
                 return true;
             }
 
             case "/lockright": {
-                OreSettings.getInstance().lockRight = !OreSettings.getInstance().lockRight;
+                OreSettings.lockRight = !OreSettings.lockRight;
 
-                String response = "lock right is: " + OreSettings.getInstance().lockRight;
+                String response = "lock right is: " + OreSettings.lockRight;
                 sendLocalChat(response);
                 return true;
             }

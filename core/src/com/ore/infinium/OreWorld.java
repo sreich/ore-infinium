@@ -149,8 +149,9 @@ public class OreWorld {
 
         if (worldInstanceType == WorldInstanceType.Client ||
             worldInstanceType == WorldInstanceType.ClientHostingServer) {
-            float width = OreSettings.getInstance().width / BLOCK_SIZE_PIXELS;
-            float height = OreSettings.getInstance().height / BLOCK_SIZE_PIXELS;
+
+            float width = OreSettings.width / BLOCK_SIZE_PIXELS;
+            float height = OreSettings.height / BLOCK_SIZE_PIXELS;
             m_camera = new OrthographicCamera(width, height);//30, 30 * (h / w));
             m_camera.setToOrtho(true, width, height);
 
