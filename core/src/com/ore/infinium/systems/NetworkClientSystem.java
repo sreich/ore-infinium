@@ -445,14 +445,14 @@ public class NetworkClientSystem extends BaseSystem {
         m_world.loadBlockRegion(region);
     }
 
-    public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, byte sourceIndex,
-                                  Inventory.InventoryType destInventoryType, byte destIndex) {
+    public void sendInventoryMove(Inventory.InventoryType sourceInventoryType, int sourceIndex,
+                                  Inventory.InventoryType destInventoryType, int destIndex) {
         Network.PlayerMoveInventoryItemFromClient inventoryItemFromClient =
                 new Network.PlayerMoveInventoryItemFromClient();
         inventoryItemFromClient.sourceType = sourceInventoryType;
-        inventoryItemFromClient.sourceIndex = sourceIndex;
+        inventoryItemFromClient.sourceIndex = (byte) sourceIndex;
         inventoryItemFromClient.destType = destInventoryType;
-        inventoryItemFromClient.destIndex = destIndex;
+        inventoryItemFromClient.destIndex = (byte) destIndex;
 
         m_clientKryo.sendTCP(inventoryItemFromClient);
     }
