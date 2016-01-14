@@ -44,7 +44,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
                           dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {
 
     private val container: Table
-    private val m_slots: ArrayList<SlotElement>
+    private val m_slots: ArrayList<SlotElement> = ArrayList(Inventory.maxHotbarSlots)
 
     private val itemMapper: ComponentMapper<ItemComponent>? = null
     private val blockMapper: ComponentMapper<BlockComponent>? = null
@@ -53,6 +53,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
     private val m_tooltip: Label
 
     init {
+        //        m_slots = arrayListOf()
         //        Inventory.maxHotBarSlots
         m_world.m_artemisWorld.inject(this)
         //attach to the inventory model
@@ -70,18 +71,11 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         val dragImage = Image()
         dragImage.setSize(32f, 32f)
 
-        for (i in 0..Inventory.maxHotbarSlots - 1) {
+        for (i in m_slots.indices) {
 
             val slotImage = Image()
 
-            val element = SlotElement(null, null, null)
-            m_slots.add(element)
-            m_slots[i] = element
-
-            element.itemImage = slotImage
-
             val slotTable = Table(m_skin)
-            element.table = slotTable
             slotTable.touchable = Touchable.enabled
             slotTable.addListener(SlotClickListener(this, i))
             slotTable.addListener(SlotInputListener(this, i))
@@ -93,7 +87,6 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
             val itemCount = Label(null, m_skin)
             slotTable.add(itemCount).bottom().fill()
-            element.itemCountLabel = itemCount
 
             //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50f, 50f)
@@ -102,6 +95,9 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
             dragAndDrop.addSource(HotbarDragSource(slotTable, i, dragImage, this))
 
             dragAndDrop.addTarget(HotbarDragTarget(slotTable, i, this))
+
+            val element = SlotElement(itemImage = slotImage, itemCountLabel = itemCount, table = slotTable)
+            m_slots.add(element)
         }
 
         m_tooltip = Label(null, m_skin)
