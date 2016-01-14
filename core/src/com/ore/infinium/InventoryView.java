@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Scaling;
 import com.ore.infinium.components.ItemComponent;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.TileRenderSystem;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * ***************************************************************************
@@ -130,13 +131,13 @@ public class InventoryView implements Inventory.SlotListener {
     }
 
     @Override
-    public void countChanged(byte index, Inventory inventory) {
+    public void countChanged(int index, @NotNull Inventory inventory) {
         ItemComponent itemComponent = itemMapper.get(inventory.itemEntity(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
     @Override
-    public void set(byte index, Inventory inventory) {
+    public void set(int index, @NotNull Inventory inventory) {
         SlotElement slot = m_slots[index];
 
         TextureRegion region =
@@ -156,7 +157,7 @@ public class InventoryView implements Inventory.SlotListener {
     }
 
     @Override
-    public void removed(byte index, Inventory inventory) {
+    public void removed(int index, @NotNull Inventory inventory) {
         SlotElement slot = m_slots[index];
         slot.itemImage.setDrawable(null);
         slot.itemCountLabel.setText(null);
@@ -282,5 +283,10 @@ public class InventoryView implements Inventory.SlotListener {
         public Image itemImage;
         public Label itemCountLabel;
         public Table table;
+    }
+
+    @Override
+    public void selected(int index, @NotNull Inventory inventory) {
+
     }
 }

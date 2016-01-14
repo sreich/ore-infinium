@@ -18,6 +18,7 @@ import com.ore.infinium.components.ItemComponent;
 import com.ore.infinium.components.SpriteComponent;
 import com.ore.infinium.systems.NetworkClientSystem;
 import com.ore.infinium.systems.TileRenderSystem;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * ***************************************************************************
@@ -119,17 +120,17 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     }
 
     private void deselectPreviousSlot() {
-        m_slots[m_hotbarInventory.getM_previousSelectedSlot()].table.setColor(Color.WHITE);
+        m_slots[m_hotbarInventory.getPreviousSelectedSlot()].table.setColor(Color.WHITE);
     }
 
     @Override
-    public void countChanged(byte index, Inventory inventory) {
+    public void countChanged(int index, Inventory inventory) {
         ItemComponent itemComponent = itemMapper.get(inventory.itemEntity(index));
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize));
     }
 
     @Override
-    public void set(byte index, Inventory inventory) {
+    public void set(int index, Inventory inventory) {
         SlotElement slot = m_slots[index];
 
         int itemEntity = inventory.itemEntity(index);
@@ -162,7 +163,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     }
 
     @Override
-    public void removed(byte index, Inventory inventory) {
+    public void removed(int index, @NotNull Inventory inventory) {
         SlotElement slot = m_slots[index];
         //       slot.itemImage.setDrawable(null);
         //        slot.itemCountLabel.setText(null);
@@ -170,7 +171,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     }
 
     @Override
-    public void selected(byte index, Inventory inventory) {
+    public void selected(int index, @NotNull Inventory inventory) {
         deselectPreviousSlot();
         m_slots[index].table.setColor(0, 0, 1, 1);
     }
@@ -264,7 +265,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             payload.getDragActor().setColor(1, 1, 1, 1);
             getActor().setColor(Color.WHITE);
             //restore selection, it was just dropped..
-            inventory.selected(inventory.m_hotbarInventory.getM_selectedSlot(), inventory.m_hotbarInventory);
+            inventory.selected(inventory.m_hotbarInventory.getSelectedSlot(), inventory.m_hotbarInventory);
         }
 
         public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {

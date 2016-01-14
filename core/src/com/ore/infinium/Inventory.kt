@@ -33,8 +33,8 @@ import java.util.*
 class Inventory
 (var owningPlayer: Int, val inventoryType: InventoryType) {
     //selection is hotbar only
-    var m_selectedSlot: Int = 0
-    var m_previousSelectedSlot: Int = 0
+    var selectedSlot: Int = 0
+    var previousSelectedSlot: Int = 0
 
     internal var m_listeners = ArrayList<SlotListener>()
 
@@ -49,8 +49,6 @@ class Inventory
         } else {
             //m_slots = IntArray(maxSlots)
 
-            //null out the entire array. since it defaults to 0,
-            //but 0 is not our 'null' entity.
             m_slots = arrayOfNulls(maxSlots);
         }
     }
@@ -60,14 +58,17 @@ class Inventory
     }
 
     fun setCount(index: Int, newCount: Int) {
-        itemMapper!!.get(m_slots[index]).stackSize = newCount
+        val item = m_slots[index]
+        if (item != null) {
+            itemMapper!!.get(item).stackSize = newCount
 
-        m_listeners.forEach { it.countChanged(index, this) }
+            m_listeners.forEach { it.countChanged(index, this) }
+        }
     }
 
     fun selectSlot(index: Int) {
-        m_previousSelectedSlot = m_selectedSlot
-        m_selectedSlot = index
+        previousSelectedSlot = selectedSlot
+        selectedSlot = index
 
         m_listeners.forEach { it.selected(index, this) }
     }
@@ -91,11 +92,14 @@ class Inventory
      * *
      * @return entity id of the item taken
      */
-    fun takeItem(index: Int): Int {
+    fun takeItem(index: Int): Int? {
         val tmpItem = m_slots[index]
-        m_slots[index] = OreWorld.ENTITY_INVALID
 
-        m_listeners.forEach { it.removed(index, this) }
+        if (tmpItem != null) {
+            m_slots[index] = null
+
+            m_listeners.forEach { it.removed(index, this) }
+        }
 
         return tmpItem
     }
@@ -106,7 +110,7 @@ class Inventory
      * *
      * @return entity id at index
      */
-    fun itemEntity(index: Int): Int {
+    fun itemEntity(index: Int): Int? {
         return m_slots[index]
     }
 

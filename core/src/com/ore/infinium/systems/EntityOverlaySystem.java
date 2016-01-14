@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.ore.infinium.Inventory;
 import com.ore.infinium.OreWorld;
 import com.ore.infinium.components.*;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * ***************************************************************************
@@ -70,7 +71,7 @@ public class EntityOverlaySystem extends BaseSystem {
     private boolean m_itemPlacementOverlayExists;
     private boolean m_initialized;
 
-    private void slotSelected(byte index, Inventory inventory) {
+    private void slotSelected(int index, @NotNull Inventory inventory) {
         int mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
         PlayerComponent playerComponent = playerMapper.get(mainPlayer);
         int equippedPrimaryItem = playerComponent.getEquippedPrimaryItem();
@@ -164,7 +165,22 @@ public class EntityOverlaySystem extends BaseSystem {
 
             m_world.m_client.m_hotbarInventory.addListener(new Inventory.SlotListener() {
                 @Override
-                public void selected(byte index, Inventory inventory) {
+                public void removed(int index, @NotNull Inventory inventory) {
+
+                }
+
+                @Override
+                public void set(int index, @NotNull Inventory inventory) {
+
+                }
+
+                @Override
+                public void countChanged(int index, @NotNull Inventory inventory) {
+
+                }
+
+                @Override
+                public void selected(int index, @NotNull Inventory inventory) {
                     slotSelected(index, inventory);
                 }
             });

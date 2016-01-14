@@ -435,8 +435,8 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         if (playerComponent.getEquippedPrimaryItem() != OreWorld.ENTITY_INVALID) {
             Network.HotbarDropItemFromClient dropItemRequestFromClient = new Network.HotbarDropItemFromClient();
-            byte currentEquippedIndex = playerComponent.hotbarInventory.getM_selectedSlot();
-            dropItemRequestFromClient.index = currentEquippedIndex;
+            int currentEquippedIndex = playerComponent.hotbarInventory.getSelectedSlot();
+            dropItemRequestFromClient.index = (byte) currentEquippedIndex;
 
             // decrement count, we assume it'll get spawned shortly when the server tells us to.
             // delete in-inventory entity if necessary server assumes we already do so
@@ -542,7 +542,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        int index = m_hotbarInventory.getM_selectedSlot();
+        int index = m_hotbarInventory.getSelectedSlot();
         if (amount > 0) {
             //right, inventory selection scrolling does not wrap around.
             m_hotbarInventory.selectSlot((byte) Math.min(index + 1, Inventory.maxHotbarSlots - 1));
@@ -569,15 +569,13 @@ public class OreClient implements ApplicationListener, InputProcessor {
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
         PlayerComponent playerComponent = playerMapper.get(player);
 
-        m_hotbarInventory = new Inventory(player);
-        m_hotbarInventory.setInventoryType(Inventory.InventoryType.Hotbar);
+        m_hotbarInventory = new Inventory(player, Inventory.InventoryType.Hotbar);
         m_world.m_artemisWorld.inject(m_hotbarInventory, true);
         playerComponent.hotbarInventory = m_hotbarInventory;
 
         m_hotbarInventory.addListener(new HotbarSlotListener());
 
-        m_inventory = new Inventory(player);
-        m_inventory.setInventoryType(Inventory.InventoryType.Inventory);
+        m_inventory = new Inventory(player, Inventory.InventoryType.Inventory);
         m_world.m_artemisWorld.inject(m_inventory, true);
         playerComponent.inventory = m_inventory;
 
@@ -599,14 +597,29 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
     private class HotbarSlotListener implements Inventory.SlotListener {
         @Override
-        public void selected(byte index, Inventory inventory) {
+        public void selected(int index, @org.jetbrains.annotations.NotNull Inventory inventory) {
             assert m_world != null;
 
             int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
 
-            m_networkClientSystem.sendHotbarEquipped(index);
+            m_networkClientSystem.sendHotbarEquipped((byte) index);
 
             PlayerComponent playerComponent = playerMapper.get(player);
+        }
+
+        @Override
+        public void countChanged(int index, @org.jetbrains.annotations.NotNull Inventory inventory) {
+
+        }
+
+        @Override
+        public void set(int index, @org.jetbrains.annotations.NotNull Inventory inventory) {
+
+        }
+
+        @Override
+        public void removed(int index, @org.jetbrains.annotations.NotNull Inventory inventory) {
+
         }
     }
 

@@ -8,6 +8,7 @@ import com.artemis.utils.IntBag;
 import com.badlogic.gdx.math.MathUtils;
 import com.ore.infinium.components.*;
 import com.ore.infinium.systems.NetworkServerSystem;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -152,8 +153,7 @@ public class OreServer implements Runnable {
         playerSprite.sprite.setPosition(posX, posY);
 
         PlayerComponent playerComponent = playerMapper.get(player);
-        playerComponent.hotbarInventory = new Inventory(player);
-        playerComponent.hotbarInventory.setInventoryType(Inventory.InventoryType.Hotbar);
+        playerComponent.hotbarInventory = new Inventory(player, Inventory.InventoryType.Hotbar);
         playerComponent.hotbarInventory.addListener(new HotbarInventorySlotListener());
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
@@ -289,7 +289,7 @@ public class OreServer implements Runnable {
 
     private class HotbarInventorySlotListener implements Inventory.SlotListener {
         @Override
-        public void set(byte index, Inventory inventory) {
+        public void set(int index, @NotNull Inventory inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
             //or an overloaded method for dragging
             //            PlayerComponent playerComponent = playerMapper.get(inventory.owningPlayer);
@@ -299,6 +299,20 @@ public class OreServer implements Runnable {
             //            }
         }
 
+        @Override
+        public void countChanged(int index, @NotNull Inventory inventory) {
+
+        }
+
+        @Override
+        public void removed(int index, @NotNull Inventory inventory) {
+
+        }
+
+        @Override
+        public void selected(int index, @NotNull Inventory inventory) {
+
+        }
     }
 
 }

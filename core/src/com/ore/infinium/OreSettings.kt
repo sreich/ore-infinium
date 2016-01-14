@@ -36,25 +36,32 @@ object OreSettings {
     private val parameters = ArrayList<String>()
 
     @Parameter(names = arrayOf("--help"), help = true)
+    @JvmField
     var help: Boolean = false
 
     //client options//////
     @Parameter(names = arrayOf("--pack"), description = "Pack the images on ../assets, into ../assets/packed, and into their corresponding " + "texture atlases. Only images from the packed atlases will be used, so if changes are " + "made to the assets, this must be run")
+    @JvmField
     var pack: Boolean = false
 
     @Parameter(names = arrayOf("--framerate"), description = "the framerate value to limit the game to. 0 is unlimited")
+    @JvmField
     var framerate = 60
 
     @Parameter(names = arrayOf("--vsync"), description = "vsync enabled.")
+    @JvmField
     var vsyncEnabled: Boolean = false
 
     @Parameter(names = arrayOf("--resizable"), description = "if set, the window will be allowed to be freely resized")
+    @JvmField
     var resizable: Boolean = false
 
     @Parameter(names = arrayOf("--width"), description = "window width")
+    @JvmField
     var width = 1600
 
     @Parameter(names = arrayOf("--height"), description = "window height")
+    @JvmField
     var height = 900
 
     //////////////////////////
@@ -70,27 +77,35 @@ object OreSettings {
     private val join: Boolean = false
 
     @Parameter(names = arrayOf("--playerName"), description = "applies only to the client")
+    @JvmField
     var playerName = "testplayerNameFromCommandLine"
 
     @Parameter(names = arrayOf("--port"))
+    @JvmField
     var port = Network.PORT
 
     @Parameter(names = arrayOf("--ip"), description = "applies only to the client")
+    @JvmField
     var ip = "localhost"
 
     @Parameter(names = arrayOf("--networkLog"), description = "enable network (kryonet) debug logging to system out")
+    @JvmField
     var networkLog: Boolean = false
 
     @Parameter(names = arrayOf("--lagMin"), description = "emulates a slow network guaranteed to have this much latency. For network debugging.")
+    @JvmField
     var lagMinMs = 0
 
     @Parameter(names = arrayOf("--lagMax"), description = "emulates a slow network guaranteed to have less than this much latency. For network " + "debugging.")
+    @JvmField
     var lagMaxMs = 0
 
     @Parameter(names = arrayOf("--noclip"), description = "enable noclip. the server will verify if authorized (if it's a local game server, then " + "it is always authorized.")
+    @JvmField
     var noclip: Boolean = false
     /////////
 
     /// lock movement of player to continue moving right
+    @JvmField
     var lockRight: Boolean = false
 }
