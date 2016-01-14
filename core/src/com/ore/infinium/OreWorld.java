@@ -178,10 +178,10 @@ public class OreWorld {
                                                    .with(new TileRenderSystem(m_camera, this))
                                                    .with(new SpriteRenderSystem(this))
                                                    .with(new DebugTextRenderSystem(m_camera, this))
-                                                   .with(new PowerOverlayRenderSystem(this, m_client.m_stage,
-                                                                                      m_client.m_skin))
+                                                   .with(new PowerOverlayRenderSystem(this, m_client.getStage(),
+                                                                                      m_client.getSkin()))
                                                    .with(new TileTransitionSystem(m_camera, this))
-                                                   .with(new ProfilerSystem(m_client.m_skin))
+                                                   .with(new ProfilerSystem(m_client.getSkin()))
                                                    .build());
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 

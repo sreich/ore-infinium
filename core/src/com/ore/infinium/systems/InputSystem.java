@@ -60,7 +60,7 @@ import com.ore.infinium.systems.profiler.SystemProfiler;
             return;
         }
 
-        if (m_world.m_client.leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible) {
+        if (m_world.m_client.getLeftMouseDown() && !m_powerOverlayRenderSystem.overlayVisible) {
 
             m_world.m_client.handleLeftMousePrimaryAttack();
         }

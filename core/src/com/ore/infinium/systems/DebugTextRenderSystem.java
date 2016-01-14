@@ -184,7 +184,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             //           }
 
             guiDebugString = String.format("F12 - gui debug. Enabled: %s", m_guiDebug);
-            guiRenderToggleString = String.format("F11 - gui render. Enabled: %s", m_world.m_client.m_renderGui);
+            guiRenderToggleString = String.format("F11 - gui render. Enabled: %s", m_world.m_client.getM_renderGui());
             tileRenderDebugString = String.format("F10 - tile render.Enabled: %s", m_tileRenderSystem.debugRenderTiles);
             networkSyncDebug = String.format("F9 - server sprite debug render. Enabled Client: %s. Enabled Server:",
                                              m_renderDebugServer);

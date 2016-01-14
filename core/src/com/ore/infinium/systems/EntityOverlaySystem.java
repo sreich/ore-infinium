@@ -161,9 +161,9 @@ public class EntityOverlaySystem extends BaseSystem {
     @Override
     protected void processSystem() {
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
-        if (!m_initialized && m_world.m_client.m_hotbarInventory != null) {
+        if (!m_initialized && m_world.m_client.getM_hotbarInventory() != null) {
 
-            m_world.m_client.m_hotbarInventory.addListener(new Inventory.SlotListener() {
+            m_world.m_client.getM_hotbarInventory().addListener(new Inventory.SlotListener() {
                 @Override
                 public void removed(int index, @NotNull Inventory inventory) {
 

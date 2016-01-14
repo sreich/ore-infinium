@@ -241,7 +241,7 @@ public class NetworkClientSystem extends BaseSystem {
 
         ItemComponent itemComponent = itemMapper.get(e);
         //fixme this indirection isn't so hot...
-        m_world.m_client.m_hotbarInventory.setSlot(itemComponent.inventoryIndex, e);
+        m_world.m_client.getM_hotbarInventory().setSlot(itemComponent.inventoryIndex, e);
 
         //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
         // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
@@ -249,7 +249,7 @@ public class NetworkClientSystem extends BaseSystem {
 
     private void receiveChatMessage(Object receivedObject) {
         Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) receivedObject;
-        m_world.m_client.m_chat.addChatLine(data.timestamp, data.playerName, data.message, data.sender);
+        m_world.m_client.getM_chat().addChatLine(data.timestamp, data.playerName, data.message, data.sender);
     }
 
     private void receiveEntityMoved(Object receivedObject) {

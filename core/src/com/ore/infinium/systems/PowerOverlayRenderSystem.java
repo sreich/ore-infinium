@@ -241,23 +241,23 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_batch.end();
 
         //screen space rendering
-        m_batch.setProjectionMatrix(m_world.m_client.viewport.getCamera().combined);
+        m_batch.setProjectionMatrix(m_world.m_client.getViewport().getCamera().combined);
         m_batch.begin();
 
         //fixme replace this crap w/ scene2d stuff?
-        m_world.m_client.bitmapFont_8pt.setColor(1, 0, 0, 1);
+        m_world.m_client.getBitmapFont_8pt().setColor(1, 0, 0, 1);
 
         float fontY = 150;
-        float fontX = m_world.m_client.viewport.getRightGutterX() - 220;
+        float fontX = m_world.m_client.getViewport().getRightGutterX() - 220;
 
         m_batch.draw(m_world.m_atlas.findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100, fontY - 300);
 
-        m_world.m_client.bitmapFont_8pt.draw(m_batch, "Energy overlay visible (press E)", fontX, fontY);
+        m_world.m_client.getBitmapFont_8pt().draw(m_batch, "Energy overlay visible (press E)", fontX, fontY);
         fontY -= 15;
 
-        m_world.m_client.bitmapFont_8pt.draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
+        m_world.m_client.getBitmapFont_8pt().draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
 
-        m_world.m_client.bitmapFont_8pt.setColor(1, 1, 1, 1);
+        m_world.m_client.getBitmapFont_8pt().setColor(1, 1, 1, 1);
 
         m_batch.end();
 

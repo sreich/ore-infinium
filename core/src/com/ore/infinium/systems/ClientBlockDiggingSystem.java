@@ -159,7 +159,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
      * @return
      */
     public boolean ableToDigAtIndex(int x, int y) {
-        if (!m_client.leftMouseDown) {
+        if (!m_client.getLeftMouseDown()) {
             return false;
         }
 
