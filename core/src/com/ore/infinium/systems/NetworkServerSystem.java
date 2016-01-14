@@ -120,7 +120,7 @@ public class NetworkServerSystem extends BaseSystem {
         }
 
         //notify the local client we've started hosting our server, so he can connect now.
-        m_world.m_server.connectHostLatch.countDown();
+        m_world.m_server.getConnectHostLatch().countDown();
 
     }
 
@@ -416,8 +416,8 @@ public class NetworkServerSystem extends BaseSystem {
         //FIXME: do some verification stuff, make sure strings are safe
 
         DateFormat date = new SimpleDateFormat("HH:mm:ss");
-        m_server.m_chat.addChatLine(date.format(new Date()), job.connection.playerName, data.message,
-                                    Chat.ChatSender.Player);
+        m_server.getM_chat()
+                .addChatLine(date.format(new Date()), job.connection.playerName, data.message, Chat.ChatSender.Player);
     }
 
     private void receiveItemPlace(NetworkJob job) {

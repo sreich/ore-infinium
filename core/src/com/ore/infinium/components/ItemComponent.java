@@ -52,7 +52,7 @@ public class ItemComponent extends Component {
     /**
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
-    public byte inventoryIndex;
+    public int inventoryIndex;
 
     /**
      * flag to indicate the item was *just* dropped this frame and has not yet
