@@ -435,7 +435,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
 
         if (playerComponent.getEquippedPrimaryItem() != OreWorld.ENTITY_INVALID) {
             Network.HotbarDropItemFromClient dropItemRequestFromClient = new Network.HotbarDropItemFromClient();
-            byte currentEquippedIndex = playerComponent.hotbarInventory.m_selectedSlot;
+            byte currentEquippedIndex = playerComponent.hotbarInventory.getM_selectedSlot();
             dropItemRequestFromClient.index = currentEquippedIndex;
 
             // decrement count, we assume it'll get spawned shortly when the server tells us to.
@@ -542,7 +542,7 @@ public class OreClient implements ApplicationListener, InputProcessor {
             return false;
         }
 
-        int index = m_hotbarInventory.m_selectedSlot;
+        int index = m_hotbarInventory.getM_selectedSlot();
         if (amount > 0) {
             //right, inventory selection scrolling does not wrap around.
             m_hotbarInventory.selectSlot((byte) Math.min(index + 1, Inventory.maxHotbarSlots - 1));
@@ -570,14 +570,14 @@ public class OreClient implements ApplicationListener, InputProcessor {
         PlayerComponent playerComponent = playerMapper.get(player);
 
         m_hotbarInventory = new Inventory(player);
-        m_hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
+        m_hotbarInventory.setInventoryType(Inventory.InventoryType.Hotbar);
         m_world.m_artemisWorld.inject(m_hotbarInventory, true);
         playerComponent.hotbarInventory = m_hotbarInventory;
 
         m_hotbarInventory.addListener(new HotbarSlotListener());
 
         m_inventory = new Inventory(player);
-        m_inventory.inventoryType = Inventory.InventoryType.Inventory;
+        m_inventory.setInventoryType(Inventory.InventoryType.Inventory);
         m_world.m_artemisWorld.inject(m_inventory, true);
         playerComponent.inventory = m_inventory;
 

@@ -153,7 +153,7 @@ public class OreServer implements Runnable {
 
         PlayerComponent playerComponent = playerMapper.get(player);
         playerComponent.hotbarInventory = new Inventory(player);
-        playerComponent.hotbarInventory.inventoryType = Inventory.InventoryType.Hotbar;
+        playerComponent.hotbarInventory.setInventoryType(Inventory.InventoryType.Hotbar);
         playerComponent.hotbarInventory.addListener(new HotbarInventorySlotListener());
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;

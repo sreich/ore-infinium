@@ -119,7 +119,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
     }
 
     private void deselectPreviousSlot() {
-        m_slots[m_hotbarInventory.m_previousSelectedSlot].table.setColor(Color.WHITE);
+        m_slots[m_hotbarInventory.getM_previousSelectedSlot()].table.setColor(Color.WHITE);
     }
 
     @Override
@@ -264,7 +264,7 @@ public class HotbarInventoryView implements Inventory.SlotListener {
             payload.getDragActor().setColor(1, 1, 1, 1);
             getActor().setColor(Color.WHITE);
             //restore selection, it was just dropped..
-            inventory.selected(inventory.m_hotbarInventory.m_selectedSlot, inventory.m_hotbarInventory);
+            inventory.selected(inventory.m_hotbarInventory.getM_selectedSlot(), inventory.m_hotbarInventory);
         }
 
         public void drop(DragAndDrop.Source source, DragAndDrop.Payload payload, float x, float y, int pointer) {
