@@ -2,7 +2,6 @@ package com.ore.infinium
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.IntMap
 
 /**
  * ***************************************************************************
@@ -30,15 +29,6 @@ class LoadedViewport {
 
     //x, y, top left. in # of blocks (index units)
     var rect: Rectangle = Rectangle()
-
-    /**
-     * int entityid
-     */
-    internal var loadedEntities: IntMap<Any>
-
-    fun exists(entity: Int): Boolean {
-        return loadedEntities.containsKey(entity)
-    }
 
     /**
      * @param pos
