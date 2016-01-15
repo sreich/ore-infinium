@@ -395,7 +395,7 @@ public class NetworkClientSystem extends BaseSystem {
     private void receiveLoadedViewportMoved(Object receivedObject) {
         Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) receivedObject;
         PlayerComponent c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
-        c.loadedViewport.rect = v.rect;
+        c.loadedViewport.setRect(v.rect);
     }
 
     private void receiveSparseBlockUpdate(Object receivedObject) {

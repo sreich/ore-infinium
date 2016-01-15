@@ -73,8 +73,8 @@ public class GrassBlockSystem extends BaseSystem {
             //each tick, resample 100 or so blocks to see if grass can grow. this may need to be
             //reduced, but for debugging right now it's good.
             for (int j = 0; j < 1000; ++j) {
-                final int randomX = MathUtils.random(region.x, region.width);
-                final int randomY = MathUtils.random(region.y, region.height);
+                final int randomX = MathUtils.random(region.getX(), region.getWidth());
+                final int randomY = MathUtils.random(region.getY(), region.getHeight());
 
                 final boolean blockHasGrass = m_world.blockHasFlag(randomX, randomY, OreBlock.BlockFlags.GrassBlock);
 

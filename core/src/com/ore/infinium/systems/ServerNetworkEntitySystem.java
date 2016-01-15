@@ -154,7 +154,8 @@ import java.util.HashSet;
 
             //get the entities that actually exist in this viewport
             IntBag fill = new IntBag();
-            m_spatialSystem.m_tree.get(fill, viewport.x, viewport.y, viewport.width, viewport.height);
+            m_spatialSystem.m_tree.get(fill, viewport.getX(), viewport.getY(), viewport.getWidth(),
+                                       viewport.getHeight());
 
             //hack copy to intarray only because the quadtree uses an intbag
             IntArray entitiesInRegion = new IntArray(false, 100);

@@ -46,9 +46,9 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
     private val container: Table
     private val m_slots: ArrayList<SlotElement> = ArrayList(Inventory.maxHotbarSlots)
 
-    private val itemMapper: ComponentMapper<ItemComponent>? = null
-    private val blockMapper: ComponentMapper<BlockComponent>? = null
-    private val spriteMapper: ComponentMapper<SpriteComponent>? = null
+    private lateinit var itemMapper: ComponentMapper<ItemComponent>
+    private lateinit var blockMapper: ComponentMapper<BlockComponent>
+    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
     private val m_tooltip: Label
 
@@ -90,7 +90,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
             //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50f, 50f)
-            setHotbarSlotVisible(i.toInt(), false)
+            setHotbarSlotVisible(i, false)
 
             dragAndDrop.addSource(HotbarDragSource(slotTable, i, dragImage, this))
 
@@ -109,7 +109,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
     }
 
     override fun countChanged(index: Int, inventory: Inventory) {
-        val itemComponent = itemMapper!!.get(inventory.itemEntity(index)!!)
+        val itemComponent = itemMapper.get(inventory.itemEntity(index)!!)
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize))
     }
 
@@ -117,12 +117,12 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         val slot = m_slots[index]
 
         val itemEntity = inventory.itemEntity(index)!!
-        val itemComponent = itemMapper!!.get(itemEntity)
+        val itemComponent = itemMapper.get(itemEntity)
         m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize))
 
         val region: TextureRegion?
-        val spriteComponent = spriteMapper!!.get(itemEntity)
-        if (blockMapper!!.get(itemEntity) != null) {
+        val spriteComponent = spriteMapper.get(itemEntity)
+        if (blockMapper.get(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
                     spriteComponent.textureName.concat("-00"))
@@ -136,7 +136,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         //        //m_blockAtlas.findRegion("stone"));
 
         slotImage.drawable = TextureRegionDrawable(region)
-        slotImage.setSize(region!!.regionWidth.toFloat(), region.regionHeight.toFloat())
+        slotImage.setSize(region.regionWidth.toFloat(), region.regionHeight.toFloat())
         slotImage.setScaling(Scaling.fit)
 
         setHotbarSlotVisible(index, true)
@@ -171,16 +171,14 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            if (hotbarInventoryView.m_hotbarInventory.itemEntity(index.toInt()) === OreWorld.ENTITY_INVALID) {
+            if (hotbarInventoryView.m_hotbarInventory.itemEntity(index) === OreWorld.ENTITY_INVALID) {
                 return null
             }
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper()
+            val dragWrapper = InventorySlotDragWrapper(type = Inventory.InventoryType.Hotbar, dragSourceIndex = index)
             payload.`object` = dragWrapper
-            dragWrapper.type = Inventory.InventoryType.Hotbar
-            dragWrapper.dragSourceIndex = index
 
             payload.dragActor = dragImage
             payload.validDragActor = dragImage
@@ -215,7 +213,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.m_hotbarInventory.itemEntity(index.toInt()) === OreWorld.ENTITY_INVALID) {
+                if (inventory.m_hotbarInventory.itemEntity(index) == null) {
                     //only make it green if the slot is empty
                     return true
                 }
@@ -235,37 +233,37 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_hotbarInventory.itemEntity(this.index.toInt()) !== OreWorld.ENTITY_INVALID) {
+            if (inventory.m_hotbarInventory.itemEntity(this.index) !== OreWorld.ENTITY_INVALID) {
                 return
             }
 
-            if (dragWrapper.type === Inventory.InventoryType.Hotbar) {
+            if (dragWrapper.type == Inventory.InventoryType.Hotbar) {
                 //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
-                inventory.m_hotbarInventory.setSlot(this.index.toInt(), inventory.m_hotbarInventory.itemEntity(
-                        dragWrapper.dragSourceIndex.toInt())!!)
+                inventory.m_hotbarInventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(
+                        dragWrapper.dragSourceIndex)!!)
                 inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(Inventory.InventoryType.Hotbar,
                         dragWrapper.dragSourceIndex,
                         Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
-                inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex.toInt())
+                inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
             } else {
                 //main inventory
 
                 //move the item from the source to the dest (from main inventory, to this hotbar inventory)
-                inventory.m_hotbarInventory.setSlot(this.index.toInt(),
-                        inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex.toInt())!!)
+                inventory.m_hotbarInventory.setSlot(this.index,
+                        inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)!!)
                 //fixme?                    inventory.m_previousSelectedSlot = index;
                 inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(Inventory.InventoryType.Inventory,
                         dragWrapper.dragSourceIndex,
                         Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
-                inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex.toInt())
+                inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
             }
 
             //select new index
-            inventory.m_hotbarInventory.selectSlot(index.toInt())
+            inventory.m_hotbarInventory.selectSlot(index)
         }
 
     }
@@ -273,16 +271,16 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView, private val index: Int) : InputListener() {
 
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
-            val itemEntity = inventory.m_hotbarInventory.itemEntity(index.toInt())!!
-            if (itemEntity != OreWorld.ENTITY_INVALID) {
+            val itemEntity = inventory.m_hotbarInventory.itemEntity(index)
+            if (itemEntity != null) {
                 inventory.m_tooltip.isVisible = true
 
                 inventory.m_tooltip.setPosition(Gdx.input.x.toFloat(), Gdx.graphics.height - Gdx.input.y - 50.toFloat())
 
                 //fixme, obviously texture name is not a valid tooltip text. we need a real name, but should it be in
                 // sprite or item? everything should probably have a canonical name, no?
-                val itemComponent = inventory.itemMapper!!.get(itemEntity)
-                val spriteComponent = inventory.spriteMapper!!.get(itemEntity)
+                val itemComponent = inventory.itemMapper.get(itemEntity)
+                val spriteComponent = inventory.spriteMapper.get(itemEntity)
                 inventory.m_tooltip.setText(spriteComponent.textureName)
             } else {
                 inventory.m_tooltip.isVisible = false
@@ -301,7 +299,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         override fun clicked(event: InputEvent?, x: Float, y: Float) {
             inventory.deselectPreviousSlot()
-            inventory.m_hotbarInventory.selectSlot(index.toInt())
+            inventory.m_hotbarInventory.selectSlot(index)
         }
     }
 

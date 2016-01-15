@@ -547,7 +547,7 @@ public class NetworkServerSystem extends BaseSystem {
         PlayerComponent playerComponent = playerMapper.get(player);
 
         Network.LoadedViewportMovedFromServer v = new Network.LoadedViewportMovedFromServer();
-        v.rect = playerComponent.loadedViewport.rect;
+        v.rect = playerComponent.loadedViewport.getRect();
 
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, v);
     }

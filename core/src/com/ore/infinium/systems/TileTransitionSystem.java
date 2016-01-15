@@ -314,7 +314,7 @@ public class TileTransitionSystem extends IntervalSystem {
         if (!m_networkClientSystem.connected) {
             return;
         }
-       
+
         final int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
         PlayerComponent playerComponent = playerMapper.get(player);
         LoadedViewport.PlayerViewportBlockRegion blockRegion = playerComponent.loadedViewport.blockRegionInViewport();
@@ -324,8 +324,8 @@ public class TileTransitionSystem extends IntervalSystem {
     }
 
     private void transitionGrass(LoadedViewport.PlayerViewportBlockRegion blockRegion) {
-        for (int y = blockRegion.y; y <= blockRegion.height; ++y) {
-            for (int x = blockRegion.x; x <= blockRegion.width; ++x) {
+        for (int y = blockRegion.getY(); y <= blockRegion.getHeight(); ++y) {
+            for (int x = blockRegion.getX(); x <= blockRegion.getWidth(); ++x) {
 
                 final byte leftLeftBlockType = m_world.blockTypeSafely(x - 2, y);
                 final byte rightRightBlockType = m_world.blockTypeSafely(x + 2, y);
@@ -471,8 +471,8 @@ public class TileTransitionSystem extends IntervalSystem {
     */
 
     private void transitionTiles(LoadedViewport.PlayerViewportBlockRegion blockRegion) {
-        for (int y = blockRegion.y; y <= blockRegion.height; ++y) {
-            for (int x = blockRegion.x; x <= blockRegion.width; ++x) {
+        for (int y = blockRegion.getY(); y <= blockRegion.getHeight(); ++y) {
+            for (int x = blockRegion.getX(); x <= blockRegion.getWidth(); ++x) {
 
                 final byte type = m_world.blockType(x, y);
                 if (type == OreBlock.BlockType.NullBlockType) {

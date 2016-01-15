@@ -1,8 +1,8 @@
-package com.ore.infinium;
+package com.ore.infinium
 
 /**
  * ***************************************************************************
- * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                *
+ * Copyright (C) 2015 by Shaun Reich @gmail.com>                *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -15,12 +15,13 @@ package com.ore.infinium;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class InventorySlotDragWrapper {
-    //where (which inventory) this drop is coming from
-    public Inventory.InventoryType type;
-    //dragSourceIndex of where it's coming from
-    public int dragSourceIndex;
+class InventorySlotDragWrapper(var type: Inventory.InventoryType,
+                               /**
+                                * dragSourceIndex of where it's coming from
+                                */
+                               var dragSourceIndex: Int = 0
+) {
 }

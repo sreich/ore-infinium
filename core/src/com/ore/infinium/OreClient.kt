@@ -570,7 +570,7 @@ class OreClient : ApplicationListener, InputProcessor {
         playerComponent.inventory = m_inventory
 
         m_hotbarView = HotbarInventoryView(stage, skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
-        m_inventoryView = InventoryView(stage, skin, m_hotbarInventory, m_inventory, m_dragAndDrop, m_world)
+        m_inventoryView = InventoryView(stage, skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
         if (mainPlayer) {
             m_tagManager.register(OreWorld.s_mainPlayer, player)

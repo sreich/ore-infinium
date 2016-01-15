@@ -88,7 +88,7 @@ public class PlayerSystem extends IteratingSystem {
         SpriteComponent spriteComponent = spriteMapper.getSafe(entityId);
         PlayerComponent playerComponent = playerMapper.get(entityId);
 
-        com.badlogic.gdx.math.Rectangle viewportRect = playerComponent.loadedViewport.rect;
+        com.badlogic.gdx.math.Rectangle viewportRect = playerComponent.loadedViewport.getRect();
         float x = spriteComponent.sprite.getX();
         float y = spriteComponent.sprite.getY();
 
@@ -120,7 +120,8 @@ public class PlayerSystem extends IteratingSystem {
 
         LoadedViewport.PlayerViewportBlockRegion region = loadedViewport.blockRegionInViewport();
 
-        m_networkServerSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width, region.height);
+        m_networkServerSystem.sendPlayerBlockRegion(playerEntity, region.getX(), region.getY(), region.getWidth(),
+                                                    region.getHeight());
     }
 
 }
