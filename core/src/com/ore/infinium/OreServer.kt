@@ -37,30 +37,30 @@ class OreServer : Runnable {
      */
     private var m_hostingPlayer: Int = 0
 
-    internal var sharedFrameTime: Double = 0.toDouble()
+    internal var sharedFrameTime: Double = 0.0
 
     private val m_running = true
 
-    private val playerMapper: ComponentMapper<PlayerComponent>? = null
-    private val spriteMapper: ComponentMapper<SpriteComponent>? = null
-    private val controlMapper: ComponentMapper<ControllableComponent>? = null
-    private val itemMapper: ComponentMapper<ItemComponent>? = null
-    private val velocityMapper: ComponentMapper<VelocityComponent>? = null
-    private val jumpMapper: ComponentMapper<JumpComponent>? = null
-    private val blockMapper: ComponentMapper<BlockComponent>? = null
-    private val airGeneratorMapper: ComponentMapper<AirGeneratorComponent>? = null
-    private val toolMapper: ComponentMapper<ToolComponent>? = null
-    private val airMapper: ComponentMapper<AirComponent>? = null
-    private val healthMapper: ComponentMapper<HealthComponent>? = null
-    private val lightMapper: ComponentMapper<LightComponent>? = null
+    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
+    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
+    private lateinit var itemMapper: ComponentMapper<ItemComponent>
+    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
+    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private lateinit var blockMapper: ComponentMapper<BlockComponent>
+    private lateinit var airGeneratorMapper: ComponentMapper<AirGeneratorComponent>
+    private lateinit var toolMapper: ComponentMapper<ToolComponent>
+    private lateinit var airMapper: ComponentMapper<AirComponent>
+    private lateinit var healthMapper: ComponentMapper<HealthComponent>
+    private lateinit var lightMapper: ComponentMapper<LightComponent>
 
-    var m_world: OreWorld
+    lateinit var m_world: OreWorld
 
-    var m_chat: Chat
+    lateinit var m_chat: Chat
 
     private val SERVER_FIXED_TIMESTEP = 1.0 / 60.0 * 1000
 
-    private val m_networkServerSystem: NetworkServerSystem? = null
+    private lateinit var m_networkServerSystem: NetworkServerSystem
 
     /**
      * Used to initiate the server as well as to initiate it from a calling client thread
@@ -81,7 +81,7 @@ class OreServer : Runnable {
                 message.sender = line.chatSender
                 message.timestamp = line.timestamp
 
-                m_networkServerSystem!!.m_serverKryo.sendToAllTCP(message)
+                m_networkServerSystem.m_serverKryo.sendToAllTCP(message)
             }
 
             override fun cleared() {
@@ -92,7 +92,7 @@ class OreServer : Runnable {
         //exit the server thread when the client notifies us to,
         //by setting the latch to 0,
         //the client notifies us to exit it ASAP
-        while (m_world.m_server.shutdownLatch.count != 0) {
+        while (m_world.m_server.shutdownLatch.count != 0L) {
             m_world.process()
         }
 
@@ -141,17 +141,17 @@ class OreServer : Runnable {
             //m_world.blockAt(x, tiley).type = Block.BlockType.StoneBlockType;
         }
 
-        val playerSprite = spriteMapper!!.get(player)
+        val playerSprite = spriteMapper.get(player)
         playerSprite.sprite.setPosition(posX, posY)
 
-        val playerComponent = playerMapper!!.get(player)
+        val playerComponent = playerMapper.get(player)
         playerComponent.hotbarInventory = Inventory(player, Inventory.InventoryType.Hotbar)
         playerComponent.hotbarInventory.addListener(HotbarInventorySlotListener())
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
         //tell all players including himself, that he joined
-        m_networkServerSystem!!.sendSpawnPlayerBroadcast(player)
+        m_networkServerSystem.sendSpawnPlayerBroadcast(player)
 
         val aspectSubscriptionManager = m_world.m_artemisWorld.aspectSubscriptionManager
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
@@ -179,18 +179,18 @@ class OreServer : Runnable {
         //TODO: load the player's inventory and hotbarinventory from file..for now, initialize *the whole thing* with
         // bullshit
         val drill = m_world.m_artemisWorld.create()
-        velocityMapper!!.create(drill)
+        velocityMapper.create(drill)
 
-        val drillToolComponent = toolMapper!!.create(drill)
+        val drillToolComponent = toolMapper.create(drill)
         drillToolComponent.type = ToolComponent.ToolType.Drill
         drillToolComponent.blockDamage = 400f
 
-        val toolSprite = spriteMapper!!.create(drill)
+        val toolSprite = spriteMapper.create(drill)
         toolSprite.textureName = "drill"
 
         toolSprite.sprite.setSize(2f, 2f)
 
-        val itemComponent = itemMapper!!.create(drill)
+        val itemComponent = itemMapper.create(drill)
 
         val stackSize = 64000
         itemComponent.stackSize = stackSize
@@ -198,7 +198,7 @@ class OreServer : Runnable {
         itemComponent.inventoryIndex = 0
         itemComponent.state = ItemComponent.State.InInventoryState
 
-        val playerComponent = playerMapper!!.get(playerEntity)
+        val playerComponent = playerMapper.get(playerEntity)
         playerComponent.hotbarInventory.setSlot(0.toByte().toInt(), drill)
 
         val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.DirtBlockType)
@@ -240,11 +240,10 @@ class OreServer : Runnable {
             val entity = playerComponent.hotbarInventory.itemEntity(i)
 
             entity?.let {
-                m_networkServerSystem!!.sendSpawnHotbarInventoryItem(entity, i, playerEntity)
+                m_networkServerSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity)
             }
         }
     }
-}
 
 private fun sendServerMessage(message: String) {
     m_chat.addChatLine(Chat.timestamp(), "", message, Chat.ChatSender.Server)
