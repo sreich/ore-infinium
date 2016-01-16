@@ -1,8 +1,8 @@
-package com.ore.infinium;
+package com.ore.infinium
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -15,34 +15,10 @@ package com.ore.infinium;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class OreBlock {
-    private OreBlock() {
-    }
-
-    /**
-     * number of byte fields we use for each block.
-     * because they're all stored in one array, as primitives.
-     * <p>
-     * As follows are:
-     * -meshType
-     * -type
-     * -wallType
-     * -flags
-     */
-    public static final int BLOCK_FIELD_COUNT = 4;
-
-    /**
-     * index offset within the big byte block array,
-     * since BLOCK_FIELD_COUNT elements are stored for each
-     * actual block
-     */
-    public static final int BLOCK_FIELD_INDEX_TYPE = 0;
-    public static final int BLOCK_FIELD_INDEX_MESHTYPE = 1;
-    public static final int BLOCK_FIELD_INDEX_WALLTYPE = 2;
-    public static final int BLOCK_FIELD_INDEX_FLAGS = 3;
+class OreBlock private constructor() {
 
     /**
      * Which mesh sprite to use, aka subsprite.
@@ -51,10 +27,12 @@ public class OreBlock {
      * 0-15.
      * For example, @sa primitiveType
      * which does not generally depend on the surroundings.
-     * <p>
+     *
+     *
      * meshType however, is determined by calculating the surrounding tiles and if they are of a simlar type or similar
      * blendType, then it will change the overall look of it.
-     * <p>
+     *
+     *
      * Bottom line: use meshType ONLY for rendering, use primitiveType for everything else. meshType is only a
      * displaying
      * niche of a detail, not a gameplay mechanic
@@ -78,33 +56,59 @@ public class OreBlock {
     /**
      * Determines the health and texture of the Block.
      */
-    public static final class BlockType {
-        public static final byte NullBlockType = 0;
-        public static final byte DirtBlockType = 1;
-        public static final byte StoneBlockType = 2;
-        public static final byte CopperBlockType = 3;
+    object BlockType {
+        val NullBlockType: Byte = 0
+        val DirtBlockType: Byte = 1
+        val StoneBlockType: Byte = 2
+        val CopperBlockType: Byte = 3
     }
 
-    public static final class WallType {
-        public static final byte NullWallType = 0;
-        public static final byte DirtWallType = 1;
-        public static final byte DirtUndergroundWallType = 2;
+    object WallType {
+        val NullWallType: Byte = 0
+        val DirtWallType: Byte = 1
+        val DirtUndergroundWallType: Byte = 2
     }
 
-    public void destroy() {
+    fun destroy() {
 
     }
 
-    public static final class BlockFlags {
-        public static final byte OnFireBlock = 1 << 0;
-        public static final byte GrassBlock = 1 << 1;
+    object BlockFlags {
+        val OnFireBlock = (1 shl 0).toByte()
+        val GrassBlock = (1 shl 1).toByte()
         //        public static final int GrassBlock = 1 << 2;
-       /*
+        /*
         SunlightVisible((byte) (1 << 1)),
         GrassBlock((byte) (1 << 2));
 
         /// theoretically more things belong in here. except i ran out of ideas :(
         // OnFireBlockFlag(1 << 0)
         */
+    }
+
+    companion object {
+
+        /**
+         * number of byte fields we use for each block.
+         * because they're all stored in one array, as primitives.
+         *
+         *
+         * As follows are:
+         * -meshType
+         * -type
+         * -wallType
+         * -flags
+         */
+        val BLOCK_FIELD_COUNT = 4
+
+        /**
+         * index offset within the big byte block array,
+         * since BLOCK_FIELD_COUNT elements are stored for each
+         * actual block
+         */
+        val BLOCK_FIELD_INDEX_TYPE = 0
+        val BLOCK_FIELD_INDEX_MESHTYPE = 1
+        val BLOCK_FIELD_INDEX_WALLTYPE = 2
+        val BLOCK_FIELD_INDEX_FLAGS = 3
     }
 }

@@ -1,10 +1,10 @@
-package com.ore.infinium;
+package com.ore.infinium
 
-import java.time.LocalTime;
+import java.time.LocalTime
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -17,17 +17,17 @@ import java.time.LocalTime;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class WorldTime {
-    private LocalTime m_time;
+class WorldTime {
+    private var m_time: LocalTime? = null
 
-    public void setTime(int hour, int minute, int second) {
-        m_time = LocalTime.of(hour, minute, second);
+    fun setTime(hour: Int, minute: Int, second: Int) {
+        m_time = LocalTime.of(hour, minute, second)
     }
 
-    public void tick(double elapsedTime) {
+    fun tick(elapsedTime: Double) {
 
         /*
             uint8_t interval = 1;
@@ -61,7 +61,7 @@ QString Time::toString() const
 
     }
 
-    public String timeString() {
-        return m_time.toString();
+    fun timeString(): String {
+        return m_time!!.toString()
     }
 }

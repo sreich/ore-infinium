@@ -1,10 +1,10 @@
-package com.ore.infinium;
+package com.ore.infinium
 
-import com.badlogic.gdx.utils.TimeUtils;
+import com.badlogic.gdx.utils.TimeUtils
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -17,18 +17,18 @@ import com.badlogic.gdx.utils.TimeUtils;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class OreTimer {
+class OreTimer {
 
-    private long lastFiring;
+    private var lastFiring: Long = 0
 
-    public void reset() {
-        lastFiring = TimeUtils.millis();
+    fun reset() {
+        lastFiring = TimeUtils.millis()
     }
 
-    public long milliseconds() {
-        return TimeUtils.timeSinceMillis(lastFiring);
+    fun milliseconds(): Long {
+        return TimeUtils.timeSinceMillis(lastFiring)
     }
 }
