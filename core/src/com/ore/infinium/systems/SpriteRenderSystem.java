@@ -72,7 +72,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
     @Override
     protected void begin() {
-        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+        m_batch.setProjectionMatrix(m_world.getM_camera().combined);
         //       m_batch.begin();
     }
 

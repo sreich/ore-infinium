@@ -61,7 +61,7 @@ public class EntityOverlaySystem extends BaseSystem {
 
         SpriteComponent spriteComponent = spriteMapper.create(crosshair);
         spriteComponent.sprite.setSize(1, 1);
-        spriteComponent.sprite.setRegion(m_world.m_atlas.findRegion("crosshair-blockpicking"));
+        spriteComponent.sprite.setRegion(m_world.getM_atlas().findRegion("crosshair-blockpicking"));
         spriteComponent.noClip = true;
     }
 
@@ -161,9 +161,9 @@ public class EntityOverlaySystem extends BaseSystem {
     @Override
     protected void processSystem() {
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
-        if (!m_initialized && m_world.m_client.getM_hotbarInventory() != null) {
+        if (!m_initialized && m_world.getM_client().getM_hotbarInventory() != null) {
 
-            m_world.m_client.getM_hotbarInventory().addListener(new Inventory.SlotListener() {
+            m_world.getM_client().getM_hotbarInventory().addListener(new Inventory.SlotListener() {
                 @Override
                 public void removed(int index, @NotNull Inventory inventory) {
 

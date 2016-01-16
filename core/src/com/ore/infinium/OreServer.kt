@@ -92,7 +92,7 @@ class OreServer : Runnable {
         //exit the server thread when the client notifies us to,
         //by setting the latch to 0,
         //the client notifies us to exit it ASAP
-        while (m_world.m_server.shutdownLatch.count != 0L) {
+        while (m_world.m_server!!.shutdownLatch.count != 0L) {
             m_world.process()
         }
 
@@ -245,63 +245,63 @@ class OreServer : Runnable {
         }
     }
 
-private fun sendServerMessage(message: String) {
-    m_chat.addChatLine(Chat.timestamp(), "", message, Chat.ChatSender.Server)
-}
-
-/**
- * load the main player inventory
-
- * @param player
- * *         entity id
- */
-private fun loadInventory(player: Int) {
-    /*
-    Entity tool = m_world.engine.createEntity();
-    tool.add(m_world.engine.createComponent(VelocityComponent.class));
-
-    ToolComponent toolComponent = m_world.engine.createComponent(ToolComponent.class);
-    tool.add(toolComponent);
-    toolComponent.type = ToolComponent.ToolType.Drill;
-
-    SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
-    spriteComponent.sprite.setSize(2, 2);
-    spriteComponent.textureName = "pickaxeWooden1";
-    tool.add(spriteComponent);
-
-    ItemComponent toolItemComponent = m_world.engine.createComponent(ItemComponent.class);
-    toolItemComponent.stackSize = 62132;
-    toolItemComponent.maxStackSize = 62132;
-    toolItemComponent.inventoryIndex = 0;
-    toolItemComponent.state = ItemComponent.State.InInventoryState;
-
-    PlayerComponent playerComponent = playerMapper.get(player);
-    playerComponent.inventory.setSlot(0, tool);
-    */
-}
-
-private inner class HotbarInventorySlotListener : Inventory.SlotListener {
-    override operator fun set(index: Int, inventory: Inventory) {
-        //todo think this through..drags make this situation very "hairy". possibly implement a move(),
-        //or an overloaded method for dragging
-        //            PlayerComponent playerComponent = playerMapper.get(inventory.owningPlayer);
-        //
-        //            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
-        //                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
-        //            }
+    private fun sendServerMessage(message: String) {
+        m_chat.addChatLine(Chat.timestamp(), "", message, Chat.ChatSender.Server)
     }
 
-    override fun countChanged(index: Int, inventory: Inventory) {
+    /**
+     * load the main player inventory
 
+     * @param player
+     * *         entity id
+     */
+    private fun loadInventory(player: Int) {
+        /*
+        Entity tool = m_world.engine.createEntity();
+        tool.add(m_world.engine.createComponent(VelocityComponent.class));
+
+        ToolComponent toolComponent = m_world.engine.createComponent(ToolComponent.class);
+        tool.add(toolComponent);
+        toolComponent.type = ToolComponent.ToolType.Drill;
+
+        SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
+        spriteComponent.sprite.setSize(2, 2);
+        spriteComponent.textureName = "pickaxeWooden1";
+        tool.add(spriteComponent);
+
+        ItemComponent toolItemComponent = m_world.engine.createComponent(ItemComponent.class);
+        toolItemComponent.stackSize = 62132;
+        toolItemComponent.maxStackSize = 62132;
+        toolItemComponent.inventoryIndex = 0;
+        toolItemComponent.state = ItemComponent.State.InInventoryState;
+
+        PlayerComponent playerComponent = playerMapper.get(player);
+        playerComponent.inventory.setSlot(0, tool);
+        */
     }
 
-    override fun removed(index: Int, inventory: Inventory) {
+    private inner class HotbarInventorySlotListener : Inventory.SlotListener {
+        override operator fun set(index: Int, inventory: Inventory) {
+            //todo think this through..drags make this situation very "hairy". possibly implement a move(),
+            //or an overloaded method for dragging
+            //            PlayerComponent playerComponent = playerMapper.get(inventory.owningPlayer);
+            //
+            //            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
+            //                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
+            //            }
+        }
 
+        override fun countChanged(index: Int, inventory: Inventory) {
+
+        }
+
+        override fun removed(index: Int, inventory: Inventory) {
+
+        }
+
+        override fun selected(index: Int, inventory: Inventory) {
+
+        }
     }
-
-    override fun selected(index: Int, inventory: Inventory) {
-
-    }
-}
 
 }

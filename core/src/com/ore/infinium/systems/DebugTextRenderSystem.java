@@ -184,7 +184,8 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             //           }
 
             guiDebugString = String.format("F12 - gui debug. Enabled: %s", m_guiDebug);
-            guiRenderToggleString = String.format("F11 - gui render. Enabled: %s", m_world.m_client.getM_renderGui());
+            guiRenderToggleString =
+                    String.format("F11 - gui render. Enabled: %s", m_world.getM_client().getM_renderGui());
             tileRenderDebugString = String.format("F10 - tile render.Enabled: %s", m_tileRenderSystem.debugRenderTiles);
             networkSyncDebug = String.format("F9 - server sprite debug render. Enabled Client: %s. Enabled Server:",
                                              m_renderDebugServer);
@@ -252,7 +253,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         final boolean hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock);
 
         final float damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y);
-        final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).blockTotalHealth;
+        final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).getBlockTotalHealth();
 
         m_font.draw(m_batch, "blockHealth: " + damagedBlockHealth + " / " + totalBlockHealth, TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
@@ -286,10 +287,10 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         m_font.draw(m_batch, "client entities: " + clientEntities.size(), TEXT_X_LEFT, m_textYLeft);
         m_textYLeft -= TEXT_Y_SPACING;
 
-        assert m_world.m_server != null;
+        assert m_world.getM_server() != null;
         //debug text only gets run on client. but this block can only be run when we have direct
         //access to the server (meaning he hosted it and is playing it)
-        if (m_world.m_server != null) {
+        if (m_world.getM_server() != null) {
 
             /*
             //fixme this has multithreading issues, obviously
@@ -338,7 +339,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         if (m_renderDebugClient)
 
         {
-            m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
+            m_debugServerBatch.setProjectionMatrix(m_world.getM_camera().combined);
             m_debugServerBatch.begin();
             m_debugServerBatch.setColor(Color.MAGENTA);
 

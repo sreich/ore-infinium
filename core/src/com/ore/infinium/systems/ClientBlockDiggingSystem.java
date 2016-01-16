@@ -233,8 +233,8 @@ public class ClientBlockDiggingSystem extends BaseSystem {
                 //we killed the block
                 m_networkClientSystem.sendBlockDigFinish(blockX, blockY);
 
-                OreWorld.log("client, block digging system",
-                             "processSystem finish! tick taken:  " + blockToDig.ticksTook);
+                OreWorld.Companion.log("client, block digging system",
+                                       "processSystem finish! tick taken:  " + blockToDig.ticksTook);
                 return;
             }
         }
@@ -245,7 +245,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             //we will too, but mostly just so we know not to send these requests again
             m_networkClientSystem.sendBlockDigBegin(blockX, blockY);
 
-            final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).blockTotalHealth;
+            final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).getBlockTotalHealth();
 
             BlockToDig blockToDig = new BlockToDig();
             blockToDig.damagedBlockHealth = totalBlockHealth;

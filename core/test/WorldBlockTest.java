@@ -31,7 +31,7 @@ public class WorldBlockTest {
 
     @Test
     public void testBlockArrayInitialized() {
-        assertNotNull(world.blocks);
+        assertNotNull(world.getBlocks());
     }
 
     @Test

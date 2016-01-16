@@ -110,7 +110,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 continue;
             }
 
-            final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).blockTotalHealth;
+            final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).getBlockTotalHealth();
 
             final float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
 
@@ -121,7 +121,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
                 //todo tell all clients that it was officially dug--but first we want to implement chunking
                 // though!!
 
-                OreWorld.log("server, block digging system", "processSystem block succeeded. sending");
+                OreWorld.Companion.log("server, block digging system", "processSystem block succeeded. sending");
                 m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y);
 
                 final int droppedBlock = m_world.createBlockItem(blockType);
@@ -151,8 +151,8 @@ public class ServerBlockDiggingSystem extends BaseSystem {
             //we assume this request times out
             if (m_gameTickSystem.getTicks() > expectedTickEnd + 10) {
 
-                OreWorld.log("server, block digging system",
-                             "processSystem block digging request timed out. this could be normal.");
+                OreWorld.Companion.log("server, block digging system",
+                                       "processSystem block digging request timed out. this could be normal.");
                 m_blocksToDig.removeIndex(i);
             }
         }
@@ -171,25 +171,28 @@ public class ServerBlockDiggingSystem extends BaseSystem {
             if (blockToDig.x == x && blockToDig.y == y) {
                 //this is our block, mark it as the client thinking/saying(or lying) it finished
                 blockToDig.clientSaysItFinished = true;
-                OreWorld.log("server, block digging system", "blockDiggingFinished - client said so it finished");
+                OreWorld.Companion.log("server, block digging system",
+                                       "blockDiggingFinished - client said so it finished");
 
                 return;
             }
         }
 
         //if it was never found, forget about it.
-        OreWorld.log("server, block digging system",
-                     "blockDiggingFinished message received from a client, but this block dig queued request " +
-                     "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)");
+        OreWorld.Companion.log("server, block digging system",
+                               "blockDiggingFinished message received from a client, but this block dig queued " +
+                               "request " +
+                               "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)");
     }
 
     public void blockDiggingBegin(int x, int y, int playerEntity) {
         if (m_world.blockType(x, y) == OreBlock.BlockType.NullBlockType) {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
-            OreWorld.log("server, block digging system",
-                         "blockDiggingBegin we got the request to dig a block that is already null/dug. this is " +
-                         "likely just a latency issue ");
+            OreWorld.Companion.log("server, block digging system",
+                                   "blockDiggingBegin we got the request to dig a block that is already null/dug. " +
+                                   "this is " +
+                                   "likely just a latency issue ");
             return;
         }
 

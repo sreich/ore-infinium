@@ -63,7 +63,7 @@ public class ClientPowerCircuitSystem extends IteratingSystem {
 
     @Override
     protected void process(int entityId) {
-        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (m_world.getWorldInstanceType() != OreWorld.WorldInstanceType.Server) {
             return;
         }
 

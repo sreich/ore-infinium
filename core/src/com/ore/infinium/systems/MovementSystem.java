@@ -74,7 +74,7 @@ public class MovementSystem extends IteratingSystem {
         simulate(entityId, getWorld().delta);
 
         //fixme maybe make a dropped component?
-        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
+        if (m_world.getWorldInstanceType() == OreWorld.WorldInstanceType.Server) {
             ItemComponent itemComponent = itemMapper.getSafe(entityId);
 
             if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
@@ -82,18 +82,18 @@ public class MovementSystem extends IteratingSystem {
             }
         }
 
-        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (m_world.getWorldInstanceType() != OreWorld.WorldInstanceType.Server) {
             int mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
             SpriteComponent playerSprite = spriteMapper.get(mainPlayer);
-            m_world.m_camera.position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
-            m_world.m_camera.update();
+            m_world.getM_camera().position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
+            m_world.getM_camera().update();
 
             m_networkClientSystem.sendPlayerMoved();
         }
     }
 
     private void simulate(int entity, float delta) {
-        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
+        if (m_world.getWorldInstanceType() == OreWorld.WorldInstanceType.Server) {
             //server doesn't process past here. client tells us where they are.
             //fixme, though we do need to eventually at least half-ass verify it, which
             //means doing it on server as well
@@ -359,7 +359,8 @@ public class MovementSystem extends IteratingSystem {
     }
 
     private void maybeSendEntityMoved(int entity) {
-        AspectSubscriptionManager aspectSubscriptionManager = m_world.m_artemisWorld.getAspectSubscriptionManager();
+        AspectSubscriptionManager aspectSubscriptionManager =
+                m_world.getM_artemisWorld().getAspectSubscriptionManager();
         EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent.class));
         IntBag entities = entitySubscription.getEntities();
 

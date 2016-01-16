@@ -254,15 +254,15 @@ import java.util.HashSet;
             ////////////////////
 
             if (entitiesToDestroy.size > 0) {
-                OreWorld.log("servernetworkentitysystem",
-                             "sending DestroyMultipleEntities: " + entitiesToDestroy.toString());
+                OreWorld.Companion.log("servernetworkentitysystem",
+                                       "sending DestroyMultipleEntities: " + entitiesToDestroy.toString());
                 m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
                                                                   playerComponent.connectionPlayerId);
             }
 
             if (entitiesToSpawn.size > 0) {
-                OreWorld.log("servernetworkentitysystem",
-                             "sending SpawnMultipleEntities: " + entitiesToSpawn.toString());
+                OreWorld.Companion.log("servernetworkentitysystem",
+                                       "sending SpawnMultipleEntities: " + entitiesToSpawn.toString());
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 m_networkServerSystem.sendSpawnMultipleEntities(entitiesToSpawn, playerComponent.connectionPlayerId);
             }

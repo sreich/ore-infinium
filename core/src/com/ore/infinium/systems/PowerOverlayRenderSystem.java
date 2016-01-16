@@ -96,7 +96,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         SpriteComponent tooltipSprite = spriteMapper.create(m_powerCircuitTooltipEntity);
         tooltipSprite.sprite.setSize(1, 1);
         tooltipSprite.textureName = "debug";
-        tooltipSprite.sprite.setRegion(m_world.m_atlas.findRegion(tooltipSprite.textureName));
+        tooltipSprite.sprite.setRegion(m_world.getM_atlas().findRegion(tooltipSprite.textureName));
         tooltipSprite.noClip = true;
 
         m_container = new Table(m_skin);
@@ -233,7 +233,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         }
 
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
-        m_batch.setProjectionMatrix(m_world.m_camera.combined);
+        m_batch.setProjectionMatrix(m_world.getM_camera().combined);
         m_batch.begin();
 
         renderEntities(this.getWorld().delta);
@@ -241,23 +241,24 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_batch.end();
 
         //screen space rendering
-        m_batch.setProjectionMatrix(m_world.m_client.getViewport().getCamera().combined);
+        m_batch.setProjectionMatrix(m_world.getM_client().getViewport().getCamera().combined);
         m_batch.begin();
 
         //fixme replace this crap w/ scene2d stuff?
-        m_world.m_client.getBitmapFont_8pt().setColor(1, 0, 0, 1);
+        m_world.getM_client().getBitmapFont_8pt().setColor(1, 0, 0, 1);
 
         float fontY = 150;
-        float fontX = m_world.m_client.getViewport().getRightGutterX() - 220;
+        float fontX = m_world.getM_client().getViewport().getRightGutterX() - 220;
 
-        m_batch.draw(m_world.m_atlas.findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100, fontY - 300);
+        m_batch.draw(m_world.getM_atlas().findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100,
+                     fontY - 300);
 
-        m_world.m_client.getBitmapFont_8pt().draw(m_batch, "Energy overlay visible (press E)", fontX, fontY);
+        m_world.getM_client().getBitmapFont_8pt().draw(m_batch, "Energy overlay visible (press E)", fontX, fontY);
         fontY -= 15;
 
-        m_world.m_client.getBitmapFont_8pt().draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
+        m_world.getM_client().getBitmapFont_8pt().draw(m_batch, "Input: N/A Output: N/A", fontX, fontY);
 
-        m_world.m_client.getBitmapFont_8pt().setColor(1, 1, 1, 1);
+        m_world.getM_client().getBitmapFont_8pt().setColor(1, 1, 1, 1);
 
         m_batch.end();
 
@@ -360,7 +361,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
 
         float wireLength = Vector2.dst(source.x, source.y, dest.x, dest.y);
 
-        m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0, 0,
+        m_batch.draw(m_world.getM_atlas().findRegion("power-node-line"), dest.x, dest.y, 0, 0,
                      ServerPowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees);
     }
 
@@ -368,7 +369,7 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         float powerNodeWidth = 1;
         float powerNodeHeight = 1;
 
-        m_batch.draw(m_world.m_atlas.findRegion("power-node-circle"),
+        m_batch.draw(m_world.getM_atlas().findRegion("power-node-circle"),
                      spriteComponent.sprite.getX() + (spriteComponent.sprite.getWidth() * powerNodeOffsetRatioX) -
                      (powerNodeWidth * 0.5f),
                      spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * powerNodeOffsetRatioY) -

@@ -168,8 +168,10 @@ public class ChatDialog implements Chat.ChatListener {
     private void sendChat() {
         if (m_messageField.getText().length() > 0) {
             if (!processLocalChatCommands()) {
-                m_client.getM_world().m_artemisWorld.getSystem(NetworkClientSystem.class)
-                                                    .sendChatMessage(m_messageField.getText());
+                m_client.getM_world()
+                        .getM_artemisWorld()
+                        .getSystem(NetworkClientSystem.class)
+                        .sendChatMessage(m_messageField.getText());
             }
 
             m_messageField.setText("");

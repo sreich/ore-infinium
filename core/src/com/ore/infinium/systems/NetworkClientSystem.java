@@ -125,7 +125,7 @@ public class NetworkClientSystem extends BaseSystem {
         m_clientKryo = new Client(8192, Network.bufferObjectSize);
         m_clientKryo.start();
 
-        Network.register(m_clientKryo);
+        Network.INSTANCE.register(m_clientKryo);
 
         int lagMinMs = OreSettings.lagMinMs;
         int lagMaxMs = OreSettings.lagMaxMs;
@@ -159,13 +159,13 @@ public class NetworkClientSystem extends BaseSystem {
     private void sendInitialClientData() {
         Network.InitialClientData initialClientData = new Network.InitialClientData();
 
-        initialClientData.playerName = OreSettings.playerName;
+        initialClientData.setPlayerName(OreSettings.playerName);
 
         //TODO generate some random thing
-        initialClientData.playerUUID = UUID.randomUUID().toString();
-        initialClientData.versionMajor = OreClient.ORE_VERSION_MAJOR;
-        initialClientData.versionMinor = OreClient.ORE_VERSION_MINOR;
-        initialClientData.versionRevision = OreClient.ORE_VERSION_REVISION;
+        initialClientData.setPlayerUUID(UUID.randomUUID().toString());
+        initialClientData.setVersionMajor(OreClient.ORE_VERSION_MAJOR);
+        initialClientData.setVersionMinor(OreClient.ORE_VERSION_MINOR);
+        initialClientData.setVersionRevision(OreClient.ORE_VERSION_REVISION);
 
         m_clientKryo.sendTCP(initialClientData);
     }
@@ -221,18 +221,18 @@ public class NetworkClientSystem extends BaseSystem {
 
         //fixme spawn.id, sprite!!
         int e = getWorld().create();
-        for (Component c : spawn.components) {
+        for (Component c : spawn.getComponents()) {
             EntityEdit entityEdit = getWorld().edit(e);
             entityEdit.add(c);
         }
 
         SpriteComponent spriteComponent = spriteMapper.create(e);
-        spriteComponent.textureName = spawn.textureName;
-        spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
+        spriteComponent.textureName = spawn.getTextureName();
+        spriteComponent.sprite.setSize(spawn.getSize().getSize().x, spawn.getSize().getSize().y);
 
         TextureRegion textureRegion;
         if (!blockMapper.has(e)) {
-            textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+            textureRegion = m_world.getM_atlas().findRegion(spriteComponent.textureName);
         } else {
             textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
         }
@@ -241,7 +241,7 @@ public class NetworkClientSystem extends BaseSystem {
 
         ItemComponent itemComponent = itemMapper.get(e);
         //fixme this indirection isn't so hot...
-        m_world.m_client.getM_hotbarInventory().setSlot(itemComponent.inventoryIndex, e);
+        m_world.getM_client().getM_hotbarInventory().setSlot(itemComponent.inventoryIndex, e);
 
         //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
         // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
@@ -249,16 +249,18 @@ public class NetworkClientSystem extends BaseSystem {
 
     private void receiveChatMessage(Object receivedObject) {
         Network.ChatMessageFromServer data = (Network.ChatMessageFromServer) receivedObject;
-        m_world.m_client.getM_chat().addChatLine(data.timestamp, data.playerName, data.message, data.sender);
+        m_world.getM_client()
+               .getM_chat()
+               .addChatLine(data.getTimestamp(), data.getPlayerName(), data.getMessage(), data.getSender());
     }
 
     private void receiveEntityMoved(Object receivedObject) {
         Network.EntityMovedFromServer data = (Network.EntityMovedFromServer) receivedObject;
-        int entity = m_entityForNetworkId.get(data.id);
+        int entity = m_entityForNetworkId.get(data.getId());
         assert entity != OreWorld.ENTITY_INVALID;
 
         SpriteComponent spriteComponent = spriteMapper.get(entity);
-        spriteComponent.sprite.setPosition(data.position.x, data.position.y);
+        spriteComponent.sprite.setPosition(data.getPosition().x, data.getPosition().y);
     }
 
     /*
@@ -297,8 +299,8 @@ public class NetworkClientSystem extends BaseSystem {
                 (Network.EntityDestroyMultipleFromServer) receivedObject;
 
         String debug = "receiveMultipleEntityDestroy [ ";
-        for (int i = 0; i < destroyFromServer.entitiesToDestroy.size; i++) {
-            int networkEntityId = destroyFromServer.entitiesToDestroy.get(i);
+        for (int i = 0; i < destroyFromServer.getEntitiesToDestroy().size; i++) {
+            int networkEntityId = destroyFromServer.getEntitiesToDestroy().get(i);
 
             //cleanup the maps
             Integer localId = m_entityForNetworkId.remove(networkEntityId);
@@ -312,16 +314,16 @@ public class NetworkClientSystem extends BaseSystem {
             } else {
                 //hack debug
                 debug += "networkid:" + networkEntityId + " localid: " + localId + ", ";
-                OreWorld.log("networkclientsystem", debug);
+                OreWorld.Companion.log("networkclientsystem", debug);
 
                 assert false : "told to delete entity on client, but it doesn't exist. desynced. network id: " +
                                networkEntityId;
 
             }
 
-            assert m_world.m_artemisWorld.getEntity(localId) != null :
+            assert m_world.getM_artemisWorld().getEntity(localId) != null :
                     "entity doesn't exist locally, but we tried to delete it from the map";
-            m_world.m_artemisWorld.delete(localId);
+            m_world.getM_artemisWorld().delete(localId);
         }
 
         assert m_entityForNetworkId.size() == m_networkIdForEntityId.size() :
@@ -333,7 +335,7 @@ public class NetworkClientSystem extends BaseSystem {
 
         debug += ']';
 
-        OreWorld.log("networkclientsystem", debug);
+        OreWorld.Companion.log("networkclientsystem", debug);
     }
 
     private void receiveMultipleEntitySpawn(Object receivedObject) {
@@ -343,28 +345,28 @@ public class NetworkClientSystem extends BaseSystem {
         //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
         String debug = "receiveMultipleEntitySpawn [ ";
-        for (Network.EntitySpawnFromServer spawn : spawnFromServer.entitySpawn) {
+        for (Network.EntitySpawnFromServer spawn : spawnFromServer.getEntitySpawn()) {
 
             int e = getWorld().create();
 
-            debug += " networkid: " + spawn.id + " localid: " + e;
+            debug += " networkid: " + spawn.getId() + " localid: " + e;
 
-            for (Component c : spawn.components) {
+            for (Component c : spawn.getComponents()) {
                 EntityEdit entityEdit = getWorld().edit(e);
                 entityEdit.add(c);
             }
 
             //fixme id..see above.
             SpriteComponent spriteComponent = spriteMapper.create(e);
-            spriteComponent.textureName = spawn.textureName;
-            spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
-            spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+            spriteComponent.textureName = spawn.getTextureName();
+            spriteComponent.sprite.setSize(spawn.getSize().getSize().x, spawn.getSize().getSize().y);
+            spriteComponent.sprite.setPosition(spawn.getPos().getPos().x, spawn.getPos().getPos().y);
 
             assert spriteComponent.textureName != null;
 
             TextureRegion textureRegion;
             if (!blockMapper.has(e)) {
-                textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+                textureRegion = m_world.getM_atlas().findRegion(spriteComponent.textureName);
             } else {
                 textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
             }
@@ -374,13 +376,13 @@ public class NetworkClientSystem extends BaseSystem {
 
             spriteComponent.sprite.setRegion(textureRegion);
 
-            Integer result1 = m_networkIdForEntityId.put(e, spawn.id);
-            Integer result2 = m_entityForNetworkId.put(spawn.id, e);
+            Integer result1 = m_networkIdForEntityId.put(e, spawn.getId());
+            Integer result2 = m_entityForNetworkId.put(spawn.getId(), e);
 
             if (result1 != null) {
                 assert false :
                         "put failed for spawning, into entity bidirectional map, value already existed id: " + e +
-                        " networkid: " + spawn.id;
+                        " networkid: " + spawn.getId();
             }
 
             assert result2 == null : "put failed for spawning, into entity bidirectional map, value already existed";
@@ -389,13 +391,13 @@ public class NetworkClientSystem extends BaseSystem {
                     "spawn, network id and entity id maps are out of sync(size mismatch)";
         }
 
-        OreWorld.log("networkclientsystem", debug);
+        OreWorld.Companion.log("networkclientsystem", debug);
     }
 
     private void receiveLoadedViewportMoved(Object receivedObject) {
         Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) receivedObject;
         PlayerComponent c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
-        c.loadedViewport.setRect(v.rect);
+        c.loadedViewport.setRect(v.getRect());
     }
 
     private void receiveSparseBlockUpdate(Object receivedObject) {
@@ -417,13 +419,13 @@ public class NetworkClientSystem extends BaseSystem {
         //it is our main player (the client's player, aka us)
         if (!connected) {
             //fixme not ideal, calling into the client to do this????
-            int player = m_world.m_client.createPlayer(spawn.playerName, m_clientKryo.getID(), true);
+            int player = m_world.getM_client().createPlayer(spawn.getPlayerName(), m_clientKryo.getID(), true);
             SpriteComponent spriteComp = spriteMapper.get(player);
 
-            spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+            spriteComp.sprite.setPosition(spawn.getPos().getPos().x, spawn.getPos().getPos().y);
 
             SpriteComponent playerSprite = spriteMapper.get(player);
-            playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"));
+            playerSprite.sprite.setRegion(m_world.getM_atlas().findRegion("player-32x64"));
 
             AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
             EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
@@ -449,10 +451,10 @@ public class NetworkClientSystem extends BaseSystem {
                                   Inventory.InventoryType destInventoryType, int destIndex) {
         Network.PlayerMoveInventoryItemFromClient inventoryItemFromClient =
                 new Network.PlayerMoveInventoryItemFromClient();
-        inventoryItemFromClient.sourceType = sourceInventoryType;
-        inventoryItemFromClient.sourceIndex = (byte) sourceIndex;
-        inventoryItemFromClient.destType = destInventoryType;
-        inventoryItemFromClient.destIndex = (byte) destIndex;
+        inventoryItemFromClient.setSourceType(sourceInventoryType);
+        inventoryItemFromClient.setSourceIndex((byte) sourceIndex);
+        inventoryItemFromClient.setDestType(destInventoryType);
+        inventoryItemFromClient.setDestIndex((byte) destIndex);
 
         m_clientKryo.sendTCP(inventoryItemFromClient);
     }
@@ -465,14 +467,14 @@ public class NetworkClientSystem extends BaseSystem {
         SpriteComponent sprite = spriteMapper.get(mainPlayer);
 
         Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
-        move.position = new Vector2(sprite.sprite.getX(), sprite.sprite.getY());
+        move.setPosition(new Vector2(sprite.sprite.getX(), sprite.sprite.getY()));
 
         m_clientKryo.sendTCP(move);
     }
 
     public void sendChatMessage(String message) {
         Network.ChatMessageFromClient chatMessageFromClient = new Network.ChatMessageFromClient();
-        chatMessageFromClient.message = message;
+        chatMessageFromClient.setMessage(message);
 
         m_clientKryo.sendTCP(chatMessageFromClient);
     }
@@ -480,7 +482,7 @@ public class NetworkClientSystem extends BaseSystem {
     public void sendHotbarEquipped(byte index) {
         Network.PlayerEquipHotbarIndexFromClient playerEquipHotbarIndexFromClient =
                 new Network.PlayerEquipHotbarIndexFromClient();
-        playerEquipHotbarIndexFromClient.index = index;
+        playerEquipHotbarIndexFromClient.setIndex(index);
 
         m_clientKryo.sendTCP(playerEquipHotbarIndexFromClient);
     }
@@ -495,29 +497,29 @@ public class NetworkClientSystem extends BaseSystem {
      */
     public void sendBlockDigBegin(int x, int y) {
         Network.BlockDigBeginFromClient blockDigFromClient = new Network.BlockDigBeginFromClient();
-        blockDigFromClient.x = x;
-        blockDigFromClient.y = y;
+        blockDigFromClient.setX(x);
+        blockDigFromClient.setY(y);
         m_clientKryo.sendTCP(blockDigFromClient);
     }
 
     public void sendBlockDigFinish(int blockX, int blockY) {
         Network.BlockDigFinishFromClient blockDigFromClient = new Network.BlockDigFinishFromClient();
-        blockDigFromClient.x = blockX;
-        blockDigFromClient.y = blockY;
+        blockDigFromClient.setX(blockX);
+        blockDigFromClient.setY(blockY);
         m_clientKryo.sendTCP(blockDigFromClient);
     }
 
     public void sendBlockPlace(int x, int y) {
         Network.BlockPlaceFromClient blockPlaceFromClient = new Network.BlockPlaceFromClient();
-        blockPlaceFromClient.x = x;
-        blockPlaceFromClient.y = y;
+        blockPlaceFromClient.setX(x);
+        blockPlaceFromClient.setY(y);
         m_clientKryo.sendTCP(blockPlaceFromClient);
     }
 
     public void sendItemPlace(float x, float y) {
         Network.ItemPlaceFromClient itemPlace = new Network.ItemPlaceFromClient();
-        itemPlace.x = x;
-        itemPlace.y = y;
+        itemPlace.setX(x);
+        itemPlace.setY(y);
 
         m_clientKryo.sendTCP(itemPlace);
     }

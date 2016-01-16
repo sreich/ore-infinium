@@ -38,14 +38,14 @@ public class ServerPowerCircuitSystemTest {
     @Before
     public void createArtemisWorld() {
         world = new OreWorld(null, null, OreWorld.WorldInstanceType.Server);
-        world.m_artemisWorld =
-                new World(new WorldConfigurationBuilder().with(new ServerPowerCircuitSystem(world)).build());
+        world.setM_artemisWorld(
+                new World(new WorldConfigurationBuilder().with(new ServerPowerCircuitSystem(world)).build()));
 
-        circuitSystem = world.m_artemisWorld.getSystem(ServerPowerCircuitSystem.class);
+        circuitSystem = world.getM_artemisWorld().getSystem(ServerPowerCircuitSystem.class);
 
         //inject the mappers into the world, before we start doing things
-        world.m_artemisWorld.inject(world, true);
-        world.m_artemisWorld.inject(this, true);
+        world.getM_artemisWorld().inject(world, true);
+        world.getM_artemisWorld().inject(this, true);
     }
 
     @Test
