@@ -77,7 +77,7 @@ public class MovementSystem extends IteratingSystem {
         if (m_world.getWorldInstanceType() == OreWorld.WorldInstanceType.Server) {
             ItemComponent itemComponent = itemMapper.getSafe(entityId);
 
-            if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
+            if (itemComponent != null && itemComponent.getState() == ItemComponent.State.DroppedInWorld) {
                 simulateDroppedItem(entityId, getWorld().delta);
             }
         }
@@ -85,7 +85,7 @@ public class MovementSystem extends IteratingSystem {
         if (m_world.getWorldInstanceType() != OreWorld.WorldInstanceType.Server) {
             int mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
             SpriteComponent playerSprite = spriteMapper.get(mainPlayer);
-            m_world.getM_camera().position.set(playerSprite.sprite.getX(), playerSprite.sprite.getY(), 0);
+            m_world.getM_camera().position.set(playerSprite.getSprite().getX(), playerSprite.getSprite().getY(), 0);
             m_world.getM_camera().update();
 
             m_networkClientSystem.sendPlayerMoved();
@@ -113,31 +113,32 @@ public class MovementSystem extends IteratingSystem {
 
         //fixme handle noclip
         final SpriteComponent spriteComponent = spriteMapper.get(entity);
-        final Vector2 origPosition = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+        final Vector2 origPosition =
+                new Vector2(spriteComponent.getSprite().getX(), spriteComponent.getSprite().getY());
 
         final VelocityComponent velocityComponent = velocityMapper.get(entity);
 
-        final Vector2 oldVelocity = new Vector2(velocityComponent.velocity);
+        final Vector2 oldVelocity = new Vector2(velocityComponent.getVelocity());
         Vector2 newVelocity = new Vector2(oldVelocity);
 
-        final Vector2 desiredDirection = controlMapper.get(entity).desiredDirection;
+        final Vector2 desiredDirection = controlMapper.get(entity).getDesiredDirection();
 
         //acceleration due to gravity
         Vector2 acceleration = new Vector2(desiredDirection.x * PlayerComponent.movementSpeed, OreWorld.GRAVITY_ACCEL);
 
         JumpComponent jumpComponent = jumpMapper.get(entity);
-        if (jumpComponent.canJump && jumpComponent.shouldJump) {
+        if (jumpComponent.getCanJump() && jumpComponent.getShouldJump()) {
 
-            if (jumpComponent.jumpTimer.milliseconds() >= jumpComponent.jumpInterval) {
+            if (jumpComponent.getJumpTimer().milliseconds() >= jumpComponent.getJumpInterval()) {
                 //good to jump, actually do it now.
-                jumpComponent.jumpTimer.reset();
+                jumpComponent.getJumpTimer().reset();
 
                 acceleration.y = -PlayerComponent.jumpVelocity;
             }
         }
 
-        jumpComponent.canJump = false;
-        jumpComponent.shouldJump = false;
+        jumpComponent.setCanJump(false);
+        jumpComponent.setShouldJump(false);
 
         newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta);
 
@@ -165,56 +166,58 @@ public class MovementSystem extends IteratingSystem {
         //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
 
         //todo  clamp both axes between some max/min values..
-        velocityComponent.velocity.set(newVelocity.x, newVelocity.y);
+        velocityComponent.getVelocity().set(newVelocity.x, newVelocity.y);
 
         // newVelocity is now invalid, note (vector reference modification).
         Vector2 desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)));
         final Vector2 finalPosition = performCollision(desiredPosition, entity);
 
-        spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
+        spriteComponent.getSprite().setPosition(finalPosition.x, finalPosition.y);
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
     }
 
     private void simulateNoClip(int entity, float delta) {
         final SpriteComponent spriteComponent = spriteMapper.get(entity);
-        final Vector2 desiredDirection = controlMapper.get(entity).desiredDirection;
-        float x = spriteComponent.sprite.getX();
-        float y = spriteComponent.sprite.getY();
-        spriteComponent.sprite.setPosition(x + desiredDirection.x * PlayerComponent.movementSpeed * 6.0f * delta,
-                                           y + desiredDirection.y * PlayerComponent.movementSpeed * 6.0f * delta);
+        final Vector2 desiredDirection = controlMapper.get(entity).getDesiredDirection();
+        float x = spriteComponent.getSprite().getX();
+        float y = spriteComponent.getSprite().getY();
+        spriteComponent.getSprite()
+                       .setPosition(x + desiredDirection.x * PlayerComponent.movementSpeed * 6.0f * delta,
+                                    y + desiredDirection.y * PlayerComponent.movementSpeed * 6.0f * delta);
     }
 
     private void simulateDroppedItem(int item, float delta) {
         ItemComponent itemComponent = itemMapper.get(item);
-        assert itemComponent.state == ItemComponent.State.DroppedInWorld;
+        assert itemComponent.getState() == ItemComponent.State.DroppedInWorld;
 
         SpriteComponent itemSpriteComponent = spriteMapper.get(item);
         VelocityComponent itemVelocityComponent = velocityMapper.get(item);
 
-        Vector2 itemPosition = new Vector2(itemSpriteComponent.sprite.getX(), itemSpriteComponent.sprite.getY());
+        Vector2 itemPosition =
+                new Vector2(itemSpriteComponent.getSprite().getX(), itemSpriteComponent.getSprite().getY());
 
         int x = (int) itemPosition.x;
         int y = (int) itemPosition.y;
 
-        int playerEntityWhoDropped = m_world.playerEntityForPlayerID(itemComponent.playerIdWhoDropped);
+        int playerEntityWhoDropped = m_world.playerEntityForPlayerID(itemComponent.getPlayerIdWhoDropped());
 
         VelocityComponent playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped);
-        Vector2 playerVelocity = new Vector2(playerVelocityComponent.velocity);
+        Vector2 playerVelocity = new Vector2(playerVelocityComponent.getVelocity());
 
         Vector2 acceleration = new Vector2(0.0f, OreWorld.GRAVITY_ACCEL);
 
-        if (itemComponent.justDropped) {
+        if (itemComponent.getJustDropped()) {
             //acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
             acceleration.x += 0.5f;//Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
             acceleration.y += -OreWorld.GRAVITY_ACCEL * 3.0f;
 
             //only add player velocity the firstEntity tick, as soon as they drop it.
             //so that we can throw things harder using players current speed
-            itemComponent.justDropped = false;
+            itemComponent.setJustDropped(false);
         }
 
-        final Vector2 itemOldVelocity = new Vector2(itemVelocityComponent.velocity);
-        Vector2 itemNewVelocity = new Vector2(itemVelocityComponent.velocity);
+        final Vector2 itemOldVelocity = new Vector2(itemVelocityComponent.getVelocity());
+        Vector2 itemNewVelocity = new Vector2(itemVelocityComponent.getVelocity());
 
         itemNewVelocity.add(acceleration);
 
@@ -237,11 +240,11 @@ public class MovementSystem extends IteratingSystem {
         }
 
         if (!itemNewVelocity.isZero()) {
-            itemVelocityComponent.velocity.set(itemNewVelocity);
+            itemVelocityComponent.getVelocity().set(itemNewVelocity);
             Vector2 desiredPosition = itemPosition.add(itemOldVelocity.add(itemNewVelocity.scl(0.5f * delta)));
             Vector2 finalPosition = performCollision(desiredPosition, item);
 
-            itemSpriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y);
+            itemSpriteComponent.getSprite().setPosition(finalPosition.x, finalPosition.y);
             maybeSendEntityMoved(item);
         }
 
@@ -259,8 +262,9 @@ public class MovementSystem extends IteratingSystem {
 
         final SpriteComponent spriteComponent = spriteMapper.get(entity);
         final VelocityComponent velocityComponent = velocityMapper.get(entity);
-        final Vector2 velocity = velocityComponent.velocity;
-        final Vector2 sizeMeters = new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+        final Vector2 velocity = velocityComponent.getVelocity();
+        final Vector2 sizeMeters =
+                new Vector2(spriteComponent.getSprite().getWidth(), spriteComponent.getSprite().getHeight());
 
         //FIXME: this whole thing needs a way better solution, it's horrible.
         final float epsilon = 1 * 0.01f;
@@ -352,7 +356,7 @@ public class MovementSystem extends IteratingSystem {
 
         JumpComponent jumpComponent = jumpMapper.getSafe(entity);
         if (jumpComponent != null) {
-            jumpComponent.canJump = canJump;
+            jumpComponent.setCanJump(canJump);
         }
 
         return desiredPosition;

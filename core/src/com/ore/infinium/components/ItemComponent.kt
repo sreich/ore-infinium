@@ -1,11 +1,11 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
-import com.badlogic.gdx.math.Vector2;
+import com.artemis.Component
+import com.badlogic.gdx.math.Vector2
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -18,14 +18,14 @@ import com.badlogic.gdx.math.Vector2;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ItemComponent extends Component {
+class ItemComponent : Component() {
     //number of items this item has. e.g. 35 wood..things
-    public int stackSize;
+    var stackSize: Int = 0
     //the max a single item stack can hold
-    public int maxStackSize;
+    var maxStackSize: Int = 0
 
     /**
      * the size of the item before the drop
@@ -33,44 +33,46 @@ public class ItemComponent extends Component {
      * temporarily. if they get picked up, we'd like to restore
      * this back to normal, but since we modify the original
      * size, we have no idea what it is.
-     * <p>
+     *
+     *
      * This is serialized over the network,  unfortunately it is
      * for each item. we may want a better method. if this becomes a
      * problem network/bandwidth wise
      * (todo)
      */
-    public Vector2 sizeBeforeDrop;
+    var sizeBeforeDrop = Vector2()
 
     /**
      * The id of the player (not entity id!!) who dropped the item in the world
      * Unused if the item is not in a dropped state.
      * Utilized for record keeping of ownership
      */
-    public int playerIdWhoDropped;
-    public State state = State.InWorldState;
+    var playerIdWhoDropped: Int = 0
+    var state = State.InWorldState
 
     /**
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
-    public int inventoryIndex;
+    var inventoryIndex: Int = 0
 
     /**
      * flag to indicate the item was *just* dropped this frame and has not yet
      * had velocity integrated yet.
-     * <p>
+     *
+     *
      * Only set by the server, when an item is dropped, it receives the drop request
      * from the client, server will simulate the dropped item and tell the clients.
      */
-    public transient boolean justDropped;
+    @Transient var justDropped: Boolean = false
 
-    public enum ItemProperties {
+    enum class ItemProperties {
         Placeable,
         Consumable,
         //potions and such FIXME UNUSED maybe unneeded too?
         Usable
     }
 
-    public enum State {
+    enum class State {
         InWorldState,
         InInventoryState,
         DroppedInWorld
@@ -78,27 +80,27 @@ public class ItemComponent extends Component {
 
     /**
      * copy a component (similar to copy constructor)
-     *
+
      * @param itemComponent
-     *         component to copy from, into this instance
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(ItemComponent itemComponent) {
-        stackSize = itemComponent.stackSize;
-        maxStackSize = itemComponent.maxStackSize;
-        playerIdWhoDropped = itemComponent.playerIdWhoDropped;
-        state = itemComponent.state;
-        inventoryIndex = itemComponent.inventoryIndex;
-        justDropped = itemComponent.justDropped;
+    fun copyFrom(itemComponent: ItemComponent) {
+        stackSize = itemComponent.stackSize
+        maxStackSize = itemComponent.maxStackSize
+        playerIdWhoDropped = itemComponent.playerIdWhoDropped
+        state = itemComponent.state
+        inventoryIndex = itemComponent.inventoryIndex
+        justDropped = itemComponent.justDropped
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("itemComponent.stackSize: ").append(stackSize).append('\n');
-        builder.append("itemComponent.maxStackSize: ").append(maxStackSize).append('\n');
-        builder.append("itemComponent.playerIdWhoDropped: ").append(playerIdWhoDropped).append('\n');
-        builder.append("itemComponent.state: ").append(state.toString()).append('\n');
-        builder.append("itemComponent.justDropped: ").append(justDropped).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.stackSize: $stackSize
+        $c.maxStackSize: $maxStackSize
+        $c.playerIdWhoDropped: $playerIdWhoDropped
+        $c.state: $state
+        $c.justDropped: $justDropped
+        """
     }
 }

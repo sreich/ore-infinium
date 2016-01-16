@@ -150,7 +150,8 @@ import java.util.HashSet;
             //playerEntity.knownEntities;
 
             PlayerComponent playerComponent = playerMapper.get(playerEntity.playerEntityId);
-            LoadedViewport.PlayerViewportBlockRegion viewport = playerComponent.loadedViewport.blockRegionInViewport();
+            LoadedViewport.PlayerViewportBlockRegion viewport =
+                    playerComponent.getLoadedViewport().blockRegionInViewport();
 
             //get the entities that actually exist in this viewport
             IntBag fill = new IntBag();
@@ -257,14 +258,15 @@ import java.util.HashSet;
                 OreWorld.Companion.log("servernetworkentitysystem",
                                        "sending DestroyMultipleEntities: " + entitiesToDestroy.toString());
                 m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
-                                                                  playerComponent.connectionPlayerId);
+                                                                  playerComponent.getConnectionPlayerId());
             }
 
             if (entitiesToSpawn.size > 0) {
                 OreWorld.Companion.log("servernetworkentitysystem",
                                        "sending SpawnMultipleEntities: " + entitiesToSpawn.toString());
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
-                m_networkServerSystem.sendSpawnMultipleEntities(entitiesToSpawn, playerComponent.connectionPlayerId);
+                m_networkServerSystem.sendSpawnMultipleEntities(entitiesToSpawn,
+                                                                playerComponent.getConnectionPlayerId());
             }
 
         }

@@ -153,9 +153,9 @@ public class NetworkServerSystem extends BaseSystem {
         SpriteComponent spriteComp = spriteMapper.get(entityId);
 
         Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
-        spawn.setConnectionId(playerComp.connectionPlayerId);
-        spawn.setPlayerName(playerComp.playerName);
-        spawn.getPos().setPos(new Vector2(spriteComp.sprite.getX(), spriteComp.sprite.getY()));
+        spawn.setConnectionId(playerComp.getConnectionPlayerId());
+        spawn.setPlayerName(playerComp.getPlayerName());
+        spawn.getPos().setPos(new Vector2(spriteComp.getSprite().getX(), spriteComp.getSprite().getY()));
         m_serverKryo.sendToAllTCP(spawn);
     }
 
@@ -170,9 +170,9 @@ public class NetworkServerSystem extends BaseSystem {
         SpriteComponent spriteComp = spriteMapper.get(entityId);
 
         Network.PlayerSpawnedFromServer spawn = new Network.PlayerSpawnedFromServer();
-        spawn.setConnectionId(playerComp.connectionPlayerId);
-        spawn.setPlayerName(playerComp.playerName);
-        spawn.getPos().setPos(new Vector2(spriteComp.sprite.getX(), spriteComp.sprite.getY()));
+        spawn.setConnectionId(playerComp.getConnectionPlayerId());
+        spawn.setPlayerName(playerComp.getPlayerName());
+        spawn.getPos().setPos(new Vector2(spriteComp.getSprite().getX(), spriteComp.getSprite().getY()));
         m_serverKryo.sendToTCP(connectionId, spawn);
     }
 
@@ -239,9 +239,9 @@ public class NetworkServerSystem extends BaseSystem {
 
             SpriteComponent sprite = spriteMapper.get(entityId);
 
-            spawn.getPos().getPos().set(sprite.sprite.getX(), sprite.sprite.getY());
-            spawn.getSize().getSize().set(sprite.sprite.getWidth(), sprite.sprite.getHeight());
-            spawn.setTextureName(sprite.textureName);
+            spawn.getPos().getPos().set(sprite.getSprite().getX(), sprite.getSprite().getY());
+            spawn.getSize().getSize().set(sprite.getSprite().getWidth(), sprite.getSprite().getHeight());
+            spawn.setTextureName(sprite.getTextureName());
 
             spawnMultiple.getEntitySpawn().add(spawn);
         }
@@ -303,11 +303,11 @@ public class NetworkServerSystem extends BaseSystem {
         spawn.setComponents(serializeComponents(item));
 
         SpriteComponent spriteComponent = spriteMapper.get(item);
-        spawn.getSize().getSize().set(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
-        spawn.setTextureName(spriteComponent.textureName);
+        spawn.getSize().getSize().set(spriteComponent.getSprite().getWidth(), spriteComponent.getSprite().getHeight());
+        spawn.setTextureName(spriteComponent.getTextureName());
         //FIXME: fixme, we need to spawn it with a texture...and figure out how to do this exactly.
 
-        m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).connectionPlayerId, spawn);
+        m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).getConnectionPlayerId(), spawn);
     }
 
     //fixme even needed???
@@ -408,7 +408,7 @@ public class NetworkServerSystem extends BaseSystem {
     private void receivePlayerMove(NetworkJob job) {
         Network.PlayerMoveFromClient data = ((Network.PlayerMoveFromClient) job.object);
         SpriteComponent sprite = spriteMapper.get(job.connection.player);
-        sprite.sprite.setPosition(data.getPosition().x, data.getPosition().y);
+        sprite.getSprite().setPosition(data.getPosition().x, data.getPosition().y);
     }
 
     private void receiveChatMessage(NetworkJob job) {
@@ -429,10 +429,10 @@ public class NetworkServerSystem extends BaseSystem {
         int placedItem = m_world.cloneEntity(playerComponent.getEquippedPrimaryItem());
 
         ItemComponent itemComponent = itemMapper.get(placedItem);
-        itemComponent.state = ItemComponent.State.InWorldState;
+        itemComponent.setState(ItemComponent.State.InWorldState);
 
         SpriteComponent spriteComponent = spriteMapper.get(placedItem);
-        spriteComponent.sprite.setPosition(data.getX(), data.getY());
+        spriteComponent.getSprite().setPosition(data.getX(), data.getY());
     }
 
     /**
@@ -444,34 +444,35 @@ public class NetworkServerSystem extends BaseSystem {
         Network.HotbarDropItemFromClient data = ((Network.HotbarDropItemFromClient) job.object);
         PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
-        int itemToDrop = playerComponent.hotbarInventory.itemEntity(data.getIndex());
+        int itemToDrop = playerComponent.getHotbarInventory().itemEntity(data.getIndex());
         ItemComponent itemToDropComponent = itemMapper.get(itemToDrop);
         //decrease count of equipped item
-        if (itemToDropComponent.stackSize > 1) {
-            itemToDropComponent.stackSize -= 1;
+        if (itemToDropComponent.getStackSize() > 1) {
+            itemToDropComponent.setStackSize(itemToDropComponent.getStackSize() - 1);
         } else {
             //remove item from inventory, client has already done so, because the count will be 0 after this drop
-            getWorld().delete(playerComponent.hotbarInventory.takeItem(data.getIndex()));
+            getWorld().delete(playerComponent.getHotbarInventory().takeItem(data.getIndex()));
         }
 
         int droppedItem = m_world.cloneEntity(itemToDrop);
 
         ItemComponent itemDroppedComponent = itemMapper.get(droppedItem);
-        itemDroppedComponent.state = ItemComponent.State.DroppedInWorld;
-        itemDroppedComponent.justDropped = true;
-        itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionPlayerId;
+        itemDroppedComponent.setState(ItemComponent.State.DroppedInWorld);
+        itemDroppedComponent.setJustDropped(true);
+        itemDroppedComponent.setPlayerIdWhoDropped(playerComponent.getConnectionPlayerId());
 
         SpriteComponent playerSprite = spriteMapper.get(job.connection.player);
         SpriteComponent droppedItemSprite = spriteMapper.get(droppedItem);
 
-        itemDroppedComponent.sizeBeforeDrop =
-                new Vector2(droppedItemSprite.sprite.getWidth(), droppedItemSprite.sprite.getHeight());
+        itemDroppedComponent.setSizeBeforeDrop(
+                new Vector2(droppedItemSprite.getSprite().getWidth(), droppedItemSprite.getSprite().getHeight()));
 
         //shrink the size of all dropped items, but also store the original size first, so we can revert later
-        droppedItemSprite.sprite.setSize(droppedItemSprite.sprite.getWidth() * 0.5f,
-                                         droppedItemSprite.sprite.getHeight() * 0.5f);
+        droppedItemSprite.getSprite()
+                         .setSize(droppedItemSprite.getSprite().getWidth() * 0.5f,
+                                  droppedItemSprite.getSprite().getHeight() * 0.5f);
 
-        droppedItemSprite.sprite.setPosition(playerSprite.sprite.getX(), playerSprite.sprite.getY());
+        droppedItemSprite.getSprite().setPosition(playerSprite.getSprite().getX(), playerSprite.getSprite().getY());
 
         //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
         //sendSpawnEntity(droppedItem, job.connection.getID());
@@ -481,7 +482,7 @@ public class NetworkServerSystem extends BaseSystem {
         Network.PlayerEquipHotbarIndexFromClient data = ((Network.PlayerEquipHotbarIndexFromClient) job.object);
         PlayerComponent playerComponent = playerMapper.get(job.connection.player);
 
-        playerComponent.hotbarInventory.selectSlot(data.getIndex());
+        playerComponent.getHotbarInventory().selectSlot(data.getIndex());
     }
 
     private void receiveBlockPlace(NetworkJob job) {
@@ -491,7 +492,7 @@ public class NetworkServerSystem extends BaseSystem {
         int item = playerComponent.getEquippedPrimaryItem();
         BlockComponent blockComponent = blockMapper.get(item);
 
-        m_world.attemptBlockPlacement(data.getX(), data.getY(), blockComponent.blockType);
+        m_world.attemptBlockPlacement(data.getX(), data.getY(), blockComponent.getBlockType());
     }
 
     /**
@@ -521,16 +522,16 @@ public class NetworkServerSystem extends BaseSystem {
 
         Inventory sourceInventory;
         if (data.getSourceType() == Inventory.InventoryType.Hotbar) {
-            sourceInventory = playerComponent.hotbarInventory;
+            sourceInventory = playerComponent.getHotbarInventory();
         } else {
-            sourceInventory = playerComponent.inventory;
+            sourceInventory = playerComponent.getInventory();
         }
 
         Inventory destInventory;
         if (data.getDestType() == Inventory.InventoryType.Hotbar) {
-            destInventory = playerComponent.hotbarInventory;
+            destInventory = playerComponent.getHotbarInventory();
         } else {
-            destInventory = playerComponent.inventory;
+            destInventory = playerComponent.getInventory();
         }
 
         destInventory.setSlot(data.getDestIndex(), sourceInventory.takeItem(data.getSourceIndex()));
@@ -548,9 +549,9 @@ public class NetworkServerSystem extends BaseSystem {
         PlayerComponent playerComponent = playerMapper.get(player);
 
         Network.LoadedViewportMovedFromServer v = new Network.LoadedViewportMovedFromServer();
-        v.setRect(playerComponent.loadedViewport.getRect());
+        v.setRect(playerComponent.getLoadedViewport().getRect());
 
-        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, v);
+        m_serverKryo.sendToTCP(playerComponent.getConnectionPlayerId(), v);
     }
 
     /**
@@ -584,7 +585,7 @@ public class NetworkServerSystem extends BaseSystem {
         // purpose of this, whcih is to reduce the need to send an entire packet for 1 block. queue them up.
         // so put it in a queue, etc so we can deliver it when we need to..
         PlayerComponent playerComponent = playerMapper.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, sparseBlockUpdate);
+        m_serverKryo.sendToTCP(playerComponent.getConnectionPlayerId(), sparseBlockUpdate);
     }
 
     /**
@@ -621,7 +622,7 @@ public class NetworkServerSystem extends BaseSystem {
         //OreWorld.log("networkserversystem", "sendplayerblockregion blockcount: " + blockIndex);
 
         PlayerComponent playerComponent = playerMapper.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, blockRegion);
+        m_serverKryo.sendToTCP(playerComponent.getConnectionPlayerId(), blockRegion);
     }
 
     /**
@@ -635,10 +636,10 @@ public class NetworkServerSystem extends BaseSystem {
         move.setId(entity);
 
         SpriteComponent spriteComponent = spriteMapper.get(entity);
-        move.setPosition(new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY()));
+        move.setPosition(new Vector2(spriteComponent.getSprite().getX(), spriteComponent.getSprite().getY()));
 
         PlayerComponent playerComponent = playerMapper.get(player);
-        m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, move);
+        m_serverKryo.sendToTCP(playerComponent.getConnectionPlayerId(), move);
     }
 
     static class PlayerConnection extends Connection {

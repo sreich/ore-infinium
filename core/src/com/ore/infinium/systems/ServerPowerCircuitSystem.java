@@ -49,7 +49,6 @@ public class ServerPowerCircuitSystem extends BaseSystem {
      */
     private int m_circuitId = 0;
 
-
     /**
      * Contains list of each circuit in the world.
      * <p>
@@ -157,14 +156,14 @@ public class ServerPowerCircuitSystem extends BaseSystem {
                 int generator = circuit.generators.get(j);
 
                 PowerGeneratorComponent generatorComponent = powerGeneratorMapper.get(generator);
-                circuit.totalSupply += generatorComponent.powerSupplyRate;
+                circuit.totalSupply += generatorComponent.getPowerSupplyRate();
             }
 
             for (int j = 0; j < circuit.consumers.size; ++j) {
                 int consumer = circuit.consumers.get(j);
 
                 PowerConsumerComponent consumerComponent = powerConsumerMapper.get(consumer);
-                circuit.totalDemand += consumerComponent.powerDemandRate;
+                circuit.totalDemand += consumerComponent.getPowerDemandRate();
             }
         }
     }
@@ -359,8 +358,8 @@ public class ServerPowerCircuitSystem extends BaseSystem {
                 //todo..rest of the logic..try looking for an intersection between points of these
                 //given a certain width..that is the width that is decided upon for wire thickness. (constant)
 
-                Vector2 firstPosition = new Vector2(firstSprite.sprite.getX(), firstSprite.sprite.getY());
-                Vector2 secondPosition = new Vector2(secondSprite.sprite.getX(), secondSprite.sprite.getY());
+                Vector2 firstPosition = new Vector2(firstSprite.getSprite().getX(), firstSprite.getSprite().getY());
+                Vector2 secondPosition = new Vector2(secondSprite.getSprite().getX(), secondSprite.getSprite().getY());
 
                 float circleRadius2 = (float) Math.pow(WIRE_THICKNESS * 4, 2);
                 //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
@@ -393,8 +392,8 @@ public class ServerPowerCircuitSystem extends BaseSystem {
      *         the new circuit to update them to
      */
     private void updateDevicesOwningCircuit(int firstEntity, int secondEntity, PowerCircuit circuit) {
-        powerDeviceMapper.get(firstEntity).owningCircuit = circuit;
-        powerDeviceMapper.get(secondEntity).owningCircuit = circuit;
+        powerDeviceMapper.get(firstEntity).setOwningCircuit(circuit);
+        powerDeviceMapper.get(secondEntity).setOwningCircuit(circuit);
     }
 
     /**

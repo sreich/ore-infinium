@@ -94,10 +94,10 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         m_powerCircuitTooltipEntity = world.create();
 
         SpriteComponent tooltipSprite = spriteMapper.create(m_powerCircuitTooltipEntity);
-        tooltipSprite.sprite.setSize(1, 1);
-        tooltipSprite.textureName = "debug";
-        tooltipSprite.sprite.setRegion(m_world.getM_atlas().findRegion(tooltipSprite.textureName));
-        tooltipSprite.noClip = true;
+        tooltipSprite.getSprite().setSize(1, 1);
+        tooltipSprite.setTextureName("debug");
+        tooltipSprite.getSprite().setRegion(m_world.getM_atlas().findRegion(tooltipSprite.getTextureName()));
+        tooltipSprite.setNoClip(true);
 
         m_container = new Table(m_skin);
         m_container.setFillParent(true);
@@ -160,9 +160,9 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             spriteComponent = spriteMapper.get(currentEntity);
 
             Rectangle rectangle =
-                    new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                                  spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                                  spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                    new Rectangle(spriteComponent.getSprite().getX() - (spriteComponent.getSprite().getWidth() * 0.5f),
+                                  spriteComponent.getSprite().getY() - (spriteComponent.getSprite().getHeight() * 0.5f),
+                                  spriteComponent.getSprite().getWidth(), spriteComponent.getSprite().getHeight());
 
             if (rectangle.contains(pos)) {
                 return currentEntity;
@@ -271,12 +271,12 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         int dropEntity = entityAtPosition(new Vector2(mouse.x, mouse.y));
         if (dropEntity != OreWorld.ENTITY_INVALID) {
             PowerDeviceComponent powerDeviceComponent = powerDeviceMapper.getSafe(dropEntity);
-            if (powerDeviceComponent == null || powerDeviceComponent.owningCircuit == null) {
+            if (powerDeviceComponent == null || powerDeviceComponent.getOwningCircuit() == null) {
                 return;
             }
 
-            currentCircuitDemand = powerDeviceComponent.owningCircuit.totalDemand;
-            currentCircuitSupply = powerDeviceComponent.owningCircuit.totalSupply;
+            currentCircuitDemand = powerDeviceComponent.getOwningCircuit().totalDemand;
+            currentCircuitSupply = powerDeviceComponent.getOwningCircuit().totalSupply;
 
             m_circuitDemandLabel.setText(String.valueOf(currentCircuitDemand));
             m_circuitSupplyLabel.setText(String.valueOf(currentCircuitSupply));
@@ -306,10 +306,12 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
             m_batch.setColor(1, 1, 0, 0.5f);
 
             //in the middle of a drag, draw powernode from source, to mouse position
-            renderWire(new Vector2(mouse.x, mouse.y), new Vector2(
-                    dragSpriteComponent.sprite.getX() + dragSpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
-                    dragSpriteComponent.sprite.getY() +
-                    dragSpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY));
+            renderWire(new Vector2(mouse.x, mouse.y), new Vector2(dragSpriteComponent.getSprite().getX() +
+                                                                  dragSpriteComponent.getSprite().getWidth() *
+                                                                  powerNodeOffsetRatioX,
+                                                                  dragSpriteComponent.getSprite().getY() +
+                                                                  dragSpriteComponent.getSprite().getHeight() *
+                                                                  powerNodeOffsetRatioY));
             m_batch.setColor(1, 1, 1, 1);
         }
 
@@ -340,14 +342,14 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
                 secondEntitySpriteComponent = spriteMapper.get(powerWireConnection.secondEntity);
 
                 //go over each output of this entity, and draw a connection from this entity to the connected dest
-                renderWire(new Vector2(firstEntitySpriteComponent.sprite.getX() +
-                                       firstEntitySpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
-                                       firstEntitySpriteComponent.sprite.getY() +
-                                       firstEntitySpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY),
-                           new Vector2(secondEntitySpriteComponent.sprite.getX() +
-                                       secondEntitySpriteComponent.sprite.getWidth() * powerNodeOffsetRatioX,
-                                       secondEntitySpriteComponent.sprite.getY() +
-                                       secondEntitySpriteComponent.sprite.getHeight() * powerNodeOffsetRatioY));
+                renderWire(new Vector2(firstEntitySpriteComponent.getSprite().getX() +
+                                       firstEntitySpriteComponent.getSprite().getWidth() * powerNodeOffsetRatioX,
+                                       firstEntitySpriteComponent.getSprite().getY() +
+                                       firstEntitySpriteComponent.getSprite().getHeight() * powerNodeOffsetRatioY),
+                           new Vector2(secondEntitySpriteComponent.getSprite().getX() +
+                                       secondEntitySpriteComponent.getSprite().getWidth() * powerNodeOffsetRatioX,
+                                       secondEntitySpriteComponent.getSprite().getY() +
+                                       secondEntitySpriteComponent.getSprite().getHeight() * powerNodeOffsetRatioY));
             }
         }
 
@@ -369,11 +371,13 @@ public class PowerOverlayRenderSystem extends IteratingSystem implements RenderS
         float powerNodeWidth = 1;
         float powerNodeHeight = 1;
 
-        m_batch.draw(m_world.getM_atlas().findRegion("power-node-circle"),
-                     spriteComponent.sprite.getX() + (spriteComponent.sprite.getWidth() * powerNodeOffsetRatioX) -
-                     (powerNodeWidth * 0.5f),
-                     spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * powerNodeOffsetRatioY) -
-                     (powerNodeHeight * 0.5f), powerNodeWidth, powerNodeHeight);
+        m_batch.draw(m_world.getM_atlas().findRegion("power-node-circle"), spriteComponent.getSprite().getX() +
+                                                                           (spriteComponent.getSprite().getWidth() *
+                                                                            powerNodeOffsetRatioX) -
+                                                                           (powerNodeWidth * 0.5f),
+                     spriteComponent.getSprite().getY() +
+                     (spriteComponent.getSprite().getHeight() * powerNodeOffsetRatioY) - (powerNodeHeight * 0.5f),
+                     powerNodeWidth, powerNodeHeight);
     }
 
     /**

@@ -1,10 +1,11 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
+import com.artemis.Component
+import com.badlogic.gdx.math.Vector2
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -17,27 +18,26 @@ import com.artemis.Component;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class LightComponent extends Component {
-
-    public float radius = 10.0f;
+class ControllableComponent : Component() {
+    var desiredDirection = Vector2()
 
     /**
      * copy a component (similar to copy constructor)
-     *
-     * @param lightComponent
-     *         component to copy from, into this instance
+
+     * @param controllableComponent
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(LightComponent lightComponent) {
-        radius = lightComponent.radius;
+    fun copyFrom(controllableComponent: ControllableComponent) {
+        desiredDirection.set(controllableComponent.desiredDirection)
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("lightComponent.radius: ").append(radius).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.desiredDirection: $desiredDirection
+        """
     }
 }

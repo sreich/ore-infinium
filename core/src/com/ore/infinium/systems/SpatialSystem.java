@@ -62,26 +62,26 @@ import net.mostlyoriginal.api.utils.QuadTree;
     @Override
     protected void inserted(int entityId) {
         ItemComponent itemComponent = itemMapper.getSafe(entityId);
-        if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
+        if (itemComponent != null && itemComponent.getState() == ItemComponent.State.InInventoryState) {
             //ignore things in an inventory
             return;
         }
 
         SpriteComponent spriteComponent = spriteMapper.get(entityId);
-        m_tree.insert(entityId, spriteComponent.sprite.getX(), spriteComponent.sprite.getY(),
-                      spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+        m_tree.insert(entityId, spriteComponent.getSprite().getX(), spriteComponent.getSprite().getY(),
+                      spriteComponent.getSprite().getWidth(), spriteComponent.getSprite().getHeight());
     }
 
     @Override
     protected void process(int entityId) {
         ItemComponent itemComponent = itemMapper.getSafe(entityId);
-        if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
+        if (itemComponent != null && itemComponent.getState() == ItemComponent.State.InInventoryState) {
             //ignore things in an inventory
             return;
         }
 
         SpriteComponent spriteComponent = spriteMapper.get(entityId);
-        m_tree.update(entityId, spriteComponent.sprite.getX(), spriteComponent.sprite.getY(),
-                      spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+        m_tree.update(entityId, spriteComponent.getSprite().getX(), spriteComponent.getSprite().getY(),
+                      spriteComponent.getSprite().getWidth(), spriteComponent.getSprite().getHeight());
     }
 }

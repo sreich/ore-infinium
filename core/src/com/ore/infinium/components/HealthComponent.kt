@@ -1,11 +1,10 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
-import com.badlogic.gdx.math.Vector2;
+import com.artemis.Component
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -18,26 +17,31 @@ import com.badlogic.gdx.math.Vector2;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ControllableComponent extends Component {
-    public Vector2 desiredDirection = new Vector2();
+class HealthComponent : Component() {
+
+    var maxHealth = 25000
+    //current air level
+    var health = maxHealth
 
     /**
      * copy a component (similar to copy constructor)
-     *
-     * @param controllableComponent
-     *         component to copy from, into this instance
+
+     * @param healthComponent
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(ControllableComponent controllableComponent) {
-        desiredDirection.set(controllableComponent.desiredDirection);
+    fun copyFrom(healthComponent: HealthComponent) {
+        maxHealth = healthComponent.maxHealth
+        health = healthComponent.health
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("controllableComponent.desiredDirection: ").append(desiredDirection).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.maxHealth: $maxHealth
+        $c.health: $health
+        """
     }
 }

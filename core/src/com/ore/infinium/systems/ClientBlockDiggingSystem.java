@@ -131,7 +131,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
                 continue;
             }
 
-            float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
+            float damagePerTick = toolComponent.getBlockDamage() * getWorld().getDelta();
 
             //this many ticks after start tick, it should have already been destroyed
             final long expectedTickEnd = blockToDig.digStartTick + (int) (blockToDig.totalBlockHealth / damagePerTick);
@@ -178,7 +178,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
             return false;
         }
 
-        if (toolComponent.type != ToolComponent.ToolType.Drill) {
+        if (toolComponent.getType() != ToolComponent.ToolType.Drill) {
             return false;
         }
 
@@ -222,7 +222,7 @@ public class ClientBlockDiggingSystem extends BaseSystem {
 
             //only decrement block health if it has some
             if (blockToDig.damagedBlockHealth > 0) {
-                blockToDig.damagedBlockHealth -= (getWorld().getDelta() * toolComponent.blockDamage);
+                blockToDig.damagedBlockHealth -= (getWorld().getDelta() * toolComponent.getBlockDamage());
                 blockToDig.ticksTook += 1;
             }
 

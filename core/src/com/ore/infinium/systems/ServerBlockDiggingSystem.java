@@ -112,7 +112,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
 
             final float totalBlockHealth = OreWorld.blockAttributes.get(blockType).getBlockTotalHealth();
 
-            final float damagePerTick = toolComponent.blockDamage * getWorld().getDelta();
+            final float damagePerTick = toolComponent.getBlockDamage() * getWorld().getDelta();
 
             //this many ticks after start tick, it should have already been destroyed
             final long expectedTickEnd = blockToDig.digStartTick + (int) (totalBlockHealth / damagePerTick);
@@ -126,15 +126,15 @@ public class ServerBlockDiggingSystem extends BaseSystem {
 
                 final int droppedBlock = m_world.createBlockItem(blockType);
                 SpriteComponent spriteComponent = spriteMapper.get(droppedBlock);
-                spriteComponent.sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f);
-                spriteComponent.sprite.setSize(0.5f, 0.5f);
+                spriteComponent.getSprite().setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f);
+                spriteComponent.getSprite().setSize(0.5f, 0.5f);
 
                 ItemComponent itemComponent = itemMapper.get(droppedBlock);
-                itemComponent.sizeBeforeDrop = new Vector2(1, 1);
+                itemComponent.setSizeBeforeDrop(new Vector2(1, 1));
 
-                itemComponent.stackSize = 1;
-                itemComponent.state = ItemComponent.State.DroppedInWorld;
-                itemComponent.playerIdWhoDropped = playerComponent.connectionPlayerId;
+                itemComponent.setStackSize(1);
+                itemComponent.setState(ItemComponent.State.DroppedInWorld);
+                itemComponent.setPlayerIdWhoDropped(playerComponent.getConnectionPlayerId());
 
                 //hack this isnt 'needed i don't think because the server network entity system
                 //auto finds and spawns it
@@ -197,7 +197,7 @@ public class ServerBlockDiggingSystem extends BaseSystem {
         }
 
         BlockToDig blockToDig = new BlockToDig();
-        blockToDig.playerId = playerMapper.get(playerEntity).connectionPlayerId;
+        blockToDig.playerId = playerMapper.get(playerEntity).getConnectionPlayerId();
         blockToDig.x = x;
         blockToDig.y = y;
         blockToDig.digStartTick = m_gameTickSystem.getTicks();

@@ -1,10 +1,10 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
+import com.artemis.Component
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -17,25 +17,25 @@ import com.artemis.Component;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class ToolComponent extends Component {
+class ToolComponent : Component() {
 
-    public ToolType type = ToolType.Drill;
-    public ToolMaterial material = ToolMaterial.Wood;
-    public float attackRadius = 10.0f;
+    var type = ToolType.Drill
+    var material = ToolMaterial.Wood
+    var attackRadius = 10.0f
 
     //damage tool does to blocks
-    public float blockDamage;
+    var blockDamage: Float = 0f
 
-    public enum ToolType {
+    enum class ToolType {
         Drill,
         Axe,
         Bucket
     }
 
-    public enum ToolMaterial {
+    enum class ToolMaterial {
         Wood,
         Stone,
         Steel,
@@ -44,22 +44,24 @@ public class ToolComponent extends Component {
 
     /**
      * copy a component (similar to copy constructor)
-     *
+
      * @param toolComponent
-     *         component to copy from, into this instance
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(ToolComponent toolComponent) {
-        type = toolComponent.type;
-        material = toolComponent.material;
-        attackRadius = toolComponent.attackRadius;
+    fun copyFrom(toolComponent: ToolComponent) {
+        type = toolComponent.type
+        material = toolComponent.material
+        attackRadius = toolComponent.attackRadius
+        blockDamage = toolComponent.blockDamage
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("toolComponent.type: ").append(type).append('\n');
-        builder.append("toolComponent.material: ").append(material).append('\n');
-        builder.append("toolComponent.attackRadius: ").append(attackRadius).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.type: $type
+        $c.material: $material
+        $c.attackRadius: $attackRadius
+        $c.blockDamage: $blockDamage
+        """
     }
 }

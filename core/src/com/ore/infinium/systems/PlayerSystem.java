@@ -88,9 +88,9 @@ public class PlayerSystem extends IteratingSystem {
         SpriteComponent spriteComponent = spriteMapper.getSafe(entityId);
         PlayerComponent playerComponent = playerMapper.get(entityId);
 
-        com.badlogic.gdx.math.Rectangle viewportRect = playerComponent.loadedViewport.getRect();
-        float x = spriteComponent.sprite.getX();
-        float y = spriteComponent.sprite.getY();
+        com.badlogic.gdx.math.Rectangle viewportRect = playerComponent.getLoadedViewport().getRect();
+        float x = spriteComponent.getSprite().getX();
+        float y = spriteComponent.getSprite().getY();
 
         //fixme fixme, we'll fix this when we get to chunking and come up with a proper solution
         if (chunkTimer.milliseconds() > 600) {
@@ -103,9 +103,9 @@ public class PlayerSystem extends IteratingSystem {
         PlayerComponent playerComponent = playerMapper.get(playerEntity);
         SpriteComponent spriteComponent = spriteMapper.get(playerEntity);
 
-        LoadedViewport loadedViewport = playerComponent.loadedViewport;
+        LoadedViewport loadedViewport = playerComponent.getLoadedViewport();
 
-        Vector2 center = new Vector2(spriteComponent.sprite.getX(), spriteComponent.sprite.getY());
+        Vector2 center = new Vector2(spriteComponent.getSprite().getX(), spriteComponent.getSprite().getY());
         loadedViewport.centerOn(center);
 
         m_networkServerSystem.sendPlayerLoadedViewportMoved(playerEntity);
@@ -116,7 +116,7 @@ public class PlayerSystem extends IteratingSystem {
 
     private void sendPlayerBlockRegion(int playerEntity) {
         PlayerComponent playerComponent = playerMapper.get(playerEntity);
-        LoadedViewport loadedViewport = playerComponent.loadedViewport;
+        LoadedViewport loadedViewport = playerComponent.getLoadedViewport();
 
         LoadedViewport.PlayerViewportBlockRegion region = loadedViewport.blockRegionInViewport();
 

@@ -68,7 +68,7 @@ public class GrassBlockSystem extends BaseSystem {
             final PlayerComponent playerComponent = playerMapper.get(playerEntity);
 
             final LoadedViewport.PlayerViewportBlockRegion region =
-                    playerComponent.loadedViewport.blockRegionInViewport();
+                    playerComponent.getLoadedViewport().blockRegionInViewport();
 
             //each tick, resample 100 or so blocks to see if grass can grow. this may need to be
             //reduced, but for debugging right now it's good.

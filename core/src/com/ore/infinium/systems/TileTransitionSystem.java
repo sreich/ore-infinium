@@ -317,7 +317,8 @@ public class TileTransitionSystem extends IntervalSystem {
 
         final int player = m_tagManager.getEntity(OreWorld.s_mainPlayer).getId();
         PlayerComponent playerComponent = playerMapper.get(player);
-        LoadedViewport.PlayerViewportBlockRegion blockRegion = playerComponent.loadedViewport.blockRegionInViewport();
+        LoadedViewport.PlayerViewportBlockRegion blockRegion =
+                playerComponent.getLoadedViewport().blockRegionInViewport();
 
         transitionTiles(blockRegion);
         transitionGrass(blockRegion);

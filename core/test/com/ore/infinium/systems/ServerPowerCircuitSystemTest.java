@@ -94,8 +94,8 @@ public class ServerPowerCircuitSystemTest {
 
         //ensure that all devices owning circuit, the one used for fast reverse lookups
         //are separate circuits
-        assertNotEquals(deviceMapper.get(gen1), deviceMapper.get(gen2).owningCircuit);
-        assertNotEquals(deviceMapper.get(light1), deviceMapper.get(light2).owningCircuit);
+        assertNotEquals(deviceMapper.get(gen1), deviceMapper.get(gen2).getOwningCircuit());
+        assertNotEquals(deviceMapper.get(light1), deviceMapper.get(light2).getOwningCircuit());
 
         //so there were 4 devices, 2 on one circuit. 2 on another.
         //now we draw a wire from one of those on one circuit, to the 2nd circuit
@@ -109,10 +109,10 @@ public class ServerPowerCircuitSystemTest {
         assertEquals(2, circuitSystem.m_circuits.first().consumers.size);
 
         //ensure that all the devices' reverse circuit lookup now point to the right circuit.
-        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen1).owningCircuit);
-        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light1).owningCircuit);
-        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen2).owningCircuit);
-        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light2).owningCircuit);
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen1).getOwningCircuit());
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light1).getOwningCircuit());
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen2).getOwningCircuit());
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light2).getOwningCircuit());
     }
 
     /**
@@ -172,8 +172,8 @@ public class ServerPowerCircuitSystemTest {
         assertEquals(1, circuitSystem.m_circuits.first().wireConnections.size);
 
         //ensure owning circuit reverse lookup is updated properly
-        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen).owningCircuit);
-        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light).owningCircuit);
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(gen).getOwningCircuit());
+        assertEquals(circuitSystem.m_circuits.first(), deviceMapper.get(light).getOwningCircuit());
     }
 
     /**
@@ -218,8 +218,8 @@ public class ServerPowerCircuitSystemTest {
         boolean connected = circuitSystem.connectDevices(gen, light);
         assertTrue(connected);
 
-        spriteMapper.get(gen).sprite.setPosition(100, 100);
-        spriteMapper.get(light).sprite.setPosition(200, 100);
+        spriteMapper.get(gen).getSprite().setPosition(100, 100);
+        spriteMapper.get(light).getSprite().setPosition(200, 100);
 
         //try to disconnect (pretending we're mouse picking).
         //this pick test is for really really close/on the wire.
@@ -243,8 +243,8 @@ public class ServerPowerCircuitSystemTest {
         assertTrue(connected);
 
         //wire is horizontally laid out
-        spriteMapper.get(gen).sprite.setPosition(100, 100);
-        spriteMapper.get(light).sprite.setPosition(200, 100);
+        spriteMapper.get(gen).getSprite().setPosition(100, 100);
+        spriteMapper.get(light).getSprite().setPosition(200, 100);
 
         float x = 150;
         //try to remove it x2 wire thicknesses above where the wire actually is
@@ -269,8 +269,8 @@ public class ServerPowerCircuitSystemTest {
         circuitSystem.connectDevices(gen, light);
 
         //wire is horizontally laid out
-        spriteMapper.get(gen).sprite.setPosition(100, 100);
-        spriteMapper.get(light).sprite.setPosition(200, 100);
+        spriteMapper.get(gen).getSprite().setPosition(100, 100);
+        spriteMapper.get(light).getSprite().setPosition(200, 100);
 
         float x = 150;
         //try to remove it x2 wire thicknesses below where the wire actually is
@@ -296,8 +296,8 @@ public class ServerPowerCircuitSystemTest {
         assertTrue(connected);
 
         //wire is horizontally laid out
-        spriteMapper.get(gen).sprite.setPosition(100, 100);
-        spriteMapper.get(light).sprite.setPosition(100, 200);
+        spriteMapper.get(gen).getSprite().setPosition(100, 100);
+        spriteMapper.get(light).getSprite().setPosition(100, 200);
 
         float x = 100 - (ServerPowerCircuitSystem.WIRE_THICKNESS * 3.0f);
         //try to remove it x2 wire thicknesses below where the wire actually is

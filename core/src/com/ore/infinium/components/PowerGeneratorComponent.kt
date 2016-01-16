@@ -1,10 +1,10 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
+import com.artemis.Component
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -17,31 +17,31 @@ import com.artemis.Component;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
 
 /**
- * Any device on a circuit that can consume some amount of power
+ * Any device that can generate some amount of power on a circuit
  */
-public class PowerConsumerComponent extends Component {
+class PowerGeneratorComponent : Component() {
 
     /**
      * copy a component (similar to copy constructor)
-     *
+
      * @param component
-     *         component to copy from, into this instance
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(PowerConsumerComponent component) {
-        powerDemandRate = component.powerDemandRate;
+    fun copyFrom(component: PowerGeneratorComponent) {
+        powerSupplyRate = component.powerSupplyRate
     }
 
-    public int powerDemandRate;
+    var powerSupplyRate: Int = 0
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("powerConsumerComponent.powerDemandRate: ").append(powerDemandRate).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.powerSupplyRate: $powerSupplyRate
+        """
     }
 }

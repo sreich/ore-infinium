@@ -115,24 +115,26 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
             itemComponent = itemMapper.getSafe(entities.get(i));
             //don't draw in-inventory or not dropped items
-            if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
+            if (itemComponent == null || itemComponent.getState() != ItemComponent.State.DroppedInWorld) {
                 continue;
             }
 
             SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
-            if (!m_tweenManager.containsTarget(spriteComponent.sprite)) {
+            if (!m_tweenManager.containsTarget(spriteComponent.getSprite())) {
 
                 Timeline.createSequence()
-                        .push(Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f)
+                        .push(Tween.to(spriteComponent.getSprite(), SpriteTween.SCALE, 2.8f)
                                    .target(0.2f, 0.2f)
                                    .ease(Sine.IN))
-                        .push(Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f).target(.5f, .5f).ease(Sine.OUT))
+                        .push(Tween.to(spriteComponent.getSprite(), SpriteTween.SCALE, 2.8f)
+                                   .target(.5f, .5f)
+                                   .ease(Sine.OUT))
                         .repeatYoyo(Tween.INFINITY, 0.0f)
                         .start(m_tweenManager);
 
                 Color glow = Color.GOLDENROD;
-                Tween.to(spriteComponent.sprite, SpriteTween.COLOR, 2.8f)
+                Tween.to(spriteComponent.getSprite(), SpriteTween.COLOR, 2.8f)
 
                      .target(glow.r, glow.g, glow.b, 1)
                      .ease(TweenEquations.easeInOutSine)
@@ -146,24 +148,24 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
                          spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
                          spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
             */
-            m_batch.setColor(spriteComponent.sprite.getColor());
+            m_batch.setColor(spriteComponent.getSprite().getColor());
 
-            float x = spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f);
-            float y = spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f);
+            float x = spriteComponent.getSprite().getX() - (spriteComponent.getSprite().getWidth() * 0.5f);
+            float y = spriteComponent.getSprite().getY() + (spriteComponent.getSprite().getHeight() * 0.5f);
 
             //flip the sprite when drawn, by using negative height
-            float scaleX = spriteComponent.sprite.getScaleX();
-            float scaleY = spriteComponent.sprite.getScaleY();
+            float scaleX = spriteComponent.getSprite().getScaleX();
+            float scaleY = spriteComponent.getSprite().getScaleY();
 
-            float width = spriteComponent.sprite.getWidth();
-            float height = -spriteComponent.sprite.getHeight();
+            float width = spriteComponent.getSprite().getWidth();
+            float height = -spriteComponent.getSprite().getHeight();
 
             float originX = width * 0.5f;
             float originY = height * 0.5f;
             //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
 
-            m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) / 16.0f,
-                         originX, originY, width, height, scaleX, scaleY, rotation);
+            m_batch.draw(spriteComponent.getSprite(), MathUtils.floor(x * 16.0f) / 16.0f,
+                         MathUtils.floor(y * 16.0f) / 16.0f, originX, originY, width, height, scaleX, scaleY, rotation);
         }
     }
 
@@ -183,19 +185,19 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
             itemComponent = itemMapper.getSafe(entity);
             //don't draw in-inventory or dropped items
-            if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
+            if (itemComponent != null && itemComponent.getState() != ItemComponent.State.InWorldState) {
                 //hack
                 continue;
             }
 
             spriteComponent = spriteMapper.get(entity);
 
-            if (!spriteComponent.visible) {
+            if (!spriteComponent.getVisible()) {
                 continue;
             }
 
-            assert spriteComponent.sprite != null : "sprite is null";
-            assert spriteComponent.sprite.getTexture() != null : "sprite has null texture";
+            assert spriteComponent.getSprite() != null : "sprite is null";
+            assert spriteComponent.getSprite().getTexture() != null : "sprite has null texture";
 
             boolean placementGhost = false;
 
@@ -204,22 +206,22 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
 
                 placementGhost = true;
 
-                if (spriteComponent.placementValid) {
+                if (spriteComponent.getPlacementValid()) {
                     m_batch.setColor(0, 1, 0, 0.6f);
                 } else {
                     m_batch.setColor(1, 0, 0, 0.6f);
                 }
             }
 
-            float x = spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f);
-            float y = spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f);
+            float x = spriteComponent.getSprite().getX() - (spriteComponent.getSprite().getWidth() * 0.5f);
+            float y = spriteComponent.getSprite().getY() + (spriteComponent.getSprite().getHeight() * 0.5f);
 
             //flip the sprite when drawn, by using negative height
             float scaleX = 1;
             float scaleY = 1;
 
-            float width = spriteComponent.sprite.getWidth();
-            float height = -spriteComponent.sprite.getHeight();
+            float width = spriteComponent.getSprite().getWidth();
+            float height = -spriteComponent.getSprite().getHeight();
 
             float originX = width * 0.5f;
             float originY = height * 0.5f;
@@ -231,7 +233,7 @@ public class SpriteRenderSystem extends BaseSystem implements RenderSystemMarker
             // 16.0f,
             //            originX, originY, width, height, scaleX, scaleY, rotation);
 
-            m_batch.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation);
+            m_batch.draw(spriteComponent.getSprite(), x, y, originX, originY, width, height, scaleX, scaleY, rotation);
 
             //reset color for next run
             if (placementGhost) {

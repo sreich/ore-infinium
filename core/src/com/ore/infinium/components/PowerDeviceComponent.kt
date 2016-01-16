@@ -1,11 +1,11 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
-import com.badlogic.gdx.math.Vector2;
+import com.artemis.Component
+import com.ore.infinium.systems.ServerPowerCircuitSystem
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -18,27 +18,36 @@ import com.badlogic.gdx.math.Vector2;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class VelocityComponent extends Component {
 
-    public Vector2 velocity = new Vector2();
-   
+/**
+ * A power device is anything that can reside on a circuit. Whether a consumer
+ * or a generator.
+ */
+class PowerDeviceComponent : Component() {
+
+    /**
+     * circuit that this device resides on
+     */
+    @Transient var owningCircuit: ServerPowerCircuitSystem.PowerCircuit? = null
+
     /**
      * copy a component (similar to copy constructor)
-     *
-     * @param velocityComponent
-     *         component to copy from, into this instance
+
+     * @param component
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(VelocityComponent velocityComponent) {
-        velocity.set(velocityComponent.velocity);
+    fun copyFrom(component: PowerDeviceComponent) {
+        //fixme crap
+        //owningCircuit = component.owningCircuit;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("velocityComponent.velocity: ").append(velocity).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c
+        """
     }
 }

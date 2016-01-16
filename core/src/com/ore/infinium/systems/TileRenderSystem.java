@@ -112,7 +112,7 @@ public class TileRenderSystem extends BaseSystem implements RenderSystemMarker {
         m_batch.setProjectionMatrix(m_camera.combined);
         SpriteComponent sprite = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer).getId());
 
-        Vector3 playerPosition = new Vector3(sprite.sprite.getX(), sprite.sprite.getY(), 0);
+        Vector3 playerPosition = new Vector3(sprite.getSprite().getX(), sprite.getSprite().getY(), 0);
         //new Vector3(100, 200, 0);//positionComponent->position();
         int tilesBeforeX = (int) playerPosition.x;
         int tilesBeforeY = (int) playerPosition.y;

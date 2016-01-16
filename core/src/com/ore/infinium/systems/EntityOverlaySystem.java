@@ -60,9 +60,9 @@ public class EntityOverlaySystem extends BaseSystem {
         m_tagManager.register(OreWorld.s_crosshair, crosshair);
 
         SpriteComponent spriteComponent = spriteMapper.create(crosshair);
-        spriteComponent.sprite.setSize(1, 1);
-        spriteComponent.sprite.setRegion(m_world.getM_atlas().findRegion("crosshair-blockpicking"));
-        spriteComponent.noClip = true;
+        spriteComponent.getSprite().setSize(1, 1);
+        spriteComponent.getSprite().setRegion(m_world.getM_atlas().findRegion("crosshair-blockpicking"));
+        spriteComponent.setNoClip(true);
     }
 
     private boolean m_crosshairShown;
@@ -103,10 +103,10 @@ public class EntityOverlaySystem extends BaseSystem {
         int newPlacementOverlay = m_world.cloneEntity(equippedPrimaryItem);
         ItemComponent itemComponent = itemMapper.get(newPlacementOverlay);
         //transition to the in world state, since the cloned source item was in the inventory state, so to would this
-        itemComponent.state = ItemComponent.State.InWorldState;
+        itemComponent.setState(ItemComponent.State.InWorldState);
 
         SpriteComponent spriteComponent = spriteMapper.get(newPlacementOverlay);
-        spriteComponent.noClip = true;
+        spriteComponent.setNoClip(true);
 
         m_tagManager.register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay);
         m_itemPlacementOverlayExists = true;
@@ -125,11 +125,11 @@ public class EntityOverlaySystem extends BaseSystem {
 
     private boolean tryShowCrosshair(int equippedPrimaryEntity) {
         SpriteComponent crosshairSprite = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_crosshair));
-        assert crosshairSprite.noClip;
+        assert crosshairSprite.getNoClip();
 
         // if the switched to item is a block, we should show a crosshair overlay
         if (blockMapper.has(equippedPrimaryEntity)) {
-            m_crosshairShown = crosshairSprite.visible = true;
+            m_crosshairShown = crosshairSprite.setVisible(true);
 
             //don't show the placement overlay for blocks, just items and other placeable things
             return true;
@@ -137,15 +137,15 @@ public class EntityOverlaySystem extends BaseSystem {
 
         ToolComponent entityToolComponent = toolMapper.getSafe(equippedPrimaryEntity);
         if (entityToolComponent != null) {
-            if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
+            if (entityToolComponent.getType() == ToolComponent.ToolType.Drill) {
                 //drill, one of the few cases we want to show the block crosshair...
-                m_crosshairShown = crosshairSprite.visible = true;
+                m_crosshairShown = crosshairSprite.setVisible(true);
 
                 return true;
             }
         }
 
-        m_crosshairShown = crosshairSprite.visible = false;
+        m_crosshairShown = crosshairSprite.setVisible(false);
 
         return false;
     }
@@ -206,16 +206,16 @@ public class EntityOverlaySystem extends BaseSystem {
         Vector2 crosshairPosition = new Vector2(mouse);
 
         //fixme this might not work..remove above dead code too
-        m_world.alignPositionToBlocks(crosshairPosition, new Vector2(spriteComponent.sprite.getWidth(),
-                                                                     spriteComponent.sprite.getHeight()));
+        m_world.alignPositionToBlocks(crosshairPosition, new Vector2(spriteComponent.getSprite().getWidth(),
+                                                                     spriteComponent.getSprite().getHeight()));
 
         Vector2 crosshairOriginOffset =
-                new Vector2(spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                new Vector2(spriteComponent.getSprite().getWidth(), spriteComponent.getSprite().getHeight());
         //new Vector2(spriteComponent.sprite.getWidth() * 0.5f, spriteComponent.sprite.getHeight() * 0.5f);
 
         Vector2 crosshairFinalPosition = crosshairPosition.add(crosshairOriginOffset);
 
-        spriteComponent.sprite.setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y);
+        spriteComponent.getSprite().setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y);
     }
 
     private void updateItemOverlay() {
@@ -229,14 +229,14 @@ public class EntityOverlaySystem extends BaseSystem {
         SpriteComponent spriteComponent = spriteMapper.get(itemPlacementOverlayEntity);
 
         Vector2 mouse = m_world.mousePositionWorldCoords();
-        m_world.alignPositionToBlocks(mouse, new Vector2(spriteComponent.sprite.getWidth(),
-                                                         spriteComponent.sprite.getHeight()));
+        m_world.alignPositionToBlocks(mouse, new Vector2(spriteComponent.getSprite().getWidth(),
+                                                         spriteComponent.getSprite().getHeight()));
 
         float halfWidth = 0.0f;//spriteComponent.sprite.getWidth() * 0.5f;
         float halfHeight = 0.0f;//spriteComponent.sprite.getHeight() * 0.5f;
 
-        spriteComponent.sprite.setPosition(mouse.x + halfWidth, mouse.y + halfHeight);
-        spriteComponent.placementValid = m_world.isPlacementValid(itemPlacementOverlayEntity);
+        spriteComponent.getSprite().setPosition(mouse.x + halfWidth, mouse.y + halfHeight);
+        spriteComponent.setPlacementValid(m_world.isPlacementValid(itemPlacementOverlayEntity));
     }
 
     /**
@@ -259,7 +259,7 @@ public class EntityOverlaySystem extends BaseSystem {
         //if item placement overlay doesn't exist, no need to hide it
         if (m_itemPlacementOverlayExists) {
             int entity = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay).getId();
-            spriteMapper.get(entity).visible = visible;
+            spriteMapper.get(entity).setVisible(visible);
         }
     }
 }

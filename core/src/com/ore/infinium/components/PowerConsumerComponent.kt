@@ -1,10 +1,10 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
+import com.artemis.Component
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -17,32 +17,31 @@ import com.artemis.Component;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
 
 /**
- * used for blocks when they are held in the inventory or dropped in the world.
- * they're not used for sending tile regions of course, that would be expensive.
- * only arrays are used there.
+ * Any device on a circuit that can consume some amount of power
  */
-public class BlockComponent extends Component {
-    public byte blockType;
+class PowerConsumerComponent : Component() {
 
     /**
      * copy a component (similar to copy constructor)
-     *
-     * @param blockComponent
-     *         component to copy from, into this instance
+
+     * @param component
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(BlockComponent blockComponent) {
-        blockType = blockComponent.blockType;
+    fun copyFrom(component: PowerConsumerComponent) {
+        powerDemandRate = component.powerDemandRate
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("blockComponent.blockType: ").append(blockType).append('\n');
-        return builder.toString();
+    var powerDemandRate: Int = 0
+
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.powerDemandRate: $powerDemandRate
+        """
     }
 }

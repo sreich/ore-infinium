@@ -1,11 +1,10 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
-import com.artemis.annotations.PooledWeaver;
+import com.artemis.Component
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -18,28 +17,32 @@ import com.artemis.annotations.PooledWeaver;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-@PooledWeaver
-public class AirGeneratorComponent extends Component {
-    //amount that is output per each interval
-    public int airOutputRate;
+
+/**
+ * used for blocks when they are held in the inventory or dropped in the world.
+ * they're not used for sending tile regions of course, that would be expensive.
+ * only arrays are used there.
+ */
+class BlockComponent : Component() {
+    var blockType: Byte = 0
 
     /**
      * copy a component (similar to copy constructor)
-     *
-     * @param airGeneratorComponent
-     *         component to copy from, into this instance
+
+     * @param blockComponent
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(AirGeneratorComponent airGeneratorComponent) {
-        airOutputRate = airGeneratorComponent.airOutputRate;
+    fun copyFrom(blockComponent: BlockComponent) {
+        blockType = blockComponent.blockType
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("airGeneraatorComponent.airOutputRate: ").append(airOutputRate).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.blockType: $blockType
+        """
     }
 }

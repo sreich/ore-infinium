@@ -158,7 +158,7 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
         //debug for forcing constant movement
         if (OreSettings.lockRight) {
             OreSettings.lockRight = false;
-            controllableComponent.desiredDirection.x = 1;
+            controllableComponent.getDesiredDirection().x = 1;
         }
 
         render(world.getDelta());
@@ -349,10 +349,12 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             for (int i = 0; i < entities.size(); ++i) {
                 SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
 
-                m_debugServerBatch.draw(junktexture,
-                                        spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                m_debugServerBatch.draw(junktexture, spriteComponent.getSprite().getX() -
+                                                     (spriteComponent.getSprite().getWidth() * 0.5f),
+                                        spriteComponent.getSprite().getY() -
+                                        (spriteComponent.getSprite().getHeight() * 0.5f),
+                                        spriteComponent.getSprite().getWidth(),
+                                        spriteComponent.getSprite().getHeight());
             }
 
             m_debugServerBatch.end();
@@ -405,9 +407,9 @@ public class DebugTextRenderSystem extends BaseSystem implements RenderSystemMar
             spriteComponent = spriteMapper.getSafe(currentEntity);
 
             Rectangle rectangle =
-                    new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                                  spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                                  spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                    new Rectangle(spriteComponent.getSprite().getX() - (spriteComponent.getSprite().getWidth() * 0.5f),
+                                  spriteComponent.getSprite().getY() - (spriteComponent.getSprite().getHeight() * 0.5f),
+                                  spriteComponent.getSprite().getWidth(), spriteComponent.getSprite().getHeight());
 
             if (rectangle.contains(mousePos)) {
                 components.add(airComponent = airMapper.getSafe(currentEntity));

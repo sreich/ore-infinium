@@ -227,21 +227,21 @@ public class NetworkClientSystem extends BaseSystem {
         }
 
         SpriteComponent spriteComponent = spriteMapper.create(e);
-        spriteComponent.textureName = spawn.getTextureName();
-        spriteComponent.sprite.setSize(spawn.getSize().getSize().x, spawn.getSize().getSize().y);
+        spriteComponent.setTextureName(spawn.getTextureName());
+        spriteComponent.getSprite().setSize(spawn.getSize().getSize().x, spawn.getSize().getSize().y);
 
         TextureRegion textureRegion;
         if (!blockMapper.has(e)) {
-            textureRegion = m_world.getM_atlas().findRegion(spriteComponent.textureName);
+            textureRegion = m_world.getM_atlas().findRegion(spriteComponent.getTextureName());
         } else {
-            textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+            textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.getTextureName());
         }
 
         ToolComponent toolComponent = toolMapper.get(e);
 
         ItemComponent itemComponent = itemMapper.get(e);
         //fixme this indirection isn't so hot...
-        m_world.getM_client().getM_hotbarInventory().setSlot(itemComponent.inventoryIndex, e);
+        m_world.getM_client().getM_hotbarInventory().setSlot(itemComponent.getInventoryIndex(), e);
 
         //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
         // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
@@ -260,7 +260,7 @@ public class NetworkClientSystem extends BaseSystem {
         assert entity != OreWorld.ENTITY_INVALID;
 
         SpriteComponent spriteComponent = spriteMapper.get(entity);
-        spriteComponent.sprite.setPosition(data.getPosition().x, data.getPosition().y);
+        spriteComponent.getSprite().setPosition(data.getPosition().x, data.getPosition().y);
     }
 
     /*
@@ -358,23 +358,23 @@ public class NetworkClientSystem extends BaseSystem {
 
             //fixme id..see above.
             SpriteComponent spriteComponent = spriteMapper.create(e);
-            spriteComponent.textureName = spawn.getTextureName();
-            spriteComponent.sprite.setSize(spawn.getSize().getSize().x, spawn.getSize().getSize().y);
-            spriteComponent.sprite.setPosition(spawn.getPos().getPos().x, spawn.getPos().getPos().y);
+            spriteComponent.setTextureName(spawn.getTextureName());
+            spriteComponent.getSprite().setSize(spawn.getSize().getSize().x, spawn.getSize().getSize().y);
+            spriteComponent.getSprite().setPosition(spawn.getPos().getPos().x, spawn.getPos().getPos().y);
 
-            assert spriteComponent.textureName != null;
+            assert spriteComponent.getTextureName() != null;
 
             TextureRegion textureRegion;
             if (!blockMapper.has(e)) {
-                textureRegion = m_world.getM_atlas().findRegion(spriteComponent.textureName);
+                textureRegion = m_world.getM_atlas().findRegion(spriteComponent.getTextureName());
             } else {
-                textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+                textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.getTextureName());
             }
 
             assert textureRegion != null :
                     "texture region is null on receiving entity spawn and reverse lookup of texture for this entity";
 
-            spriteComponent.sprite.setRegion(textureRegion);
+            spriteComponent.getSprite().setRegion(textureRegion);
 
             Integer result1 = m_networkIdForEntityId.put(e, spawn.getId());
             Integer result2 = m_entityForNetworkId.put(spawn.getId(), e);
@@ -397,7 +397,7 @@ public class NetworkClientSystem extends BaseSystem {
     private void receiveLoadedViewportMoved(Object receivedObject) {
         Network.LoadedViewportMovedFromServer v = (Network.LoadedViewportMovedFromServer) receivedObject;
         PlayerComponent c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer));
-        c.loadedViewport.setRect(v.getRect());
+        c.getLoadedViewport().setRect(v.getRect());
     }
 
     private void receiveSparseBlockUpdate(Object receivedObject) {
@@ -422,10 +422,10 @@ public class NetworkClientSystem extends BaseSystem {
             int player = m_world.getM_client().createPlayer(spawn.getPlayerName(), m_clientKryo.getID(), true);
             SpriteComponent spriteComp = spriteMapper.get(player);
 
-            spriteComp.sprite.setPosition(spawn.getPos().getPos().x, spawn.getPos().getPos().y);
+            spriteComp.getSprite().setPosition(spawn.getPos().getPos().x, spawn.getPos().getPos().y);
 
             SpriteComponent playerSprite = spriteMapper.get(player);
-            playerSprite.sprite.setRegion(m_world.getM_atlas().findRegion("player-32x64"));
+            playerSprite.getSprite().setRegion(m_world.getM_atlas().findRegion("player-32x64"));
 
             AspectSubscriptionManager aspectSubscriptionManager = getWorld().getAspectSubscriptionManager();
             EntitySubscription subscription = aspectSubscriptionManager.get(Aspect.all());
@@ -467,7 +467,7 @@ public class NetworkClientSystem extends BaseSystem {
         SpriteComponent sprite = spriteMapper.get(mainPlayer);
 
         Network.PlayerMoveFromClient move = new Network.PlayerMoveFromClient();
-        move.setPosition(new Vector2(sprite.sprite.getX(), sprite.sprite.getY()));
+        move.setPosition(new Vector2(sprite.getSprite().getX(), sprite.getSprite().getY()));
 
         m_clientKryo.sendTCP(move);
     }

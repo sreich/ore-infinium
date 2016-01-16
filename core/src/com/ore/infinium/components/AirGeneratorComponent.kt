@@ -1,10 +1,11 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
+import com.artemis.Component
+import com.artemis.annotations.PooledWeaver
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -17,31 +18,28 @@ import com.artemis.Component;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
-public class HealthComponent extends Component {
-
-    public int maxHealth = 25000;
-    //current air level
-    public int health = maxHealth;
+@PooledWeaver
+class AirGeneratorComponent : Component() {
+    //amount that is output per each interval
+    var airOutputRate: Int = 0
 
     /**
      * copy a component (similar to copy constructor)
-     *
-     * @param healthComponent
-     *         component to copy from, into this instance
+
+     * @param airGeneratorComponent
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(HealthComponent healthComponent) {
-        maxHealth = healthComponent.maxHealth;
-        health = healthComponent.health;
+    fun copyFrom(airGeneratorComponent: AirGeneratorComponent) {
+        airOutputRate = airGeneratorComponent.airOutputRate
     }
 
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("healthComponent.maxHealth: ").append(maxHealth).append('\n');
-        builder.append("healthComponent.health: ").append(health).append('\n');
-        return builder.toString();
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.airOutputRate: $airOutputRate
+        """
     }
 }

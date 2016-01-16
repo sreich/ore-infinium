@@ -1,11 +1,11 @@
-package com.ore.infinium.components;
+package com.ore.infinium.components
 
-import com.artemis.Component;
-import com.ore.infinium.systems.ServerPowerCircuitSystem;
+import com.artemis.Component
+import com.badlogic.gdx.math.Vector2
 
 /**
  * ***************************************************************************
- * Copyright (C) 2014 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2014 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -18,34 +18,27 @@ import com.ore.infinium.systems.ServerPowerCircuitSystem;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+class VelocityComponent : Component() {
 
-/**
- * A power device is anything that can reside on a circuit. Whether a consumer
- * or a generator.
- */
-public class PowerDeviceComponent extends Component {
-
-    /**
-     * circuit that this device resides on
-     */
-    public transient ServerPowerCircuitSystem.PowerCircuit owningCircuit;
+    var velocity = Vector2()
 
     /**
      * copy a component (similar to copy constructor)
-     *
-     * @param component
-     *         component to copy from, into this instance
+
+     * @param velocityComponent
+     * *         component to copy from, into this instance
      */
-    public void copyFrom(PowerDeviceComponent component) {
-        //fixme crap
-        //owningCircuit = component.owningCircuit;
+    fun copyFrom(velocityComponent: VelocityComponent) {
+        velocity.set(velocityComponent.velocity)
     }
 
-    @Override
-    public String toString() {
-        return "";
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.velocity: $velocity
+        """
     }
 }
