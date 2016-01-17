@@ -1119,7 +1119,7 @@ class OreWorld
         /**
          * indicates an invalid entity id
          */
-        val ENTITY_INVALID = -1
+        //        val ENTITY_INVALID = -1
 
         /**
          * looks up the texture prefix name for each block type. e.g. DirtBlockType -> "dirt", etc.

@@ -67,16 +67,14 @@ class EntityOverlaySystem(private val m_world: OreWorld) : BaseSystem() {
     private fun slotSelected(index: Int, inventory: Inventory) {
         val mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
         val playerComponent = playerMapper.get(mainPlayer)
-        val equippedPrimaryItem = playerComponent.equippedPrimaryItem!!
+        val equippedPrimaryItem = playerComponent.equippedPrimaryItem
 
         //we hide/delete it either way, because we'll either (a) respawn it if it when it needs it
         //or (b) it doesn't want to be shown
         deletePlacementOverlay()
 
-        if (equippedPrimaryItem == OreWorld.ENTITY_INVALID) {
-            //inventory is empty, we don't show crosshair or item overlay
-            return
-        }
+        //inventory is empty, we don't show crosshair or item overlay
+        equippedPrimaryItem ?: return
 
         if (tryShowCrosshair(equippedPrimaryItem)) {
             return

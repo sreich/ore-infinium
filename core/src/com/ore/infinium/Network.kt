@@ -95,12 +95,12 @@ object Network {
         //        kryo.register(String[]::class.java)
         kryo.register(ByteArray::class.java)
         kryo.register(IntArray::class.java)
+        kryo.register(Array::class.java)
 
-        kryo.register(Array<Any>().javaClass)
         //hack???? is this proper??
         //        kryo.register(Array<Any>::class.java)
         //        kryo.register(Array<Any>::class.java)
-        kryo.register(Array::class.java)
+        kryo.register(kotlin.Array<Any>::class.java)
         kryo.register(Vector2::class.java)
         kryo.register(IntArray::class.java)
         //       kryo.register(Array<Any>::class.java)
@@ -279,7 +279,7 @@ object Network {
      * Tiny(er) class to wrap a Block and send over the wire
      */
     class SingleBlock {
-        internal constructor() {
+        constructor() {
         }
 
         constructor(_type: Byte, _wallType: Byte, _flags: Byte) {
@@ -301,6 +301,9 @@ object Network {
         public var x: Int = 0
         public var y: Int = 0
 
+        constructor() {
+        }
+
         constructor(x: Int, y: Int, type: Byte, wallType: Byte, flags: Byte) {
             block = SingleBlock(type, wallType, flags)
             this.x = x
@@ -316,7 +319,7 @@ object Network {
      * Usually used for when out-of-line blocks are modified and changes need to be sent. They are queued on the server
      * so there is not one packet per tiny block update.
      */
-    class SparseBlockUpdate {
+    class SparseBlockUpdate() {
         var blocks = Array<Network.SingleSparseBlock>()
     }
 

@@ -161,8 +161,8 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         //see if he has the right drill type etc to even ATTEMPT a block dig
 
         val playerComponent = playerMapper.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem!!
-        if (itemEntity == OreWorld.ENTITY_INVALID) {
+        val itemEntity = playerComponent.equippedPrimaryItem
+        if (itemEntity == null) {
             return false
         }
 

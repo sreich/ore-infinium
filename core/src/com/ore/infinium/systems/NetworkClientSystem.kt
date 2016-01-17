@@ -261,7 +261,6 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
     private fun receiveEntityMoved(receivedObject: Any) {
         val data = receivedObject as Network.EntityMovedFromServer
         val entity = m_entityForNetworkId[data.id]
-        assert(entity != OreWorld.ENTITY_INVALID)
 
         val spriteComponent = spriteMapper.get(entity!!)
         spriteComponent.sprite.setPosition(data.position!!.x, data.position!!.y)

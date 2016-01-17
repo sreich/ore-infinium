@@ -52,14 +52,14 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
     private lateinit var m_entityOverlaySystem: EntityOverlaySystem
-    private lateinit var m_Server_powerCircuitSystem: ServerPowerCircuitSystem
+    private lateinit var m_serverPowerCircuitSystem: ServerPowerCircuitSystem
     private lateinit var m_tagManager: TagManager
 
     //    public Sprite outputNode = new Sprite();
 
     private var m_leftClicked: Boolean = false
     private var m_dragInProgress: Boolean = false
-    private var m_dragSourceEntity: Int = 0
+    private var m_dragSourceEntity: Int? = null
 
     //displays info for the current circuit
     private var m_powerCircuitTooltipEntity: Int = 0
@@ -126,7 +126,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
     //todo sufficient until we get a spatial hash or whatever
 
-    private fun entityAtPosition(pos: Vector2): Int {
+    private fun entityAtPosition(pos: Vector2): Int? {
 
         var spriteComponent: SpriteComponent
         val entities = entityIds
@@ -152,7 +152,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
             }
         }
 
-        return OreWorld.ENTITY_INVALID
+        return null
     }
 
     fun leftMouseClicked() {
@@ -167,7 +167,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
     fun rightMouseClicked() {
         //check if we can delete a wire
-        m_Server_powerCircuitSystem.disconnectWireAtPosition(m_world.mousePositionWorldCoords())
+        m_serverPowerCircuitSystem.disconnectWireAtPosition(m_world.mousePositionWorldCoords())
     }
 
     fun leftMouseReleased() {
@@ -176,18 +176,18 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         if (m_dragInProgress) {
             //check if drag can be connected
 
-            if (m_dragSourceEntity != OreWorld.ENTITY_INVALID) {
+            if (m_dragSourceEntity != null) {
                 val mouse = m_world.mousePositionWorldCoords()
 
                 val dropEntity = entityAtPosition(Vector2(mouse.x, mouse.y))
                 //if the drop is invalid/empty, or they attempted to drop on the same spot they dragged from, ignore
-                if (dropEntity == OreWorld.ENTITY_INVALID || dropEntity == m_dragSourceEntity) {
-                    m_dragSourceEntity = OreWorld.ENTITY_INVALID
+                if (dropEntity == null || dropEntity == m_dragSourceEntity) {
+                    m_dragSourceEntity = null
                     m_dragInProgress = false
                     return
                 }
 
-                val sourcePowerDeviceComponent = powerDeviceMapper.get(m_dragSourceEntity)
+                val sourcePowerDeviceComponent = powerDeviceMapper.get(m_dragSourceEntity!!)
                 val dropPowerDeviceComponent = powerDeviceMapper.get(dropEntity)
 
                 //              if (!sourcePowerDeviceComponent.outputEntities.contains(dropEntity, true) &&
@@ -195,11 +195,11 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
                 //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
 
-                m_Server_powerCircuitSystem.connectDevices(m_dragSourceEntity, dropEntity)
+                m_serverPowerCircuitSystem.connectDevices(m_dragSourceEntity!!, dropEntity)
 
                 //               }
 
-                m_dragSourceEntity = OreWorld.ENTITY_INVALID
+                m_dragSourceEntity = null
             }
 
             m_dragInProgress = false
@@ -251,7 +251,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         val mouse = m_world.mousePositionWorldCoords()
 
         val dropEntity = entityAtPosition(Vector2(mouse.x, mouse.y))
-        if (dropEntity != OreWorld.ENTITY_INVALID) {
+        if (dropEntity != null) {
             val powerDeviceComponent = powerDeviceMapper.getNullable(dropEntity)
             if (powerDeviceComponent == null || powerDeviceComponent.owningCircuit == null) {
                 return
@@ -282,8 +282,8 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         val tooltipSprite = spriteMapper.get(m_powerCircuitTooltipEntity)
         //        tooltipSprite.sprite.setPosition(mouse.x, mouse.y);
 
-        if (m_dragInProgress && m_dragSourceEntity != OreWorld.ENTITY_INVALID) {
-            val dragSpriteComponent = spriteMapper.get(m_dragSourceEntity)
+        if (m_dragInProgress && m_dragSourceEntity != null) {
+            val dragSpriteComponent = spriteMapper.get(m_dragSourceEntity!!)
 
             m_batch.setColor(1f, 1f, 0f, 0.5f)
 
@@ -298,7 +298,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         var secondEntitySpriteComponent: SpriteComponent
 
         var deviceSprite: SpriteComponent
-        val serverPowerCircuitSystem = m_Server_powerCircuitSystem
+        val serverPowerCircuitSystem = m_serverPowerCircuitSystem
         for (circuit in serverPowerCircuitSystem.m_circuits) {
             //for each device, draw a power node, a "hub" of wireConnections of sorts.
             for (i in 0..circuit.generators.size - 1) {

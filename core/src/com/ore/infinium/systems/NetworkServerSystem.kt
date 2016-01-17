@@ -683,13 +683,11 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         override fun disconnected(c: Connection?) {
             val connection = c as PlayerConnection?
             connection?.let {
-                if (connection.player != OreWorld.ENTITY_INVALID) {
-                    // Announce to everyone that someone (with a registered playerName) has left.
-                    val chatMessage = Network.ChatMessageFromServer()
-                    chatMessage.message = connection.playerName + " disconnected."
-                    chatMessage.sender = Chat.ChatSender.Server
-                    m_serverKryo.sendToAllTCP(chatMessage)
-                }
+                // Announce to everyone that someone (with a registered playerName) has left.
+                val chatMessage = Network.ChatMessageFromServer()
+                chatMessage.message = connection.playerName + " disconnected."
+                chatMessage.sender = Chat.ChatSender.Server
+                m_serverKryo.sendToAllTCP(chatMessage)
             }
         }
 

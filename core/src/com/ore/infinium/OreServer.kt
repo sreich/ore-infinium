@@ -35,7 +35,7 @@ class OreServer : Runnable {
      * if it is a dedicated server, this is invalid.
      * so, only valid for local client-hosting servers
      */
-    private var m_hostingPlayer: Int = 0
+    private var m_hostingPlayer: Int? = null
 
     internal var sharedFrameTime: Double = 0.0
 
@@ -112,7 +112,7 @@ class OreServer : Runnable {
         val player = m_world.createPlayer(playerName, connectionId)
 
         //the first player in the world, if server is hosted by the client (same machine & process)
-        if (m_hostingPlayer == OreWorld.ENTITY_INVALID) {
+        if (m_hostingPlayer == null) {
             m_hostingPlayer = player
         }
 
