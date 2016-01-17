@@ -462,7 +462,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         itemDroppedComponent.justDropped = true
         itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionPlayerId
 
-        val playerSprite = spriteMapper!!.get(job.connection.player)
+        val playerSprite = spriteMapper.get(job.connection.player)
         val droppedItemSprite = spriteMapper.get(droppedItem)
 
         itemDroppedComponent.sizeBeforeDrop = Vector2(droppedItemSprite.sprite.width, droppedItemSprite.sprite.height)

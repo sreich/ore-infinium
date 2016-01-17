@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -250,7 +251,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
         val dropEntity = entityAtPosition(Vector2(mouse.x, mouse.y))
         if (dropEntity != OreWorld.ENTITY_INVALID) {
-            val powerDeviceComponent = powerDeviceMapper.getSafe(dropEntity)
+            val powerDeviceComponent = powerDeviceMapper.getNullable(dropEntity)
             if (powerDeviceComponent == null || powerDeviceComponent.owningCircuit == null) {
                 return
             }

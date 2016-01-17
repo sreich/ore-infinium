@@ -20,6 +20,11 @@ import com.artemis.ComponentMapper
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  *****************************************************************************/
 
-fun <T : Component?> ComponentMapper<T>.getNullable(i: Int): Component? {
-    return this.getSafe(i)
+/**
+ * Gets the component that this mapper is for, for this entity
+ * @returns null if the component does not exist for this entity,
+ * or the requested component
+ */
+fun <T : Component?> ComponentMapper<T>.getNullable(entityId: Int): T? {
+    return this.getSafe(entityId)
 }

@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -102,7 +103,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
                 val c = 2
             }
 
-            itemComponent = itemMapper.getSafe(entities.get(i))
+            itemComponent = itemMapper.getNullable(entities.get(i))
             //don't draw in-inventory or not dropped items
             if (itemComponent == null || itemComponent.state !== ItemComponent.State.DroppedInWorld) {
                 continue
@@ -163,7 +164,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
         for (i in 0..entities.size() - 1) {
             val entity = entities.get(i)
 
-            itemComponent = itemMapper.getSafe(entity)
+            itemComponent = itemMapper.getNullable(entity)
             //don't draw in-inventory or dropped items
             if (itemComponent != null && itemComponent.state !== ItemComponent.State.InWorldState) {
                 //hack

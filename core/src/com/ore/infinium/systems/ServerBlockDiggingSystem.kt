@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Array
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -93,7 +94,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             val playerComponent = playerMapper.get(playerEntityId)
 
             val equippedItemEntityId = playerComponent.equippedPrimaryItem!!
-            val toolComponent = toolMapper.getSafe(equippedItemEntityId)
+            val toolComponent = toolMapper.getNullable(equippedItemEntityId)
 
             //player no longer even has an item that can break stuff, equipped.
             //this queued request will now be canceled.

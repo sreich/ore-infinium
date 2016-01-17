@@ -19,6 +19,7 @@ import com.ore.infinium.systems.ClientBlockDiggingSystem
 import com.ore.infinium.systems.DebugTextRenderSystem
 import com.ore.infinium.systems.NetworkClientSystem
 import com.ore.infinium.systems.PowerOverlayRenderSystem
+import com.ore.infinium.util.getNullable
 import java.io.IOException
 
 class OreClient : ApplicationListener, InputProcessor {
@@ -139,7 +140,8 @@ class OreClient : ApplicationListener, InputProcessor {
         val playerComponent = playerMapper.get(player)
         val itemEntity = playerComponent.equippedPrimaryItem ?: return
 
-        val blockComponent = blockMapper.getSafe(itemEntity)
+        val blockComponent = blockMapper.getNullable(itemEntity)
+
         if (blockComponent != null) {
 
             val x = mouse.x.toInt()
@@ -153,7 +155,7 @@ class OreClient : ApplicationListener, InputProcessor {
             return
         }
 
-        val itemComponent = itemMapper.getSafe(itemEntity)
+        val itemComponent = itemMapper.getNullable(itemEntity)
         if (itemComponent != null) {
             //ignore tools and such, can't place those
             if (toolMapper.has(itemEntity)) {

@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 import net.mostlyoriginal.api.utils.QuadTree
 
 /**
@@ -56,7 +57,7 @@ class SpatialSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(
     }
 
     override fun inserted(entityId: Int) {
-        val itemComponent = itemMapper.getSafe(entityId)
+        val itemComponent = itemMapper.getNullable(entityId)
         if (itemComponent != null && itemComponent.state === ItemComponent.State.InInventoryState) {
             //ignore things in an inventory
             return
@@ -68,7 +69,7 @@ class SpatialSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(
     }
 
     override fun process(entityId: Int) {
-        val itemComponent = itemMapper.getSafe(entityId)
+        val itemComponent = itemMapper.getNullable(entityId)
         if (itemComponent != null && itemComponent.state === ItemComponent.State.InInventoryState) {
             //ignore things in an inventory
             return

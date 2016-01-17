@@ -22,6 +22,7 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 import java.text.DecimalFormat
 import java.util.*
 
@@ -378,55 +379,55 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
                 }
             }
 
-            spriteComponent = spriteMapper.getSafe(currentEntity)
+            spriteComponent = spriteMapper.getNullable(currentEntity)
 
             val rectangle = Rectangle(spriteComponent!!.sprite.x - spriteComponent.sprite.width * 0.5f,
                                       spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
                                       spriteComponent.sprite.width, spriteComponent.sprite.height)
 
             if (rectangle.contains(mousePos)) {
-                airComponent = airMapper.getSafe(currentEntity)
+                airComponent = airMapper.getNullable(currentEntity)
                 components.add(airComponent)
 
-                airGeneratorComponent = airGeneratormapper.getSafe(currentEntity)
+                airGeneratorComponent = airGeneratormapper.getNullable(currentEntity)
                 components.add(airGeneratorComponent)
 
-                blockComponent = blockMapper.getSafe(currentEntity)
+                blockComponent = blockMapper.getNullable(currentEntity)
                 components.add(blockComponent)
 
-                controllableComponent = controlMapper.getSafe(currentEntity)
+                controllableComponent = controlMapper.getNullable(currentEntity)
                 components.add(controllableComponent)
 
-                healthComponent = healthMapper.getSafe(currentEntity)
+                healthComponent = healthMapper.getNullable(currentEntity)
                 components.add(healthComponent)
 
-                itemComponent = itemMapper.getSafe(currentEntity)
+                itemComponent = itemMapper.getNullable(currentEntity)
                 components.add(itemComponent)
 
-                jumpComponent = jumpMapper.getSafe(currentEntity)
+                jumpComponent = jumpMapper.getNullable(currentEntity)
                 components.add(jumpComponent)
 
-                lightComponent = lightMapper.getSafe(currentEntity)
+                lightComponent = lightMapper.getNullable(currentEntity)
                 components.add(lightComponent)
 
-                playerComponent = playerMapper.getSafe(currentEntity)
+                playerComponent = playerMapper.getNullable(currentEntity)
                 components.add(playerComponent)
 
-                powerConsumerComponent = powerConsumerMapper.getSafe(currentEntity)
+                powerConsumerComponent = powerConsumerMapper.getNullable(currentEntity)
                 components.add(powerConsumerComponent)
 
-                powerDeviceComponent = powerDeviceMapper.getSafe(currentEntity)
+                powerDeviceComponent = powerDeviceMapper.getNullable(currentEntity)
                 components.add(powerDeviceComponent)
 
-                powerGeneratorComponent = powerGeneratorMapper.getSafe(currentEntity)
+                powerGeneratorComponent = powerGeneratorMapper.getNullable(currentEntity)
                 components.add(powerGeneratorComponent)
 
                 components.add(spriteComponent)
 
-                toolComponent = toolMapper.getSafe(currentEntity)
+                toolComponent = toolMapper.getNullable(currentEntity)
                 components.add(toolComponent)
 
-                velocityComponent = velocityMapper.getSafe(currentEntity)
+                velocityComponent = velocityMapper.getNullable(currentEntity)
                 components.add(velocityComponent)
 
                 entityUnderMouse = currentEntity

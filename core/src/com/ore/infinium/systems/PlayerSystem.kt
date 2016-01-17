@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -73,7 +74,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
         //should never ever, ever happen.
         assert(spriteMapper.has(entityId) && playerMapper.has(entityId))
 
-        val spriteComponent = spriteMapper.getSafe(entityId)
+        val spriteComponent = spriteMapper.getNullable(entityId)!!
         val playerComponent = playerMapper.get(entityId)
 
         val viewportRect = playerComponent.loadedViewport.rect

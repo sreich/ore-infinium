@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
 import com.ore.infinium.systems.profiler.ProfilerSystem
+import com.ore.infinium.util.getNullable
 import java.util.*
 
 /**
@@ -806,7 +807,7 @@ class OreWorld
             //            continue;
             //        }
 
-            val itemComponent = itemMapper.getSafe(entities.get(i))
+            val itemComponent = itemMapper.getNullable(entities.get(i))
             if (itemComponent != null) {
                 // items that are dropped in the world are considered non colliding
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
@@ -948,7 +949,7 @@ class OreWorld
         }
 
         //player, unneeded
-        assert(playerMapper.getSafe(sourceEntity) == null)
+        assert(playerMapper.getNullable(sourceEntity) == null)
 
         if (spriteMapper.has(sourceEntity)) {
             val sourceComponent = spriteMapper.get(sourceEntity)

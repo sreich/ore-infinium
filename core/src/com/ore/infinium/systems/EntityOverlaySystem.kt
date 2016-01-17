@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.Inventory
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -128,7 +129,7 @@ class EntityOverlaySystem(private val m_world: OreWorld) : BaseSystem() {
             return true
         }
 
-        var entityToolComponent = toolMapper.getSafe(equippedPrimaryEntity)
+        var entityToolComponent = toolMapper.getNullable(equippedPrimaryEntity)
 
         if (entityToolComponent != null) {
             if (entityToolComponent.type === ToolComponent.ToolType.Drill) {

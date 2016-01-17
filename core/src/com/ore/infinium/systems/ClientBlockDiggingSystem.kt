@@ -9,6 +9,7 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreClient
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -107,7 +108,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         val playerComponent = playerMapper.get(player)
         val itemEntity = playerComponent.equippedPrimaryItem!!
 
-        val toolComponent = toolMapper.getSafe(itemEntity)
+        val toolComponent = toolMapper.getNullable(itemEntity)
 
         for (i in 0..m_blocksToDig.size - 1) {
             val blockToDig = m_blocksToDig.get(i)
@@ -121,7 +122,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
                 continue
             }
 
-            val damagePerTick = toolComponent.blockDamage * getWorld().getDelta()
+            val damagePerTick = toolComponent!!.blockDamage * getWorld().getDelta()
 
             //this many ticks after start tick, it should have already been destroyed
             val expectedTickEnd = blockToDig.digStartTick + (blockToDig.totalBlockHealth / damagePerTick).toInt()
@@ -165,7 +166,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             return false
         }
 
-        val toolComponent = toolMapper.getSafe(itemEntity) ?: return false
+        val toolComponent = toolMapper.getNullable(itemEntity) ?: return false
 
         if (toolComponent.type !== ToolComponent.ToolType.Drill) {
             return false

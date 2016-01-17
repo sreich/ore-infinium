@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -67,7 +68,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         //fixme maybe make a dropped component?
         if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
-            val itemComponent = itemMapper.getSafe(entityId)
+            val itemComponent = itemMapper.getNullable(entityId)
 
             if (itemComponent != null && itemComponent.state === ItemComponent.State.DroppedInWorld) {
                 simulateDroppedItem(entityId, getWorld().delta)
@@ -346,7 +347,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             }
         }
 
-        val jumpComponent = jumpMapper.getSafe(entity)
+        val jumpComponent = jumpMapper.getNullable(entity)
         if (jumpComponent != null) {
             jumpComponent.canJump = canJump
         }
