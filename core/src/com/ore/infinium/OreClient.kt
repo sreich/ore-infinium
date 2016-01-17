@@ -25,7 +25,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
     var leftMouseDown: Boolean = false
     lateinit var viewport: StretchViewport
-    protected var m_world: OreWorld? = null
+    public var m_world: OreWorld? = null
 
     // zoom every n ms, while zoom key is held down
     private val zoomInterval = 30
@@ -137,10 +137,7 @@ class OreClient : ApplicationListener, InputProcessor {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
 
         val playerComponent = playerMapper.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem
-        if (itemEntity == OreWorld.ENTITY_INVALID) {
-            return
-        }
+        val itemEntity = playerComponent.equippedPrimaryItem ?: return
 
         val blockComponent = blockMapper.getSafe(itemEntity)
         if (blockComponent != null) {
@@ -166,7 +163,7 @@ class OreClient : ApplicationListener, InputProcessor {
             if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
                 playerComponent.placeableItemTimer.reset()
 
-                attemptItemPlace(playerComponent.equippedPrimaryItem)
+                attemptItemPlace(playerComponent.equippedPrimaryItem!!)
             }
         }
     }
@@ -427,14 +424,14 @@ class OreClient : ApplicationListener, InputProcessor {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
         val playerComponent = playerMapper.get(player)
 
-        if (playerComponent.equippedPrimaryItem != OreWorld.ENTITY_INVALID) {
+        val itemEntity = playerComponent.equippedPrimaryItem
+        itemEntity?.let {
             val dropItemRequestFromClient = Network.HotbarDropItemFromClient()
-            val currentEquippedIndex = playerComponent.hotbarInventory.selectedSlot
+            val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
             dropItemRequestFromClient.index = currentEquippedIndex.toByte()
 
             // decrement count, we assume it'll get spawned shortly when the server tells us to.
             // delete in-inventory entity if necessary server assumes we already do so
-            val itemEntity = playerComponent.equippedPrimaryItem
             val itemComponent = itemMapper.get(itemEntity)
             if (itemComponent.stackSize > 1) {
                 //decrement count, server has already done so. we assume here that it went through properly.
@@ -442,7 +439,7 @@ class OreClient : ApplicationListener, InputProcessor {
                 m_hotbarInventory!!.setCount(currentEquippedIndex, itemComponent.stackSize)
             } else {
                 //delete it, server knows/assumes we already did, since there are no more left
-                val item = playerComponent.hotbarInventory.takeItem(dropItemRequestFromClient.index.toInt())!!
+                val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())!!
                 m_world!!.m_artemisWorld.delete(item)
             }
 
@@ -577,7 +574,7 @@ class OreClient : ApplicationListener, InputProcessor {
         }
 
         //select the first slot, so the inventory view highlights something.
-        playerComponent.hotbarInventory.selectSlot(0)
+        playerComponent.hotbarInventory!!.selectSlot(0)
 
         //          SpriteComponent spriteComponent = spriteMapper.get(player);
         //        spriteComponent.sprite.setTexture();

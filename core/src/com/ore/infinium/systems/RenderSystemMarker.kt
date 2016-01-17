@@ -1,7 +1,6 @@
-package com.ore.infinium.utils;
-
-/******************************************************************************
- * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                *
+/**
+ * ***************************************************************************
+ * Copyright (C) 2015 by Shaun Reich @gmail.com>                   *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -14,19 +13,17 @@ package com.ore.infinium.utils;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
- *****************************************************************************/
-public class Vector2i {
-    public Vector2i() {
-        x = -1;
-        y = -1;
-    }
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
+ * ***************************************************************************
+ */
 
-    public Vector2i(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
+package com.ore.infinium.systems
 
-    public int x;
-    public int y;
-}
+/**
+ * A marker interface that indicates that this system should only be
+ * processed by the render portion of the game loop. Separating the logic
+ * and the render ticks, so that we can decide how often to process them (how
+ * many ms per frame, etc)
+ */
+interface RenderSystemMarker
+

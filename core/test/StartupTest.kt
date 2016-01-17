@@ -1,6 +1,8 @@
-/**
- * ***************************************************************************
- * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                   *
+import org.junit.Assert
+import org.junit.Test
+
+/******************************************************************************
+ * Copyright (C) 2015 by Shaun Reich @gmail.com>                *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -13,18 +15,20 @@
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
- * ***************************************************************************
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  */
+class StartupTest {
 
-package com.ore.infinium.systems;
+    @Test
+    @Throws(Exception::class)
+    fun testTest1() {
+        Assert.assertTrue(true)
+    }
 
-/**
- * A marker interface that indicates that this system should only be
- * processed by the render portion of the game loop. Separating the logic
- * and the render ticks, so that we can decide how often to process them (how
- * many ms per frame, etc)
- */
-public interface RenderSystemMarker {
+    @Test
+    @Throws(Exception::class)
+    fun testTest2() {
+        Assert.assertTrue(true)
+    }
+
 }
-

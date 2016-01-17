@@ -128,7 +128,7 @@ class OreWorld
                                            .with(EntityOverlaySystem(this))
                                            .with(PlayerSystem(this))
                                            .with(GameTickSystem(this))
-                                           .with(ClientBlockDiggingSystem(this, m_client))
+                                           .with(ClientBlockDiggingSystem(this, m_client!!))
                                            .with(TileRenderSystem(m_camera, this))
                                            .with(SpriteRenderSystem(this))
                                            .with(DebugTextRenderSystem(m_camera, this))
@@ -156,7 +156,7 @@ class OreWorld
                                            .with(ServerNetworkEntitySystem(this))
                                            .with(ServerBlockDiggingSystem(this))
                                            .with(PlayerSystem(this))
-                                           .with(NetworkServerSystem(this, m_server))
+                                           .with(NetworkServerSystem(this, m_server!!))
                                            .register(GameLoopSystemInvocationStrategy(25, true))
                                            .build())
             //inject the mappers into the world, before we start doing things

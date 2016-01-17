@@ -146,7 +146,7 @@ class OreServer : Runnable {
 
         val playerComponent = playerMapper.get(player)
         playerComponent.hotbarInventory = Inventory(player, Inventory.InventoryType.Hotbar)
-        playerComponent.hotbarInventory.addListener(HotbarInventorySlotListener())
+        playerComponent.hotbarInventory!!.addListener(HotbarInventorySlotListener())
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
@@ -199,7 +199,7 @@ class OreServer : Runnable {
         itemComponent.state = ItemComponent.State.InInventoryState
 
         val playerComponent = playerMapper.get(playerEntity)
-        playerComponent.hotbarInventory.setSlot(0.toByte().toInt(), drill)
+        playerComponent.hotbarInventory!!.setSlot(0.toByte().toInt(), drill)
 
         val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.DirtBlockType)
 
@@ -207,7 +207,7 @@ class OreServer : Runnable {
         dirtBlockItemComponent.inventoryIndex = 1
         dirtBlockItemComponent.state = ItemComponent.State.InInventoryState
 
-        playerComponent.hotbarInventory.setSlot(1, dirtBlock)
+        playerComponent.hotbarInventory!!.setSlot(1, dirtBlock)
 
         val stoneBlock = m_world.createBlockItem(OreBlock.BlockType.StoneBlockType)
 
@@ -215,14 +215,14 @@ class OreServer : Runnable {
         stoneBlockItemComponent.inventoryIndex = 2
         stoneBlockItemComponent.state = ItemComponent.State.InInventoryState
 
-        playerComponent.hotbarInventory.setSlot(2, stoneBlock)
+        playerComponent.hotbarInventory!!.setSlot(2, stoneBlock)
 
         val powerGen = m_world.createPowerGenerator()
         val powerGenItem = itemMapper.get(powerGen)
         powerGenItem.inventoryIndex = 3
         powerGenItem.state = ItemComponent.State.InInventoryState
 
-        playerComponent.hotbarInventory.setSlot(3, powerGen)
+        playerComponent.hotbarInventory!!.setSlot(3, powerGen)
 
         for (i in 4..6) {
             val light = m_world.createLight()
@@ -233,11 +233,11 @@ class OreServer : Runnable {
             lightItemComponent.state = ItemComponent.State.InInventoryState
             lightItemComponent.inventoryIndex = i
 
-            playerComponent.hotbarInventory.setSlot(i, light)
+            playerComponent.hotbarInventory!!.setSlot(i, light)
         }
 
         for (i in 0..Inventory.maxHotbarSlots - 1) {
-            val entity = playerComponent.hotbarInventory.itemEntity(i)
+            val entity = playerComponent.hotbarInventory!!.itemEntity(i)
 
             entity?.let {
                 m_networkServerSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity)

@@ -4,6 +4,7 @@ apply plugin: "artemis"
 sourceCompatibility = 1.8
 sourceSets.main.java.srcDirs = ["src/"]
 
+
 project.ext.mainClassName = "com.ore.infinium.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
 //modifications for artemis Weaving. see https://github.com/junkdog/artemis-odb/wiki/Weaving-LibGDX

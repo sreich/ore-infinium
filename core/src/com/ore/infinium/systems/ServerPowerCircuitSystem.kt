@@ -1,18 +1,18 @@
-package com.ore.infinium.systems;
+package com.ore.infinium.systems
 
-import com.artemis.BaseSystem;
-import com.artemis.ComponentMapper;
-import com.artemis.annotations.Wire;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntArray;
-import com.ore.infinium.OreWorld;
-import com.ore.infinium.components.*;
+import com.artemis.BaseSystem
+import com.artemis.ComponentMapper
+import com.artemis.annotations.Wire
+import com.badlogic.gdx.math.Intersector
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Array
+import com.badlogic.gdx.utils.IntArray
+import com.ore.infinium.OreWorld
+import com.ore.infinium.components.*
 
 /**
  * ***************************************************************************
- * Copyright (C) 2015 by Shaun Reich <sreich02@gmail.com>                    *
+ * Copyright (C) 2015 by Shaun Reich @gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *
@@ -25,7 +25,7 @@ import com.ore.infinium.components.*;
  * GNU General Public License for more details.                             *
  * *
  * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
+ * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
 
@@ -34,41 +34,42 @@ import com.ore.infinium.components.*;
  * connect them, remove them, etc., and it also will process them each tick (if server) and
  * calculate their current statuses, e.g. how much electricity was generated,
  * consumed, etc...
- * <p>
+ *
+ *
  * This is a server-only system
  */
 @Wire
-public class ServerPowerCircuitSystem extends BaseSystem {
-    static final float WIRE_THICKNESS = 0.5f;
-
-    private OreWorld m_world;
+class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     /**
      * serves as a global (cross-network) identifier
      * for circuits
      */
-    private int m_circuitId = 0;
+    private val m_circuitId = 0
 
     /**
      * Contains list of each circuit in the world.
-     * <p>
+     *
+     *
      * A circuit contains all the wire connections that are continuous/connected
      * in some form. Circuits would probably average 20 or so unique devices
      * But it could be much much more (and probably will be)
-     * <p>
+     *
+     *
      * When devices that are on different circuits get connected, those
      * devices are merged into the same circuit
      */
-    Array<PowerCircuit> m_circuits = new Array<>();
+    public var m_circuits = Array<PowerCircuit>()
 
     /**
      * Either a connected entity on a circuit/wire, is a device or a generator. It is *not* both.
      * Devices consumer power, generators...generate
      */
-    public class PowerCircuit {
+    inner class PowerCircuit {
         /**
          * List of wire connections between pairs of devices
-         * <p>
+         *
+         *
          * duplicate entities may exist across all wireConnections
          * e.g. Wire1{ ent1, ent2 }, Wire2 { ent3, ent 1}, but
          * they would still be of the same circuit of course.
@@ -76,14 +77,14 @@ public class ServerPowerCircuitSystem extends BaseSystem {
          * if they do, the circuits are merged.
          * See generators, consumers
          */
-        Array<PowerWireConnection> wireConnections = new Array<>();
+        public var wireConnections = Array<PowerWireConnection>()
 
         /**
          * Entity id
          * List of generators for faster checking of changes/recalculations, in addition to the
          * wire connection list is disjoint from devices.
          */
-        IntArray generators = new IntArray();
+        public var generators = IntArray()
 
         /**
          * Entity id
@@ -92,49 +93,35 @@ public class ServerPowerCircuitSystem extends BaseSystem {
          * May be disjoint from generators, but note that generators have potential to consume power as well..
          * so there *could* be generators present in here. But they should only be treated as consumers
          * (as they would have the PowerConsumerComponent, in addition to PowerGeneratorComponent
-         *
+
          * @type s
          */
-        IntArray consumers = new IntArray();
+        public var consumers = IntArray()
 
-        int totalSupply;
-        int totalDemand;
+        public var totalSupply: Int = 0
+        public var totalDemand: Int = 0
 
-        int circuitId = -1;
+        public var circuitId = -1
     }
 
     /**
      * Each circuit is composed of >= 1 wire connections, each wire connection is composed of
      * only 2 different devices.
      */
-    public class PowerWireConnection {
-        int firstEntity;
-        int secondEntity;
+    inner class PowerWireConnection(internal var firstEntity: Int, internal var secondEntity: Int)
 
-        public PowerWireConnection(int firstEntity, int secondEntity) {
-            this.firstEntity = firstEntity;
-            this.secondEntity = secondEntity;
-        }
-
-    }
-
-    private ComponentMapper<PlayerComponent> playerMapper;
-    private ComponentMapper<SpriteComponent> spriteMapper;
-    private ComponentMapper<ItemComponent> itemMapper;
-    private ComponentMapper<VelocityComponent> velocityMapper;
-    private ComponentMapper<PowerDeviceComponent> powerDeviceMapper;
-    private ComponentMapper<PowerConsumerComponent> powerConsumerMapper;
-    private ComponentMapper<PowerGeneratorComponent> powerGeneratorMapper;
-
-    public ServerPowerCircuitSystem(OreWorld world) {
-        m_world = world;
-    }
+    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
+    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var itemMapper: ComponentMapper<ItemComponent>
+    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
+    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
+    private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
+    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
     /**
      * Process the system.
      */
-    @Override
-    protected void processSystem() {
+    override fun processSystem() {
         /*
         * note that only the server should be the one that processes input and
         * output for generations, devices etc...the client cannot accurately calculate this each tick,
@@ -143,27 +130,27 @@ public class ServerPowerCircuitSystem extends BaseSystem {
         * wire and consumed by this system
         */
 
-        calculateSupplyAndDemandRates();
+        calculateSupplyAndDemandRates()
     }
 
-    private void calculateSupplyAndDemandRates() {
-        for (PowerCircuit circuit : m_circuits) {
+    private fun calculateSupplyAndDemandRates() {
+        for (circuit in m_circuits) {
 
-            circuit.totalDemand = 0;
-            circuit.totalSupply = 0;
+            circuit.totalDemand = 0
+            circuit.totalSupply = 0
 
-            for (int j = 0; j < circuit.generators.size; ++j) {
-                int generator = circuit.generators.get(j);
+            for (j in 0..circuit.generators.size - 1) {
+                val generator = circuit.generators.get(j)
 
-                PowerGeneratorComponent generatorComponent = powerGeneratorMapper.get(generator);
-                circuit.totalSupply += generatorComponent.getPowerSupplyRate();
+                val generatorComponent = powerGeneratorMapper.get(generator)
+                circuit.totalSupply += generatorComponent.powerSupplyRate
             }
 
-            for (int j = 0; j < circuit.consumers.size; ++j) {
-                int consumer = circuit.consumers.get(j);
+            for (j in 0..circuit.consumers.size - 1) {
+                val consumer = circuit.consumers.get(j)
 
-                PowerConsumerComponent consumerComponent = powerConsumerMapper.get(consumer);
-                circuit.totalDemand += consumerComponent.getPowerDemandRate();
+                val consumerComponent = powerConsumerMapper.get(consumer)
+                circuit.totalDemand += consumerComponent.powerDemandRate
             }
         }
     }
@@ -173,77 +160,76 @@ public class ServerPowerCircuitSystem extends BaseSystem {
     /**
      * connects two power devices together, determines how to handle data structures
      * in between
-     *
+
      * @param firstEntity
+     * *
      * @param secondEntity
      */
-    boolean connectDevices(int firstEntity, int secondEntity) {
+    public fun connectDevices(firstEntity: Int, secondEntity: Int): Boolean {
         if (firstEntity == secondEntity) {
             //disallow connection with itself
-            return false;
+            return false
         }
 
-        for (PowerCircuit circuit : m_circuits) {
-            for (PowerWireConnection connection : circuit.wireConnections) {
+        for (circuit in m_circuits) {
+            for (connection in circuit.wireConnections) {
                 //scan for these exact device endpoints already having a connection.
                 //do not allow device 1 and device 2 to have two connections between each other
                 //(aka duplicate wires)
-                if ((connection.firstEntity == firstEntity && connection.secondEntity == secondEntity) ||
-                    connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
-                    return false;
+                if (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity || connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
+                    return false
                 }
             }
         }
 
-        PowerCircuit previousCircuit = null;
+        var previousCircuit: PowerCircuit? = null
         //scan again, this time we'll find places to add it in. it is a valid add, somewhere..
-        for (int itCircuit = 0; itCircuit < m_circuits.size; ++itCircuit) {
-            PowerCircuit circuit = m_circuits.get(itCircuit);
+        for (itCircuit in 0..m_circuits.size - 1) {
+            val circuit = m_circuits.get(itCircuit)
 
-            for (PowerWireConnection connection : circuit.wireConnections) {
+            for (connection in circuit.wireConnections) {
                 //check which circuit this connection between 2 devices belongs to
                 //if none of the two devices are in a circuit, it is a new circuit,
                 //and we will add our wire to the mix. it doesn't matter which one was found
                 //(since connections only exist on the same circuit)
                 if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
-                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
+                        connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
                     //make a new wire, add it to this circuit, as one of these entities is in this circuit
 
                     //////////////////////////// second scan, looking for circuits we can merge with
-                    for (int itCircuit2 = 0; itCircuit2 < m_circuits.size; ++itCircuit2) {
-                        PowerCircuit circuit2 = m_circuits.get(itCircuit2);
+                    for (itCircuit2 in 0..m_circuits.size - 1) {
+                        val circuit2 = m_circuits.get(itCircuit2)
 
-                        for (int itWires2 = 0; itWires2 < circuit.wireConnections.size; ++itWires2) {
-                            PowerWireConnection connection2 = circuit2.wireConnections.get(itWires2);
+                        for (itWires2 in 0..circuit.wireConnections.size - 1) {
+                            val connection2 = circuit2.wireConnections.get(itWires2)
                             if (itCircuit2 == itCircuit) {
                                 //we're only checking if one of these devices is on another circuit
                                 //but this is the same one, so skip it.
-                                continue;
+                                continue
                             }
 
                             //see if we can bridge a connection between these circuits. if true, we can move
                             //all connections from this (itCircuit), or the other (itCircuit2). it shouldn't matter.
                             if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
-                                connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
-                                addWireConnection(firstEntity, secondEntity, circuit2);
+                                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
+                                addWireConnection(firstEntity, secondEntity, circuit2)
 
-                                for (int itWireConnections = 0; itWireConnections < circuit2.wireConnections.size;
-                                     ++itWireConnections) {
+                                for (itWireConnections in 0..circuit2.wireConnections.size - 1) {
 
                                     //update the owning circuit of the ones getting moved over,
                                     // to now point to the new one they reside on
-                                    int movedEntity1 = circuit2.wireConnections.get(itWireConnections).firstEntity;
-                                    int movedEntity2 = circuit2.wireConnections.get(itWireConnections).secondEntity;
-                                    updateDevicesOwningCircuit(movedEntity1, movedEntity2, circuit);
+                                    val movedEntity1 = circuit2.wireConnections.get(itWireConnections).firstEntity
+                                    val movedEntity2 = circuit2.wireConnections.get(itWireConnections).secondEntity
+                                    updateDevicesOwningCircuit(movedEntity1, movedEntity2, circuit)
 
                                     // merge the connections from this circuit to the other one now.
-                                    circuit.wireConnections.add(circuit2.wireConnections.get(itWireConnections));
+                                    circuit.wireConnections.add(circuit2.wireConnections.get(itWireConnections))
                                 }
 
                                 //transfer over our running list of consumers and stuff too
 
-                                for (int itConsumers = 0; itConsumers < circuit2.consumers.size; ++itConsumers) {
-                                    int consumer = circuit2.consumers.get(itConsumers);
+                                for (itConsumers in 0..circuit2.consumers.size - 1) {
+                                    val consumer = circuit2.consumers.get(itConsumers)
 
                                     //circuit2 is getting merged with 1, and deleted.
                                     //but only merge over devices in the consumer list and generator
@@ -253,32 +239,32 @@ public class ServerPowerCircuitSystem extends BaseSystem {
                                     //(or whichever, doesn't matter.). that means we've got a duplicate device in
                                     //the consumers, because @see addWireConnection adds it for us
                                     if (!circuit.consumers.contains(consumer)) {
-                                        circuit.consumers.add(consumer);
+                                        circuit.consumers.add(consumer)
                                     }
                                 }
 
                                 //same thing for gens
-                                for (int itGenerators = 0; itGenerators < circuit2.generators.size; ++itGenerators) {
-                                    int generator = circuit2.generators.get(itGenerators);
+                                for (itGenerators in 0..circuit2.generators.size - 1) {
+                                    val generator = circuit2.generators.get(itGenerators)
 
                                     if (!circuit.generators.contains(generator)) {
-                                        circuit.generators.add(generator);
+                                        circuit.generators.add(generator)
                                     }
                                 }
 
-                                circuit2.wireConnections.clear();
-                                circuit2.consumers.clear();
-                                circuit2.generators.clear();
+                                circuit2.wireConnections.clear()
+                                circuit2.consumers.clear()
+                                circuit2.generators.clear()
                                 //remove that old dead empty circuit
-                                m_circuits.removeIndex(itCircuit2);
+                                m_circuits.removeIndex(itCircuit2)
 
-                                return true;
+                                return true
                             }
                         }
                     }
                     //////////////////////////////////////
 
-                    previousCircuit = circuit;
+                    previousCircuit = circuit
                 }
             }
         }
@@ -288,43 +274,43 @@ public class ServerPowerCircuitSystem extends BaseSystem {
         //in which case, it'll (after the big loop), we'll add this wire to the last circuit we remember it can
         //be a part of
         if (previousCircuit != null) {
-            addWireConnection(firstEntity, secondEntity, previousCircuit);
-            return true;
+            addWireConnection(firstEntity, secondEntity, previousCircuit)
+            return true
         }
 
         //we made it this far, so no endpoints of this connection exist in any circuits, make a new circuit
         //just for these
-        PowerCircuit circuit = new PowerCircuit();
+        val circuit = PowerCircuit()
 
-        addWireConnection(firstEntity, secondEntity, circuit);
-        m_circuits.add(circuit);
+        addWireConnection(firstEntity, secondEntity, circuit)
+        m_circuits.add(circuit)
 
-        return true;
+        return true
     }
 
     /**
      * Disconnect all wireConnections pointing to this entity
-     * <p>
+     *
+     *
      * used in situation such as "this device was destroyed/removed, cleanup any wireConnections that
      * connect to it.
-     *
+
      * @param entityToDisconnect
      */
-    public void disconnectAllWiresFromDevice(int entityToDisconnect) {
+    fun disconnectAllWiresFromDevice(entityToDisconnect: Int) {
 
-        for (int itCircuit = 0; itCircuit < m_circuits.size; ++itCircuit) {
-            PowerCircuit circuit = m_circuits.get(itCircuit);
+        for (itCircuit in 0..m_circuits.size - 1) {
+            val circuit = m_circuits.get(itCircuit)
 
-            for (int itWire = 0; itWire < circuit.wireConnections.size; ++itWire) {
-                PowerWireConnection wireConnection = circuit.wireConnections.get(itWire);
+            for (itWire in 0..circuit.wireConnections.size - 1) {
+                val wireConnection = circuit.wireConnections.get(itWire)
 
-                if (wireConnection.firstEntity == entityToDisconnect ||
-                    wireConnection.secondEntity == entityToDisconnect) {
-                    circuit.wireConnections.removeIndex(itWire);
+                if (wireConnection.firstEntity == entityToDisconnect || wireConnection.secondEntity == entityToDisconnect) {
+                    circuit.wireConnections.removeIndex(itWire)
 
                     //if we removed the last wire connection, cleanup this empty circuit
                     if (circuit.wireConnections.size == 0) {
-                        m_circuits.removeIndex(itCircuit);
+                        m_circuits.removeIndex(itCircuit)
                     }
                 }
             }
@@ -335,99 +321,107 @@ public class ServerPowerCircuitSystem extends BaseSystem {
      * Searches for a wire in the list of circuits, removes the one under the position,
      * if one such exists.
      * Would be used in situations such as "user clicked remove on a wire, so remove it.
-     *
+
      * @param position
-     *         in world coords
-     *
+     * *         in world coords
+     * *
+     * *
      * @return false if disconnect failed (no wire in range). True if it succeeded.
      */
 
-    public boolean disconnectWireAtPosition(Vector2 position) {
+    fun disconnectWireAtPosition(position: Vector2): Boolean {
 
-        for (int itCircuits = 0; itCircuits < m_circuits.size; ++itCircuits) {
-            PowerCircuit circuit = m_circuits.get(itCircuits);
+        for (itCircuits in 0..m_circuits.size - 1) {
+            val circuit = m_circuits.get(itCircuits)
 
-            for (int itWires = 0; itWires < circuit.wireConnections.size; ++itWires) {
-                PowerWireConnection connection = circuit.wireConnections.get(itWires);
+            for (itWires in 0..circuit.wireConnections.size - 1) {
+                val connection = circuit.wireConnections.get(itWires)
 
-                int first = connection.firstEntity;
-                int second = connection.secondEntity;
+                val first = connection.firstEntity
+                val second = connection.secondEntity
 
-                SpriteComponent firstSprite = spriteMapper.get(first);
-                SpriteComponent secondSprite = spriteMapper.get(second);
+                val firstSprite = spriteMapper.get(first)
+                val secondSprite = spriteMapper.get(second)
                 //todo..rest of the logic..try looking for an intersection between points of these
                 //given a certain width..that is the width that is decided upon for wire thickness. (constant)
 
-                Vector2 firstPosition = new Vector2(firstSprite.getSprite().getX(), firstSprite.getSprite().getY());
-                Vector2 secondPosition = new Vector2(secondSprite.getSprite().getX(), secondSprite.getSprite().getY());
+                val firstPosition = Vector2(firstSprite.sprite.x, firstSprite.sprite.y)
+                val secondPosition = Vector2(secondSprite.sprite.x, secondSprite.sprite.y)
 
-                float circleRadius2 = (float) Math.pow(WIRE_THICKNESS * 4, 2);
+                val circleRadius2 = Math.pow((WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
                 //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
-                Vector2 circleCenter =
-                        new Vector2(position.x - 0, position.y - (ServerPowerCircuitSystem.WIRE_THICKNESS * 3));
-                boolean intersects =
-                        Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter, circleRadius2);
+                val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
+                val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
+                                                                    circleRadius2)
                 if (intersects) {
                     //wire should be destroyed. remove it from wireConnections.
-                    circuit.wireConnections.removeIndex(itWires);
+                    circuit.wireConnections.removeIndex(itWires)
 
                     //cleanup dead circuit, if we removed the last wire from it.
                     if (circuit.wireConnections.size == 0) {
-                        m_circuits.removeIndex(itCircuits);
+                        m_circuits.removeIndex(itCircuits)
                     }
-                    return true;
+                    return true
                 }
             }
         }
 
-        return false;
+        return false
     }
 
     /**
      * Updates the circuit that this device resides on. Used for faster reverse lookups
-     *
+
      * @param firstEntity
+     * *
      * @param secondEntity
+     * *
      * @param circuit
-     *         the new circuit to update them to
+     * *         the new circuit to update them to
      */
-    private void updateDevicesOwningCircuit(int firstEntity, int secondEntity, PowerCircuit circuit) {
-        powerDeviceMapper.get(firstEntity).setOwningCircuit(circuit);
-        powerDeviceMapper.get(secondEntity).setOwningCircuit(circuit);
+    private fun updateDevicesOwningCircuit(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
+        powerDeviceMapper.get(firstEntity).owningCircuit = circuit
+        powerDeviceMapper.get(secondEntity).owningCircuit = circuit
     }
 
     /**
      * Forms a wire connection between any 2 devices (direction does not matter).
      * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
-     *
+
      * @param firstEntity
+     * *
      * @param secondEntity
+     * *
      * @param circuit
      */
-    private void addWireConnection(int firstEntity, int secondEntity, PowerCircuit circuit) {
+    private fun addWireConnection(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
         //cannot connect to a non-device
-        assert powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity);
+        assert(powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity))
 
-        PowerWireConnection powerWireConnection = new PowerWireConnection(firstEntity, secondEntity);
-        circuit.wireConnections.add(powerWireConnection);
+        val powerWireConnection = PowerWireConnection(firstEntity, secondEntity)
+        circuit.wireConnections.add(powerWireConnection)
 
-        updateDevicesOwningCircuit(firstEntity, secondEntity, circuit);
+        updateDevicesOwningCircuit(firstEntity, secondEntity, circuit)
 
         if (powerConsumerMapper.get(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
-            circuit.consumers.add(firstEntity);
+            circuit.consumers.add(firstEntity)
         }
 
         if (powerConsumerMapper.get(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
-            circuit.consumers.add(secondEntity);
+            circuit.consumers.add(secondEntity)
         }
 
         if (powerGeneratorMapper.get(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
-            circuit.generators.add(firstEntity);
+            circuit.generators.add(firstEntity)
         }
 
         if (powerGeneratorMapper.get(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
-            circuit.generators.add(secondEntity);
+            circuit.generators.add(secondEntity)
         }
+    }
+
+    companion object {
+        public val WIRE_THICKNESS = 0.5f
     }
 
     //todo sufficient until we get a spatial hash or whatever

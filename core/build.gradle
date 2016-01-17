@@ -5,7 +5,7 @@ apply plugin: "artemis"
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = ["src/"]
+sourceSets.main.java.srcDirs = ["src/", 'src/main/kotlin']
 sourceSets.test.java.srcDirs = ["test/"]
 test.ignoreFailures = true
 
@@ -26,18 +26,5 @@ weave {
 classes.finalizedBy weave
 
 dependencies { compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version" }
-buildscript {
-    ext.kotlin_version = '1.0.0-beta-4584'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-repositories {
-    mavenCentral()
-}
-sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
-}
+
+

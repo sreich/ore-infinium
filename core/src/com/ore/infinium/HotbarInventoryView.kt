@@ -125,7 +125,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         if (blockMapper.get(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
-                    spriteComponent.textureName.concat("-00"))
+                    spriteComponent.textureName!!.concat("-00"))
         } else {
             region = m_world.m_atlas.findRegion(spriteComponent.textureName)
         }
@@ -167,7 +167,8 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         m_slots[index].itemImage.isVisible = visible
     }
 
-    private class HotbarDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val hotbarInventoryView: HotbarInventoryView) : DragAndDrop.Source(slotTable) {
+    private class HotbarDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val hotbarInventoryView: HotbarInventoryView) : DragAndDrop.Source(
+            slotTable) {
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
@@ -188,9 +189,14 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         }
     }
 
-    private class HotbarDragTarget(slotTable: Table, private val index: Int, private val inventory: HotbarInventoryView) : DragAndDrop.Target(slotTable) {
+    private class HotbarDragTarget(slotTable: Table, private val index: Int, private val inventory: HotbarInventoryView) : DragAndDrop.Target(
+            slotTable) {
 
-        override fun drag(source: DragAndDrop.Source, payload: DragAndDrop.Payload?, x: Float, y: Float, pointer: Int): Boolean {
+        override fun drag(source: DragAndDrop.Source,
+                          payload: DragAndDrop.Payload?,
+                          x: Float,
+                          y: Float,
+                          pointer: Int): Boolean {
             if (payload == null) {
                 return false
             }
@@ -241,7 +247,8 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
                 //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
                 inventory.m_hotbarInventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(
                         dragWrapper.dragSourceIndex)!!)
-                inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(Inventory.InventoryType.Hotbar,
+                inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(
+                        Inventory.InventoryType.Hotbar,
                         dragWrapper.dragSourceIndex,
                         Inventory.InventoryType.Hotbar, index)
 
@@ -252,9 +259,10 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
                 //move the item from the source to the dest (from main inventory, to this hotbar inventory)
                 inventory.m_hotbarInventory.setSlot(this.index,
-                        inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)!!)
+                                                    inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)!!)
                 //fixme?                    inventory.m_previousSelectedSlot = index;
-                inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(Inventory.InventoryType.Inventory,
+                inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(
+                        Inventory.InventoryType.Inventory,
                         dragWrapper.dragSourceIndex,
                         Inventory.InventoryType.Hotbar, index)
 
