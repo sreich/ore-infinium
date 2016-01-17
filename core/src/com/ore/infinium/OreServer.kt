@@ -75,11 +75,12 @@ class OreServer : Runnable {
         m_chat = Chat()
         m_chat.addListener(object : Chat.ChatListener {
             override fun lineAdded(line: Chat.ChatLine) {
-                val message = Network.ChatMessageFromServer()
-                message.message = line.chatText
-                message.playerName = line.playerName
-                message.sender = line.chatSender
-                message.timestamp = line.timestamp
+                val message = Network.ChatMessageFromServer().apply {
+                    message = line.chatText
+                    playerName = line.playerName
+                    sender = line.chatSender
+                    timestamp = line.timestamp
+                }
 
                 m_networkServerSystem.m_serverKryo.sendToAllTCP(message)
             }

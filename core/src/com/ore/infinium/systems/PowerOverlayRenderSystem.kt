@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.getTagNullable
 
 /**
  * ***************************************************************************
@@ -133,7 +134,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
             val currentEntity = entities.get(i)
             val entityBoxed = world.getEntity(currentEntity)
 
-            val entityTag = m_tagManager.getTag(entityBoxed)
+            val entityTag = m_tagManager.getTagNullable(entityBoxed)
 
             //could be placement overlay, but we don't want this. skip over.
             if (entityTag != null && entityTag == OreWorld.s_itemPlacementOverlay) {

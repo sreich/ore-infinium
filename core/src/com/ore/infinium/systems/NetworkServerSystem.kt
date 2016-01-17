@@ -517,19 +517,19 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         val playerComponent = playerMapper.get(job.connection.player)
 
         //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
-        if (data.sourceType === data.destType && data.sourceIndex == data.destIndex) {
+        if (data.sourceType == data.destType && data.sourceIndex == data.destIndex) {
             //todo kick client, cheating
         }
 
         val sourceInventory: Inventory
-        if (data.sourceType === Inventory.InventoryType.Hotbar) {
+        if (data.sourceType == Inventory.InventoryType.Hotbar) {
             sourceInventory = playerComponent.hotbarInventory!!
         } else {
             sourceInventory = playerComponent.inventory!!
         }
 
         val destInventory: Inventory
-        if (data.destType === Inventory.InventoryType.Hotbar) {
+        if (data.destType == Inventory.InventoryType.Hotbar) {
             destInventory = playerComponent.hotbarInventory!!
         } else {
             destInventory = playerComponent.inventory!!

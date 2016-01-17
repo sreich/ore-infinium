@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.getTagNullable
 
 /**
  * ***************************************************************************
@@ -105,7 +106,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
 
             itemComponent = itemMapper.getNullable(entities.get(i))
             //don't draw in-inventory or not dropped items
-            if (itemComponent == null || itemComponent.state !== ItemComponent.State.DroppedInWorld) {
+            if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
                 continue
             }
 
@@ -166,7 +167,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
 
             itemComponent = itemMapper.getNullable(entity)
             //don't draw in-inventory or dropped items
-            if (itemComponent != null && itemComponent.state !== ItemComponent.State.InWorldState) {
+            if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
                 //hack
                 continue
             }
@@ -182,7 +183,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
 
             var placementGhost = false
 
-            val tag = m_tagManager.getTag(world.getEntity(entity))
+            val tag = m_tagManager.getTagNullable(world.getEntity(entity))
             if (tag != null && tag == "itemPlacementOverlay") {
 
                 placementGhost = true

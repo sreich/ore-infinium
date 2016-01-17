@@ -132,7 +132,7 @@ class EntityOverlaySystem(private val m_world: OreWorld) : BaseSystem() {
         var entityToolComponent = toolMapper.getNullable(equippedPrimaryEntity)
 
         if (entityToolComponent != null) {
-            if (entityToolComponent.type === ToolComponent.ToolType.Drill) {
+            if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
                 //drill, one of the few cases we want to show the block crosshair...
                 m_crosshairShown = true
                 crosshairSprite.visible = true
@@ -141,7 +141,7 @@ class EntityOverlaySystem(private val m_world: OreWorld) : BaseSystem() {
             }
         }
 
-        m_crosshairShown = true
+        m_crosshairShown = false
         crosshairSprite.visible = false
 
         return false

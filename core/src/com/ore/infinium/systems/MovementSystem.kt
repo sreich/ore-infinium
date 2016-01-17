@@ -70,12 +70,12 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
             val itemComponent = itemMapper.getNullable(entityId)
 
-            if (itemComponent != null && itemComponent.state === ItemComponent.State.DroppedInWorld) {
+            if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
                 simulateDroppedItem(entityId, getWorld().delta)
             }
         }
 
-        if (m_world.worldInstanceType !== OreWorld.WorldInstanceType.Server) {
+        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             val mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
             val playerSprite = spriteMapper.get(mainPlayer)
             m_world.m_camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
@@ -86,7 +86,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     private fun simulate(entity: Int, delta: Float) {
-        if (m_world.worldInstanceType === OreWorld.WorldInstanceType.Server) {
+        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
             //server doesn't process past here. client tells us where they are.
             //fixme, though we do need to eventually at least half-ass verify it, which
             //means doing it on server as well
@@ -181,7 +181,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
     private fun simulateDroppedItem(item: Int, delta: Float) {
         val itemComponent = itemMapper.get(item)
-        assert(itemComponent.state === ItemComponent.State.DroppedInWorld)
+        assert(itemComponent.state == ItemComponent.State.DroppedInWorld)
 
         val itemSpriteComponent = spriteMapper.get(item)
         val itemVelocityComponent = velocityMapper.get(item)

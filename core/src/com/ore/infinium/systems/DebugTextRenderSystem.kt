@@ -23,6 +23,7 @@ import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.getTagNullable
 import java.text.DecimalFormat
 import java.util.*
 
@@ -370,7 +371,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
             val entityBoxed = world.getEntity(currentEntity)
 
-            val entityTag = m_tagManager.getTag(entityBoxed)
+            val entityTag = m_tagManager.getTagNullable(entityBoxed)
 
             //could be placement overlay, but we don't want this. skip over.
             if (entityTag != null) {

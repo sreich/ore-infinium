@@ -168,7 +168,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
         val toolComponent = toolMapper.getNullable(itemEntity) ?: return false
 
-        if (toolComponent.type !== ToolComponent.ToolType.Drill) {
+        if (toolComponent.type != ToolComponent.ToolType.Drill) {
             return false
         }
 

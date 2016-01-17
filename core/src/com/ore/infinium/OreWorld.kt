@@ -815,7 +815,7 @@ class OreWorld
                 }
             }
 
-            //            if ( m_artemisWorld.getSystem(TagManager.class).getTag(entities.get(i)) != null) {
+            //            if ( m_artemisWorld.getSystem(TagManager.class).getTagNullable(entities.get(i)) != null) {
             //           }
 
             val entitySpriteComponent = spriteMapper.get(entities.get(i))

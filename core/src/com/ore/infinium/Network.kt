@@ -96,8 +96,9 @@ object Network {
         kryo.register(ByteArray::class.java)
         kryo.register(IntArray::class.java)
 
+        kryo.register(Array<Any>().javaClass)
         //hack???? is this proper??
-        kryo.register(Array<Any>::class.java)
+        //        kryo.register(Array<Any>::class.java)
         //        kryo.register(Array<Any>::class.java)
         kryo.register(Array::class.java)
         kryo.register(Vector2::class.java)

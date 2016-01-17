@@ -54,7 +54,7 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     override fun process(entityId: Int) {
-        if (m_world.worldInstanceType !== OreWorld.WorldInstanceType.Server) {
+        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return
         }
 

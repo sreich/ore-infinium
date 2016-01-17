@@ -46,7 +46,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
         super.inserted(entityId)
 
         //client does nothing as of yet, with this
-        if (m_world.worldInstanceType !== OreWorld.WorldInstanceType.Server) {
+        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return
         }
 
@@ -61,7 +61,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
     }
 
     override fun process(entityId: Int) {
-        if (m_world.worldInstanceType !== OreWorld.WorldInstanceType.Server) {
+        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return
         }
 

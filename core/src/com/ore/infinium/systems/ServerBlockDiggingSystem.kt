@@ -118,16 +118,18 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
                 m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y)
 
                 val droppedBlock = m_world.createBlockItem(blockType)
-                val spriteComponent = spriteMapper.get(droppedBlock)
-                spriteComponent.sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f)
-                spriteComponent.sprite.setSize(0.5f, 0.5f)
+                spriteMapper.get(droppedBlock).apply {
+                    sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f)
+                    sprite.setSize(0.5f, 0.5f)
+                }
 
-                val itemComponent = itemMapper.get(droppedBlock)
-                itemComponent.sizeBeforeDrop = Vector2(1f, 1f)
+                itemMapper.get(droppedBlock).apply {
+                    sizeBeforeDrop = Vector2(1f, 1f)
 
-                itemComponent.stackSize = 1
-                itemComponent.state = ItemComponent.State.DroppedInWorld
-                itemComponent.playerIdWhoDropped = playerComponent.connectionPlayerId
+                    stackSize = 1
+                    state = ItemComponent.State.DroppedInWorld
+                    playerIdWhoDropped = playerComponent.connectionPlayerId
+                }
 
                 //hack this isnt 'needed i don't think because the server network entity system
                 //auto finds and spawns it

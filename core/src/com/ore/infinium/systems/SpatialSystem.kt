@@ -58,7 +58,7 @@ class SpatialSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(
 
     override fun inserted(entityId: Int) {
         val itemComponent = itemMapper.getNullable(entityId)
-        if (itemComponent != null && itemComponent.state === ItemComponent.State.InInventoryState) {
+        if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
             //ignore things in an inventory
             return
         }
@@ -70,7 +70,7 @@ class SpatialSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(
 
     override fun process(entityId: Int) {
         val itemComponent = itemMapper.getNullable(entityId)
-        if (itemComponent != null && itemComponent.state === ItemComponent.State.InInventoryState) {
+        if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
             //ignore things in an inventory
             return
         }

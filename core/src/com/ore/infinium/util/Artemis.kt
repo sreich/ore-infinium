@@ -2,6 +2,8 @@ package com.ore.infinium.util
 
 import com.artemis.Component
 import com.artemis.ComponentMapper
+import com.artemis.Entity
+import com.artemis.managers.TagManager
 
 /******************************************************************************
  *   Copyright (C) 2016 by Shaun Reich <sreich02@gmail.com>                *
@@ -28,3 +30,8 @@ import com.artemis.ComponentMapper
 fun <T : Component?> ComponentMapper<T>.getNullable(entityId: Int): T? {
     return this.getSafe(entityId)
 }
+
+fun TagManager.getTagNullable(entityId: Entity): String? {
+    return this.getTag(entityId) ?: null
+}
+

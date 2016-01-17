@@ -172,9 +172,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            if (hotbarInventoryView.m_hotbarInventory.itemEntity(index) === OreWorld.ENTITY_INVALID) {
-                return null
-            }
+            hotbarInventoryView.m_hotbarInventory.itemEntity(index) ?: return null
 
             val payload = DragAndDrop.Payload()
 
@@ -197,9 +195,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
                           x: Float,
                           y: Float,
                           pointer: Int): Boolean {
-            if (payload == null) {
-                return false
-            }
+            payload ?: return false
 
             if (isValidDrop(payload)) {
                 actor.color = Color.GREEN
@@ -239,7 +235,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_hotbarInventory.itemEntity(this.index) !== OreWorld.ENTITY_INVALID) {
+            if (inventory.m_hotbarInventory.itemEntity(this.index) != null) {
                 return
             }
 
@@ -280,6 +276,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
             val itemEntity = inventory.m_hotbarInventory.itemEntity(index)
+
             if (itemEntity != null) {
                 inventory.m_tooltip.isVisible = true
 
