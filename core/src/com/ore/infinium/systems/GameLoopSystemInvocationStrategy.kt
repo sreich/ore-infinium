@@ -46,7 +46,7 @@ class GameLoopSystemInvocationStrategy
     private val m_renderSystems = Array<SystemAndProfiler>()
     private val m_logicSystems = Array<SystemAndProfiler>()
 
-    private inner class SystemAndProfiler(internal var system: BaseSystem, internal var profiler: SystemProfiler)
+    private inner class SystemAndProfiler(internal var system: BaseSystem, internal var profiler: SystemProfiler?)
 
     private var m_accumulator: Long = 0
 
@@ -96,7 +96,7 @@ class GameLoopSystemInvocationStrategy
         profiler?.stop()
     }
 
-    private fun createSystemProfiler(system: BaseSystem): SystemProfiler {
+    private fun createSystemProfiler(system: BaseSystem): SystemProfiler? {
         var old: SystemProfiler? = null
 
         if (!m_isServer) {
@@ -106,7 +106,7 @@ class GameLoopSystemInvocationStrategy
             }
         }
 
-        return old!!
+        return old
     }
 
     override fun process(systems: Bag<BaseSystem>) {

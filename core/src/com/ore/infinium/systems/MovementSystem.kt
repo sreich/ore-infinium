@@ -146,6 +146,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         }
 
         val dt = Vector2(delta, delta)
+
         //        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent
         // .maxMovementSpeed);
         //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
@@ -170,6 +171,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     private fun simulateNoClip(entity: Int, delta: Float) {
         val spriteComponent = spriteMapper.get(entity)
         val desiredDirection = controlMapper.get(entity).desiredDirection
+
         val x = spriteComponent.sprite.x
         val y = spriteComponent.sprite.y
         spriteComponent.sprite.setPosition(x + desiredDirection.x * PlayerComponent.movementSpeed * 6.0f * delta,
@@ -371,3 +373,4 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
 }
+
