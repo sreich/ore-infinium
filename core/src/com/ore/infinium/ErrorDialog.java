@@ -42,7 +42,8 @@ public class ErrorDialog extends JDialog {
     private Thread m_thread;
 
     public ErrorDialog(Throwable t, Thread thread) {
-        // super();
+        //show up in taskbar
+        super((Dialog) null);
 
         m_thread = thread;
         m_exception = t;
@@ -51,6 +52,7 @@ public class ErrorDialog extends JDialog {
 
         setTitle(t.getClass().getName());
         //        setModal(true);
+        setType(Type.NORMAL);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         getContentPane().add(m_mainComponent);
