@@ -44,7 +44,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
                           dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {
 
     private val container: Table
-    private val m_slots: ArrayList<SlotElement> = ArrayList(Inventory.maxHotbarSlots)
+    private val m_slots: ArrayList<SlotElement> = ArrayList()
 
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
@@ -71,7 +71,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         val dragImage = Image()
         dragImage.setSize(32f, 32f)
 
-        for (i in m_slots.indices) {
+        for (i in 0..Inventory.maxHotbarSlots - 1) {
 
             val slotImage = Image()
 
@@ -90,14 +90,16 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
             //            container.add(slotTable).size(50, 50);
             container.add(slotTable).fill().size(50f, 50f)
+
+            val element = SlotElement(itemImage = slotImage, itemCountLabel = itemCount, table = slotTable)
+            m_slots.add(element)
+
             setHotbarSlotVisible(i, false)
 
             dragAndDrop.addSource(HotbarDragSource(slotTable, i, dragImage, this))
 
             dragAndDrop.addTarget(HotbarDragTarget(slotTable, i, this))
 
-            val element = SlotElement(itemImage = slotImage, itemCountLabel = itemCount, table = slotTable)
-            m_slots.add(element)
         }
 
         m_tooltip = Label(null, m_skin)
@@ -158,6 +160,10 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
     }
 
     //FIXME: do the same for InventoryView
+    /**
+     * hides/shows the text and image for this index. For e.g.
+     * when an item leaves, or init time
+     */
     private fun setHotbarSlotVisible(index: Int, visible: Boolean) {
         if (!visible) {
             m_slots[index].itemImage.drawable = null

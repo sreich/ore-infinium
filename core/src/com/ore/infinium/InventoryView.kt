@@ -41,7 +41,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
     var inventoryVisible: Boolean = false
 
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private val m_slots = ArrayList<SlotElement>(Inventory.maxSlots)
+    private val m_slots = ArrayList<SlotElement>()
     private val m_window: Window
 
     init {
@@ -86,7 +86,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
                 slotTable.add(itemName).bottom().fill()
 
                 val element = SlotElement(itemImage = slotImage, table = slotTable, itemCountLabel = itemName)
-                m_slots[i] = element
+                m_slots.add(i, element)
 
                 container.add(slotTable).size(50f, 50f)
                 //            window.add(slotTable).fill().size(50, 50);
