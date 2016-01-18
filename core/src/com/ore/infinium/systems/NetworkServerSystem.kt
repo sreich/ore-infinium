@@ -8,7 +8,6 @@ import com.artemis.utils.Bag
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.IntArray
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
@@ -204,11 +203,11 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
      * *
      * @param connectionPlayerId
      */
-    fun sendSpawnMultipleEntities(entitiesToSpawn: IntArray, connectionPlayerId: Int) {
+    fun sendSpawnMultipleEntities(entitiesToSpawn: ArrayList<Int>, connectionPlayerId: Int) {
         assert(entitiesToSpawn.size > 0) { "server told to spawn 0 entities, this is impossible" }
 
         val spawnMultiple = Network.EntitySpawnMultipleFromServer()
-        spawnMultiple.entitySpawn = Array<Network.EntitySpawnFromServer>(false, 16)
+        spawnMultiple.entitySpawn = ArrayList<Network.EntitySpawnFromServer>()
 
         for (i in 0..entitiesToSpawn.size - 1) {
             val entityId = entitiesToSpawn.get(i)
@@ -248,7 +247,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
-    fun sendDestroyMultipleEntities(entitiesToDestroy: IntArray, connectionPlayerId: Int) {
+    fun sendDestroyMultipleEntities(entitiesToDestroy: ArrayList<Int>, connectionPlayerId: Int) {
         assert(entitiesToDestroy.size > 0) { "server told to destroy 0 entities, this is impossible" }
 
         val destroyMultiple = Network.EntityDestroyMultipleFromServer()

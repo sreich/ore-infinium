@@ -6,7 +6,6 @@ import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.artemis.utils.IntBag
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.IntArray
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import java.util.*
@@ -83,7 +82,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
          * will be removed. this does not mean they will actually be removed from the world,
          * since this is just a "which entities does this client have in viewport"
          */
-        internal var knownEntities = IntArray()
+        internal var knownEntities = ArrayList<Int>()
     }
 
     override fun initialize() {
@@ -124,7 +123,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                 val ent = playerEntity.knownEntities.get(i)
 
                 if (ent == entityId) {
-                    playerEntity.knownEntities.removeIndex(i)
+                    playerEntity.knownEntities.removeAt(i)
                 }
             }
         }
@@ -147,22 +146,23 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                                        viewport.height.toFloat())
 
             //hack copy to intarray only because the quadtree uses an intbag
-            val entitiesInRegion = IntArray(false, 100)
-            for (i in 0..fill.size() - 1) {
+            val entitiesInRegion = ArrayList<Int>()
+
+            for (i in (0..fill.size() - 1)) {
                 entitiesInRegion.add(fill.get(i))
             }
 
             //list of entities we'll need to tell the client we no longer want him to have
-            val entitiesToDestroy = IntArray()
-            val entitiesToSpawn = IntArray()
+            val entitiesToDestroy = ArrayList<Int>()
+            val entitiesToSpawn = ArrayList<Int>()
 
             //entity doesn't exist in known entities, but does in actual. send spawn, add to known list
             for (j in 0..entitiesInRegion.size - 1) {
-                val entityInRegion = entitiesInRegion.get(j)
+                val entityInRegion = entitiesInRegion[j]
 
                 var entityFoundInKnown = false
                 for (i in 0..playerEntity.knownEntities.size - 1) {
-                    val entityKnown = playerEntity.knownEntities.get(i)
+                    val entityKnown = playerEntity.knownEntities[i]
 
                     //it is known
                     if (entityKnown == entityInRegion) {
@@ -186,11 +186,11 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             //entity exists in known entities (spawned on client), but not in actual. (moved offscreen)
             //remove from known, tell client he needs to delete that.
             for (i in 0..playerEntity.knownEntities.size - 1) {
-                val entityKnown = playerEntity.knownEntities.get(i)
+                val entityKnown = playerEntity.knownEntities[i]
 
                 var entityFoundInRegion = false
                 for (j in 0..entitiesInRegion.size - 1) {
-                    val entityInRegion = entitiesInRegion.get(j)
+                    val entityInRegion = entitiesInRegion[j]
 
                     if (entityKnown == entityInRegion) {
                         entityFoundInRegion = true
@@ -209,7 +209,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                     entitiesToDestroy.add(entityKnown)
 
                     //assume client will delete it now.
-                    playerEntity.knownEntities.removeIndex(i)
+                    playerEntity.knownEntities.removeAt(i)
                 }
 
             }
@@ -217,24 +217,24 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             ////////////////// debug testing, to ensure validity
             val hashSet = HashSet<Int>()
             for (i in 0..entitiesToSpawn.size - 1) {
-                hashSet.add(entitiesToSpawn.get(i))
+                hashSet.add(entitiesToSpawn[i])
             }
             assert(entitiesToSpawn.size == hashSet.size) { "ENTITIES TO SPAWN HAD DUPES" }
 
             hashSet.clear()
             for (i in 0..entitiesToDestroy.size - 1) {
-                hashSet.add(entitiesToDestroy.get(i))
+                hashSet.add(entitiesToDestroy[i])
             }
             assert(entitiesToDestroy.size == hashSet.size) { "ENTITIES TO destroy HAD DUPES" }
 
             hashSet.clear()
 
             for (i in 0..playerEntity.knownEntities.size - 1) {
-                hashSet.add(playerEntity.knownEntities.get(i))
+                hashSet.add(playerEntity.knownEntities[i])
             }
 
             for (i in 0..entitiesToSpawn.size - 1) {
-                if (hashSet.contains(entitiesToSpawn.get(i))) {
+                if (hashSet.contains(entitiesToSpawn[i])) {
                 } else {
                     assert(false)
                 }

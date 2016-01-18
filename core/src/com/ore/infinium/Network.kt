@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.IntArray
 import com.esotericsoftware.kryonet.EndPoint
 import com.ore.infinium.components.*
+import java.util.*
 
 /**
  * ***************************************************************************
@@ -96,6 +97,7 @@ object Network {
         kryo.register(ByteArray::class.java)
         kryo.register(IntArray::class.java)
         kryo.register(Array::class.java)
+        kryo.register(ArrayList::class.java)
 
         //hack???? is this proper??
         //        kryo.register(Array<Any>::class.java)
@@ -214,11 +216,11 @@ object Network {
     }
 
     class EntitySpawnMultipleFromServer {
-        var entitySpawn: Array<EntitySpawnFromServer>? = null
+        var entitySpawn: java.util.ArrayList<EntitySpawnFromServer>? = null
     }
 
     class EntityDestroyMultipleFromServer {
-        var entitiesToDestroy: IntArray? = null
+        var entitiesToDestroy: java.util.ArrayList<Int>? = null
     }
 
     class EntitySpawnFromServer {
