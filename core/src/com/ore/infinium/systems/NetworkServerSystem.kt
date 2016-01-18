@@ -203,7 +203,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
      * *
      * @param connectionPlayerId
      */
-    fun sendSpawnMultipleEntities(entitiesToSpawn: ArrayList<Int>, connectionPlayerId: Int) {
+    fun sendSpawnMultipleEntities(entitiesToSpawn: List<Int>, connectionPlayerId: Int) {
         assert(entitiesToSpawn.size > 0) { "server told to spawn 0 entities, this is impossible" }
 
         val spawnMultiple = Network.EntitySpawnMultipleFromServer()
@@ -247,7 +247,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
-    fun sendDestroyMultipleEntities(entitiesToDestroy: ArrayList<Int>, connectionPlayerId: Int) {
+    fun sendDestroyMultipleEntities(entitiesToDestroy: List<Int>, connectionPlayerId: Int) {
         assert(entitiesToDestroy.size > 0) { "server told to destroy 0 entities, this is impossible" }
 
         val destroyMultiple = Network.EntityDestroyMultipleFromServer()
@@ -504,7 +504,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         m_serverBlockDiggingSystem.blockDiggingBegin(dig.x, dig.y, job.connection.player)
     }
 
-    private fun receivePlayerMoveInventoryItem(job: NetworkJob, playerMoveItem: Network.PlayerMoveInventoryItemFromClient) {
+    private fun receivePlayerMoveInventoryItem(job: NetworkJob,
+                                               playerMoveItem: Network.PlayerMoveInventoryItemFromClient) {
         val playerComponent = playerMapper.get(job.connection.player)
 
         //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
@@ -526,7 +527,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
             destInventory = playerComponent.inventory!!
         }
 
-        destInventory.setSlot(playerMoveItem.destIndex.toInt(), sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
+        destInventory.setSlot(playerMoveItem.destIndex.toInt(),
+                              sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
     }
 
     /**

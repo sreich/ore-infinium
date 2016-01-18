@@ -103,6 +103,7 @@ object Network {
         //        kryo.register(Array<Any>::class.java)
         //        kryo.register(Array<Any>::class.java)
         kryo.register(kotlin.Array<Any>::class.java)
+        kryo.register(kotlin.List::class.java)
         kryo.register(Vector2::class.java)
         kryo.register(IntArray::class.java)
         //       kryo.register(Array<Any>::class.java)
@@ -220,7 +221,7 @@ object Network {
     }
 
     class EntityDestroyMultipleFromServer {
-        var entitiesToDestroy: java.util.ArrayList<Int>? = null
+        var entitiesToDestroy: List<Int>? = null
     }
 
     class EntitySpawnFromServer {

@@ -152,77 +152,24 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                 entitiesInRegion.add(fill.get(i))
             }
 
-            val entitiesToDestroy = ArrayList<Int>()
 
-            //list of entities we'll need to tell the client we no longer want him to have
             //entity doesn't exist in known entities, but does in actual. send spawn
             val entitiesToSpawn = entitiesInRegion.filter { entityInRegion ->
-                playerEntity.knownEntities.contains(entityInRegion) &&
+                !playerEntity.knownEntities.contains(entityInRegion) &&
                         //hack ignore players for now, we don't spawn them via this mechanisms..it'd get hairy
                         //gotta rethink player spawn/destroying
                         !playerMapper.has(entityInRegion)
             }
 
-            //now that they're spawned, record them as such
-            //hack playerEntity.knownEntities.add()
-
-            /*
-            for (j in 0..entitiesInRegion.size - 1) {
-                val entityInRegion = entitiesInRegion[j]
-
-                var entityFoundInKnown = false
-                for (i in 0..playerEntity.knownEntities.size - 1) {
-                    val entityKnown = playerEntity.knownEntities[i]
-
-                    //it is known
-                    if (entityKnown == entityInRegion) {
-                        entityFoundInKnown = true
-                        break
-                    }
-                }
-
-                if (!entityFoundInKnown) {
-                    if (playerMapper.has(entityInRegion)) {
-                        continue
-                    }
-
-                    //add to spawn list
-                    entitiesToSpawn.add(entityInRegion)
-                    playerEntity.knownEntities.add(entityInRegion)
-                }
-            }
-            */
-
-            //entity exists in known entities (spawned on client), but not in actual. (moved offscreen)
+            //list of entities we'll need to tell the client we no longer want him to have
             //remove from known, tell client he needs to delete that.
-            for (i in 0..playerEntity.knownEntities.size - 1) {
-                val entityKnown = playerEntity.knownEntities[i]
-
-                var entityFoundInRegion = false
-                for (j in 0..entitiesInRegion.size - 1) {
-                    val entityInRegion = entitiesInRegion[j]
-
-                    if (entityKnown == entityInRegion) {
-                        entityFoundInRegion = true
-                        break
-                    }
-                }
-
-                if (!entityFoundInRegion) {
-                    if (playerMapper.has(entityKnown)) {
-                        //hack gotta rethink player spawn/destroying
-                        continue
-                    }
-
-                    //exists on client still, but we know it shouldn't (possibly went offscreen)
-                    //add to list to tell it to destroy
-                    entitiesToDestroy.add(entityKnown)
-
-                    //assume client will delete it now.
-                    playerEntity.knownEntities.removeAt(i)
-                }
-
+            val entitiesToDestroy = playerEntity.knownEntities.filter { knownEntity ->
+                !entitiesInRegion.contains(knownEntity) && !playerMapper.has(knownEntity)
             }
+
+            //update  our status
+            playerEntity.knownEntities.addAll(entitiesToSpawn)
+            playerEntity.knownEntities.removeAll(entitiesToDestroy)
 
             ////////////////// debug testing, to ensure validity
             val hashSet = HashSet<Int>()
