@@ -306,7 +306,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
 
         val lookup = stoneTransitionTypes[result]
         assert(lookup != null) { "transition lookup failure!" }
-        m_world.setBlockMeshType(x, y, lookup!!.toInt().toByte())
+        m_world.setBlockMeshType(x, y, lookup!!)
     }
 
     private fun transitionDirtTile(x: Int, y: Int) {
@@ -338,7 +338,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
 
         val lookup = dirtTransitionTypes[result]
         assert(lookup != null) { "transition lookup failure!" }
-        m_world.setBlockMeshType(x, y, lookup!!.toInt().toByte())
+        m_world.setBlockMeshType(x, y, lookup!!)
     }
 
     /**
@@ -379,9 +379,9 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
          * *
          * @second
          */
-        private val dirtTransitionTypes = HashMap<EnumSet<Transitions>, Int>()
-        private val grassTransitions = HashMap<EnumSet<Transitions>, Int>()
-        private val stoneTransitionTypes = HashMap<EnumSet<Transitions>, Int>()
+        private val dirtTransitionTypes = HashMap<EnumSet<Transitions>, Byte>()
+        private val grassTransitions = HashMap<EnumSet<Transitions>, Byte>()
+        private val stoneTransitionTypes = HashMap<EnumSet<Transitions>, Byte>()
 
         init {
             dirtTransitionTypes.put(

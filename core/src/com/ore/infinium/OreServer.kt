@@ -200,7 +200,7 @@ class OreServer : Runnable {
         itemComponent.state = ItemComponent.State.InInventoryState
 
         val playerComponent = playerMapper.get(playerEntity)
-        playerComponent.hotbarInventory!!.setSlot(0.toByte().toInt(), drill)
+        playerComponent.hotbarInventory!!.setSlot(0, drill)
 
         val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.DirtBlockType)
 

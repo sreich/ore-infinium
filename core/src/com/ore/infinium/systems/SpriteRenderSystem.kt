@@ -227,7 +227,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
     companion object {
         var spriteCount: Int = 0
 
-        internal var rotation: Float = 0.toFloat()
+        internal var rotation: Float = 0f
     }
 
 }

@@ -1,9 +1,8 @@
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /******************************************************************************
  * Copyright (C) 2015 by Shaun Reich @gmail.com>                *
@@ -106,10 +105,10 @@ class WorldBlockTest {
     @Test
     @Throws(Exception::class)
     fun testBlockAtSafely() {
-        assertEquals(world.blockTypeSafely(600, 600).toLong(), world.blockType(600, 600).toLong())
+        assertEquals(world.blockTypeSafely(600, 600), world.blockType(600, 600))
         //test that it should wrap to the bounds of the array
-        assertEquals(world.blockTypeSafely(-1, 0).toLong(), world.blockType(0, 0).toLong())
-        assertEquals(world.blockTypeSafely(0, -1).toLong(), world.blockType(0, 0).toLong())
+        assertEquals(world.blockTypeSafely(-1, 0), world.blockType(0, 0))
+        assertEquals(world.blockTypeSafely(0, -1), world.blockType(0, 0))
     }
 
     fun createArtemisWorld() {
