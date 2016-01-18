@@ -614,7 +614,7 @@ class OreClient : ApplicationListener, InputProcessor {
             //todo surely there's some first-time connection stuff we must do?
         }
 
-        override fun disconnected() {
+        override fun disconnected(disconnectReason: Network.DisconnectReason) {
             //todo show gui, say we've disconnected
         }
 

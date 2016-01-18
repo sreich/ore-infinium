@@ -114,7 +114,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
 
         //todo send a disconnection reason along with the disconnect event. to eg differentiate between a kick or a
         // connection loss, or a server shutdown
-        open fun disconnected() {
+        open fun disconnected(disconnectReason: Network.DisconnectReason) {
         }
     }
 
@@ -221,9 +221,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun receivePlayerSpawnHotbarInventoryItem(receivedObject: Any) {
-        val spawn = receivedObject as Network.PlayerSpawnHotbarInventoryItemFromServer
-
+    private fun receivePlayerSpawnHotbarInventoryItem(spawn: Network.PlayerSpawnHotbarInventoryItemFromServer) {
         //fixme spawn.id, sprite!!
         val e = getWorld().create()
         for (c in spawn.components!!) {
@@ -253,17 +251,15 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
     }
 
-    private fun receiveChatMessage(receivedObject: Any) {
-        val data = receivedObject as Network.ChatMessageFromServer
-        m_world.m_client!!.m_chat!!.addChatLine(data.timestamp!!, data.playerName!!, data.message!!, data.sender!!)
+    private fun receiveChatMessage(chat: Network.ChatMessageFromServer) {
+        m_world.m_client!!.m_chat!!.addChatLine(chat.timestamp!!, chat.playerName!!, chat.message!!, chat.sender!!)
     }
 
-    private fun receiveEntityMoved(receivedObject: Any) {
-        val data = receivedObject as Network.EntityMovedFromServer
-        val entity = m_entityForNetworkId[data.id]
+    private fun receiveEntityMoved(entityMove: Network.EntityMovedFromServer) {
+        val entity = m_entityForNetworkId[entityMove.id]
 
         val spriteComponent = spriteMapper.get(entity!!)
-        spriteComponent.sprite.setPosition(data.position!!.x, data.position!!.y)
+        spriteComponent.sprite.setPosition(entityMove.position!!.x, entityMove.position!!.y)
     }
 
     /*
@@ -297,12 +293,10 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
     }
     */
 
-    private fun receiveMultipleEntityDestroy(receivedObject: Any) {
-        val destroyFromServer = receivedObject as Network.EntityDestroyMultipleFromServer
-
+    private fun receiveMultipleEntityDestroy(entityDestroy: Network.EntityDestroyMultipleFromServer) {
         var debug = "receiveMultipleEntityDestroy [ "
-        for (i in 0..destroyFromServer.entitiesToDestroy!!.size - 1) {
-            val networkEntityId = destroyFromServer.entitiesToDestroy!!.get(i)
+        for (i in 0..entityDestroy.entitiesToDestroy!!.size - 1) {
+            val networkEntityId = entityDestroy.entitiesToDestroy!!.get(i)
 
             //cleanup the maps
             val localId = m_entityForNetworkId.remove(networkEntityId)
@@ -337,14 +331,12 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         OreWorld.log("networkclientsystem", debug)
     }
 
-    private fun receiveMultipleEntitySpawn(receivedObject: Any) {
+    private fun receiveMultipleEntitySpawn(entitySpawn: Network.EntitySpawnMultipleFromServer) {
         //fixme this and hotbar code needs consolidation
-        val spawnFromServer = receivedObject as Network.EntitySpawnMultipleFromServer
-
         //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
         var debug = "receiveMultipleEntitySpawn [ "
-        for (spawn in spawnFromServer.entitySpawn!!) {
+        for (spawn in entitySpawn.entitySpawn!!) {
 
             val e = getWorld().create()
 
@@ -392,28 +384,22 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         OreWorld.log("networkclientsystem", debug)
     }
 
-    private fun receiveLoadedViewportMoved(receivedObject: Any) {
-        val v = receivedObject as Network.LoadedViewportMovedFromServer
+    private fun receiveLoadedViewportMoved(viewportMove: Network.LoadedViewportMovedFromServer) {
         val c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer))
-        c.loadedViewport.rect = v.rect!!
+        c.loadedViewport.rect = viewportMove.rect!!
     }
 
-    private fun receiveSparseBlockUpdate(receivedObject: Any) {
-        val update = receivedObject as Network.SparseBlockUpdate
-        m_world.loadSparseBlockUpdate(update)
+    private fun receiveSparseBlockUpdate(sparseBlockUpdate: Network.SparseBlockUpdate) {
+        m_world.loadSparseBlockUpdate(sparseBlockUpdate)
     }
 
-    private fun receiveDisconnectReason(receivedObject: Any) {
-        val reason = receivedObject as Network.DisconnectReason
-
+    private fun receiveDisconnectReason(disconnectReason: Network.DisconnectReason) {
         for (listener in m_listeners) {
-            listener.disconnected()
+            listener.disconnected(disconnectReason)
         }
     }
 
-    private fun receivePlayerSpawn(receivedObject: Any) {
-        val spawn = receivedObject as Network.PlayerSpawnedFromServer
-
+    private fun receivePlayerSpawn(spawn: Network.PlayerSpawnedFromServer) {
         //it is our main player (the client's player, aka us)
         if (!connected) {
             //fixme not ideal, calling into the client to do this????
@@ -440,8 +426,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun receiveBlockRegion(receivedObject: Any) {
-        val region = receivedObject as Network.BlockRegion
+    private fun receiveBlockRegion(region: Network.BlockRegion) {
         m_world.loadBlockRegion(region)
     }
 
@@ -529,8 +514,8 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
         //FIXME: do sanity checking (null etc) on both client, server
-        override fun received(connection: Connection?, `object`: Any?) {
-            m_netQueue.add(`object`)
+        override fun received(connection: Connection?, dataObject: Any?) {
+            m_netQueue.add(dataObject)
         }
 
         override fun disconnected(connection: Connection?) {

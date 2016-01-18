@@ -326,33 +326,34 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
     private fun processNetworkQueue() {
         var job: NetworkJob? = m_netQueue.poll()
         while (job != null) {
-            if (job.`object` is Network.InitialClientData) {
-                receiveInitialClientData(job)
-            } else if (job.`object` is Network.PlayerMoveFromClient) {
-                receivePlayerMove(job)
-            } else if (job.`object` is Network.ChatMessageFromClient) {
-                receiveChatMessage(job)
-            } else if (job.`object` is Network.PlayerMoveInventoryItemFromClient) {
-                receivePlayerMoveInventoryItem(job)
-            } else if (job.`object` is Network.BlockDigBeginFromClient) {
-                receiveBlockDigBegin(job)
-            } else if (job.`object` is Network.BlockDigFinishFromClient) {
-                receiveBlockDigFinish(job)
-            } else if (job.`object` is Network.BlockPlaceFromClient) {
-                receiveBlockPlace(job)
-            } else if (job.`object` is Network.PlayerEquipHotbarIndexFromClient) {
-                receivePlayerEquipHotbarIndex(job)
-            } else if (job.`object` is Network.HotbarDropItemFromClient) {
-                receiveHotbarDropItem(job)
-            } else if (job.`object` is Network.ItemPlaceFromClient) {
-                receiveItemPlace(job)
-            } else if (job.`object` is FrameworkMessage.Ping) {
-                val ping = job.`object` as FrameworkMessage.Ping
-                if (ping.isReply) {
+            val receivedObject = job.receivedObject
+
+            if (receivedObject is Network.InitialClientData) {
+                receiveInitialClientData(job, receivedObject)
+            } else if (receivedObject is Network.PlayerMoveFromClient) {
+                receivePlayerMove(job, receivedObject)
+            } else if (receivedObject is Network.ChatMessageFromClient) {
+                receiveChatMessage(job, receivedObject)
+            } else if (receivedObject is Network.PlayerMoveInventoryItemFromClient) {
+                receivePlayerMoveInventoryItem(job, receivedObject)
+            } else if (receivedObject is Network.BlockDigBeginFromClient) {
+                receiveBlockDigBegin(job, receivedObject)
+            } else if (receivedObject is Network.BlockDigFinishFromClient) {
+                receiveBlockDigFinish(job, receivedObject)
+            } else if (receivedObject is Network.BlockPlaceFromClient) {
+                receiveBlockPlace(job, receivedObject)
+            } else if (receivedObject is Network.PlayerEquipHotbarIndexFromClient) {
+                receivePlayerEquipHotbarIndex(job, receivedObject)
+            } else if (receivedObject is Network.HotbarDropItemFromClient) {
+                receiveHotbarDropItem(job, receivedObject)
+            } else if (receivedObject is Network.ItemPlaceFromClient) {
+                receiveItemPlace(job, receivedObject)
+            } else if (receivedObject is FrameworkMessage.Ping) {
+                if (receivedObject.isReply) {
 
                 }
             } else {
-                if (job.`object` !is FrameworkMessage.KeepAlive) {
+                if (receivedObject !is FrameworkMessage.KeepAlive) {
                     assert(false) { "unhandled network receiving class, received from client (on server)" }
                 }
             }
@@ -360,14 +361,12 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
     }
 
-    private fun receiveBlockDigFinish(job: NetworkJob) {
-        val data = job.`object` as Network.BlockDigFinishFromClient
-        m_serverBlockDiggingSystem.blockDiggingFinished(data.x, data.y)
+    private fun receiveBlockDigFinish(job: NetworkJob, dig: Network.BlockDigFinishFromClient) {
+        m_serverBlockDiggingSystem.blockDiggingFinished(dig.x, dig.y)
     }
 
-    private fun receiveInitialClientData(job: NetworkJob) {
-        val data = job.`object` as Network.InitialClientData
-        var name = data.playerName
+    private fun receiveInitialClientData(job: NetworkJob, initialClientData: Network.InitialClientData) {
+        var name = initialClientData.playerName
 
         if (name == null) {
             job.connection.close()
@@ -376,20 +375,22 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
         name = name.trim { it <= ' ' }
 
+        //don't allow " " playername
         if (name.length == 0) {
+            //we don't bother sending a disconnection event. they'd know if something was a bad name or not (hacked client)
             job.connection.close()
             return
         }
 
-        val uuid = data.playerUUID
+        val uuid = initialClientData.playerUUID
         if (uuid == null) {
             job.connection.close()
             return
         }
 
-        if (data.versionMajor != OreClient.ORE_VERSION_MAJOR ||
-                data.versionMinor != OreClient.ORE_VERSION_MINOR ||
-                data.versionRevision != OreClient.ORE_VERSION_MINOR) {
+        if (initialClientData.versionMajor != OreClient.ORE_VERSION_MAJOR ||
+                initialClientData.versionMinor != OreClient.ORE_VERSION_MINOR ||
+                initialClientData.versionRevision != OreClient.ORE_VERSION_MINOR) {
             val reason = Network.DisconnectReason()
             reason.reason = Network.DisconnectReason.Reason.VersionMismatch
 
@@ -407,24 +408,20 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
     }
 
-    private fun receivePlayerMove(job: NetworkJob) {
-        val data = job.`object` as Network.PlayerMoveFromClient
+    private fun receivePlayerMove(job: NetworkJob, playerMove: Network.PlayerMoveFromClient) {
         val sprite = spriteMapper.get(job.connection.player)
-        sprite.sprite.setPosition(data.position!!.x, data.position!!.y)
+        sprite.sprite.setPosition(playerMove.position!!.x, playerMove.position!!.y)
     }
 
-    private fun receiveChatMessage(job: NetworkJob) {
-        val data = job.`object` as Network.ChatMessageFromClient
+    private fun receiveChatMessage(job: NetworkJob, chatMessage: Network.ChatMessageFromClient) {
         //FIXME: do some verification stuff, make sure strings are safe
 
         val date = SimpleDateFormat("HH:mm:ss")
-        m_server.m_chat.addChatLine(date.format(Date()), job.connection.playerName, data.message!!,
+        m_server.m_chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
                                     Chat.ChatSender.Player)
     }
 
-    private fun receiveItemPlace(job: NetworkJob) {
-        val data = job.`object` as Network.ItemPlaceFromClient
-
+    private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.ItemPlaceFromClient) {
         val playerComponent = playerMapper.get(job.connection.player)
 
         val placedItem = m_world.cloneEntity(playerComponent.equippedPrimaryItem!!)
@@ -433,7 +430,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         itemComponent.state = ItemComponent.State.InWorldState
 
         val spriteComponent = spriteMapper.get(placedItem)
-        spriteComponent.sprite.setPosition(data.x, data.y)
+        spriteComponent.sprite.setPosition(itemPlace.x, itemPlace.y)
     }
 
     /**
@@ -441,18 +438,17 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
      * @param job
      */
-    private fun receiveHotbarDropItem(job: NetworkJob) {
-        val data = job.`object` as Network.HotbarDropItemFromClient
+    private fun receiveHotbarDropItem(job: NetworkJob, itemDrop: Network.HotbarDropItemFromClient) {
         val playerComponent = playerMapper.get(job.connection.player)
 
-        val itemToDrop = playerComponent.hotbarInventory!!.itemEntity(data.index.toInt())!!
+        val itemToDrop = playerComponent.hotbarInventory!!.itemEntity(itemDrop.index.toInt())!!
         val itemToDropComponent = itemMapper.get(itemToDrop)
         //decrease count of equipped item
         if (itemToDropComponent.stackSize > 1) {
             itemToDropComponent.stackSize = itemToDropComponent.stackSize - 1
         } else {
             //remove item from inventory, client has already done so, because the count will be 0 after this drop
-            getWorld().delete(playerComponent.hotbarInventory!!.takeItem(data.index.toInt())!!)
+            getWorld().delete(playerComponent.hotbarInventory!!.takeItem(itemDrop.index.toInt())!!)
         }
 
         val droppedItem = m_world.cloneEntity(itemToDrop)
@@ -477,21 +473,19 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         //sendSpawnEntity(droppedItem, job.connection.getID());
     }
 
-    private fun receivePlayerEquipHotbarIndex(job: NetworkJob) {
-        val data = job.`object` as Network.PlayerEquipHotbarIndexFromClient
+    private fun receivePlayerEquipHotbarIndex(job: NetworkJob, playerEquip: Network.PlayerEquipHotbarIndexFromClient) {
         val playerComponent = playerMapper.get(job.connection.player)
 
-        playerComponent.hotbarInventory!!.selectSlot(data.index.toInt())
+        playerComponent.hotbarInventory!!.selectSlot(playerEquip.index.toInt())
     }
 
-    private fun receiveBlockPlace(job: NetworkJob) {
-        val data = job.`object` as Network.BlockPlaceFromClient
+    private fun receiveBlockPlace(job: NetworkJob, blockPlace: Network.BlockPlaceFromClient) {
         val playerComponent = playerMapper.get(job.connection.player)
 
         val item = playerComponent.equippedPrimaryItem!!
         val blockComponent = blockMapper.get(item)
 
-        m_world.attemptBlockPlacement(data.x, data.y, blockComponent.blockType)
+        m_world.attemptBlockPlacement(blockPlace.x, blockPlace.y, blockComponent.blockType)
     }
 
     /**
@@ -507,35 +501,33 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
      * @param job
      */
-    private fun receiveBlockDigBegin(job: NetworkJob) {
-        val data = job.`object` as Network.BlockDigBeginFromClient
-        m_serverBlockDiggingSystem.blockDiggingBegin(data.x, data.y, job.connection.player)
+    private fun receiveBlockDigBegin(job: NetworkJob, dig: Network.BlockDigBeginFromClient) {
+        m_serverBlockDiggingSystem.blockDiggingBegin(dig.x, dig.y, job.connection.player)
     }
 
-    private fun receivePlayerMoveInventoryItem(job: NetworkJob) {
-        val data = job.`object` as Network.PlayerMoveInventoryItemFromClient
+    private fun receivePlayerMoveInventoryItem(job: NetworkJob, playerMoveItem: Network.PlayerMoveInventoryItemFromClient) {
         val playerComponent = playerMapper.get(job.connection.player)
 
         //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
-        if (data.sourceType == data.destType && data.sourceIndex == data.destIndex) {
+        if (playerMoveItem.sourceType == playerMoveItem.destType && playerMoveItem.sourceIndex == playerMoveItem.destIndex) {
             //todo kick client, cheating
         }
 
         val sourceInventory: Inventory
-        if (data.sourceType == Inventory.InventoryType.Hotbar) {
+        if (playerMoveItem.sourceType == Inventory.InventoryType.Hotbar) {
             sourceInventory = playerComponent.hotbarInventory!!
         } else {
             sourceInventory = playerComponent.inventory!!
         }
 
         val destInventory: Inventory
-        if (data.destType == Inventory.InventoryType.Hotbar) {
+        if (playerMoveItem.destType == Inventory.InventoryType.Hotbar) {
             destInventory = playerComponent.hotbarInventory!!
         } else {
             destInventory = playerComponent.inventory!!
         }
 
-        destInventory.setSlot(data.destIndex.toInt(), sourceInventory.takeItem(data.sourceIndex.toInt())!!)
+        destInventory.setSlot(playerMoveItem.destIndex.toInt(), sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
     }
 
     /**
@@ -605,7 +597,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
      * @param y2
      */
     fun sendPlayerBlockRegion(player: Int, x: Int, y: Int, x2: Int, y2: Int) {
-        //FIXME: avoid array realloc
+        //FIXME: avoid array realloc, preferably
         val blockRegion = Network.BlockRegion(x, y, x2, y2)
         val count = (x2 - x + 1) * (y2 - y + 1)
 
@@ -656,7 +648,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         var playerName: String = ""
     }
 
-    inner class NetworkJob internal constructor(internal var connection: PlayerConnection, internal var `object`: Any)
+    inner class NetworkJob internal constructor(internal var connection: PlayerConnection, internal var receivedObject: Any)
 
     internal inner class ServerListener : Listener() {
         //FIXME: do sanity checking (null etc) on both client, server
