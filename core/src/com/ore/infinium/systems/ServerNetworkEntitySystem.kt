@@ -152,11 +152,21 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                 entitiesInRegion.add(fill.get(i))
             }
 
-            //list of entities we'll need to tell the client we no longer want him to have
             val entitiesToDestroy = ArrayList<Int>()
-            val entitiesToSpawn = ArrayList<Int>()
 
-            //entity doesn't exist in known entities, but does in actual. send spawn, add to known list
+            //list of entities we'll need to tell the client we no longer want him to have
+            //entity doesn't exist in known entities, but does in actual. send spawn
+            val entitiesToSpawn = entitiesInRegion.filter { entityInRegion ->
+                playerEntity.knownEntities.contains(entityInRegion) &&
+                        //hack ignore players for now, we don't spawn them via this mechanisms..it'd get hairy
+                        //gotta rethink player spawn/destroying
+                        !playerMapper.has(entityInRegion)
+            }
+
+            //now that they're spawned, record them as such
+            //hack playerEntity.knownEntities.add()
+
+            /*
             for (j in 0..entitiesInRegion.size - 1) {
                 val entityInRegion = entitiesInRegion[j]
 
@@ -173,7 +183,6 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
                 if (!entityFoundInKnown) {
                     if (playerMapper.has(entityInRegion)) {
-                        //hack gotta rethink player spawn/destroying
                         continue
                     }
 
@@ -182,6 +191,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                     playerEntity.knownEntities.add(entityInRegion)
                 }
             }
+            */
 
             //entity exists in known entities (spawned on client), but not in actual. (moved offscreen)
             //remove from known, tell client he needs to delete that.
