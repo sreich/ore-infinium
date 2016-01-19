@@ -42,7 +42,7 @@ Windows, Mac OS X).
 **You will need java 1.8 (java 8).** Tested with intellij IDEA. 
 
 # Builds
-Regular builds (jar files) can be downloaded from: https://copy.com/q84maUflQnyT2C8Z
+Regular builds (jar files) can be downloaded from: https://copy.com/kzGi2ilrM4lb6ZWm
 Simply execute it by 'java -jar pathtojar'
 
 To build locally, just check out the code. It uses a submodule currently, for the assets. So run git clone --recursive <the url>. If you've already checked out the main repo and forgot to run it with --recursive, you won't have the submodule located in ore-infinium/core/assets. So, do git submodule update --recursive

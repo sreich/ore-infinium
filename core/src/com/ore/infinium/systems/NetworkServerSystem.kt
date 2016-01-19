@@ -58,6 +58,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
 
     private lateinit var m_serverBlockDiggingSystem: ServerBlockDiggingSystem
+    private lateinit var m_serverNetworkEntitySystem: ServerNetworkEntitySystem
 
     lateinit var m_serverKryo: Server
 
@@ -639,6 +640,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
         val playerComponent = playerMapper.get(player)
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, move)
+        //todo only send moved if it's spawned yet in their viewport
+        //if not spawned in view yet, it'll get spawned and this position update doesn't matter
     }
 
     internal class PlayerConnection : Connection() {
