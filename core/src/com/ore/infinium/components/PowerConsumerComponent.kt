@@ -41,7 +41,6 @@ class PowerConsumerComponent : Component() {
     override fun toString(): String {
         val c = javaClass.name
         return """
-        $c.powerDemandRate: $powerDemandRate
-        """
+        $c.powerDemandRate: $powerDemandRate"""
     }
 }

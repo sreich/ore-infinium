@@ -54,18 +54,6 @@ class PlayerComponent : Component() {
     val equippedPrimaryItem: Int?
         get() = hotbarInventory!!.itemEntity(hotbarInventory!!.selectedSlot)
 
-    /**
-     * note, has no copyFrom method, as it is should never be copied
-     */
-
-    override fun toString(): String {
-        val c = javaClass.name
-        return """
-        $c.playerName: $playerName
-        $c.connectionPlayerId: $connectionPlayerId
-        $c.killed: $killed
-        """
-    }
 
     companion object {
         val jumpVelocity = OreWorld.GRAVITY_ACCEL * 18
@@ -75,4 +63,17 @@ class PlayerComponent : Component() {
         //ms
         val placeableItemDelay = 300
     }
+
+    /**
+     * note, has no copyFrom method, as it is should never be copied
+     */
+
+    override fun toString(): String {
+        val c = javaClass.name
+        return """
+        $c.playerName: $playerName
+        $c.connectionPlayerId: $connectionPlayerId
+        $c.killed: $killed"""
+    }
+
 }

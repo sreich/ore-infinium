@@ -46,8 +46,6 @@ class PowerDeviceComponent : Component() {
 
     override fun toString(): String {
         val c = javaClass.name
-        return """
-        $c
-        """
+        return "$c.owningCircuit: $owningCircuit"
     }
 }

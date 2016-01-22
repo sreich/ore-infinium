@@ -100,7 +100,6 @@ class ItemComponent : Component() {
         $c.maxStackSize: $maxStackSize
         $c.playerIdWhoDropped: $playerIdWhoDropped
         $c.state: $state
-        $c.justDropped: $justDropped
-        """
+        $c.justDropped: $justDropped"""
     }
 }

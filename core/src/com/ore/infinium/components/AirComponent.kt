@@ -51,7 +51,6 @@ class AirComponent : Component() {
         $c.air: $air
         $c.maxAir: $air
         $c.decreaseRate: $decreaseRate
-        $c.healthDecreaseRate: $healthDecreaseRate
-        """
+        $c.healthDecreaseRate: $healthDecreaseRate"""
     }
 }

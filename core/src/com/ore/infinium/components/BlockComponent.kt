@@ -42,7 +42,6 @@ class BlockComponent : Component() {
     override fun toString(): String {
         val c = javaClass.name
         return """
-        $c.blockType: $blockType
-        """
+        $c.blockType: $blockType"""
     }
 }

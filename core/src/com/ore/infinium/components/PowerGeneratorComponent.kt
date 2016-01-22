@@ -40,8 +40,6 @@ class PowerGeneratorComponent : Component() {
 
     override fun toString(): String {
         val c = javaClass.name
-        return """
-        $c.powerSupplyRate: $powerSupplyRate
-        """
+        return "$c.powerSupplyRate: $powerSupplyRate"
     }
 }

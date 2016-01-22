@@ -51,7 +51,6 @@ class JumpComponent : Component() {
         $c.canJump: $canJump
         $c.shouldJump: $shouldJump
         $c.jumpRequested: $jumpRequested
-        $c.jumpInterval: $jumpInterval
-        """
+        $c.jumpInterval: $jumpInterval"""
     }
 }

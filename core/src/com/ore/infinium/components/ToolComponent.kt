@@ -61,7 +61,6 @@ class ToolComponent : Component() {
         $c.type: $type
         $c.material: $material
         $c.attackRadius: $attackRadius
-        $c.blockDamage: $blockDamage
-        """
+        $c.blockDamage: $blockDamage"""
     }
 }

@@ -41,7 +41,6 @@ class HealthComponent : Component() {
         val c = javaClass.name
         return """
         $c.maxHealth: $maxHealth
-        $c.health: $health
-        """
+        $c.health: $health"""
     }
 }

@@ -37,7 +37,6 @@ class LightComponent : Component() {
     override fun toString(): String {
         val c = javaClass.name
         return """
-        $c.radius: $radius
-        """
+        $c.radius: $radius"""
     }
 }

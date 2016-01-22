@@ -37,8 +37,6 @@ class VelocityComponent : Component() {
 
     override fun toString(): String {
         val c = javaClass.name
-        return """
-        $c.velocity: $velocity
-        """
+        return "$c.velocity: $velocity"
     }
 }

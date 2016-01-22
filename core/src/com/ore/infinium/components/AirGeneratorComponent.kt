@@ -39,7 +39,6 @@ class AirGeneratorComponent : Component() {
     override fun toString(): String {
         val c = javaClass.name
         return """
-        $c.airOutputRate: $airOutputRate
-        """
+        $c.airOutputRate: $airOutputRate"""
     }
 }

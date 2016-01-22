@@ -65,7 +65,6 @@ class SpriteComponent : Component() {
         $c.category: $category
         $c.textureName: $textureName
         $c.visible: $visible
-        $c.noClip: $noClip
-        """
+        $c.noClip: $noClip"""
     }
 }

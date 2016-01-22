@@ -36,8 +36,6 @@ class ControllableComponent : Component() {
 
     override fun toString(): String {
         val c = javaClass.name
-        return """
-        $c.desiredDirection: $desiredDirection
-        """
+        return "$c.desiredDirection: $desiredDirection"
     }
 }
