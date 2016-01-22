@@ -39,7 +39,8 @@ class PowerGeneratorComponent : Component() {
     var powerSupplyRate: Int = 0
 
     override fun toString(): String {
-        val c = javaClass.name
-        return "$c.powerSupplyRate: $powerSupplyRate"
+        val c = javaClass.simpleName
+        return """
+        $c.powerSupplyRate: $powerSupplyRate"""
     }
 }

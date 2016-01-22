@@ -56,7 +56,7 @@ class ToolComponent : Component() {
     }
 
     override fun toString(): String {
-        val c = javaClass.name
+        val c = javaClass.simpleName
         return """
         $c.type: $type
         $c.material: $material

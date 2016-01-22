@@ -46,7 +46,7 @@ class JumpComponent : Component() {
     }
 
     override fun toString(): String {
-        val c = javaClass.name
+        val c = javaClass.simpleName
         return """
         $c.canJump: $canJump
         $c.shouldJump: $shouldJump

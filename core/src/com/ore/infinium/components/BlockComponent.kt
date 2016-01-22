@@ -40,7 +40,7 @@ class BlockComponent : Component() {
     }
 
     override fun toString(): String {
-        val c = javaClass.name
+        val c = javaClass.simpleName
         return """
         $c.blockType: $blockType"""
     }

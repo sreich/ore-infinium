@@ -60,11 +60,12 @@ class SpriteComponent : Component() {
     }
 
     override fun toString(): String {
-        val c = javaClass.name
+        val c = javaClass.simpleName
         return """
         $c.category: $category
         $c.textureName: $textureName
         $c.visible: $visible
-        $c.noClip: $noClip"""
+        $c.noClip: $noClip
+        $c.sprite.position: ${sprite.x}, ${sprite.y}"""
     }
 }

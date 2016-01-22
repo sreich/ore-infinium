@@ -37,7 +37,7 @@ class AirGeneratorComponent : Component() {
     }
 
     override fun toString(): String {
-        val c = javaClass.name
+        val c = javaClass.simpleName
         return """
         $c.airOutputRate: $airOutputRate"""
     }

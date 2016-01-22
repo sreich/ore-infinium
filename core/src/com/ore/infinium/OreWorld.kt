@@ -246,19 +246,21 @@ class OreWorld
         //        for (int y = 0; y < WORLD_SIZE_Y; ++y) {
         //       }
         //randomRange(, 20, rand)
-        var spriteComponent: SpriteComponent
         var x = 0
         while (x < WORLD_SIZE_X - 50) {
             val tree = createTree()
-            spriteComponent = spriteMapper.get(tree)
+            val spriteComponent = spriteMapper.get(tree)
             val halfTreeHeight = spriteComponent.sprite.height
 
             val y = seaLevel() - halfTreeHeight.toInt()
 
+            var pos = Vector2(x.toFloat(), y.toFloat())
+            alignPositionToGround(pos, Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height))
+
             //final byte blockType = blockType(x, y);
 
-            spriteComponent.sprite.setPosition(x.toFloat(), y.toFloat())
-            x += 5
+            spriteComponent.sprite.setPosition(pos.x, pos.y)
+            x += 8
         }
 
     }
@@ -628,6 +630,7 @@ class OreWorld
         return false
     }
 
+
     fun mousePositionWorldCoords(): Vector2 {
         //libgdx can and probably will return negative mouse coords..
         val mouse = Vector3(Math.max(Gdx.input.x, 0).toFloat(), Math.max(Gdx.input.y, 0).toFloat(), 0f)
@@ -636,6 +639,40 @@ class OreWorld
         return Vector2(finalMouse.x, finalMouse.y)
     }
 
+    /**
+     * pushes the object downward, towards the ground until it hits
+     * the ground
+     * @param pos the pos that will get modified at return
+     * @param size of the entity
+     */
+    fun alignPositionToGround(pos: Vector2, size: Vector2) {
+        //        val startX = (size.x
+
+        //if it's actually placed too close to a solid block,
+        //this function probably shits itself
+
+        var bottomY = (pos.y + (size.y * 0.5f)).toInt()
+        val leftX = (pos.x - (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_X)
+        val rightX = (pos.x + (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_Y)
+        for (y in bottomY..WORLD_SIZE_Y) {
+            for (x in leftX..rightX) {
+
+                if (isBlockSolid(x, y)) {
+                    //can't proceed, we'll leave it where it last wasn't solid
+                    return
+                }
+
+            }
+
+            //full row was found to be lying on empty stuff,  move down
+            pos.y = (y.toFloat() - size.y * 0.5f)// + size.y * 0.5f)
+        }
+    }
+
+    /**
+     * @param pos the pos that will get modified at return
+     * @param size of the entity
+     */
     fun alignPositionToBlocks(pos: Vector2, size: Vector2) {
         var x = MathUtils.floor(pos.x).toFloat()
         var y = MathUtils.floor(pos.y).toFloat()

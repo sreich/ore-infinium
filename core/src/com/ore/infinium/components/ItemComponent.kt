@@ -94,7 +94,7 @@ class ItemComponent : Component() {
     }
 
     override fun toString(): String {
-        val c = javaClass.name
+        val c = javaClass.simpleName
         return """
         $c.stackSize: $stackSize
         $c.maxStackSize: $maxStackSize

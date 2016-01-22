@@ -36,7 +36,8 @@ class VelocityComponent : Component() {
     }
 
     override fun toString(): String {
-        val c = javaClass.name
-        return "$c.velocity: $velocity"
+        val c = javaClass.simpleName
+        return """
+        $c.velocity: $velocity"""
     }
 }

@@ -39,7 +39,7 @@ class PowerConsumerComponent : Component() {
     var powerDemandRate: Int = 0
 
     override fun toString(): String {
-        val c = javaClass.name
+        val c = javaClass.simpleName
         return """
         $c.powerDemandRate: $powerDemandRate"""
     }
