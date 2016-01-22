@@ -632,16 +632,23 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
      * *         entity id of entity that moved
      */
     fun sendEntityMoved(player: Int, entity: Int) {
+        val playerComponent = playerMapper.get(player)
+        val spriteComponent = spriteMapper.get(entity)
+
+        if (true) {
+            // only send moved if it's spawned in their viewport
+            // if not spawned in view yet, it'll get spawned
+            // and this position update doesn't matter, so don't do it
+            return
+        }
+
         val move = Network.EntityMovedFromServer()
         move.id = entity
 
-        val spriteComponent = spriteMapper.get(entity)
         move.position = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
 
-        val playerComponent = playerMapper.get(player)
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, move)
-        //todo only send moved if it's spawned yet in their viewport
-        //if not spawned in view yet, it'll get spawned and this position update doesn't matter
+
     }
 
     internal class PlayerConnection : Connection() {
