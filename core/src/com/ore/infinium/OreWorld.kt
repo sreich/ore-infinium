@@ -252,7 +252,7 @@ class OreWorld
             val spriteComponent = spriteMapper.get(tree)
             val halfTreeHeight = spriteComponent.sprite.height
 
-            val y = seaLevel() - halfTreeHeight.toInt()
+            val y = 0
 
             var pos = Vector2(x.toFloat(), y.toFloat())
             alignPositionToGround(pos, Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height))
@@ -651,6 +651,7 @@ class OreWorld
         //if it's actually placed too close to a solid block,
         //this function probably shits itself
 
+        //todo maybe check if all blocks are solid, *then* place
         var bottomY = (pos.y + (size.y * 0.5f)).toInt()
         val leftX = (pos.x - (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_X)
         val rightX = (pos.x + (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_Y)
@@ -665,7 +666,8 @@ class OreWorld
             }
 
             //full row was found to be lying on empty stuff,  move down
-            pos.y = (y.toFloat() - size.y * 0.5f)// + size.y * 0.5f)
+            //until we hit solid, and then abort
+            pos.y = (y.toFloat() - size.y * 0.5f) + 1// + size.y * 0.5f)
         }
     }
 
