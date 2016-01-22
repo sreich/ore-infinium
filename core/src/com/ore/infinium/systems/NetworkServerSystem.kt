@@ -244,7 +244,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
 
         OreWorld.log("networkserversystem",
-                     "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
+                "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
@@ -255,7 +255,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         destroyMultiple.entitiesToDestroy = entitiesToDestroy
 
         OreWorld.log("networkserversystem",
-                     "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
+                "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, destroyMultiple)
     }
 
@@ -418,7 +418,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
         val date = SimpleDateFormat("HH:mm:ss")
         m_server.m_chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
-                                    Chat.ChatSender.Player)
+                Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.ItemPlaceFromClient) {
@@ -465,7 +465,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
         //shrink the size of all dropped items, but also store the original size first, so we can revert later
         droppedItemSprite.sprite.setSize(droppedItemSprite.sprite.width * 0.5f,
-                                         droppedItemSprite.sprite.height * 0.5f)
+                droppedItemSprite.sprite.height * 0.5f)
 
         droppedItemSprite.sprite.setPosition(playerSprite.sprite.x, playerSprite.sprite.y)
 
@@ -529,7 +529,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
 
         destInventory.setSlot(playerMoveItem.destIndex.toInt(),
-                              sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
+                sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
     }
 
     /**
@@ -632,15 +632,15 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
      * *         entity id of entity that moved
      */
     fun sendEntityMoved(player: Int, entity: Int) {
-        val playerComponent = playerMapper.get(player)
-        val spriteComponent = spriteMapper.get(entity)
-
-        if (true) {
+        if (!m_serverNetworkEntitySystem.entityExistsInPlayerView(playerEntityId = player, entityId = entity)) {
             // only send moved if it's spawned in their viewport
             // if not spawned in view yet, it'll get spawned
             // and this position update doesn't matter, so don't do it
             return
         }
+
+        val playerComponent = playerMapper.get(player)
+        val spriteComponent = spriteMapper.get(entity)
 
         val move = Network.EntityMovedFromServer()
         move.id = entity

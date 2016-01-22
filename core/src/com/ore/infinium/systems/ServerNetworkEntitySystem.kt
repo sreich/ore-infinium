@@ -65,6 +65,23 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
     //we may want to instead query the spatial hash and compare that list to this list?
 
+    /**
+     * Checks if the entity is spawned on player client
+     * this function is costly!! (todo)
+     */
+    fun entityExistsInPlayerView(playerEntityId: Int, entityId: Int): Boolean {
+        //todo this gonna be really costly. should replace with hash map approach, likely
+        val playerEntityInViewport = m_playerEntities.find { it -> it.playerEntityId == playerEntityId }
+
+        val knownEntity = playerEntityInViewport!!.knownEntities.find { knownEntityId -> knownEntityId == entityId }
+
+        return if (knownEntity != null) {
+            true
+        } else {
+            false
+        }
+    }
+
     private inner class PlayerEntitiesInViewport {
         /**
          * entity id of the player whose viewport/list of spawned
@@ -143,7 +160,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             //get the entities that actually exist in this viewport
             val fill = IntBag()
             m_spatialSystem.m_tree.get(fill, viewport.x.toFloat(), viewport.y.toFloat(), viewport.width.toFloat(),
-                                       viewport.height.toFloat())
+                    viewport.height.toFloat())
 
             //hack copy to intarray only because the quadtree uses an intbag
             val entitiesInRegion = ArrayList<Int>()
@@ -201,17 +218,17 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
             if (entitiesToDestroy.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                             "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
+                        "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
                 m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
-                                                                  playerComponent.connectionPlayerId)
+                        playerComponent.connectionPlayerId)
             }
 
             if (entitiesToSpawn.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                             "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
+                        "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 m_networkServerSystem.sendSpawnMultipleEntities(entitiesToSpawn,
-                                                                playerComponent.connectionPlayerId)
+                        playerComponent.connectionPlayerId)
             }
 
         }
