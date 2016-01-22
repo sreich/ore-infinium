@@ -5,10 +5,9 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.IntArray
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import java.util.*
 
 /**
  * ***************************************************************************
@@ -59,7 +58,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * When devices that are on different circuits get connected, those
      * devices are merged into the same circuit
      */
-    public var m_circuits = Array<PowerCircuit>()
+    public var m_circuits = ArrayList<PowerCircuit>()
 
     /**
      * Either a connected entity on a circuit/wire, is a device or a generator. It is *not* both.
@@ -77,14 +76,14 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
          * if they do, the circuits are merged.
          * See generators, consumers
          */
-        public var wireConnections = Array<PowerWireConnection>()
+        public var wireConnections = ArrayList<PowerWireConnection>()
 
         /**
          * Entity id
          * List of generators for faster checking of changes/recalculations, in addition to the
          * wire connection list is disjoint from devices.
          */
-        public var generators = IntArray()
+        public var generators = ArrayList<Int>()
 
         /**
          * Entity id
@@ -96,7 +95,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
          * @type s
          */
-        public var consumers = IntArray()
+        public var consumers = ArrayList<Int>()
 
         public var totalSupply: Int = 0
         public var totalDemand: Int = 0
@@ -139,16 +138,12 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             circuit.totalDemand = 0
             circuit.totalSupply = 0
 
-            for (j in 0..circuit.generators.size - 1) {
-                val generator = circuit.generators.get(j)
-
+            for (generator in circuit.generators) {
                 val generatorComponent = powerGeneratorMapper.get(generator)
                 circuit.totalSupply += generatorComponent.powerSupplyRate
             }
 
-            for (j in 0..circuit.consumers.size - 1) {
-                val consumer = circuit.consumers.get(j)
-
+            for (consumer in circuit.consumers) {
                 val consumerComponent = powerConsumerMapper.get(consumer)
                 circuit.totalDemand += consumerComponent.powerDemandRate
             }
@@ -256,7 +251,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 circuit2.consumers.clear()
                                 circuit2.generators.clear()
                                 //remove that old dead empty circuit
-                                m_circuits.removeIndex(itCircuit2)
+                                m_circuits.removeAt(itCircuit2)
 
                                 return true
                             }
@@ -298,7 +293,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * @param entityToDisconnect
      */
     fun disconnectAllWiresFromDevice(entityToDisconnect: Int) {
-
         for (itCircuit in 0..m_circuits.size - 1) {
             val circuit = m_circuits.get(itCircuit)
 
@@ -306,11 +300,11 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 val wireConnection = circuit.wireConnections.get(itWire)
 
                 if (wireConnection.firstEntity == entityToDisconnect || wireConnection.secondEntity == entityToDisconnect) {
-                    circuit.wireConnections.removeIndex(itWire)
+                    circuit.wireConnections.removeAt(itWire)
 
                     //if we removed the last wire connection, cleanup this empty circuit
                     if (circuit.wireConnections.size == 0) {
-                        m_circuits.removeIndex(itCircuit)
+                        m_circuits.removeAt(itCircuit)
                     }
                 }
             }
@@ -355,11 +349,11 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                                                     circleRadius2)
                 if (intersects) {
                     //wire should be destroyed. remove it from wireConnections.
-                    circuit.wireConnections.removeIndex(itWires)
+                    circuit.wireConnections.removeAt(itWires)
 
                     //cleanup dead circuit, if we removed the last wire from it.
                     if (circuit.wireConnections.size == 0) {
-                        m_circuits.removeIndex(itCircuits)
+                        m_circuits.removeAt(itCircuits)
                     }
                     return true
                 }
