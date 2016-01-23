@@ -56,6 +56,8 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
         /**
          * player id (connection id) associated with this dig request
          * NOT entity id.
+         * so we can e.g. know if a connection is no longer alive for a player,
+         * and remove all such pending requests
          */
         internal var playerId: Int = 0
 
@@ -76,81 +78,76 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
     override fun dispose() {
     }
 
+    /**
+     * @return true if it was processed (and should be removed)
+     */
+    fun processAndRemoveDigRequests(blockToDig: BlockToDig): Boolean {
+        val blockType = m_world.blockType(blockToDig.x, blockToDig.y)
+        if (blockType == OreBlock.BlockType.NullBlockType) {
+            return true
+        }
+
+        val playerEntityId = m_world.playerEntityForPlayerID(blockToDig.playerId)
+        val playerComponent = playerMapper.get(playerEntityId)
+        val equippedItemEntityId = playerComponent.equippedPrimaryItem!!
+
+        //player no longer even has an item that can break stuff, equipped.
+        //this queued request will now be canceled.
+        val toolComponent = toolMapper.getNullable(equippedItemEntityId) ?: return true
+
+        val totalBlockHealth = OreWorld.blockAttributes[blockType]!!.blockTotalHealth
+
+        val damagePerTick = toolComponent.blockDamage * getWorld().getDelta()
+
+        //this many ticks after start tick, it should have already been destroyed
+        val expectedTickEnd = blockToDig.digStartTick + (totalBlockHealth / damagePerTick).toInt()
+
+        if (blockToDig.clientSaysItFinished && m_gameTickSystem.ticks >= expectedTickEnd) {
+            //todo tell all clients that it was officially dug--but first we want to implement chunking
+            // though!!
+
+            OreWorld.log("server, block digging system", "processSystem block succeeded. sending")
+            m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y)
+
+            val droppedBlock = m_world.createBlockItem(blockType)
+            spriteMapper.get(droppedBlock).apply {
+                sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f)
+                sprite.setSize(0.5f, 0.5f)
+            }
+
+            itemMapper.get(droppedBlock).apply {
+                sizeBeforeDrop = Vector2(1f, 1f)
+                stackSize = 1
+                state = ItemComponent.State.DroppedInWorld
+                playerIdWhoDropped = playerComponent.connectionPlayerId
+            }
+
+            //hack this isnt 'needed i don't think because the server network entity system
+            //auto finds and spawns it
+            // m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
+
+            m_world.destroyBlock(blockToDig.x, blockToDig.y)
+
+            //remove fulfilled request from our queue.
+            return true
+        }
+
+        //when actual ticks surpass our expected ticks, by so much
+        //we assume this request times out
+        if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
+
+            OreWorld.log("server, block digging system",
+                         "processSystem block digging request timed out. this could be normal.")
+            return true
+        }
+
+        return false
+    }
+
     //todo when the equipped item changes, abort all active digs for that player
     override fun processSystem() {
-        for (i in 0..m_blocksToDig.size - 1) {
-            val blockToDig = m_blocksToDig.get(i)
-
-            val blockType = m_world.blockType(blockToDig.x, blockToDig.y)
-
-            //it's already dug, must've happened sometime since, external (to this system)
-            //so cancel this request, don't notify anything.
-            if (blockType == OreBlock.BlockType.NullBlockType) {
-                m_blocksToDig.removeAt(i)
-                continue
-            }
-
-            val playerEntityId = m_world.playerEntityForPlayerID(blockToDig.playerId)
-            val playerComponent = playerMapper.get(playerEntityId)
-
-            val equippedItemEntityId = playerComponent.equippedPrimaryItem!!
-            val toolComponent = toolMapper.getNullable(equippedItemEntityId)
-
-            //player no longer even has an item that can break stuff, equipped.
-            //this queued request will now be canceled.
-            if (toolComponent == null) {
-                m_blocksToDig.removeAt(i)
-                continue
-            }
-
-            val totalBlockHealth = OreWorld.blockAttributes[blockType]!!.blockTotalHealth
-
-            val damagePerTick = toolComponent.blockDamage * getWorld().getDelta()
-
-            //this many ticks after start tick, it should have already been destroyed
-            val expectedTickEnd = blockToDig.digStartTick + (totalBlockHealth / damagePerTick).toInt()
-
-            if (blockToDig.clientSaysItFinished && m_gameTickSystem.ticks >= expectedTickEnd) {
-                //todo tell all clients that it was officially dug--but first we want to implement chunking
-                // though!!
-
-                OreWorld.log("server, block digging system", "processSystem block succeeded. sending")
-                m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y)
-
-                val droppedBlock = m_world.createBlockItem(blockType)
-                spriteMapper.get(droppedBlock).apply {
-                    sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f)
-                    sprite.setSize(0.5f, 0.5f)
-                }
-
-                itemMapper.get(droppedBlock).apply {
-                    sizeBeforeDrop = Vector2(1f, 1f)
-
-                    stackSize = 1
-                    state = ItemComponent.State.DroppedInWorld
-                    playerIdWhoDropped = playerComponent.connectionPlayerId
-                }
-
-                //hack this isnt 'needed i don't think because the server network entity system
-                //auto finds and spawns it
-                // m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
-
-                m_world.destroyBlock(blockToDig.x, blockToDig.y)
-
-                //remove fulfilled request from our queue.
-                m_blocksToDig.removeAt(i)
-                continue
-            }
-
-            //when actual ticks surpass our expected ticks, by so much
-            //we assume this request times out
-            if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
-
-                OreWorld.log("server, block digging system",
-                             "processSystem block digging request timed out. this could be normal.")
-                m_blocksToDig.removeAt(i)
-            }
-        }
+        val blocksToRemove = m_blocksToDig.filter { blockToDig -> processAndRemoveDigRequests(blockToDig) }
+        m_blocksToDig.removeAll(blocksToRemove)
     }
 
     override fun initialize() {
