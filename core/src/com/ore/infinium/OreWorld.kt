@@ -241,28 +241,129 @@ class OreWorld
 
     }
 
+    /*
+    var bottomY = (pos.y + (size.y * 0.5f)).toInt()
+    val leftX = (pos.x - (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_X)
+    val rightX = (pos.x + (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_Y)
+    for (y in bottomY..WORLD_SIZE_Y)
+    {
+        for (x in leftX..rightX) {
+
+            if (isBlockSolid(x, y)) {
+                //can't proceed, we'll leave it where it last wasn't solid
+                return
+            }
+
+        }
+
+        //full row was found to be lying on empty stuff,  move down
+        //until we hit solid, and then abort
+        pos.y = (y.toFloat() - size.y * 0.5f) + 1
+    }
+    */
+
     private fun generateTrees() {
         val rand = RandomXS128()
         //        for (int y = 0; y < WORLD_SIZE_Y; ++y) {
         //       }
         //randomRange(, 20, rand)
-        var x = 0
-        while (x < WORLD_SIZE_X - 50) {
-            val tree = createTree()
-            val spriteComponent = spriteMapper.get(tree)
+
+        /*
+        we want to start at the top, at a random sample, work our way down,
+        checking each block we move the potential tree down, looking for
+         */
+
+        var treePlanted = true
+        var tree: Int? = null
+        for (x in 0..WORLD_SIZE_X - 50 step 8) {
+
+            //we reuse the previous tree, if not planted, since we have to spawn them to know how big they
+            //may end up being. but we have to know the size to know where to place them,
+            //or if their placement is even valid!!
+            if (treePlanted) {
+                //todo randomize tree sizes
+                tree = createWoodenTree(TreeSize.Large)
+            }
+
+            val spriteComponent = spriteMapper.get(tree!!)
             val halfTreeHeight = spriteComponent.sprite.height
 
-            val y = 0
+            treeColumn@ for (y in 0..WORLD_SIZE_Y - 50) {
+                val treeX = x.toFloat()
+                val treeY = y.toFloat()
 
-            var pos = Vector2(x.toFloat(), y.toFloat())
-            alignPositionToGround(pos, Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height))
+                when (isEntityFullyGrounded(entityX = treeX, entityY = treeY,
+                                            entityWidth = spriteComponent.sprite.width,
+                                            entityHeight = spriteComponent.sprite.height)) {
+                    EntitySolidGroundStatus.FullyEmpty -> {
+                    }
 
-            //final byte blockType = blockType(x, y);
+                    EntitySolidGroundStatus.PartiallyGrounded -> {
+                        //fail here. abort, can't grow a tree
+                        break@treeColumn
+                    }
 
-            spriteComponent.sprite.setPosition(pos.x, pos.y)
-            x += 8
+                    EntitySolidGroundStatus.FullySolid -> {
+                        spriteComponent.sprite.setPosition(treeX, treeY)
+                        treePlanted = true
+                    }
+                }
+            }
         }
 
+        if (!treePlanted) {
+            //last tree, couldn't find a spot for it..delete
+            m_artemisWorld.delete(tree!!)
+        }
+
+    }
+
+    /**
+     * what an entity's status is, when it comes to
+     * lying on solid ground (eg partial, full solid.)
+     */
+    enum class EntitySolidGroundStatus {
+        FullyEmpty,
+        PartiallyGrounded,
+        FullySolid
+    }
+
+    /**
+     * checks if the entity's bottom rests entirely on flat/solid ground
+     * within a set of X tiles to check.
+     *
+     * if they're all null, it ignores it (returns true)
+     */
+    private fun isEntityFullyGrounded(entityX: Float,
+                                      entityY: Float,
+                                      entityWidth: Float,
+                                      entityHeight: Float): EntitySolidGroundStatus {
+        //fixme to round or truncate, that is the question
+        val rightSide = Math.round(entityX + (entityWidth * 0.5f))
+        val leftSide = Math.round(entityX - (entityWidth * 0.5f)).coerceIn(0, WORLD_SIZE_X - 10)
+        val bottomY = Math.round(entityY + (entityHeight * 0.5f))
+
+        var solidBlocks = ArrayList<Boolean>()
+
+        (leftSide..rightSide).forEach { tileX -> solidBlocks.add(isBlockSolid(tileX, bottomY)) }
+
+        //all solid,
+        if (solidBlocks.all { it == true }) {
+            return EntitySolidGroundStatus.FullySolid
+        }
+
+        //all empty
+        if (solidBlocks.all { it == false }) {
+            return EntitySolidGroundStatus.FullyEmpty
+        }
+
+        //some empty
+        if (solidBlocks.any { it == false }) {
+            return EntitySolidGroundStatus.PartiallyGrounded
+        }
+
+
+        throw InternalError()
     }
 
     /**
@@ -640,38 +741,6 @@ class OreWorld
     }
 
     /**
-     * pushes the object downward, towards the ground until it hits
-     * the ground
-     * @param pos the pos that will get modified at return
-     * @param size of the entity
-     */
-    fun alignPositionToGround(pos: Vector2, size: Vector2) {
-        //        val startX = (size.x
-
-        //if it's actually placed too close to a solid block,
-        //this function probably shits itself
-
-        //todo maybe check if all blocks are solid, *then* place
-        var bottomY = (pos.y + (size.y * 0.5f)).toInt()
-        val leftX = (pos.x - (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_X)
-        val rightX = (pos.x + (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_Y)
-        for (y in bottomY..WORLD_SIZE_Y) {
-            for (x in leftX..rightX) {
-
-                if (isBlockSolid(x, y)) {
-                    //can't proceed, we'll leave it where it last wasn't solid
-                    return
-                }
-
-            }
-
-            //full row was found to be lying on empty stuff,  move down
-            //until we hit solid, and then abort
-            pos.y = (y.toFloat() - size.y * 0.5f) + 1// + size.y * 0.5f)
-        }
-    }
-
-    /**
      * @param pos the pos that will get modified at return
      * @param size of the entity
      */
@@ -783,12 +852,22 @@ class OreWorld
         return air
     }
 
-    fun createTree(): Int {
+    fun createWoodenTree(type: TreeSize): Int {
         val tree = m_artemisWorld.create()
 
+        //todo find a place for the tree size. probably a vegetation component
+        //we will need it when we e.g. destroy it and want it to grant so many woods or rubbers
         val sprite = spriteMapper.create(tree)
-        sprite.textureName = "flora/tree-02"
-        sprite.sprite.setSize(5f, 13f)
+        when (type) {
+            TreeSize.Large -> {
+                sprite.textureName = "flora/tree-02";
+                sprite.sprite.setSize(5f, 13f)
+            }
+
+            else -> {
+                //undefined
+            }
+        }
 
         return tree
     }
@@ -834,7 +913,8 @@ class OreWorld
         //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_SIZE_Y * BLOCK_SIZE);
 
         //check collision against entities
-        val entities = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java)).entities
+        val entities = m_artemisWorld.aspectSubscriptionManager.get(
+                Aspect.all(SpriteComponent::class.java)).entities
         for (i in 0..entities.size() - 1) {
             //it's the item we're trying to place, don't count a collision with ourselves
             if (entities.get(i) == entity) {
@@ -1049,7 +1129,8 @@ class OreWorld
      * @return the player entity
      */
     fun playerEntityForPlayerID(playerId: Int): Int {
-        val entities = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java)).entities
+        val entities = m_artemisWorld.aspectSubscriptionManager.get(
+                Aspect.all(PlayerComponent::class.java)).entities
         var playerComponent: PlayerComponent
         for (i in 0..entities.size() - 1) {
             playerComponent = playerMapper.get(entities.get(i))
@@ -1167,7 +1248,8 @@ class OreWorld
 
         init {
             blockAttributes.put(OreBlock.BlockType.NullBlockType,
-                                BlockAttributes("", BlockAttributes.Collision.False, BlockAttributes.BlockCategory.Null,
+                                BlockAttributes("", BlockAttributes.Collision.False,
+                                                BlockAttributes.BlockCategory.Null,
                                                 0.toShort()))
             blockAttributes.put(OreBlock.BlockType.DirtBlockType,
                                 BlockAttributes("dirt", BlockAttributes.Collision.True,
@@ -1192,4 +1274,10 @@ class OreWorld
             Gdx.app.log(tag, "$message [$time ]")
         }
     }
+}
+
+enum class TreeSize {
+    Small,
+    Medium,
+    Large
 }
