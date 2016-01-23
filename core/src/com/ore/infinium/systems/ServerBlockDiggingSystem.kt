@@ -5,11 +5,11 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Array
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import java.util.*
 
 /**
  * ***************************************************************************
@@ -71,7 +71,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
         //she could in theory send 500 block updates..requiring only the time for 1 block dig
     }
 
-    private val m_blocksToDig = Array<BlockToDig>()
+    private val m_blocksToDig = ArrayList<BlockToDig>()
 
     override fun dispose() {
     }
@@ -86,7 +86,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             //it's already dug, must've happened sometime since, external (to this system)
             //so cancel this request, don't notify anything.
             if (blockType == OreBlock.BlockType.NullBlockType) {
-                m_blocksToDig.removeIndex(i)
+                m_blocksToDig.removeAt(i)
                 continue
             }
 
@@ -99,7 +99,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             //player no longer even has an item that can break stuff, equipped.
             //this queued request will now be canceled.
             if (toolComponent == null) {
-                m_blocksToDig.removeIndex(i)
+                m_blocksToDig.removeAt(i)
                 continue
             }
 
@@ -138,7 +138,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
                 m_world.destroyBlock(blockToDig.x, blockToDig.y)
 
                 //remove fulfilled request from our queue.
-                m_blocksToDig.removeIndex(i)
+                m_blocksToDig.removeAt(i)
                 continue
             }
 
@@ -148,7 +148,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
 
                 OreWorld.log("server, block digging system",
                              "processSystem block digging request timed out. this could be normal.")
-                m_blocksToDig.removeIndex(i)
+                m_blocksToDig.removeAt(i)
             }
         }
     }
