@@ -79,6 +79,7 @@ object Network {
         kryo.register(PowerConsumerComponent::class.java)
         kryo.register(PowerDeviceComponent::class.java)
         kryo.register(BlockComponent::class.java)
+        kryo.register(FloraComponent::class.java)
         kryo.register(HealthComponent::class.java)
         kryo.register(ItemComponent::class.java)
         kryo.register(JumpComponent::class.java)

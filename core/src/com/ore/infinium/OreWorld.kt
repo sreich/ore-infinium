@@ -37,7 +37,6 @@ import java.util.*
  * along with this program.  If not, see //www.gnu.org/licenses/>.     *
  * ***************************************************************************
  */
-class OreWorld
 /**
  * The main world, shared between both client and server, core to a lot of basic
  * shared functionality, as well as stuff that doesn't really belong elsewhere,
@@ -51,6 +50,7 @@ class OreWorld
  * *         null if it is only a client, if both client and server are valid, the
  * *         this is a local hosted server, (aka singleplayer, or self-hosting)
  */
+class OreWorld
 (var m_client: OreClient?, //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
         // them alone.
  var m_server: OreServer?, var worldInstanceType: OreWorld.WorldInstanceType) {
@@ -76,6 +76,7 @@ class OreWorld
     private lateinit var airMapper: ComponentMapper<AirComponent>
     private lateinit var healthMapper: ComponentMapper<HealthComponent>
     private lateinit var lightMapper: ComponentMapper<LightComponent>
+    private lateinit var floraMapper: ComponentMapper<FloraComponent>
     private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
     private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
@@ -282,7 +283,7 @@ class OreWorld
             //or if their placement is even valid!!
             if (treePlanted) {
                 //todo randomize tree sizes
-                tree = createWoodenTree(TreeSize.Large)
+                tree = createWoodenTree(FloraComponent.TreeSize.Large)
             }
 
             val spriteComponent = spriteMapper.get(tree!!)
@@ -852,16 +853,18 @@ class OreWorld
         return air
     }
 
-    fun createWoodenTree(type: TreeSize): Int {
+    fun createWoodenTree(type: FloraComponent.TreeSize): Int {
         val tree = m_artemisWorld.create()
 
         //todo find a place for the tree size. probably a vegetation component
         //we will need it when we e.g. destroy it and want it to grant so many woods or rubbers
         val sprite = spriteMapper.create(tree)
+        val flora = floraMapper.create(tree)
         when (type) {
-            TreeSize.Large -> {
+            FloraComponent.TreeSize.Large -> {
                 sprite.textureName = "flora/tree-02";
                 sprite.sprite.setSize(5f, 13f)
+                flora.numberOfDropsWhenDestroyed = 20
             }
 
             else -> {
@@ -1046,6 +1049,12 @@ class OreWorld
         if (controlMapper.has(sourceEntity)) {
             val sourceComponent = controlMapper.get(sourceEntity)
             val component = controlMapper.create(clonedEntity)
+            component.copyFrom(sourceComponent)
+        }
+
+        if (floraMapper.has(sourceEntity)) {
+            val sourceComponent = floraMapper.get(sourceEntity)
+            val component = floraMapper.create(clonedEntity)
             component.copyFrom(sourceComponent)
         }
 
@@ -1276,8 +1285,3 @@ class OreWorld
     }
 }
 
-enum class TreeSize {
-    Small,
-    Medium,
-    Large
-}
