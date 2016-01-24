@@ -4,12 +4,12 @@ import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
-import com.badlogic.gdx.utils.Array
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreClient
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import java.util.*
 
 /**
  * ***************************************************************************
@@ -75,7 +75,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         var ticksTook: Int = 0
     }
 
-    private val m_blocksToDig = Array<BlockToDig>()
+    private val m_blocksToDig = ArrayList<BlockToDig>()
 
     override fun dispose() {
     }
@@ -95,14 +95,14 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             dig()
         }
 
-        expireOldDigRequests()
+        val digRequestsToRemove = m_blocksToDig.filter { blockToDig -> expireOldDigRequests(blockToDig) }
+        m_blocksToDig.removeAll(digRequestsToRemove)
     }
 
-    private fun expireOldDigRequests() {
-        if (m_blocksToDig.size == 0) {
-            return
-        }
-
+    /**
+     * @return true if it was expired, false if ignored/persisted
+     */
+    private fun expireOldDigRequests(blockToDig: BlockToDig): Boolean {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
 
         val playerComponent = playerMapper.get(player)
@@ -110,29 +110,26 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
         val toolComponent = toolMapper.getNullable(itemEntity)
 
-        for (i in 0..m_blocksToDig.size - 1) {
-            val blockToDig = m_blocksToDig.get(i)
+        //final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
-            //final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
-
-            if (!ableToDigAtIndex(blockToDig.x, blockToDig.y)) {
-                //not even a thing that can dig, or they are no longer digging
-                //remove the request
-                m_blocksToDig.removeIndex(i)
-                continue
-            }
-
-            val damagePerTick = toolComponent!!.blockDamage * getWorld().getDelta()
-
-            //this many ticks after start tick, it should have already been destroyed
-            val expectedTickEnd = blockToDig.digStartTick + (blockToDig.totalBlockHealth / damagePerTick).toInt()
-
-            //when actual ticks surpass our expected ticks, by so much
-            //we assume this request times out
-            if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
-                m_blocksToDig.removeIndex(i)
-            }
+        if (!ableToDigAtIndex(blockToDig.x, blockToDig.y)) {
+            //not even a thing that can dig, or they are no longer digging
+            //remove the request
+            return true
         }
+
+        val damagePerTick = toolComponent!!.blockDamage * getWorld().getDelta()
+
+        //this many ticks after start tick, it should have already been destroyed
+        val expectedTickEnd = blockToDig.digStartTick + (blockToDig.totalBlockHealth / damagePerTick).toInt()
+
+        //when actual ticks surpass our expected ticks, by so much
+        //we assume this request times out
+        if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
+            return true
+        }
+
+        return false
     }
 
     override fun initialize() {
