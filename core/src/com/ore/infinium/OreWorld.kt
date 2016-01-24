@@ -276,7 +276,7 @@ class OreWorld
 
         var treePlanted = true
         var tree: Int? = null
-        for (x in 0..WORLD_SIZE_X - 50 step 8) {
+        for (x in 0..WORLD_SIZE_X - 50 step 4) {
 
             //we reuse the previous tree, if not planted, since we have to spawn them to know how big they
             //may end up being. but we have to know the size to know where to place them,
@@ -289,7 +289,7 @@ class OreWorld
             val spriteComponent = spriteMapper.get(tree!!)
             val halfTreeHeight = spriteComponent.sprite.height
 
-            treeColumn@ for (y in 0..WORLD_SIZE_Y - 50) {
+            treeY@ for (y in 0..WORLD_SIZE_Y - 50) {
                 val treeX = x.toFloat()
                 val treeY = y.toFloat()
 
@@ -301,12 +301,14 @@ class OreWorld
 
                     EntitySolidGroundStatus.PartiallyGrounded -> {
                         //fail here. abort, can't grow a tree
-                        break@treeColumn
+                        break@treeY
                     }
 
                     EntitySolidGroundStatus.FullySolid -> {
                         spriteComponent.sprite.setPosition(treeX, treeY)
                         treePlanted = true
+                        //found our tree, already planted at this y value. skip
+                        break@treeY
                     }
                 }
             }
@@ -442,7 +444,8 @@ class OreWorld
 
                 //              boolean underground = true;
 
-                when (MathUtils.random(0, 3)) {
+                //hack MathUtils.random(0, 3)
+                when (2) {
                     0 -> setBlockType(x, y, OreBlock.BlockType.NullBlockType)
 
                     1 -> setBlockType(x, y, OreBlock.BlockType.DirtBlockType)
