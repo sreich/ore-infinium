@@ -19,7 +19,7 @@ buildscript {
         tweenEngineVersion = "6.3.3"
         gradleVersionsPluginVersion = "0.11.3"
 
-        kotlinVersion = '1.0.0-beta-4584'
+        kotlinVersion = '1.0.0-beta-4589'
 
         //gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
