@@ -342,9 +342,9 @@ class OreWorld
                                       entityWidth: Float,
                                       entityHeight: Float): EntitySolidGroundStatus {
         //fixme to round or truncate, that is the question
-        val rightSide = Math.round(entityX + (entityWidth * 0.5f))
-        val leftSide = Math.round(entityX - (entityWidth * 0.5f)).coerceIn(0, WORLD_SIZE_X - 10)
-        val bottomY = Math.round(entityY + (entityHeight * 0.5f))
+        val rightSide = MathUtils.floor(entityX + (entityWidth * 0.5f))
+        val leftSide = MathUtils.floor(entityX - (entityWidth * 0.5f)).coerceIn(0, WORLD_SIZE_X - 10)
+        val bottomY = MathUtils.floor(entityY + (entityHeight * 0.5f))
 
         var solidBlocks = ArrayList<Boolean>()
 
