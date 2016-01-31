@@ -19,7 +19,8 @@ buildscript {
         tweenEngineVersion = "6.3.3"
         gradleVersionsPluginVersion = "0.11.3"
 
-        kotlinVersion = '1.0.0-beta-4589'
+        //kotlinVersion = '1.0.0-beta-4589'
+        kotlinVersion = '1.0.0-rc-1017'
 
         //gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
@@ -34,6 +35,7 @@ buildscript {
         jcenter()
 
         maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
     }
 
     dependencies {
@@ -72,6 +74,8 @@ buildscript {
             maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
             maven { url "https://oss.sonatype.org/content/repositories/releases/" }
             maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
+
+            maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
         }
     }
 

@@ -127,7 +127,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         if (blockMapper.get(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
-                    spriteComponent.textureName!!.concat("-00"))
+                    spriteComponent.textureName!! + "-00")
         } else {
             region = m_world.m_atlas.findRegion(spriteComponent.textureName)
         }
