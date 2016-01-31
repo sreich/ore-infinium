@@ -52,6 +52,9 @@ class SpriteComponent : Component() {
      */
     fun copyFrom(spriteComponent: SpriteComponent) {
         sprite = Sprite(spriteComponent.sprite)
+        sprite.apply {
+            setPosition(spriteComponent.sprite.x, spriteComponent.sprite.y)
+        }
 
         textureName = spriteComponent.textureName
         category = spriteComponent.category

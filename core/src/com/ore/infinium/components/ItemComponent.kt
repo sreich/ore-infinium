@@ -91,6 +91,7 @@ class ItemComponent : Component() {
         state = itemComponent.state
         inventoryIndex = itemComponent.inventoryIndex
         justDropped = itemComponent.justDropped
+        //sizeBeforeDropped is not copied, intentionally
     }
 
     override fun toString(): String {

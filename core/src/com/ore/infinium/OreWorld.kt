@@ -37,6 +37,7 @@ import java.util.*
  * along with this program.  If not, see //www.gnu.org/licenses/>.     *
  * ***************************************************************************
  */
+
 /**
  * The main world, shared between both client and server, core to a lot of basic
  * shared functionality, as well as stuff that doesn't really belong elsewhere,
@@ -44,11 +45,11 @@ import java.util.*
  * (when told to do so)
 
  * @param client
- * *         never null..
- * *
+ *         never null..
+ *
  * @param server
- * *         null if it is only a client, if both client and server are valid, the
- * *         this is a local hosted server, (aka singleplayer, or self-hosting)
+ *          null if it is only a client, if both client and server are valid, the
+ *          this is a local hosted server, (aka singleplayer, or self-hosting)
  */
 class OreWorld
 (var m_client: OreClient?, //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
@@ -185,6 +186,89 @@ class OreWorld
 
     fun initServer() {
     }
+
+
+    class BlockAttributes internal constructor(var textureName: String //e.g. "dirt", "stone", etc.
+                                               ,
+                                               /**
+                                                * whether or not things should collide with this block
+                                                */
+                                               internal var collision: BlockAttributes.Collision,
+                                               var category: BlockAttributes.BlockCategory,
+                                               blockTotalHealth: Short) {
+
+        /**
+         * max starting health of the block
+         */
+        var blockTotalHealth: Float = 0f
+
+        //if this type is a type of ore (like stone, copper, ...)
+        enum class BlockCategory {
+            Null,
+            Dirt,
+            Ore
+            //liquid
+        }
+
+        enum class Collision {
+            True,
+            False
+        }
+
+        init {
+            this.blockTotalHealth = blockTotalHealth.toFloat()
+        }
+    }
+
+    companion object {
+        val GRAVITY_ACCEL = 0.5f
+        val GRAVITY_ACCEL_CLAMP = 0.5f
+
+        val BLOCK_SIZE_PIXELS = 16.0f
+
+        val WORLD_SIZE_X = 2400 //2400
+        val WORLD_SIZE_Y = 8400 //8400
+        val WORLD_SEA_LEVEL = 50
+
+        /**
+         * indicates an invalid entity id
+         */
+        //        val ENTITY_INVALID = -1
+
+        /**
+         * looks up the texture prefix name for each block type. e.g. DirtBlockType -> "dirt", etc.
+         */
+        val blockAttributes = HashMap<Byte, BlockAttributes>()
+
+        init {
+            blockAttributes.put(OreBlock.BlockType.NullBlockType,
+                                BlockAttributes("", BlockAttributes.Collision.False,
+                                                BlockAttributes.BlockCategory.Null,
+                                                0.toShort()))
+            blockAttributes.put(OreBlock.BlockType.DirtBlockType,
+                                BlockAttributes("dirt", BlockAttributes.Collision.True,
+                                                BlockAttributes.BlockCategory.Dirt, 200.toShort()))
+            blockAttributes.put(OreBlock.BlockType.StoneBlockType,
+                                BlockAttributes("stone", BlockAttributes.Collision.True,
+                                                BlockAttributes.BlockCategory.Ore, 300.toShort()))
+        }
+
+        val s_itemPlacementOverlay = "itemPlacementOverlay"
+        val s_crosshair = "crosshair"
+        val s_mainPlayer = "mainPlayer"
+
+        fun randomRange(start: Int, end: Int, rand: RandomXS128): Int {
+            return start + rand.nextInt(end - start + 1)
+        }
+
+        fun log(tag: String, message: String) {
+            val datetime = java.time.LocalDateTime.now()
+            val time = datetime.format(java.time.format.DateTimeFormatter.ofPattern("HH:m:s:S"))
+
+            Gdx.app.log(tag, "$message [$time ]")
+        }
+    }
+
 
     /**
      * @param playerName
@@ -859,20 +943,31 @@ class OreWorld
     fun createWoodenTree(type: FloraComponent.TreeSize): Int {
         val tree = m_artemisWorld.create()
 
-        //todo find a place for the tree size. probably a vegetation component
-        //we will need it when we e.g. destroy it and want it to grant so many woods or rubbers
         val sprite = spriteMapper.create(tree)
         val flora = floraMapper.create(tree)
+        val velocity = velocityMapper.create(tree)
+
+        itemMapper.create(tree).apply {
+            state = ItemComponent.State.InWorldState
+            maxStackSize = 64
+        }
+
         when (type) {
             FloraComponent.TreeSize.Large -> {
                 sprite.textureName = "flora/tree-02";
                 sprite.sprite.setSize(5f, 13f)
                 flora.numberOfDropsWhenDestroyed = 20
+                flora.stackSizePerDrop = 2
             }
 
             else -> {
                 //undefined
             }
+        }
+
+        val health = healthMapper.create(tree).apply {
+            maxHealth = 2000f
+            health = maxHealth
         }
 
         return tree
@@ -1132,15 +1227,15 @@ class OreWorld
     }
 
     /**
-     * gets the player entity that corresponds to this player id.
+     * gets the player entity that corresponds to this player connection id.
 
      * @param playerId
-     * *         the playerid of the player
+     * *         the connection playerid of the player
      * *
      * *
      * @return the player entity
      */
-    fun playerEntityForPlayerID(playerId: Int): Int {
+    fun playerEntityForPlayerConnectionID(playerId: Int): Int {
         val entities = m_artemisWorld.aspectSubscriptionManager.get(
                 Aspect.all(PlayerComponent::class.java)).entities
         var playerComponent: PlayerComponent
@@ -1206,85 +1301,46 @@ class OreWorld
         return bag
     }
 
-    class BlockAttributes internal constructor(var textureName: String //e.g. "dirt", "stone", etc.
-                                               ,
-                                               /**
-                                                * whether or not things should collide with this block
-                                                */
-                                               internal var collision: BlockAttributes.Collision,
-                                               var category: BlockAttributes.BlockCategory,
-                                               blockTotalHealth: Short) {
+    /**
+     * does the appropriate server-side action when an entity gets killed
+     * (e.g. triggering explosions and so on
+     *
+     * Server-side only. client will not call this.
+     *
+     * @param entityToKill entity id to kill and perform proper death logic
+     * @param entityKiller entity id of the one who killed them. usually
+     * this would be a player. but it could be just about anything else,
+     * or nothing (e.g. if something just died by itself)
+     */
+    fun killEntity(entityToKill: Int, entityKiller: Int? = null) {
+        val floraComp = floraMapper.getNullable(entityToKill)
+        floraComp?.let {
+            //this behavior is for exploding flora into a bunch of dropped items
+            //for example, when destroying a tree in games like terraria, it gives
+            //a satisfying exploding of dropped items
+            for (i in 0..floraComp.numberOfDropsWhenDestroyed) {
+                val cloned = cloneEntity(entityToKill)
 
-        /**
-         * max starting health of the block
-         */
-        var blockTotalHealth: Float = 0f
+                val clonedItemComp = itemMapper.get(cloned).apply {
+                    stackSize = floraComp.stackSizePerDrop
+                    state = ItemComponent.State.DroppedInWorld
+                    //hack
+                    //                    sizeBeforeDrop
+                }
 
-        //if this type is a type of ore (like stone, copper, ...)
-        enum class BlockCategory {
-            Null,
-            Dirt,
-            Ore
-            //liquid
+                spriteMapper.get(cloned).apply {
+                }
+
+                //                spriteMapper.get(cloned).apply {
+                //                   sprite.setPosition()
+                //              }
+                //todo give it some explody velocity
+            }
         }
 
-        enum class Collision {
-            True,
-            False
-        }
+        m_artemisWorld.delete(entityToKill)
 
-        init {
-            this.blockTotalHealth = blockTotalHealth.toFloat()
-        }
-    }
-
-    companion object {
-        val GRAVITY_ACCEL = 0.5f
-        val GRAVITY_ACCEL_CLAMP = 0.5f
-
-        val BLOCK_SIZE_PIXELS = 16.0f
-
-        val WORLD_SIZE_X = 2400 //2400
-        val WORLD_SIZE_Y = 8400 //8400
-        val WORLD_SEA_LEVEL = 50
-
-        /**
-         * indicates an invalid entity id
-         */
-        //        val ENTITY_INVALID = -1
-
-        /**
-         * looks up the texture prefix name for each block type. e.g. DirtBlockType -> "dirt", etc.
-         */
-        val blockAttributes = HashMap<Byte, BlockAttributes>()
-
-        init {
-            blockAttributes.put(OreBlock.BlockType.NullBlockType,
-                                BlockAttributes("", BlockAttributes.Collision.False,
-                                                BlockAttributes.BlockCategory.Null,
-                                                0.toShort()))
-            blockAttributes.put(OreBlock.BlockType.DirtBlockType,
-                                BlockAttributes("dirt", BlockAttributes.Collision.True,
-                                                BlockAttributes.BlockCategory.Dirt, 200.toShort()))
-            blockAttributes.put(OreBlock.BlockType.StoneBlockType,
-                                BlockAttributes("stone", BlockAttributes.Collision.True,
-                                                BlockAttributes.BlockCategory.Ore, 300.toShort()))
-        }
-
-        val s_itemPlacementOverlay = "itemPlacementOverlay"
-        val s_crosshair = "crosshair"
-        val s_mainPlayer = "mainPlayer"
-
-        fun randomRange(start: Int, end: Int, rand: RandomXS128): Int {
-            return start + rand.nextInt(end - start + 1)
-        }
-
-        fun log(tag: String, message: String) {
-            val datetime = java.time.LocalDateTime.now()
-            val time = datetime.format(java.time.format.DateTimeFormatter.ofPattern("HH:m:s:S"))
-
-            Gdx.app.log(tag, "$message [$time ]")
-        }
+        m_artemisWorld.getSystem(NetworkServerSystem::class.java).sendEntityKilled(entityToKill)
     }
 }
 

@@ -1,11 +1,13 @@
 package com.ore.infinium
 
+import com.artemis.Aspect
 import com.artemis.ComponentMapper
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
@@ -157,8 +159,30 @@ class OreClient : ApplicationListener, InputProcessor {
 
         val itemComponent = itemMapper.getNullable(itemEntity)
         if (itemComponent != null) {
-            //ignore tools and such, can't place those
             if (toolMapper.has(itemEntity)) {
+                //fixme obviously, iterating over every entity to find the one under position is beyond dumb
+
+                val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
+                val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
+                val clientEntities = clientEntitySubscription.entities
+
+                for (i in 0..clientEntities.size() - 1) {
+                    val currentEntity = clientEntities.get(i)
+                    val spriteComponent = spriteMapper.get(currentEntity)
+
+                    val rectangle = Rectangle(spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
+                                              spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
+                                              spriteComponent.sprite.width, spriteComponent.sprite.height)
+
+                    if (rectangle.contains(mouse)) {
+                        //todo check if something we can attack
+                        //todo hack send attack message
+                        m_networkClientSystem.sendEntityAttack(currentEntity)
+                    }
+                }
+
+
+                //early return, exclude tools and such from being placeable
                 return
             }
 

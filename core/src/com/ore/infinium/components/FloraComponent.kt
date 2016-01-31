@@ -25,8 +25,11 @@ class FloraComponent : Component() {
      * Number of separate flora objects dropped,
      * when this flora entity is destroyed.
      * e.g a tree exploding into a bunch of different objects when it gets destroyed
+     * For example, if this value is 2 on a tree, a tree would explode, drop 2 objects
+     * each with @see stackSizePerDrop number of items within it
      */
     var numberOfDropsWhenDestroyed = 1
+    var stackSizePerDrop = 2
 
     enum class FloraType {
         Tree,
@@ -47,12 +50,14 @@ class FloraComponent : Component() {
      */
     fun copyFrom(component: FloraComponent) {
         numberOfDropsWhenDestroyed = component.numberOfDropsWhenDestroyed
+        stackSizePerDrop = component.stackSizePerDrop
     }
 
     override fun toString(): String {
         val c = javaClass.simpleName
         return """
         $c.numberOfDropsWhenDestroyed: $numberOfDropsWhenDestroyed
+        $c.stackSizePerDrop: $stackSizePerDrop
         """
     }
 }

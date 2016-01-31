@@ -191,7 +191,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         val x = itemPosition.x.toInt()
         val y = itemPosition.y.toInt()
 
-        val playerEntityWhoDropped = m_world.playerEntityForPlayerID(itemComponent.playerIdWhoDropped)
+        val playerEntityWhoDropped = m_world.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped)
 
         val playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped)
         val playerVelocity = Vector2(playerVelocityComponent.velocity)

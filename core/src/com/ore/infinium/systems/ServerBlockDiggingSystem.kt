@@ -87,7 +87,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             return true
         }
 
-        val playerEntityId = m_world.playerEntityForPlayerID(blockToDig.playerId)
+        val playerEntityId = m_world.playerEntityForPlayerConnectionID(blockToDig.playerId)
         val playerComponent = playerMapper.get(playerEntityId)
         val equippedItemEntityId = playerComponent.equippedPrimaryItem!!
 

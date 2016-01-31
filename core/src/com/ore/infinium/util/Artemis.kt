@@ -35,3 +35,4 @@ fun TagManager.getTagNullable(entityId: Entity): String? {
     return this.getTag(entityId) ?: null
 }
 
+

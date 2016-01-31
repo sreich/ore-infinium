@@ -56,6 +56,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
+    private lateinit var healthMapper: ComponentMapper<HealthComponent>
+    private lateinit var toolMapper: ComponentMapper<ToolComponent>
 
     private lateinit var m_serverBlockDiggingSystem: ServerBlockDiggingSystem
     private lateinit var m_serverNetworkEntitySystem: ServerNetworkEntitySystem
@@ -244,7 +246,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
 
         OreWorld.log("networkserversystem",
-                "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
+                     "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
@@ -255,7 +257,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         destroyMultiple.entitiesToDestroy = entitiesToDestroy
 
         OreWorld.log("networkserversystem",
-                "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
+                     "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, destroyMultiple)
     }
 
@@ -310,6 +312,14 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).connectionPlayerId, spawn)
     }
 
+    fun sendEntityKilled(entityToKill: Int) {
+        val kill = Network.EntityKilledFromServer()
+        kill.entityToKill = entityToKill
+
+        //todo send to all players who have this in their viewport!
+        m_serverKryo.sendToAllTCP(kill)
+    }
+
     //fixme even needed???
     fun sendPlayerHotbarItemChanged() {
 
@@ -346,6 +356,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
                 receivePlayerEquipHotbarIndex(job, receivedObject)
             } else if (receivedObject is Network.HotbarDropItemFromClient) {
                 receiveHotbarDropItem(job, receivedObject)
+            } else if (receivedObject is Network.EntityAttackFromClient) {
+                receiveEntityAttack(job, receivedObject)
             } else if (receivedObject is Network.ItemPlaceFromClient) {
                 receiveItemPlace(job, receivedObject)
             } else if (receivedObject is FrameworkMessage.Ping) {
@@ -358,6 +370,29 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
                 }
             }
             job = m_netQueue.poll()
+        }
+    }
+
+    private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {
+        val entityToAttack = getWorld().getEntity(attack.id)
+        if (entityToAttack.isActive) {
+            val healthComponent = healthMapper.get(entityToAttack)
+
+            val playerEntity = m_world.playerEntityForPlayerConnectionID(job.connection.player)
+            val playerComp = playerMapper.get(playerEntity)
+
+            val equippedWeapon = playerComp.equippedPrimaryItem
+            val itemComp = itemMapper.get(equippedWeapon!!)
+            val toolComp = toolMapper.get(equippedWeapon)
+
+            healthComponent.health -= toolComp.blockDamage
+            if (healthComponent.health <= 0) {
+                //appropriately kill this entity, it has no health
+                m_world.killEntity(entityToAttack.id, playerEntity)
+            }
+
+        } else {
+            assert(false) { "told to delete entity that is inactive. probably malicious, or sync error" }
         }
     }
 
@@ -418,7 +453,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
         val date = SimpleDateFormat("HH:mm:ss")
         m_server.m_chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
-                Chat.ChatSender.Player)
+                                    Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.ItemPlaceFromClient) {
@@ -465,7 +500,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
         //shrink the size of all dropped items, but also store the original size first, so we can revert later
         droppedItemSprite.sprite.setSize(droppedItemSprite.sprite.width * 0.5f,
-                droppedItemSprite.sprite.height * 0.5f)
+                                         droppedItemSprite.sprite.height * 0.5f)
 
         droppedItemSprite.sprite.setPosition(playerSprite.sprite.x, playerSprite.sprite.y)
 
@@ -529,7 +564,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
 
         destInventory.setSlot(playerMoveItem.destIndex.toInt(),
-                sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
+                              sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
     }
 
     /**

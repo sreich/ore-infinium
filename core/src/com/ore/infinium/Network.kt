@@ -53,9 +53,11 @@ object Network {
         kryo.register(PlayerEquipHotbarIndexFromClient::class.java)
         kryo.register(HotbarDropItemFromClient::class.java)
         kryo.register(LoadedViewportMovedFromServer::class.java)
+        kryo.register(EntityAttackFromClient::class.java)
         kryo.register(EntitySpawnFromServer::class.java)
         kryo.register(EntitySpawnMultipleFromServer::class.java)
         kryo.register(EntityDestroyMultipleFromServer::class.java)
+        kryo.register(EntityKilledFromServer::class.java)
         kryo.register(EntityMovedFromServer::class.java)
         kryo.register(PlayerSpawnHotbarInventoryItemFromServer::class.java)
         kryo.register(ItemComponent.State::class.java)
@@ -216,10 +218,27 @@ object Network {
         var components: Array<Component>? = null
     }
 
+    /**
+     * Indicates this entity got killed in the world.
+     * (attacked by something, and health hit 0)
+     *
+     */
+    class EntityKilledFromServer {
+        var entityToKill: Int? = null
+    }
+
     class EntitySpawnMultipleFromServer {
         var entitySpawn: java.util.ArrayList<EntitySpawnFromServer>? = null
     }
 
+    /**
+     * Tells client to destroy certain entities that it shouldn't have
+     * spawned anymore (outside of players region). The entities
+     * probably still exist in the world on the server, as well
+     * as possibly on other clients.
+     *
+     * @see EntityKilledFromServer
+     */
     class EntityDestroyMultipleFromServer {
         var entitiesToDestroy: List<Int>? = null
     }
@@ -251,6 +270,15 @@ object Network {
 
     class PlayerMoveFromClient {
         var position: Vector2? = null
+    }
+
+    /**
+     * request that for the player to perform
+     * an attack on the given entity.
+     * server will do some sanity checking
+     */
+    class EntityAttackFromClient {
+        var id: Int = 0
     }
 
     class EntityMovedFromServer {

@@ -22,7 +22,7 @@ import com.artemis.Component
  */
 class HealthComponent : Component() {
 
-    var maxHealth = 25000
+    var maxHealth = 25000.0f
     //current air level
     var health = maxHealth
 
