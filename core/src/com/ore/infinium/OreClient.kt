@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
+import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
@@ -139,17 +140,17 @@ class OreClient : ApplicationListener, InputProcessor {
 
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val playerComponent = playerMapper.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem ?: return
+        val playerComp = playerMapper.get(player)
+        val itemEntity = playerComp.equippedPrimaryItem ?: return
 
-        val blockComponent = blockMapper.getNullable(itemEntity)
+        val blockComp = blockMapper.getNullable(itemEntity)
 
-        if (blockComponent != null) {
+        if (blockComp != null) {
 
             val x = mouse.x.toInt()
             val y = mouse.y.toInt()
 
-            val blockPlaced = m_world!!.attemptBlockPlacement(x, y, blockComponent.blockType)
+            val blockPlaced = m_world!!.attemptBlockPlacement(x, y, blockComp.blockType)
             if (blockPlaced) {
                 m_networkClientSystem.sendBlockPlace(x, y)
             }
@@ -157,39 +158,46 @@ class OreClient : ApplicationListener, InputProcessor {
             return
         }
 
-        val itemComponent = itemMapper.getNullable(itemEntity)
-        if (itemComponent != null) {
-            if (toolMapper.has(itemEntity)) {
-                //fixme obviously, iterating over every entity to find the one under position is beyond dumb
+        val itemComp = itemMapper.getNullable(itemEntity)
+        if (itemComp != null) {
+            val toolComp = toolMapper.getNullable(itemEntity)
+            toolComp?.let {
 
-                val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
-                val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
-                val clientEntities = clientEntitySubscription.entities
+                val currentMillis = TimeUtils.millis()
+                if (playerComp.attackLastTick - currentMillis > toolComp.attackTickInterval) {
+                    //fixme obviously, iterating over every entity to find the one under position is beyond dumb
 
-                for (i in 0..clientEntities.size() - 1) {
-                    val currentEntity = clientEntities.get(i)
-                    val spriteComponent = spriteMapper.get(currentEntity)
+                    playerComp.attackLastTick = currentMillis
 
-                    val rectangle = Rectangle(spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
-                                              spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
-                                              spriteComponent.sprite.width, spriteComponent.sprite.height)
+                    val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
+                    val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
+                    val clientEntities = clientEntitySubscription.entities
 
-                    if (rectangle.contains(mouse)) {
-                        //todo check if something we can attack
-                        //todo hack send attack message
-                        m_networkClientSystem.sendEntityAttack(currentEntity)
+                    for (i in 0..clientEntities.size() - 1) {
+                        val currentEntity = clientEntities.get(i)
+                        val spriteComp = spriteMapper.get(currentEntity)
+
+                        val rectangle = Rectangle(spriteComp.sprite.x - spriteComp.sprite.width * 0.5f,
+                                                  spriteComp.sprite.y - spriteComp.sprite.height * 0.5f,
+                                                  spriteComp.sprite.width, spriteComp.sprite.height)
+
+                        if (rectangle.contains(mouse)) {
+                            //todo check if something we can attack
+                            //todo hack send attack message
+                            m_networkClientSystem.sendEntityAttack(currentEntity)
+                        }
                     }
+
+
+                    //early return, exclude tools and such from being placeable
+                    return
                 }
-
-
-                //early return, exclude tools and such from being placeable
-                return
             }
 
-            if (playerComponent.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
-                playerComponent.placeableItemTimer.reset()
+            if (playerComp.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
+                playerComp.placeableItemTimer.reset()
 
-                attemptItemPlace(playerComponent.equippedPrimaryItem!!)
+                attemptItemPlace(playerComp.equippedPrimaryItem!!)
             }
         }
     }

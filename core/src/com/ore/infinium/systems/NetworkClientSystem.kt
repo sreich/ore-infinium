@@ -441,6 +441,15 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         m_clientKryo.sendTCP(inventoryItemFromClient)
     }
 
+    fun sendEntityAttack(currentEntity: Int) {
+        val attack = Network.EntityAttackFromClient()
+
+        val networkId = m_networkIdForEntityId[currentEntity]!!
+        attack.id = networkId
+
+        m_clientKryo.sendTCP(attack)
+    }
+
     /**
      * Send the command indicating (main) player moved to position
      */
@@ -555,4 +564,5 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
             assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
         }
     }
+
 }

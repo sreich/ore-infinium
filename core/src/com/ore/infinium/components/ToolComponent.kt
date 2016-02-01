@@ -26,6 +26,12 @@ class ToolComponent : Component() {
     var material = ToolMaterial.Wood
     var attackRadius = 10.0f
 
+    /**
+     * number of ticks that can pass since last attack
+     * before another attack is allowed
+     */
+    var attackTickInterval = 400
+
     //damage tool does to blocks
     var blockDamage: Float = 0f
 

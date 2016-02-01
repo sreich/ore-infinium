@@ -1,7 +1,6 @@
 package com.ore.infinium
 
 import java.awt.BorderLayout
-import java.awt.Dialog
 import java.awt.Dimension
 import java.awt.Window
 import java.io.PrintWriter
@@ -25,8 +24,10 @@ import javax.swing.*
  * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  */
 
-@SuppressWarnings("serial")
-class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thread) : JDialog(null as Dialog) {
+// @SuppressWarnings("serial")
+class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thread) : JDialog() {
+    //    JDialog(null as Dialog)
+    //was working before, but kotlin broke this. java just did super((Dialog)null)
 
     private var m_showDetails: Boolean = false
     private val m_errorMessage: JComponent

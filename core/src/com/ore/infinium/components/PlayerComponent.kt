@@ -35,7 +35,13 @@ class PlayerComponent : Component() {
      */
     var connectionPlayerId = -1
     var killed: Boolean = false
-    var placeableItemTimer = OreTimer()
+    @Transient var placeableItemTimer = OreTimer()
+
+    /**
+     * the tick that an attack last took place at.
+     * see ToolComponent.attackTickInterval
+     */
+    @Transient var attackLastTick = 0L;
 
     //    public Vector2 mousePositionWorldCoords;
     //    public boolean mouseLeftButtonHeld;
@@ -43,9 +49,9 @@ class PlayerComponent : Component() {
     @Transient var ping: Int = 0
     @Transient var noClip: Boolean = false
 
-    var loadedViewport = LoadedViewport()
-    var hotbarInventory: Inventory? = null
-    var inventory: Inventory? = null
+    @Transient var loadedViewport = LoadedViewport()
+    @Transient var hotbarInventory: Inventory? = null
+    @Transient var inventory: Inventory? = null
     //public int equippedItemAnimator;
 
     /**
