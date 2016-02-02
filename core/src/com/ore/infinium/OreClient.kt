@@ -164,7 +164,7 @@ class OreClient : ApplicationListener, InputProcessor {
             toolComp?.let {
 
                 val currentMillis = TimeUtils.millis()
-                if (playerComp.attackLastTick - currentMillis > toolComp.attackTickInterval) {
+                if (currentMillis - playerComp.attackLastTick > toolComp.attackTickInterval) {
                     //fixme obviously, iterating over every entity to find the one under position is beyond dumb
 
                     playerComp.attackLastTick = currentMillis
@@ -173,9 +173,19 @@ class OreClient : ApplicationListener, InputProcessor {
                     val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
                     val clientEntities = clientEntitySubscription.entities
 
-                    for (i in 0..clientEntities.size() - 1) {
-                        val currentEntity = clientEntities.get(i)
+                    loop@ for (i in 0..clientEntities.size() - 1) {
+                        val currentEntity = clientEntities[i]
                         val spriteComp = spriteMapper.get(currentEntity)
+                        if (playerMapper.has(currentEntity)) {
+                            continue
+                        }
+
+                        val tag = m_tagManager.getTag(m_world!!.m_artemisWorld.getEntity(currentEntity))
+                        when (tag) {
+                            OreWorld.s_itemPlacementOverlay,
+                            OreWorld.s_crosshair,
+                            OreWorld.s_mainPlayer -> continue@loop
+                        }
 
                         val rectangle = Rectangle(spriteComp.sprite.x - spriteComp.sprite.width * 0.5f,
                                                   spriteComp.sprite.y - spriteComp.sprite.height * 0.5f,
@@ -189,9 +199,9 @@ class OreClient : ApplicationListener, InputProcessor {
                     }
 
 
-                    //early return, exclude tools and such from being placeable
-                    return
                 }
+                //early return, exclude tools and such from being placeable
+                return
             }
 
             if (playerComp.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {

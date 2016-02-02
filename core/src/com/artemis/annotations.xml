@@ -1,0 +1,5 @@
+<root>
+    <item name='com.artemis.ComponentMapper A get(int)'>
+        <annotation name='org.jetbrains.annotations.NotNull'/>
+    </item>
+</root>

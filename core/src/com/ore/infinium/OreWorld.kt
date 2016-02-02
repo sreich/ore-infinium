@@ -1242,11 +1242,11 @@ class OreWorld
         for (i in 0..entities.size() - 1) {
             playerComponent = playerMapper.get(entities.get(i))
             if (playerComponent.connectionPlayerId == playerId) {
-                return entities.get(i)
+                return entities[i]
             }
         }
 
-        throw IllegalStateException("player id attempted to be obtained from item, but this player does not exist")
+        throw IllegalStateException("player id attempted to be obtained from world, but this player does not exist")
     }
 
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
