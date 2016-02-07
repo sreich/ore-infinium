@@ -141,9 +141,9 @@ class OreClient : ApplicationListener, InputProcessor {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
 
         val playerComp = playerMapper.get(player)
-        val itemEntity = playerComp.equippedPrimaryItem ?: return
+        val equippedItem = playerComp.equippedPrimaryItem ?: return
 
-        val blockComp = blockMapper.getNullable(itemEntity)
+        val blockComp = blockMapper.getNullable(equippedItem)
 
         if (blockComp != null) {
 
@@ -158,13 +158,13 @@ class OreClient : ApplicationListener, InputProcessor {
             return
         }
 
-        val itemComp = itemMapper.getNullable(itemEntity)
-        if (itemComp != null) {
-            val toolComp = toolMapper.getNullable(itemEntity)
-            toolComp?.let {
+        val equippedItemComp = itemMapper.getNullable(equippedItem)
+        equippedItemComp?.let {
+            val equippedToolComp = toolMapper.getNullable(equippedItem)
+            equippedToolComp?.let {
 
                 val currentMillis = TimeUtils.millis()
-                if (currentMillis - playerComp.attackLastTick > toolComp.attackTickInterval) {
+                if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickInterval) {
                     //fixme obviously, iterating over every entity to find the one under position is beyond dumb
 
                     playerComp.attackLastTick = currentMillis
@@ -177,6 +177,7 @@ class OreClient : ApplicationListener, InputProcessor {
                         val currentEntity = clientEntities[i]
                         val spriteComp = spriteMapper.get(currentEntity)
                         if (playerMapper.has(currentEntity)) {
+                            //ignore players
                             continue
                         }
 
@@ -192,9 +193,19 @@ class OreClient : ApplicationListener, InputProcessor {
                                                   spriteComp.sprite.width, spriteComp.sprite.height)
 
                         if (rectangle.contains(mouse)) {
-                            //todo check if something we can attack
+                            var send = true;
+                            itemMapper.getNullable(currentEntity)?.let {
+                                //don't let them attack dropped items, makes no sense
+                                if (it.state == ItemComponent.State.DroppedInWorld) {
+                                    send = false
+                                }
+                            }
+
+                            //todo check if something we can attack, also on server because..yeah.
                             //todo hack send attack message
-                            m_networkClientSystem.sendEntityAttack(currentEntity)
+                            if (send) {
+                                m_networkClientSystem.sendEntityAttack(currentEntity)
+                            }
                         }
                     }
 

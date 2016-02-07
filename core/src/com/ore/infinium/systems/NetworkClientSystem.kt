@@ -211,14 +211,24 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
                 receiveChatMessage(receivedObject)
             } else if (receivedObject is Network.EntityMovedFromServer) {
                 receiveEntityMoved(receivedObject)
+            } else if (receivedObject is Network.EntityKilledFromServer) {
+                receiveEntityKilled(receivedObject)
             } else if (receivedObject is FrameworkMessage.Ping) {
             } else {
                 if (receivedObject !is FrameworkMessage.KeepAlive) {
-                    assert(false) { "unhandled network receiving class in network client" }
+                    assert(false) { "unhandled network receiving class in network client ${receivedObject.toString()}" }
                 }
             }
             receivedObject = m_netQueue.poll()
         }
+    }
+
+    private fun receiveEntityKilled(receivedObject: Network.EntityKilledFromServer) {
+        //todo play a death sound and such for this entity? and possibly some effects
+        //depending on what it does.
+        //actual destruction should happen Real Soon Now i would think.
+        //or we could decide to delete entity now, and assume server will tell us to delete it anyways
+        //but possible for some hard to find desync bugs if i do that
     }
 
     private fun receivePlayerSpawnHotbarInventoryItem(spawn: Network.PlayerSpawnHotbarInventoryItemFromServer) {

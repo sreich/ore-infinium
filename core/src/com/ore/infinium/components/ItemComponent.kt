@@ -42,12 +42,21 @@ class ItemComponent : Component() {
      */
     var sizeBeforeDrop = Vector2()
 
+    //todo may want to think about ownership. probably a separate field than playerIdWhoDropped
+    //something like playerUidWhoOwns
+
     /**
      * The id of the player (not entity id!!) who dropped the item in the world
-     * Unused if the item is not in a dropped state.
+     *
+     * Right now it is the connection player id. but this wouldn't make sense if we want
+     * ownership to exist beyond connections i guess.
+     *
+     * Unused if the item is not in a dropped state, or if a player didn't drop it but eg another
+     * entity/item dropped it.
+     *
      * Utilized for record keeping of ownership
      */
-    var playerIdWhoDropped: Int = 0
+    var playerIdWhoDropped: Int? = null
     var state = State.InWorldState
 
     /**

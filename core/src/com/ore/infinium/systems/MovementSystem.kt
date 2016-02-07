@@ -191,25 +191,25 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         val x = itemPosition.x.toInt()
         val y = itemPosition.y.toInt()
 
-        val playerEntityWhoDropped = m_world.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped)
-
-        val playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped)
-        val playerVelocity = Vector2(playerVelocityComponent.velocity)
+        val itemOldVelocity = Vector2(itemVelocityComponent.velocity)
+        val itemNewVelocity = Vector2(itemVelocityComponent.velocity)
 
         val acceleration = Vector2(0.0f, OreWorld.GRAVITY_ACCEL)
 
-        if (itemComponent.justDropped) {
+        if (itemComponent.playerIdWhoDropped != null && itemComponent.justDropped ) {
+            val playerEntityWhoDropped = m_world.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped!!)
+            val playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped)
+            val playerVelocity = Vector2(playerVelocityComponent.velocity)
+
             //acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
-            acceleration.x += 0.5f//Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
-            acceleration.y += -OreWorld.GRAVITY_ACCEL * 3.0f
+            //acceleration.x Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
 
             //only add player velocity the firstEntity tick, as soon as they drop it.
             //so that we can throw things harder using players current speed
             itemComponent.justDropped = false
+            acceleration.y += -OreWorld.GRAVITY_ACCEL * 3.0f
+            acceleration.x += 0.5f
         }
-
-        val itemOldVelocity = Vector2(itemVelocityComponent.velocity)
-        val itemNewVelocity = Vector2(itemVelocityComponent.velocity)
 
         itemNewVelocity.add(acceleration)
 

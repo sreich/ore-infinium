@@ -127,7 +127,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
     override fun removed(entityId: Int) {
 
-        //i think we can assume that the client will end up knowing in some way or another,
+        //i think we can assume at this point, that the client will end up knowing in some way or another,
         //that this entity has died (e.g. if it is a player killed message, or an enemy killed,
         // or something gets destroyed), the events that send out that info should be giving the
         //appropriate information, since more context may need to be specified, other than
@@ -135,6 +135,8 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
         // remove entity from client list
 
+        //hack, dunno if this is  even needed..it's more polling based than event based, for player viewport spawns
+        /*
         for (playerEntity in m_playerEntities) {
             for (i in 0..playerEntity.knownEntities.size - 1) {
                 val ent = playerEntity.knownEntities.get(i)
@@ -144,6 +146,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                 }
             }
         }
+        */
     }
 
     override fun process(entityId: Int) {
@@ -160,7 +163,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             //get the entities that actually exist in this viewport
             val fill = IntBag()
             m_spatialSystem.m_tree.get(fill, viewport.x.toFloat(), viewport.y.toFloat(), viewport.width.toFloat(),
-                    viewport.height.toFloat())
+                                       viewport.height.toFloat())
 
             //hack copy to intarray only because the quadtree uses an intbag
             val entitiesInRegion = ArrayList<Int>()
@@ -218,17 +221,17 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
             if (entitiesToDestroy.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                        "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
+                             "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
                 m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
-                        playerComponent.connectionPlayerId)
+                                                                  playerComponent.connectionPlayerId)
             }
 
             if (entitiesToSpawn.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                        "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
+                             "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 m_networkServerSystem.sendSpawnMultipleEntities(entitiesToSpawn,
-                        playerComponent.connectionPlayerId)
+                                                                playerComponent.connectionPlayerId)
             }
 
         }
