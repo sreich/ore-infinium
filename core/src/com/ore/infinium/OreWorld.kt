@@ -1319,12 +1319,31 @@ class OreWorld
             //for example, when destroying a tree in games like terraria, it gives
             //a satisfying exploding of dropped items
             for (i in 0..floraComp.numberOfDropsWhenDestroyed) {
+                //todo actually what we want is not to clone, but to drop wood.
+                //same for rubber trees. but they may also drop a sapling
                 val cloned = cloneEntity(entityToKill)
+                val clonedSpriteComp = spriteMapper.get(cloned)
+                val random = RandomXS128 ()
+                clonedSpriteComp.sprite.apply {
+                    x += randomRange(0, 5, random)
+                    y += randomRange(0, 5, random)
+                }
 
                 val clonedItemComp = itemMapper.get(cloned).apply {
                     stackSize = floraComp.stackSizePerDrop
                     state = ItemComponent.State.DroppedInWorld
+                    //half the size, it's a dropped tree
                     //hack
+
+                    //fixme functionalize this, duplicated of/by networkserversystem drop request
+                    sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
+                                             clonedSpriteComp.sprite.height)
+
+                    val reducedWidth = (clonedSpriteComp.sprite.width * 0.25f)
+                    val reducedHeight = (clonedSpriteComp.sprite.height * 0.25f)
+                    //shrink the size of all dropped items, but also store the original size first, so we can revert later
+                    clonedSpriteComp.sprite.setSize(reducedWidth, reducedHeight)
+
                     //                    sizeBeforeDrop
                 }
 

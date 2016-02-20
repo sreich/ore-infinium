@@ -20,7 +20,7 @@ buildscript {
         gradleVersionsPluginVersion = "0.11.3"
 
         //kotlinVersion = '1.0.0-rc-1017'
-        kotlinVersion = '1.0.0-rc-1036'
+        kotlinVersion = '1.0.0'
 
         //gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
