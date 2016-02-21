@@ -6,7 +6,6 @@ import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.profiler.SystemProfiler
 
 /**
  * ***************************************************************************
@@ -50,11 +49,6 @@ class InputSystem(private val m_camera: OrthographicCamera, private val m_world:
     private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
 
     override fun processSystem() {
-        //ignore input if the profiler is shown
-        if (SystemProfiler.isRunning()) {
-            return
-        }
-
         if (m_world.m_client!!.leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible) {
 
             m_world.m_client!!.handleLeftMousePrimaryAttack()

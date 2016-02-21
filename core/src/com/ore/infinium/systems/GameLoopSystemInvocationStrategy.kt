@@ -31,7 +31,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.TimeUtils
-import com.ore.infinium.systems.profiler.SystemProfiler
 
 class GameLoopSystemInvocationStrategy
 /**
@@ -46,7 +45,7 @@ class GameLoopSystemInvocationStrategy
     private val m_renderSystems = Array<SystemAndProfiler>()
     private val m_logicSystems = Array<SystemAndProfiler>()
 
-    private inner class SystemAndProfiler(internal var system: BaseSystem, internal var profiler: SystemProfiler?)
+    private inner class SystemAndProfiler(internal var system: BaseSystem/*, internal var profiler: SystemProfiler?*/)
 
     private var m_accumulator: Long = 0
 
@@ -56,7 +55,7 @@ class GameLoopSystemInvocationStrategy
 
     private var m_systemsSorted: Boolean = false
 
-    protected lateinit var frameProfiler: SystemProfiler
+//    protected lateinit var frameProfiler: SystemProfiler
     private var initialized = false
 
     init {
@@ -69,9 +68,11 @@ class GameLoopSystemInvocationStrategy
             for (i in 0..systems.size() - 1) {
                 val system = systemsData[i] as BaseSystem
                 if (system is RenderSystemMarker) {
-                    m_renderSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
+                    //m_renderSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
+                    m_renderSystems.add(SystemAndProfiler(system))
                 } else {
-                    m_logicSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
+                    //m_logicSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
+                    m_logicSystems.add(SystemAndProfiler(system))
                 }
             }
         }
@@ -79,10 +80,11 @@ class GameLoopSystemInvocationStrategy
 
     override fun initialize() {
         if (!m_isServer) {
-            createFrameProfiler()
+     //       createFrameProfiler()
         }
     }
 
+    /*
     private fun createFrameProfiler() {
         frameProfiler = SystemProfiler.create("Frame Profiler")
         frameProfiler.setColor(1f, 1f, 1f, 1f)
@@ -108,11 +110,12 @@ class GameLoopSystemInvocationStrategy
 
         return old
     }
+    */
 
     override fun process(systems: Bag<BaseSystem>) {
 
         if (!m_isServer) {
-            frameProfiler.start()
+        //    frameProfiler.start()
         }
 
         //fixme isn't this(initialized) called automatically??
@@ -147,7 +150,8 @@ class GameLoopSystemInvocationStrategy
             for (i in 0..m_logicSystems.size - 1) {
                 val systemAndProfiler = m_logicSystems.get(i)
                 //TODO interpolate before this
-                processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
+        //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
+                systemAndProfiler.system.process()
                 updateEntityStates()
             }
 
@@ -180,13 +184,14 @@ class GameLoopSystemInvocationStrategy
 
             val systemAndProfiler = m_renderSystems.get(i)
             //TODO interpolate before this
-            processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
+            //processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
+            systemAndProfiler.system.process();
 
             updateEntityStates()
         }
 
         if (!m_isServer) {
-            frameProfiler.stop()
+//            f.rameProfiler.stop()
         }
     }
 }

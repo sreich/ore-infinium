@@ -15,7 +15,6 @@ import com.badlogic.gdx.math.*
 import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
-import com.ore.infinium.systems.profiler.ProfilerSystem
 import com.ore.infinium.util.getNullable
 import java.util.*
 
@@ -138,7 +137,6 @@ class OreWorld
                                            .with(PowerOverlayRenderSystem(this, m_client!!.stage,
                                                                           m_client!!.skin))
                                            .with(TileTransitionSystem(m_camera, this))
-                                           .with(ProfilerSystem(m_client!!.skin))
                                            .build())
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
@@ -956,7 +954,7 @@ class OreWorld
             FloraComponent.TreeSize.Large -> {
                 sprite.textureName = "flora/tree-02";
                 sprite.sprite.setSize(5f, 13f)
-                flora.numberOfDropsWhenDestroyed = 20
+                flora.numberOfDropsWhenDestroyed = 4
                 flora.stackSizePerDrop = 2
             }
 

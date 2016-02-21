@@ -192,6 +192,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             playerEntity.knownEntities.removeAll(entitiesToDestroy)
 
             ////////////////// debug testing, to ensure validity
+            /*
             val hashSet = HashSet<Int>()
             for (i in 0..entitiesToSpawn.size - 1) {
                 hashSet.add(entitiesToSpawn[i])
@@ -216,6 +217,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                     assert(false)
                 }
             }
+            */
 
             ////////////////////
 
