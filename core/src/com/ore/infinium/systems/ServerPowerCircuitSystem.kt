@@ -405,19 +405,19 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
         updateDevicesOwningCircuit(firstEntity, secondEntity, circuit)
 
-        if (powerConsumerMapper.get(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
+        if (powerConsumerMapper.getNullable(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
             circuit.consumers.add(firstEntity)
         }
 
-        if (powerConsumerMapper.get(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
+        if (powerConsumerMapper.getNullable(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
             circuit.consumers.add(secondEntity)
         }
 
-        if (powerGeneratorMapper.get(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
+        if (powerGeneratorMapper.getNullable(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
             circuit.generators.add(firstEntity)
         }
 
-        if (powerGeneratorMapper.get(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
+        if (powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
             circuit.generators.add(secondEntity)
         }
     }
