@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 import java.util.*
 
 /**
@@ -160,9 +161,15 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * *
      * @param secondEntity
      */
-    public fun connectDevices(firstEntity: Int, secondEntity: Int): Boolean {
+    fun connectDevices(firstEntity: Int, secondEntity: Int): Boolean {
         if (firstEntity == secondEntity) {
             //disallow connection with itself
+            return false
+        }
+
+        if (itemMapper.getNullable(firstEntity)!!.state == ItemComponent.State.DroppedInWorld ||
+        itemMapper.getNullable(secondEntity)!!.state == ItemComponent.State.DroppedInWorld) {
+            //don't allow connecting devices to dropped items
             return false
         }
 
@@ -171,7 +178,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 //scan for these exact device endpoints already having a connection.
                 //do not allow device 1 and device 2 to have two connections between each other
                 //(aka duplicate wires)
-                if (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity || connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
+                if (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
+                        connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
                     return false
                 }
             }
