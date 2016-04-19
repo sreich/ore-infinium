@@ -162,7 +162,16 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         m_dragInProgress = true
 
         //find the entity we're dragging on
-        m_dragSourceEntity = entityAtPosition(m_world.mousePositionWorldCoords())
+        val entity = entityAtPosition(m_world.mousePositionWorldCoords()) ?: return
+
+        var item = itemMapper.getNullable(entity)?.let { item ->
+            if (item.state == ItemComponent.State.DroppedInWorld) {
+                //do not allow drag starts from dropped items
+                return
+            }
+        }
+
+        m_dragSourceEntity = entity
     }
 
     fun rightMouseClicked() {

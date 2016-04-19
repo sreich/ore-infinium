@@ -4,11 +4,11 @@ buildscript {
         //use + for latest
         appName = 'ore-infinium'
 
-        gdxVersion = '1.7.2'
+        gdxVersion = '1.9.2'
 
-        aiVersion = '1.6.0'
+        aiVersion = '1.8.0'
 
-        artemisVersion = '1.2.1'
+        artemisVersion = '1.4.0'
         artemisContribVersion = '1.1.0'
         kryonetVersion = '2.22.0-RC1'
 
@@ -17,7 +17,9 @@ buildscript {
         jcommanderVersion = "1.48"
         junitVersion = "4.12"
         tweenEngineVersion = "6.3.3"
-        gradleVersionsPluginVersion = "0.11.3"
+
+        //run :dependencyUpdates to get a list of updates needed
+        gradleVersionsPluginVersion = "0.12.0"
 
         //kotlinVersion = '1.0.0-rc-1017'
         kotlinVersion = '1.0.0'
@@ -54,8 +56,8 @@ buildscript {
 }
 
     plugins {
-        id 'nebula.provided-base' version '3.0.3'
-        id 'com.github.ben-manes.versions' version '0.11.3'
+        id 'nebula.provided-base' version '3.1.0'
+        id 'com.github.ben-manes.versions' version '0.12.0'
         id 'org.sonarqube' version '1.1'
     }
 
