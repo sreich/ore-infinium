@@ -2,6 +2,9 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.math.Rectangle
+
+val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y + (height * 0.5f), x + width + (width * 0.5f), y + height - (height * 0.5f))
 
 /**
  * ***************************************************************************
@@ -69,6 +72,8 @@ class SpriteComponent : Component() {
         $c.textureName: $textureName
         $c.visible: $visible
         $c.noClip: $noClip
-        $c.sprite.position: ${sprite.x}, ${sprite.y}"""
+        $c.boundingRectangle: ${this.sprite.rect.toString()}
+        $c.sprite.width: w: ${sprite.width}, h: ${sprite.height}
+        $c.sprite.position: x: ${sprite.x}, y: ${sprite.y}"""
     }
 }

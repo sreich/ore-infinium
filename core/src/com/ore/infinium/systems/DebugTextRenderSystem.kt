@@ -98,7 +98,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     var m_renderDebugClient = false
 
     private val TEXT_Y_SPACING = 10
-    private val TEXT_X_RIGHT = OreSettings.width - 350
+    private val TEXT_X_RIGHT = OreSettings.width - 600
     private val TEXT_X_LEFT = 6
 
     private var m_textYRight: Int = 0
