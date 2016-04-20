@@ -35,15 +35,29 @@ fun TagManager.getTagNullable(entityId: Entity): String? {
     return this.getTag(entityId) ?: null
 }
 
+/*
 inline fun <T> IntBag.forEachIndexed(action: (Int, T) -> Unit): Unit {
     var index = 0
     for (item in this) action(index++, item)
 }
+*/
+
+inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
+    for (i in indices) action(this.get(i))
+}
 
 
+//public inline fun <T> Array<out T>.forEach(action: (T) -> Unit): Unit {
+//    for (element in this) action(element)
+//}
+
+val IntBag.indices: IntRange get() = 0..size() - 1
+
+/*
 inline fun <T> Array<out T>.forEachIndexed(action: (Int, T) -> Unit): Unit {
     var index = 0
     for (item in this) action(index++, item)
 }
+*/
 
 

@@ -8,6 +8,7 @@ import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.forEach
 import com.ore.infinium.util.getNullable
 
 /**
@@ -49,7 +50,6 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     override fun initialize() {
-
     }
 
     override fun process(entityId: Int) {
@@ -64,17 +64,19 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
         val aspectSubscriptionManager = world.aspectSubscriptionManager
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(ItemComponent::class.java))
         val entities = entitySubscription.entities
-var a: Array<Int>
-        a.forEachIndexed { i, i ->  }
-        for (i in 0..entities.size() - 1) {
-            val entity = entities[i]
+
+        entities.forEach {
+            val entity = entities[it]
             val itemComponent = itemMapper.getNullable(entityId)!!
 
             if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
                 val itemSpriteComponent = spriteMapper.get(entity)
+
+
+
+                val rect = itemSpriteComponent.sprite.boundingRectangle
             }
         }
-
 
     }
 }
