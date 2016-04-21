@@ -74,8 +74,7 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
 
 
 
-                val rect = itemSpriteComponent.sprite.boundingRectangle
-                rect.toString()
+                val rect = itemSpriteComponent.sprite.rect
             }
         }
 
