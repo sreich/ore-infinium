@@ -153,6 +153,7 @@ class OreWorld
                                            .with(MovementSystem(this))
                                            .with(ServerPowerCircuitSystem(this))
                                            .with(GameTickSystem(this))
+                                           .with(DroppedItemPickupSystem(this))
                                            .with(GrassBlockSystem(this))
                                            .with(ServerNetworkEntitySystem(this))
                                            .with(ServerBlockDiggingSystem(this))

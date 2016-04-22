@@ -52,12 +52,13 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
     override fun initialize() {
     }
 
-    override fun process(entityId: Int) {
+    override fun process(playerEntityId: Int) {
         if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             assert(true)
         }
 
-        val playerSpriteComponent = spriteMapper.getNullable(entityId)!!
+        val playerSpriteComponent = spriteMapper.getNullable(playerEntityId)!!
+        val playerComponent = playerMapper.getNullable(playerEntityId)!!
 
         //fixme use spatialsystem for this *very expensive* walking
 
@@ -65,19 +66,25 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(ItemComponent::class.java))
         val entities = entitySubscription.entities
 
-        entities.forEach {
-            val entity = entities[it]
-            val itemComponent = itemMapper.getNullable(entityId)!!
+        entities.forEach { droppedItemEntityId ->
 
-            if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
-                val itemSpriteComponent = spriteMapper.get(entity)
+            val itemComponent = itemMapper.getNullable(droppedItemEntityId)
 
+            if (itemComponent?.state == ItemComponent.State.DroppedInWorld) {
+                val itemSpriteComponent = spriteMapper.get(droppedItemEntityId)
 
+                val droppedItemRect = itemSpriteComponent.sprite.rect
+                val playerRect = playerSpriteComponent.sprite.rect
+                if (playerRect.overlaps(droppedItemRect)) {
+                    //pickup the item, he's over it
 
-                val rect = itemSpriteComponent.sprite.rect
+                    //todo, create logic which will decide what happens when an item gets added
+                    //to the inventory (add to hotbar, add to main inventory, probably in that order if not
+                    //full). also probably consider existing stacks and stuff
+                    playerComponent.hotbarInventory!!.setSlot(4, droppedItemEntityId)
+                }
             }
         }
-
     }
 }
 
