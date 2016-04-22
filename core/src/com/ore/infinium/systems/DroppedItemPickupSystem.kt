@@ -68,9 +68,9 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
 
         entities.forEach { droppedItemEntityId ->
 
-            val itemComponent = itemMapper.getNullable(droppedItemEntityId)
+            val droppedItemComponent = itemMapper.getNullable(droppedItemEntityId)
 
-            if (itemComponent?.state == ItemComponent.State.DroppedInWorld) {
+            if (droppedItemComponent != null && droppedItemComponent.state == ItemComponent.State.DroppedInWorld) {
                 val itemSpriteComponent = spriteMapper.get(droppedItemEntityId)
 
                 val droppedItemRect = itemSpriteComponent.sprite.rect
@@ -78,13 +78,30 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
                 if (playerRect.overlaps(droppedItemRect)) {
                     //pickup the item, he's over it
 
-                    //todo, create logic which will decide what happens when an item gets added
-                    //to the inventory (add to hotbar, add to main inventory, probably in that order if not
-                    //full). also probably consider existing stacks and stuff
-                    playerComponent.hotbarInventory!!.setSlot(4, droppedItemEntityId)
+
+
+                    pickupItem(droppedItemComponent, droppedItemEntityId, playerComponent)
                 }
             }
         }
     }
+
+    /**
+     * places a dropped item in the inventory of a player
+     * @param itemComponentToPickup item that should be picked up and put into inventory
+     * @param playerComponent player who should be picking up this item
+     * @param itemToPickupId entity id
+     */
+    private fun pickupItem(itemComponentToPickup: ItemComponent, itemToPickupId: Int, playerComponent: PlayerComponent) {
+        itemComponentToPickup.state = ItemComponent.State.InInventoryState
+        itemComponentToPickup.inventoryIndex = 4
+
+        //todo, create logic which will decide what happens when an item gets added
+        //to the inventory (add to hotbar, add to main inventory, probably in that order if not
+        //full). also probably consider existing stacks and stuff
+        playerComponent.hotbarInventory!!.setSlot(4, itemToPickupId)
+
+    }
+
 }
 
