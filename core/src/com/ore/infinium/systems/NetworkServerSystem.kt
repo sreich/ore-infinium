@@ -519,8 +519,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         //indicate when we dropped it, so pickup system knows not to pick it up for a while after
         itemDroppedComponent.timeOfDropMs = TimeUtils.millis()
 
-        //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
-        //sendSpawnEntity(droppedItem, job.connection.getID());
+        //note we do not send anything, because later on the network system will figure out it needs to spawn that entity
     }
 
     private fun receivePlayerEquipHotbarIndex(job: NetworkJob, playerEquip: Network.PlayerEquipHotbarIndexFromClient) {
