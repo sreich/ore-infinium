@@ -6,7 +6,9 @@ these things.
 
 Inspired a lot by tekkit, but I'm not a fan of its overwhelming complexity, although it has some really great gameplay ideas/mechanisms. I aim to incorporate some of these ideas, improve them where I can, improve the process and make it easier and less grueling. For instance, the wiring is done by pressing a key which shows an overlay, and dragging and dropping. So it's not actually in the physical world, which makes things much easier to manage. In general I like the idea of the player being able to createconnect devices, have them depend on resources, and use them to do neat things, assuming it doesn't make things too overwhelmingly complicated for someone like me.
 
-Written in/using some libraries such as: **Kotlin, LibGDX, artemis-odb, KryoNet, Scene2D.ui**
+Written in **Kotlin**(on the JVM) https://kotlinlang.org/
+
+Libraries such as: **LibGDX, artemis-odb, KryoNet, Scene2D.ui**
 
 reddit: http://reddit.com/r/ore-infinium
 
