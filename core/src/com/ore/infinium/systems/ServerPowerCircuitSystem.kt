@@ -124,10 +124,10 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     override fun processSystem() {
         /*
         * note that only the server should be the one that processes input and
-        * output for generations, devices etc...the client cannot accurately calculate this each tick,
+        * output for generators, devices etc...the client cannot accurately calculate this each tick,
         * without desyncing at some point. the server should be the one
         * informing it of the outcomes, and the changes can be sent over the
-        * wire and consumed by this system
+        * wire and consumed by the clientside system system
         */
 
         calculateSupplyAndDemandRates()
@@ -183,7 +183,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         var previousCircuit: PowerCircuit? = null
         //scan again, this time we'll find places to add it in. it is a valid add, somewhere..
         for (itCircuit in m_circuits.indices) {
-            val circuit = m_circuits.get(itCircuit)
+            val circuit = m_circuits[itCircuit]
 
             for (connection in circuit.wireConnections) {
                 //check which circuit this connection between 2 devices belongs to
@@ -196,10 +196,9 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
                     //////////////////////////// second scan, looking for circuits we can merge with
                     for (itCircuit2 in m_circuits.indices) {
-                        val circuit2 = m_circuits.get(itCircuit2)
+                        val circuit2 = m_circuits[itCircuit2]
 
                         for (itWires2 in circuit.wireConnections.indices) {
-                            val connection2 = circuit2.wireConnections.get(itWires2)
                             if (itCircuit2 == itCircuit) {
                                 //we're only checking if one of these devices is on another circuit
                                 //but this is the same one, so skip it.
@@ -212,22 +211,22 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                     connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
                                 addWireConnection(firstEntity, secondEntity, circuit2)
 
-                                for (itWireConnections in 0..circuit2.wireConnections.size - 1) {
+                                for (itWireConnections in circuit2.wireConnections.indices) {
 
                                     //update the owning circuit of the ones getting moved over,
                                     // to now point to the new one they reside on
-                                    val movedEntity1 = circuit2.wireConnections.get(itWireConnections).firstEntity
-                                    val movedEntity2 = circuit2.wireConnections.get(itWireConnections).secondEntity
+                                    val movedEntity1 = circuit2.wireConnections[itWireConnections].firstEntity
+                                    val movedEntity2 = circuit2.wireConnections[itWireConnections].secondEntity
                                     updateDevicesOwningCircuit(movedEntity1, movedEntity2, circuit)
 
                                     // merge the connections from this circuit to the other one now.
-                                    circuit.wireConnections.add(circuit2.wireConnections.get(itWireConnections))
+                                    circuit.wireConnections.add(circuit2.wireConnections[itWireConnections])
                                 }
 
                                 //transfer over our running list of consumers and stuff too
 
                                 for (itConsumers in circuit2.consumers.indices) {
-                                    val consumer = circuit2.consumers.get(itConsumers)
+                                    val consumer = circuit2.consumers[itConsumers]
 
                                     //circuit2 is getting merged with 1, and deleted.
                                     //but only merge over devices in the consumer list and generator
@@ -243,7 +242,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
                                 //same thing for gens
                                 for (itGenerators in circuit2.generators.indices) {
-                                    val generator = circuit2.generators.get(itGenerators)
+                                    val generator = circuit2.generators[itGenerators]
 
                                     if (!circuit.generators.contains(generator)) {
                                         circuit.generators.add(generator)
@@ -321,11 +320,11 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * @param entityToDisconnect
      */
     fun disconnectAllWiresFromDevice(entityToDisconnect: Int) {
-        for (itCircuit in 0..m_circuits.size - 1) {
-            val circuit = m_circuits.get(itCircuit)
+        for (itCircuit in m_circuits.indices) {
+            val circuit = m_circuits[itCircuit]
 
             for (itWire in 0..circuit.wireConnections.size - 1) {
-                val wireConnection = circuit.wireConnections.get(itWire)
+                val wireConnection = circuit.wireConnections[itWire]
 
                 if (wireConnection.firstEntity == entityToDisconnect || wireConnection.secondEntity == entityToDisconnect) {
                     circuit.wireConnections.removeAt(itWire)
@@ -353,11 +352,11 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     fun disconnectWireAtPosition(position: Vector2): Boolean {
 
-        for (itCircuits in 0..m_circuits.size - 1) {
-            val circuit = m_circuits.get(itCircuits)
+        for (itCircuits in m_circuits.indices) {
+            val circuit = m_circuits[itCircuits]
 
-            for (itWires in 0..circuit.wireConnections.size - 1) {
-                val connection = circuit.wireConnections.get(itWires)
+            for (itWires in circuit.wireConnections.indices) {
+                val connection = circuit.wireConnections[itWires]
 
                 val first = connection.firstEntity
                 val second = connection.secondEntity
