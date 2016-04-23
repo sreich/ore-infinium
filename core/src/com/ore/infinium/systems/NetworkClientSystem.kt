@@ -18,6 +18,7 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -233,29 +234,29 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
 
     private fun receivePlayerSpawnHotbarInventoryItem(spawn: Network.PlayerSpawnHotbarInventoryItemFromServer) {
         //fixme spawn.id, sprite!!
-        val e = getWorld().create()
+        val spawnedItemEntityId = getWorld().create()
         for (c in spawn.components!!) {
-            val entityEdit = getWorld().edit(e)
+            val entityEdit = getWorld().edit(spawnedItemEntityId)
             entityEdit.add(c)
         }
 
-        val spriteComponent = spriteMapper.create(e)
+        val spriteComponent = spriteMapper.create(spawnedItemEntityId)
         spriteComponent.textureName = spawn.textureName
         spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y)
 
         //fixme uhhhhh this isn't used at all??
         val textureRegion: TextureRegion
-        if (!blockMapper.has(e)) {
+        if (!blockMapper.has(spawnedItemEntityId)) {
             textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName)
         } else {
             textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName)
         }
 
-        val toolComponent = toolMapper.get(e)
+        val toolComponent = toolMapper.getNullable(spawnedItemEntityId)
 
-        val itemComponent = itemMapper.get(e)
+        val itemComponent = itemMapper.get(spawnedItemEntityId)
         //fixme this indirection isn't so hot...
-        m_world.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, e)
+        m_world.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
 
         //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
         // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class

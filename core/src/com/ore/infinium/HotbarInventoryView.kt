@@ -18,6 +18,7 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.NetworkClientSystem
 import com.ore.infinium.systems.TileRenderSystem
+import com.ore.infinium.util.getNullable
 import java.util.*
 
 /**
@@ -124,7 +125,8 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         val region: TextureRegion?
         val spriteComponent = spriteMapper.get(itemEntity)
-        if (blockMapper.get(itemEntity) != null) {
+
+        if (blockMapper.getNullable(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
                     spriteComponent.textureName!! + "-00")

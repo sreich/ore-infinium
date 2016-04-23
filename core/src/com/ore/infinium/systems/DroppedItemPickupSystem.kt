@@ -6,6 +6,7 @@ import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
+import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.forEach
@@ -58,7 +59,6 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
         }
 
         val playerSpriteComponent = spriteMapper.getNullable(playerEntityId)!!
-        val playerComponent = playerMapper.getNullable(playerEntityId)!!
 
         //fixme use spatialsystem for this *very expensive* walking
 
@@ -75,12 +75,17 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
 
                 val droppedItemRect = itemSpriteComponent.sprite.rect
                 val playerRect = playerSpriteComponent.sprite.rect
+
+                //todo create timer so he can't instantly pick it up ..and never see it
                 if (playerRect.overlaps(droppedItemRect)) {
-                    //pickup the item, he's over it
+                    droppedItemComponent.apply {
+                        if (timeOfDropMs != 0L &&
+                                TimeUtils.timeSinceMillis(timeOfDropMs) > ItemComponent.droppedItemCoolOffMs) {
+                            //pickup the item, he's over it
 
-
-
-                    pickupItem(droppedItemComponent, droppedItemEntityId, playerComponent)
+                            pickupItem(droppedItemComponent, droppedItemEntityId, playerEntityId)
+                        }
+                    }
                 }
             }
         }
@@ -92,15 +97,20 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
      * @param playerComponent player who should be picking up this item
      * @param itemToPickupId entity id
      */
-    private fun pickupItem(itemComponentToPickup: ItemComponent, itemToPickupId: Int, playerComponent: PlayerComponent) {
+    private fun pickupItem(itemComponentToPickup: ItemComponent, itemToPickupId: Int, playerEntityId: Int) {
         itemComponentToPickup.state = ItemComponent.State.InInventoryState
-        itemComponentToPickup.inventoryIndex = 4
+        itemComponentToPickup.inventoryIndex = 7
+
+        val playerComponent = playerMapper.getNullable(playerEntityId)!!
 
         //todo, create logic which will decide what happens when an item gets added
         //to the inventory (add to hotbar, add to main inventory, probably in that order if not
         //full). also probably consider existing stacks and stuff
-        playerComponent.hotbarInventory!!.setSlot(4, itemToPickupId)
+        playerComponent.hotbarInventory!!.setSlot(7, itemToPickupId)
 
+        m_networkServerSystem.sendSpawnHotbarInventoryItem(itemToPickupId, 7, playerEntityId)
+
+        m_world.killEntity(itemToPickupId)
     }
 
 }

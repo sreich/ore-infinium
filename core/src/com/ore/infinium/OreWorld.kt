@@ -1301,8 +1301,13 @@ class OreWorld
     }
 
     /**
-     * does the appropriate server-side action when an entity gets killed
-     * (e.g. triggering explosions and so on
+     * Destroying/killing of entity.
+     *
+     * does the appropriate server-side action when an entity gets killed or destroyed
+     * (e.g. triggering explosions and so on.
+     *
+     * Destruction could happen for any reason, whether player caused (rabbit killed by player),
+     * or simply items getting picked up and destroyed, and respawned into the appropriate inventory
      *
      * Server-side only. client will not call this.
      *

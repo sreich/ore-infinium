@@ -28,6 +28,25 @@ class ItemComponent : Component() {
     var maxStackSize: Int = 0
 
     /**
+     * indicates the ms point in time that the player dropped the item.
+     * this way we can avoid picking it up. if we did not, dropping would instantly
+     * get picked up.
+     *
+     * reset it to 0 when consumed (picked up)
+     *
+     * server-side only
+     */
+    @Transient
+    var timeOfDropMs = 0L
+
+    companion object {
+        /**
+         *
+         */
+        val droppedItemCoolOffMs = 4000L
+    }
+
+    /**
      * the size of the item before the drop
      * we reduce the size of all dropped items in the world,
      * temporarily. if they get picked up, we'd like to restore
