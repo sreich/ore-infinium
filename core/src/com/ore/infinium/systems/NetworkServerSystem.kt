@@ -564,17 +564,16 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
 
         val sourceInventory: Inventory
-        if (playerMoveItem.sourceType == Inventory.InventoryType.Hotbar) {
-            sourceInventory = playerComponent.hotbarInventory!!
-        } else {
-            sourceInventory = playerComponent.inventory!!
+        when {
+            playerMoveItem.sourceType == Inventory.InventoryType.Hotbar -> sourceInventory = playerComponent.hotbarInventory!!
+            else -> sourceInventory = playerComponent.inventory!!
         }
 
         val destInventory: Inventory
-        if (playerMoveItem.destType == Inventory.InventoryType.Hotbar) {
-            destInventory = playerComponent.hotbarInventory!!
-        } else {
-            destInventory = playerComponent.inventory!!
+
+        when {
+            playerMoveItem.destType == Inventory.InventoryType.Hotbar -> destInventory = playerComponent.hotbarInventory!!
+            else -> destInventory = playerComponent.inventory!!
         }
 
         destInventory.setSlot(playerMoveItem.destIndex.toInt(),

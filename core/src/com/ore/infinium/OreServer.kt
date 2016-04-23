@@ -149,6 +149,8 @@ class OreServer : Runnable {
         playerComponent.hotbarInventory = Inventory(player, Inventory.InventoryType.Hotbar)
         playerComponent.hotbarInventory!!.addListener(HotbarInventorySlotListener())
 
+        playerComponent.inventory = Inventory(player, Inventory.InventoryType.Inventory)
+
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
         //tell all players including himself, that he joined
@@ -281,6 +283,9 @@ class OreServer : Runnable {
         */
     }
 
+    /**
+     * listen for events on hotbar inventory changed, added or removed
+     */
     private inner class HotbarInventorySlotListener : Inventory.SlotListener {
         override operator fun set(index: Int, inventory: Inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
