@@ -160,6 +160,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * @param firstEntity
      * *
      * @param secondEntity
+     *
+     * @return false if connection failed.
      */
     fun connectDevices(firstEntity: Int, secondEntity: Int): Boolean {
         if (firstEntity == secondEntity) {
@@ -168,26 +170,19 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
         if (itemMapper.getNullable(firstEntity)!!.state == ItemComponent.State.DroppedInWorld ||
-        itemMapper.getNullable(secondEntity)!!.state == ItemComponent.State.DroppedInWorld) {
+                itemMapper.getNullable(secondEntity)!!.state == ItemComponent.State.DroppedInWorld) {
             //don't allow connecting devices to dropped items
             return false
         }
 
-        for (circuit in m_circuits) {
-            for (connection in circuit.wireConnections) {
-                //scan for these exact device endpoints already having a connection.
-                //do not allow device 1 and device 2 to have two connections between each other
-                //(aka duplicate wires)
-                if (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
-                        connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
-                    return false
-                }
-            }
+        //don't allow connection two devices that are already connected together
+        if (entitiesConnected(firstEntity, secondEntity)) {
+            return false
         }
 
         var previousCircuit: PowerCircuit? = null
         //scan again, this time we'll find places to add it in. it is a valid add, somewhere..
-        for (itCircuit in 0..m_circuits.size - 1) {
+        for (itCircuit in m_circuits.indices) {
             val circuit = m_circuits.get(itCircuit)
 
             for (connection in circuit.wireConnections) {
@@ -200,10 +195,10 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                     //make a new wire, add it to this circuit, as one of these entities is in this circuit
 
                     //////////////////////////// second scan, looking for circuits we can merge with
-                    for (itCircuit2 in 0..m_circuits.size - 1) {
+                    for (itCircuit2 in m_circuits.indices) {
                         val circuit2 = m_circuits.get(itCircuit2)
 
-                        for (itWires2 in 0..circuit.wireConnections.size - 1) {
+                        for (itWires2 in circuit.wireConnections.indices) {
                             val connection2 = circuit2.wireConnections.get(itWires2)
                             if (itCircuit2 == itCircuit) {
                                 //we're only checking if one of these devices is on another circuit
@@ -231,7 +226,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
                                 //transfer over our running list of consumers and stuff too
 
-                                for (itConsumers in 0..circuit2.consumers.size - 1) {
+                                for (itConsumers in circuit2.consumers.indices) {
                                     val consumer = circuit2.consumers.get(itConsumers)
 
                                     //circuit2 is getting merged with 1, and deleted.
@@ -247,7 +242,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 }
 
                                 //same thing for gens
-                                for (itGenerators in 0..circuit2.generators.size - 1) {
+                                for (itGenerators in circuit2.generators.indices) {
                                     val generator = circuit2.generators.get(itGenerators)
 
                                     if (!circuit.generators.contains(generator)) {
@@ -289,6 +284,31 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         m_circuits.add(circuit)
 
         return true
+    }
+
+    /**
+     * scans all circuits and connections within each circuit, to see if they
+     * are already connected.
+     * This is so that e.g. device 1 and device 2 cannot have two connections
+     * to each other.
+     *
+     * @return true if these are already connected in some circuit. false if
+     * they are not connected to each other (but could be connected to something else)
+     */
+    private fun entitiesConnected(firstEntity: Int, secondEntity: Int): Boolean {
+        for (circuit in m_circuits) {
+            for (connection in circuit.wireConnections) {
+                //scan for these exact device endpoints already having a connection.
+                //do not allow device 1 and device 2 to have two connections between each other
+                //(aka duplicate wires)
+                if (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
+                        connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 
     /**
