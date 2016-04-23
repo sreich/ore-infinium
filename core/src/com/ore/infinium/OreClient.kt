@@ -612,17 +612,20 @@ class OreClient : ApplicationListener, InputProcessor {
         val playerComponent = playerMapper.get(player)
 
         m_hotbarInventory = Inventory(player, Inventory.InventoryType.Hotbar)
-        m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
         playerComponent.hotbarInventory = m_hotbarInventory
 
         m_hotbarInventory!!.addListener(HotbarSlotListener())
 
         m_inventory = Inventory(player, Inventory.InventoryType.Inventory)
-        m_world!!.m_artemisWorld.inject(m_inventory, true)
         playerComponent.inventory = m_inventory
 
         m_hotbarView = HotbarInventoryView(stage, skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
         m_inventoryView = InventoryView(stage, skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
+
+        m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
+        m_world!!.m_artemisWorld.inject(m_inventory, true)
+        m_world!!.m_artemisWorld.inject(m_inventoryView, true)
+        m_world!!.m_artemisWorld.inject(m_hotbarView, true)
 
         if (mainPlayer) {
             m_tagManager.register(OreWorld.s_mainPlayer, player)
