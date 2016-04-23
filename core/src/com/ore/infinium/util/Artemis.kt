@@ -4,6 +4,7 @@ import com.artemis.Component
 import com.artemis.ComponentMapper
 import com.artemis.Entity
 import com.artemis.managers.TagManager
+import com.artemis.utils.IntBag
 
 /******************************************************************************
  *   Copyright (C) 2016 by Shaun Reich <sreich02@gmail.com>                *
@@ -23,9 +24,8 @@ import com.artemis.managers.TagManager
  *****************************************************************************/
 
 /**
- * Gets the component that this mapper is for, for this entity
- * @returns null if the component does not exist for this entity,
- * or the requested component
+ * Gets the component that this mapper is for, for this @param entityId
+ * @returns null if the component does not exist for this entity
  */
 fun <T : Component?> ComponentMapper<T>.getNullable(entityId: Int): T? {
     return this.getSafe(entityId)
@@ -34,5 +34,30 @@ fun <T : Component?> ComponentMapper<T>.getNullable(entityId: Int): T? {
 fun TagManager.getTagNullable(entityId: Entity): String? {
     return this.getTag(entityId) ?: null
 }
+
+/*
+inline fun <T> IntBag.forEachIndexed(action: (Int, T) -> Unit): Unit {
+    var index = 0
+    for (item in this) action(index++, item)
+}
+*/
+
+inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
+    for (i in indices) action(this.get(i))
+}
+
+
+//public inline fun <T> Array<out T>.forEach(action: (T) -> Unit): Unit {
+//    for (element in this) action(element)
+//}
+
+val IntBag.indices: IntRange get() = 0..size() - 1
+
+/*
+inline fun <T> Array<out T>.forEachIndexed(action: (Int, T) -> Unit): Unit {
+    var index = 0
+    for (item in this) action(index++, item)
+}
+*/
 
 

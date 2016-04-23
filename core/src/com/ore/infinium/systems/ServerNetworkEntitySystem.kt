@@ -12,7 +12,7 @@ import java.util.*
 
 /**
  * ***************************************************************************
- * Copyright (C) 2016 by Shaun Reich @gmail.com>                    *
+ * Copyright (C) 2016 by Shaun Reich sreich02@gmail.com>                    *
  * *
  * This program is free software; you can redistribute it and/or            *
  * modify it under the terms of the GNU General Public License as           *

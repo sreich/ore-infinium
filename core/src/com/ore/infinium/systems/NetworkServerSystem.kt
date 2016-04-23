@@ -8,12 +8,14 @@ import com.artemis.utils.Bag
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
+import com.badlogic.gdx.utils.TimeUtils
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
+import com.ore.infinium.util.getNullable
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.io.IOException
 import java.net.BindException
@@ -64,7 +66,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
     lateinit var m_serverKryo: Server
 
-    var m_netQueue = ConcurrentLinkedQueue<NetworkJob>()
+    private var m_netQueue = ConcurrentLinkedQueue<NetworkJob>()
 
     private val m_connectionListeners = Array<NetworkServerConnectionListener>()
 
@@ -273,6 +275,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
      */
     private fun serializeComponents(entityId: Int): Array<Component> {
         val components = Bag<Component>()
+
         getWorld().getEntity(entityId).getComponents(components)
 
         val copyComponents = Array<Component>()
@@ -292,24 +295,27 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     /**
-     * @param item
+     * @param itemEntityId
      * *
      * @param index
      * *         the index to spawn it at, within the hotbar inventory
      * *
-     * @param owningPlayer
+     * @param owningPlayerEntityId
      * *         entity id
      */
-    fun sendSpawnHotbarInventoryItem(item: Int, index: Int, owningPlayer: Int) {
+    fun sendSpawnHotbarInventoryItem(itemEntityId: Int, index: Int, owningPlayerEntityId: Int) {
         val spawn = Network.PlayerSpawnHotbarInventoryItemFromServer()
-        spawn.components = serializeComponents(item)
+        spawn.components = serializeComponents(itemEntityId)
 
-        val spriteComponent = spriteMapper.get(item)
+        //todo want a flag here to indicate..both for hotbar and regular inventory, that this spawn is due to a pickup! this is so they can play
+        //a sound like in minecraft when items get picked up. otherwise client doesn't know why it's spawning this. put flag in *spawn*fromserver packet
+
+        val spriteComponent = spriteMapper.get(itemEntityId)
         spawn.size.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
         spawn.textureName = spriteComponent.textureName
         //FIXME: fixme, we need to spawn it with a texture...and figure out how to do this exactly.
 
-        m_serverKryo.sendToTCP(playerMapper.get(owningPlayer).connectionPlayerId, spawn)
+        m_serverKryo.sendToTCP(playerMapper.get(owningPlayerEntityId).connectionPlayerId, spawn)
     }
 
     fun sendEntityKilled(entityToKill: Int) {
@@ -477,7 +483,13 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         val playerComponent = playerMapper.get(job.connection.playerEntityId)
 
         val itemToDrop = playerComponent.hotbarInventory!!.itemEntity(itemDrop.index.toInt())!!
-        val itemToDropComponent = itemMapper.get(itemToDrop)
+        val itemToDropComponent = itemMapper.getNullable(itemToDrop)
+
+        if (itemToDropComponent == null) {
+            //safety first. malicious/buggy client.
+            return
+        }
+
         //decrease count of equipped item
         if (itemToDropComponent.stackSize > 1) {
             itemToDropComponent.stackSize = itemToDropComponent.stackSize - 1
@@ -504,8 +516,10 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
         droppedItemSprite.sprite.setPosition(playerSprite.sprite.x, playerSprite.sprite.y)
 
-        //fixme holy god yes, make it check viewport, send to players interested..aka signup for entity adds
-        //sendSpawnEntity(droppedItem, job.connection.getID());
+        //indicate when we dropped it, so pickup system knows not to pick it up for a while after
+        itemDroppedComponent.timeOfDropMs = TimeUtils.millis()
+
+        //note we do not send anything, because later on the network system will figure out it needs to spawn that entity
     }
 
     private fun receivePlayerEquipHotbarIndex(job: NetworkJob, playerEquip: Network.PlayerEquipHotbarIndexFromClient) {
