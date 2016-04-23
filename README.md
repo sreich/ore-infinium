@@ -1,21 +1,12 @@
 # ore-infinium
 
-Click build status for viewing the jenkins result (including tests run etc)
-
-[![Build Status](http://sreich.net:8090/job/ore%20infinium/badge/icon)]
-(http://sreich.net:8090/job/ore%20infinium/)
-
-Sonarqube is a pretty nice floss site that will analyze source code for duplicates, scan for issues (static analysis), and even tell you the complexity of lines, functions, files. Lots more things, very nice to view:
-
-[**Sonarqube code analysis**] (http://sreich.net:9000/dashboard/index?id=org.ore.infinium)
-
 Ore Infinium, an **Open Source** Terraria-inspired Sci-fi game with a special focus
 on in-game tech devices, energy generation/wiring and the survival through using
 these things. 
 
-Inspired a lot by tekkit, but I'm not a fan of its overwhelming complexity, although it has some really great gameplay ideas/mechanisms. I aim to incorporate some of these ideas, improve them where I can, improve the process and make it easier and less grueling. For instance, the wiring is done by pressing a key which shows an overlay, and dragging and dropping. So it's not actually in the physical world, which makes things much easier to manage.
+Inspired a lot by tekkit, but I'm not a fan of its overwhelming complexity, although it has some really great gameplay ideas/mechanisms. I aim to incorporate some of these ideas, improve them where I can, improve the process and make it easier and less grueling. For instance, the wiring is done by pressing a key which shows an overlay, and dragging and dropping. So it's not actually in the physical world, which makes things much easier to manage. In general I like the idea of the player being able to createconnect devices, have them depend on resources, and use them to do neat things, assuming it doesn't make things too overwhelmingly complicated for someone like me.
 
-Written in/using some libraries such as: **Java 8, LibGDX, artemis-odb, KryoNet, Scene2D.ui**
+Written in/using some libraries such as: **Kotlin, LibGDX, artemis-odb, KryoNet, Scene2D.ui**
 
 reddit: http://reddit.com/r/ore-infinium
 
@@ -35,11 +26,11 @@ need to be optimized, eg things like chunk sending are very inefficient, as I
 work on getting other featuresr in.
 
 #Platforms
-All desktop platforms (which can run the JVM), presently (Linux, with OpenJDK,
+All desktop platforms (which can run the JVM) (Linux, with OpenJDK,
 Windows, Mac OS X).
 
 # Requirements
-**You will need java 1.8 (java 8).** Tested with intellij IDEA. 
+**You will need java (jre) 1.8 (java 8).** Tested with intellij IDEA. 
 
 # Builds
 Regular builds (jar files) can be downloaded from: https://copy.com/kzGi2ilrM4lb6ZWm
@@ -72,7 +63,7 @@ needing to fire up anything java developmenty.
 
 
 # Contributing and Contact
-Email me (sreich02 at gmail com), feel free to ask questions and get help, create issues, make patches, join the irc channel on freenode (channel #ore-infinium), and get involved!
+Email me (sreich02 g mail com), feel free to ask questions and get help, create issues, make patches, join the irc channel on freenode (channel #ore-infinium)!
 
 freenode: http://webchat.freenode.net/?channels=#ore-infinium
 
