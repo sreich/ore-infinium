@@ -61,6 +61,15 @@ of a build/dev environment.
 The goal is to make it easily repack them so people can test without
 needing to fire up anything java developmenty.
 
+## Why Kotlin
+Chosen because it's a very nice language that released a little after I discovered it,
+it improves a lot on Java's shortcomings, but also doesn't get in one's way. It's
+more pragmatic than other languages. Why it over java? Well, useful lambdas..I'm
+actually using them now all the time, unlike before. And null safety is another big
+one, that gives some really nice predictability. Static typing is great because
+it means the compiler can smack me before I run it and figure out my mistake
+an hour later. Loads of convenience things that any modern language will have.
+Unfortunately, java has none of those, and probably never will.
 
 # Contributing and Contact
 Email me (sreich02 g mail com), feel free to ask questions and get help, create issues, make patches, join the irc channel on freenode (channel #ore-infinium)!
