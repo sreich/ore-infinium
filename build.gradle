@@ -75,6 +75,8 @@ buildscript {
 
             maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
             maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+
+            //only for kryonet. it is not uploaded to maven central, or another repo hoster
             maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
 
             maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }

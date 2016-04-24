@@ -179,24 +179,20 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             return false
         }
 
+
         var previousCircuit: PowerCircuit? = null
         for (itCircuit in m_circuits.indices) {
             val circuit = m_circuits[itCircuit]
 
             for (connection in circuit.wireConnections) {
-                //check which circuit this connection between 2 devices belongs to
-                //if none of the two devices are in a circuit, it is a new circuit,
-                //and we will add our wire to the mix. it doesn't matter which one was found
-                //(since connections only exist on the same circuit)
-                if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
-                        connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
+                if (isWireConnectedToDevice(connection, firstEntity, secondEntity)) {
                     //make a new wire, add it to this circuit, as one of these entities is in this circuit
 
                     //////////////////////////// second scan, looking for circuits we can merge with
                     for (itCircuit2 in m_circuits.indices) {
                         val circuit2 = m_circuits[itCircuit2]
 
-                        for (itWires2 in circuit.wireConnections.indices) {
+                        for (unused in circuit.wireConnections.indices) {
                             if (itCircuit2 == itCircuit) {
                                 //we're only checking if one of these devices is on another circuit
                                 //but this is the same one, so skip it.
@@ -205,8 +201,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
                             //see if we can bridge a connection between these circuits. if true, we can move
                             //all connections from this (itCircuit), or the other (itCircuit2). it shouldn't matter.
-                            if (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
-                                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity) {
+                            if (isWireConnectedToDevice(connection, firstEntity, secondEntity)) {
                                 addWireConnection(firstEntity, secondEntity, circuit2)
 
                                 for (itWireConnections in circuit2.wireConnections.indices) {
@@ -280,6 +275,16 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         m_circuits.add(circuit)
 
         return true
+    }
+
+    /**
+     * @return true if at least 1 of these devices is connected to via this wire.
+     */
+    private fun isWireConnectedToDevice(connection: ServerPowerCircuitSystem.PowerWireConnection,
+                                        firstEntity: Int,
+                                        secondEntity: Int): Boolean {
+        return (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
+                connection.firstEntity == secondEntity || connection.secondEntity == firstEntity)
     }
 
     /**
