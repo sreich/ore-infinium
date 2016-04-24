@@ -169,9 +169,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             return false
         }
 
-        if (itemMapper.getNullable(firstEntity)!!.state == ItemComponent.State.DroppedInWorld ||
-                itemMapper.getNullable(secondEntity)!!.state == ItemComponent.State.DroppedInWorld) {
-            //don't allow connecting devices to dropped items
+        //don't allow connecting wires between any dropped item devices
+        if (areDevicesDroppedItems(firstEntity, secondEntity)) {
             return false
         }
 
@@ -181,7 +180,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
         var previousCircuit: PowerCircuit? = null
-        //scan again, this time we'll find places to add it in. it is a valid add, somewhere..
         for (itCircuit in m_circuits.indices) {
             val circuit = m_circuits[itCircuit]
 
@@ -224,7 +222,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 }
 
                                 //transfer over our running list of consumers and stuff too
-
                                 for (itConsumers in circuit2.consumers.indices) {
                                     val consumer = circuit2.consumers[itConsumers]
 
@@ -283,6 +280,19 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         m_circuits.add(circuit)
 
         return true
+    }
+
+    /**
+     * @return true if one of the devices is dropped in the world
+     */
+    private fun areDevicesDroppedItems(firstEntity: Int, secondEntity: Int): Boolean {
+        when {
+            itemMapper.getNullable(firstEntity)!!.state == ItemComponent.State.DroppedInWorld ||
+                    itemMapper.getNullable(secondEntity)!!.state == ItemComponent.State.DroppedInWorld
+            -> return true
+            else -> return false
+        }
+
     }
 
     /**

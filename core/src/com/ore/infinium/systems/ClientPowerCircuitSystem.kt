@@ -57,7 +57,5 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return
         }
-
     }
-
 }
