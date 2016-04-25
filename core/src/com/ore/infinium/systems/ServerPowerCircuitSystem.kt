@@ -216,20 +216,14 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 }
 
                                 //transfer over our running list of consumers and stuff too
-                                for (itConsumers in circuit2.consumers.indices) {
-                                    val consumer = circuit2.consumers[itConsumers]
-
-                                    //circuit2 is getting merged with 1, and deleted.
-                                    //but only merge over devices in the consumer list and generator
-                                    //list that are not already in that list.
-                                    //remember, a wire can have a pair of <dev1, dev2>, and another one
-                                    //could have <dev3, dev4). in this case we're connecting dev3 to dev 2
-                                    //(or whichever, doesn't matter.). that means we've got a duplicate device in
-                                    //the consumers, because @see addWireConnection adds it for us
-                                    if (!circuit.consumers.contains(consumer)) {
-                                        circuit.consumers.add(consumer)
-                                    }
-                                }
+                                //circuit2 is getting merged with 1, and deleted.
+                                //but only merge over devices in the consumer list and generator
+                                //list that are not already in that list.
+                                //remember, a wire can have a pair of <dev1, dev2>, and another one
+                                //could have <dev3, dev4). in this case we're connecting dev3 to dev 2
+                                //(or whichever, doesn't matter.). that means we've got a duplicate device in
+                                //the consumers, because @see addWireConnection adds it for us
+                                circuit.consumers.addAll(circuit2.consumers.filter { consumers -> !circuit.consumers.contains(consumers) })
 
                                 //same thing for gens
                                 circuit.generators.addAll(circuit2.generators.filter { generator -> !circuit.generators.contains(generator) })
@@ -277,8 +271,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     private fun isWireConnectedToAnyDevices(connection: ServerPowerCircuitSystem.PowerWireConnection,
                                             firstEntity: Int,
                                             secondEntity: Int): Boolean =
-         (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
-                connection.firstEntity == secondEntity || connection.secondEntity == firstEntity)
+            (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
+                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity)
 
     /**
      * @return true if this device resides somewhere in a wire connection
