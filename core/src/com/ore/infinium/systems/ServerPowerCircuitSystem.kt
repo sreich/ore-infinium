@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -59,7 +58,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * When devices that are on different circuits get connected, those
      * devices are merged into the same circuit
      */
-    public var m_circuits = ArrayList<PowerCircuit>()
+    var m_circuits = mutableListOf<PowerCircuit>()
 
     /**
      * Either a connected entity on a circuit/wire, is a device or a generator. It is *not* both.
@@ -77,14 +76,14 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
          * if they do, the circuits are merged.
          * See generators, consumers
          */
-        public var wireConnections = ArrayList<PowerWireConnection>()
+        var wireConnections = mutableListOf<PowerWireConnection>()
 
         /**
          * Entity id
          * List of generators for faster checking of changes/recalculations, in addition to the
          * wire connection list is disjoint from devices.
          */
-        public var generators = ArrayList<Int>()
+        var generators = mutableListOf<Int>()
 
         /**
          * Entity id
@@ -96,12 +95,12 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
          * @type s
          */
-        public var consumers = ArrayList<Int>()
+        var consumers = mutableListOf<Int>()
 
-        public var totalSupply: Int = 0
-        public var totalDemand: Int = 0
+        var totalSupply: Int = 0
+        var totalDemand: Int = 0
 
-        public var circuitId = -1
+        var circuitId = -1
     }
 
     /**
@@ -457,7 +456,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     companion object {
-        public val WIRE_THICKNESS = 0.5f
+        val WIRE_THICKNESS = 0.5f
     }
 
     //todo sufficient until we get a spatial hash or whatever
