@@ -235,8 +235,9 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 circuit2.wireConnections.clear()
                                 circuit2.consumers.clear()
                                 circuit2.generators.clear()
-                                //remove that old dead empty circuit
-                                m_circuits.removeAt(itCircuit2)
+
+                                //remove that old dead empty circuit(one that got merged into the other one)
+                                cleanupDeadCircuits()
 
                                 return true
                             }
@@ -248,6 +249,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 }
             }
         }
+
 
         //indicator, we set only if one of the 2 device endpoints we're adding is already on a circuit
         //if it finds a case where it happens, it records it in case attempting to merge circuits doesn't work
@@ -340,8 +342,11 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
         //if we removed the last wire connection, cleanup this empty circuit
-        m_circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
+        cleanupDeadCircuits()
     }
+
+    fun cleanupDeadCircuits() =
+            m_circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
 
     /**
      * Searches for a wire in the list of circuits, removes the one under the position,
