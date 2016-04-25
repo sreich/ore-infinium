@@ -222,10 +222,14 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 //could have <dev3, dev4). in this case we're connecting dev3 to dev 2
                                 //(or whichever, doesn't matter.). that means we've got a duplicate device in
                                 //the consumers, because @see addWireConnection adds it for us
-                                circuitToMergeTo.consumers.addAll(circuit2.consumers.filter { consumers -> !circuitToMergeTo.consumers.contains(consumers) })
+                                circuitToMergeTo.consumers.addAll(circuit2.consumers.filter { consumers ->
+                                    !circuitToMergeTo.consumers.contains(consumers)
+                                })
 
                                 //same thing for gens
-                                circuitToMergeTo.generators.addAll(circuit2.generators.filter { generator -> !circuitToMergeTo.generators.contains(generator) })
+                                circuitToMergeTo.generators.addAll(circuit2.generators.filter { generator ->
+                                    !circuitToMergeTo.generators.contains(generator)
+                                })
 
 
                                 circuit2.wireConnections.clear()
@@ -330,153 +334,155 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      */
     fun disconnectAllWiresFromDevice(entityToDisconnect: Int) {
         m_circuits.forEach { circuit ->
-            circuit.wireConnections.removeAll { wireConnection -> isWireConnectedToDevice(wireConnection, entityToDisconnect) }
-        }
-
-            //if we removed the last wire connection, cleanup this empty circuit
-            m_circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
-        }
-
-        /**
-         * Searches for a wire in the list of circuits, removes the one under the position,
-         * if one such exists.
-         * Would be used in situations such as "user clicked remove on a wire, so remove it.
-
-         * @param position
-         * *         in world coords
-         * *
-         * *
-         * @return false if disconnect failed (no wire in range). True if it succeeded.
-         */
-
-        fun disconnectWireAtPosition(position: Vector2): Boolean {
-
-            for (itCircuits in m_circuits.indices) {
-                val circuit = m_circuits[itCircuits]
-
-                for (itWires in circuit.wireConnections.indices) {
-                    val connection = circuit.wireConnections[itWires]
-
-                    val first = connection.firstEntity
-                    val second = connection.secondEntity
-
-                    val firstSprite = spriteMapper.get(first)
-                    val secondSprite = spriteMapper.get(second)
-                    //todo..rest of the logic..try looking for an intersection between points of these
-                    //given a certain width..that is the width that is decided upon for wire thickness. (constant)
-
-                    val firstPosition = Vector2(firstSprite.sprite.x, firstSprite.sprite.y)
-                    val secondPosition = Vector2(secondSprite.sprite.x, secondSprite.sprite.y)
-
-                    val circleRadius2 = Math.pow((WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
-                    //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
-                    val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
-                    val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
-                            circleRadius2)
-
-                    if (intersects) {
-                        //wire should be destroyed. remove it from wireConnections.
-                        circuit.wireConnections.removeAt(itWires)
-
-                        //cleanup dead circuit, if we removed the last wire from it.
-                        if (circuit.wireConnections.size == 0) {
-                            m_circuits.removeAt(itCircuits)
-                        }
-                        return true
-                    }
-                }
-            }
-
-            return false
-        }
-
-        /**
-         * Updates the circuit that this device resides on. Used for faster reverse lookups
-
-         * @param firstEntity
-         * *
-         * @param secondEntity
-         * *
-         * @param circuit
-         * *         the new circuit to update them to
-         */
-        private fun updateDevicesOwningCircuit(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
-            powerDeviceMapper.get(firstEntity).owningCircuit = circuit
-            powerDeviceMapper.get(secondEntity).owningCircuit = circuit
-        }
-
-        /**
-         * Forms a wire connection between any 2 devices (direction does not matter).
-         * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
-
-         * @param firstEntity
-         * *
-         * @param secondEntity
-         * *
-         * @param circuit
-         */
-        private fun addWireConnection(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
-            //cannot connect to a non-device
-            assert(powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity))
-
-            val powerWireConnection = PowerWireConnection(firstEntity, secondEntity)
-            circuit.wireConnections.add(powerWireConnection)
-
-            updateDevicesOwningCircuit(firstEntity, secondEntity, circuit)
-
-            if (powerConsumerMapper.getNullable(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
-                circuit.consumers.add(firstEntity)
-            }
-
-            if (powerConsumerMapper.getNullable(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
-                circuit.consumers.add(secondEntity)
-            }
-
-            if (powerGeneratorMapper.getNullable(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
-                circuit.generators.add(firstEntity)
-            }
-
-            if (powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
-                circuit.generators.add(secondEntity)
+            circuit.wireConnections.removeAll { wireConnection ->
+                isWireConnectedToDevice(wireConnection, entityToDisconnect)
             }
         }
 
-        companion object {
-            val WIRE_THICKNESS = 0.5f
-        }
-
-        //todo sufficient until we get a spatial hash or whatever
-
-        /*
-        private Entity entityAtPosition(Vector2 pos) {
-
-            ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PowerComponent.class).get());
-            SpriteComponent spriteComponent;
-            TagComponent tagComponent;
-            for (int i = 0; i < entities.size(); ++i) {
-                tagComponent = tagMapper.get(entities.get(i));
-
-                if (tagComponent != null && tagComponent.tag.equals("itemPlacementOverlay")) {
-                    continue;
-                }
-
-                spriteComponent = spriteMapper.get(entities.get(i));
-
-                Rectangle rectangle = new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() *
-                0.5f),
-                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
-
-                if (rectangle.contains(pos)) {
-                    return entities.get(i);
-                }
-            }
-
-            return null;
-        }
-
-        public void update(float delta) {
-
-        }
-        */
+        //if we removed the last wire connection, cleanup this empty circuit
+        m_circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
     }
+
+    /**
+     * Searches for a wire in the list of circuits, removes the one under the position,
+     * if one such exists.
+     * Would be used in situations such as "user clicked remove on a wire, so remove it.
+
+     * @param position
+     * *         in world coords
+     * *
+     * *
+     * @return false if disconnect failed (no wire in range). True if it succeeded.
+     */
+
+    fun disconnectWireAtPosition(position: Vector2): Boolean {
+
+        for (itCircuits in m_circuits.indices) {
+            val circuit = m_circuits[itCircuits]
+
+            for (itWires in circuit.wireConnections.indices) {
+                val connection = circuit.wireConnections[itWires]
+
+                val first = connection.firstEntity
+                val second = connection.secondEntity
+
+                val firstSprite = spriteMapper.get(first)
+                val secondSprite = spriteMapper.get(second)
+                //todo..rest of the logic..try looking for an intersection between points of these
+                //given a certain width..that is the width that is decided upon for wire thickness. (constant)
+
+                val firstPosition = Vector2(firstSprite.sprite.x, firstSprite.sprite.y)
+                val secondPosition = Vector2(secondSprite.sprite.x, secondSprite.sprite.y)
+
+                val circleRadius2 = Math.pow((WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
+                //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
+                val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
+                val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
+                                                                    circleRadius2)
+
+                if (intersects) {
+                    //wire should be destroyed. remove it from wireConnections.
+                    circuit.wireConnections.removeAt(itWires)
+
+                    //cleanup dead circuit, if we removed the last wire from it.
+                    if (circuit.wireConnections.size == 0) {
+                        m_circuits.removeAt(itCircuits)
+                    }
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+    /**
+     * Updates the circuit that this device resides on. Used for faster reverse lookups
+
+     * @param firstEntity
+     * *
+     * @param secondEntity
+     * *
+     * @param circuit
+     * *         the new circuit to update them to
+     */
+    private fun updateDevicesOwningCircuit(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
+        powerDeviceMapper.get(firstEntity).owningCircuit = circuit
+        powerDeviceMapper.get(secondEntity).owningCircuit = circuit
+    }
+
+    /**
+     * Forms a wire connection between any 2 devices (direction does not matter).
+     * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
+
+     * @param firstEntity
+     * *
+     * @param secondEntity
+     * *
+     * @param circuit
+     */
+    private fun addWireConnection(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
+        //cannot connect to a non-device
+        assert(powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity))
+
+        val powerWireConnection = PowerWireConnection(firstEntity, secondEntity)
+        circuit.wireConnections.add(powerWireConnection)
+
+        updateDevicesOwningCircuit(firstEntity, secondEntity, circuit)
+
+        if (powerConsumerMapper.getNullable(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
+            circuit.consumers.add(firstEntity)
+        }
+
+        if (powerConsumerMapper.getNullable(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
+            circuit.consumers.add(secondEntity)
+        }
+
+        if (powerGeneratorMapper.getNullable(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
+            circuit.generators.add(firstEntity)
+        }
+
+        if (powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
+            circuit.generators.add(secondEntity)
+        }
+    }
+
+    companion object {
+        val WIRE_THICKNESS = 0.5f
+    }
+
+    //todo sufficient until we get a spatial hash or whatever
+
+    /*
+    private Entity entityAtPosition(Vector2 pos) {
+
+        ImmutableArray<Entity> entities = m_world.engine.getEntitiesFor(Family.all(PowerComponent.class).get());
+        SpriteComponent spriteComponent;
+        TagComponent tagComponent;
+        for (int i = 0; i < entities.size(); ++i) {
+            tagComponent = tagMapper.get(entities.get(i));
+
+            if (tagComponent != null && tagComponent.tag.equals("itemPlacementOverlay")) {
+                continue;
+            }
+
+            spriteComponent = spriteMapper.get(entities.get(i));
+
+            Rectangle rectangle = new Rectangle(spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() *
+            0.5f),
+                    spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                    spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+
+            if (rectangle.contains(pos)) {
+                return entities.get(i);
+            }
+        }
+
+        return null;
+    }
+
+    public void update(float delta) {
+
+    }
+    */
+}
