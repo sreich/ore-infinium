@@ -23,8 +23,6 @@ buildscript {
 
         //kotlinVersion = '1.0.0-rc-1017'
         kotlinVersion = '1.0.2-eap-44'
-
-        //gradleExtraConfigurationsPluginVersion = "3.0.3"
     }
 
     repositories {
@@ -52,122 +50,126 @@ buildscript {
         classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
 
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+
     }
 }
 
-    plugins {
-        id 'nebula.provided-base' version '3.1.0'
-        id 'com.github.ben-manes.versions' version '0.12.0'
-        id 'org.sonarqube' version '1.1'
+plugins {
+    id 'nebula.provided-base' version '3.1.0'
+    id 'com.github.ben-manes.versions' version '0.12.0'
+    id 'org.sonarqube' version '1.1'
+
+    //for extracting git sha at deploy time
+    id "org.ajoberstar.grgit" version "1.4.2"
+}
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = "2.9"
+}
+
+allprojects {
+    apply plugin: "eclipse"
+    apply plugin: "idea"
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+
+        //only for kryonet. it is not uploaded to maven central, or another repo hoster
+        maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
+
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
+    }
+}
+
+project(":desktop") {
+    apply plugin: "java"
+
+    dependencies {
+
+        compile project(":core")
+        compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+        compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+    }
+}
+
+project(":core") {
+    apply plugin: "java"
+    apply plugin: "kotlin"
+
+    configurations {
+        provided
     }
 
-    task createWrapper(type: Wrapper) {
-        gradleVersion = "2.9"
-    }
-
-    allprojects {
-        apply plugin: "eclipse"
-        apply plugin: "idea"
-
-        repositories {
-            mavenLocal()
-            mavenCentral()
-
-            maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-            maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-
-            //only for kryonet. it is not uploaded to maven central, or another repo hoster
-            maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
-
-            maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
+    sourceSets {
+        // run the annotation processor compile time.
+        main {
+            compileClasspath += [configurations.provided]
         }
     }
 
-    project(":desktop") {
-        apply plugin: "java"
+    dependencies {
+        // kotlin
+        compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
-        dependencies {
+        // libgdx core
+        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
 
-            compile project(":core")
-            compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-            compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-            compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-            compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-        }
+        //libgdx addons
+        compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+        compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+
+        //junit
+        testCompile "junit:junit:4.12"
+
+        // kryonet
+        compile "com.esotericsoftware:kryonet:$kryonetVersion"
+
+        //artemis-odb
+        compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+
+        // Artemis-odb annotation processor (see https://github.com/junkdog/artemis-odb/wiki/EntityFactory)
+        provided "net.onedaybeard.artemis:artemis-odb-processor:$artemisVersion"
+
+        // Artemis-odb bonus functionality (systems, events, components).
+        compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
+        compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
+        compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
+        compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
+        //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
+
+        // jcommander for command line parsing
+        compile "com.beust:jcommander:$jcommanderVersion"
+        //junit
+        testCompile "junit:junit:$junitVersion"
+
+        //tween engine
+        compile "org.sreich:tween-engine-api:$tweenEngineVersion"
+    }
+}
+
+project(":matrix") {
+    apply plugin: "java"
+
+    dependencies {
+        compile project(":core")
+        compile "net.onedaybeard.ecs:matrix-cli:$matrixCliVersion"
     }
 
-    project(":core") {
-        apply plugin: "java"
-        apply plugin: "kotlin"
-
-        configurations {
-            provided
-        }
-
-        sourceSets {
-            // run the annotation processor compile time.
-            main {
-                compileClasspath += [configurations.provided]
-            }
-        }
-
-        dependencies {
-            // kotlin
-            compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-
-            // libgdx core
-            compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-
-            //libgdx addons
-            compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-            compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-            compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-
-            //junit
-            testCompile "junit:junit:4.12"
-
-            // kryonet
-            compile "com.esotericsoftware:kryonet:$kryonetVersion"
-
-            //artemis-odb
-            compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-
-            // Artemis-odb annotation processor (see https://github.com/junkdog/artemis-odb/wiki/EntityFactory)
-            provided "net.onedaybeard.artemis:artemis-odb-processor:$artemisVersion"
-
-            // Artemis-odb bonus functionality (systems, events, components).
-            compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
-            compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
-            compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
-            compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
-            //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
-
-            // jcommander for command line parsing
-            compile "com.beust:jcommander:$jcommanderVersion"
-            //junit
-            testCompile "junit:junit:$junitVersion"
-
-            //tween engine
-            compile "org.sreich:tween-engine-api:$tweenEngineVersion"
-        }
+    task generateMatrix(type: JavaExec) {
+        classpath = sourceSets.main.runtimeClasspath
+        main = 'com.artemis.cli.CliApplication'
+        args '-c', "$rootProject.projectDir/core/build/classes/main/", '-l', "$rootProject.ext.appName"
     }
+    build.finalizedBy generateMatrix
+}
 
-    project(":matrix") {
-        apply plugin: "java"
-
-        dependencies {
-            compile project(":core")
-            compile "net.onedaybeard.ecs:matrix-cli:$matrixCliVersion"
-        }
-
-        task generateMatrix(type: JavaExec) {
-            classpath = sourceSets.main.runtimeClasspath
-            main = 'com.artemis.cli.CliApplication'
-            args '-c', "$rootProject.projectDir/core/build/classes/main/", '-l', "$rootProject.ext.appName"
-        }
-        build.finalizedBy generateMatrix
-    }
-
-    tasks.eclipse.doLast {
-        delete ".project"
-    }
+tasks.eclipse.doLast {
+    delete ".project"
+}
