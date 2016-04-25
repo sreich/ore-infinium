@@ -232,13 +232,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 }
 
                                 //same thing for gens
-                                for (itGenerators in circuit2.generators.indices) {
-                                    val generator = circuit2.generators[itGenerators]
+                                circuit.generators.addAll(circuit2.generators.filter { generator -> !circuit.generators.contains(generator) })
 
-                                    if (!circuit.generators.contains(generator)) {
-                                        circuit.generators.add(generator)
-                                    }
-                                }
 
                                 circuit2.wireConnections.clear()
                                 circuit2.consumers.clear()
