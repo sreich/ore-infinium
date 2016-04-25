@@ -46,12 +46,6 @@ class ServerPowerCircuitSystemTest {
         world.m_artemisWorld.inject(this, true)
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun testTest2() {
-        assertTrue(true)
-    }
-
     /**
      * tests that if a device that is currently unconnected to anything,
      * when getting connected to another device that is itself, connected
@@ -86,12 +80,12 @@ class ServerPowerCircuitSystemTest {
         assertTrue(connected)
         //ensure there are 2 circuits now, and they each only have 1 wire
         assertEquals(2, circuitSystem.m_circuits.size.toLong())
-        assertEquals(1, circuitSystem.m_circuits.get(0).wireConnections.size)
-        assertEquals(1, circuitSystem.m_circuits.get(1).wireConnections.size)
+        assertEquals(1, circuitSystem.m_circuits[0].wireConnections.size)
+        assertEquals(1, circuitSystem.m_circuits[1].wireConnections.size)
 
         //make sure their calculation helper tally of consumers, generators is updated
-        assertEquals(1, circuitSystem.m_circuits.get(1).consumers.size)
-        assertEquals(1, circuitSystem.m_circuits.get(1).generators.size)
+        assertEquals(1, circuitSystem.m_circuits[1].consumers.size)
+        assertEquals(1, circuitSystem.m_circuits[1].generators.size)
 
         //ensure that all devices owning circuit, the one used for fast reverse lookups
         //are separate circuits
