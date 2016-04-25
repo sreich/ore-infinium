@@ -180,10 +180,9 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
 
         var previousCircuit: PowerCircuit? = null
-        for (itCircuit in m_circuits.indices) {
-            val circuit = m_circuits[itCircuit]
+        for (circuitToMergeTo in m_circuits) {
 
-            for (connection in circuit.wireConnections) {
+            for (connection in circuitToMergeTo.wireConnections) {
                 if (isWireConnectedToAnyDevices(connection, firstEntity, secondEntity)) {
                     //make a new wire, add it to this circuit, as one of these entities is in this circuit
 
@@ -191,8 +190,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                     for (itCircuit2 in m_circuits.indices) {
                         val circuit2 = m_circuits[itCircuit2]
 
-                        for (unused in circuit.wireConnections.indices) {
-                            if (itCircuit2 == itCircuit) {
+                        for (unused in circuitToMergeTo.wireConnections.indices) {
+                            if (circuit2 == circuitToMergeTo) {
                                 //we're only checking if one of these devices is on another circuit
                                 //but this is the same one, so skip it.
                                 continue
@@ -209,10 +208,10 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                     // to now point to the new one they reside on
                                     val movedEntity1 = circuit2.wireConnections[itWireConnections].firstEntity
                                     val movedEntity2 = circuit2.wireConnections[itWireConnections].secondEntity
-                                    updateDevicesOwningCircuit(movedEntity1, movedEntity2, circuit)
+                                    updateDevicesOwningCircuit(movedEntity1, movedEntity2, circuitToMergeTo)
 
                                     // merge the connections from this circuit to the other one now.
-                                    circuit.wireConnections.add(circuit2.wireConnections[itWireConnections])
+                                    circuitToMergeTo.wireConnections.add(circuit2.wireConnections[itWireConnections])
                                 }
 
                                 //transfer over our running list of consumers and stuff too
@@ -223,10 +222,10 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 //could have <dev3, dev4). in this case we're connecting dev3 to dev 2
                                 //(or whichever, doesn't matter.). that means we've got a duplicate device in
                                 //the consumers, because @see addWireConnection adds it for us
-                                circuit.consumers.addAll(circuit2.consumers.filter { consumers -> !circuit.consumers.contains(consumers) })
+                                circuitToMergeTo.consumers.addAll(circuit2.consumers.filter { consumers -> !circuitToMergeTo.consumers.contains(consumers) })
 
                                 //same thing for gens
-                                circuit.generators.addAll(circuit2.generators.filter { generator -> !circuit.generators.contains(generator) })
+                                circuitToMergeTo.generators.addAll(circuit2.generators.filter { generator -> !circuitToMergeTo.generators.contains(generator) })
 
 
                                 circuit2.wireConnections.clear()
@@ -241,7 +240,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                     }
                     //////////////////////////////////////
 
-                    previousCircuit = circuit
+                    previousCircuit = circuitToMergeTo
                 }
             }
         }
