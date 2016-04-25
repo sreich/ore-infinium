@@ -184,7 +184,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             val circuit = m_circuits[itCircuit]
 
             for (connection in circuit.wireConnections) {
-                if (isWireConnectedToDevice(connection, firstEntity, secondEntity)) {
+                if (isWireConnectedToAnyDevices(connection, firstEntity, secondEntity)) {
                     //make a new wire, add it to this circuit, as one of these entities is in this circuit
 
                     //////////////////////////// second scan, looking for circuits we can merge with
@@ -200,7 +200,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
                             //see if we can bridge a connection between these circuits. if true, we can move
                             //all connections from this (itCircuit), or the other (itCircuit2). it shouldn't matter.
-                            if (isWireConnectedToDevice(connection, firstEntity, secondEntity)) {
+                            if (isWireConnectedToAnyDevices(connection, firstEntity, secondEntity)) {
                                 addWireConnection(firstEntity, secondEntity, circuit2)
 
                                 for (itWireConnections in circuit2.wireConnections.indices) {
@@ -274,12 +274,19 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     /**
      * @return true if at least 1 of these devices is connected to via this wire.
      */
-    private fun isWireConnectedToDevice(connection: ServerPowerCircuitSystem.PowerWireConnection,
-                                        firstEntity: Int,
-                                        secondEntity: Int): Boolean {
-        return (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
+    private fun isWireConnectedToAnyDevices(connection: ServerPowerCircuitSystem.PowerWireConnection,
+                                            firstEntity: Int,
+                                            secondEntity: Int): Boolean =
+         (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
                 connection.firstEntity == secondEntity || connection.secondEntity == firstEntity)
-    }
+
+    /**
+     * @return true if this device resides somewhere in a wire connection
+     */
+    private fun isWireConnectedToDevice(connection: ServerPowerCircuitSystem.PowerWireConnection,
+                                        entity: Int): Boolean =
+            (connection.firstEntity == entity || connection.secondEntity == entity)
+
 
     /**
      * @return true if one of the devices is dropped in the world
@@ -335,7 +342,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             for (itWire in 0..circuit.wireConnections.size - 1) {
                 val wireConnection = circuit.wireConnections[itWire]
 
-                if (wireConnection.firstEntity == entityToDisconnect || wireConnection.secondEntity == entityToDisconnect) {
+                if (isWireConnectedToDevice(wireConnection, entityToDisconnect)) {
                     circuit.wireConnections.removeAt(itWire)
 
                     //if we removed the last wire connection, cleanup this empty circuit
@@ -382,7 +389,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
                 val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
                 val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
-                                                                    circleRadius2)
+                        circleRadius2)
+
                 if (intersects) {
                     //wire should be destroyed. remove it from wireConnections.
                     circuit.wireConnections.removeAt(itWires)
