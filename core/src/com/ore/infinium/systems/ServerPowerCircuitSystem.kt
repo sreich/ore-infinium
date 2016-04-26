@@ -286,6 +286,12 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                         entity: Int): Boolean =
             (connection.firstEntity == entity || connection.secondEntity == entity)
 
+    private fun isWireConnectedToAllDevices(connection: ServerPowerCircuitSystem.PowerWireConnection,
+                                            firstEntity: Int,
+                                            secondEntity: Int): Boolean =
+            (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
+                    connection.firstEntity == secondEntity && connection.secondEntity == firstEntity)
+
 
     /**
      * @return true if one of the devices is dropped in the world
@@ -310,19 +316,9 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * they are not connected to each other (but could be connected to something else)
      */
     private fun entitiesConnected(firstEntity: Int, secondEntity: Int): Boolean {
-        for (circuit in m_circuits) {
-            for (connection in circuit.wireConnections) {
-                //scan for these exact device endpoints already having a connection.
-                //do not allow device 1 and device 2 to have two connections between each other
-                //(aka duplicate wires)
-                if (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
-                        connection.firstEntity == secondEntity && connection.secondEntity == firstEntity) {
-                    return true
-                }
-            }
+        return m_circuits.any { circuit ->
+            circuit.wireConnections.any { wire -> isWireConnectedToAllDevices(wire, firstEntity, secondEntity) }
         }
-
-        return false
     }
 
     /**
@@ -383,7 +379,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
                 val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
                 val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
-                                                                    circleRadius2)
+                        circleRadius2)
 
                 if (intersects) {
                     //wire should be destroyed. remove it from wireConnections.
