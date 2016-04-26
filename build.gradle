@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         //use + for latest
-        appName = 'ore Infinium'
+        appName = 'Ore Infinium'
 
         gdxVersion = '1.9.2'
 
@@ -18,8 +18,6 @@ buildscript {
         junitVersion = "4.12"
         tweenEngineVersion = "6.3.3"
 
-        //run :dependencyUpdates to get a list of updates needed
-        gradleVersionsPluginVersion = "0.12.0"
 
         //kotlinVersion = '1.0.0-rc-1017'
         kotlinVersion = '1.0.2-eap-44'
@@ -47,8 +45,6 @@ buildscript {
         //3.0.3 FIXME
         //classpath "com.netflix.nebula:gradle-extra-configurations-plugin:$gradleExtraConfigurationsPluginVersion"
 
-        classpath "com.github.ben-manes:gradle-versions-plugin:$gradleVersionsPluginVersion"
-
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
     }
@@ -61,6 +57,9 @@ plugins {
 
     //for extracting git sha at deploy time
     id "org.ajoberstar.grgit" version "1.4.2"
+
+    //run :dependencyUpdates to get a list of updates needed
+    id "com.github.ben-manes.versions" version "0.12.0"
 }
 
 task createWrapper(type: Wrapper) {
