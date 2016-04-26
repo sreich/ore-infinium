@@ -177,7 +177,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             return false
         }
 
-
         var previousCircuit: PowerCircuit? = null
         for (circuitToMergeTo in m_circuits) {
 
@@ -186,30 +185,30 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                     //make a new wire, add it to this circuit, as one of these entities is in this circuit
 
                     //////////////////////////// second scan, looking for circuits we can merge with
-                    for (circuit2 in m_circuits) {
+                    for (circuitToMergeFrom in m_circuits) {
 
-                        for (unused in circuitToMergeTo.wireConnections.indices) {
-                            if (circuit2 == circuitToMergeTo) {
+                        for (unused in circuitToMergeTo.wireConnections) {
+                            if (circuitToMergeFrom == circuitToMergeTo) {
                                 //we're only checking if one of these devices is on another circuit
-                                //but this is the same one, so skip it.
+                                //but this is the same circuit, so skip it.
                                 continue
                             }
 
                             //see if we can bridge a connection between these circuits. if true, we can move
                             //all connections from this (itCircuit), or the other (itCircuit2). it shouldn't matter.
                             if (isWireConnectedToAnyDevices(connection, firstEntity, secondEntity)) {
-                                addWireConnection(firstEntity, secondEntity, circuit2)
+                                addWireConnection(firstEntity, secondEntity, circuitToMergeFrom)
 
-                                for (itWireConnections in circuit2.wireConnections.indices) {
+                                for (itWireConnections in circuitToMergeFrom.wireConnections.indices) {
 
                                     //update the owning circuit of the ones getting moved over,
                                     // to now point to the new one they reside on
-                                    val movedEntity1 = circuit2.wireConnections[itWireConnections].firstEntity
-                                    val movedEntity2 = circuit2.wireConnections[itWireConnections].secondEntity
+                                    val movedEntity1 = circuitToMergeFrom.wireConnections[itWireConnections].firstEntity
+                                    val movedEntity2 = circuitToMergeFrom.wireConnections[itWireConnections].secondEntity
                                     updateDevicesOwningCircuit(movedEntity1, movedEntity2, circuitToMergeTo)
 
                                     // merge the connections from this circuit to the other one now.
-                                    circuitToMergeTo.wireConnections.add(circuit2.wireConnections[itWireConnections])
+                                    circuitToMergeTo.wireConnections.add(circuitToMergeFrom.wireConnections[itWireConnections])
                                 }
 
                                 //transfer over our running list of consumers and stuff too
@@ -220,19 +219,19 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                 //could have <dev3, dev4). in this case we're connecting dev3 to dev 2
                                 //(or whichever, doesn't matter.). that means we've got a duplicate device in
                                 //the consumers, because @see addWireConnection adds it for us
-                                circuitToMergeTo.consumers.addAll(circuit2.consumers.filter { consumers ->
+                                circuitToMergeTo.consumers.addAll(circuitToMergeFrom.consumers.filter { consumers ->
                                     !circuitToMergeTo.consumers.contains(consumers)
                                 })
 
                                 //same thing for gens
-                                circuitToMergeTo.generators.addAll(circuit2.generators.filter { generator ->
+                                circuitToMergeTo.generators.addAll(circuitToMergeFrom.generators.filter { generator ->
                                     !circuitToMergeTo.generators.contains(generator)
                                 })
 
 
-                                circuit2.wireConnections.clear()
-                                circuit2.consumers.clear()
-                                circuit2.generators.clear()
+                                circuitToMergeFrom.wireConnections.clear()
+                                circuitToMergeFrom.consumers.clear()
+                                circuitToMergeFrom.generators.clear()
 
                                 //remove that old dead empty circuit(one that got merged into the other one)
                                 cleanupDeadCircuits()
