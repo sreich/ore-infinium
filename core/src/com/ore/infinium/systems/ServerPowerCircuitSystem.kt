@@ -134,7 +134,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     private fun calculateSupplyAndDemandRates() {
         for (circuit in m_circuits) {
-
             circuit.totalDemand = 0
             circuit.totalSupply = 0
 
@@ -187,8 +186,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                     //make a new wire, add it to this circuit, as one of these entities is in this circuit
 
                     //////////////////////////// second scan, looking for circuits we can merge with
-                    for (itCircuit2 in m_circuits.indices) {
-                        val circuit2 = m_circuits[itCircuit2]
+                    for (circuit2 in m_circuits) {
 
                         for (unused in circuitToMergeTo.wireConnections.indices) {
                             if (circuit2 == circuitToMergeTo) {
