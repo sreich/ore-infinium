@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         //use + for latest
-        appName = 'ore-infinium'
+        appName = 'ore Infinium'
 
         gdxVersion = '1.9.2'
 
@@ -64,7 +64,7 @@ plugins {
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = "2.9"
+    gradleVersion = "2.12"
 }
 
 allprojects {
@@ -149,7 +149,7 @@ project(":core") {
         //junit
         testCompile "junit:junit:$junitVersion"
 
-        //tween engine
+        //universal tween engine
         compile "org.sreich:tween-engine-api:$tweenEngineVersion"
     }
 }
