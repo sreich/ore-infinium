@@ -247,8 +247,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
             spawnMultiple.entitySpawn!!.add(spawn)
         }
 
-        OreWorld.log("networkserversystem",
-                     "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
+        //OreWorld.log("networkserversystem",
+         //            "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
@@ -258,8 +258,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         val destroyMultiple = Network.EntityDestroyMultipleFromServer()
         destroyMultiple.entitiesToDestroy = entitiesToDestroy
 
-        OreWorld.log("networkserversystem",
-                     "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
+        //OreWorld.log("networkserversystem",
+         //            "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, destroyMultiple)
     }
 

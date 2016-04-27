@@ -346,12 +346,12 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         //fixme this and hotbar code needs consolidation
         //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
-        var debug = "receiveMultipleEntitySpawn [ "
+        //var debug = "receiveMultipleEntitySpawn [ "
         for (spawn in entitySpawn.entitySpawn!!) {
 
             val e = getWorld().create()
 
-            debug += " networkid: " + spawn.id + " localid: " + e
+           // debug += " networkid: " + spawn.id + " localid: " + e
 
             for (c in spawn.components!!) {
                 val entityEdit = getWorld().edit(e)
@@ -392,7 +392,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
             assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "spawn, network id and entity id maps are out of sync(size mismatch)" }
         }
 
-        OreWorld.log("networkclientsystem", debug)
+        //OreWorld.log("networkclientsystem", debug)
     }
 
     private fun receiveLoadedViewportMoved(viewportMove: Network.LoadedViewportMovedFromServer) {
