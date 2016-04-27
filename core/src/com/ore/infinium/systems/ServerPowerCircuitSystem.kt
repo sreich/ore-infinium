@@ -8,7 +8,6 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
-import com.ore.infinium.util.mapFirstNotNull
 
 /**
  * ***************************************************************************
@@ -178,12 +177,14 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             return false
         }
 
-        val _firstOwningCircuit = powerDeviceMapper.get(firstEntity).owningCircuit
-        val _secondOwningCircuit = powerDeviceMapper.get(secondEntity).owningCircuit
+        val firstOwningCircuit = powerDeviceMapper.get(firstEntity).owningCircuit
+        val secondOwningCircuit = powerDeviceMapper.get(secondEntity).owningCircuit
 
         when {
-            _firstOwningCircuit != null && _secondOwningCircuit != null -> //merge circuits that contain these entities.
-                mergeCircuits(firstEntity, secondEntity, _firstOwningCircuit, _secondOwningCircuit)
+            firstOwningCircuit != null && secondOwningCircuit != null -> {//merge circuits that contain these entities.
+                mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit)
+                return true
+            }
 //            _firstOwningCircuit != null || _secondOwningCircuit != null ->
             //think this case is covered by else sufficiently
                     //
@@ -201,7 +202,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             }
         }
 
-        return false
+//        return false
 
         /*
         var firstOwningCircuit: PowerCircuit? =null
@@ -239,12 +240,41 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      * @returns false if the device connections could not be merged (possible the devices aren't
      * connected to any circuits)
      */
-    private fun mergeCircuits(firstEntity: Int, secondEntity: Int, _firstOwningCircuit: PowerCircuit?, _secondOwningCircuit: PowerCircuit?) {
+    private fun mergeCircuits(firstEntity: Int, secondEntity: Int, firstOwningCircuit: PowerCircuit, secondOwningCircuit: PowerCircuit) {
 
-        _firstOwningCircuit.wireConnections.firstOrNull { wire -> isWireConnectedToDevice(wire, firstEntity) }
-        _secondOwningCircuit.wireConnections.firstOrNull { wire -> isWireConnectedToDevice(wire, secondEntity) }
+////        firstOwningCircuit.wireConnections.firstOrNull { wire -> isWireConnectedToDevice(wire, firstEntity) }
+  //      secondOwningCircuit.wireConnections.firstOrNull { wire -> isWireConnectedToDevice(wire, secondEntity) }
 
+        val circuitToMergeTo :PowerCircuit
+        val circuitToMergeFrom :PowerCircuit
+        //merge to whichever is larger, to save a bit of computations
+                if (firstOwningCircuit.wireConnections.size > secondOwningCircuit.wireConnections.size)  {
+                    circuitToMergeTo = firstOwningCircuit
+                    circuitToMergeFrom = secondOwningCircuit
+                } else {
+                    circuitToMergeTo = secondOwningCircuit
+                    circuitToMergeFrom = firstOwningCircuit
+                }
 
+       //HACK pretty sure we don't want this: addWireConnection(firstEntity, secondEntity,circuitToMergeTo)
+
+        circuitToMergeFrom.wireConnections.forEach { wire ->
+            updateDevicesOwningCircuit(wire.firstEntity, wire.secondEntity, circuitToMergeTo) }
+
+        //todo for every entity on the circuit!!
+        circuitToMergeTo.wireConnections.forEach {updateDevicesOwningCircuit(firstEntity, secondEntity,circuitToMergeTo) }
+
+        circuitToMergeTo.wireConnections.addAll(circuitToMergeFrom.wireConnections)
+
+        //also transfer over our precalc'd list of consumers, generators
+        // (which is really just a categorized duplicate of wireConnections,
+        //so we don't have to recalculate all these again
+                                        circuitToMergeTo.consumers.addAll(circuitToMergeFrom.consumers)
+        circuitToMergeTo.generators.addAll(circuitToMergeFrom.generators)
+
+        m_circuits.remove(circuitToMergeFrom)
+
+        /*
         var previousCircuit: PowerCircuit? = null
         for (circuitToMergeTo in m_circuits) {
 
@@ -315,6 +345,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             }
         }
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        */
     }
 
     /**
