@@ -22,7 +22,7 @@ import org.ajoberstar.grgit.*
 def getDate() {
     def date = new Date()
 
-    def formattedDate = date.format("yyyy-MM-dd-");
+    def formattedDate = date.format("yyyyMMdd-HHmmss-");
     formattedDate += Grgit.open(project.file('../')).head().getAbbreviatedId()
 
     return formattedDate
@@ -61,7 +61,7 @@ task dist(type: Jar) {
     from { configurations.compile.collect { zipTree(it) } }
     from files(project.assetsDir);
 
-    baseName = 'ore-infinium';
+    baseName = 'Ore Infinium';
 
     manifest {
         attributes 'Main-Class': project.mainClassName

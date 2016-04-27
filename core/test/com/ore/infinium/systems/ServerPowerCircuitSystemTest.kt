@@ -111,6 +111,37 @@ class ServerPowerCircuitSystemTest {
     }
 
     /**
+     * should succeed
+     */
+    @Test
+    @Throws(Exception::class)
+    fun connectingThirdDeviceToExistingCircuit() {
+        val gen1 = world.createPowerGenerator()
+        val gen2 = world.createPowerGenerator()
+
+
+        val connected = circuitSystem.connectDevices(gen1, gen2)
+        assertTrue(connected)
+
+        val gen3 = world.createPowerGenerator()
+        circuitSystem.connectDevices(gen3, gen2)
+
+        val gen1Device = deviceMapper.get(gen1)
+        val gen2Device = deviceMapper.get(gen2)
+        val gen3Device = deviceMapper.get(gen3)
+
+        assertEquals(gen1Device.owningCircuit, gen2Device.owningCircuit)
+        assertEquals(gen3Device.owningCircuit, gen2Device.owningCircuit)
+        assertEquals(circuitSystem.m_circuits.size, 1)
+
+        val firstCircuit = circuitSystem.m_circuits.first()
+        assertEquals(3, firstCircuit.generators.size)
+        assertEquals(0,firstCircuit.consumers.size)
+        assertEquals(2, firstCircuit.wireConnections.size)
+    }
+
+
+    /**
      * test to make sure connecting device A to device B,
      * and device B to device A..second one should fail,
      * because they're already connected. So not more than
