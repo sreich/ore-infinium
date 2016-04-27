@@ -3,10 +3,10 @@ package com.ore.infinium.systems
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
-import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.firstNotNull
 import com.ore.infinium.util.getNullable
 
 /**
@@ -436,6 +436,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     fun disconnectWireAtPosition(position: Vector2): Boolean {
 
+        /*
         for (itCircuits in m_circuits.indices) {
             val circuit = m_circuits[itCircuits]
 
@@ -463,16 +464,25 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                     //wire should be destroyed. remove it from wireConnections.
                     circuit.wireConnections.removeAt(itWires)
 
-                    //cleanup dead circuit, if we removed the last wire from it.
-                    if (circuit.wireConnections.size == 0) {
-                        m_circuits.removeAt(itCircuits)
-                    }
+                    cleanupDeadCircuits()
                     return true
                 }
             }
         }
+        */
 
-        return false
+        var owningCircuit: PowerCircuit? = null
+        val wireAtPosition = m_circuits.firstNotNull { circuit -> owningCircuit = circuit; circuit.wireConnections.firstOrNull {  true } }
+
+        when (wireAtPosition) {
+            null -> return false
+            else -> {
+                owningCircuit!!.wireConnections.remove(wireAtPosition)
+                cleanupDeadCircuits()
+                return true
+            }
+        }
+
     }
 
     /**

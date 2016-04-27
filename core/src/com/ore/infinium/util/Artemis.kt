@@ -55,7 +55,7 @@ inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
  * allowing us to get the element that matches that predicate, outside of the nesting
  * lambdas.
  */
-inline fun <T, R : Any> Iterable<T>.mapFirstNotNull(selector: (T) -> R?): R? {
+inline fun <T, R : Any> Iterable<T>.firstNotNull(selector: (T) -> R?): R? {
     forEach { selector(it)?.let { return it } }
     return null
 }
