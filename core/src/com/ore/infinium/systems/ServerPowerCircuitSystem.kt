@@ -386,18 +386,20 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
         //add devices to a duplicated, categorized helper list.
         //so we can easily find all consumers one each circuit, later on
-        when {
-            powerConsumerMapper.getNullable(firstEntity) != null && !circuit.consumers.contains(firstEntity) ->
-                circuit.consumers.add(firstEntity)
+        if (powerConsumerMapper.getNullable(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
+            circuit.consumers.add(firstEntity)
+        }
 
-            powerConsumerMapper.getNullable(secondEntity) != null && !circuit.consumers.contains(secondEntity) ->
-                circuit.consumers.add(secondEntity)
+        if (powerConsumerMapper.getNullable(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
+            circuit.consumers.add(secondEntity)
+        }
 
-            powerGeneratorMapper.getNullable(firstEntity) != null && !circuit.generators.contains(firstEntity) ->
-                circuit.generators.add(firstEntity)
+        if (powerGeneratorMapper.getNullable(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
+            circuit.generators.add(firstEntity)
+        }
 
-            powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity) ->
-                circuit.generators.add(secondEntity)
+        if (powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
+            circuit.generators.add(secondEntity)
         }
     }
 
