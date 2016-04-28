@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.PowerCircuit
+import com.ore.infinium.PowerCircuitHelper
 import com.ore.infinium.components.*
 
 /**
@@ -53,9 +54,15 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
+    val m_powerCircuitHelper = PowerCircuitHelper()
+
     private lateinit var m_networkServerSystem: NetworkServerSystem
 
     val m_circuits = mutableListOf<PowerCircuit>()
+
+    override fun initialize() {
+        getWorld().inject(m_powerCircuitHelper, true)
+    }
 
     override fun inserted(entityId: Int) {
         super.inserted(entityId)

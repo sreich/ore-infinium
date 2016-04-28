@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.PowerCircuit
+import com.ore.infinium.PowerCircuitHelper
 import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
 import com.ore.infinium.util.firstNotNull
@@ -71,6 +72,12 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
     private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+
+    val m_powerCircuitHelper = PowerCircuitHelper()
+
+    override fun initialize() {
+        getWorld().inject(m_powerCircuitHelper, true)
+    }
 
     /**
      * Process the system.
@@ -137,24 +144,24 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
         when {
             firstOwningCircuit != null && secondOwningCircuit != null -> {//merge circuits that contain these entities.
-                mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit)
+                m_powerCircuitHelper.mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit, m_circuits)
                 return true
             }
 
             firstOwningCircuit != null && secondOwningCircuit == null -> {
-                addWireConnection(firstEntity, secondEntity, firstOwningCircuit)
+                m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, firstOwningCircuit)
                 return true
             }
 
             secondOwningCircuit != null && firstOwningCircuit == null -> {
-                addWireConnection(firstEntity, secondEntity, secondOwningCircuit)
+                m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, secondOwningCircuit)
                 return true
             }
             else -> {
                 //no circuits
                 val circuit = PowerCircuit(m_nextCircuitId++)
 
-                addWireConnection(firstEntity, secondEntity, circuit)
+                m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, circuit)
                 m_circuits.add(circuit)
 
                 return true
@@ -162,48 +169,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    /**
-     * @returns false if the device connections could not be merged (possible the devices aren't
-     * connected to any circuits)
-     */
-    private fun mergeCircuits(firstEntity: Int,
-                              secondEntity: Int,
-                              firstOwningCircuit: PowerCircuit,
-                              secondOwningCircuit: PowerCircuit) {
-
-////        firstOwningCircuit.wireConnections.firstOrNull { wire -> isWireConnectedToDevice(wire, firstEntity) }
-        //      secondOwningCircuit.wireConnections.firstOrNull { wire -> isWireConnectedToDevice(wire, secondEntity) }
-
-        val circuitToMergeTo: PowerCircuit
-        val circuitToMergeFrom: PowerCircuit
-        //merge to whichever is larger, to save a bit of computations
-        if (firstOwningCircuit.wireConnections.size > secondOwningCircuit.wireConnections.size) {
-            circuitToMergeTo = firstOwningCircuit
-            circuitToMergeFrom = secondOwningCircuit
-        } else {
-            circuitToMergeTo = secondOwningCircuit
-            circuitToMergeFrom = firstOwningCircuit
-        }
-
-        circuitToMergeFrom.wireConnections.forEach { wire ->
-            updateDevicesOwningCircuit(wire.firstEntity, wire.secondEntity, circuitToMergeTo, wire)
-        }
-
-        //todo for every entity on the circuit!!
-        circuitToMergeTo.wireConnections.forEach { wire ->
-            updateDevicesOwningCircuit(firstEntity, secondEntity, circuitToMergeTo, wire)
-        }
-
-        circuitToMergeTo.wireConnections.addAll(circuitToMergeFrom.wireConnections)
-
-        //also transfer over our precalc'd list of consumers, generators
-        // (which is really just a categorized duplicate of wireConnections,
-        //so we don't have to recalculate all these again
-        circuitToMergeTo.consumers.addAll(circuitToMergeFrom.consumers)
-        circuitToMergeTo.generators.addAll(circuitToMergeFrom.generators)
-
-        m_circuits.remove(circuitToMergeFrom)
-    }
 
     /**
      * @return true if at least 1 of these devices is connected to via this wire.
@@ -329,70 +294,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                                                             circleRadius2)
 
         return intersects
-    }
-
-    /**
-     * Updates the circuit that this device resides on. Used for faster reverse lookups
-
-     * @param firstEntity
-     * *
-     * @param secondEntity
-     * *
-     * @param circuit
-     * *         the new circuit to update them to
-     */
-    private fun updateDevicesOwningCircuit(firstEntity: Int,
-                                           secondEntity: Int,
-                                           circuit: PowerCircuit,
-                                           wire: PowerWireConnection) {
-        powerDeviceMapper.get(firstEntity).apply {
-            owningCircuit = circuit
-            wireId = wire.wireId
-        }
-
-        powerDeviceMapper.get(secondEntity).apply {
-            owningCircuit = circuit
-            wireId = wire.wireId
-        }
-    }
-
-    /**
-     * Forms a wire connection between any 2 devices (direction does not matter).
-     * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
-
-     * @param firstEntity
-     * *
-     * @param secondEntity
-     * *
-     * @param circuit
-     */
-    private fun addWireConnection(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
-        //cannot connect to a non-device
-        assert(powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity))
-
-        val powerWireConnection = PowerWireConnection(firstEntity, secondEntity,
-                                                      circuit.nextWireId++)
-        circuit.wireConnections.add(powerWireConnection)
-
-        updateDevicesOwningCircuit(firstEntity, secondEntity, circuit, powerWireConnection)
-
-        //add devices to a duplicated, categorized helper list.
-        //so we can easily find all consumers one each circuit, later on
-        if (powerConsumerMapper.getNullable(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
-            circuit.consumers.add(firstEntity)
-        }
-
-        if (powerConsumerMapper.getNullable(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
-            circuit.consumers.add(secondEntity)
-        }
-
-        if (powerGeneratorMapper.getNullable(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
-            circuit.generators.add(firstEntity)
-        }
-
-        if (powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
-            circuit.generators.add(secondEntity)
-        }
     }
 
     companion object {

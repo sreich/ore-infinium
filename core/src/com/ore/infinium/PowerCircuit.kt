@@ -1,10 +1,129 @@
 package com.ore.infinium
 
-import com.ore.infinium.PowerWireConnection
+import com.artemis.ComponentMapper
+import com.artemis.annotations.Wire
+import com.ore.infinium.components.PowerConsumerComponent
+import com.ore.infinium.components.PowerDeviceComponent
+import com.ore.infinium.components.PowerGeneratorComponent
+import com.ore.infinium.util.getNullable
+
+@Wire
+class PowerCircuitHelper() {
+    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
+    private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
+    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+
+    /**
+     * Forms a wire connection between any 2 devices (direction does not matter).
+     * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
+
+     * @param firstEntity
+     * *
+     * @param secondEntity
+     * *
+     * @param circuit
+     */
+    fun addWireConnection(firstEntity: Int, secondEntity: Int, circuit: PowerCircuit) {
+        //cannot connect to a non-device
+        assert(powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity))
+
+        val powerWireConnection = PowerWireConnection(firstEntity, secondEntity,
+                                                      circuit.nextWireId++)
+        circuit.wireConnections.add(powerWireConnection)
+
+        updateDevicesOwningCircuit(firstEntity, secondEntity, circuit, powerWireConnection)
+
+        //add devices to a duplicated, categorized helper list.
+        //so we can easily find all consumers one each circuit, later on
+        if (powerConsumerMapper.getNullable(firstEntity) != null && !circuit.consumers.contains(firstEntity)) {
+            circuit.consumers.add(firstEntity)
+        }
+
+        if (powerConsumerMapper.getNullable(secondEntity) != null && !circuit.consumers.contains(secondEntity)) {
+            circuit.consumers.add(secondEntity)
+        }
+
+        if (powerGeneratorMapper.getNullable(firstEntity) != null && !circuit.generators.contains(firstEntity)) {
+            circuit.generators.add(firstEntity)
+        }
+
+        if (powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
+            circuit.generators.add(secondEntity)
+        }
+    }
+
+    /**
+     * Updates the circuit that this device resides on. Used for faster reverse lookups
+
+     * @param firstEntity
+     * *
+     * @param secondEntity
+     * *
+     * @param circuit
+     * *         the new circuit to update them to
+     */
+     fun updateDevicesOwningCircuit(firstEntity: Int,
+                                           secondEntity: Int,
+                                           circuit: PowerCircuit,
+                                           wire: PowerWireConnection) {
+        powerDeviceMapper.get(firstEntity).apply {
+            owningCircuit = circuit
+            wireId = wire.wireId
+        }
+
+        powerDeviceMapper.get(secondEntity).apply {
+            owningCircuit = circuit
+            wireId = wire.wireId
+        }
+    }
+
+    /**
+     * @returns false if the device connections could not be merged (possible the devices aren't
+     * connected to any circuits)
+     */
+     fun mergeCircuits(firstEntity: Int,
+                              secondEntity: Int,
+                              firstOwningCircuit: PowerCircuit,
+                              secondOwningCircuit: PowerCircuit,
+                              circuits: MutableList<PowerCircuit>) {
+
+        val circuitToMergeTo: PowerCircuit
+        val circuitToMergeFrom: PowerCircuit
+        //merge to whichever is larger, to save a bit of computations
+        if (firstOwningCircuit.wireConnections.size > secondOwningCircuit.wireConnections.size) {
+            circuitToMergeTo = firstOwningCircuit
+            circuitToMergeFrom = secondOwningCircuit
+        } else {
+            circuitToMergeTo = secondOwningCircuit
+            circuitToMergeFrom = firstOwningCircuit
+        }
+
+        circuitToMergeFrom.wireConnections.forEach { wire ->
+            updateDevicesOwningCircuit(wire.firstEntity, wire.secondEntity, circuitToMergeTo, wire)
+        }
+
+        //todo for every entity on the circuit!!
+        circuitToMergeTo.wireConnections.forEach { wire ->
+            updateDevicesOwningCircuit(firstEntity, secondEntity, circuitToMergeTo, wire)
+        }
+
+        circuitToMergeTo.wireConnections.addAll(circuitToMergeFrom.wireConnections)
+
+        //also transfer over our precalc'd list of consumers, generators
+        // (which is really just a categorized duplicate of wireConnections,
+        //so we don't have to recalculate all these again
+        circuitToMergeTo.consumers.addAll(circuitToMergeFrom.consumers)
+        circuitToMergeTo.generators.addAll(circuitToMergeFrom.generators)
+
+        circuits.remove(circuitToMergeFrom)
+    }
+
+
+}
 
 /**
  * Either a connected entity on a circuit/wire, is a device or a generator. It is *not* both.
- * Devices consumer power, generators...generate
+ * Devices consume power, generators...generate
  * @param circuitId test test
  */
 class PowerCircuit(circuitId: Int) {
@@ -53,3 +172,4 @@ class PowerCircuit(circuitId: Int) {
 
     var nextWireId = 0
 }
+
