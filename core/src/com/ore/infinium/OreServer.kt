@@ -5,6 +5,7 @@ import com.artemis.ComponentMapper
 import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.NetworkServerSystem
+import com.ore.infinium.util.indices
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -160,7 +161,7 @@ class OreServer : Runnable {
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
         val entities = entitySubscription.entities
         //tell this player all the current players that are on the server right now
-        for (i in 0..entities.size() - 1) {
+        for (i in entities.indices) {
             //exclude himself, though. he already knows.
             val entity = entities.get(i)
             if (entity != player) {

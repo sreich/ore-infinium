@@ -392,26 +392,23 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     override fun keyDown(keycode: Int): Boolean {
-        if (keycode == Input.Keys.ESCAPE) {
-            shutdown()
-        } else if (keycode == Input.Keys.F7) {
-        } else if (keycode == Input.Keys.F8) {
-            //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
-            // could derive from. so we could just call this, and await the return...all of the debug things could be
-            // handled
-            //directly in there. but the question is, what to do for everything else.
-            m_debugTextRenderSystem.m_renderDebugClient = !m_debugTextRenderSystem.m_renderDebugClient
-        } else if (keycode == Input.Keys.F9) {
-            m_debugTextRenderSystem.m_renderDebugServer = !m_debugTextRenderSystem.m_renderDebugServer
-        } else if (keycode == Input.Keys.F10) {
-            m_debugTextRenderSystem.m_renderTiles = !m_debugTextRenderSystem.m_renderTiles
-        } else if (keycode == Input.Keys.F11) {
-            m_renderGui = !m_renderGui
-        } else if (keycode == Input.Keys.F12) {
-            m_debugTextRenderSystem.m_guiDebug = !m_debugTextRenderSystem.m_guiDebug
-            stage.setDebugAll(m_debugTextRenderSystem.m_guiDebug)
-        } else if (keycode == Input.Keys.I) {
-            if (m_inventoryView != null) {
+        when (keycode) {
+            Input.Keys.ESCAPE -> shutdown()
+            Input.Keys.F7 -> {
+            }
+            Input.Keys.F8 -> //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
+                // could derive from. so we could just call this, and await the return...all of the debug things could be
+                // handled
+                //directly in there. but the question is, what to do for everything else.
+                m_debugTextRenderSystem.m_renderDebugClient = !m_debugTextRenderSystem.m_renderDebugClient
+            Input.Keys.F9 -> m_debugTextRenderSystem.m_renderDebugServer = !m_debugTextRenderSystem.m_renderDebugServer
+            Input.Keys.F10 -> m_debugTextRenderSystem.m_renderTiles = !m_debugTextRenderSystem.m_renderTiles
+            Input.Keys.F11 -> m_renderGui = !m_renderGui
+            Input.Keys.F12 -> {
+                m_debugTextRenderSystem.m_guiDebug = !m_debugTextRenderSystem.m_guiDebug
+                stage.setDebugAll(m_debugTextRenderSystem.m_guiDebug)
+            }
+            Input.Keys.I -> if (m_inventoryView != null) {
                 m_inventoryView!!.setVisible(!m_inventoryView!!.inventoryVisible)
             }
         }
@@ -428,27 +425,18 @@ class OreClient : ApplicationListener, InputProcessor {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
         val controllableComponent = controlMapper.get(player)
 
-        if (keycode == Input.Keys.Q) {
-            attemptItemDrop()
-        } else if (keycode == Input.Keys.E) {
-            //power overlay
-            m_powerOverlayRenderSystem.toggleOverlay()
-        } else if (keycode == Input.Keys.NUM_1) {
-            m_hotbarInventory!!.selectSlot(0)
-        } else if (keycode == Input.Keys.NUM_2) {
-            m_hotbarInventory!!.selectSlot(1)
-        } else if (keycode == Input.Keys.NUM_3) {
-            m_hotbarInventory!!.selectSlot(2)
-        } else if (keycode == Input.Keys.NUM_4) {
-            m_hotbarInventory!!.selectSlot(3)
-        } else if (keycode == Input.Keys.NUM_5) {
-            m_hotbarInventory!!.selectSlot(4)
-        } else if (keycode == Input.Keys.NUM_6) {
-            m_hotbarInventory!!.selectSlot(5)
-        } else if (keycode == Input.Keys.NUM_7) {
-            m_hotbarInventory!!.selectSlot(6)
-        } else if (keycode == Input.Keys.NUM_8) {
-            m_hotbarInventory!!.selectSlot(7)
+        when (keycode) {
+            Input.Keys.Q -> attemptItemDrop()
+            Input.Keys.E -> //power overlay
+                m_powerOverlayRenderSystem.toggleOverlay()
+            Input.Keys.NUM_1 -> m_hotbarInventory!!.selectSlot(0)
+            Input.Keys.NUM_2 -> m_hotbarInventory!!.selectSlot(1)
+            Input.Keys.NUM_3 -> m_hotbarInventory!!.selectSlot(2)
+            Input.Keys.NUM_4 -> m_hotbarInventory!!.selectSlot(3)
+            Input.Keys.NUM_5 -> m_hotbarInventory!!.selectSlot(4)
+            Input.Keys.NUM_6 -> m_hotbarInventory!!.selectSlot(5)
+            Input.Keys.NUM_7 -> m_hotbarInventory!!.selectSlot(6)
+            Input.Keys.NUM_8 -> m_hotbarInventory!!.selectSlot(7)
         }
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
@@ -480,35 +468,33 @@ class OreClient : ApplicationListener, InputProcessor {
         val playerComponent = playerMapper.get(player)
 
         val itemEntity = playerComponent.equippedPrimaryItem
-        itemEntity?.let {
-            val dropItemRequestFromClient = Network.HotbarDropItemFromClient()
-            val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
-            dropItemRequestFromClient.index = currentEquippedIndex.toByte()
+        val dropItemRequestFromClient = Network.HotbarDropItemFromClient()
+        val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
+        dropItemRequestFromClient.index = currentEquippedIndex.toByte()
 
-            // decrement count, we assume it'll get spawned shortly when the server tells us to.
-            // delete in-inventory entity if necessary server assumes we already do so
-            val itemComponent = itemMapper.get(itemEntity)
-            if (itemComponent.stackSize > 1) {
-                //decrement count, server has already done so. we assume here that it went through properly.
-                itemComponent.stackSize -= 1
-                m_hotbarInventory!!.setCount(currentEquippedIndex, itemComponent.stackSize)
-            } else {
-                //delete it, server knows/assumes we already did, since there are no more left
-                val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())!!
-                m_world!!.m_artemisWorld.delete(item)
-            }
-
-            m_networkClientSystem.m_clientKryo.sendTCP(dropItemRequestFromClient)
+        // decrement count, we assume it'll get spawned shortly when the server tells us to.
+        // delete in-inventory entity if necessary server assumes we already do so
+        val itemComponent = itemMapper.get(itemEntity!!)
+        if (itemComponent.stackSize > 1) {
+            //decrement count, server has already done so. we assume here that it went through properly.
+            itemComponent.stackSize -= 1
+            m_hotbarInventory!!.setCount(currentEquippedIndex, itemComponent.stackSize)
+        } else {
+            //delete it, server knows/assumes we already did, since there are no more left
+            val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())!!
+            m_world!!.m_artemisWorld.delete(item)
         }
+
+        m_networkClientSystem.m_clientKryo.sendTCP(dropItemRequestFromClient)
     }
 
     override fun keyUp(keycode: Int): Boolean {
-        if (m_world == null) {
-            return false
-        }
+        when {
+            m_world == null ->
+                return false
 
-        if (!m_networkClientSystem.connected) {
-            return false
+            !m_networkClientSystem.connected ->
+                return false
         }
 
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
@@ -568,17 +554,15 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     override fun scrolled(amount: Int): Boolean {
-        if (m_world == null) {
-            return false
-        }
+        when {
+            m_world == null ->
+                return false
 
-        if (!m_networkClientSystem.connected) {
-            return false
-        }
-
-        if (m_powerOverlayRenderSystem.overlayVisible) {
-            //don't allow item/inventory selection during this
-            return false
+            !m_networkClientSystem.connected ->
+                return false
+            m_powerOverlayRenderSystem.overlayVisible ->
+                //don't allow item/inventory selection during this
+                return false
         }
 
         val index = m_hotbarInventory!!.selectedSlot

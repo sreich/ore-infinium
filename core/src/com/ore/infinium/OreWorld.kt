@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.indices
 import java.util.*
 
 /**
@@ -920,9 +921,10 @@ class OreWorld
 
     fun createAirGenerator(): Int {
         val air = m_artemisWorld.create()
-        val itemComponent = itemMapper.create(air)
-        itemComponent.stackSize = 800
-        itemComponent.maxStackSize = 900
+        val itemComponent = itemMapper.create(air).apply {
+            stackSize = 800
+            maxStackSize = 900
+        }
 
         velocityMapper.create(air)
 
@@ -1235,13 +1237,14 @@ class OreWorld
      * @return the player entity
      */
     fun playerEntityForPlayerConnectionID(playerId: Int): Int {
-        val entities = m_artemisWorld.aspectSubscriptionManager.get(
+        val players = m_artemisWorld.aspectSubscriptionManager.get(
                 Aspect.all(PlayerComponent::class.java)).entities
+
         var playerComponent: PlayerComponent
-        for (i in 0..entities.size() - 1) {
-            playerComponent = playerMapper.get(entities.get(i))
+        for (iPlayer in players.indices) {
+            playerComponent = playerMapper.get(players[iPlayer])
             if (playerComponent.connectionPlayerId == playerId) {
-                return entities[i]
+                return iPlayer
             }
         }
 
@@ -1317,48 +1320,47 @@ class OreWorld
      * or nothing (e.g. if something just died by itself)
      */
     fun killEntity(entityToKill: Int, entityKiller: Int? = null) {
-        val floraComp = floraMapper.getNullable(entityToKill)
-        floraComp?.let {
-            //this behavior is for exploding flora into a bunch of dropped items
-            //for example, when destroying a tree in games like terraria, it gives
-            //a satisfying exploding of dropped items
-            for (i in 0..floraComp.numberOfDropsWhenDestroyed) {
-                //todo actually what we want is not to clone, but to drop wood.
-                //same for rubber trees. but they may also drop a sapling
-                val cloned = cloneEntity(entityToKill)
-                val clonedSpriteComp = spriteMapper.get(cloned)
-                val random = RandomXS128 ()
-                clonedSpriteComp.sprite.apply {
-                    x += randomRange(0, 5, random)
-                    y += randomRange(0, 5, random)
-                }
+        val floraComp = floraMapper.getNullable(entityToKill)!!
 
-                val clonedItemComp = itemMapper.get(cloned).apply {
-                    stackSize = floraComp.stackSizePerDrop
-                    state = ItemComponent.State.DroppedInWorld
-                    //half the size, it's a dropped tree
-                    //hack
-
-                    //fixme functionalize this, duplicated of/by networkserversystem drop request
-                    sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
-                                             clonedSpriteComp.sprite.height)
-
-                    val reducedWidth = (clonedSpriteComp.sprite.width * 0.25f)
-                    val reducedHeight = (clonedSpriteComp.sprite.height * 0.25f)
-                    //shrink the size of all dropped items, but also store the original size first, so we can revert later
-                    clonedSpriteComp.sprite.setSize(reducedWidth, reducedHeight)
-
-                    //                    sizeBeforeDrop
-                }
-
-                spriteMapper.get(cloned).apply {
-                }
-
-                //                spriteMapper.get(cloned).apply {
-                //                   sprite.setPosition()
-                //              }
-                //todo give it some explody velocity
+        //this behavior is for exploding flora into a bunch of dropped items
+        //for example, when destroying a tree in games like terraria, it gives
+        //a satisfying exploding of dropped items
+        for (i in 0..floraComp.numberOfDropsWhenDestroyed) {
+            //todo actually what we want is not to clone, but to drop wood.
+            //same for rubber trees. but they may also drop a sapling
+            val cloned = cloneEntity(entityToKill)
+            val clonedSpriteComp = spriteMapper.get(cloned)
+            val random = RandomXS128 ()
+            clonedSpriteComp.sprite.apply {
+                x += randomRange(0, 5, random)
+                y += randomRange(0, 5, random)
             }
+
+            val clonedItemComp = itemMapper.get(cloned).apply {
+                stackSize = floraComp.stackSizePerDrop
+                state = ItemComponent.State.DroppedInWorld
+                //half the size, it's a dropped tree
+                //hack
+
+                //fixme functionalize this, duplicated of/by networkserversystem drop request
+                sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
+                                         clonedSpriteComp.sprite.height)
+            }
+
+            val reducedWidth = (clonedSpriteComp.sprite.width * 0.25f)
+            val reducedHeight = (clonedSpriteComp.sprite.height * 0.25f)
+            //shrink the size of all dropped items, but also store the original size first, so we can revert later
+            clonedSpriteComp.sprite.setSize(reducedWidth, reducedHeight)
+
+            //                    sizeBeforeDrop
+
+            spriteMapper.get(cloned).apply {
+            }
+
+            //                spriteMapper.get(cloned).apply {
+            //                   sprite.setPosition()
+            //              }
+            //todo give it some explody velocity
         }
 
         m_artemisWorld.delete(entityToKill)
