@@ -34,6 +34,18 @@ class PowerDeviceComponent : Component() {
     @Transient var owningCircuit: ServerPowerCircuitSystem.PowerCircuit? = null
 
     /**
+     * circuit id that this device resides on
+     * (this id is what the server uses to identify it)
+     */
+    var circuitId = -1
+
+    /**
+     * wire connection id that this entity is a part of,
+     * the server uses it to identify it
+     */
+    var wireId = -1
+
+    /**
      * copy a component (similar to copy constructor)
 
      * @param component

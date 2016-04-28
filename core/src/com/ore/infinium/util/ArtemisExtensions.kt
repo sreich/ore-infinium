@@ -42,22 +42,9 @@ inline fun <T> IntBag.forEachIndexed(action: (Int, T) -> Unit): Unit {
 }
 */
 
+
 inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
     for (i in indices) action(this.get(i))
-}
-
-/**
- *
- * returns result of lambda, so we can e.g. return an element outward, by doing
- *
- * list.mapFirstNotNull { it.mapFirstNotNull { it.firstOrNull { it.predicate() } } }
- *
- * allowing us to get the element that matches that predicate, outside of the nesting
- * lambdas.
- */
-inline fun <T, R : Any> Iterable<T>.firstNotNull(selector: (T) -> R?): R? {
-    forEach { selector(it)?.let { return it } }
-    return null
 }
 
 

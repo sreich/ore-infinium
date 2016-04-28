@@ -11,6 +11,7 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.forEach
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.rect
 
 /**
  * ***************************************************************************

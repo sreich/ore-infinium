@@ -28,7 +28,18 @@ import com.ore.infinium.components.*
 
 /**
  * this class should keep track of the association of entities to a
- * circuit, for over the network
+ * circuit, for over the network on the clients end. The client is
+ * mostly dumb, in that it won't be able to ever e.g. count the total
+ * supply/demand of a circuit, or even know 100% of the items that are on said
+ * circuit (high chance that they are off screen and not spawned for us)
+ *
+ * There will be 2 kinds of events
+ *
+ * (1) implicit wire connections, which would
+ * happen when an entity is spawned on screen (but has existed on server),
+ *
+ * (2) explicit connection events, which would be when somebody connects a wire
+ * on screen.
  */
 @Wire(failOnNull = false)
 class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
@@ -43,14 +54,20 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
 
     private lateinit var m_networkServerSystem: NetworkServerSystem
 
+    val m_circuits = mutableListOf<ServerPowerCircuitSystem.PowerCircuit>()
+
     override fun inserted(entityId: Int) {
         super.inserted(entityId)
-
+        //todo not sure how to handle this..i can't exactly add them one at a time, because
+        //then we'd be left with wires that only have 1 device in them. not a wire.
+        //we could add them to a list, but we'd have to check each time we get a new one,
+        //if it has a matching pair (they reference the same wire)
     }
 
     override fun removed(entityId: Int) {
         super.removed(entityId)
 
+        //todo find entity's owning circuit and the wire it sits on, remove wire (since a wire only composes 2 endpoints)
     }
 
     override fun process(entityId: Int) {

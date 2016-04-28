@@ -29,6 +29,7 @@ import com.ore.infinium.util.getNullable
  * ***************************************************************************
  */
 
+
 /**
  * system that handled all the power circuits/wire connections, can look them up,
  * connect them, remove them, etc., and it also will process them each tick (if server) and
@@ -43,9 +44,9 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     /**
      * serves as a global (cross-network) identifier
-     * for circuits
+     * for circuits (this always points to the next unique id)
      */
-    private val m_circuitId = 0
+    private var m_nextCircuitId = 0
 
     /**
      * Contains list of each circuit in the world.
@@ -64,8 +65,10 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     /**
      * Either a connected entity on a circuit/wire, is a device or a generator. It is *not* both.
      * Devices consumer power, generators...generate
+     * @param circuitId test test
      */
-    inner class PowerCircuit {
+    inner class PowerCircuit (circuitId: Int){
+
         /**
          * List of wire connections between pairs of devices
          *
@@ -91,7 +94,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
          * List of all the devices that consume power, connected on this circuit
          * For faster retrieval of just those, and for calculating the load usages.
          * May be disjoint from generators, but note that generators have potential to consume power as well..
-         * so there *could* be generators present in here. But they should only be treated as consumers
+         * so there *could* be generators present in here. But they should only be treated as consumers(as well as
+         * residing in the generators list too!)
          * (as they would have the PowerConsumerComponent, in addition to PowerGeneratorComponent
 
          * @type s
@@ -101,14 +105,26 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         var totalSupply: Int = 0
         var totalDemand: Int = 0
 
-        var circuitId = -1
+        /**
+         * identifier of this circuit. used by the server and client,
+         * to know what we're talking about
+         */
+        var circuitId = circuitId
+
+        var nextWireId = 0
     }
 
     /**
      * Each circuit is composed of >= 1 wire connections, each wire connection is composed of
      * only 2 different devices.
      */
-    inner class PowerWireConnection(internal var firstEntity: Int, internal var secondEntity: Int)
+    inner class PowerWireConnection (var firstEntity: Int, var secondEntity: Int, wireId: Int) {
+
+        /**
+         * identifier of this wire, used by server and client to sync
+         */
+        var wireId = wireId
+    }
 
     private lateinit var playerMapper: ComponentMapper<PlayerComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
@@ -198,7 +214,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             }
             else -> {
                 //no circuits
-                val circuit = PowerCircuit()
+                val circuit = PowerCircuit(m_nextCircuitId++)
 
                 addWireConnection(firstEntity, secondEntity, circuit)
                 m_circuits.add(circuit)

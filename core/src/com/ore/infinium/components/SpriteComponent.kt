@@ -2,9 +2,7 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.math.Rectangle
-
-val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y + (height * 0.5f), x + (width * 0.5f), y - (height * 0.5f))
+import com.ore.infinium.util.rect
 
 /**
  * ***************************************************************************

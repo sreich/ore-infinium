@@ -17,6 +17,7 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
+import com.ore.infinium.util.indices
 
 /**
  * ***************************************************************************
@@ -36,6 +37,37 @@ import com.ore.infinium.util.getTagNullable
  * along with this program.  If not, see //www.gnu.org/licenses/>.    *
  * ***************************************************************************
  */
+
+    /**
+     * game notes:
+     *
+     * -client needs to know the supply/demand total for each circuit
+     *
+     * -needs to know circuits it should be interested in(but not every wire in it)
+     *
+     * -which wire each entity belongs on. we can store an id in the powerdevice component
+     *
+     * when we try and dis/connect devices, we just tell the server the entity id's we want connected,
+     * it will ping back as normal when devices get connected or disconnected
+     *
+     * PowerDeviceComponent should store: wireId, the wire it resides on. circuitid.
+     *
+     * wireid is needed or else we wouldn't know which entities are connected to which
+     *
+     * circuitid is needed because we need to know what the stats are for each circuit.
+     *
+     *
+     * scenarios:
+     *
+     * - entity gets spawned in viewport. we know it's on wire n. find other entity that is also
+     * on wire n, if any.
+     *
+     * - we connected entity 1 to 2. just send the id, handle response as usual
+     *
+     * - handle connection event/packet of entity 1 to 2.
+     *
+     */
+
 @Wire
 class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
@@ -130,8 +162,8 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
         var spriteComponent: SpriteComponent
         val entities = entityIds
-        for (i in 0..entities.size() - 1) {
-            val currentEntity = entities.get(i)
+        for (i in entities.indices) {
+            val currentEntity = entities[i]
             val entityBoxed = world.getEntity(currentEntity)
 
             val entityTag = m_tagManager.getTagNullable(entityBoxed)
@@ -306,20 +338,17 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         var firstEntitySpriteComponent: SpriteComponent
         var secondEntitySpriteComponent: SpriteComponent
 
-        var deviceSprite: SpriteComponent
         val serverPowerCircuitSystem = m_serverPowerCircuitSystem
         for (circuit in serverPowerCircuitSystem.m_circuits) {
             //for each device, draw a power node, a "hub" of wireConnections of sorts.
-            for (i in 0..circuit.generators.size - 1) {
-                val gen = circuit.generators.get(i)
-                deviceSprite = spriteMapper.get(gen)
+            for (generator in circuit.generators) {
+                val deviceSprite = spriteMapper.get(generator)
                 renderPowerNode(deviceSprite)
             }
 
             //do the same for devices. devices(consumers)
-            for (i in 0..circuit.consumers.size - 1) {
-                val device = circuit.consumers.get(i)
-                deviceSprite = spriteMapper.get(device)
+            for (consumer in circuit.consumers) {
+                val deviceSprite = spriteMapper.get(consumer)
                 renderPowerNode(deviceSprite)
             }
 
