@@ -18,6 +18,7 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
+import com.ore.infinium.util.indices
 
 /**
  * ***************************************************************************
@@ -98,7 +99,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
         val entities = entitySubscription.entities
 
         var itemComponent: ItemComponent?
-        for (i in 0..entities.size() - 1) {
+        for (i in entities.indices) {
             //hack fixmeasap
             if (entities.get(i) == 55) {
                 val c = 2
@@ -162,7 +163,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
         var itemComponent: ItemComponent?
         var spriteComponent: SpriteComponent
 
-        for (i in 0..entities.size() - 1) {
+        for (i in entities.indices) {
             val entity = entities.get(i)
 
             itemComponent = itemMapper.getNullable(entity)
@@ -178,7 +179,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
                 continue
             }
 
-            assert(spriteComponent.sprite != null) { "sprite is null" }
+            //assert(spriteComponent.sprite != null) { "sprite is null" }
             assert(spriteComponent.sprite.texture != null) { "sprite has null texture" }
 
             var placementGhost = false

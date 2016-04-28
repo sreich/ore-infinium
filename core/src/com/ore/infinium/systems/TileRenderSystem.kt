@@ -165,11 +165,11 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                         assert(textureName != null) { "block mesh lookup failure" }
                     } else {
                         textureName = dirtBlockMeshes.get(blockMeshType.toInt())
-                        assert(textureName != null) { "block mesh lookup failure type: " + blockMeshType }
+                        assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
                     }
                 } else if (blockType == OreBlock.BlockType.StoneBlockType) {
                     textureName = stoneBlockMeshes.get(blockMeshType.toInt())
-                    assert(textureName != null) { "block mesh lookup failure type: " + blockMeshType }
+                    assert(textureName != null) { "block mesh lookup failure type: $blockMeshType"  }
 
                 } else if (blockType == OreBlock.BlockType.NullBlockType) {
                     if (blockWallType == OreBlock.WallType.NullWallType) {
@@ -190,7 +190,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 // scenarios..)
                 if (!drawWallTile) {
                     region = m_tilesAtlas.findRegion(textureName)
-                    assert(region != null) { "texture region for tile was null. textureName: " + textureName!! }
+                    assert(region != null) { "texture region for tile was null. textureName: ${textureName!!}" }
 
                     //offset y to flip orientation around to normal
                     m_batch.draw(region, tileX, tileY + 1, 1f, -1f)
@@ -199,15 +199,12 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                     //draw walls
                     //fixme of course, for wall drawing
                     textureName = dirtBlockMeshes.get(0)
-                    assert(textureName != null) { "block mesh lookup failure type: " + blockMeshType }
+                    assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
                     //offset y to flip orientation around to normal
                     region = m_tilesAtlas.findRegion(textureName)
                     m_batch.draw(region, tileX, tileY + 1, 1f, -1f)
 
-                }
-
-                if (drawWallTile) {
                     m_batch.setColor(1f, 1f, 1f, 1f)
                 }
             }
