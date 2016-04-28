@@ -219,6 +219,27 @@ object Network {
     }
 
     /**
+     * Request to connect these 2 devices together
+     * These are network entity id's(non local)
+     */
+    class PowerWireConnectFromClient {
+        var firstEntityId: Int = 0
+        var secondEntityId: Int = 0
+    }
+
+    /**
+     * Update, to the client to notify these 2 devices are
+     * now connected
+     * These are network entity id's(non local)
+     */
+    class PowerWireConnectFromServer {
+        var firstEntityId: Int = 0
+        var secondEntityId: Int = 0
+        //todo disconnection
+    }
+
+
+    /**
      * Indicates this entity got killed in the world.
      * (attacked by something, and health hit 0)
      *
