@@ -3,6 +3,7 @@ package com.ore.infinium.systems
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
+import com.badlogic.gdx.math.Intersector
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
@@ -337,7 +338,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     fun disconnectWireAtPosition(position: Vector2): Boolean {
         var owningCircuit: PowerCircuit? = null
-        val wireAtPosition = m_circuits.firstNotNull { circuit -> owningCircuit = circuit; circuit.wireConnections.firstOrNull { true } }
+
+        val wireAtPosition = m_circuits.firstNotNull { circuit -> owningCircuit = circuit; circuit.wireConnections.firstOrNull { wireIntersectsPosition(it, position) } }
 
         when (wireAtPosition) {
             null -> return false
@@ -347,7 +349,28 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 return true
             }
         }
+    }
 
+    private fun wireIntersectsPosition(connection: PowerWireConnection, position: Vector2): Boolean {
+        val first = connection.firstEntity
+        val second = connection.secondEntity
+
+        val firstSprite = spriteMapper.get(first)
+        val secondSprite = spriteMapper.get(second)
+        //todo..rest of the logic..try looking for an intersection between points of these
+        //given a certain width..that is the width that is decided upon for wire thickness. (constant)
+
+        val firstPosition = Vector2(firstSprite.sprite.x, firstSprite.sprite.y)
+        val secondPosition = Vector2(secondSprite.sprite.x, secondSprite.sprite.y)
+
+        val circleRadius2 = Math.pow((WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
+
+        //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
+        val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
+        val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
+                circleRadius2)
+
+        return intersects
     }
 
     /**
