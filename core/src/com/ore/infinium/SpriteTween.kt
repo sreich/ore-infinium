@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium
 
 import aurelienribon.tweenengine.TweenAccessor
 import com.badlogic.gdx.graphics.g2d.Sprite

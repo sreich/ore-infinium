@@ -27,6 +27,8 @@ import com.artemis.utils.IntBag
  * Gets the component that this mapper is for, for this @param entityId
  * @returns null if the component does not exist for this entity
  */
+//todo remove this! it relies on getsafe which is deprecated anyways. just use get(),
+//it is nullable
 fun <T : Component?> ComponentMapper<T>.getNullable(entityId: Int): T? {
     return this.getSafe(entityId)
 }

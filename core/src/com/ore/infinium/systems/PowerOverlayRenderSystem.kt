@@ -65,6 +65,7 @@ import com.ore.infinium.util.indices
      * - we connected entity 1 to 2. just send the id, handle response as usual
      *
      * - handle connection event/packet of entity 1 to 2.
+     * -- to handle connect event, we may need to merge
      *
      */
 

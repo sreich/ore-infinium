@@ -1,6 +1,7 @@
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.PowerCircuit
 import com.ore.infinium.systems.ServerPowerCircuitSystem
 
 /**
@@ -31,7 +32,7 @@ class PowerDeviceComponent : Component() {
     /**
      * circuit that this device resides on
      */
-    @Transient var owningCircuit: ServerPowerCircuitSystem.PowerCircuit? = null
+    @Transient var owningCircuit: PowerCircuit? = null
 
     /**
      * circuit id that this device resides on

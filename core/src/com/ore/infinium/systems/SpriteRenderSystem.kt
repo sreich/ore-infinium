@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.OreWorld
+import com.ore.infinium.SpriteTween
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
