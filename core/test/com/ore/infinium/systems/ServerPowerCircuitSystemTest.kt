@@ -63,7 +63,7 @@ class ServerPowerCircuitSystemTest {
         //small sanity check, ensure world is getting created properly
         assertEquals(0, circuitSystem.m_circuits.size.toLong())
 
-        var connected = circuitSystem.connectDevices(gen1, light1)
+        var connected = circuitSystem.connectDevices(gen1, light1, job.connection.playerEntityId)
         assertTrue(connected)
 
         //check they got connected, that there is now 1 circuit at least
@@ -76,7 +76,7 @@ class ServerPowerCircuitSystemTest {
 
         val gen2 = world.createPowerGenerator()
         val light2 = world.createLight()
-        connected = circuitSystem.connectDevices(gen2, light2)
+        connected = circuitSystem.connectDevices(gen2, light2, job.connection.playerEntityId)
         assertTrue(connected)
         //ensure there are 2 circuits now, and they each only have 1 wire
         assertEquals(2, circuitSystem.m_circuits.size.toLong())
@@ -95,7 +95,7 @@ class ServerPowerCircuitSystemTest {
         //so there were 4 devices, 2 on one circuit. 2 on another.
         //now we draw a wire from one of those on one circuit, to the 2nd circuit
         //it should merge to 1 circuit, and all of the wires move over
-        connected = circuitSystem.connectDevices(gen2, light1)
+        connected = circuitSystem.connectDevices(gen2, light1, job.connection.playerEntityId)
         assertTrue(connected)
         assertEquals(1, circuitSystem.m_circuits.size.toLong())
 
@@ -120,11 +120,11 @@ class ServerPowerCircuitSystemTest {
         val gen2 = world.createPowerGenerator()
 
 
-        val connected = circuitSystem.connectDevices(gen1, gen2)
+        val connected = circuitSystem.connectDevices(gen1, gen2, job.connection.playerEntityId)
         assertTrue(connected)
 
         val gen3 = world.createPowerGenerator()
-        circuitSystem.connectDevices(gen3, gen2)
+        circuitSystem.connectDevices(gen3, gen2, job.connection.playerEntityId)
 
         val gen1Device = deviceMapper.get(gen1)
         val gen2Device = deviceMapper.get(gen2)
@@ -156,7 +156,7 @@ class ServerPowerCircuitSystemTest {
         //small sanity check, ensure world is getting created properly
         assertEquals(0, circuitSystem.m_circuits.size.toLong())
 
-        var connected = circuitSystem.connectDevices(gen, light)
+        var connected = circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
         assertTrue(connected)
 
         //check they got connected, that there is now 1 circuit at least
@@ -166,7 +166,7 @@ class ServerPowerCircuitSystemTest {
         //ensure the first circuit (ours) has 1 wire in it.
         assertEquals(1, circuitSystem.m_circuits.first().wireConnections.size)
 
-        connected = circuitSystem.connectDevices(gen, light)
+        connected = circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
         assertFalse(connected)
         //ensure it didn't return false and lie and actually add them still
         assertEquals(1, circuitSystem.m_circuits.size.toLong())
@@ -188,7 +188,7 @@ class ServerPowerCircuitSystemTest {
         //small sanity check, ensure world is getting created properly
         assertEquals(0, circuitSystem.m_circuits.size.toLong())
 
-        val connected = circuitSystem.connectDevices(gen, light)
+        val connected = circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
         assertTrue(connected)
 
         //check they got connected, that there is now 1 circuit at least
@@ -218,13 +218,13 @@ class ServerPowerCircuitSystemTest {
 
         val light = world.createLight()
 
-        circuitSystem.connectDevices(gen, light)
+        circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
 
         // connect placeholders to fill in. there's possibly more room for error
         // if there's more than one (eg array issues)
         val placeholder1 = world.createPowerGenerator()
         val placeholder2 = world.createLight()
-        val connected = circuitSystem.connectDevices(placeholder1, placeholder2)
+        val connected = circuitSystem.connectDevices(placeholder1, placeholder2, job.connection.playerEntityId)
         assertTrue(connected)
         //
 
@@ -243,7 +243,7 @@ class ServerPowerCircuitSystemTest {
         val gen = world.createPowerGenerator()
         val light = world.createLight()
 
-        val connected = circuitSystem.connectDevices(gen, light)
+        val connected = circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
         assertTrue(connected)
 
         spriteMapper.get(gen).sprite.setPosition(100f, 100f)
@@ -267,7 +267,7 @@ class ServerPowerCircuitSystemTest {
         val gen = world.createPowerGenerator()
         val light = world.createLight()
 
-        val connected = circuitSystem.connectDevices(gen, light)
+        val connected = circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
         assertTrue(connected)
 
         //wire is horizontally laid out
@@ -294,7 +294,7 @@ class ServerPowerCircuitSystemTest {
         val gen = world.createPowerGenerator()
         val light = world.createLight()
 
-        circuitSystem.connectDevices(gen, light)
+        circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
 
         //wire is horizontally laid out
         spriteMapper.get(gen).sprite.setPosition(100f, 100f)
@@ -320,7 +320,7 @@ class ServerPowerCircuitSystemTest {
         val gen = world.createPowerGenerator()
         val light = world.createLight()
 
-        val connected = circuitSystem.connectDevices(gen, light)
+        val connected = circuitSystem.connectDevices(gen, light, job.connection.playerEntityId)
         assertTrue(connected)
 
         //wire is horizontally laid out

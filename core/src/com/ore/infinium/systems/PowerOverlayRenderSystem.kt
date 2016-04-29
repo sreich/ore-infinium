@@ -85,7 +85,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
     private lateinit var m_entityOverlaySystem: EntityOverlaySystem
-    private lateinit var m_serverPowerCircuitSystem: ServerPowerCircuitSystem
+    private lateinit var m_clientPowerCircuitSystem: ClientPowerCircuitSystem
     private lateinit var m_tagManager: TagManager
 
     //    public Sprite outputNode = new Sprite();
@@ -209,7 +209,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
     fun rightMouseClicked() {
         //check if we can delete a wire
-        m_serverPowerCircuitSystem.disconnectWireAtPosition(m_world.mousePositionWorldCoords())
+        m_clientPowerCircuitSystem.canDisconnectWireAtPosition(m_world.mousePositionWorldCoords())
     }
 
     fun leftMouseReleased() {
@@ -237,7 +237,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
                 //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
 
-                m_serverPowerCircuitSystem.connectDevices(m_dragSourceEntity!!, dropEntity)
+                m_clientPowerCircuitSystem.requestConnectDevices(m_dragSourceEntity!!, dropEntity)
 
                 //               }
 
@@ -339,8 +339,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         var firstEntitySpriteComponent: SpriteComponent
         var secondEntitySpriteComponent: SpriteComponent
 
-        val serverPowerCircuitSystem = m_serverPowerCircuitSystem
-        for (circuit in serverPowerCircuitSystem.m_circuits) {
+        for (circuit in m_clientPowerCircuitSystem.m_circuits) {
             //for each device, draw a power node, a "hub" of wireConnections of sorts.
             for (generator in circuit.generators) {
                 val deviceSprite = spriteMapper.get(generator)

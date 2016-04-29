@@ -163,7 +163,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun sendInitialClientData() {
-        val initialClientData = Network.InitialClientData()
+        val initialClientData = Network.InitialClientDataFromClient()
 
         initialClientData.playerName = OreSettings.playerName
 
@@ -526,6 +526,14 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
         m_clientKryo.sendTCP(itemPlace)
     }
 
+    fun sendWireConnect(entity1: Int, entity2: Int) {
+        val wireConnect = Network.PowerWireConnectFromClient()
+        wireConnect.firstEntityId = m_networkIdForEntityId[entity1]!!
+        wireConnect.secondEntityId = m_networkIdForEntityId[entity2]!!
+
+        m_clientKryo.sendTCP(wireConnect)
+    }
+
     internal inner class ClientListener : Listener() {
 
         override fun connected(connection: Connection?) {
@@ -575,5 +583,6 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
             assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
         }
     }
+
 
 }

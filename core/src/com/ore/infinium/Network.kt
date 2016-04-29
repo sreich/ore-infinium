@@ -35,7 +35,7 @@ object Network {
     // This registers objects that are going to be sent over the network.
     fun register(endPoint: EndPoint) {
         val kryo = endPoint.kryo
-        kryo.register(InitialClientData::class.java)
+        kryo.register(InitialClientDataFromClient::class.java)
         kryo.register(ChatMessageFromClient::class.java)
         kryo.register(ChatMessageFromServer::class.java)
         kryo.register(Chat.ChatSender::class.java)
@@ -112,7 +112,7 @@ object Network {
         kryo.register(Rectangle::class.java)
     }
 
-    class InitialClientData {
+    class InitialClientDataFromClient {
 
         /**
          * UUID of player associated with this name. used as a "password" of sorts.
@@ -235,7 +235,11 @@ object Network {
     class PowerWireConnectFromServer {
         var firstEntityId: Int = 0
         var secondEntityId: Int = 0
-        //todo disconnection
+        var wireId: Int = 0
+    }
+
+    class PowerWireDisconnectFromServer {
+        var wireId: Int = 0
     }
 
 
@@ -294,7 +298,7 @@ object Network {
     }
 
     /**
-     * request that for the player to perform
+     * request for the player to perform
      * an attack on the given entity.
      * server will do some sanity checking
      */
@@ -307,6 +311,9 @@ object Network {
         var position: Vector2? = null
     }
 
+    /**
+     * request to drop an item from the hotbar/equipped
+     */
     class HotbarDropItemFromClient {
         var index: Byte = 0
     }

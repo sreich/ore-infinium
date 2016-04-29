@@ -4,10 +4,14 @@ import com.artemis.Aspect
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
+import com.badlogic.gdx.math.Intersector
+import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.PowerCircuit
 import com.ore.infinium.PowerCircuitHelper
+import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
+import com.ore.infinium.util.firstNotNull
 
 /**
  * ***************************************************************************
@@ -56,13 +60,66 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
 
     val m_powerCircuitHelper = PowerCircuitHelper()
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
+    private lateinit var m_networkClientSystem: NetworkClientSystem
 
     val m_circuits = mutableListOf<PowerCircuit>()
 
     override fun initialize() {
         getWorld().inject(m_powerCircuitHelper, true)
     }
+
+    /**
+     * Searches for a wire in the list of circuits, removes the one under the position,
+     * if one such exists.
+     * Would be used in situations such as "user clicked remove on a wire, so remove it.
+
+     * @param position
+     * *         in world coords
+     * *
+     * *
+     * @return false if disconnect failed (no wire in range). True if it succeeded.
+     */
+
+    fun canDisconnectWireAtPosition(position: Vector2): Boolean {
+        var owningCircuit: PowerCircuit? = null
+
+        val wireAtPosition = m_circuits.firstNotNull { circuit ->
+            owningCircuit = circuit; circuit.wireConnections.firstOrNull {
+            wireIntersectsPosition(it, position)
+        }
+        }
+
+        when (wireAtPosition) {
+            null -> return false
+            else -> {
+//                owningCircuit!!.wireConnections.remove(wireAtPosition)
+                return true
+            }
+        }
+    }
+
+    private fun wireIntersectsPosition(connection: PowerWireConnection, position: Vector2): Boolean {
+        val first = connection.firstEntity
+        val second = connection.secondEntity
+
+        val firstSprite = spriteMapper.get(first)
+        val secondSprite = spriteMapper.get(second)
+        //todo..rest of the logic..try looking for an intersection between points of these
+        //given a certain width..that is the width that is decided upon for wire thickness. (constant)
+
+        val firstPosition = Vector2(firstSprite.sprite.x, firstSprite.sprite.y)
+        val secondPosition = Vector2(secondSprite.sprite.x, secondSprite.sprite.y)
+
+        val circleRadius2 = Math.pow((ServerPowerCircuitSystem.WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
+
+        //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
+        val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
+        val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
+                                                            circleRadius2)
+
+        return intersects
+    }
+
 
     override fun inserted(entityId: Int) {
         super.inserted(entityId)
@@ -82,5 +139,14 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return
         }
+    }
+
+    /**
+     * sends a request to the server that it wants to connect these two entities
+     * note that the input parameters are *client* entity id's.
+     * what we are sending will actually be network enttiy id's
+     */
+    fun requestConnectDevices(dragSourceEntity: Int, dropEntity: Int) {
+        m_networkClientSystem.sendWireConnect(dragSourceEntity, dropEntity)
     }
 }

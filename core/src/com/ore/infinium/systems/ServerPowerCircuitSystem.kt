@@ -3,14 +3,11 @@ package com.ore.infinium.systems
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
-import com.badlogic.gdx.math.Intersector
-import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreWorld
 import com.ore.infinium.PowerCircuit
 import com.ore.infinium.PowerCircuitHelper
 import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
-import com.ore.infinium.util.firstNotNull
 import com.ore.infinium.util.getNullable
 
 /**
@@ -115,15 +112,19 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     /**
      * connects two power devices together, determines how to handle data structures
-     * in between
+     * in between.
+     *
+     * will only perform connection if it is allowed, as in the devices can be connected,
+     * and the player is allowed to connect them (due to various states, like out of range,
+     * being possible)
 
      * @param firstEntity
      * *
      * @param secondEntity
      *
-     * @return false if connection failed.
+     * @return false if connection failed/not allowed
      */
-    fun connectDevices(firstEntity: Int, secondEntity: Int): Boolean {
+    fun connectDevices(firstEntity: Int, secondEntity: Int, playerEntityId: Int): Boolean {
         when {
         //disallow connection with itself
             firstEntity == secondEntity ->
@@ -136,6 +137,12 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         //don't allow connecting two devices that are already connected together
             entitiesConnected(firstEntity, secondEntity) ->
                 return false
+
+            !playerWithinRangeToConnectDevices(firstEntity, secondEntity, playerEntityId) ->
+                    return false
+
+            //todo verify some other conditions that the player would be restricted in placing wires
+            //like has enough materials, or something like that.
         }
 
 
@@ -167,6 +174,12 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 return true
             }
         }
+    }
+
+    private fun playerWithinRangeToConnectDevices(firstEntity: Int, secondEntity: Int, playerEntityId: Int): Boolean {
+        //fixme, not implemented. probably just ensure they're not talking about entities off screen(not exists
+        //in player viewport
+        return true
     }
 
 
@@ -242,59 +255,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
     fun cleanupDeadCircuits() =
             m_circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
-
-    /**
-     * Searches for a wire in the list of circuits, removes the one under the position,
-     * if one such exists.
-     * Would be used in situations such as "user clicked remove on a wire, so remove it.
-
-     * @param position
-     * *         in world coords
-     * *
-     * *
-     * @return false if disconnect failed (no wire in range). True if it succeeded.
-     */
-
-    fun disconnectWireAtPosition(position: Vector2): Boolean {
-        var owningCircuit: PowerCircuit? = null
-
-        val wireAtPosition = m_circuits.firstNotNull { circuit ->
-            owningCircuit = circuit; circuit.wireConnections.firstOrNull {
-            wireIntersectsPosition(it, position)
-        }
-        }
-
-        when (wireAtPosition) {
-            null -> return false
-            else -> {
-                owningCircuit!!.wireConnections.remove(wireAtPosition)
-                cleanupDeadCircuits()
-                return true
-            }
-        }
-    }
-
-    private fun wireIntersectsPosition(connection: PowerWireConnection, position: Vector2): Boolean {
-        val first = connection.firstEntity
-        val second = connection.secondEntity
-
-        val firstSprite = spriteMapper.get(first)
-        val secondSprite = spriteMapper.get(second)
-        //todo..rest of the logic..try looking for an intersection between points of these
-        //given a certain width..that is the width that is decided upon for wire thickness. (constant)
-
-        val firstPosition = Vector2(firstSprite.sprite.x, firstSprite.sprite.y)
-        val secondPosition = Vector2(secondSprite.sprite.x, secondSprite.sprite.y)
-
-        val circleRadius2 = Math.pow((WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
-
-        //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
-        val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
-        val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
-                                                            circleRadius2)
-
-        return intersects
-    }
 
     companion object {
         val WIRE_THICKNESS = 0.5f

@@ -63,6 +63,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
 
     private lateinit var m_serverBlockDiggingSystem: ServerBlockDiggingSystem
     private lateinit var m_serverNetworkEntitySystem: ServerNetworkEntitySystem
+    private lateinit var m_serverPowerCircuitSystem: ServerPowerCircuitSystem
 
     lateinit var m_serverKryo: Server
 
@@ -248,7 +249,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
 
         //OreWorld.log("networkserversystem",
-         //            "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
+        //            "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
@@ -259,7 +260,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         destroyMultiple.entitiesToDestroy = entitiesToDestroy
 
         //OreWorld.log("networkserversystem",
-         //            "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
+        //            "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
         m_serverKryo.sendToTCP(connectionPlayerId, destroyMultiple)
     }
 
@@ -340,43 +341,43 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
      * right now it just goes "ok client, i'll do whatever you say" for most things
      */
     private fun processNetworkQueue() {
-        var job: NetworkJob? = m_netQueue.poll()
+        val job: NetworkJob? = m_netQueue.poll()
         while (job != null) {
             val receivedObject = job.receivedObject
 
-            if (receivedObject is Network.InitialClientData) {
-                receiveInitialClientData(job, receivedObject)
-            } else if (receivedObject is Network.PlayerMoveFromClient) {
-                receivePlayerMove(job, receivedObject)
-            } else if (receivedObject is Network.ChatMessageFromClient) {
-                receiveChatMessage(job, receivedObject)
-            } else if (receivedObject is Network.PlayerMoveInventoryItemFromClient) {
-                receivePlayerMoveInventoryItem(job, receivedObject)
-            } else if (receivedObject is Network.BlockDigBeginFromClient) {
-                receiveBlockDigBegin(job, receivedObject)
-            } else if (receivedObject is Network.BlockDigFinishFromClient) {
-                receiveBlockDigFinish(job, receivedObject)
-            } else if (receivedObject is Network.BlockPlaceFromClient) {
-                receiveBlockPlace(job, receivedObject)
-            } else if (receivedObject is Network.PlayerEquipHotbarIndexFromClient) {
-                receivePlayerEquipHotbarIndex(job, receivedObject)
-            } else if (receivedObject is Network.HotbarDropItemFromClient) {
-                receiveHotbarDropItem(job, receivedObject)
-            } else if (receivedObject is Network.EntityAttackFromClient) {
-                receiveEntityAttack(job, receivedObject)
-            } else if (receivedObject is Network.ItemPlaceFromClient) {
-                receiveItemPlace(job, receivedObject)
-            } else if (receivedObject is FrameworkMessage.Ping) {
-                if (receivedObject.isReply) {
+            when (receivedObject) {
+                is Network.InitialClientDataFromClient -> receiveInitialClientData(job, receivedObject)
+                is Network.PlayerMoveFromClient -> receivePlayerMove(job, receivedObject)
+                is Network.ChatMessageFromClient -> receiveChatMessage(job, receivedObject)
+                is Network.PlayerMoveInventoryItemFromClient -> receivePlayerMoveInventoryItem(job, receivedObject)
+
+                is Network.BlockDigBeginFromClient -> receiveBlockDigBegin(job, receivedObject)
+                is Network.BlockDigFinishFromClient -> receiveBlockDigFinish(job, receivedObject)
+                is Network.BlockPlaceFromClient -> receiveBlockPlace(job, receivedObject)
+
+                is Network.PlayerEquipHotbarIndexFromClient -> receivePlayerEquipHotbarIndex(job, receivedObject)
+                is Network.HotbarDropItemFromClient -> receiveHotbarDropItem(job, receivedObject)
+                is Network.EntityAttackFromClient -> receiveEntityAttack(job, receivedObject)
+                is Network.ItemPlaceFromClient -> receiveItemPlace(job, receivedObject)
+
+                is Network.PowerWireConnectFromClient -> receivePowerWireConnect(job, receivedObject)
+
+                is FrameworkMessage.Ping -> if (receivedObject.isReply) {
 
                 }
-            } else {
-                if (receivedObject !is FrameworkMessage.KeepAlive) {
+                else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
                     assert(false) { "unhandled network receiving class, received from client (on server)" }
                 }
             }
-            job = m_netQueue.poll()
         }
+    }
+
+    private fun receivePowerWireConnect(job: NetworkServerSystem.NetworkJob,
+                                        wireConnect: Network.PowerWireConnectFromClient) {
+        wireConnect.firstEntityId
+        wireConnect.secondEntityId
+        m_serverPowerCircuitSystem.connectDevices(wireConnect.firstEntityId, wireConnect.secondEntityId,
+                                                  job.connection.playerEntityId)
     }
 
     private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {
@@ -406,7 +407,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         m_serverBlockDiggingSystem.blockDiggingFinished(dig.x, dig.y)
     }
 
-    private fun receiveInitialClientData(job: NetworkJob, initialClientData: Network.InitialClientData) {
+    private fun receiveInitialClientData(job: NetworkJob, initialClientData: Network.InitialClientDataFromClient) {
         var name = initialClientData.playerName
 
         if (name == null) {
