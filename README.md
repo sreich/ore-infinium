@@ -6,7 +6,7 @@ through using these things.
 
 Written in **[Kotlin](https://kotlinlang.org/)** 
 
-Built upon libraries such as: **LibGDX, artemis-odb, KryoNet, Scene2D.ui**
+Built upon libraries such as: **[LibGDX(base cross platform game framework)](https://libgdx.badlogicgames.com/), artemis-odb (entity component systems), KryoNet(networking), Scene2D.ui(GUI)**
 
 reddit: http://reddit.com/r/ore-infinium
 
