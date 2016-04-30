@@ -213,6 +213,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
                 is Network.ChatMessageFromServer -> receiveChatMessage(receivedObject)
 
                 is Network.PowerWireConnectFromServer -> receivePowerWireConnect(receivedObject)
+                is Network.PowerWireDisconnectFromServer -> receivePowerWireDisconnect(receivedObject)
 
                 is FrameworkMessage.Ping -> {
                 }
@@ -222,6 +223,10 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
                 }
             }
         }
+    }
+
+    private fun receivePowerWireDisconnect(powerDisconnect: Network.PowerWireDisconnectFromServer) {
+        powerDisconnect.wireId
     }
 
     private fun receivePowerWireConnect(powerConnect: Network.PowerWireConnectFromServer) {

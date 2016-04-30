@@ -74,7 +74,7 @@ class Inventory
     }
 
     /**
-     * replaces the slot at @p index with @p entity id
+     * replaces the slot at @param index with @param entity id
 
      * @param index
      * *

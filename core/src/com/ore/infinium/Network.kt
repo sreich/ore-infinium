@@ -234,6 +234,11 @@ object Network {
         var secondEntityId: Int = 0
     }
 
+    class PowerWireDisconnectFromClient {
+        var wireId: Int = 0
+        var circuitId: Int = 0
+    }
+
     /**
      * Update, to the client to notify these 2 devices are
      * now connected
@@ -248,6 +253,7 @@ object Network {
 
     class PowerWireDisconnectFromServer {
         var wireId: Int = 0
+        var circuitId: Int = 0
     }
 
 
@@ -421,5 +427,4 @@ object Network {
             val BLOCK_FIELD_INDEX_FLAGS = 2
         }
     }
-
 }

@@ -25,6 +25,7 @@ package com.ore.infinium.util
  *
  * allowing us to get the element that matches that predicate, outside of the nesting
  * lambdas.
+ * @author sreich
  */
 inline fun <T, R : Any> Iterable<T>.firstNotNull(selector: (T) -> R?): R? {
     forEach { selector(it)?.let { return it } }

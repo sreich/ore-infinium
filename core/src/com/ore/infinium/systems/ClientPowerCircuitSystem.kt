@@ -12,6 +12,7 @@ import com.ore.infinium.PowerCircuitHelper
 import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
 import com.ore.infinium.util.firstNotNull
+import com.ore.infinium.util.getNullable
 
 /**
  * ***************************************************************************
@@ -58,15 +59,22 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
+    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
+
     val m_powerCircuitHelper = PowerCircuitHelper()
 
     private lateinit var m_networkClientSystem: NetworkClientSystem
 
     val m_circuits = mutableListOf<PowerCircuit>()
 
+    companion object {
+        val WIRE_THICKNESS = 0.5f
+    }
+
     override fun initialize() {
         getWorld().inject(m_powerCircuitHelper, true)
     }
+
 
     /**
      * Searches for a wire in the list of circuits, removes the one under the position,
@@ -84,9 +92,11 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         var owningCircuit: PowerCircuit? = null
 
         val wireAtPosition = m_circuits.firstNotNull { circuit ->
-            owningCircuit = circuit; circuit.wireConnections.firstOrNull {
-            wireIntersectsPosition(it, position)
-        }
+            owningCircuit = circuit
+
+            circuit.wireConnections.firstOrNull {
+                wireIntersectsPosition(it, position)
+            }
         }
 
         when (wireAtPosition) {
@@ -110,10 +120,10 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         val firstPosition = Vector2(firstSprite.sprite.x, firstSprite.sprite.y)
         val secondPosition = Vector2(secondSprite.sprite.x, secondSprite.sprite.y)
 
-        val circleRadius2 = Math.pow((ServerPowerCircuitSystem.WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
+        val circleRadius2 = Math.pow((WIRE_THICKNESS * 4).toDouble(), 2.0).toFloat()
 
         //Vector2 circleCenter = new Vector2(position.x - 0, position.y - (PowerCircuitSystem.WIRE_THICKNESS));
-        val circleCenter = Vector2(position.x - 0, position.y - ServerPowerCircuitSystem.WIRE_THICKNESS * 3)
+        val circleCenter = Vector2(position.x - 0, position.y - WIRE_THICKNESS * 3)
         val intersects = Intersector.intersectSegmentCircle(firstPosition, secondPosition, circleCenter,
                                                             circleRadius2)
 
@@ -129,9 +139,19 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     override fun removed(entityId: Int) {
-        super.removed(entityId)
-
         //todo find entity's owning circuit and the wire it sits on, remove wire (since a wire only composes 2 endpoints)
+
+        val deviceComp = powerDeviceMapper.getNullable(entityId)
+
+        if (deviceComp != null) {
+            val wireId = deviceComp.wireId
+
+            m_circuits.firstNotNull { circuit ->
+                circuit.wireConnections.firstOrNull { wire -> wire.wireId == wireId }
+            }
+
+            m_powerCircuitHelper.cleanupDeadCircuits(m_circuits)
+        }
     }
 
     override fun process(entityId: Int) {
@@ -152,6 +172,8 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
     fun connectDevices(firstEntityId: Int, secondEntityId: Int, wireId: Int, circuitId: Int) {
         var circuit = m_circuits.firstOrNull { circuit -> circuit.circuitId == circuitId }
 
+        // if we don't have this circuit, it's the first connection for this circuit, so create
+        // a circuit and connect it on it
         if (circuit == null) {
             circuit = PowerCircuit(circuitId)
             m_circuits.add(circuit)
@@ -160,8 +182,6 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         val newWire = PowerWireConnection(firstEntityId, secondEntityId, wireId)
 
         circuit.wireConnections.add(newWire)
-
-        throw NotImplementedError("not")
     }
 
 }

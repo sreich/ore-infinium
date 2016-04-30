@@ -378,7 +378,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         val wireLength = Vector2.dst(source.x, source.y, dest.x, dest.y)
 
         m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0f, 0f,
-                     ServerPowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees)
+                     ClientPowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees)
     }
 
     private fun renderPowerNode(spriteComponent: SpriteComponent) {

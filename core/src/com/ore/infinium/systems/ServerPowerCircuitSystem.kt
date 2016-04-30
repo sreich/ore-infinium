@@ -6,7 +6,6 @@ import com.artemis.annotations.Wire
 import com.ore.infinium.OreWorld
 import com.ore.infinium.PowerCircuit
 import com.ore.infinium.PowerCircuitHelper
-import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
 
@@ -124,7 +123,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      *
      * @return false if connection failed/not allowed
      */
-    fun connectDevices(firstEntity: Int, secondEntity: Int, playerEntityId: Int): Boolean {
+    fun connectDevices(firstEntity: Int, secondEntity: Int, playerEntityId: Int? = null): Boolean {
         when {
         //disallow connection with itself
             firstEntity == secondEntity ->
@@ -138,11 +137,11 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             entitiesConnected(firstEntity, secondEntity) ->
                 return false
 
-            !playerWithinRangeToConnectDevices(firstEntity, secondEntity, playerEntityId) ->
-                    return false
+            playerEntityId != null && !playerWithinRangeToConnectDevices(firstEntity, secondEntity, playerEntityId) ->
+                return false
 
-            //todo verify some other conditions that the player would be restricted in placing wires
-            //like has enough materials, or something like that.
+        //todo verify some other conditions that the player would be restricted in placing wires
+        //like has enough materials, or something like that.
         }
 
 
@@ -151,7 +150,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
         when {
             firstOwningCircuit != null && secondOwningCircuit != null -> {//merge circuits that contain these entities.
-                m_powerCircuitHelper.mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit, m_circuits)
+                m_powerCircuitHelper.mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit,
+                                                   m_circuits)
                 return true
             }
 
@@ -184,28 +184,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
 
     /**
-     * @return true if at least 1 of these devices is connected to via this wire.
-     */
-    private fun isWireConnectedToAnyDevices(connection: PowerWireConnection,
-                                            firstEntity: Int,
-                                            secondEntity: Int): Boolean =
-            (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
-                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity)
-
-    /**
-     * @return true if this device resides somewhere in a wire connection
-     */
-    private fun isWireConnectedToDevice(connection: PowerWireConnection,
-                                        entity: Int): Boolean =
-            (connection.firstEntity == entity || connection.secondEntity == entity)
-
-    private fun isWireConnectedToAllDevices(connection: PowerWireConnection,
-                                            firstEntity: Int,
-                                            secondEntity: Int): Boolean =
-            (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
-                    connection.firstEntity == secondEntity && connection.secondEntity == firstEntity)
-
-    /**
      * @return true if one of the devices is dropped in the world
      */
     private fun areDevicesDroppedItems(firstEntity: Int, secondEntity: Int): Boolean {
@@ -229,35 +207,26 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
      */
     private fun entitiesConnected(firstEntity: Int, secondEntity: Int): Boolean {
         return m_circuits.any { circuit ->
-            circuit.wireConnections.any { wire -> isWireConnectedToAllDevices(wire, firstEntity, secondEntity) }
+            circuit.wireConnections.any { wire ->
+                m_powerCircuitHelper.isWireConnectedToAllDevices(wire, firstEntity, secondEntity)
+            }
         }
     }
 
-    /**
-     * Disconnect all wireConnections pointing to this entity
-     *
-     *
-     * used in situation such as "this device was destroyed/removed, cleanup any wireConnections that
-     * connect to it.
-
-     * @param entityToDisconnect
-     */
-    fun disconnectAllWiresFromDevice(entityToDisconnect: Int) {
-        m_circuits.forEach { circuit ->
-            circuit.wireConnections.removeAll { wireConnection ->
-                isWireConnectedToDevice(wireConnection, entityToDisconnect)
+    fun disconnectWire(wireId: Int, circuitId: Int, playerEntityId: Int): Boolean {
+        val result = m_circuits.any { circuit ->
+            circuit.circuitId == circuitId && circuit.wireConnections.removeAll { wire ->
+                wire.wireId == wireId
             }
         }
 
-        //if we removed the last wire connection, cleanup this empty circuit
-        cleanupDeadCircuits()
-    }
-
-    fun cleanupDeadCircuits() =
-            m_circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
-
-    companion object {
-        val WIRE_THICKNESS = 0.5f
+        when {
+            result -> {
+                m_powerCircuitHelper.cleanupDeadCircuits(m_circuits)
+                return true
+            }
+            else -> return false
+        }
     }
 
     //todo sufficient until we get a spatial hash or whatever

@@ -62,10 +62,10 @@ class PowerCircuitHelper() {
      * @param circuit
      * *         the new circuit to update them to
      */
-     fun updateDevicesOwningCircuit(firstEntity: Int,
-                                           secondEntity: Int,
-                                           circuit: PowerCircuit,
-                                           wire: PowerWireConnection) {
+    fun updateDevicesOwningCircuit(firstEntity: Int,
+                                   secondEntity: Int,
+                                   circuit: PowerCircuit,
+                                   wire: PowerWireConnection) {
         powerDeviceMapper.get(firstEntity).apply {
             owningCircuit = circuit
             wireId = wire.wireId
@@ -78,14 +78,61 @@ class PowerCircuitHelper() {
     }
 
     /**
+     * @return true if at least 1 of these devices is connected to via this wire.
+     */
+     fun isWireConnectedToAnyDevices(connection: PowerWireConnection,
+                                            firstEntity: Int,
+                                            secondEntity: Int): Boolean =
+            (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
+                    connection.firstEntity == secondEntity || connection.secondEntity == firstEntity)
+
+    /**
+     * @return true if this device resides somewhere in a wire connection
+     */
+     fun isWireConnectedToDevice(connection: PowerWireConnection,
+                                        entity: Int): Boolean =
+            (connection.firstEntity == entity || connection.secondEntity == entity)
+
+     fun isWireConnectedToAllDevices(connection: PowerWireConnection,
+                                            firstEntity: Int,
+                                            secondEntity: Int): Boolean =
+            (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
+                    connection.firstEntity == secondEntity && connection.secondEntity == firstEntity)
+
+
+    /**
+     * Disconnect all wireConnections pointing to this entity
+     *
+     *
+     * used in situation such as "this device was destroyed/removed, cleanup any wireConnections that
+     * connect to it.
+
+     * @param entityToDisconnect
+     */
+    fun disconnectAllWiresFromDevice(entityToDisconnect: Int, circuits: MutableList<PowerCircuit>) {
+        circuits.forEach { circuit ->
+            circuit.wireConnections.removeAll { wireConnection ->
+                isWireConnectedToDevice(wireConnection, entityToDisconnect)
+            }
+        }
+
+        //if we removed the last wire connection, cleanup this empty circuit
+        cleanupDeadCircuits(circuits)
+    }
+
+
+    fun cleanupDeadCircuits(circuits: MutableList<PowerCircuit>) =
+            circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
+
+    /**
      * @returns false if the device connections could not be merged (possible the devices aren't
      * connected to any circuits)
      */
-     fun mergeCircuits(firstEntity: Int,
-                              secondEntity: Int,
-                              firstOwningCircuit: PowerCircuit,
-                              secondOwningCircuit: PowerCircuit,
-                              circuits: MutableList<PowerCircuit>) {
+    fun mergeCircuits(firstEntity: Int,
+                      secondEntity: Int,
+                      firstOwningCircuit: PowerCircuit,
+                      secondOwningCircuit: PowerCircuit,
+                      circuits: MutableList<PowerCircuit>) {
 
         val circuitToMergeTo: PowerCircuit
         val circuitToMergeFrom: PowerCircuit
@@ -117,8 +164,6 @@ class PowerCircuitHelper() {
 
         circuits.remove(circuitToMergeFrom)
     }
-
-
 }
 
 /**

@@ -336,7 +336,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
     /**
      * keeps a tally of each packet type received and their frequency
      */
-    val m_debugPacketFrequencyByType = mutableMapOf<String,Int>()
+    val m_debugPacketFrequencyByType = mutableMapOf<String, Int>()
 
     /**
      * NOTE: most of these commands the server is receiving, are just requests.
@@ -357,7 +357,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
             val current = m_debugPacketFrequencyByType[debugPacketTypeName]
 
             if (current != null) {
-                m_debugPacketFrequencyByType.put(debugPacketTypeName,current + 1)
+                m_debugPacketFrequencyByType.put(debugPacketTypeName, current + 1)
             } else {
                 m_debugPacketFrequencyByType.put(debugPacketTypeName, 1)
             }
@@ -378,6 +378,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
                 is Network.ItemPlaceFromClient -> receiveItemPlace(job, receivedObject)
 
                 is Network.PowerWireConnectFromClient -> receivePowerWireConnect(job, receivedObject)
+                is Network.PowerWireDisconnectFromClient -> receivePowerWireDisconnect(job, receivedObject)
 
                 is FrameworkMessage.Ping -> if (receivedObject.isReply) {
 
@@ -404,8 +405,23 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
             //todo only send to those interested in it
             m_serverKryo.sendToAllTCP(connect)
         }
-
     }
+
+    private fun receivePowerWireDisconnect(job: NetworkServerSystem.NetworkJob,
+                                           wireDisconnect: Network.PowerWireDisconnectFromClient) {
+        val result = m_serverPowerCircuitSystem.disconnectWire(wireDisconnect.wireId, wireDisconnect.circuitId,
+                                                               job.connection.playerEntityId)
+
+        if (result) {
+            val connect = Network.PowerWireDisconnectFromServer()
+            connect.wireId = wireDisconnect.wireId
+            connect.circuitId = wireDisconnect.wireId
+
+            //todo only send to those interested in it
+            m_serverKryo.sendToAllTCP(connect)
+        }
+    }
+
 
     private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {
         val entityToAttack = getWorld().getEntity(attack.id)
