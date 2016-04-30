@@ -36,15 +36,17 @@ object Network {
     fun register(endPoint: EndPoint) {
         val kryo = endPoint.kryo
         kryo.register(InitialClientDataFromClient::class.java)
+
         kryo.register(ChatMessageFromClient::class.java)
         kryo.register(ChatMessageFromServer::class.java)
         kryo.register(Chat.ChatSender::class.java)
+
         kryo.register(PlayerMoveInventoryItemFromClient::class.java)
         kryo.register(Inventory.InventoryType::class.java)
         kryo.register(DisconnectReason::class.java)
         kryo.register(DisconnectReason.Reason::class.java)
         kryo.register(PlayerSpawnedFromServer::class.java)
-        kryo.register(PowerDeviceComponent::class.java)
+
         kryo.register(PlayerMoveFromClient::class.java)
         kryo.register(BlockDigBeginFromClient::class.java)
         kryo.register(BlockDigFinishFromClient::class.java)
@@ -53,15 +55,19 @@ object Network {
         kryo.register(PlayerEquipHotbarIndexFromClient::class.java)
         kryo.register(HotbarDropItemFromClient::class.java)
         kryo.register(LoadedViewportMovedFromServer::class.java)
+
         kryo.register(EntityAttackFromClient::class.java)
         kryo.register(EntitySpawnFromServer::class.java)
         kryo.register(EntitySpawnMultipleFromServer::class.java)
         kryo.register(EntityDestroyMultipleFromServer::class.java)
         kryo.register(EntityKilledFromServer::class.java)
         kryo.register(EntityMovedFromServer::class.java)
+
+        kryo.register(PowerWireConnectFromClient::class.java)
+        kryo.register(PowerWireConnectFromServer::class.java)
+        kryo.register(PowerWireDisconnectFromServer::class.java)
+
         kryo.register(PlayerSpawnHotbarInventoryItemFromServer::class.java)
-        kryo.register(ItemComponent.State::class.java)
-        kryo.register(Component::class.java)
 
         //modular components. some components are too fucking huge and stupid to serialize automatically (like Sprite),
         //so we split up only what we need.
@@ -75,6 +81,9 @@ object Network {
         kryo.register(OreBlock.BlockType::class.java)
 
         //components
+        kryo.register(Component::class.java)
+        kryo.register(PowerDeviceComponent::class.java)
+        kryo.register(ItemComponent.State::class.java)
         kryo.register(AirComponent::class.java)
         kryo.register(AirGeneratorComponent::class.java)
         kryo.register(PowerGeneratorComponent::class.java)
@@ -94,6 +103,7 @@ object Network {
 
         kryo.register(LightComponent::class.java)
         kryo.register(VelocityComponent::class.java)
+        //////////
 
         // primitives/builtin
         //        kryo.register(String[]::class.java)
@@ -102,9 +112,6 @@ object Network {
         kryo.register(Array::class.java)
         kryo.register(ArrayList::class.java)
 
-        //hack???? is this proper??
-        //        kryo.register(Array<Any>::class.java)
-        //        kryo.register(Array<Any>::class.java)
         kryo.register(kotlin.Array<Any>::class.java)
         kryo.register(Vector2::class.java)
         kryo.register(IntArray::class.java)
@@ -236,6 +243,7 @@ object Network {
         var firstEntityId: Int = 0
         var secondEntityId: Int = 0
         var wireId: Int = 0
+        var circuitId: Int = 0
     }
 
     class PowerWireDisconnectFromServer {

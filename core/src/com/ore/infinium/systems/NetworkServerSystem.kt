@@ -155,6 +155,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         spawn.connectionId = playerComp.connectionPlayerId
         spawn.playerName = playerComp.playerName
         spawn.pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
+
         m_serverKryo.sendToAllTCP(spawn)
     }
 
@@ -215,8 +216,8 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         val spawnMultiple = Network.EntitySpawnMultipleFromServer()
         spawnMultiple.entitySpawn = ArrayList<Network.EntitySpawnFromServer>()
 
-        for (i in 0..entitiesToSpawn.size - 1) {
-            val entityId = entitiesToSpawn.get(i)
+        for (i in entitiesToSpawn.indices) {
+            val entityId = entitiesToSpawn[i]
 
             if (playerMapper.has(entityId)) {
                 //skip players we don't know how to spawn them automatically yet
@@ -333,10 +334,16 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     /**
+     * keeps a tally of each packet type received and their frequency
+     */
+    val m_debugPacketFrequencyByType = mutableMapOf<String,Int>()
+
+    /**
      * NOTE: most of these commands the server is receiving, are just requests.
      * The server should verify that they are valid to do. If they are not, it will
      * just ignore them. Movement is one of the main notable exceptions, although
      * it still verifies it is within a reasonable threshold
+     *
      * fixme actually none of that happens :) but this is the plan :D
      * right now it just goes "ok client, i'll do whatever you say" for most things
      */
@@ -344,6 +351,16 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         val job: NetworkJob? = m_netQueue.poll()
         while (job != null) {
             val receivedObject = job.receivedObject
+
+            val debugPacketTypeName = receivedObject.javaClass.toString()
+            //fixme debug
+            val current = m_debugPacketFrequencyByType[debugPacketTypeName]
+
+            if (current != null) {
+                m_debugPacketFrequencyByType.put(debugPacketTypeName,current + 1)
+            } else {
+                m_debugPacketFrequencyByType.put(debugPacketTypeName, 1)
+            }
 
             when (receivedObject) {
                 is Network.InitialClientDataFromClient -> receiveInitialClientData(job, receivedObject)
@@ -370,14 +387,24 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
                 }
             }
         }
+
+        OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
     }
 
     private fun receivePowerWireConnect(job: NetworkServerSystem.NetworkJob,
                                         wireConnect: Network.PowerWireConnectFromClient) {
-        wireConnect.firstEntityId
-        wireConnect.secondEntityId
-        m_serverPowerCircuitSystem.connectDevices(wireConnect.firstEntityId, wireConnect.secondEntityId,
-                                                  job.connection.playerEntityId)
+        val result = m_serverPowerCircuitSystem.connectDevices(wireConnect.firstEntityId, wireConnect.secondEntityId,
+                                                               job.connection.playerEntityId)
+
+        if (result) {
+            val connect = Network.PowerWireConnectFromServer()
+            connect.firstEntityId = wireConnect.firstEntityId
+            connect.secondEntityId = wireConnect.secondEntityId
+
+            //todo only send to those interested in it
+            m_serverKryo.sendToAllTCP(connect)
+        }
+
     }
 
     private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {
@@ -601,7 +628,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
     /**
      * Broadcasts to every player -- only the ones who can view it! --
      * an updated block.
-     * Does this by checking to see if the block falls within their loaded chunks
+     * Does this by checking to see if the block falls within their loaded regions
 
      * @param x
      * *

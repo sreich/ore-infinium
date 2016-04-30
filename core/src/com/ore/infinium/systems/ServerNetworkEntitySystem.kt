@@ -82,7 +82,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
         }
     }
 
-    private inner class PlayerEntitiesInViewport {
+    private inner class PlayerEntitiesInViewport(playerEntityId: Int) {
         /**
          * entity id of the player whose viewport/list of spawned
          * entities it knows about
@@ -108,19 +108,14 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
     private inner class ConnectionListener : NetworkServerSystem.NetworkServerConnectionListener {
         override fun playerDisconnected(playerEntityId: Int) {
-            for (i in 0..m_playerEntities.size - 1) {
-                val playerEntitiesInViewport = m_playerEntities.get(i)
-                //remove all entities for this player, since he's disconnecting
-                if (playerEntitiesInViewport.playerEntityId == playerEntityId) {
-                    m_playerEntities.removeIndex(i)
-                }
+            m_playerEntities.removeAll { playerEntities ->
+                //remove all entity 'copies' for this player, since he's disconnecting
+                playerEntities.playerEntityId == playerEntityId
             }
         }
 
         override fun playerConnected(playerEntityId: Int) {
-            val playerEntitiesInViewport = PlayerEntitiesInViewport()
-            playerEntitiesInViewport.playerEntityId = playerEntityId
-
+            val playerEntitiesInViewport = PlayerEntitiesInViewport(playerEntityId)
             m_playerEntities.add(playerEntitiesInViewport)
         }
     }

@@ -69,7 +69,7 @@ class OreServer : Runnable {
     override fun run() {
         Thread.currentThread().name = "server thread (main)"
 
-        m_world = OreWorld(null, this, OreWorld.WorldInstanceType.Server)
+        m_world = OreWorld(m_client = null, m_server = this, worldInstanceType = OreWorld.WorldInstanceType.Server)
         m_world.init()
         m_world.m_artemisWorld.inject(this, true)
 
@@ -163,7 +163,7 @@ class OreServer : Runnable {
         //tell this player all the current players that are on the server right now
         for (i in entities.indices) {
             //exclude himself, though. he already knows.
-            val entity = entities.get(i)
+            val entity = entities[i]
             if (entity != player) {
                 m_networkServerSystem.sendSpawnPlayer(entity, connectionId)
             }

@@ -23,6 +23,7 @@ import com.ore.infinium.systems.DebugTextRenderSystem
 import com.ore.infinium.systems.NetworkClientSystem
 import com.ore.infinium.systems.PowerOverlayRenderSystem
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.indices
 import java.io.IOException
 
 class OreClient : ApplicationListener, InputProcessor {
@@ -173,8 +174,9 @@ class OreClient : ApplicationListener, InputProcessor {
                     val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
                     val clientEntities = clientEntitySubscription.entities
 
-                    loop@ for (i in 0..clientEntities.size() - 1) {
+                    loop@ for (i in clientEntities.indices) {
                         val currentEntity = clientEntities[i]
+
                         val spriteComp = spriteMapper.get(currentEntity)
                         if (playerMapper.has(currentEntity)) {
                             //ignore players
@@ -194,9 +196,9 @@ class OreClient : ApplicationListener, InputProcessor {
 
                         if (rectangle.contains(mouse)) {
                             var send = true;
-                            itemMapper.getNullable(currentEntity)?.let {
+                            itemMapper.getNullable(currentEntity)?.apply {
                                 //don't let them attack dropped items, makes no sense
-                                if (it.state == ItemComponent.State.DroppedInWorld) {
+                                if (state == ItemComponent.State.DroppedInWorld) {
                                     send = false
                                 }
                             }

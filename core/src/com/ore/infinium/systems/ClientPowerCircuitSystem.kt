@@ -120,7 +120,6 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         return intersects
     }
 
-
     override fun inserted(entityId: Int) {
         super.inserted(entityId)
         //todo not sure how to handle this..i can't exactly add them one at a time, because
@@ -149,4 +148,20 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
     fun requestConnectDevices(dragSourceEntity: Int, dropEntity: Int) {
         m_networkClientSystem.sendWireConnect(dragSourceEntity, dropEntity)
     }
+
+    fun connectDevices(firstEntityId: Int, secondEntityId: Int, wireId: Int, circuitId: Int) {
+        var circuit = m_circuits.firstOrNull { circuit -> circuit.circuitId == circuitId }
+
+        if (circuit == null) {
+            circuit = PowerCircuit(circuitId)
+            m_circuits.add(circuit)
+        }
+
+        val newWire = PowerWireConnection(firstEntityId, secondEntityId, wireId)
+
+        circuit.wireConnections.add(newWire)
+
+        throw NotImplementedError("not")
+    }
+
 }

@@ -75,6 +75,8 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var m_tagManager: TagManager
     private lateinit var m_tileRenderer: TileRenderSystem
 
+    private lateinit var m_clientPowerCircuitSystem: ClientPowerCircuitSystem
+
     private val m_netQueue = ConcurrentLinkedQueue<Any>()
 
     lateinit var m_clientKryo: Client
@@ -191,36 +193,48 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
     private fun processNetworkQueue() {
         var receivedObject: Any? = m_netQueue.poll()
         while (receivedObject != null) {
-            if (receivedObject is Network.PlayerSpawnedFromServer) {
-                receivePlayerSpawn(receivedObject)
-            } else if (receivedObject is Network.DisconnectReason) {
-                receiveDisconnectReason(receivedObject)
-            } else if (receivedObject is Network.BlockRegion) {
-                receiveBlockRegion(receivedObject)
-            } else if (receivedObject is Network.SparseBlockUpdate) {
-                receiveSparseBlockUpdate(receivedObject)
-            } else if (receivedObject is Network.LoadedViewportMovedFromServer) {
-                receiveLoadedViewportMoved(receivedObject)
-            } else if (receivedObject is Network.PlayerSpawnHotbarInventoryItemFromServer) {
-                receivePlayerSpawnHotbarInventoryItem(receivedObject)
-                //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
-            } else if (receivedObject is Network.EntitySpawnMultipleFromServer) {
-                receiveMultipleEntitySpawn(receivedObject)
-            } else if (receivedObject is Network.EntityDestroyMultipleFromServer) {
-                receiveMultipleEntityDestroy(receivedObject)
-            } else if (receivedObject is Network.ChatMessageFromServer) {
-                receiveChatMessage(receivedObject)
-            } else if (receivedObject is Network.EntityMovedFromServer) {
-                receiveEntityMoved(receivedObject)
-            } else if (receivedObject is Network.EntityKilledFromServer) {
-                receiveEntityKilled(receivedObject)
-            } else if (receivedObject is FrameworkMessage.Ping) {
-            } else {
-                if (receivedObject !is FrameworkMessage.KeepAlive) {
+            when (receivedObject) {
+                is Network.DisconnectReason -> receiveDisconnectReason(receivedObject)
+
+                is Network.BlockRegion -> receiveBlockRegion(receivedObject)
+                is Network.SparseBlockUpdate -> receiveSparseBlockUpdate(receivedObject)
+
+                is Network.LoadedViewportMovedFromServer -> receiveLoadedViewportMoved(receivedObject)
+                is Network.PlayerSpawnHotbarInventoryItemFromServer -> receivePlayerSpawnHotbarInventoryItem(
+                        receivedObject)
+                is Network.PlayerSpawnedFromServer -> receivePlayerSpawn(receivedObject)
+            //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
+
+                is Network.EntitySpawnMultipleFromServer -> receiveMultipleEntitySpawn(receivedObject)
+                is Network.EntityDestroyMultipleFromServer -> receiveMultipleEntityDestroy(receivedObject)
+                is Network.EntityKilledFromServer -> receiveEntityKilled(receivedObject)
+                is Network.EntityMovedFromServer -> receiveEntityMoved(receivedObject)
+
+                is Network.ChatMessageFromServer -> receiveChatMessage(receivedObject)
+
+                is Network.PowerWireConnectFromServer -> receivePowerWireConnect(receivedObject)
+
+                is FrameworkMessage.Ping -> {
+                }
+
+                else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
                     assert(false) { "unhandled network receiving class in network client ${receivedObject.toString()}" }
                 }
             }
-            receivedObject = m_netQueue.poll()
+        }
+    }
+
+    private fun receivePowerWireConnect(powerConnect: Network.PowerWireConnectFromServer) {
+        //resolve the entity id's back to local entity id's,
+        // so we know which of *our* entities is connected and can show that.
+        //when we perform actions, we'll need to convert back again to tell the server,
+        //of course
+        powerConnect.apply {
+            val firstEntity = m_entityForNetworkId[firstEntityId]!!
+            val secondEntity = m_entityForNetworkId[secondEntityId]!!
+
+            m_clientPowerCircuitSystem.connectDevices(firstEntity, secondEntity,
+                                                      powerConnect.wireId, powerConnect.circuitId)
         }
     }
 
@@ -306,22 +320,20 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
 
     private fun receiveMultipleEntityDestroy(entityDestroy: Network.EntityDestroyMultipleFromServer) {
         var debug = "receiveMultipleEntityDestroy [ "
-        for (i in 0..entityDestroy.entitiesToDestroy!!.size - 1) {
-            val networkEntityId = entityDestroy.entitiesToDestroy!!.get(i)
+        for (i in entityDestroy.entitiesToDestroy!!.indices) {
+            val networkEntityId = entityDestroy.entitiesToDestroy!![i]
 
             //cleanup the maps
             val localId = m_entityForNetworkId.remove(networkEntityId)
 
             if (localId != null) {
-                //hack debug
-                debug += "networkid:" + networkEntityId + " localid: " + localId.toInt() + ", "
+                //debug += "networkid:" + networkEntityId + " localid: " + localId.toInt() + ", "
 
                 val networkId = m_networkIdForEntityId.remove(localId)
                 assert(networkId != null) { "network id null on remove/destroy, but localid wasn't" }
             } else {
-                //hack debug
-                debug += "networkid:$networkEntityId localid: $localId, "
-                OreWorld.log("networkclientsystem", debug)
+                //debug += "networkid:$networkEntityId localid: $localId, "
+                //OreWorld.log("networkclientsystem", debug)
 
                 assert(false) { "told to delete entity on client, but it doesn't exist. desynced. network id: " + networkEntityId }
 
@@ -339,7 +351,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
 
         debug += ']'
 
-        OreWorld.log("networkclientsystem", debug)
+        //OreWorld.log("networkclientsystem", debug)
     }
 
     private fun receiveMultipleEntitySpawn(entitySpawn: Network.EntitySpawnMultipleFromServer) {
@@ -351,7 +363,7 @@ class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
 
             val e = getWorld().create()
 
-           // debug += " networkid: " + spawn.id + " localid: " + e
+            // debug += " networkid: " + spawn.id + " localid: " + e
 
             for (c in spawn.components!!) {
                 val entityEdit = getWorld().edit(e)
