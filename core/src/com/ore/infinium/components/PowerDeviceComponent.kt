@@ -2,7 +2,7 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.ore.infinium.PowerCircuit
-import com.ore.infinium.systems.ServerPowerCircuitSystem
+import com.ore.infinium.systems.server.ServerPowerCircuitSystem
 
 /**
  * ***************************************************************************

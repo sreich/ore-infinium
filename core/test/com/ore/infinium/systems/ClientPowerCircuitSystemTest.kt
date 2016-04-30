@@ -8,6 +8,7 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.PowerCircuitHelper
 import com.ore.infinium.components.PowerDeviceComponent
 import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.systems.client.ClientPowerCircuitSystem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before

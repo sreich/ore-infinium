@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
 import com.artemis.ComponentMapper
@@ -15,6 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.ClientPowerCircuitSystem
+import com.ore.infinium.systems.client.EntityOverlaySystem
+import com.ore.infinium.systems.client.RenderSystemMarker
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
 import com.ore.infinium.util.indices
@@ -72,8 +75,8 @@ import com.ore.infinium.util.indices
 @Wire
 class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
-        private val m_world: OreWorld, private val m_stage: Stage, private val m_skin: Skin) : IteratingSystem(
-        Aspect.all(PowerDeviceComponent::class.java)), RenderSystemMarker {
+            private val m_world: OreWorld, private val m_stage: Stage, private val m_skin: Skin) : IteratingSystem(
+            Aspect.all(PowerDeviceComponent::class.java)), RenderSystemMarker {
     var overlayVisible = false
     private lateinit var m_batch: SpriteBatch
 

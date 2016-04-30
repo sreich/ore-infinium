@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper

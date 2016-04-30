@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
 import com.artemis.ComponentMapper
@@ -11,6 +11,7 @@ import com.ore.infinium.PowerCircuit
 import com.ore.infinium.PowerCircuitHelper
 import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.firstNotNull
 import com.ore.infinium.util.getNullable
 
@@ -63,7 +64,7 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
 
     val m_powerCircuitHelper = PowerCircuitHelper()
 
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
 
     val m_circuits = mutableListOf<PowerCircuit>()
 
@@ -166,7 +167,7 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
      * what we are sending will actually be network enttiy id's
      */
     fun requestConnectDevices(dragSourceEntity: Int, dropEntity: Int) {
-        m_networkClientSystem.sendWireConnect(dragSourceEntity, dropEntity)
+        m_clientNetworkSystem.sendWireConnect(dragSourceEntity, dropEntity)
     }
 
     fun connectDevices(firstEntityId: Int, secondEntityId: Int, wireId: Int, circuitId: Int) {

@@ -4,7 +4,7 @@ import com.artemis.Aspect
 import com.artemis.ComponentMapper
 import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.NetworkServerSystem
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.indices
 import java.util.concurrent.CountDownLatch
 
@@ -61,7 +61,7 @@ class OreServer : Runnable {
 
     private val SERVER_FIXED_TIMESTEP = 1.0 / 60.0 * 1000
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
 
     /**
      * Used to initiate the server as well as to initiate it from a calling client thread
@@ -83,7 +83,7 @@ class OreServer : Runnable {
                     timestamp = line.timestamp
                 }
 
-                m_networkServerSystem.m_serverKryo.sendToAllTCP(message)
+                m_serverNetworkSystem.m_serverKryo.sendToAllTCP(message)
             }
 
             override fun cleared() {
@@ -155,7 +155,7 @@ class OreServer : Runnable {
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
         //tell all players including himself, that he joined
-        m_networkServerSystem.sendSpawnPlayerBroadcast(player)
+        m_serverNetworkSystem.sendSpawnPlayerBroadcast(player)
 
         val aspectSubscriptionManager = m_world.m_artemisWorld.aspectSubscriptionManager
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
@@ -165,7 +165,7 @@ class OreServer : Runnable {
             //exclude himself, though. he already knows.
             val entity = entities[i]
             if (entity != player) {
-                m_networkServerSystem.sendSpawnPlayer(entity, connectionId)
+                m_serverNetworkSystem.sendSpawnPlayer(entity, connectionId)
             }
         }
 
@@ -244,7 +244,7 @@ class OreServer : Runnable {
             val entity = playerComponent.hotbarInventory!!.itemEntity(i)
 
             entity?.let {
-                m_networkServerSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity)
+                m_serverNetworkSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity)
             }
         }
     }

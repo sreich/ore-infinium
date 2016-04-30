@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
@@ -8,6 +8,8 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.GameTickSystem
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.getNullable
 import java.util.*
 
@@ -40,7 +42,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
     private lateinit var m_gameTickSystem: GameTickSystem
 
     private lateinit var m_tagManager: TagManager
@@ -107,7 +109,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             // though!!
 
             OreWorld.log("server, block digging system", "processSystem block succeeded. sending")
-            m_networkServerSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y)
+            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y)
 
             val droppedBlock = m_world.createBlockItem(blockType)
             spriteMapper.get(droppedBlock).apply {

@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
 import com.artemis.ComponentMapper
@@ -46,7 +46,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
 
     private lateinit var m_tagManager: TagManager
 
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
 
     /**
      * each flag here is handled (possibly, somewhat) differently depending on what kinda
@@ -96,7 +96,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
     }
 
     override fun processSystem() {
-        if (!m_networkClientSystem.connected) {
+        if (!m_clientNetworkSystem.connected) {
             return
         }
 

@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.getNullable
 import net.mostlyoriginal.api.utils.QuadTree
 
@@ -43,7 +44,7 @@ class SpatialSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
 
     var m_tree: QuadTree
 

@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
-import com.ore.infinium.systems.NetworkClientSystem
+import com.ore.infinium.systems.client.ClientNetworkSystem
 
 /**
  * ***************************************************************************
@@ -159,7 +159,7 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
     private fun sendChat() {
         if (m_messageField.text.length > 0) {
             if (!processLocalChatCommands()) {
-                m_client.m_world!!.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendChatMessage(
+                m_client.m_world!!.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendChatMessage(
                         m_messageField.text)
             }
 

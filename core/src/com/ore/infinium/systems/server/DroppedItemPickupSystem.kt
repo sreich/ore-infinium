@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.server
 
 import com.artemis.Aspect
 import com.artemis.ComponentMapper
@@ -9,6 +9,8 @@ import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.forEach
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.rect
@@ -42,8 +44,8 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
 
     private lateinit var m_tagManager: TagManager
 
@@ -109,7 +111,7 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
         //full). also probably consider existing stacks and stuff
         playerComponent.hotbarInventory!!.setSlot(7, itemToPickupId)
 
-        m_networkServerSystem.sendSpawnHotbarInventoryItem(itemToPickupId, 7, playerEntityId)
+        m_serverNetworkSystem.sendSpawnHotbarInventoryItem(itemToPickupId, 7, playerEntityId)
 
         m_world.killEntity(itemToPickupId)
     }

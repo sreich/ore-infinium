@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
 import com.artemis.BaseSystem
@@ -22,6 +22,10 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.RenderSystemMarker
+import com.ore.infinium.systems.client.TileRenderSystem
+import com.ore.infinium.systems.client.ClientBlockDiggingSystem
+import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
 import java.text.DecimalFormat
@@ -73,7 +77,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
 
     private lateinit var m_tagManager: TagManager
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
     private lateinit var m_tileRenderSystem: TileRenderSystem
     private lateinit var m_clientBlockDiggingSystem: ClientBlockDiggingSystem
 
@@ -132,7 +136,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     }
 
     override fun processSystem() {
-        if (m_world == null || !m_networkClientSystem.connected) {
+        if (m_world == null || !m_clientNetworkSystem.connected) {
             return
         }
 
@@ -290,7 +294,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         }
 
-        m_font.draw(m_batch, "ping: " + m_networkClientSystem.m_clientKryo.returnTripTime, TEXT_X_LEFT.toFloat(),
+        m_font.draw(m_batch, "ping: " + m_clientNetworkSystem.m_clientKryo.returnTripTime, TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 

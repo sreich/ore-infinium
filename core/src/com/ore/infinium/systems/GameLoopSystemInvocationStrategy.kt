@@ -31,6 +31,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.TimeUtils
+import com.ore.infinium.systems.client.RenderSystemMarker
 
 class GameLoopSystemInvocationStrategy
 /**

@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
 import com.artemis.BaseSystem
@@ -18,6 +18,7 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.getNullable
 import java.io.IOException
 import java.util.*
@@ -49,7 +50,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Handles the network side of things, for the client
  */
 @Wire
-class NetworkClientSystem(private val m_world: OreWorld) : BaseSystem() {
+class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     /**
      * whether or not we're connected to the server (either local or mp).
      *

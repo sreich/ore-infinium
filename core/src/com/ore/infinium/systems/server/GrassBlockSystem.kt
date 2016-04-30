@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.PlayerSystem
 
 /**
  * ***************************************************************************
@@ -45,7 +46,7 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
     private lateinit var m_playerSystem: PlayerSystem
 
     /**
@@ -136,7 +137,7 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                             //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
                             // leftLeftX, leftLeftY);
 
-                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, leftBlockX, leftBlockY)
+                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, leftBlockX, leftBlockY)
                         }
                     }
 
@@ -158,7 +159,7 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                             //                               m_server.sendPlayerSparseBlock(player,
                             // rightRightBlock, rightRightX, rightRightY);
 
-                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, rightBlockX, rightBlockY)
+                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, rightBlockX, rightBlockY)
                         }
                     }
 
@@ -175,7 +176,7 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
 
                             m_world.setBlockFlag(bottomBlockX, bottomBlockY, OreBlock.BlockFlags.GrassBlock)
 
-                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, bottomBlockX, bottomBlockY)
+                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, bottomBlockX, bottomBlockY)
                         }
                     }
 
@@ -192,7 +193,7 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
 
                             m_world.setBlockFlag(topBlockX, topBlockY, OreBlock.BlockFlags.GrassBlock)
 
-                            m_networkServerSystem.sendPlayerSingleBlock(playerEntity, topBlockX, topBlockY)
+                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, topBlockX, topBlockY)
                         }
                     }
 

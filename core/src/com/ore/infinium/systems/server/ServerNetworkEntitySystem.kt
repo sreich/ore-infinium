@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.server
 
 import com.artemis.Aspect
 import com.artemis.ComponentMapper
@@ -8,6 +8,8 @@ import com.artemis.utils.IntBag
 import com.badlogic.gdx.utils.Array
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.SpatialSystem
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import java.util.*
 
 /**
@@ -52,7 +54,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
     private lateinit var m_spatialSystem: SpatialSystem
 
     private val m_playerEntities = Array<PlayerEntitiesInViewport>()
@@ -103,10 +105,10 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
     }
 
     override fun initialize() {
-        m_networkServerSystem.addConnectionListener(ConnectionListener())
+        m_serverNetworkSystem.addConnectionListener(ConnectionListener())
     }
 
-    private inner class ConnectionListener : NetworkServerSystem.NetworkServerConnectionListener {
+    private inner class ConnectionListener : ServerNetworkSystem.NetworkServerConnectionListener {
         override fun playerDisconnected(playerEntityId: Int) {
             m_playerEntities.removeAll { playerEntities ->
                 //remove all entity 'copies' for this player, since he's disconnecting
@@ -219,7 +221,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             if (entitiesToDestroy.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
                              "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
-                m_networkServerSystem.sendDestroyMultipleEntities(entitiesToDestroy,
+                m_serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
                                                                   playerComponent.connectionPlayerId)
             }
 
@@ -227,7 +229,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                 OreWorld.log("servernetworkentitysystem",
                              "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
-                m_networkServerSystem.sendSpawnMultipleEntities(entitiesToSpawn,
+                m_serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
                                                                 playerComponent.connectionPlayerId)
             }
 

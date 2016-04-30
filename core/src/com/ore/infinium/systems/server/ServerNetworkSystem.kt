@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
 import com.artemis.Component
@@ -15,6 +15,9 @@ import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.server.ServerBlockDiggingSystem
+import com.ore.infinium.systems.server.ServerNetworkEntitySystem
+import com.ore.infinium.systems.server.ServerPowerCircuitSystem
 import com.ore.infinium.util.getNullable
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.io.IOException
@@ -49,7 +52,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Handles the network side of things, for the client
  */
 @Wire
-class NetworkServerSystem(private val m_world: OreWorld, private val m_server: OreServer) : BaseSystem() {
+class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: OreServer) : BaseSystem() {
 
     private lateinit var playerMapper: ComponentMapper<PlayerComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
@@ -392,7 +395,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
     }
 
-    private fun receivePowerWireConnect(job: NetworkServerSystem.NetworkJob,
+    private fun receivePowerWireConnect(job: NetworkJob,
                                         wireConnect: Network.PowerWireConnectFromClient) {
         val result = m_serverPowerCircuitSystem.connectDevices(wireConnect.firstEntityId, wireConnect.secondEntityId,
                                                                job.connection.playerEntityId)
@@ -407,7 +410,7 @@ class NetworkServerSystem(private val m_world: OreWorld, private val m_server: O
         }
     }
 
-    private fun receivePowerWireDisconnect(job: NetworkServerSystem.NetworkJob,
+    private fun receivePowerWireDisconnect(job: NetworkJob,
                                            wireDisconnect: Network.PowerWireDisconnectFromClient) {
         val result = m_serverPowerCircuitSystem.disconnectWire(wireDisconnect.wireId, wireDisconnect.circuitId,
                                                                job.connection.playerEntityId)

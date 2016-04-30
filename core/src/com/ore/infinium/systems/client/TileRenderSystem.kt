@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
@@ -13,6 +13,8 @@ import com.badlogic.gdx.utils.IntMap
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.systems.client.RenderSystemMarker
 
 /**
  * ***************************************************************************
@@ -53,7 +55,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
     private lateinit var m_tagManager: TagManager
 
     // <byte mesh type, string texture name>
@@ -97,7 +99,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
     fun render(elapsed: Float) {
         //fixme the system should be disabled and enabled when this happens
-        if (!m_networkClientSystem.connected) {
+        if (!m_clientNetworkSystem.connected) {
             return
         }
 

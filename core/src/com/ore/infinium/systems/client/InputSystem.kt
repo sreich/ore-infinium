@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.PowerOverlayRenderSystem
 
 /**
  * ***************************************************************************

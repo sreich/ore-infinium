@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.getNullable
 
 /**
@@ -38,7 +39,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
 
     private val chunkTimer = OreTimer()
 
@@ -97,7 +98,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
         val center = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
         loadedViewport.centerOn(center)
 
-        m_networkServerSystem.sendPlayerLoadedViewportMoved(playerEntity)
+        m_serverNetworkSystem.sendPlayerLoadedViewportMoved(playerEntity)
 
         //todo send only partials depending on direction they're traveling(distance from origin).
         sendPlayerBlockRegion(playerEntity)
@@ -109,7 +110,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
 
         val region = loadedViewport.blockRegionInViewport()
 
-        m_networkServerSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width,
+        m_serverNetworkSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width,
                                                     region.height)
     }
 

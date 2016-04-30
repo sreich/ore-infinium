@@ -17,7 +17,7 @@
  * ***************************************************************************
  */
 
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 /**
  * A marker interface that indicates that this system should only be

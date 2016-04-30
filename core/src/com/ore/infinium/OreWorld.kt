@@ -15,6 +15,8 @@ import com.badlogic.gdx.math.*
 import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
+import com.ore.infinium.systems.client.*
+import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
 import java.util.*
@@ -125,7 +127,7 @@ class OreWorld
                                            .with(TagManager())
                                            .with(PlayerManager())
                                            .with(MovementSystem(this))
-                                           .with(NetworkClientSystem(this))
+                                           .with(ClientNetworkSystem(this))
                                            .with(ServerPowerCircuitSystem(this))
                                            .with(InputSystem(m_camera, this))
                                            .with(EntityOverlaySystem(this))
@@ -159,7 +161,7 @@ class OreWorld
                                            .with(ServerNetworkEntitySystem(this))
                                            .with(ServerBlockDiggingSystem(this))
                                            .with(PlayerSystem(this))
-                                           .with(NetworkServerSystem(this, m_server!!))
+                                           .with(ServerNetworkSystem(this, m_server!!))
                                            .register(GameLoopSystemInvocationStrategy(25, true))
                                            .build())
             //inject the mappers into the world, before we start doing things
@@ -182,7 +184,7 @@ class OreWorld
      */
     private
     val isHotspotOptimizationEnabled: Boolean
-        get() = !ClassReflection.isAssignableFrom(EntityProcessingSystem::class.java, NetworkClientSystem::class.java)
+        get() = !ClassReflection.isAssignableFrom(EntityProcessingSystem::class.java, ClientNetworkSystem::class.java)
 
     fun initServer() {
     }
@@ -1365,7 +1367,7 @@ class OreWorld
 
         m_artemisWorld.delete(entityToKill)
 
-        m_artemisWorld.getSystem(NetworkServerSystem::class.java).sendEntityKilled(entityToKill)
+        m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToKill)
     }
 }
 

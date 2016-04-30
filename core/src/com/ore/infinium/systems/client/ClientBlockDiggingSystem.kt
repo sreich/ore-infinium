@@ -1,4 +1,4 @@
-package com.ore.infinium.systems
+package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
@@ -8,6 +8,8 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreClient
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.systems.GameTickSystem
 import com.ore.infinium.util.getNullable
 import java.util.*
 
@@ -41,7 +43,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
 
     private lateinit var m_gameTickSystem: GameTickSystem
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
 
     private lateinit var m_tagManager: TagManager
 
@@ -81,7 +83,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
     }
 
     override fun processSystem() {
-        if (!m_networkClientSystem.connected) {
+        if (!m_clientNetworkSystem.connected) {
             return
         }
 
@@ -218,7 +220,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
                 blockToDig.finishSent = true
 
                 //we killed the block
-                m_networkClientSystem.sendBlockDigFinish(blockX, blockY)
+                m_clientNetworkSystem.sendBlockDigFinish(blockX, blockY)
 
                 OreWorld.log("client, block digging system",
                              "processSystem finish! tick taken:  " + blockToDig.ticksTook)
@@ -230,7 +232,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
             //inform server we're beginning to dig this block. it will track our time.
             //we will too, but mostly just so we know not to send these requests again
-            m_networkClientSystem.sendBlockDigBegin(blockX, blockY)
+            m_clientNetworkSystem.sendBlockDigBegin(blockX, blockY)
 
             val totalBlockHealth = OreWorld.blockAttributes[blockType]!!.blockTotalHealth
 

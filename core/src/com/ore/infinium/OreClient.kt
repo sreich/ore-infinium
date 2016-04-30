@@ -18,10 +18,10 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.ClientBlockDiggingSystem
-import com.ore.infinium.systems.DebugTextRenderSystem
-import com.ore.infinium.systems.NetworkClientSystem
-import com.ore.infinium.systems.PowerOverlayRenderSystem
+import com.ore.infinium.systems.client.ClientBlockDiggingSystem
+import com.ore.infinium.systems.client.DebugTextRenderSystem
+import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.systems.client.PowerOverlayRenderSystem
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
 import java.io.IOException
@@ -45,7 +45,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
 
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
     private lateinit var m_tagManager: TagManager
     private lateinit var m_debugTextRenderSystem: DebugTextRenderSystem
     private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
@@ -153,7 +153,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
             val blockPlaced = m_world!!.attemptBlockPlacement(x, y, blockComp.blockType)
             if (blockPlaced) {
-                m_networkClientSystem.sendBlockPlace(x, y)
+                m_clientNetworkSystem.sendBlockPlace(x, y)
             }
 
             return
@@ -206,7 +206,7 @@ class OreClient : ApplicationListener, InputProcessor {
                             //todo check if something we can attack, also on server because..yeah.
                             //todo hack send attack message
                             if (send) {
-                                m_networkClientSystem.sendEntityAttack(currentEntity)
+                                m_clientNetworkSystem.sendEntityAttack(currentEntity)
                             }
                         }
                     }
@@ -250,7 +250,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
         if (m_world!!.isPlacementValid(placedItemEntity)) {
             //todo, do more validation..
-            m_networkClientSystem.sendItemPlace(placeX, placeY)
+            m_clientNetworkSystem.sendItemPlace(placeX, placeY)
         } else {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
             //because the function actually takes only the entity, to check if its size, position etc conflict with
@@ -293,10 +293,10 @@ class OreClient : ApplicationListener, InputProcessor {
         m_world!!.init()
         m_world!!.m_artemisWorld.inject(this)
 
-        m_networkClientSystem.addListener(NetworkConnectListener(this))
+        m_clientNetworkSystem.addListener(NetworkConnectListener(this))
 
         try {
-            m_networkClientSystem.connect("127.0.0.1", Network.PORT)
+            m_clientNetworkSystem.connect("127.0.0.1", Network.PORT)
         } catch (e: IOException) {
             e.printStackTrace()
             //fuck. gonna have to show the fail to connect dialog.
@@ -420,7 +420,7 @@ class OreClient : ApplicationListener, InputProcessor {
             return false
         }
 
-        if (!m_networkClientSystem.connected) {
+        if (!m_clientNetworkSystem.connected) {
             return false
         }
 
@@ -487,7 +487,7 @@ class OreClient : ApplicationListener, InputProcessor {
             m_world!!.m_artemisWorld.delete(item)
         }
 
-        m_networkClientSystem.m_clientKryo.sendTCP(dropItemRequestFromClient)
+        m_clientNetworkSystem.m_clientKryo.sendTCP(dropItemRequestFromClient)
     }
 
     override fun keyUp(keycode: Int): Boolean {
@@ -495,7 +495,7 @@ class OreClient : ApplicationListener, InputProcessor {
             m_world == null ->
                 return false
 
-            !m_networkClientSystem.connected ->
+            !m_clientNetworkSystem.connected ->
                 return false
         }
 
@@ -560,7 +560,7 @@ class OreClient : ApplicationListener, InputProcessor {
             m_world == null ->
                 return false
 
-            !m_networkClientSystem.connected ->
+            !m_clientNetworkSystem.connected ->
                 return false
             m_powerOverlayRenderSystem.overlayVisible ->
                 //don't allow item/inventory selection during this
@@ -632,7 +632,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
             val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-            m_networkClientSystem.sendHotbarEquipped(index.toByte())
+            m_clientNetworkSystem.sendHotbarEquipped(index.toByte())
 
             val playerComponent = playerMapper.get(player)
         }
@@ -650,7 +650,7 @@ class OreClient : ApplicationListener, InputProcessor {
         }
     }
 
-    private class NetworkConnectListener(private val m_client: OreClient) : NetworkClientSystem.NetworkClientListener {
+    private class NetworkConnectListener(private val m_client: OreClient) : ClientNetworkSystem.NetworkClientListener {
 
         override fun connected() {
             //todo surely there's some first-time connection stuff we must do?

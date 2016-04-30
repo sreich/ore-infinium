@@ -11,8 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Scaling
 import com.ore.infinium.components.ItemComponent
-import com.ore.infinium.systems.NetworkClientSystem
-import com.ore.infinium.systems.TileRenderSystem
+import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.systems.client.TileRenderSystem
 import java.util.*
 
 /**
@@ -220,7 +220,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
                     //move the item from the source to the dest (from main inventory to main inventory)
                     inventory.m_inventory.setSlot(this.index,
                                                   inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)!!)
-                    inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(
+                    inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendInventoryMove(
                             Inventory.InventoryType.Inventory,
                             dragWrapper.dragSourceIndex,
                             Inventory.InventoryType.Inventory, index)
@@ -234,7 +234,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
                     inventory.m_inventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(
                             dragWrapper.dragSourceIndex)!!)
 
-                    inventory.m_world.m_artemisWorld.getSystem(NetworkClientSystem::class.java).sendInventoryMove(
+                    inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendInventoryMove(
                             Inventory.InventoryType.Hotbar,
                             dragWrapper.dragSourceIndex,
                             Inventory.InventoryType.Inventory, index)

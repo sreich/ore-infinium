@@ -11,6 +11,8 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.getNullable
 
 /**
@@ -42,8 +44,8 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
-    private lateinit var m_networkServerSystem: NetworkServerSystem
-    private lateinit var m_networkClientSystem: NetworkClientSystem
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
 
     private lateinit var m_tagManager: TagManager
 
@@ -81,7 +83,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             m_world.m_camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
             m_world.m_camera.update()
 
-            m_networkClientSystem.sendPlayerMoved()
+            m_clientNetworkSystem.sendPlayerMoved()
         }
     }
 
@@ -367,7 +369,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(),
             // spriteComponent.sprite.getY()))) {
 
-            m_networkServerSystem.sendEntityMoved(player, entity)
+            m_serverNetworkSystem.sendEntityMoved(player, entity)
 
             //           }
         }
