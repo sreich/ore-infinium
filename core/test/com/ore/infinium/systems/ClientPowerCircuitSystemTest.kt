@@ -94,22 +94,26 @@ class ClientPowerCircuitSystemTest {
 
         val light = world.createLight()
 
-        circuitSystem.connectDevices(gen, light, 42, 15)
+        val circuitId1 = 42
+        val wireId1 = 15
+
+        circuitSystem.connectDevices(gen, light, wireId = wireId1, circuitId = circuitId1)
+
+        val circuitId2 = 55
+        val wireId2 = 101
 
         // connect placeholders to fill in. there's possibly more room for error
         // if there's more than one (eg array issues)
         val placeholder1 = world.createPowerGenerator()
         val placeholder2 = world.createLight()
-        val connected = circuitSystem.connectDevices(placeholder1, placeholder2, 55, 100)
-        //
-circuitSystem
-        m_powerCircuitHelper.disconnectAllWiresFromDevice(gen, circuitSystem.m_circuits)
+        val connected = circuitSystem.connectDevices(placeholder1, placeholder2, wireId = wireId2, circuitId = circuitId2)
+
+        circuitSystem.disconnectWire(circuitId = circuitId2, wireId = wireId2)
 
         //there were 2 circuits
         //1 had our wire, 1 did not. now there should be only 1
         assertEquals(1, circuitSystem.m_circuits.size)
     }
-
 
     /**
      * disconnect a wire/connection, usually via the mouse
@@ -198,7 +202,7 @@ circuitSystem
         val wireId = 55
         val circuitId = 20
 
-        val connected = circuitSystem.connectDevices(gen, light,  wireId,  circuitId)
+        val connected = circuitSystem.connectDevices(gen, light, wireId = wireId, circuitId = circuitId)
 
         //wire is horizontally laid out
         spriteMapper.get(gen).sprite.setPosition(100f, 100f)

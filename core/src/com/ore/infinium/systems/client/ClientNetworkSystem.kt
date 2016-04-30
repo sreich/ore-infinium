@@ -18,7 +18,6 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.getNullable
 import java.io.IOException
 import java.util.*
@@ -203,6 +202,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
                 is Network.LoadedViewportMovedFromServer -> receiveLoadedViewportMoved(receivedObject)
                 is Network.PlayerSpawnHotbarInventoryItemFromServer -> receivePlayerSpawnHotbarInventoryItem(
                         receivedObject)
+
                 is Network.PlayerSpawnedFromServer -> receivePlayerSpawn(receivedObject)
             //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
 
@@ -227,7 +227,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun receivePowerWireDisconnect(powerDisconnect: Network.PowerWireDisconnectFromServer) {
-        powerDisconnect.wireId
+        m_clientPowerCircuitSystem.disconnectWire(powerDisconnect.circuitId, powerDisconnect.wireId)
     }
 
     private fun receivePowerWireConnect(powerConnect: Network.PowerWireConnectFromServer) {
@@ -602,5 +602,11 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
+    fun sendWireDisconnect(circuitId: Int, wireId: Int) {
+        val wireDisconnect = Network.PowerWireDisconnectFromClient()
+        wireDisconnect.circuitId = circuitId
+        wireDisconnect.wireId = wireId
 
+        m_clientKryo.sendTCP(wireDisconnect)
+    }
 }

@@ -11,7 +11,6 @@ import com.ore.infinium.PowerCircuit
 import com.ore.infinium.PowerCircuitHelper
 import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.firstNotNull
 import com.ore.infinium.util.getNullable
 
@@ -81,7 +80,10 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
      * Searches for a wire in the list of circuits, removes the one under the position,
      * if one such exists.
      * Would be used in situations such as "user clicked remove on a wire, so remove it.
-
+     *
+     * This actually just calls the server and 'requests' the disconnect.
+     * disconnect won't happen till a response comes back
+     *
      * @param position
      * *         in world coords
      * *
@@ -103,7 +105,7 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         when (wireAtPosition) {
             null -> return false
             else -> {
-//                owningCircuit!!.wireConnections.remove(wireAtPosition)
+                m_clientNetworkSystem.sendWireDisconnect(owningCircuit!!.circuitId, wireAtPosition.wireId)
                 return true
             }
         }
@@ -185,4 +187,15 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         circuit.wireConnections.add(newWire)
     }
 
+    fun disconnectWire(circuitId: Int, wireId: Int) {
+        m_circuits.first { circuit ->
+            circuit.circuitId == circuitId
+
+            circuit.wireConnections.removeAll { wire ->
+                wire.wireId == wireId
+            }
+        }
+
+        m_powerCircuitHelper.cleanupDeadCircuits(m_circuits)
+    }
 }
