@@ -251,11 +251,14 @@ object Network {
         var circuitId: Int = 0
     }
 
-    class PowerWireDisconnectFromServer {
-        var wireId: Int = 0
-        var circuitId: Int = 0
+    /**
+     * @param wireId wire to disconnect
+     * @param circuitId wire to disconnect resides on this circuit
+     */
+    class PowerWireDisconnectFromServer(val wireId: Int, val circuitId: Int) {
+        constructor() : this(wireId = -1, circuitId = -1) {
+        }
     }
-
 
     /**
      * Indicates this entity got killed in the world.

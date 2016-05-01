@@ -1,8 +1,7 @@
 package com.ore.infinium.components
 
 import com.artemis.Component
-import com.ore.infinium.PowerCircuit
-import com.ore.infinium.systems.server.ServerPowerCircuitSystem
+import com.ore.infinium.PowerCircuitHelper
 
 /**
  * ***************************************************************************
@@ -28,23 +27,21 @@ import com.ore.infinium.systems.server.ServerPowerCircuitSystem
  * or a generator.
  */
 class PowerDeviceComponent : Component() {
-
-    /**
-     * circuit that this device resides on
-     */
-    @Transient var owningCircuit: PowerCircuit? = null
-
     /**
      * circuit id that this device resides on
      * (this id is what the server uses to identify it)
+     * a device can only be a part of 1 circuit. but multiple
+     * wires
      */
-    var circuitId = -1
+    var circuitId = PowerCircuitHelper.INVALID_CIRCUITID
 
     /**
-     * wire connection id that this entity is a part of,
-     * the server uses it to identify it
+     * wire connection id's that this entity is a part of,
+     * the server uses it to identify it. while an entity
+     * can only be on 1 circuit at a time, it can be endpoints
+     * for multiple wires.
      */
-    var wireId = -1
+    var wireIdsConnectedIn = mutableListOf<Int>()
 
     /**
      * copy a component (similar to copy constructor)
@@ -53,13 +50,13 @@ class PowerDeviceComponent : Component() {
      * *         component to copy from, into this instance
      */
     fun copyFrom(component: PowerDeviceComponent) {
-        //fixme crap
-        //owningCircuit = component.owningCircuit;
+        //we don't copy over circuits or wires, that's for sure.
     }
 
     override fun toString(): String {
         val c = javaClass.simpleName
         return """
-        $c.owningCircuit: $owningCircuit"""
+        $c.circuitId: $circuitId
+        $c.wireIdsConnectedIn: $wireIdsConnectedIn"""
     }
 }

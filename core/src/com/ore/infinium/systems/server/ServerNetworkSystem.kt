@@ -15,9 +15,6 @@ import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.server.ServerBlockDiggingSystem
-import com.ore.infinium.systems.server.ServerNetworkEntitySystem
-import com.ore.infinium.systems.server.ServerPowerCircuitSystem
 import com.ore.infinium.util.getNullable
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.io.IOException
@@ -416,12 +413,13 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                                                                job.connection.playerEntityId)
 
         if (result) {
-            val connect = Network.PowerWireDisconnectFromServer()
-            connect.wireId = wireDisconnect.wireId
-            connect.circuitId = wireDisconnect.wireId
+            val connect = Network.PowerWireDisconnectFromServer(wireId = wireDisconnect.wireId,
+                                                                circuitId = wireDisconnect.circuitId)
 
             //todo only send to those interested in it
             m_serverKryo.sendToAllTCP(connect)
+        } else {
+            assert(false) { "received disconnect for wire but couldn't find wire!" }
         }
     }
 
@@ -744,6 +742,13 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, move)
 
+    }
+
+    fun sendPowerWireDisconnect(wireId: Int, circuitId: Int) {
+        val wireDisconnect = Network.PowerWireDisconnectFromServer(wireId = wireId, circuitId = circuitId)
+
+        //fixme send only to players that can see these!
+        m_serverKryo.sendToAllTCP(wireDisconnect)
     }
 
     internal class PlayerConnection : Connection() {

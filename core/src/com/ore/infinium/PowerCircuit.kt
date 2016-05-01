@@ -13,6 +13,10 @@ class PowerCircuitHelper() {
     private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
+    companion object {
+        val INVALID_CIRCUITID = -1
+    }
+
     /**
      * Forms a wire connection between any 2 devices (direction does not matter).
      * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.

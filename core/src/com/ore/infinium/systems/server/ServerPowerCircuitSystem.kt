@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire
 import com.ore.infinium.OreWorld
 import com.ore.infinium.PowerCircuit
 import com.ore.infinium.PowerCircuitHelper
+import com.ore.infinium.PowerWireConnection
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
 
@@ -68,6 +69,8 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
     private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+
+    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
 
     val m_powerCircuitHelper = PowerCircuitHelper()
 
@@ -214,10 +217,38 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     fun disconnectWire(wireId: Int, circuitId: Int, playerEntityId: Int): Boolean {
+        //todo use playerid to see if it is within their valid range (and not deleting arbitrary wires
+
+        var foundWire: PowerWireConnection? = null
         val result = m_circuits.any { circuit ->
-            circuit.circuitId == circuitId && circuit.wireConnections.removeAll { wire ->
-                wire.wireId == wireId
+            //todo this removes immediately. we need to see if it exists, then verify..something.. i think?
+            //maybe not.
+            circuit.circuitId == circuitId && circuit.wireConnections.removeAll { itWire ->
+                foundWire = itWire
+                itWire.wireId == wireId
             }
+        }
+
+        val deviceComp1 = powerDeviceMapper.get(foundWire!!.firstEntity)
+        val deviceComp2 = powerDeviceMapper.get(foundWire!!.secondEntity)
+
+        //remove the wire we're referring to, in both entity's device comp wire list
+        //(since dev A (wire)-> dev B, both would have that wire id in them.
+        deviceComp1.wireIdsConnectedIn.removeAll { itWireId ->
+            itWireId == wireId
+        }
+
+        deviceComp2.wireIdsConnectedIn.removeAll { itWireId ->
+            itWireId == wireId
+        }
+
+        deviceComp1.circuitId = PowerCircuitHelper.INVALID_CIRCUITID
+        deviceComp2.circuitId = PowerCircuitHelper.INVALID_CIRCUITID
+
+        //todo find the devices that are being referred to, ensure they have no connections on them,
+        //then set their device identifiers to invalid! client shall do the same when it receives disconnect!!
+        if (result) {
+            m_serverNetworkSystem.sendPowerWireDisconnect(wireId, circuitId)
         }
 
         when {

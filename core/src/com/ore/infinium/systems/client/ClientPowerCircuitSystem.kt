@@ -153,16 +153,17 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     override fun removed(entityId: Int) {
-        //todo find entity's owning circuit and the wire it sits on, remove wire (since a wire only composes 2 endpoints)
+        //todo find entity's owning circuit and the wire(s) it sits on, remove wire (since a wire only composes 2 endpoints)
 
         val deviceComp = powerDeviceMapper.getNullable(entityId)
 
         if (deviceComp != null) {
-            val wireId = deviceComp.wireId
+            val wireIds : MutableList<Int> = deviceComp.wireIdsConnectedIn
 
-            m_circuits.firstNotNull { circuit ->
-                circuit.wireConnections.firstOrNull { wire -> wire.wireId == wireId }
+            val circuitEntityIsOn = m_circuits.firstOrNull { circuit ->
+                circuit.circuitId == deviceComp.circuitId
             }
+            circuit.wireConnections.removeAll(wireIds)
 
             m_powerCircuitHelper.cleanupDeadCircuits(m_circuits)
         }

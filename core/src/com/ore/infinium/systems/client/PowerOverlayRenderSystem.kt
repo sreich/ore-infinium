@@ -208,8 +208,8 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
     }
 
     fun rightMouseClicked() {
-        //check if we can delete a wire
-        m_clientPowerCircuitSystem.tryDisconnectWireAtPosition(m_world.mousePositionWorldCoords())
+        //check if we can delete a wire, and try to do so
+        val result = m_clientPowerCircuitSystem.tryDisconnectWireAtPosition(m_world.mousePositionWorldCoords())
     }
 
     fun leftMouseReleased() {
