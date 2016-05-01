@@ -41,7 +41,9 @@ class ClientPowerCircuitSystemTest {
     @Before
     fun createArtemisWorld() {
         world = OreWorld(null, null, OreWorld.WorldInstanceType.Server)
-        world.m_artemisWorld = World(WorldConfigurationBuilder().with(ClientPowerCircuitSystem(world)).build())
+        world.m_artemisWorld = World(WorldConfigurationBuilder()
+                                             .with(ClientPowerCircuitSystem(world))
+                                             .build())
 
         circuitSystem = world.m_artemisWorld.getSystem(ClientPowerCircuitSystem::class.java)
         m_powerCircuitHelper = PowerCircuitHelper()
@@ -106,7 +108,8 @@ class ClientPowerCircuitSystemTest {
         // if there's more than one (eg array issues)
         val placeholder1 = world.createPowerGenerator()
         val placeholder2 = world.createLight()
-        val connected = circuitSystem.connectDevices(placeholder1, placeholder2, wireId = wireId2, circuitId = circuitId2)
+        val connected = circuitSystem.connectDevices(placeholder1, placeholder2, wireId = wireId2,
+                                                     circuitId = circuitId2)
 
         circuitSystem.disconnectWire(circuitId = circuitId2, wireId = wireId2)
 
@@ -130,11 +133,10 @@ class ClientPowerCircuitSystemTest {
 
         //try to disconnect (pretending we're mouse picking).
         //this pick test is for really really close/on the wire.
-        val disconnected = circuitSystem.canDisconnectWireAtPosition(Vector2(150f, 100f))
-        assertTrue(disconnected)
+        val disconnected = circuitSystem.findWireAtPosition(Vector2(150f, 100f))
+        assertTrue(disconnected.wireAtPosition != null && disconnected.owningCircuit != null)
 
-        //should be no more circuits. this circuit only had 1 wireconnection
-        assertEquals(0, circuitSystem.m_circuits.size)
+        //assume it can get disconnected. we can't verify that far, as it's a server response
     }
 
     /**
@@ -156,11 +158,11 @@ class ClientPowerCircuitSystemTest {
         //try to remove it x2 wire thicknesses above where the wire actually is
         val y = 100.0f - ClientPowerCircuitSystem.WIRE_THICKNESS * 1.0f
 
-        val disconnected = circuitSystem.canDisconnectWireAtPosition(Vector2(x, y))
-        assertTrue(disconnected)
+        val disconnected = circuitSystem.findWireAtPosition(Vector2(x, y))
+        assertTrue(disconnected.wireAtPosition != null && disconnected.owningCircuit != null)
 
         //sanity check for circuit cleanup
-        assertEquals(0, circuitSystem.m_circuits.size)
+        //assertEquals(0, circuitSystem.m_circuits.size)
     }
 
     /**
@@ -182,11 +184,11 @@ class ClientPowerCircuitSystemTest {
         //try to remove it x times the wire thicknesses below where the wire actually is
         val y = 100.0f + ClientPowerCircuitSystem.WIRE_THICKNESS * 3.0f
 
-        val disconnected = circuitSystem.canDisconnectWireAtPosition(Vector2(x, y))
-        assertTrue(disconnected)
+        val disconnected = circuitSystem.findWireAtPosition(Vector2(x, y))
+        assertTrue(disconnected.wireAtPosition != null && disconnected.owningCircuit != null)
 
         //sanity check for circuit cleanup
-        assertEquals(0, circuitSystem.m_circuits.size)
+        //assertEquals(0, circuitSystem.m_circuits.size)
     }
 
     /**
@@ -212,11 +214,11 @@ class ClientPowerCircuitSystemTest {
         //try to remove it x2 wire thicknesses below where the wire actually is
         val y = 150.0f
 
-        val disconnected = circuitSystem.canDisconnectWireAtPosition(Vector2(x, y))
-        assertTrue(disconnected)
+        val disconnected = circuitSystem.findWireAtPosition(Vector2(x, y))
+        assertTrue(disconnected.wireAtPosition != null && disconnected.owningCircuit != null)
 
         //sanity check for circuit cleanup
-        assertEquals(0, circuitSystem.m_circuits.size)
+        //assertEquals(0, circuitSystem.m_circuits.size)
     }
 
 }

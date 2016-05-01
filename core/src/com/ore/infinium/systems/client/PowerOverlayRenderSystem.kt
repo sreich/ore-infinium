@@ -15,9 +15,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.client.ClientPowerCircuitSystem
-import com.ore.infinium.systems.client.EntityOverlaySystem
-import com.ore.infinium.systems.client.RenderSystemMarker
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
 import com.ore.infinium.util.indices
@@ -212,7 +209,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
     fun rightMouseClicked() {
         //check if we can delete a wire
-        m_clientPowerCircuitSystem.canDisconnectWireAtPosition(m_world.mousePositionWorldCoords())
+        m_clientPowerCircuitSystem.tryDisconnectWireAtPosition(m_world.mousePositionWorldCoords())
     }
 
     fun leftMouseReleased() {

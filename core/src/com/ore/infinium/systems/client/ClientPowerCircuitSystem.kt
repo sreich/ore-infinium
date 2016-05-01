@@ -91,16 +91,8 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
      * @return false if disconnect failed (no wire in range). True if it succeeded.
      */
 
-    fun canDisconnectWireAtPosition(position: Vector2): Boolean {
-        var owningCircuit: PowerCircuit? = null
-
-        val wireAtPosition = m_circuits.firstNotNull { circuit ->
-            owningCircuit = circuit
-
-            circuit.wireConnections.firstOrNull {
-                wireIntersectsPosition(it, position)
-            }
-        }
+    fun tryDisconnectWireAtPosition(position: Vector2): Boolean {
+        val (owningCircuit, wireAtPosition) = findWireAtPosition(position)
 
         when (wireAtPosition) {
             null -> return false
@@ -109,6 +101,25 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
                 return true
             }
         }
+    }
+
+    data class WireAtPositionResult(val owningCircuit: PowerCircuit?, val wireAtPosition: PowerWireConnection?)
+
+    /**
+     * can return a @see WireAtPositionResult contents of null
+     */
+    fun findWireAtPosition(position: Vector2): WireAtPositionResult {
+        var owningCircuit: PowerCircuit? = null
+
+        val wireAtPosition = m_circuits.firstNotNull { circuit ->
+            owningCircuit = circuit
+
+            circuit.wireConnections.firstOrNull { wire ->
+                wireIntersectsPosition(wire, position)
+            }
+        }
+
+        return WireAtPositionResult(owningCircuit = owningCircuit, wireAtPosition = wireAtPosition)
     }
 
     private fun wireIntersectsPosition(connection: PowerWireConnection, position: Vector2): Boolean {
