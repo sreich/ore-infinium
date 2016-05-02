@@ -166,6 +166,7 @@ class PowerCircuitHelper() {
         circuitToMergeTo.consumers.addAll(circuitToMergeFrom.consumers)
         circuitToMergeTo.generators.addAll(circuitToMergeFrom.generators)
 
+        //old one got merged into the new one, so now we've 1 less circuit.
         circuits.remove(circuitToMergeFrom)
     }
 }

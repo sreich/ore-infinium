@@ -158,17 +158,19 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 return true
             }
 
+            //first is on a circuit, second is not.
             firstOwningCircuit != null && secondOwningCircuit == null -> {
                 m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, firstOwningCircuit)
                 return true
             }
 
+            //second is on circuit, first is not
             secondOwningCircuit != null && firstOwningCircuit == null -> {
                 m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, secondOwningCircuit)
                 return true
             }
             else -> {
-                //no circuits
+                //no circuits, no wires yet.
                 val circuit = PowerCircuit(m_nextCircuitId++)
 
                 m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, circuit)
