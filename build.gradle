@@ -20,7 +20,7 @@ buildscript {
 
 
         //kotlinVersion = '1.0.0-rc-1017'
-        kotlinVersion = '1.0.2-eap-44'
+        kotlinVersion = '1.0.2-eap-74'
     }
 
     repositories {

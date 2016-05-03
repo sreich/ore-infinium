@@ -150,6 +150,16 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         //then we'd be left with wires that only have 1 device in them. not a wire.
         //we could add them to a list, but we'd have to check each time we get a new one,
         //if it has a matching pair (they reference the same wire)
+
+        /*
+        problem: we receive the list of wires this entity has, that are connected to it.
+
+        but we need to intersect this list with the list of every other devicecomponent entity
+
+        entity1 ----(wire 1)-> entity2
+        entity2 ----(wire 1)-> entity1
+
+         */
     }
 
     override fun removed(entityId: Int) {
@@ -195,6 +205,8 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         }
 
         val newWire = PowerWireConnection(firstEntityId, secondEntityId, wireId)
+
+        //todo handle circuit merging!
 
         circuit.wireConnections.add(newWire)
     }

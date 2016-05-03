@@ -20,6 +20,7 @@ class PowerCircuitHelper() {
     /**
      * Forms a wire connection between any 2 devices (direction does not matter).
      * Note, A single connection creates a circuit, additional wireConnections should only be a part of one circuit.
+     * Won't actually handle merging or anything like that. Just adds a wire.
 
      * @param firstEntity
      * *
@@ -35,7 +36,12 @@ class PowerCircuitHelper() {
                                                       circuit.nextWireId++)
         circuit.wireConnections.add(powerWireConnection)
 
-        updateDevicesOwningCircuit(firstEntity, secondEntity, circuit, powerWireConnection)
+        //update the device circuits
+        val firstDevice = powerDeviceMapper.get(firstEntity)
+        firstDevice.circuitId = circuit.circuitId
+
+        val secondDevice = powerDeviceMapper.get(secondEntity)
+        secondDevice.circuitId = circuit.circuitId
 
         //add devices to a duplicated, categorized helper list.
         //so we can easily find all consumers one each circuit, later on
@@ -53,31 +59,6 @@ class PowerCircuitHelper() {
 
         if (powerGeneratorMapper.getNullable(secondEntity) != null && !circuit.generators.contains(secondEntity)) {
             circuit.generators.add(secondEntity)
-        }
-    }
-
-    /**
-     * Updates the circuit that this device resides on. Used for faster reverse lookups
-
-     * @param firstEntity
-     * *
-     * @param secondEntity
-     * *
-     * @param circuit
-     * *         the new circuit to update them to
-     */
-    fun updateDevicesOwningCircuit(firstEntity: Int,
-                                   secondEntity: Int,
-                                   circuit: PowerCircuit,
-                                   wire: PowerWireConnection) {
-        powerDeviceMapper.get(firstEntity).apply {
-            owningCircuit = circuit
-            wireId = wire.wireId
-        }
-
-        powerDeviceMapper.get(secondEntity).apply {
-            owningCircuit = circuit
-            wireId = wire.wireId
         }
     }
 
@@ -103,13 +84,12 @@ class PowerCircuitHelper() {
             (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
                     connection.firstEntity == secondEntity && connection.secondEntity == firstEntity)
 
-
     /**
      * Disconnect all wireConnections pointing to this entity
      *
      *
-     * used in situation such as "this device was destroyed/removed, cleanup any wireConnections that
-     * connect to it.
+     * used (only) in situation of "this device will be destroyed/removed, cleanup any wireConnections that
+     * connect to it".
 
      * @param entityToDisconnect
      */
@@ -124,57 +104,15 @@ class PowerCircuitHelper() {
         cleanupDeadCircuits(circuits)
     }
 
-
     fun cleanupDeadCircuits(circuits: MutableList<PowerCircuit>) =
             circuits.removeAll { circuit -> circuit.wireConnections.size == 0 }
 
-    /**
-     * @returns false if the device connections could not be merged (possible the devices aren't
-     * connected to any circuits)
-     */
-    fun mergeCircuits(firstEntity: Int,
-                      secondEntity: Int,
-                      firstOwningCircuit: PowerCircuit,
-                      secondOwningCircuit: PowerCircuit,
-                      circuits: MutableList<PowerCircuit>) {
-
-        val circuitToMergeTo: PowerCircuit
-        val circuitToMergeFrom: PowerCircuit
-        //merge to whichever is larger, to save a bit of computations
-        if (firstOwningCircuit.wireConnections.size > secondOwningCircuit.wireConnections.size) {
-            circuitToMergeTo = firstOwningCircuit
-            circuitToMergeFrom = secondOwningCircuit
-        } else {
-            circuitToMergeTo = secondOwningCircuit
-            circuitToMergeFrom = firstOwningCircuit
-        }
-
-        circuitToMergeFrom.wireConnections.forEach { wire ->
-            updateDevicesOwningCircuit(wire.firstEntity, wire.secondEntity, circuitToMergeTo, wire)
-        }
-
-        //todo for every entity on the circuit!!
-        circuitToMergeTo.wireConnections.forEach { wire ->
-            updateDevicesOwningCircuit(firstEntity, secondEntity, circuitToMergeTo, wire)
-        }
-
-        circuitToMergeTo.wireConnections.addAll(circuitToMergeFrom.wireConnections)
-
-        //also transfer over our precalc'd list of consumers, generators
-        // (which is really just a categorized duplicate of wireConnections,
-        //so we don't have to recalculate all these again
-        circuitToMergeTo.consumers.addAll(circuitToMergeFrom.consumers)
-        circuitToMergeTo.generators.addAll(circuitToMergeFrom.generators)
-
-        //old one got merged into the new one, so now we've 1 less circuit.
-        circuits.remove(circuitToMergeFrom)
-    }
 }
 
 /**
  * Either a connected entity on a circuit/wire, is a device or a generator. It is *not* both.
  * Devices consume power, generators...generate
- * @param circuitId test test
+ * @param circuitId
  */
 class PowerCircuit(circuitId: Int) {
 

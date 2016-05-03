@@ -148,12 +148,17 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
 
-        val firstOwningCircuit = powerDeviceMapper.get(firstEntity).owningCircuit
-        val secondOwningCircuit = powerDeviceMapper.get(secondEntity).owningCircuit
+        val firstDeviceComp = powerDeviceMapper.get(firstEntity)
+        val secondDeviceComp = powerDeviceMapper.get(secondEntity)
+
+        //find which circuit each device is currently on, if any. we could be connecting a new device onto existing circuit
+        //or we could be connecting brand new devices altogether.
+        val firstOwningCircuit = m_circuits.firstOrNull { circuit -> circuit.circuitId == firstDeviceComp.circuitId }
+        val secondOwningCircuit = m_circuits.firstOrNull { circuit -> circuit.circuitId == secondDeviceComp.circuitId }
 
         when {
             firstOwningCircuit != null && secondOwningCircuit != null -> {//merge circuits that contain these entities.
-                m_powerCircuitHelper.mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit,
+                mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit,
                                                    m_circuits)
                 return true
             }
@@ -164,11 +169,12 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 return true
             }
 
-            //second is on circuit, first is not
+            //second is on a circuit, first is not
             secondOwningCircuit != null && firstOwningCircuit == null -> {
                 m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, secondOwningCircuit)
                 return true
             }
+
             else -> {
                 //no circuits, no wires yet.
                 val circuit = PowerCircuit(m_nextCircuitId++)
@@ -179,6 +185,66 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
                 return true
             }
         }
+    }
+
+
+    /**
+     * @returns false if the device connections could not be merged (possible the devices aren't
+     * connected to any circuits)
+     */
+    fun mergeCircuits(firstEntity: Int,
+                      secondEntity: Int,
+                      firstOwningCircuit: PowerCircuit,
+                      secondOwningCircuit: PowerCircuit,
+                      circuits: MutableList<PowerCircuit>) {
+
+        val circuitToMergeTo: PowerCircuit
+        val circuitToMergeFrom: PowerCircuit
+        //merge to whichever is larger, to save a bit of computations, especially for huge circuits
+        if (firstOwningCircuit.wireConnections.size > secondOwningCircuit.wireConnections.size) {
+            circuitToMergeTo = firstOwningCircuit
+            circuitToMergeFrom = secondOwningCircuit
+        } else {
+            circuitToMergeTo = secondOwningCircuit
+            circuitToMergeFrom = firstOwningCircuit
+        }
+
+        //figure out which device is getting merged (which one is on which circuit)
+        val firstDeviceComp = powerDeviceMapper.get(firstEntity)
+        val secondDeviceComp = powerDeviceMapper.get(secondEntity)
+
+        var deviceThatGetsMergedOver: PowerDeviceComponent? = null
+        var deviceThatStays: PowerDeviceComponent? = null
+        //only one of these devices getting connected via a new wire will get merged over
+        //to another circuit. the other one is already on that circuit.
+        if (firstDeviceComp.circuitId == circuitToMergeFrom.circuitId) {
+            //this device is getting moved to the new circuit!
+            deviceThatGetsMergedOver= firstDeviceComp
+            deviceThatStays = secondDeviceComp
+        } else if (secondDeviceComp.circuitId == circuitToMergeFrom.circuitId) {
+            deviceThatGetsMergedOver = secondDeviceComp
+            deviceThatStays = firstDeviceComp
+        }
+
+        //clear and repopulate/find all wires that are now connecting this device
+        deviceThatGetsMergedOver!!.wireIdsConnectedIn.clear()
+
+
+        deviceThatGetsMergedOver!!.wireIdsConnectedIn.addAll()
+
+        firstDeviceComp.wireIdsConnectedIn.clear()
+        secondDeviceComp.wireIdsConnectedIn.clear()
+
+        circuitToMergeTo.wireConnections.addAll(circuitToMergeFrom.wireConnections)
+
+        //also transfer over our precalc'd list of consumers, generators
+        // (which is really just a categorized duplicate of wireConnections,
+        //so we don't have to recalculate all these again
+        circuitToMergeTo.consumers.addAll(circuitToMergeFrom.consumers)
+        circuitToMergeTo.generators.addAll(circuitToMergeFrom.generators)
+
+        //old one got merged into the new one, so now we've 1 less circuit.
+        circuits.remove(circuitToMergeFrom)
     }
 
     private fun playerWithinRangeToConnectDevices(firstEntity: Int, secondEntity: Int, playerEntityId: Int): Boolean {
