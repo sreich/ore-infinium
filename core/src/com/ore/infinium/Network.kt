@@ -227,7 +227,10 @@ object Network {
 
     /**
      * Request to connect these 2 devices together
-     * These are network entity id's(non local)
+     * These are network entity id's(non local).
+     *
+     * Client will receive a generic response packet,
+     * which will say a new wire connection was formed
      */
     class PowerWireConnectFromClient {
         var firstEntityId: Int = 0
@@ -249,6 +252,21 @@ object Network {
         var secondEntityId: Int = 0
         var wireId: Int = 0
         var circuitId: Int = 0
+    }
+
+    /**
+     * sent when the stats of a power circuit gets changed,
+     * or when it needs an initial update
+     * TODO: but how do we know the client wants this info/has this
+     * circuit? maybe we want it to be pulled instead. client gets the other
+     * events, client knows which circuits he'll need info for, so he can maybe
+     * handle sending a message to pull this info
+     */
+    class PowerCircuitStatsFromServer {
+        var circuitId: Int = -1
+        var supply: Int = -1
+        var demand: Int = -1
+        //TODO send number of devices on this circuit? and # of wires??
     }
 
     /**
