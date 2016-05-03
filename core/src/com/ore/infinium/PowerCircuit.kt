@@ -32,16 +32,18 @@ class PowerCircuitHelper() {
         //cannot connect to a non-device
         assert(powerDeviceMapper.has(firstEntity) && powerDeviceMapper.has(secondEntity))
 
-        val powerWireConnection = PowerWireConnection(firstEntity, secondEntity,
-                                                      circuit.nextWireId++)
+        val powerWireConnection = PowerWireConnection(firstEntity, secondEntity)
+
         circuit.wireConnections.add(powerWireConnection)
 
         //update the device circuits
         val firstDevice = powerDeviceMapper.get(firstEntity)
         firstDevice.circuitId = circuit.circuitId
+        firstDevice.entitiesConnectedTo.add(secondEntity)
 
         val secondDevice = powerDeviceMapper.get(secondEntity)
         secondDevice.circuitId = circuit.circuitId
+        firstDevice.entitiesConnectedTo.add(firstEntity)
 
         //add devices to a duplicated, categorized helper list.
         //so we can easily find all consumers one each circuit, later on
@@ -65,22 +67,22 @@ class PowerCircuitHelper() {
     /**
      * @return true if at least 1 of these devices is connected to via this wire.
      */
-     fun isWireConnectedToAnyDevices(connection: PowerWireConnection,
-                                            firstEntity: Int,
-                                            secondEntity: Int): Boolean =
+    fun isWireConnectedToAnyDevices(connection: PowerWireConnection,
+                                    firstEntity: Int,
+                                    secondEntity: Int): Boolean =
             (connection.firstEntity == firstEntity || connection.secondEntity == secondEntity ||
                     connection.firstEntity == secondEntity || connection.secondEntity == firstEntity)
 
     /**
      * @return true if this device resides somewhere in a wire connection
      */
-     fun isWireConnectedToDevice(connection: PowerWireConnection,
-                                        entity: Int): Boolean =
+    fun isWireConnectedToDevice(connection: PowerWireConnection,
+                                entity: Int): Boolean =
             (connection.firstEntity == entity || connection.secondEntity == entity)
 
-     fun isWireConnectedToAllDevices(connection: PowerWireConnection,
-                                            firstEntity: Int,
-                                            secondEntity: Int): Boolean =
+    fun isWireConnectedToAllDevices(connection: PowerWireConnection,
+                                    firstEntity: Int,
+                                    secondEntity: Int): Boolean =
             (connection.firstEntity == firstEntity && connection.secondEntity == secondEntity ||
                     connection.firstEntity == secondEntity && connection.secondEntity == firstEntity)
 
@@ -157,7 +159,5 @@ class PowerCircuit(circuitId: Int) {
      * to know what we're talking about
      */
     var circuitId = circuitId
-
-    var nextWireId = 0
 }
 

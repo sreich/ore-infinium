@@ -36,12 +36,16 @@ class PowerDeviceComponent : Component() {
     var circuitId = PowerCircuitHelper.INVALID_CIRCUITID
 
     /**
-     * wire connection id's that this entity is a part of,
-     * the server uses it to identify it. while an entity
-     * can only be on 1 circuit at a time, it can be endpoints
-     * for multiple wires.
+     * entity id's that this entity is connected to.
+     * there can be many, because 1 device might have
+     * several connections. but still only be on the same
+     * circuit
+     *
+     * this is for serializing over the network, for the client.
+     *
+     * the entity id's are network (server) ones.
      */
-    var wireIdsConnectedIn = mutableListOf<Int>()
+    var entitiesConnectedTo = mutableListOf<Int>()
 
     /**
      * copy a component (similar to copy constructor)
@@ -56,7 +60,6 @@ class PowerDeviceComponent : Component() {
     override fun toString(): String {
         val c = javaClass.simpleName
         return """
-        $c.circuitId: $circuitId
-        $c.wireIdsConnectedIn: $wireIdsConnectedIn"""
+        $c.circuitId: $circuitId"""
     }
 }

@@ -238,8 +238,9 @@ object Network {
     }
 
     class PowerWireDisconnectFromClient {
-        var wireId: Int = 0
         var circuitId: Int = 0
+        var firstEntityId: Int = 0
+        var secondEntityId: Int = 0
     }
 
     /**
@@ -250,7 +251,6 @@ object Network {
     class PowerWireConnectFromServer {
         var firstEntityId: Int = 0
         var secondEntityId: Int = 0
-        var wireId: Int = 0
         var circuitId: Int = 0
     }
 
@@ -273,9 +273,7 @@ object Network {
      * @param wireId wire to disconnect
      * @param circuitId wire to disconnect resides on this circuit
      */
-    class PowerWireDisconnectFromServer(val wireId: Int, val circuitId: Int) {
-        constructor() : this(wireId = -1, circuitId = -1) {
-        }
+    class PowerWireDisconnectFromServer(val firstEntityId: Int = -1, val secondEntityId: Int = -1) {
     }
 
     /**

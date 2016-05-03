@@ -19,8 +19,8 @@ import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.ClientBlockDiggingSystem
-import com.ore.infinium.systems.client.DebugTextRenderSystem
 import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.systems.client.DebugTextRenderSystem
 import com.ore.infinium.systems.client.PowerOverlayRenderSystem
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
@@ -340,8 +340,8 @@ class OreClient : ApplicationListener, InputProcessor {
 
     private fun showFailToConnectDialog() {
         dialog = object : Dialog("", skin, "dialog") {
-            override fun result(`object`: Any?) {
-                println("Chosen: " + `object`!!)
+            override fun result(obj: Any?) {
+                println("Chosen: " + obj!!)
             }
 
         }

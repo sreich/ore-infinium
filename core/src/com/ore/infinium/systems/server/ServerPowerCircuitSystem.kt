@@ -157,19 +157,21 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         val secondOwningCircuit = m_circuits.firstOrNull { circuit -> circuit.circuitId == secondDeviceComp.circuitId }
 
         when {
-            firstOwningCircuit != null && secondOwningCircuit != null -> {//merge circuits that contain these entities.
+            firstOwningCircuit != null && secondOwningCircuit != null -> {
+                //these devices already have connections, but they're still not on the same circuit.
+                // merge the circuits that contain these entities.
                 mergeCircuits(firstEntity, secondEntity, firstOwningCircuit, secondOwningCircuit,
-                                                   m_circuits)
+                              m_circuits)
                 return true
             }
 
-            //first is on a circuit, second is not.
+        //first is on a circuit, second is not.
             firstOwningCircuit != null && secondOwningCircuit == null -> {
                 m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, firstOwningCircuit)
                 return true
             }
 
-            //second is on a circuit, first is not
+        //second is on a circuit, first is not
             secondOwningCircuit != null && firstOwningCircuit == null -> {
                 m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, secondOwningCircuit)
                 return true
@@ -186,7 +188,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             }
         }
     }
-
 
     /**
      * @returns false if the device connections could not be merged (possible the devices aren't
@@ -213,27 +214,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         val firstDeviceComp = powerDeviceMapper.get(firstEntity)
         val secondDeviceComp = powerDeviceMapper.get(secondEntity)
 
-        var deviceThatGetsMergedOver: PowerDeviceComponent? = null
-        var deviceThatStays: PowerDeviceComponent? = null
-        //only one of these devices getting connected via a new wire will get merged over
-        //to another circuit. the other one is already on that circuit.
-        if (firstDeviceComp.circuitId == circuitToMergeFrom.circuitId) {
-            //this device is getting moved to the new circuit!
-            deviceThatGetsMergedOver= firstDeviceComp
-            deviceThatStays = secondDeviceComp
-        } else if (secondDeviceComp.circuitId == circuitToMergeFrom.circuitId) {
-            deviceThatGetsMergedOver = secondDeviceComp
-            deviceThatStays = firstDeviceComp
-        }
-
-        //clear and repopulate/find all wires that are now connecting this device
-        deviceThatGetsMergedOver!!.wireIdsConnectedIn.clear()
-
-
-        deviceThatGetsMergedOver!!.wireIdsConnectedIn.addAll()
-
-        firstDeviceComp.wireIdsConnectedIn.clear()
-        secondDeviceComp.wireIdsConnectedIn.clear()
 
         circuitToMergeTo.wireConnections.addAll(circuitToMergeFrom.wireConnections)
 
@@ -245,6 +225,9 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
         //old one got merged into the new one, so now we've 1 less circuit.
         circuits.remove(circuitToMergeFrom)
+
+        //todo, finally, add the actual wire onto the device that got connected!
+        m_powerCircuitHelper.addWireConnection(firstEntity, secondEntity, circuitToMergeTo)
     }
 
     private fun playerWithinRangeToConnectDevices(firstEntity: Int, secondEntity: Int, playerEntityId: Int): Boolean {
@@ -284,7 +267,10 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    fun disconnectWire(wireId: Int, circuitId: Int, playerEntityId: Int): Boolean {
+    fun disconnectWire(firstEntityId: Int,
+                       secondEntityId: Int,
+                       circuitId: Int,
+                       playerEntityId: Int): Boolean {
         //todo use playerid to see if it is within their valid range (and not deleting arbitrary wires
 
         var foundWire: PowerWireConnection? = null
@@ -293,7 +279,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
             //maybe not.
             circuit.circuitId == circuitId && circuit.wireConnections.removeAll { itWire ->
                 foundWire = itWire
-                itWire.wireId == wireId
+                m_powerCircuitHelper.isWireConnectedToAllDevices(itWire, firstEntityId, secondEntityId)
             }
         }
 
@@ -301,13 +287,13 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         val deviceComp2 = powerDeviceMapper.get(foundWire!!.secondEntity)
 
         //remove the wire we're referring to, in both entity's device comp wire list
-        //(since dev A (wire)-> dev B, both would have that wire id in them.
-        deviceComp1.wireIdsConnectedIn.removeAll { itWireId ->
-            itWireId == wireId
+        //(since dev A (wire)-> dev B, both would have each other's entity id in them
+        deviceComp1.entitiesConnectedTo.removeAll { itOtherEntity ->
+            foundWire!!.firstEntity == itOtherEntity || foundWire!!.secondEntity == itOtherEntity
         }
 
-        deviceComp2.wireIdsConnectedIn.removeAll { itWireId ->
-            itWireId == wireId
+        deviceComp2.entitiesConnectedTo.removeAll { itOtherEntity ->
+            foundWire!!.firstEntity == itOtherEntity || foundWire!!.secondEntity == itOtherEntity
         }
 
         deviceComp1.circuitId = PowerCircuitHelper.INVALID_CIRCUITID
@@ -316,7 +302,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         //todo find the devices that are being referred to, ensure they have no connections on them,
         //then set their device identifiers to invalid! client shall do the same when it receives disconnect!!
         if (result) {
-            m_serverNetworkSystem.sendPowerWireDisconnect(wireId, circuitId)
+            m_serverNetworkSystem.sendPowerWireDisconnect(firstEntityId, secondEntityId)
         }
 
         when {

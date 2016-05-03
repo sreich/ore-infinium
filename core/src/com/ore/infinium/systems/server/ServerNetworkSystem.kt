@@ -409,12 +409,13 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
     private fun receivePowerWireDisconnect(job: NetworkJob,
                                            wireDisconnect: Network.PowerWireDisconnectFromClient) {
-        val result = m_serverPowerCircuitSystem.disconnectWire(wireDisconnect.wireId, wireDisconnect.circuitId,
+        val result = m_serverPowerCircuitSystem.disconnectWire(wireDisconnect.firstEntityId,
+                                                               wireDisconnect.secondEntityId, wireDisconnect.circuitId,
                                                                job.connection.playerEntityId)
 
         if (result) {
-            val connect = Network.PowerWireDisconnectFromServer(wireId = wireDisconnect.wireId,
-                                                                circuitId = wireDisconnect.circuitId)
+            val connect = Network.PowerWireDisconnectFromServer(firstEntityId = wireDisconnect.firstEntityId,
+                                                                secondEntityId = wireDisconnect.secondEntityId)
 
             //todo only send to those interested in it
             m_serverKryo.sendToAllTCP(connect)
@@ -744,8 +745,8 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
     }
 
-    fun sendPowerWireDisconnect(wireId: Int, circuitId: Int) {
-        val wireDisconnect = Network.PowerWireDisconnectFromServer(wireId = wireId, circuitId = circuitId)
+    fun sendPowerWireDisconnect(firstEntityId: Int, secondEntityId: Int) {
+        val wireDisconnect = Network.PowerWireDisconnectFromServer(firstEntityId,secondEntityId)
 
         //fixme send only to players that can see these!
         m_serverKryo.sendToAllTCP(wireDisconnect)
