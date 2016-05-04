@@ -152,12 +152,24 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         //if it has a matching pair (they reference the same wire)
 
         /*
-        problem: we receive the list of wires this entity has, that are connected to it.
+        we first get spawned all the devices, (though not all at once), so devices will have in their
+        entitiesConnectedTo list, a list of devices this entity is also connected to (via wires).
 
-        but we need to intersect this list with the list of every other devicecomponent entity
+        some could be off screen (pointing to nothing). or the entity may not be spawned yet.
 
-        entity1 ----(wire 1)-> entity2
-        entity2 ----(wire 1)-> entity1
+        when this happens we can add a wire in m_circuits that has these 2 entity id's..no we can't,
+        because we don't know which is a network id and which is a regular entity id.
+
+        we could put these in a queue of wire connections(or a temporary data structure), that could work.
+        then as they get destroyed(we already know when they get destroyed via server commands telling us network id).
+
+        data structure could flag id's we haven't resolved to local entities (because there's no local equivalent of that entity)
+
+        the ones that *can* be resolved to local entities, we can put into the connected wires immediately.
+
+        as entities continue to get spawned, we see if anything spawned from our queue, which would complete the wire.
+        things that do have 2 endpoints, we add to the right circuit(we know from devicecomponent), adding a new
+        wire connection between those 2 entity id's (that we resolve locally).
 
          */
     }
@@ -190,11 +202,11 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
      * note that the input parameters are *client* entity id's.
      * what we are sending will actually be network enttiy id's
      */
-    fun requestConnectDevices(dragSourceEntity: Int, dropEntity: Int) {
-        m_clientNetworkSystem.sendWireConnect(dragSourceEntity, dropEntity)
+    fun requestConnectDevices(firstEntityId: Int, secondEntityId: Int) {
+        m_clientNetworkSystem.sendWireConnect(firstEntityId, secondEntityId)
     }
 
-    fun connectDevices(firstEntityId: Int, secondEntityId: Int, wireId: Int, circuitId: Int) {
+    fun connectDevices(firstEntityId: Int, secondEntityId: Int, circuitId: Int) {
         var circuit = m_circuits.firstOrNull { circuit -> circuit.circuitId == circuitId }
 
         // if we don't have this circuit, it's the first connection for this circuit, so create
@@ -204,21 +216,33 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
             m_circuits.add(circuit)
         }
 
-        val newWire = PowerWireConnection(firstEntityId, secondEntityId, wireId)
+        val firstDeviceComp = powerDeviceMapper.get(firstEntityId)!!
+        val secondDeviceComp = powerDeviceMapper.get(secondEntityId)!!
+
+        //update these devices to be on this component
+        firstDeviceComp.circuitId = circuitId
+        secondDeviceComp.circuitId = circuitId
+
+        val newWire = PowerWireConnection(firstEntityId, secondEntityId)
 
         //todo handle circuit merging!
 
         circuit.wireConnections.add(newWire)
     }
 
-    fun disconnectWire(circuitId: Int, wireId: Int) {
-        m_circuits.first { circuit ->
-            circuit.circuitId == circuitId
-
+    fun disconnectWire(entity1: Int, entity2: Int) {
+        m_circuits.forEach { circuit ->
             circuit.wireConnections.removeAll { wire ->
-                wire.wireId == wireId
+                wire.firstEntity == entity1 && wire.secondEntity == entity2 ||
+                        wire.firstEntity == entity2 && wire.secondEntity == entity1
             }
         }
+
+        val entity1DeviceComp = powerDeviceMapper.get(entity1)
+        val entity2DeviceComp = powerDeviceMapper.get(entity2)
+        //entities connected is a list of entity id's it's connected to.
+        entity1DeviceComp.entitiesConnectedTo.removeAll { otherEntityId -> otherEntityId == entity2 }
+        entity2DeviceComp.entitiesConnectedTo.removeAll { otherEntityId -> otherEntityId == entity1 }
 
         m_powerCircuitHelper.cleanupDeadCircuits(m_circuits)
     }

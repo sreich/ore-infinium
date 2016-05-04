@@ -44,6 +44,12 @@ class PowerDeviceComponent : Component() {
      * this is for serializing over the network, for the client.
      *
      * the entity id's are network (server) ones.
+     *
+     * It is used for initial spawning of device components over
+     * the wire. So, the client will first traverse this list to understand
+     * connections to other entities...there will always be network entity
+     * id's in here, and the client will use some of this info to build
+     * wire connections
      */
     var entitiesConnectedTo = mutableListOf<Int>()
 

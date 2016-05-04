@@ -60,6 +60,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var healthMapper: ComponentMapper<HealthComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
+    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
 
     private lateinit var m_serverBlockDiggingSystem: ServerBlockDiggingSystem
     private lateinit var m_serverNetworkEntitySystem: ServerNetworkEntitySystem
@@ -224,11 +225,13 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                 continue
 
                 /*
-                fixme hack ignore all players. we dont' spawn them, but we're gonna
+                fixme hack to ignore all players. we dont' spawn them, but we're gonna
                 need to rethink this. right now it is split between this generic spawning,
                 and player spawning, which is a specific packet type sent out.
+
                 we could make clients smart enough to know if that is their player..maybe
                 also the bigger issue is we have no idea how to render them.
+
                 i'm a bit confused in general as to how textures of entities will get rendered,
                 or rather, which texture they know to use. once i make animations, this will
                 make it that much harder. i'm not sure what a good model is to follow after,
@@ -401,6 +404,11 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             val connect = Network.PowerWireConnectFromServer()
             connect.firstEntityId = wireConnect.firstEntityId
             connect.secondEntityId = wireConnect.secondEntityId
+
+            //client needs to get their circuitid updated on the devicecomponent. normally
+            //it would have this, for spawns and stuff. but since this is a connect event, they wouldn't.
+            //we only grab the first entity. they're both guaranteed to be on the same circuit
+            connect.circuitId = powerDeviceMapper.get(wireConnect.firstEntityId).circuitId
 
             //todo only send to those interested in it
             m_serverKryo.sendToAllTCP(connect)

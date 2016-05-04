@@ -147,7 +147,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         //like has enough materials, or something like that.
         }
 
-
         val firstDeviceComp = powerDeviceMapper.get(firstEntity)
         val secondDeviceComp = powerDeviceMapper.get(secondEntity)
 
@@ -192,6 +191,9 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
     /**
      * @returns false if the device connections could not be merged (possible the devices aren't
      * connected to any circuits)
+     *
+     * On success, it will merge the one circuit into whichever is larger and add a wire connection
+     * between those entities.
      */
     fun mergeCircuits(firstEntity: Int,
                       secondEntity: Int,
@@ -201,6 +203,7 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
 
         val circuitToMergeTo: PowerCircuit
         val circuitToMergeFrom: PowerCircuit
+
         //merge to whichever is larger, to save a bit of computations, especially for huge circuits
         if (firstOwningCircuit.wireConnections.size > secondOwningCircuit.wireConnections.size) {
             circuitToMergeTo = firstOwningCircuit
@@ -213,7 +216,6 @@ class ServerPowerCircuitSystem(private val m_world: OreWorld) : BaseSystem() {
         //figure out which device is getting merged (which one is on which circuit)
         val firstDeviceComp = powerDeviceMapper.get(firstEntity)
         val secondDeviceComp = powerDeviceMapper.get(secondEntity)
-
 
         circuitToMergeTo.wireConnections.addAll(circuitToMergeFrom.wireConnections)
 

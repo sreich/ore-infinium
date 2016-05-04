@@ -227,7 +227,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun receivePowerWireDisconnect(powerDisconnect: Network.PowerWireDisconnectFromServer) {
-        m_clientPowerCircuitSystem.disconnectWire(powerDisconnect.circuitId, powerDisconnect.wireId)
+        m_clientPowerCircuitSystem.disconnectWire(powerDisconnect.firstEntityId, powerDisconnect.secondEntityId)
     }
 
     private fun receivePowerWireConnect(powerConnect: Network.PowerWireConnectFromServer) {
@@ -236,11 +236,14 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         //when we perform actions, we'll need to convert back again to tell the server,
         //of course
         powerConnect.apply {
-            val firstEntity = m_entityForNetworkId[firstEntityId]!!
-            val secondEntity = m_entityForNetworkId[secondEntityId]!!
+            val firstEntity = m_entityForNetworkId[firstEntityId]
+            val secondEntity = m_entityForNetworkId[secondEntityId]
 
-            m_clientPowerCircuitSystem.connectDevices(firstEntity, secondEntity,
-                                                      powerConnect.wireId, powerConnect.circuitId)
+            if(firstEntity == null || secondEntity == null) {
+                assert(false) { "received a power connect for null entities! we must've failed to dereference, they may not be in our viewport/spawned at all"}
+            }
+
+            m_clientPowerCircuitSystem.connectDevices(firstEntity!!, secondEntity!!, powerConnect.circuitId)
         }
     }
 
