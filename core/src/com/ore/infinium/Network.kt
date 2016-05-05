@@ -63,10 +63,6 @@ object Network {
         kryo.register(EntityKilledFromServer::class.java)
         kryo.register(EntityMovedFromServer::class.java)
 
-        kryo.register(PowerWireConnectFromClient::class.java)
-        kryo.register(PowerWireConnectFromServer::class.java)
-        kryo.register(PowerWireDisconnectFromServer::class.java)
-
         kryo.register(PlayerSpawnHotbarInventoryItemFromServer::class.java)
 
         //modular components. some components are too fucking huge and stupid to serialize automatically (like Sprite),
@@ -226,54 +222,12 @@ object Network {
     }
 
     /**
-     * Request to connect these 2 devices together
-     * These are network entity id's(non local).
-     *
-     * Client will receive a generic response packet,
-     * which will say a new wire connection was formed
-     */
-    class PowerWireConnectFromClient {
-        var firstEntityId: Int = 0
-        var secondEntityId: Int = 0
-    }
-
-    class PowerWireDisconnectFromClient {
-        var circuitId: Int = 0
-        var firstEntityId: Int = 0
-        var secondEntityId: Int = 0
-    }
-
-    /**
-     * Update, to the client to notify these 2 devices are
-     * now connected
-     * These are network entity id's(non local)
-     */
-    class PowerWireConnectFromServer {
-        var firstEntityId: Int = 0
-        var secondEntityId: Int = 0
-        var circuitId: Int = 0
-    }
-
-    /**
      * sent when the stats of a power circuit gets changed,
      * or when it needs an initial update
-     * TODO: but how do we know the client wants this info/has this
-     * circuit? maybe we want it to be pulled instead. client gets the other
-     * events, client knows which circuits he'll need info for, so he can maybe
-     * handle sending a message to pull this info
      */
-    class PowerCircuitStatsFromServer {
-        var circuitId: Int = -1
+    class PowerStatsFromServer {
         var supply: Int = -1
         var demand: Int = -1
-        //TODO send number of devices on this circuit? and # of wires??
-    }
-
-    /**
-     * @param wireId wire to disconnect
-     * @param circuitId wire to disconnect resides on this circuit
-     */
-    class PowerWireDisconnectFromServer(val firstEntityId: Int = -1, val secondEntityId: Int = -1) {
     }
 
     /**

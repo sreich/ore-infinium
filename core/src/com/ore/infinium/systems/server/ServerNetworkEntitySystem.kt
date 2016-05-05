@@ -9,7 +9,7 @@ import com.badlogic.gdx.utils.Array
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.SpatialSystem
-import com.ore.infinium.systems.server.ServerNetworkSystem
+import com.ore.infinium.util.indices
 import java.util.*
 
 /**
@@ -84,12 +84,12 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
         }
     }
 
-    private inner class PlayerEntitiesInViewport(playerEntityId: Int) {
-        /**
-         * entity id of the player whose viewport/list of spawned
-         * entities it knows about
-         */
-        internal var playerEntityId = -1
+    private inner class PlayerEntitiesInViewport(
+            /**
+             * entity id of the player whose viewport/list of spawned
+             * entities it knows about
+             */
+            var playerEntityId: Int = -1) {
 
         /**
          * we must know which entities the client has spawned, so we don't end up
@@ -165,7 +165,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             //hack copy to intarray only because the quadtree uses an intbag
             val entitiesInRegion = ArrayList<Int>()
 
-            for (i in (0..fill.size() - 1)) {
+            for (i in fill.indices) {
                 entitiesInRegion.add(fill.get(i))
             }
 

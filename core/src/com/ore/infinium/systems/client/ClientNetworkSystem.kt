@@ -76,8 +76,6 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var m_tagManager: TagManager
     private lateinit var m_tileRenderer: TileRenderSystem
 
-    private lateinit var m_clientPowerCircuitSystem: ClientPowerCircuitSystem
-
     private val m_netQueue = ConcurrentLinkedQueue<Any>()
 
     lateinit var m_clientKryo: Client
@@ -192,8 +190,9 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun processNetworkQueue() {
-        var receivedObject: Any? = m_netQueue.poll()
-        while (receivedObject != null) {
+        while (m_netQueue.peek() != null) {
+            val receivedObject = m_netQueue.poll()
+
             when (receivedObject) {
                 is Network.DisconnectReason -> receiveDisconnectReason(receivedObject)
 
@@ -214,9 +213,6 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
                 is Network.ChatMessageFromServer -> receiveChatMessage(receivedObject)
 
-                is Network.PowerWireConnectFromServer -> receivePowerWireConnect(receivedObject)
-                is Network.PowerWireDisconnectFromServer -> receivePowerWireDisconnect(receivedObject)
-
                 is FrameworkMessage.Ping -> {
                 }
 
@@ -224,27 +220,6 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
                     assert(false) { "unhandled network receiving class in network client ${receivedObject.toString()}" }
                 }
             }
-        }
-    }
-
-    private fun receivePowerWireDisconnect(powerDisconnect: Network.PowerWireDisconnectFromServer) {
-        m_clientPowerCircuitSystem.disconnectWire(powerDisconnect.firstEntityId, powerDisconnect.secondEntityId)
-    }
-
-    private fun receivePowerWireConnect(powerConnect: Network.PowerWireConnectFromServer) {
-        //resolve the entity id's back to local entity id's,
-        // so we know which of *our* entities is connected and can show that.
-        //when we perform actions, we'll need to convert back again to tell the server,
-        //of course
-        powerConnect.apply {
-            val firstEntity = m_entityForNetworkId[firstEntityId]
-            val secondEntity = m_entityForNetworkId[secondEntityId]
-
-            if(firstEntity == null || secondEntity == null) {
-                assert(false) { "received a power connect for null entities! we must've failed to dereference, they may not be in our viewport/spawned at all"}
-            }
-
-            m_clientPowerCircuitSystem.connectDevices(firstEntity!!, secondEntity!!, powerConnect.circuitId)
         }
     }
 
@@ -455,7 +430,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             }
         } else {
             //FIXME cover other players joining case
-            throw RuntimeException("fixme, other players joining not yet implemented")
+     //       throw RuntimeException("fixme, other players joining not yet implemented")
         }
     }
 
@@ -548,14 +523,6 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         m_clientKryo.sendTCP(itemPlace)
     }
 
-    fun sendWireConnect(entity1: Int, entity2: Int) {
-        val wireConnect = Network.PowerWireConnectFromClient()
-        wireConnect.firstEntityId = m_networkIdForEntityId[entity1]!!
-        wireConnect.secondEntityId = m_networkIdForEntityId[entity2]!!
-
-        m_clientKryo.sendTCP(wireConnect)
-    }
-
     internal inner class ClientListener : Listener() {
 
         override fun connected(connection: Connection?) {
@@ -604,14 +571,5 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
             assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
         }
-    }
-
-    fun sendWireDisconnect(circuitId: Int, entity1: Int,entity2: Int) {
-        val wireDisconnect = Network.PowerWireDisconnectFromClient()
-        wireDisconnect.circuitId = circuitId
-        wireDisconnect.firstEntityId = m_networkIdForEntityId[entity1]!!
-        wireDisconnect.secondEntityId = m_networkIdForEntityId[entity2]!!
-
-        m_clientKryo.sendTCP(wireDisconnect)
     }
 }

@@ -7,7 +7,6 @@ import com.artemis.systems.EntityProcessingSystem
 import com.artemis.utils.Bag
 import com.artemis.utils.reflect.ClassReflection
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -128,7 +127,6 @@ class OreWorld
                                            .with(PlayerManager())
                                            .with(MovementSystem(this))
                                            .with(ClientNetworkSystem(this))
-                                           .with(ServerPowerCircuitSystem(this))
                                            .with(InputSystem(m_camera, this))
                                            .with(EntityOverlaySystem(this))
                                            .with(PlayerSystem(this))
@@ -154,7 +152,7 @@ class OreWorld
                                            .with(SpatialSystem(this))
                                            .with(PlayerManager())
                                            .with(MovementSystem(this))
-                                           .with(ServerPowerCircuitSystem(this))
+                                           .with(ServerPowerSystem(this))
                                            .with(GameTickSystem(this))
                                            .with(DroppedItemPickupSystem(this))
                                            .with(GrassBlockSystem(this))
@@ -1256,37 +1254,10 @@ class OreWorld
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
     //and they can process that in there. or maybe this should be in the client..after all, a server has no key events
     fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        if (button == Input.Buttons.LEFT) {
-            val powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem::class.java)
-            if (powerOverlaySystem.overlayVisible) {
-                powerOverlaySystem.leftMouseClicked()
-            }
-
-            return true
-        } else {
-            //right
-            val powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem::class.java)
-            if (powerOverlaySystem.overlayVisible) {
-                powerOverlaySystem.rightMouseClicked()
-            }
-
-        }
-
         return false
     }
 
     fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        if (button != Input.Buttons.LEFT) {
-            return false
-        }
-
-        val powerOverlaySystem = m_artemisWorld.getSystem(PowerOverlayRenderSystem::class.java)
-        if (powerOverlaySystem.overlayVisible) {
-            powerOverlaySystem.leftMouseReleased()
-            return true
-        } else {
-        }
-
         return false
     }
 

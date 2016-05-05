@@ -1,7 +1,6 @@
 package com.ore.infinium.components
 
 import com.artemis.Component
-import com.ore.infinium.PowerCircuitHelper
 
 /**
  * ***************************************************************************
@@ -27,31 +26,8 @@ import com.ore.infinium.PowerCircuitHelper
  * or a generator.
  */
 class PowerDeviceComponent : Component() {
-    /**
-     * circuit id that this device resides on
-     * (this id is what the server uses to identify it)
-     * a device can only be a part of 1 circuit. but multiple
-     * wires
-     */
-    var circuitId = PowerCircuitHelper.INVALID_CIRCUITID
-
-    /**
-     * entity id's that this entity is connected to.
-     * there can be many, because 1 device might have
-     * several connections. but still only be on the same
-     * circuit
-     *
-     * this is for serializing over the network, for the client.
-     *
-     * the entity id's are network (server) ones.
-     *
-     * It is used for initial spawning of device components over
-     * the wire. So, the client will first traverse this list to understand
-     * connections to other entities...there will always be network entity
-     * id's in here, and the client will use some of this info to build
-     * wire connections
-     */
-    var entitiesConnectedTo = mutableListOf<Int>()
+    //todo..or do we want an enum that has a couple states (on/off, disabled/broken?)
+    var running = false
 
     /**
      * copy a component (similar to copy constructor)
@@ -66,6 +42,6 @@ class PowerDeviceComponent : Component() {
     override fun toString(): String {
         val c = javaClass.simpleName
         return """
-        $c.circuitId: $circuitId"""
+        $c.running: $running"""
     }
 }

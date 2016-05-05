@@ -6,7 +6,6 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -15,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
 import com.ore.infinium.util.indices
 
@@ -85,7 +83,6 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
     private lateinit var m_entityOverlaySystem: EntityOverlaySystem
-    private lateinit var m_clientPowerCircuitSystem: ClientPowerCircuitSystem
     private lateinit var m_tagManager: TagManager
 
     //    public Sprite outputNode = new Sprite();
@@ -126,12 +123,12 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         m_totalStatsTable.top().left().pad(0f, 6f, 0f, 0f)
         m_totalStatsTable.setBackground("default-pane")
 
-        val headerLabel = Label("Power Circuit Stats", m_skin)
+        val headerLabel = Label("Electricity Resources", m_skin)
         m_totalStatsTable.add(headerLabel).left()
 
         m_totalStatsTable.row()
 
-        val demandLabel = Label("Circuit Demand:", m_skin)
+        val demandLabel = Label("Energy Demand:", m_skin)
         m_totalStatsTable.add(demandLabel).left()
 
         m_circuitDemandLabel = Label("-1", m_skin)
@@ -139,7 +136,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
         m_totalStatsTable.row()
 
-        val supplyLabel = Label("Circuit Supply:", m_skin)
+        val supplyLabel = Label("Energy Supply:", m_skin)
         m_totalStatsTable.add(supplyLabel).left()
 
         m_circuitSupplyLabel = Label("-1", m_skin)
@@ -188,66 +185,6 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         return null
     }
 
-    fun leftMouseClicked() {
-        m_leftClicked = true
-
-        //fixme prolly make a threshold for dragging
-        m_dragInProgress = true
-
-        //find the entity we're dragging on
-        val entity = entityAtPosition(m_world.mousePositionWorldCoords()) ?: return
-
-        var item = itemMapper.getNullable(entity)?.let { item ->
-            if (item.state == ItemComponent.State.DroppedInWorld) {
-                //do not allow drag starts from dropped items
-                return
-            }
-        }
-
-        m_dragSourceEntity = entity
-    }
-
-    fun rightMouseClicked() {
-        //check if we can delete a wire, and try to do so
-        val result = m_clientPowerCircuitSystem.tryDisconnectWireAtPosition(m_world.mousePositionWorldCoords())
-    }
-
-    fun leftMouseReleased() {
-        m_leftClicked = false
-
-        if (m_dragInProgress) {
-            //check if drag can be connected
-
-            if (m_dragSourceEntity != null) {
-                val mouse = m_world.mousePositionWorldCoords()
-
-                val dropEntity = entityAtPosition(Vector2(mouse.x, mouse.y))
-                //if the drop is invalid/empty, or they attempted to drop on the same spot they dragged from, ignore
-                if (dropEntity == null || dropEntity == m_dragSourceEntity) {
-                    m_dragSourceEntity = null
-                    m_dragInProgress = false
-                    return
-                }
-
-                val sourcePowerDeviceComponent = powerDeviceMapper.get(m_dragSourceEntity!!)
-                val dropPowerDeviceComponent = powerDeviceMapper.get(dropEntity)
-
-                //              if (!sourcePowerDeviceComponent.outputEntities.contains(dropEntity, true) &&
-                //                     !dropPowerDeviceComponent.outputEntities.contains(m_dragSourceEntity, true)) {
-
-                //                    sourcePowerDeviceComponent.outputEntities.add(dropEntity);
-
-                m_clientPowerCircuitSystem.requestConnectDevices(m_dragSourceEntity!!, dropEntity)
-
-                //               }
-
-                m_dragSourceEntity = null
-            }
-
-            m_dragInProgress = false
-        }
-    }
-
     /**
      * Process the system.
      */
@@ -260,7 +197,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         m_batch.projectionMatrix = m_world.m_camera.combined
         m_batch.begin()
 
-        renderEntities(this.getWorld().delta)
+       // renderEntities(this.getWorld().delta)
 
         m_batch.end()
 
@@ -292,6 +229,8 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
     private fun updateCircuitStats() {
         val mouse = m_world.mousePositionWorldCoords()
 
+        /*
+        //todo global stats
         val dropEntity = entityAtPosition(Vector2(mouse.x, mouse.y))
         if (dropEntity != null) {
             val powerDeviceComponent = powerDeviceMapper.getNullable(dropEntity)
@@ -314,81 +253,7 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
                 m_circuitSupplyLabel.setText(currentCircuitSupply.toString())
             }
         }
-    }
-
-    private fun renderEntities(delta: Float) {
-        //todo need to exclude blocks?
-
-        val mouse = m_world.mousePositionWorldCoords()
-
-        val tooltipSprite = spriteMapper.get(m_powerCircuitTooltipEntity)
-        //        tooltipSprite.sprite.setPosition(mouse.x, mouse.y);
-
-        if (m_dragInProgress && m_dragSourceEntity != null) {
-            val dragSpriteComponent = spriteMapper.get(m_dragSourceEntity!!)
-
-            m_batch.setColor(1f, 1f, 0f, 0.5f)
-
-            //in the middle of a drag, draw powernode from source, to mouse position
-            renderWire(Vector2(mouse.x, mouse.y),
-                       Vector2(dragSpriteComponent.sprite.x + dragSpriteComponent.sprite.width * powerNodeOffsetRatioX,
-                               dragSpriteComponent.sprite.y + dragSpriteComponent.sprite.height * powerNodeOffsetRatioY))
-            m_batch.setColor(1f, 1f, 1f, 1f)
-        }
-
-        var firstEntitySpriteComponent: SpriteComponent
-        var secondEntitySpriteComponent: SpriteComponent
-
-        for (circuit in m_clientPowerCircuitSystem.m_circuits) {
-            //for each device, draw a power node, a "hub" of wireConnections of sorts.
-            for (generator in circuit.generators) {
-                val deviceSprite = spriteMapper.get(generator)
-                renderPowerNode(deviceSprite)
-            }
-
-            //do the same for devices. devices(consumers)
-            for (consumer in circuit.consumers) {
-                val deviceSprite = spriteMapper.get(consumer)
-                renderPowerNode(deviceSprite)
-            }
-
-            //draw wires of each connection, in every circuit. Wires only have a start and end point.
-            for (powerWireConnection in circuit.wireConnections) {
-
-                firstEntitySpriteComponent = spriteMapper.get(powerWireConnection.firstEntity)
-                secondEntitySpriteComponent = spriteMapper.get(powerWireConnection.secondEntity)
-
-                //go over each output of this entity, and draw a connection from this entity to the connected dest
-                renderWire(
-                        Vector2(firstEntitySpriteComponent.sprite.x + firstEntitySpriteComponent.sprite.width * powerNodeOffsetRatioX,
-                                firstEntitySpriteComponent.sprite.y + firstEntitySpriteComponent.sprite.height * powerNodeOffsetRatioY),
-                        Vector2(secondEntitySpriteComponent.sprite.x + secondEntitySpriteComponent.sprite.width * powerNodeOffsetRatioX,
-                                secondEntitySpriteComponent.sprite.y + secondEntitySpriteComponent.sprite.height * powerNodeOffsetRatioY))
-            }
-        }
-
-    }
-
-    private fun renderWire(source: Vector2, dest: Vector2) {
-        val diff = Vector2(source.x - dest.x, source.y - dest.y)
-
-        val rads = MathUtils.atan2(diff.y, diff.x)
-        val degrees = rads * MathUtils.radiansToDegrees - 90
-
-        val wireLength = Vector2.dst(source.x, source.y, dest.x, dest.y)
-
-        m_batch.draw(m_world.m_atlas.findRegion("power-node-line"), dest.x, dest.y, 0f, 0f,
-                     ClientPowerCircuitSystem.WIRE_THICKNESS, wireLength, 1.0f, 1.0f, degrees)
-    }
-
-    private fun renderPowerNode(spriteComponent: SpriteComponent) {
-        val powerNodeWidth = 1f
-        val powerNodeHeight = 1f
-
-        m_batch.draw(m_world.m_atlas.findRegion("power-node-circle"),
-                     spriteComponent.sprite.x + spriteComponent.sprite.width * powerNodeOffsetRatioX - powerNodeWidth * 0.5f,
-                     spriteComponent.sprite.y + spriteComponent.sprite.height * powerNodeOffsetRatioY - powerNodeHeight * 0.5f,
-                     powerNodeWidth, powerNodeHeight)
+        */
     }
 
     /**
@@ -410,11 +275,4 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
         m_container.isVisible = overlayVisible
     }
-
-    companion object {
-
-        private val powerNodeOffsetRatioX = 0.1f
-        private val powerNodeOffsetRatioY = 0.1f
-    }
-
 }

@@ -64,7 +64,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
     private lateinit var m_serverBlockDiggingSystem: ServerBlockDiggingSystem
     private lateinit var m_serverNetworkEntitySystem: ServerNetworkEntitySystem
-    private lateinit var m_serverPowerCircuitSystem: ServerPowerCircuitSystem
+    private lateinit var m_serverPowerSystem: ServerPowerSystem
 
     lateinit var m_serverKryo: Server
 
@@ -171,6 +171,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         val playerComp = playerMapper.get(entityId)
         val spriteComp = spriteMapper.get(entityId)
 
+        OreWorld.log("server", "sending spawn player command")
         val spawn = Network.PlayerSpawnedFromServer()
         spawn.connectionId = playerComp.connectionPlayerId
         spawn.playerName = playerComp.playerName
@@ -351,8 +352,9 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
      * right now it just goes "ok client, i'll do whatever you say" for most things
      */
     private fun processNetworkQueue() {
-        val job: NetworkJob? = m_netQueue.poll()
-        while (job != null) {
+        while (m_netQueue.peek() != null) {
+            val job: NetworkJob = m_netQueue.poll()
+
             val receivedObject = job.receivedObject
 
             val debugPacketTypeName = receivedObject.javaClass.toString()
@@ -380,9 +382,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                 is Network.EntityAttackFromClient -> receiveEntityAttack(job, receivedObject)
                 is Network.ItemPlaceFromClient -> receiveItemPlace(job, receivedObject)
 
-                is Network.PowerWireConnectFromClient -> receivePowerWireConnect(job, receivedObject)
-                is Network.PowerWireDisconnectFromClient -> receivePowerWireDisconnect(job, receivedObject)
-
                 is FrameworkMessage.Ping -> if (receivedObject.isReply) {
 
                 }
@@ -393,43 +392,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         }
 
         OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
-    }
-
-    private fun receivePowerWireConnect(job: NetworkJob,
-                                        wireConnect: Network.PowerWireConnectFromClient) {
-        val result = m_serverPowerCircuitSystem.connectDevices(wireConnect.firstEntityId, wireConnect.secondEntityId,
-                                                               job.connection.playerEntityId)
-
-        if (result) {
-            val connect = Network.PowerWireConnectFromServer()
-            connect.firstEntityId = wireConnect.firstEntityId
-            connect.secondEntityId = wireConnect.secondEntityId
-
-            //client needs to get their circuitid updated on the devicecomponent. normally
-            //it would have this, for spawns and stuff. but since this is a connect event, they wouldn't.
-            //we only grab the first entity. they're both guaranteed to be on the same circuit
-            connect.circuitId = powerDeviceMapper.get(wireConnect.firstEntityId).circuitId
-
-            //todo only send to those interested in it
-            m_serverKryo.sendToAllTCP(connect)
-        }
-    }
-
-    private fun receivePowerWireDisconnect(job: NetworkJob,
-                                           wireDisconnect: Network.PowerWireDisconnectFromClient) {
-        val result = m_serverPowerCircuitSystem.disconnectWire(wireDisconnect.firstEntityId,
-                                                               wireDisconnect.secondEntityId, wireDisconnect.circuitId,
-                                                               job.connection.playerEntityId)
-
-        if (result) {
-            val connect = Network.PowerWireDisconnectFromServer(firstEntityId = wireDisconnect.firstEntityId,
-                                                                secondEntityId = wireDisconnect.secondEntityId)
-
-            //todo only send to those interested in it
-            m_serverKryo.sendToAllTCP(connect)
-        } else {
-            assert(false) { "received disconnect for wire but couldn't find wire!" }
-        }
     }
 
 
@@ -495,7 +457,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
         // Store the player on the connection.
         job.connection.playerEntityId = m_server.createPlayer(name, job.connection.id)
-        job.connection.playerName = name
+        job.connection.playerName= name
 
         //notify to everyone it connected
         for (connectionListener in m_connectionListeners) {
@@ -751,13 +713,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, move)
 
-    }
-
-    fun sendPowerWireDisconnect(firstEntityId: Int, secondEntityId: Int) {
-        val wireDisconnect = Network.PowerWireDisconnectFromServer(firstEntityId,secondEntityId)
-
-        //fixme send only to players that can see these!
-        m_serverKryo.sendToAllTCP(wireDisconnect)
     }
 
     internal class PlayerConnection : Connection() {
