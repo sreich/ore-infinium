@@ -48,6 +48,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
     }
+
 }
 
 plugins {
@@ -66,8 +67,16 @@ task createWrapper(type: Wrapper) {
 }
 
 allprojects {
+
     apply plugin: "eclipse"
     apply plugin: "idea"
+
+    configurations.all {
+        resolutionStrategy {
+            // failOnVersionConflict()
+        }
+        resolutionStrategy.force "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+    }
 
     repositories {
         mavenLocal()
@@ -85,6 +94,7 @@ allprojects {
 
 project(":desktop") {
     apply plugin: "java"
+
 
     dependencies {
 
@@ -136,10 +146,12 @@ project(":core") {
         provided "net.onedaybeard.artemis:artemis-odb-processor:$artemisVersion"
 
         // Artemis-odb bonus functionality (systems, events, components).
+
         compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
         compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
         compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
         compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
+
         //compile "net.mostlyoriginal.artemis-odb:contrib-plugin-profiler:$artemisContribVersion"
 
         // jcommander for command line parsing
