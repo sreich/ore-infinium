@@ -19,7 +19,6 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.getNullable
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -45,7 +44,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
                           dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {
 
     private val container: Table
-    private val m_slots: ArrayList<SlotElement> = ArrayList()
+    private val m_slots = mutableListOf<SlotElement>()
 
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>

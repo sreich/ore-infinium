@@ -4,6 +4,7 @@ import com.artemis.Component
 import com.artemis.ComponentMapper
 import com.artemis.Entity
 import com.artemis.managers.TagManager
+import com.artemis.utils.Bag
 import com.artemis.utils.IntBag
 
 /******************************************************************************
@@ -55,6 +56,7 @@ inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
 //}
 
 val IntBag.indices: IntRange get() = 0..size() - 1
+val <T : Any> Bag<T>.indices: IntRange get() = 0..size() - 1
 
 /*
 inline fun <T> Array<out T>.forEachIndexed(action: (Int, T) -> Unit): Unit {

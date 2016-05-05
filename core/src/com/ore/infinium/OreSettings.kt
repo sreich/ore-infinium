@@ -1,7 +1,6 @@
 package com.ore.infinium
 
 import com.beust.jcommander.Parameter
-import java.util.*
 
 /******************************************************************************
  * Copyright (C) 2015 by Shaun Reich @gmail.com>                *
@@ -31,9 +30,6 @@ import java.util.*
  * and will need to be accessed later on.
  */
 object OreSettings {
-
-    @Parameter
-    private val parameters = ArrayList<String>()
 
     @Parameter(names = arrayOf("--help"), help = true)
     @JvmField

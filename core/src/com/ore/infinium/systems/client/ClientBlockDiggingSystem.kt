@@ -8,10 +8,8 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreClient
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.GameTickSystem
 import com.ore.infinium.util.getNullable
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -77,7 +75,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         var ticksTook: Int = 0
     }
 
-    private val m_blocksToDig = ArrayList<BlockToDig>()
+    private val m_blocksToDig = mutableListOf<BlockToDig>()
 
     override fun dispose() {
     }

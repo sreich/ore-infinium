@@ -5,12 +5,10 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.artemis.utils.IntBag
-import com.badlogic.gdx.utils.Array
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.SpatialSystem
 import com.ore.infinium.util.indices
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -57,7 +55,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
     private lateinit var m_serverNetworkSystem: ServerNetworkSystem
     private lateinit var m_spatialSystem: SpatialSystem
 
-    private val m_playerEntities = Array<PlayerEntitiesInViewport>()
+    private val m_playerEntities = mutableListOf<PlayerEntitiesInViewport>()
 
     //todo store a list for each player, of entities within the viewport
     //each tick we will check if entities should be added or removed
@@ -101,7 +99,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
          * will be removed. this does not mean they will actually be removed from the world,
          * since this is just a "which entities does this client have in viewport"
          */
-        internal var knownEntities = ArrayList<Int>()
+        internal var knownEntities = mutableListOf<Int>()
     }
 
     override fun initialize() {
@@ -135,7 +133,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
         //hack, dunno if this is  even needed..it's more polling based than event based, for player viewport spawns
         /*
         for (playerEntity in m_playerEntities) {
-            for (i in 0..playerEntity.knownEntities.size - 1) {
+            for (i in playerEntity.knownEntities.indices) {
                 val ent = playerEntity.knownEntities.get(i)
 
                 if (ent == entityId) {
@@ -163,12 +161,11 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                                        viewport.height.toFloat())
 
             //hack copy to intarray only because the quadtree uses an intbag
-            val entitiesInRegion = ArrayList<Int>()
+            val entitiesInRegion = mutableListOf<Int>()
 
             for (i in fill.indices) {
                 entitiesInRegion.add(fill.get(i))
             }
-
 
             //entity doesn't exist in known entities, but does in actual. send spawn
             val entitiesToSpawn = entitiesInRegion.filter { entityInRegion ->
@@ -187,34 +184,6 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             //update  our status
             playerEntity.knownEntities.addAll(entitiesToSpawn)
             playerEntity.knownEntities.removeAll(entitiesToDestroy)
-
-            ////////////////// debug testing, to ensure validity
-            /*
-            val hashSet = HashSet<Int>()
-            for (i in 0..entitiesToSpawn.size - 1) {
-                hashSet.add(entitiesToSpawn[i])
-            }
-            assert(entitiesToSpawn.size == hashSet.size) { "ENTITIES TO SPAWN HAD DUPES" }
-
-            hashSet.clear()
-            for (i in 0..entitiesToDestroy.size - 1) {
-                hashSet.add(entitiesToDestroy[i])
-            }
-            assert(entitiesToDestroy.size == hashSet.size) { "ENTITIES TO destroy HAD DUPES" }
-
-            hashSet.clear()
-
-            for (i in 0..playerEntity.knownEntities.size - 1) {
-                hashSet.add(playerEntity.knownEntities[i])
-            }
-
-            for (i in 0..entitiesToSpawn.size - 1) {
-                if (hashSet.contains(entitiesToSpawn[i])) {
-                } else {
-                    assert(false)
-                }
-            }
-            */
 
             ////////////////////
 

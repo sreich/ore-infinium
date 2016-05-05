@@ -22,14 +22,10 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.client.RenderSystemMarker
-import com.ore.infinium.systems.client.TileRenderSystem
-import com.ore.infinium.systems.client.ClientBlockDiggingSystem
-import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
+import com.ore.infinium.util.indices
 import java.text.DecimalFormat
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -108,12 +104,11 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     private var m_textYRight: Int = 0
     private var m_textYLeft: Int = 0
 
-    private var debugStrings: ArrayList<String>
+    private var debugStrings = mutableListOf("E - power overlay. Q - drop item",
+                                             "1-8 or mouse wheel for inventory selection")
 
     init {
         m_batch = SpriteBatch()
-        debugStrings = ArrayList(
-                Arrays.asList("E - power overlay." + " Q - drop Item", "1-8 or mouse wheel for inventory selection"))
 
         GLProfiler.enable()
 
@@ -370,7 +365,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         var velocityComponent: VelocityComponent?
 
         val components = Array<Component>()
-        for (i in 0..entities.size() - 1) {
+        for (i in entities.indices) {
             val currentEntity = entities.get(i)
 
             val entityBoxed = world.getEntity(currentEntity)

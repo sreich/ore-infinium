@@ -3,7 +3,6 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.ore.infinium.components.ItemComponent
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -36,7 +35,7 @@ class Inventory
     var selectedSlot: Int = 0
     var previousSelectedSlot: Int = 0
 
-    internal var m_listeners = ArrayList<SlotListener>()
+    internal var m_listeners = mutableListOf<SlotListener>()
 
     private val itemMapper: ComponentMapper<ItemComponent>? = null
 

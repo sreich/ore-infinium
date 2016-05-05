@@ -216,7 +216,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         assert(entitiesToSpawn.size > 0) { "server told to spawn 0 entities, this is impossible" }
 
         val spawnMultiple = Network.EntitySpawnMultipleFromServer()
-        spawnMultiple.entitySpawn = ArrayList<Network.EntitySpawnFromServer>()
 
         for (i in entitiesToSpawn.indices) {
             val entityId = entitiesToSpawn[i]

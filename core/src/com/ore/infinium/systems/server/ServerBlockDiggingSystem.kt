@@ -9,9 +9,7 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.GameTickSystem
-import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.getNullable
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -75,7 +73,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
         //she could in theory send 500 block updates..requiring only the time for 1 block dig
     }
 
-    private val m_blocksToDig = ArrayList<BlockToDig>()
+    private val m_blocksToDig = mutableListOf<BlockToDig>()
 
     override fun dispose() {
     }

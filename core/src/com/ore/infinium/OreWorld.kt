@@ -430,7 +430,7 @@ class OreWorld
         val leftSide = MathUtils.floor(entityX - (entityWidth * 0.5f)).coerceIn(0, WORLD_SIZE_X - 10)
         val bottomY = MathUtils.floor(entityY + (entityHeight * 0.5f))
 
-        var solidBlocks = ArrayList<Boolean>()
+        var solidBlocks = mutableListOf<Boolean>()
 
         (leftSide..rightSide).forEach { tileX -> solidBlocks.add(isBlockSolid(tileX, bottomY)) }
 

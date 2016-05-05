@@ -29,9 +29,9 @@ import com.artemis.SystemInvocationStrategy
 import com.artemis.utils.Bag
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.systems.client.RenderSystemMarker
+import com.ore.infinium.util.indices
 
 class GameLoopSystemInvocationStrategy
 /**
@@ -43,8 +43,8 @@ class GameLoopSystemInvocationStrategy
 (msPerTick: Int, private val m_isServer: Boolean) : SystemInvocationStrategy() {
 
     //systems marked as indicating to be run only during the logic section of the loop
-    private val m_renderSystems = Array<SystemAndProfiler>()
-    private val m_logicSystems = Array<SystemAndProfiler>()
+    private val m_renderSystems = mutableListOf<SystemAndProfiler>()
+    private val m_logicSystems = mutableListOf<SystemAndProfiler>()
 
     private inner class SystemAndProfiler(internal var system: BaseSystem/*, internal var profiler: SystemProfiler?*/)
 
@@ -66,7 +66,7 @@ class GameLoopSystemInvocationStrategy
     private fun addSystems(systems: Bag<BaseSystem>) {
         if (!m_systemsSorted) {
             val systemsData = systems.data
-            for (i in 0..systems.size() - 1) {
+            for (i in systems.indices) {
                 val system = systemsData[i] as BaseSystem
                 if (system is RenderSystemMarker) {
                     //m_renderSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
@@ -148,7 +148,7 @@ class GameLoopSystemInvocationStrategy
 
         while (m_accumulator >= m_nsPerTick) {
             /** Process all entity systems inheriting from [RenderSystemMarker]  */
-            for (i in 0..m_logicSystems.size - 1) {
+            for (i in m_logicSystems.indices) {
                 val systemAndProfiler = m_logicSystems.get(i)
                 //TODO interpolate before this
         //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
@@ -178,7 +178,7 @@ class GameLoopSystemInvocationStrategy
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         }
 
-        for (i in 0..m_renderSystems.size - 1) {
+        for (i in m_renderSystems.indices) {
             //TODO interpolate this rendering with the state from the logic run, above
             //State state = currentState * alpha +
             //previousState * ( 1.0 - alpha );

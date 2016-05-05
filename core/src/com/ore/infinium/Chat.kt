@@ -2,7 +2,6 @@ package com.ore.infinium
 
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.forEach
 
 /**
  * ***************************************************************************
@@ -23,8 +22,8 @@ import kotlin.collections.forEach
  * ***************************************************************************
  */
 class Chat {
-    internal var m_chatLines = ArrayList<ChatLine>()
-    internal var m_listeners = ArrayList<ChatListener>(2)
+    internal var m_chatLines = mutableListOf<ChatLine>()
+    internal var m_listeners = mutableListOf<ChatListener>()
 
     enum class ChatSender {
         Player,

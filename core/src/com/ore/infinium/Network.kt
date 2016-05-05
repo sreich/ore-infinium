@@ -240,7 +240,7 @@ object Network {
     }
 
     class EntitySpawnMultipleFromServer {
-        var entitySpawn: java.util.ArrayList<EntitySpawnFromServer>? = null
+        var entitySpawn = mutableListOf<EntitySpawnFromServer>()
     }
 
     /**

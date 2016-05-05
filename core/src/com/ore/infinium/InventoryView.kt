@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.Scaling
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
-import java.util.*
 
 /**
  * ***************************************************************************
@@ -41,11 +40,10 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
     var inventoryVisible: Boolean = false
 
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private val m_slots = ArrayList<SlotElement>()
+    private val m_slots = mutableListOf<SlotElement>()
     private val m_window: Window
 
     init {
-
         //attach to the inventory model
         m_inventory.addListener(this)
 
