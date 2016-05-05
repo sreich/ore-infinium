@@ -97,7 +97,8 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         when (wireAtPosition) {
             null -> return false
             else -> {
-                m_clientNetworkSystem.sendWireDisconnect(owningCircuit!!.circuitId, wireAtPosition.wireId)
+                m_clientNetworkSystem.sendWireDisconnect(owningCircuit!!.circuitId, wireAtPosition.firstEntity,
+                                                         wireAtPosition.secondEntity)
                 return true
             }
         }
@@ -144,6 +145,12 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         return intersects
     }
 
+    /**
+     * List/queue of wires that have not yet seen their second device
+     * added to the world. In other words, it's a wire of <localid, networkid..unspawned>
+     */
+    var m_wiresAwaitingSpawn = mutableListOf<Int>()
+
     override fun inserted(entityId: Int) {
         super.inserted(entityId)
         //todo not sure how to handle this..i can't exactly add them one at a time, because
@@ -172,6 +179,8 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         wire connection between those 2 entity id's (that we resolve locally).
 
          */
+
+
     }
 
     override fun removed(entityId: Int) {
@@ -180,7 +189,7 @@ class ClientPowerCircuitSystem(private val m_world: OreWorld) : IteratingSystem(
         val deviceComp = powerDeviceMapper.getNullable(entityId)
 
         if (deviceComp != null) {
-            val wireIds : MutableList<Int> = deviceComp.wireIdsConnectedIn
+            val wireIds: MutableList<Int> = deviceComp.wireIdsConnectedIn
 
             val circuitEntityIsOn = m_circuits.firstOrNull { circuit ->
                 circuit.circuitId == deviceComp.circuitId

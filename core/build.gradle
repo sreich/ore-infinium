@@ -20,6 +20,7 @@ weave {
     enablePooledWeaving = true
     ideFriendlyPacking = true
     optimizeEntitySystems = true
+    generateLinkMutators = true
     classesDir = sourceSets.main.output.classesDir
 }
 

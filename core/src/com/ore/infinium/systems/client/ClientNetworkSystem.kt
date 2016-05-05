@@ -19,6 +19,7 @@ import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.indices
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -593,7 +594,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
          * @param entities
          */
         override fun removed(entities: IntBag) {
-            for (entity in 0..entities.size() - 1) {
+            for (entity in entities.indices) {
                 val networkId: Int? = null//= m_networkIdForEntityId.remove(entity);
                 if (networkId != null) {
                     //a local only thing, like crosshair etc
@@ -605,10 +606,11 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    fun sendWireDisconnect(circuitId: Int, wireId: Int) {
+    fun sendWireDisconnect(circuitId: Int, entity1: Int,entity2: Int) {
         val wireDisconnect = Network.PowerWireDisconnectFromClient()
         wireDisconnect.circuitId = circuitId
-        wireDisconnect.wireId = wireId
+        wireDisconnect.firstEntityId = m_networkIdForEntityId[entity1]!!
+        wireDisconnect.secondEntityId = m_networkIdForEntityId[entity2]!!
 
         m_clientKryo.sendTCP(wireDisconnect)
     }
