@@ -5,6 +5,7 @@ import com.artemis.managers.PlayerManager
 import com.artemis.managers.TagManager
 import com.artemis.systems.EntityProcessingSystem
 import com.artemis.utils.Bag
+import com.artemis.utils.IntBag
 import com.artemis.utils.reflect.ClassReflection
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
@@ -1237,14 +1238,15 @@ class OreWorld
      * @return the player entity
      */
     fun playerEntityForPlayerConnectionID(playerId: Int): Int {
-        val players = m_artemisWorld.aspectSubscriptionManager.get(
+        val playerEntities = m_artemisWorld.aspectSubscriptionManager.get(
                 Aspect.all(PlayerComponent::class.java)).entities
 
         var playerComponent: PlayerComponent
-        for (iPlayer in players.indices) {
-            playerComponent = playerMapper.get(players[iPlayer])
+        for (iPlayer in playerEntities.indices) {
+            val playerEntityId = playerEntities[iPlayer]
+            playerComponent = playerMapper.get(playerEntityId)
             if (playerComponent.connectionPlayerId == playerId) {
-                return iPlayer
+                return playerEntityId
             }
         }
 
@@ -1275,6 +1277,15 @@ class OreWorld
 
         return bag
     }
+
+    inline fun <reified T : Component> getEntitiesWithComponent(): IntBag? {
+        val aspectSubscriptionManager = m_artemisWorld.aspectSubscriptionManager
+        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(T::class.java))
+        val entities = entitySubscription.entities
+
+        return entities
+    }
+
 
     /**
      * Destroying/killing of entity.
