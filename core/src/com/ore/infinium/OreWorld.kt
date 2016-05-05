@@ -127,6 +127,7 @@ class OreWorld
                                            .with(TagManager())
                                            .with(PlayerManager())
                                            .with(MovementSystem(this))
+                                           .with(SoundSystem(this))
                                            .with(ClientNetworkSystem(this))
                                            .with(InputSystem(m_camera, this))
                                            .with(EntityOverlaySystem(this))
