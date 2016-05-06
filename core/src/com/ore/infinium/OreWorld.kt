@@ -226,7 +226,7 @@ class OreWorld
         val GRAVITY_ACCEL = 0.5f
         val GRAVITY_ACCEL_CLAMP = 0.5f
 
-        val BLOCK_SIZE_PIXELS = 16.0f
+        const val BLOCK_SIZE_PIXELS = 16.0f
 
         val WORLD_SIZE_X = 2400 //2400
         val WORLD_SIZE_Y = 8400 //8400
@@ -244,20 +244,20 @@ class OreWorld
 
         init {
             blockAttributes.put(OreBlock.BlockType.NullBlockType,
-                                BlockAttributes("", BlockAttributes.Collision.False,
+                                BlockAttributes("NULL", BlockAttributes.Collision.False,
                                                 BlockAttributes.BlockCategory.Null,
-                                                0.toShort()))
+                                                0))
             blockAttributes.put(OreBlock.BlockType.DirtBlockType,
                                 BlockAttributes("dirt", BlockAttributes.Collision.True,
-                                                BlockAttributes.BlockCategory.Dirt, 200.toShort()))
+                                                BlockAttributes.BlockCategory.Dirt, 200))
             blockAttributes.put(OreBlock.BlockType.StoneBlockType,
                                 BlockAttributes("stone", BlockAttributes.Collision.True,
-                                                BlockAttributes.BlockCategory.Ore, 300.toShort()))
+                                                BlockAttributes.BlockCategory.Ore, 300))
         }
 
-        val s_itemPlacementOverlay = "itemPlacementOverlay"
-        val s_crosshair = "crosshair"
-        val s_mainPlayer = "mainPlayer"
+        const val s_itemPlacementOverlay = "itemPlacementOverlay"
+        const val s_crosshair = "crosshair"
+        const val s_mainPlayer = "mainPlayer"
 
         fun randomRange(start: Int, end: Int, rand: RandomXS128): Int {
             return start + rand.nextInt(end - start + 1)

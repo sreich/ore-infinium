@@ -78,7 +78,6 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
                 val droppedItemRect = itemSpriteComponent.sprite.rect
                 val playerRect = playerSpriteComponent.sprite.rect
 
-                //todo create timer so he can't instantly pick it up ..and never see it
                 if (playerRect.overlaps(droppedItemRect)) {
                     droppedItemComponent.apply {
                         if (timeOfDropMs != 0L &&

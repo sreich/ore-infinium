@@ -41,9 +41,10 @@ class ItemComponent : Component() {
 
     companion object {
         /**
-         *
+         * ms time necessary between an item was dropped and when it can
+         * be picked up
          */
-        val droppedItemCoolOffMs = 4000L
+        const val droppedItemCoolOffMs = 1000L
     }
 
     /**
