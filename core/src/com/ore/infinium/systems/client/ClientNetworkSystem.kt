@@ -104,6 +104,11 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
      */
     private val m_networkIdForEntityId = HashMap<Int, Int>(500)
 
+    /**
+     * keeps a tally of each packet type received and their frequency
+     */
+    val m_debugPacketFrequencyByType = mutableMapOf<String, Int>()
+
     private val m_listeners = Array<NetworkClientListener>(5)
 
     fun addListener(listener: NetworkClientListener) {
@@ -141,6 +146,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         } else {
             m_clientKryo.addListener(Listener.LagListener(lagMinMs, lagMaxMs, ClientListener()))
         }
+
         m_clientKryo.setKeepAliveTCP(999999)
 
         object : Thread("kryonet connection client thread") {
@@ -193,6 +199,8 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         while (m_netQueue.peek() != null) {
             val receivedObject = m_netQueue.poll()
 
+            NetworkHelper.debugPacketFrequencies(receivedObject, m_debugPacketFrequencyByType)
+
             when (receivedObject) {
                 is Network.DisconnectReason -> receiveDisconnectReason(receivedObject)
 
@@ -220,6 +228,10 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
                     assert(false) { "unhandled network receiving class in network client ${receivedObject.toString()}" }
                 }
             }
+        }
+
+        if (OreSettings.debugPacketTypeStatistics) {
+            OreWorld.log("client", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
         }
     }
 
@@ -430,7 +442,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             }
         } else {
             //FIXME cover other players joining case
-     //       throw RuntimeException("fixme, other players joining not yet implemented")
+            //       throw RuntimeException("fixme, other players joining not yet implemented")
         }
     }
 

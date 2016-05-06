@@ -67,6 +67,11 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
     private var m_netQueue = ConcurrentLinkedQueue<NetworkJob>()
 
+    /**
+     * keeps a tally of each packet type received and their frequency
+     */
+    val m_debugPacketFrequencyByType = mutableMapOf<String, Int>()
+
     private val m_connectionListeners = Array<NetworkServerConnectionListener>()
 
     /**
@@ -324,11 +329,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     /**
-     * keeps a tally of each packet type received and their frequency
-     */
-    val m_debugPacketFrequencyByType = mutableMapOf<String, Int>()
-
-    /**
      * NOTE: most of these commands the server is receiving, are just requests.
      * The server should verify that they are valid to do. If they are not, it will
      * just ignore them. Movement is one of the main notable exceptions, although
@@ -342,16 +342,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             val job: NetworkJob = m_netQueue.poll()
 
             val receivedObject = job.receivedObject
-
-            val debugPacketTypeName = receivedObject.javaClass.toString()
-            //fixme debug
-            val current = m_debugPacketFrequencyByType[debugPacketTypeName]
-
-            if (current != null) {
-                m_debugPacketFrequencyByType.put(debugPacketTypeName, current + 1)
-            } else {
-                m_debugPacketFrequencyByType.put(debugPacketTypeName, 1)
-            }
+            NetworkHelper.debugPacketFrequencies(receivedObject, m_debugPacketFrequencyByType)
 
             when (receivedObject) {
                 is Network.InitialClientDataFromClient -> receiveInitialClientData(job, receivedObject)
@@ -377,9 +368,10 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             }
         }
 
-        OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
+        if (OreSettings.debugPacketTypeStatistics) {
+            OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
+        }
     }
-
 
     private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {
         val entityToAttack = getWorld().getEntity(attack.id)

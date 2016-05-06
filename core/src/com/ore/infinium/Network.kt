@@ -28,9 +28,9 @@ import java.util.*
  * ***************************************************************************
  */
 object Network {
-    val PORT = 54553
-    val bufferObjectSize = 255032
-    val bufferWriteSize = 250536
+    const val PORT = 54553
+    const val bufferObjectSize = 255032
+    const val bufferWriteSize = 250536
 
     // This registers objects that are going to be sent over the network.
     fun register(endPoint: EndPoint) {
@@ -394,10 +394,25 @@ object Network {
         }
 
         companion object {
-            val BLOCK_FIELD_COUNT = 3
-            val BLOCK_FIELD_INDEX_TYPE = 0
-            val BLOCK_FIELD_INDEX_WALLTYPE = 1
-            val BLOCK_FIELD_INDEX_FLAGS = 2
+            const val BLOCK_FIELD_COUNT = 3
+            const val BLOCK_FIELD_INDEX_TYPE = 0
+            const val BLOCK_FIELD_INDEX_WALLTYPE = 1
+            const val BLOCK_FIELD_INDEX_FLAGS = 2
         }
     }
 }
+
+object NetworkHelper {
+    fun debugPacketFrequencies(receivedObject: Any,
+                               m_debugPacketFrequencyByType: MutableMap<String, Int>) {
+        val debugPacketTypeName = receivedObject.javaClass.toString()
+        val current = m_debugPacketFrequencyByType[debugPacketTypeName]
+
+        if (current != null) {
+            m_debugPacketFrequencyByType.put(debugPacketTypeName, current + 1)
+        } else {
+            m_debugPacketFrequencyByType.put(debugPacketTypeName, 1)
+        }
+    }
+}
+
