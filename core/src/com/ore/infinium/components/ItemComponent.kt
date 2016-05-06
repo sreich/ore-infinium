@@ -44,7 +44,7 @@ class ItemComponent : Component() {
          * ms time necessary between an item was dropped and when it can
          * be picked up
          */
-        const val droppedItemCoolOffMs = 1000L
+        const val droppedItemCoolOffMs = 1500L
     }
 
     /**

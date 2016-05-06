@@ -21,4 +21,4 @@ import com.badlogic.gdx.math.Rectangle
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.    *
  *****************************************************************************/
 
-val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y + (height * 0.5f), x + (width * 0.5f), y - (height * 0.5f))
+val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y + (height * 0.5f), width, height)
