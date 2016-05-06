@@ -5,7 +5,6 @@ import com.artemis.Component
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.utils.Bag
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.TimeUtils
@@ -17,8 +16,6 @@ import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
-import java.io.IOException
-import java.net.BindException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -70,6 +67,11 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
     private var m_netQueue = ConcurrentLinkedQueue<NetworkJob>()
 
+    /**
+     * keeps a tally of each packet type received and their frequency
+     */
+    val m_debugPacketFrequencyByType = mutableMapOf<String, Int>()
+
     private val m_connectionListeners = Array<NetworkServerConnectionListener>()
 
     /**
@@ -93,33 +95,23 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     init {
-
-        try {
-            //m_serverKryo = new Server(16384, 8192, new JsonSerialization()) {
-            m_serverKryo = object : Server(Network.bufferWriteSize, 2048) {
-                override fun newConnection(): Connection {
-                    // By providing our own connection implementation, we can store per
-                    // connection state without a connection ID to state look up.
-                    return PlayerConnection()
-                }
+        //m_serverKryo = new Server(16384, 8192, new JsonSerialization()) {
+        m_serverKryo = object : Server(Network.bufferWriteSize, 2048) {
+            override fun newConnection(): Connection {
+                // By providing our own connection implementation, we can store per
+                // connection state without a connection ID to state look up.
+                return PlayerConnection()
             }
-
-            m_serverKryo.start()
-
-            Network.register(m_serverKryo)
-            m_serverKryo.addListener(ServerListener())
-            //m_serverKryo.addListener(new Listener.LagListener(100, 100, new ServerListener()));
-
-            try {
-                m_serverKryo.bind(Network.PORT)
-            } catch (e: BindException) {
-                throw e
-            }
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-            Gdx.app.exit()
         }
+
+        m_serverKryo.start()
+
+        Network.register(m_serverKryo)
+        m_serverKryo.addListener(ServerListener())
+        //m_serverKryo.addListener(new Listener.LagListener(100, 100, new ServerListener()));
+
+        m_serverKryo.bind(Network.PORT)
+
 
         //notify the local client we've started hosting our server, so he can connect now.
         m_world.m_server!!.connectHostLatch.countDown()
@@ -345,11 +337,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     /**
-     * keeps a tally of each packet type received and their frequency
-     */
-    val m_debugPacketFrequencyByType = mutableMapOf<String, Int>()
-
-    /**
      * NOTE: most of these commands the server is receiving, are just requests.
      * The server should verify that they are valid to do. If they are not, it will
      * just ignore them. Movement is one of the main notable exceptions, although
@@ -363,16 +350,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             val job: NetworkJob = m_netQueue.poll()
 
             val receivedObject = job.receivedObject
-
-            val debugPacketTypeName = receivedObject.javaClass.toString()
-            //fixme debug
-            val current = m_debugPacketFrequencyByType[debugPacketTypeName]
-
-            if (current != null) {
-                m_debugPacketFrequencyByType.put(debugPacketTypeName, current + 1)
-            } else {
-                m_debugPacketFrequencyByType.put(debugPacketTypeName, 1)
-            }
+            NetworkHelper.debugPacketFrequencies(receivedObject, m_debugPacketFrequencyByType)
 
             when (receivedObject) {
                 is Network.InitialClientDataFromClient -> receiveInitialClientData(job, receivedObject)
@@ -398,7 +376,9 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             }
         }
 
-        OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
+        if (OreSettings.debugPacketTypeStatistics) {
+            OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
+        }
     }
 
     private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {

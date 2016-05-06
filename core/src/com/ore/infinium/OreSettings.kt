@@ -104,4 +104,8 @@ object OreSettings {
     /// lock movement of player to continue moving right
     @JvmField
     var lockRight: Boolean = false
+
+    @Parameter(names = arrayOf("--debugPacketTypeStatistics"), description = "enable network debug to stdout for displaying frequencies of each packet received, for both client and server.")
+    @JvmField
+    var debugPacketTypeStatistics: Boolean = false
 }

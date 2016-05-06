@@ -1,7 +1,7 @@
 # Ore Infinium
 
 Ore Infinium, an **Open Source** Terraria-inspired Sci-fi game with a special focus
-on in-game tech devices, energy generation/wiring, resources gathering and the survival
+on in-game tech devices, energy generation/consumption, resources gathering and the survival
 through using these things. 
 
 Written in **[Kotlin](https://kotlinlang.org/)** 
@@ -13,7 +13,7 @@ reddit: http://reddit.com/r/ore-infinium
 
 Inspired a lot by tekkit(now feed the beast) for minecraft, but I'm not a fan of its overwhelming complexity, although it has some really great gameplay ideas/mechanisms. I aim to incorporate some of these ideas, improve them where I can, improve the process and hopefully make it easier, less grueling and more fun. 
 
-For instance, the wiring is done by pressing a key which shows an overlay, and dragging and dropping. So it's not actually in the physical world, which makes things much easier to manage. In general I like the idea of the player being able to create and connect devices, have them depend on resources, and use them to do neat things, assuming it doesn't make things too overwhelmingly complicated for someone like me.
+I'm likely going to go the route of making energy consumption/production be a global thing. For example, placing a generator will increase your global energy generation rate/stats by that much. I'm most interested in having devices depend on resources, and use them to do neat things, assuming it doesn't make things too overwhelmingly complicated for someone like me. Having to manage fuel sources for generators, switch off devices when too much is being consumed (so that important devices like charging stations, which enable you to dig), and defenses, don't stop working.
 
 ![Screenshot](http://i.imgur.com/iCaUnQZ.png "Screenshot1")
 
@@ -37,7 +37,7 @@ Windows, Mac OS X).
 
 # Requirements
 **You will need java 8 (jre 1.8) installed.**
-**OpenGL 3.0+** (shouldn't be difficult to meet, linux open source drivers meet that easily. Any integrated gpu in the past several years should support it)
+**OpenGL 3.0+** (shouldn't be difficult to meet, linux open source drivers meet that easily. Any integrated gpu in the past several years should support it).
 
 Tested with intellij IDEA. 
 
@@ -62,7 +62,7 @@ I'm using Kotlin, so you can use Intellij IDEA or eclipse(if you download the pl
 
 # Command line arguments
 There are some command line arguments that can be passed to it. Find them by running java -jar ./ore-infinium-and-what-not --help. Some of these switches are used for development, some are used for gameplay, testing etc.
-
+* --help to get started on what's available.
 * --pack
 ** used for automatically packing assets into spritesheets, necessary for
 debugging or any testing..I'm not sure if it actually works at runtime, outside
@@ -88,9 +88,4 @@ it and figure out my mistake an hour later. Loads of convenience things that any
 modern language will have. Unfortunately, java has none of those, and probably never will.
 
 # Contributing and Contact
-Email me (sreich02 g mail com), feel free to ask questions and get help, create issues, make patches! 
-
-freenode: http://webchat.freenode.net/?channels=#ore-infinium
-
-(of course, it's recommended you just get an IRC client, if you prefer. hexchat is a common one.)
-
+Feel free to email me (srei ch02 g mail com), feel free to ask questions and get help, create issues, make patches! 
