@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
@@ -160,69 +161,75 @@ class OreClient : ApplicationListener, InputProcessor {
         }
 
         val equippedItemComp = itemMapper.getNullable(equippedItem)
-        equippedItemComp?.let {
-            val equippedToolComp = toolMapper.getNullable(equippedItem)
-            equippedToolComp?.let {
+        if (equippedItemComp == null) {
+            return
+        }
 
-                val currentMillis = TimeUtils.millis()
-                if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickInterval) {
-                    //fixme obviously, iterating over every entity to find the one under position is beyond dumb
+        val equippedToolComp = toolMapper.getNullable(equippedItem)
+        if (equippedToolComp != null) {
 
-                    playerComp.attackLastTick = currentMillis
+            attemptItemAttack(playerComp, equippedToolComp, mouse)
+            return
+        }
 
-                    val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
-                    val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
-                    val clientEntities = clientEntitySubscription.entities
+        if (playerComp.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
+            playerComp.placeableItemTimer.reset()
 
-                    loop@ for (i in clientEntities.indices) {
-                        val currentEntity = clientEntities[i]
+            attemptItemPlace(playerComp.equippedPrimaryItem!!)
+        }
+    }
 
-                        val spriteComp = spriteMapper.get(currentEntity)
-                        if (playerMapper.has(currentEntity)) {
-                            //ignore players
-                            continue
-                        }
+    private fun attemptItemAttack(playerComp: PlayerComponent,
+                                  equippedToolComp: ToolComponent,
+                                  mouse: Vector2) {
 
-                        val tag = m_tagManager.getTag(m_world!!.m_artemisWorld.getEntity(currentEntity))
-                        when (tag) {
-                            OreWorld.s_itemPlacementOverlay,
-                            OreWorld.s_crosshair,
-                            OreWorld.s_mainPlayer -> continue@loop
-                        }
+        val currentMillis = TimeUtils.millis()
+        if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickInterval) {
+            //fixme obviously, iterating over every entity to find the one under position is beyond dumb
 
-                        val rectangle = Rectangle(spriteComp.sprite.x - spriteComp.sprite.width * 0.5f,
-                                                  spriteComp.sprite.y - spriteComp.sprite.height * 0.5f,
-                                                  spriteComp.sprite.width, spriteComp.sprite.height)
+            playerComp.attackLastTick = currentMillis
 
-                        if (rectangle.contains(mouse)) {
-                            var send = true;
-                            itemMapper.getNullable(currentEntity)?.apply {
-                                //don't let them attack dropped items, makes no sense
-                                if (state == ItemComponent.State.DroppedInWorld) {
-                                    send = false
-                                }
-                            }
+            val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
+            val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
+            val clientEntities = clientEntitySubscription.entities
 
-                            //todo check if something we can attack, also on server because..yeah.
-                            //todo hack send attack message
-                            if (send) {
-                                m_clientNetworkSystem.sendEntityAttack(currentEntity)
-                            }
+            loop@ for (i in clientEntities.indices) {
+                val currentEntity = clientEntities[i]
+
+                val spriteComp = spriteMapper.get(currentEntity)
+                if (playerMapper.has(currentEntity)) {
+                    //ignore players
+                    continue
+                }
+
+                val tag = m_tagManager.getTag(m_world!!.m_artemisWorld.getEntity(currentEntity))
+                when (tag) {
+                    OreWorld.s_itemPlacementOverlay,
+                    OreWorld.s_crosshair,
+                    OreWorld.s_mainPlayer -> continue@loop
+                }
+
+                val rectangle = Rectangle(spriteComp.sprite.x - spriteComp.sprite.width * 0.5f,
+                                          spriteComp.sprite.y - spriteComp.sprite.height * 0.5f,
+                                          spriteComp.sprite.width, spriteComp.sprite.height)
+
+                if (rectangle.contains(mouse)) {
+                    var send = true;
+                    itemMapper.getNullable(currentEntity)?.apply {
+                        //don't let them attack dropped items, makes no sense
+                        if (state == ItemComponent.State.DroppedInWorld) {
+                            send = false
                         }
                     }
 
-
+                    //todo check if something we can attack, also on server because..yeah.
+                    if (send) {
+                        m_clientNetworkSystem.sendEntityAttack(currentEntity)
+                    }
                 }
-                //early return, exclude tools and such from being placeable
-                return
-            }
-
-            if (playerComp.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
-                playerComp.placeableItemTimer.reset()
-
-                attemptItemPlace(playerComp.equippedPrimaryItem!!)
             }
         }
+
     }
 
     /**
