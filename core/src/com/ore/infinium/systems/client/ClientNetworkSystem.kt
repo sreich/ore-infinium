@@ -75,6 +75,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
     private lateinit var m_tagManager: TagManager
     private lateinit var m_tileRenderer: TileRenderSystem
+    private lateinit var m_soundSystem: SoundSystem
 
     private val m_netQueue = ConcurrentLinkedQueue<Any>()
 
@@ -256,6 +257,10 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         val itemComponent = itemMapper.get(spawnedItemEntityId)
         //fixme this indirection isn't so hot...
         m_world.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
+
+        if (spawn.causedByPickedUpItem) {
+            m_soundSystem.playItemPickup()
+        }
 
         //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
         // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class

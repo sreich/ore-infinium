@@ -57,7 +57,7 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     override fun processSystem() {
     }
 
-    fun itemPickup() {
+    fun playItemPickup() {
         m_itemPickupSound!!.play()
     }
 }

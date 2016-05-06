@@ -244,7 +244,7 @@ class OreServer : Runnable {
             val entity = playerComponent.hotbarInventory!!.itemEntity(i)
 
             entity?.let {
-                m_serverNetworkSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity)
+                m_serverNetworkSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity, false)
             }
         }
     }

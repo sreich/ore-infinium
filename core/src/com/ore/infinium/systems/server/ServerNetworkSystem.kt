@@ -307,8 +307,14 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
      * *
      * @param owningPlayerEntityId
      * *         entity id
+     *
+     * @param causedByPickedUpItem true if this was spawned because the player picked
+     * up an item that was dropped on the ground
      */
-    fun sendSpawnHotbarInventoryItem(itemEntityId: Int, index: Int, owningPlayerEntityId: Int) {
+    fun sendSpawnHotbarInventoryItem(itemEntityId: Int,
+                                     index: Int,
+                                     owningPlayerEntityId: Int,
+                                     causedByPickedUpItem: Boolean) {
         val spawn = Network.PlayerSpawnHotbarInventoryItemFromServer()
         spawn.components = serializeComponents(itemEntityId)
 
@@ -318,6 +324,8 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         val spriteComponent = spriteMapper.get(itemEntityId)
         spawn.size.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
         spawn.textureName = spriteComponent.textureName
+        spawn.causedByPickedUpItem = causedByPickedUpItem
+
         //FIXME: fixme, we need to spawn it with a texture...and figure out how to do this exactly.
 
         m_serverKryo.sendToTCP(playerMapper.get(owningPlayerEntityId).connectionPlayerId, spawn)

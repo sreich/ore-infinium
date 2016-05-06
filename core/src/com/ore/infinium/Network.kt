@@ -206,7 +206,7 @@ object Network {
     //        int newCount;
     //    }
 
-    //todo make itemcomponent.inventoryIndex transient, send that instead through the packets
+    //todo make itemcomponent.inventoryIndex transient, send that instead through the packets?
     class PlayerSpawnHotbarInventoryItemFromServer {
         var size = SizePacket()
 
@@ -219,6 +219,13 @@ object Network {
 
         var id: Int = 0
         var components: Array<Component>? = null
+
+        /**
+         * true if this was spawn because a user picked up an item.
+         * Because when the user picks up an item, the item is destroyed(server, client),
+         * and then a spawn message for a new one is sent, wherever that may be.
+         */
+        var causedByPickedUpItem = false
     }
 
     /**
