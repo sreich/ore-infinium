@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.*
 import com.badlogic.gdx.utils.PerformanceCounter
+import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
@@ -1305,10 +1306,19 @@ class OreWorld
      * or nothing (e.g. if something just died by itself)
      */
     fun killEntity(entityToKill: Int, entityKiller: Int? = null) {
+        val itemComp = itemMapper.getNullable(entityToKill)
         val floraComp = floraMapper.getNullable(entityToKill)
 
         if (floraComp != null) {
-            killTree(floraComp, entityToKill, entityKiller)
+
+            if (itemComp != null) {
+                //we want to kill a tree, but it's a dropped item tree
+                //so we're just killing it like a regular item. not as a tree
+                //(which would otherwise drop mini trees)
+                if (itemComp.state != ItemComponent.State.DroppedInWorld) {
+                    killTree(floraComp, entityToKill, entityKiller)
+                }
+            }
         }
 
         m_artemisWorld.delete(entityToKill)
@@ -1340,6 +1350,7 @@ class OreWorld
                 //fixme functionalize this, duplicated of/by networkserversystem drop request
                 sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
                                          clonedSpriteComp.sprite.height)
+                timeOfDropMs = TimeUtils.millis()
             }
 
             val reducedWidth = (clonedSpriteComp.sprite.width * 0.25f)
