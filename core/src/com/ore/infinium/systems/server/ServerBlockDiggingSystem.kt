@@ -5,6 +5,7 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
@@ -120,6 +121,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
                 stackSize = 1
                 state = ItemComponent.State.DroppedInWorld
                 playerIdWhoDropped = playerComponent.connectionPlayerId
+                timeOfDropMs = TimeUtils.millis()
             }
 
             //hack this isnt 'needed i don't think because the server network entity system
