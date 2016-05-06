@@ -401,7 +401,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
     }
 
-
     private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {
         val entityToAttack = getWorld().getEntity(attack.id)
         if (entityToAttack.isActive) {
@@ -464,7 +463,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
         // Store the player on the connection.
         job.connection.playerEntityId = m_server.createPlayer(name, job.connection.id)
-        job.connection.playerName= name
+        job.connection.playerName = name
 
         //notify to everyone it connected
         for (connectionListener in m_connectionListeners) {

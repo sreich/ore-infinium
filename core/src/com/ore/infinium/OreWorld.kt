@@ -1292,7 +1292,7 @@ class OreWorld
      * Destroying/killing of entity.
      *
      * does the appropriate server-side action when an entity gets killed or destroyed
-     * (e.g. triggering explosions and so on.
+     * (e.g. triggering explosions and so on.)
      *
      * Destruction could happen for any reason, whether player caused (rabbit killed by player),
      * or simply items getting picked up and destroyed, and respawned into the appropriate inventory
@@ -1305,8 +1305,18 @@ class OreWorld
      * or nothing (e.g. if something just died by itself)
      */
     fun killEntity(entityToKill: Int, entityKiller: Int? = null) {
-        val floraComp = floraMapper.getNullable(entityToKill)!!
+        val floraComp = floraMapper.getNullable(entityToKill)
 
+        if (floraComp != null) {
+            killTree(floraComp, entityToKill, entityKiller)
+        }
+
+        m_artemisWorld.delete(entityToKill)
+
+        m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToKill)
+    }
+
+    private fun killTree(floraComp: FloraComponent, entityToKill: Int, entityKiller: Int?) {
         //this behavior is for exploding flora into a bunch of dropped items
         //for example, when destroying a tree in games like terraria, it gives
         //a satisfying exploding of dropped items
@@ -1348,9 +1358,6 @@ class OreWorld
             //todo give it some explody velocity
         }
 
-        m_artemisWorld.delete(entityToKill)
-
-        m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToKill)
     }
 }
 
