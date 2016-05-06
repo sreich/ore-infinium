@@ -1290,13 +1290,13 @@ class OreWorld
 
 
     /**
-     * Destroying/killing of entity.
+     * Killing of entity.
      *
      * does the appropriate server-side action when an entity gets killed or destroyed
      * (e.g. triggering explosions and so on.)
      *
-     * Destruction could happen for any reason, whether player caused (rabbit killed by player),
-     * or simply items getting picked up and destroyed, and respawned into the appropriate inventory
+     * Destruction could happen for various reasons, could whether player caused (rabbit killed by player)
+     *
      *
      * Server-side only. client will not call this.
      *
@@ -1305,25 +1305,29 @@ class OreWorld
      * this would be a player. but it could be just about anything else,
      * or nothing (e.g. if something just died by itself)
      */
-    fun killEntity(entityToKill: Int, entityKiller: Int? = null) {
+    fun killEntity(entityToKill: Int, entityKiller: Int) {
         val itemComp = itemMapper.getNullable(entityToKill)
         val floraComp = floraMapper.getNullable(entityToKill)
 
         if (floraComp != null) {
-
-            if (itemComp != null) {
-                //we want to kill a tree, but it's a dropped item tree
-                //so we're just killing it like a regular item. not as a tree
-                //(which would otherwise drop mini trees)
-                if (itemComp.state != ItemComponent.State.DroppedInWorld) {
-                    killTree(floraComp, entityToKill, entityKiller)
-                }
-            }
+            killTree(floraComp, entityToKill, entityKiller)
         }
 
         m_artemisWorld.delete(entityToKill)
 
         m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToKill)
+    }
+
+    /**
+     * server side
+     * Destroys an entity in the world, "silently". This is used for example,
+     * when items get picked up or disappear. In these cases they are not getting
+     * killed.
+     */
+    fun destroyEntity(entityToDestroy: Int) {
+        m_artemisWorld.delete(entityToDestroy)
+
+        m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToDestroy)
     }
 
     private fun killTree(floraComp: FloraComponent, entityToKill: Int, entityKiller: Int?) {

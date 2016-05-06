@@ -110,8 +110,7 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
         playerComponent.hotbarInventory!!.setSlot(7, itemToPickupId)
 
         m_serverNetworkSystem.sendSpawnHotbarInventoryItem(itemToPickupId, 7, playerEntityId, true)
-
-        m_world.killEntity(itemToPickupId)
+        m_world.destroyEntity(itemToPickupId)
     }
 
 }
