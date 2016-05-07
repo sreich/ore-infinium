@@ -22,7 +22,7 @@ Inspired a lot by tekkit(now feed the beast) for minecraft, but I'm not a fan of
 I'm likely going to go the route of making energy consumption/production be a global thing. For example, placing a generator will increase your global energy generation rate/stats by that much. I'm most interested in having devices depend on resources, and use them to do neat things, assuming it doesn't make things too overwhelmingly complicated for someone like me. Having to manage fuel sources for generators, switch off devices when too much is being consumed (so that important devices like charging stations, which enable you to dig), and defenses, don't stop working.
 
 ![Screenshot](http://i.imgur.com/iCaUnQZ.png "Screenshot1")
-
+G
 
 **Extremely early development!**
 
@@ -78,7 +78,8 @@ The goal is to make it easily repack them so people can test without
 needing to fire up anything java developmenty.
 
 # License
-Code is licensed under GPLv2, assets are(will be) licensed under a more permissive license. (CC0)
+Code is licensed as MIT, assets are(will be) licensed under permissive asset licenses. (CC0 mostly).
+See assets dir for more detailed license info.
 
 ## Why Kotlin
 Chosen because it's a very nice language that released a little after I discovered it,
