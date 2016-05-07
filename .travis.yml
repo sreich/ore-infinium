@@ -8,8 +8,6 @@ notifications:
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/2b6ca8a3a024f0847bb6
-      - https://webhooks.gitter.im/e/5bd4d8eafc4228a7f45e
-      - https://webhooks.gitter.im/e/f91af755ad5b1109cee0
 
     on_success: always
     on_failure: always
