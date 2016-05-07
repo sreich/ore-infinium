@@ -1112,7 +1112,7 @@ class OreWorld
             }
         }
 
-        //log("client block region", String.format("loaded %s tile index", sourceIndex));
+        //log("client block region", "received/loaded $sourceIndex tiles from server");
 
         //fixme should re transition tiles in this area
     }

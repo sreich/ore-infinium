@@ -73,7 +73,7 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     fun playItemPickup() {
-        m_itemPickupSound!!.play(0.07f)
+        m_itemPickupSound!!.play(0.20f)
     }
 
     fun playItemPlace() {
