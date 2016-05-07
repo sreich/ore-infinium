@@ -57,16 +57,16 @@ class OreBlock private constructor() {
      * Determines the health and texture of the Block.
      */
     object BlockType {
-        val NullBlockType: Byte = 0
-        val DirtBlockType: Byte = 1
-        val StoneBlockType: Byte = 2
-        val CopperBlockType: Byte = 3
+        const val NullBlockType: Byte = 0
+        const val DirtBlockType: Byte = 1
+        const val StoneBlockType: Byte = 2
+        const val CopperBlockType: Byte = 3
     }
 
     object WallType {
-        val NullWallType: Byte = 0
-        val DirtWallType: Byte = 1
-        val DirtUndergroundWallType: Byte = 2
+        const val NullWallType: Byte = 0
+        const val DirtWallType: Byte = 1
+        const val DirtUndergroundWallType: Byte = 2
     }
 
     fun destroy() {
@@ -74,8 +74,8 @@ class OreBlock private constructor() {
     }
 
     object BlockFlags {
-        val OnFireBlock = (1 shl 0).toByte()
-        val GrassBlock = (1 shl 1).toByte()
+        const val OnFireBlock = (1 shl 0).toByte()
+        const val GrassBlock = (1 shl 1).toByte()
         //        public static final int GrassBlock = 1 << 2;
         /*
         SunlightVisible((byte) (1 << 1)),
@@ -99,16 +99,16 @@ class OreBlock private constructor() {
          * -wallType
          * -flags
          */
-        val BLOCK_FIELD_COUNT = 4
+        const val BLOCK_FIELD_COUNT = 4
 
         /**
          * index offset within the big byte block array,
          * since BLOCK_FIELD_COUNT elements are stored for each
          * actual block
          */
-        val BLOCK_FIELD_INDEX_TYPE = 0
-        val BLOCK_FIELD_INDEX_MESHTYPE = 1
-        val BLOCK_FIELD_INDEX_WALLTYPE = 2
-        val BLOCK_FIELD_INDEX_FLAGS = 3
+        const val BLOCK_FIELD_INDEX_TYPE = 0
+        const val BLOCK_FIELD_INDEX_MESHTYPE = 1
+        const val BLOCK_FIELD_INDEX_WALLTYPE = 2
+        const val BLOCK_FIELD_INDEX_FLAGS = 3
     }
 }
