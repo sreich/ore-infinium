@@ -19,10 +19,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.client.ClientBlockDiggingSystem
-import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.systems.client.DebugTextRenderSystem
-import com.ore.infinium.systems.client.PowerOverlayRenderSystem
+import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
 import java.io.IOException
@@ -51,6 +48,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private lateinit var m_debugTextRenderSystem: DebugTextRenderSystem
     private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
     private lateinit var m_clientBlockDiggingSystem: ClientBlockDiggingSystem
+    private lateinit var m_soundSystem: SoundSystem
 
     lateinit private var m_multiplexer: InputMultiplexer
 
@@ -155,6 +153,7 @@ class OreClient : ApplicationListener, InputProcessor {
             val blockPlaced = m_world!!.attemptBlockPlacement(x, y, blockComp.blockType)
             if (blockPlaced) {
                 m_clientNetworkSystem.sendBlockPlace(x, y)
+                m_soundSystem.playDirtPlace()
             }
 
             return
@@ -258,6 +257,7 @@ class OreClient : ApplicationListener, InputProcessor {
         if (m_world!!.isPlacementValid(placedItemEntity)) {
             //todo, do more validation..
             m_clientNetworkSystem.sendItemPlace(placeX, placeY)
+            m_soundSystem.playItemPlace()
         } else {
             //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
             //because the function actually takes only the entity, to check if its size, position etc conflict with

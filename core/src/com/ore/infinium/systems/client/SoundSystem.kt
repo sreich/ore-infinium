@@ -43,6 +43,10 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var m_tagManager: TagManager
 
     private var m_itemPickupSound: Sound? = null
+    private var m_drillAttackSound: Sound? = null
+    private var m_dirtAttackSound: Sound? = null
+    private var m_dirtPlaceSound: Sound? = null
+    private var m_itemPlaceSound: Sound? = null
 
     init {
 //        m_blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
@@ -50,7 +54,14 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     override fun initialize() {
+        m_itemPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPlace.ogg"))
         m_itemPickupSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPickup.wav"))
+
+        m_drillAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/drillAttack.ogg"))
+
+        m_dirtAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttack.ogg"))
+        m_dirtPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtPlace.ogg"))
+
         assert(m_itemPickupSound != null) { "sound failed to load" }
     }
 
@@ -60,4 +71,21 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     fun playItemPickup() {
         m_itemPickupSound!!.play()
     }
+
+    fun playItemPlace() {
+        m_itemPlaceSound!!.play()
+    }
+
+    fun playDrillAttack() {
+        m_drillAttackSound!!.play()
+    }
+
+    fun playDirtAttack() {
+        m_dirtAttackSound!!.play()
+    }
+
+    fun playDirtPlace() {
+        m_dirtPlaceSound!!.play()
+    }
+
 }
