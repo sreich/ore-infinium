@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 
@@ -48,6 +49,9 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     private var m_dirtPlaceSound: Sound? = null
     private var m_itemPlaceSound: Sound? = null
 
+    //last ms time it played triggered
+    private var m_dirtAttackLastMs = 0L
+
     init {
 //        m_blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
         //       m_tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
@@ -81,7 +85,11 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     fun playDirtAttack() {
-        m_dirtAttackSound!!.play()
+
+        if (m_dirtAttackLastMs == 0L || TimeUtils.timeSinceMillis(m_dirtAttackLastMs) >= 300) {
+            m_dirtAttackLastMs = TimeUtils.millis()
+            m_dirtAttackSound!!.play()
+        }
     }
 
     fun playDirtPlace() {

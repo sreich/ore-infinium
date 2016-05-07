@@ -42,6 +42,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
     private lateinit var m_gameTickSystem: GameTickSystem
     private lateinit var m_clientNetworkSystem: ClientNetworkSystem
+    private lateinit var m_soundSystem: SoundSystem
 
     private lateinit var m_tagManager: TagManager
 
@@ -211,6 +212,10 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             if (blockToDig.damagedBlockHealth > 0) {
                 blockToDig.damagedBlockHealth -= getWorld().getDelta() * toolComponent.blockDamage
                 blockToDig.ticksTook += 1
+
+                if (blockType == OreBlock.BlockType.DirtBlockType) {
+                    m_soundSystem.playDirtAttack()
+                }
             }
 
             // only send dig finish packet once per block
