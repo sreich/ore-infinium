@@ -148,8 +148,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
 
     //todo when the equipped item changes, abort all active digs for that player
     override fun processSystem() {
-        val blocksToRemove = m_blocksToDig.filter { blockToDig -> processAndRemoveDigRequests(blockToDig) }
-        m_blocksToDig.removeAll(blocksToRemove)
+        m_blocksToDig.removeAll { blockToDig -> processAndRemoveDigRequests(blockToDig) }
     }
 
     override fun initialize() {

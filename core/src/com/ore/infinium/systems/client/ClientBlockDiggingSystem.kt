@@ -96,8 +96,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             dig()
         }
 
-        val digRequestsToRemove = m_blocksToDig.filter { blockToDig -> expireOldDigRequests(blockToDig) }
-        m_blocksToDig.removeAll(digRequestsToRemove)
+        m_blocksToDig.removeAll { blockToDig -> expireOldDigRequests(blockToDig) }
     }
 
     /**
