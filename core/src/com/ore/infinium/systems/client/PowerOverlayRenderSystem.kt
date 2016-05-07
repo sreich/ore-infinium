@@ -1,3 +1,27 @@
+/**
+MIT License
+
+Copyright (c) 2016 Shaun Reich <sreich02@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
+
 package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
@@ -16,56 +40,6 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getTagNullable
 import com.ore.infinium.util.indices
-
-/**
- * ***************************************************************************
- * Copyright (C) 2015 by Shaun Reich @gmail.com>                    *
- * *
- * This program is free software; you can redistribute it and/or            *
- * modify it under the terms of the GNU General Public License as           *
- * published by the Free Software Foundation; either version 2 of           *
- * the License, or (at your option) any later version.                      *
- * *
- * This program is distributed in the hope that it will be useful,          *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of           *
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *
- * GNU General Public License for more details.                             *
- * *
- * You should have received a copy of the GNU General Public License        *
- * along with this program.  If not, see //www.gnu.org/licenses/>.    *
- * ***************************************************************************
- */
-
-    /**
-     * game notes:
-     *
-     * -client needs to know the supply/demand total for each circuit
-     *
-     * -needs to know circuits it should be interested in(but not every wire in it)
-     *
-     * -which wire each entity belongs on. we can store an id in the powerdevice component
-     *
-     * when we try and dis/connect devices, we just tell the server the entity id's we want connected,
-     * it will ping back as normal when devices get connected or disconnected
-     *
-     * PowerDeviceComponent should store: wireId, the wire it resides on. circuitid.
-     *
-     * wireid is needed or else we wouldn't know which entities are connected to which
-     *
-     * circuitid is needed because we need to know what the stats are for each circuit.
-     *
-     *
-     * scenarios:
-     *
-     * - entity gets spawned in viewport. we know it's on wire n. find other entity that is also
-     * on wire n, if any.
-     *
-     * - we connected entity 1 to 2. just send the id, handle response as usual
-     *
-     * - handle connection event/packet of entity 1 to 2.
-     * -- to handle connect event, we may need to merge
-     *
-     */
 
 @Wire
 class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
