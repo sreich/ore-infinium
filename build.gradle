@@ -47,7 +47,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
     }
-
 }
 
 plugins {
@@ -76,7 +75,6 @@ allprojects {
     }
 
     apply plugin: "eclipse"
-
 
     configurations.all {
         resolutionStrategy {

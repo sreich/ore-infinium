@@ -44,13 +44,18 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var m_tagManager: TagManager
 
     private var m_itemPickupSound: Sound? = null
+    private var m_itemPlaceSound: Sound? = null
+
     private var m_drillAttackSound: Sound? = null
+
     private var m_dirtAttackSound: Sound? = null
     private var m_dirtPlaceSound: Sound? = null
-    private var m_itemPlaceSound: Sound? = null
+    private var m_dirtAttackFinishSound: Sound? = null
 
     //last ms time it played triggered
     private var m_dirtAttackLastMs = 0L
+
+    private var m_stoneAttackFinishSound: Sound? = null
 
     init {
 //        m_blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
@@ -65,6 +70,9 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
 
         m_dirtAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttack.ogg"))
         m_dirtPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtPlace.ogg"))
+        m_dirtAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttackFinish.ogg"))
+
+        m_stoneAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/stoneAttackFinish.ogg"))
 
         assert(m_itemPickupSound != null) { "sound failed to load" }
     }
@@ -81,14 +89,15 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     fun playDrillAttack() {
-        m_drillAttackSound!!.play()
+        m_drillAttackSound!!.play(0.30f)
     }
 
+    //todo for all of these, i think we want to have only 1 playing at a time. if another happens to play,
+    //we should interrupt it maybe?
     fun playDirtAttack() {
-
         if (m_dirtAttackLastMs == 0L || TimeUtils.timeSinceMillis(m_dirtAttackLastMs) >= 300) {
             m_dirtAttackLastMs = TimeUtils.millis()
-            m_dirtAttackSound!!.play()
+            m_dirtAttackSound!!.play(0.50f)
         }
     }
 
@@ -96,4 +105,11 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
         m_dirtPlaceSound!!.play()
     }
 
+    fun playStoneAttackFinish() {
+        m_stoneAttackFinishSound!!.play()
+    }
+
+    fun playDirtAttackFinish() {
+        m_dirtAttackFinishSound!!.play()
+    }
 }

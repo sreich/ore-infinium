@@ -207,14 +207,13 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
                 found = true
             }
 
+            var attacked = false
             //only decrement block health if it has some
             if (blockToDig.damagedBlockHealth > 0) {
                 blockToDig.damagedBlockHealth -= getWorld().getDelta() * toolComponent.blockDamage
                 blockToDig.ticksTook += 1
 
-                if (blockType == OreBlock.BlockType.DirtBlockType) {
-                    m_soundSystem.playDirtAttack()
-                }
+                attacked = true
             }
 
             // only send dig finish packet once per block
@@ -224,9 +223,25 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
                 //we killed the block
                 m_clientNetworkSystem.sendBlockDigFinish(blockX, blockY)
 
+                when (blockType) {
+                    OreBlock.BlockType.DirtBlockType ->
+                        m_soundSystem.playDirtAttackFinish()
+
+                    OreBlock.BlockType.StoneBlockType ->
+                        m_soundSystem.playStoneAttackFinish()
+
+                }
+
                 OreWorld.log("client, block digging system",
                              "processSystem finish! tick taken:  " + blockToDig.ticksTook)
                 return
+            }
+
+            if (attacked) {
+                when (blockType) {
+                    OreBlock.BlockType.DirtBlockType -> m_soundSystem.playDirtAttack()
+                    OreBlock.BlockType.StoneBlockType -> m_soundSystem.playDrillAttack()
+                }
             }
         }
 
