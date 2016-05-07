@@ -3,3 +3,13 @@ language: java
 jdk:
   - oraclejdk8
 
+notifications:
+  email: false
+
+webhooks:
+  urls:
+    - https://webhooks.gitter.im/e/76a4fa2ce87cc613ee14
+
+  on_success: always
+  on_failure: always
+
