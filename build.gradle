@@ -15,12 +15,11 @@ buildscript {
         matrixCliVersion = "0.1.2"
 
         jcommanderVersion = "1.48"
-        junitVersion = "4.12"
         tweenEngineVersion = "6.3.3"
 
-
-        //kotlinVersion = '1.0.0-rc-1017'
         kotlinVersion = '1.0.2-eap-74'
+
+        junitVersion = '4.12'
     }
 
     repositories {
@@ -62,14 +61,22 @@ plugins {
     id "com.github.ben-manes.versions" version "0.12.0"
 }
 
-task createWrapper(type: Wrapper) {
+
+task wrapper(type: Wrapper) {
     gradleVersion = "2.13"
 }
 
 allprojects {
 
+    apply plugin: "java"
+    apply plugin: "kotlin"
+
+    compileJava {
+        sourceCompatibility = '1.8'
+    }
+
     apply plugin: "eclipse"
-    apply plugin: "idea"
+
 
     configurations.all {
         resolutionStrategy {
@@ -90,11 +97,21 @@ allprojects {
 
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
     }
+
+    apply plugin: "idea"
+
+    idea {
+        project {
+  //          jdkName = '1.8'
+//            downloadSources = true
+        }
+ //           downloadJavadoc = true
+    }
+
 }
 
 project(":desktop") {
     apply plugin: "java"
-
 
     dependencies {
 
@@ -108,7 +125,6 @@ project(":desktop") {
 
 project(":core") {
     apply plugin: "java"
-    apply plugin: "kotlin"
 
     configurations {
         provided
@@ -124,6 +140,9 @@ project(":core") {
     dependencies {
         // kotlin
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+        compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+        compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+
 
         // libgdx core
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -134,7 +153,7 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
 
         //junit
-        testCompile "junit:junit:4.12"
+        testCompile "junit:junit:$junitVersion"
 
         // kryonet
         compile "com.esotericsoftware:kryonet:$kryonetVersion"
@@ -183,3 +202,4 @@ project(":matrix") {
 tasks.eclipse.doLast {
     delete ".project"
 }
+
