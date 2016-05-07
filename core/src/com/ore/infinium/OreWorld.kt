@@ -41,6 +41,8 @@ import java.util.*
  * ***************************************************************************
  */
 
+@Suppress("NOTHING_TO_INLINE")
+
 /**
  * The main world, shared between both client and server, core to a lot of basic
  * shared functionality, as well as stuff that doesn't really belong elsewhere,
@@ -565,7 +567,7 @@ class OreWorld
      * *
      * @return
      */
-    fun blockTypeSafely(x: Int, y: Int): Byte {
+    inline fun blockTypeSafely(x: Int, y: Int): Byte {
         var x = x
         var y = y
         x = MathUtils.clamp(x, 0, WORLD_SIZE_X - 1)
@@ -582,7 +584,7 @@ class OreWorld
      * *
      * @return
      */
-    fun blockXSafe(x: Int): Int {
+    inline fun blockXSafe(x: Int): Int {
         return MathUtils.clamp(x, 0, WORLD_SIZE_X - 1)
     }
 
@@ -595,12 +597,12 @@ class OreWorld
      * *
      * @return
      */
-    fun blockYSafe(y: Int): Int {
-        return MathUtils.clamp(y, 0, WORLD_SIZE_Y - 1)
+    inline fun blockYSafe(y: Int): Int {
+        return y.coerceIn(0, WORLD_SIZE_Y - 1)
     }
 
     //blocks[(x * 2400 + y) * 4 + i] where i = 0, 1, 2 or 3
-    fun blockType(x: Int, y: Int): Byte {
+    inline fun blockType(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE) {
@@ -613,7 +615,7 @@ class OreWorld
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE]
     }
 
-    fun blockWallType(x: Int, y: Int): Byte {
+    inline fun blockWallType(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE) {
@@ -623,7 +625,7 @@ class OreWorld
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE]
     }
 
-    fun blockMeshType(x: Int, y: Int): Byte {
+    inline fun blockMeshType(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE) {
@@ -632,7 +634,7 @@ class OreWorld
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE]
     }
 
-    fun blockFlags(x: Int, y: Int): Byte {
+    inline fun blockFlags(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
@@ -641,7 +643,7 @@ class OreWorld
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS]
     }
 
-    fun blockHasFlag(x: Int, y: Int, flag: Byte): Boolean {
+    inline fun blockHasFlag(x: Int, y: Int, flag: Byte): Boolean {
 
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
@@ -653,7 +655,7 @@ class OreWorld
                 flag.toInt()) != 0
     }
 
-    fun setBlockType(x: Int, y: Int, type: Byte) {
+    inline fun setBlockType(x: Int, y: Int, type: Byte) {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE) {
@@ -665,7 +667,7 @@ class OreWorld
         blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE] = type
     }
 
-    fun setBlockWallType(x: Int, y: Int, wallType: Byte) {
+    inline fun setBlockWallType(x: Int, y: Int, wallType: Byte) {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE) {
@@ -675,7 +677,7 @@ class OreWorld
         blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE] = wallType
     }
 
-    fun setBlockMeshType(x: Int, y: Int, meshType: Byte) {
+    inline fun setBlockMeshType(x: Int, y: Int, meshType: Byte) {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE) {
@@ -693,7 +695,7 @@ class OreWorld
      * *
      * @param flags
      */
-    fun setBlockFlags(x: Int, y: Int, flags: Byte) {
+    inline fun setBlockFlags(x: Int, y: Int, flags: Byte) {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
@@ -711,7 +713,7 @@ class OreWorld
      * *
      * @param flagToEnable
      */
-    fun unsetBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
+    inline fun unsetBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
@@ -732,7 +734,7 @@ class OreWorld
      * *
      * @param flagToEnable
      */
-    fun setBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
+    inline fun setBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
         assert(x >= 0 && y >= 0 &&
                        x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
                        y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
@@ -748,14 +750,14 @@ class OreWorld
      * properly destroys the block in the array (sets meshtype, flags etc to defaults)
      * must be called when destroying a block, so it looks like it was dug.
      */
-    fun destroyBlock(x: Int, y: Int) {
+    inline fun destroyBlock(x: Int, y: Int) {
         setBlockType(x, y, OreBlock.BlockType.NullBlockType)
         setBlockMeshType(x, y, 0)
         //wall type doesn't get nulled out. i think that's what we want
         setBlockFlags(x, y, 0)
     }
 
-    fun isBlockSolid(x: Int, y: Int): Boolean {
+    inline fun isBlockSolid(x: Int, y: Int): Boolean {
         var solid = true
 
         val type = blockType(x, y)
