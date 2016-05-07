@@ -93,3 +93,7 @@ modern language will have. Unfortunately, java has none of those, and probably n
 
 # Contributing and Contact
 Feel free to email me (srei ch02 g mail com), feel free to ask questions and get help, create issues, make patches! 
+
+Chat with me on gitter(github messenging):
+[![Join the chat at https://gitter.im/sreich/ore-infinium](https://badges.gitter.im/sreich/ore-infinium.svg)](https://gitter.im/sreich/ore-infinium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
