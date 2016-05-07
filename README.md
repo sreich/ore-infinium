@@ -1,5 +1,7 @@
 # Ore Infinium
 
+[![Join the chat at https://gitter.im/sreich/ore-infinium](https://badges.gitter.im/sreich/ore-infinium.svg)](https://gitter.im/sreich/ore-infinium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Ore Infinium, an **Open Source** Terraria-inspired Sci-fi game with a special focus
 on in-game tech devices, energy generation/consumption, resources gathering and the survival
 through using these things. 
