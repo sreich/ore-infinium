@@ -261,33 +261,26 @@ class OreClient : ApplicationListener, InputProcessor {
      * @param itemEntity
      */
     private fun attemptItemPlace(itemEntity: Int) {
-
-        //place the item
-        val placedItemEntity = m_world!!.cloneEntity(itemEntity)
-
-        val placedItemComponent = itemMapper.get(placedItemEntity)
-
-        placedItemComponent.state = ItemComponent.State.InWorldState
-
-        val spriteComponent = spriteMapper.get(placedItemEntity)
-
         val placementOverlay = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay).id
         val placementOverlaySprite = spriteMapper.get(placementOverlay)
 
         val placeX = placementOverlaySprite.sprite.x
         val placeY = placementOverlaySprite.sprite.y
-        spriteComponent.sprite.setPosition(placeX, placeY)
 
-        if (m_world!!.isPlacementValid(placedItemEntity)) {
+        if (m_world!!.isPlacementValid(placementOverlay)) {
+            //place the item
+            val placedItemEntity = m_world!!.cloneEntity(itemEntity)
+
+            val placedItemComponent = itemMapper.get(placedItemEntity)
+
+            placedItemComponent.state = ItemComponent.State.InWorldState
+
+            val spriteComponent = spriteMapper.get(placedItemEntity)
+            spriteComponent.sprite.setPosition(placeX, placeY)
+
             //todo, do more validation..
             m_clientNetworkSystem.sendItemPlace(placeX, placeY)
             m_soundSystem.playItemPlace()
-        } else {
-            //fixme i know, it isn't ideal..i technically add the item anyways and delete it if it cannot be placed
-            //because the function actually takes only the entity, to check if its size, position etc conflict with
-            // anything
-
-            //engine.removeEntity(placedItemEntity);
         }
     }
 

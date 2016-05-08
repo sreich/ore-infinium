@@ -60,11 +60,6 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
 
     private var m_stoneAttackFinishSound: Sound? = null
 
-    init {
-//        m_blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
-        //       m_tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
-    }
-
     override fun initialize() {
         m_itemPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPlace.ogg"))
         m_itemPickupSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPickup.wav"))
