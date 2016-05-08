@@ -70,6 +70,11 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         m_blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
         m_tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
 
+        //todo obviously, we can replace this map and lookup with something cheaper, i bet.
+        //it's actually only used to fetch the string which then we will fetch from the texture atlas
+        //and we're actually not supposed to be calling the texture atlas get functions so often..
+        //since they are not cached.
+
         //dirt 16 and beyond are transition things.
         val dirtMax = 25
         dirtBlockMeshes = IntMap<String>(dirtMax)

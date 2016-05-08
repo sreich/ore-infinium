@@ -33,7 +33,6 @@ class WorldBlockTest {
 
     @Before
     fun createWorldAndinitializeBlocksArray() {
-        world.initializeBlocksArray()
     }
 
     @Test

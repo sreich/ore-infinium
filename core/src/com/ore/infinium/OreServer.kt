@@ -180,7 +180,7 @@ class OreServer : Runnable {
         loadInventory(player)
         loadHotbarInventory(player)
 
-        sendServerMessage("Player %s has joined the server".format(playerComponent.playerName))
+        sendServerMessage("Player ${playerComponent.playerName} has joined the server")
 
         return player
     }

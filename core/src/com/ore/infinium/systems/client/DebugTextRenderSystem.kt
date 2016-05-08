@@ -156,23 +156,22 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         if (frameTimer.milliseconds() > 300) {
             frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
-            fpsString = "FPS: " + Gdx.graphics.framesPerSecond + " (" + 1000.0f / Gdx.graphics.framesPerSecond +
-                    " ms)"
-            textureSwitchesString = "Texture switches: " + GLProfiler.textureBindings
-            shaderSwitchesString = "Shader switches: " + GLProfiler.shaderSwitches
-            drawCallsString = "Draw calls: " + GLProfiler.drawCalls
+            fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
+            textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
+            shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
+            drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
 
             //fixme
             //            if (m_server != null) {
             frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
             //           }
 
-            guiDebugString = "F12 - gui debug. Enabled: %s".format(m_guiDebug)
-            guiRenderToggleString = "F11 - gui render. Enabled: %s".format(m_world!!.m_client!!.m_renderGui)
-            tileRenderDebugString = "F10 - tile render.Enabled: %s".format(m_tileRenderSystem.debugRenderTiles)
-            networkSyncDebug = "F9 - server sprite debug render. Enabled Client: %s. Enabled Server:".format(
-                    m_renderDebugServer)
-            spriteRenderDebug = "F8 - client sprite debug render. Enabled: %s".format(m_renderDebugClient)
+            guiDebugString = "F12 - gui debug. Enabled: $m_guiDebug"
+            guiRenderToggleString = "F11 - gui render. Enabled: ${m_world!!.m_client!!.m_renderGui}"
+            tileRenderDebugString = "F10 - tile render.Enabled: ${m_tileRenderSystem.debugRenderTiles}"
+            networkSyncDebug = "F9 - server sprite debug render.Enabled Client: $m_renderDebugClient.Enabled Server:$m_renderDebugServer"
+
+            spriteRenderDebug = "F8 - client sprite debug render. Enabled: $m_renderDebugClient"
 
             frameTimer.reset()
         }
@@ -217,7 +216,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         //extra spacing
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, "tiles rendered: " + m_tileRenderSystem.debugTilesInViewCount, TEXT_X_LEFT.toFloat(),
+        m_font.draw(m_batch, "tiles rendered: ${m_tileRenderSystem.debugTilesInViewCount}", TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
         m_font.draw(m_batch, textureSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
@@ -255,10 +254,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
                     blockMeshType.toInt())
         }
 
-        val s = "tile(%d,%d), block type: %s, mesh: %s, walltype: %s texture: %s , Grass: %s".format(x, y, blockType,
-                                                                                                     blockMeshType,
-                                                                                                     blockWallType,
-                                                                                                     texture, hasGrass)
+        val s = "tile($x, $y), block type: $blockType, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass"
 
         m_font.draw(m_batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
@@ -267,7 +263,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
         val clientEntities = clientEntitySubscription.entities
 
-        m_font.draw(m_batch, "client entities: " + clientEntities.size(), TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, "client entities: ${clientEntities.size()}", TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         assert(m_world.m_server != null)
@@ -291,7 +287,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         }
 
-        m_font.draw(m_batch, "ping: " + m_clientNetworkSystem.m_clientKryo.returnTripTime, TEXT_X_LEFT.toFloat(),
+        m_font.draw(m_batch, "ping: ${m_clientNetworkSystem.m_clientKryo.returnTripTime}", TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
@@ -437,7 +433,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             }
         }
 
-        m_font.draw(m_batch, "entity id: " + entityUnderMouse, TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
+        m_font.draw(m_batch, "entity id: $entityUnderMouse", TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
         m_textYRight -= TEXT_Y_SPACING
 
         val builder = StringBuilder(300)
@@ -453,8 +449,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     }
 
     companion object {
-
-
         internal var frameTimer = OreTimer()
 
         internal var frameTimeString = ""

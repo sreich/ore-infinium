@@ -243,11 +243,11 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             spawn.size.size.set(sprite.sprite.width, sprite.sprite.height)
             spawn.textureName = sprite.textureName
 
-            spawnMultiple.entitySpawn!!.add(spawn)
+            spawnMultiple.entitySpawn.add(spawn)
         }
 
         //OreWorld.log("networkserversystem",
-        //            "sending spawn multiple for %d entities".format(spawnMultiple.entitySpawn!!.size))
+        //            "sending spawn multiple for ${spawnMultiple.entitySpawn!!.size} entities")
         m_serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
@@ -258,7 +258,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         destroyMultiple.entitiesToDestroy = entitiesToDestroy
 
         //OreWorld.log("networkserversystem",
-        //            "sending destroy multiple for %d entities".format(destroyMultiple.entitiesToDestroy!!.size))
+        //            "sending destroy multiple for ${destroyMultiple.entitiesToDestroy!!.size} entities")
         m_serverKryo.sendToTCP(connectionPlayerId, destroyMultiple)
     }
 
