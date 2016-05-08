@@ -43,6 +43,7 @@ import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.nextInt
 import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
@@ -265,10 +266,6 @@ class OreWorld
         const val s_itemPlacementOverlay = "itemPlacementOverlay"
         const val s_crosshair = "crosshair"
         const val s_mainPlayer = "mainPlayer"
-
-        fun randomRange(start: Int, end: Int, rand: RandomXS128): Int {
-            return start + rand.nextInt(end - start + 1)
-        }
 
         fun log(tag: String, message: String) {
             val datetime = java.time.LocalDateTime.now()
@@ -1155,8 +1152,8 @@ class OreWorld
             val clonedSpriteComp = spriteMapper.get(cloned)
             val random = RandomXS128 ()
             clonedSpriteComp.sprite.apply {
-                x += randomRange(0, 5, random)
-                y += randomRange(0, 5, random)
+                x += random.nextInt(0, 5)
+                y += random.nextInt(0, 5)
             }
 
             val clonedItemComp = itemMapper.get(cloned).apply {

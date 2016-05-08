@@ -25,6 +25,12 @@ SOFTWARE.
 package com.ore.infinium.util
 
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 
 val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y + (height * 0.5f), width, height)
+
+fun RandomXS128.nextInt(start: Int, end: Int): Int {
+    return start + nextInt(end - start + 1)
+}
+
