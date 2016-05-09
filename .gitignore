@@ -5,3 +5,5 @@ packed*
 .gradle*
 *.iml
 matrix/*
+**/generated/
+
