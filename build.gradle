@@ -118,6 +118,10 @@ project(":desktop") {
         compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
         compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+
+
+//        compile 'com.flowpowered:flow-noise:1.0.0'
+
     }
 }
 
@@ -152,6 +156,7 @@ project(":core") {
 
         //junit
         testCompile "junit:junit:$junitVersion"
+        testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 
         // kryonet
         compile "com.esotericsoftware:kryonet:$kryonetVersion"
@@ -178,6 +183,8 @@ project(":core") {
 
         //universal tween engine
         compile "org.sreich:tween-engine-api:$tweenEngineVersion"
+
+        compile 'com.sudoplay.joise:joise:1.0.1'
     }
 }
 

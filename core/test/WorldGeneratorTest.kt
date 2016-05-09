@@ -1,5 +1,3 @@
-package com.ore.infinium.systems.client
-
 /**
 MIT License
 
@@ -23,5 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-class test {
+
+import com.badlogic.gdx.utils.GdxNativesLoader
+import com.ore.infinium.WorldGenerator
+import org.junit.Test
+
+class WorldGeneratorTest {
+
+    @Test
+    @Throws(Exception::class)
+    fun generate1() {
+        GdxNativesLoader.load()
+        WorldGenerator.generate1()
+    }
+
 }

@@ -27,11 +27,16 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.files.FileHandle
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.util.nextInt
+import com.sudoplay.joise.module.ModuleGradient
 import org.lwjgl.util.Point
 
 @Wire
@@ -331,6 +336,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         byte[,] map = new byte[width, height];
         */
 
+
     fun generate2(seed: Long = -1, worldWidth: Int = 1000, worldHeight: Int = 1000) {
         val rand = RandomXS128()
 
@@ -426,7 +432,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                 }
 
                 caveTurns--;
-
+/*
                 if (caveTurns == 0 || pts.size == 1) {
                     //50% chance to start a new cave system from the first point still available
                     if (rand.nextDouble() < 0.5) {
@@ -437,6 +443,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                 } else {
                     pts.removeAt(0);
                 }
+                */
             }
 
             caveCount--;
@@ -599,6 +606,125 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
     }
     */
+    }
+
+    companion object {
+        fun generate1(seed: Long = -1, worldWidth: Int = 2400, worldHeight: Int = 8400) {
+
+            val mainGradient= ModuleGradient();
+            mainGradient.setGradient(0.0, 0.0, 0.0, 0.5);
+
+            val handle = FileHandle("worldgeneration.png")
+            val pixmap = Pixmap(worldWidth,worldHeight, Pixmap.Format.RGB888)
+
+            for ( x in 0..worldWidth) {
+                for (y in 0..worldHeight) {
+
+                    val value = mainGradient.get(x.toDouble(),y.toDouble())
+
+                    val final =  value
+                    val r = final.toFloat() * 255f
+                    val g = r
+                    val b = r
+
+                    pixmap.drawPixel(0, y, Color.rgb888(r,g,b));
+                }
+            }
+
+            PixmapIO.writePNG(handle, pixmap)
+
+            /*
+
+           int seed = 422344882;
+
+            width = 1000; //8400
+            height = 1000; //2400
+
+            final float SCALE = 1f;
+            float px, py;
+
+            final int Open = 1;
+            final int Dirt = 2;
+            final int Stone = 3;
+            final int SemiRare = 4;
+            final int Rare = 5;
+            final int Bedrock = 6;
+
+            final int Constant1 = 1;
+            final int Constant0 = 0;
+
+            final double SEMIRARE_DENSITY = 0.6;
+            final double RARE_DENSITY = 0.0009;
+            final double RARE_GRADIENT_SCALE = 1.;
+
+            /////////////////////////////////////////////////////
+
+            ModuleGradient mainGradient = new ModuleGradient();
+            mainGradient.setGradient(0, 0, 0, 0.5);
+
+            ModuleScaleOffset mainGradientRemap = new ModuleScaleOffset();
+            mainGradientRemap.setSource(mainGradient);
+            mainGradientRemap.setScale(0.5);
+            mainGradientRemap.setOffset(0.5);
+
+            ModuleFractal semiRareFBM = new ModuleFractal(ModuleFractal.FractalType.FBM,
+                    ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC);
+            semiRareFBM.setSeed(seed);
+            semiRareFBM.setNumOctaves(4);
+            semiRareFBM.setFrequency(2);
+
+            ModuleScaleOffset semiRareFBMRemap = new ModuleScaleOffset();
+            semiRareFBMRemap.setSource(semiRareFBM);
+            semiRareFBMRemap.setScale(0.5);
+            semiRareFBMRemap.setOffset(0.5);
+
+            ModuleSelect semiRareSelect = new ModuleSelect();
+            semiRareSelect.setControlSource(semiRareFBMRemap);
+            semiRareSelect.setLowSource(SemiRare);
+            semiRareSelect.setHighSource(Stone);
+            semiRareSelect.setThreshold(SEMIRARE_DENSITY);
+            semiRareSelect.setFalloff(0);
+
+            ///////////////////////////////////////////////////////////////////////
+
+            ModuleFractal rareFBM = new ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC);
+            rareFBM.setSeed(seed);
+            rareFBM.setNumOctaves(3);
+            rareFBM.setFrequency(3);
+
+            ModuleScaleOffset rareFBMRemap = new ModuleScaleOffset();
+            rareFBMRemap.setSource(rareFBM);
+            rareFBMRemap.setScale(0.5);
+            rareFBMRemap.setOffset(0.5);
+
+            ModuleScaleOffset rareFBMScale = new ModuleScaleOffset();
+            rareFBMRemap.setSource(rareFBMRemap);
+            rareFBMRemap.setScale(RARE_GRADIENT_SCALE);
+            rareFBMRemap.setOffset(0);
+
+            ModuleCombiner rareMult = new ModuleCombiner(ModuleCombiner.CombinerType.MULT);
+            rareMult.setSource(0, rareFBMScale);
+            rareMult.setSource(1, mainGradientRemap);
+
+            ModuleScaleOffset rareMultScale = new ModuleScaleOffset();
+            rareFBMRemap.setSource(rareMult);
+            rareFBMRemap.setScale(RARE_DENSITY);
+            rareFBMRemap.setOffset(0.0);
+
+            ModuleSelect rareSelect = new ModuleSelect();
+            rareSelect.setControlSource(rareMultScale);
+            rareSelect.setLowSource(semiRareSelect);
+            rareSelect.setHighSource(Rare);
+            rareSelect.setThreshold(0.5);
+            rareSelect.setFalloff(0);
+
+            Module finalGen = rareSelect;
+
+             */
+
+        }
     }
 }
 
