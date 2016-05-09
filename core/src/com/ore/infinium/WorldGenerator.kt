@@ -35,7 +35,10 @@ import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.util.nextInt
+import com.sudoplay.joise.module.ModuleBasisFunction
+import com.sudoplay.joise.module.ModuleFractal
 import com.sudoplay.joise.module.ModuleGradient
+import com.sudoplay.joise.module.ModuleSelect
 import org.lwjgl.util.Point
 
 @Wire
@@ -609,17 +612,36 @@ class WorldGenerator(private val m_world: OreWorld) {
 
     companion object {
         fun generate1(seed: Long = -1, worldWidth: Int = 2400, worldHeight: Int = 8400) {
-
-            val mainGradient= ModuleGradient();
-            mainGradient.setGradient(0.0, 0.0, 0.0, 1.0);
-
             val handle = FileHandle("test/generated/worldgeneration.png")
-            val pixmap = Pixmap(worldWidth,worldHeight, Pixmap.Format.RGB888)
+            val pixmap = Pixmap(worldWidth, worldHeight, Pixmap.Format.RGB888)
 
-            for ( x in 0..worldWidth) {
+            print("server world gen, worldgen starting")
+            val counter = PerformanceCounter("test")
+            counter.start()
+
+            val groundGradient = ModuleGradient();
+            groundGradient.setGradient(0.0, 0.0, 0.0, 1.0);
+
+            val groundSelect = ModuleSelect()
+            groundSelect.setControlSource(groundGradient)
+            groundSelect.setThreshold(worldHeight / 2.0)
+            groundSelect.setLowSource(0.0)
+            groundSelect.setHighSource(worldHeight.toDouble())
+
+            val groundShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
+                                                   ModuleBasisFunction.BasisType.GRADIENT,
+                                                   ModuleBasisFunction.InterpolationType.QUINTIC)
+
+            groundShapeFractal.setNumOctaves(6)
+            groundShapeFractal.setFrequency(2.0)
+
+            val finalSource = groundSelect
+//            val finalSource = groundGradient
+
+            for (x in 0..worldWidth) {
                 for (y in 0..worldHeight) {
 
-                    val value = mainGradient.get(0.0, y.toDouble())
+                    val value = finalSource.get(0.0, y.toDouble())
 
                     val expectedMax = worldHeight
 
@@ -632,6 +654,10 @@ class WorldGenerator(private val m_world: OreWorld) {
                     pixmap.drawPixel(x, y)
                 }
             }
+
+            counter.stop()
+            val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
+            print(s)
 
             PixmapIO.writePNG(handle, pixmap)
 
