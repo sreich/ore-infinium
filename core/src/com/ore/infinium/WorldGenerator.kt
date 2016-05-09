@@ -28,7 +28,6 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.files.FileHandle
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.math.RandomXS128
@@ -612,22 +611,25 @@ class WorldGenerator(private val m_world: OreWorld) {
         fun generate1(seed: Long = -1, worldWidth: Int = 2400, worldHeight: Int = 8400) {
 
             val mainGradient= ModuleGradient();
-            mainGradient.setGradient(0.0, 0.0, 0.0, 0.5);
+            mainGradient.setGradient(0.0, 0.0, 0.0, 1.0);
 
-            val handle = FileHandle("worldgeneration.png")
+            val handle = FileHandle("test/generated/worldgeneration.png")
             val pixmap = Pixmap(worldWidth,worldHeight, Pixmap.Format.RGB888)
 
             for ( x in 0..worldWidth) {
                 for (y in 0..worldHeight) {
 
-                    val value = mainGradient.get(x.toDouble(),y.toDouble())
+                    val value = mainGradient.get(0.0, y.toDouble())
 
-                    val final =  value
-                    val r = final.toFloat() * 255f
+                    val expectedMax = worldHeight
+
+                    val final = (value / expectedMax)
+                    val r = final.toFloat()
                     val g = r
                     val b = r
 
-                    pixmap.drawPixel(0, y, Color.rgb888(r,g,b));
+                    pixmap.setColor(r, g, b, 1f)
+                    pixmap.drawPixel(x, y)
                 }
             }
 
