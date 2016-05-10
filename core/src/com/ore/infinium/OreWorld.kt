@@ -236,8 +236,11 @@ class OreWorld
 
         const val BLOCK_SIZE_PIXELS = 16.0f
 
-        val WORLD_SIZE_X = 2400 //2400
-        val WORLD_SIZE_Y = 8400 //8400
+        /**
+         * @see WorldGenerator
+         */
+        val WORLD_SIZE_X = 8400
+        val WORLD_SIZE_Y = 2400
         val WORLD_SEA_LEVEL = 50
 
         /**
