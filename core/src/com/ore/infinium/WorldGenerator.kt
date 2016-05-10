@@ -607,8 +607,21 @@ class WorldGenerator(private val m_world: OreWorld) {
     */
     }
 
+    /**
+     * starbound world sizes:
+     * smallest: 2048x1504
+     * average: 4000x4000
+     * large: 6016x4000
+     * massive: 8000x4992
+     *
+     * terraria world sized:
+     * small: 4200x1200, sky limit 360-370 above underground level
+     * medium: 6400x1800, 450-600 blocks above underground(sky)
+     * large: 8400x2400, sky limit: 800-900 blocks above ground
+     *
+     */
     companion object {
-        fun generate1(seed: Long = -1, worldWidth: Int = 1300, worldHeight: Int = 2400) {
+        fun generate1(seed: Long = -1, worldWidth: Int = 4200, worldHeight: Int = 1200) {
             val handle = FileHandle("test/generated/worldgeneration.png")
             val pixmap = Pixmap(worldWidth, worldHeight, Pixmap.Format.RGB888)
 
@@ -632,9 +645,13 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundScale.setOffset(0.0)
             groundScale.setSource(groundShapeFractal)
 
+            val groundScaleY = ModuleScaleDomain()
+            groundScaleY.setScaleY(0.0)
+            groundScaleY.setSource(groundScale)
+
             val groundPerturb = ModuleTranslateDomain()
             groundPerturb.setSource(groundGradient)
-            groundPerturb.setAxisYSource(groundScale)
+            groundPerturb.setAxisYSource(groundScaleY)
 
             val groundSelect = ModuleSelect()
             groundSelect.setControlSource(groundPerturb)
