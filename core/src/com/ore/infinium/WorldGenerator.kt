@@ -628,8 +628,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundShapeFractal.setFrequency(2.0)
 
             val groundScale = ModuleScaleOffset()
-//            groundScale.setScale(0.5)
-            groundScale.setScale(worldHeight * 0.5)
+            groundScale.setScale(0.5)
             groundScale.setOffset(0.0)
             groundScale.setSource(groundShapeFractal)
 
@@ -639,10 +638,9 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val groundSelect = ModuleSelect()
             groundSelect.setControlSource(groundPerturb)
-            groundSelect.setThreshold(worldHeight * 0.5)
+            groundSelect.setThreshold(0.5)
             groundSelect.setLowSource(0.0)
-            groundSelect.setHighSource(worldHeight.toDouble())
-//            groundSelect.setHighSource(1.0)
+            groundSelect.setHighSource(1.0)
 
             val finalSource = groundSelect
 
@@ -653,11 +651,11 @@ class WorldGenerator(private val m_world: OreWorld) {
             for (x in 0..worldWidth) {
                 for (y in 0..worldHeight) {
 
-                    val value = finalSource.get(x.toDouble(), y.toDouble())
+                    val value = finalSource.get(x.toDouble()/ worldWidth.toDouble(), y.toDouble()/worldHeight.toDouble())
 
-                    val expectedMax = worldHeight.toDouble()
+                    //val expectedMax = worldHeight.toDouble()
 
-                    val final = (value / expectedMax)
+                    val final = value//(value / expectedMax)
                     val r = final.toFloat()
                     val g = r
                     val b = r
