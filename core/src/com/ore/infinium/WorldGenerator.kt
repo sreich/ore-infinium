@@ -623,12 +623,13 @@ class WorldGenerator(private val m_world: OreWorld) {
             val groundShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                    ModuleBasisFunction.BasisType.GRADIENT,
                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-
+            groundShapeFractal.seed = 42
             groundShapeFractal.setNumOctaves(6)
             groundShapeFractal.setFrequency(2.0)
 
             val groundScale = ModuleScaleOffset()
-            groundScale.setScale(0.5)
+//            groundScale.setScale(0.5)
+            groundScale.setScale(worldHeight * 0.5)
             groundScale.setOffset(0.0)
             groundScale.setSource(groundShapeFractal)
 
@@ -643,7 +644,10 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundSelect.setHighSource(worldHeight.toDouble())
 //            groundSelect.setHighSource(1.0)
 
-            val finalSource = groundShapeFractal
+            val finalSource = groundSelect
+
+            //           val joise = Joise(finalSource)
+//            joise.setSeed("seed1", )
 //            val finalSource = groundGradient
 
             for (x in 0..worldWidth) {
@@ -651,12 +655,16 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                     val value = finalSource.get(x.toDouble(), y.toDouble())
 
-                    val expectedMax = 1.0
+                    val expectedMax = worldHeight.toDouble()
 
                     val final = (value / expectedMax)
                     val r = final.toFloat()
                     val g = r
                     val b = r
+
+                    if (final > 0.0) {
+                        print('t')
+                    }
 
                     pixmap.setColor(r, g, b, 1f)
                     pixmap.drawPixel(x, y)
