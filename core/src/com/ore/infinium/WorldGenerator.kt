@@ -640,8 +640,10 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val random = Random()
 //            val seed = random.nextLong()
-            val seed2 = 34247L
-//            print("seed was $seed")
+//            val seed2 = 34247L
+            var seed2 = random.nextLong()
+            seed2 = -416634707531411
+            print("seed was $seed2")
 
             /*
          * ground_gradient
