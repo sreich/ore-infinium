@@ -37,6 +37,7 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.util.nextInt
 import com.sudoplay.joise.module.*
 import org.lwjgl.util.Point
+import java.util.*
 
 @Wire
 class WorldGenerator(private val m_world: OreWorld) {
@@ -607,6 +608,13 @@ class WorldGenerator(private val m_world: OreWorld) {
     */
     }
 
+    enum class WorldSize(val width: Int, val height: Int) {
+        Smallest(2048, 1500),
+        Small(4000, 1500),
+        Medium(6400, 1800),
+        Large(8400, 2400)
+    }
+
     /**
      * starbound world sizes:
      * smallest: 2048x1504
@@ -621,54 +629,246 @@ class WorldGenerator(private val m_world: OreWorld) {
      *
      */
     companion object {
-        fun generate1(seed: Long = -1, worldWidth: Int = 4200, worldHeight: Int = 1200) {
+        fun generate1(worldSize: WorldSize = WorldSize.Small) {
             val handle = FileHandle("test/generated/worldgeneration.png")
-            val pixmap = Pixmap(worldWidth, worldHeight, Pixmap.Format.RGB888)
+            val pixmap = Pixmap(worldSize.width, worldSize.height, Pixmap.Format.RGB888)
+
 
             print("server world gen, worldgen starting")
             val counter = PerformanceCounter("test")
             counter.start()
 
-            val groundGradient = ModuleGradient();
-            groundGradient.setGradient(0.0, 0.0, 0.0, 1.0);
+            val random = Random()
+//            val seed = random.nextLong()
+            val seed2 = 34247L
+//            print("seed was $seed")
 
+            /*
+         * ground_gradient
+         */
 
-            val groundShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
+            // ground_gradient
+            val groundGradient = ModuleGradient()
+            groundGradient.setGradient(0.0, 0.0, 0.0, 1.0)
+
+            /*
+         * lowland
+         */
+
+            // lowland_shape_fractal
+            val lowlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.BILLOW,
+                                                    ModuleBasisFunction.BasisType.GRADIENT,
+                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
+            lowlandShapeFractal.setNumOctaves(2)
+            lowlandShapeFractal.setFrequency(0.25)
+            lowlandShapeFractal.seed = seed2
+
+            // lowland_autocorrect
+            val lowlandAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
+            lowlandAutoCorrect.setSource(lowlandShapeFractal)
+            lowlandAutoCorrect.calculate()
+
+            // lowland_scale
+            val lowlandScale = ModuleScaleOffset()
+            lowlandScale.setScale(0.125)
+            lowlandScale.setOffset(-0.45)
+            lowlandScale.setSource(lowlandAutoCorrect)
+
+            // lowland_y_scale
+            val lowlandYScale = ModuleScaleDomain()
+            lowlandYScale.setScaleY(0.0)
+            lowlandYScale.setSource(lowlandScale)
+
+            // lowland_terrain
+            val lowlandTerrain = ModuleTranslateDomain()
+            lowlandTerrain.setAxisYSource(lowlandYScale)
+            lowlandTerrain.setSource(groundGradient)
+
+            /*
+         * highland
+         */
+
+            // highland_shape_fractal
+            val highlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
+                                                     ModuleBasisFunction.BasisType.GRADIENT,
+                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
+            highlandShapeFractal.setNumOctaves(4)
+            highlandShapeFractal.setFrequency(2.0)
+            highlandShapeFractal.seed = seed2
+
+            // highland_autocorrect
+            val highlandAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
+            highlandAutoCorrect.setSource(highlandShapeFractal)
+            highlandAutoCorrect.calculate()
+
+            // highland_scale
+            val highlandScale = ModuleScaleOffset()
+            highlandScale.setScale(0.25)
+            highlandScale.setOffset(0.0)
+            highlandScale.setSource(highlandAutoCorrect)
+
+            // highland_y_scale
+            val highlandYScale = ModuleScaleDomain()
+            highlandYScale.setScaleY(0.0)
+            highlandYScale.setSource(highlandScale)
+
+            // highland_terrain
+            val highlandTerrain = ModuleTranslateDomain()
+            highlandTerrain.setAxisYSource(highlandYScale)
+            highlandTerrain.setSource(groundGradient)
+
+            /*
+         * mountain
+         */
+
+            // mountain_shape_fractal
+            val mountainShapeFractal = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
+                                                     ModuleBasisFunction.BasisType.GRADIENT,
+                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
+            mountainShapeFractal.setNumOctaves(8)
+            mountainShapeFractal.setFrequency(1.0)
+            mountainShapeFractal.seed = seed2
+
+            // mountain_autocorrect
+            val mountainAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
+            mountainAutoCorrect.setSource(mountainShapeFractal)
+            mountainAutoCorrect.calculate()
+
+            // mountain_scale
+            val mountainScale = ModuleScaleOffset()
+            mountainScale.setScale(0.45)
+            mountainScale.setOffset(0.15)
+            mountainScale.setSource(mountainAutoCorrect)
+
+            // mountain_y_scale
+            val mountainYScale = ModuleScaleDomain()
+            mountainYScale.setScaleY(0.1)
+            mountainYScale.setSource(mountainScale)
+
+            // mountain_terrain
+            val mountainTerrain = ModuleTranslateDomain()
+            mountainTerrain.setAxisYSource(mountainYScale)
+            mountainTerrain.setSource(groundGradient)
+
+            /*
+         * terrain
+         */
+
+            // terrain_type_fractal
+            val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                    ModuleBasisFunction.BasisType.GRADIENT,
                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-            groundShapeFractal.seed = 42
-            groundShapeFractal.setNumOctaves(6)
-            groundShapeFractal.setFrequency(2.0)
+            terrainTypeFractal.setNumOctaves(3)
+            terrainTypeFractal.setFrequency(0.125)
+            terrainTypeFractal.seed = seed2
 
-            val groundScale = ModuleScaleOffset()
-            groundScale.setScale(0.5)
-            groundScale.setOffset(0.0)
-            groundScale.setSource(groundShapeFractal)
+            // terrain_autocorrect
+            val terrainAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
+            terrainAutoCorrect.setSource(terrainTypeFractal)
+            terrainAutoCorrect.calculate()
 
-            val groundScaleY = ModuleScaleDomain()
-            groundScaleY.setScaleY(0.0)
-            groundScaleY.setSource(groundScale)
+            // terrain_type_y_scale
+            val terrainTypeYScale = ModuleScaleDomain()
+            terrainTypeYScale.setScaleY(0.0)
+            terrainTypeYScale.setSource(terrainAutoCorrect)
 
-            val groundPerturb = ModuleTranslateDomain()
-            groundPerturb.setSource(groundGradient)
-            groundPerturb.setAxisYSource(groundScaleY)
+            // terrain_type_cache
+            val terrainTypeCache = ModuleCache()
+            terrainTypeCache.setSource(terrainTypeYScale)
 
+            // highland_mountain_select
+            val highlandMountainSelect = ModuleSelect()
+            highlandMountainSelect.setLowSource(highlandTerrain)
+            highlandMountainSelect.setHighSource(mountainTerrain)
+            highlandMountainSelect.setControlSource(terrainTypeCache)
+            highlandMountainSelect.setThreshold(0.65)
+            highlandMountainSelect.setFalloff(0.2)
+
+            // highland_lowland_select
+            val highlandLowlandSelect = ModuleSelect()
+            highlandLowlandSelect.setLowSource(lowlandTerrain)
+            highlandLowlandSelect.setHighSource(highlandMountainSelect)
+            highlandLowlandSelect.setControlSource(terrainTypeCache)
+            highlandLowlandSelect.setThreshold(0.25)
+            highlandLowlandSelect.setFalloff(0.15)
+
+            // highland_lowland_select_cache
+            val highlandLowlandSelectCache = ModuleCache()
+            highlandLowlandSelectCache.setSource(highlandLowlandSelect)
+
+            // ground_select
             val groundSelect = ModuleSelect()
-            groundSelect.setControlSource(groundPerturb)
-            groundSelect.setThreshold(0.5)
             groundSelect.setLowSource(0.0)
             groundSelect.setHighSource(1.0)
+            groundSelect.setThreshold(0.5)
+            groundSelect.setControlSource(highlandLowlandSelectCache)
 
-            val finalSource = groundSelect
+            /*
+         * cave
+         */
 
-            //           val joise = Joise(finalSource)
-//            joise.setSeed("seed1", )
-//            val finalSource = groundGradient
+            /*
+            // cave_shape
+            val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
+                                          ModuleBasisFunction.InterpolationType.QUINTIC)
+            caveShape.setNumOctaves(1)
+            caveShape.setFrequency(8.0)
+            caveShape.seed = seed
 
-            for (x in 0..worldWidth) {
-                for (y in 0..worldHeight) {
+            // cave_attenuate_bias
+            val caveAttenuateBias = ModuleBias(0.825)
+            caveAttenuateBias.setSource(highlandLowlandSelectCache)
 
-                    val value = finalSource.get(x.toDouble()/ worldWidth.toDouble(), y.toDouble()/worldHeight.toDouble())
+            // cave_shape_attenuate
+            val caveShapeAttenuate = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            caveShapeAttenuate.setSource(0, caveShape)
+            caveShapeAttenuate.setSource(1, caveAttenuateBias)
+
+            // cave_perturb_fractal
+            val cavePerturbFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
+                                                   ModuleBasisFunction.BasisType.GRADIENT,
+                                                   ModuleBasisFunction.InterpolationType.QUINTIC)
+            cavePerturbFractal.setNumOctaves(6)
+            cavePerturbFractal.setFrequency(3.0)
+            cavePerturbFractal.seed = seed
+
+            // cave_perturb_scale
+            val cavePerturbScale = ModuleScaleOffset()
+            cavePerturbScale.setScale(0.25)
+            cavePerturbScale.setOffset(0.0)
+            cavePerturbScale.setSource(cavePerturbFractal)
+
+            // cave_perturb
+            val cavePerturb = ModuleTranslateDomain()
+            cavePerturb.setAxisXSource(cavePerturbScale)
+            cavePerturb.setSource(caveShapeAttenuate)
+
+            // cave_select
+            val caveSelect = ModuleSelect()
+            caveSelect.setLowSource(1.0)
+            caveSelect.setHighSource(0.0)
+            caveSelect.setControlSource(cavePerturb)
+            caveSelect.setThreshold(0.8)
+            caveSelect.setFalloff(0.0)
+            */
+
+            /*
+         * final
+         */
+
+            // ground_cave_multiply
+            /*
+            val groundCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            groundCaveMultiply.setSource(0, caveSelect)
+            groundCaveMultiply.setSource(1, groundSelect)
+*/
+            val finalModule = groundSelect
+            for (x in 0..worldSize.width) {
+                for (y in 0..worldSize.height) {
+
+                    val xRatio = worldSize.width.toDouble() / worldSize.height.toDouble()
+                    val value = finalModule.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
+                                                y.toDouble() / worldSize.height.toDouble())
 
                     //val expectedMax = worldHeight.toDouble()
 
@@ -676,10 +876,6 @@ class WorldGenerator(private val m_world: OreWorld) {
                     val r = final.toFloat()
                     val g = r
                     val b = r
-
-                    if (final > 0.0) {
-                        print('t')
-                    }
 
                     pixmap.setColor(r, g, b, 1f)
                     pixmap.drawPixel(x, y)
