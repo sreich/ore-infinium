@@ -253,7 +253,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         var workerThreadsRemainingLatch: CountDownLatch? = null
 
         fun generateThreaded(worldSize: WorldSize = WorldSize.Large) {
-            val threadCount = 4
+            val threadCount = 8
 
             workerThreadsRemainingLatch = CountDownLatch(threadCount)
 
@@ -262,7 +262,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val seed2 = 34247L
 
             var seed2 = random.nextLong()
-            seed2 = -416634707531411
+            seed2 = -41663470753411
             println("seed was $seed2")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -480,7 +480,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val groundSelect = ModuleSelect()
             groundSelect.setLowSource(0.0)
             groundSelect.setHighSource(1.0)
-            groundSelect.setThreshold(0.5)
+            groundSelect.setThreshold(0.3)
             groundSelect.setControlSource(highlandLowlandSelectCache)
 
             /*
