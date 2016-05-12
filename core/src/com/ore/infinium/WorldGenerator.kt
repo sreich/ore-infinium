@@ -255,11 +255,11 @@ class WorldGenerator(private val m_world: OreWorld) {
             seed2 = -416634707531411
             print("seed was $seed2")
 
-            var imageArray = FloatArray(worldSize.width * worldSize.height + 1)
+            var imageArray = FloatArray(worldSize.width * worldSize.height)
 
             print("server world gen, worldgen starting")
 
-            val counter = PerformanceCounter("test")
+            val counter = PerformanceCounter("world gen")
             counter.start()
 
             val thread2 = thread { generate1(worldSize, 2, seed2, imageArray) }
