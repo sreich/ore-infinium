@@ -32,10 +32,12 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.utils.PerformanceCounter
+import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.sudoplay.joise.module.*
 import java.util.*
+import java.util.concurrent.CountDownLatch
 import kotlin.concurrent.thread
 
 @Wire
@@ -243,9 +245,17 @@ class WorldGenerator(private val m_world: OreWorld) {
      *
      */
     companion object {
+        /**
+         * how many worker threads are running write now.
+         * 0 indicates we are all done, each one counted
+         * down their latch and returned
+         */
+        var workerThreadsRemainingLatch: CountDownLatch? = null
+
         fun generateThreaded(worldSize: WorldSize = WorldSize.Large) {
-            val handle = FileHandle("test/generated/worldgeneration.png")
-            val pixmap = Pixmap(worldSize.width, worldSize.height, Pixmap.Format.RGB888)
+            val threadCount = 4
+
+            workerThreadsRemainingLatch = CountDownLatch(threadCount)
 
             val random = Random()
 //            val seed = random.nextLong()
@@ -253,26 +263,39 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             var seed2 = random.nextLong()
             seed2 = -416634707531411
-            print("seed was $seed2")
+            println("seed was $seed2")
 
-            var imageArray = FloatArray(worldSize.width * worldSize.height)
+            val imageArray = FloatArray(worldSize.width * worldSize.height)
 
-            print("server world gen, worldgen starting")
+            println("server world gen, worldgen starting")
 
             val counter = PerformanceCounter("world gen")
             counter.start()
 
-            val thread2 = thread { generate1(worldSize, 2, seed2, imageArray) }
+            for (thread in 1..threadCount) {
+                thread { generate1(worldSize, thread, threadCount, seed2, imageArray) }
+            }
 
-            generate1(worldSize, 1, seed2, imageArray)
-
-
-            thread2.join()
+            //halt until all threads come back up. remember, for client-hosted server,
+            //user clicks button on client thread, client thread calls into server code, drops off
+            // (not network) params for world gen, server eventually picks it up,
+            // calls into this main generation method,
+            //passes parameters the client gave it. client then wants to know the status, for loading bars etc.
+            //it'll want to know how many threads are going on. it can probably just call right into the
+            //server code, then into the world generator, and find that information, and set appropriate
+            //ui values
+            workerThreadsRemainingLatch!!.await()
 
             counter.stop()
             val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
-            print(s)
+            println(s)
 
+            writeWorldPng(imageArray, worldSize)
+        }
+
+        private fun writeWorldPng(imageArray: FloatArray, worldSize: WorldGenerator.WorldSize) {
+            val handle = FileHandle("test/generated/worldgeneration.png")
+            val pixmap = Pixmap(worldSize.width, worldSize.height, Pixmap.Format.RGB888)
             for (x in 0..worldSize.width - 1) {
                 for (y in 0..worldSize.height - 1) {
 
@@ -286,15 +309,19 @@ class WorldGenerator(private val m_world: OreWorld) {
                 }
             }
 
-
             PixmapIO.writePNG(handle, pixmap)
         }
 
         fun generate1(worldSize: WorldSize,
                       threadNumber: Int,
+                      threadCount: Int,
                       seed2: Long, imageArray: FloatArray
                      ) {
 
+            println("...thread $threadNumber started generation")
+
+            val counter = PerformanceCounter("world gen thread $threadNumber")
+            counter.start()
 
             /*
          * ground_gradient
@@ -515,20 +542,25 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundCaveMultiply.setSource(0, caveSelect)
             groundCaveMultiply.setSource(1, groundSelect)
 */
-            var startX = -1
-            var endX = -1// worldSize.width / 2
+            /*
             when (threadNumber) {
             //first half
                 1 -> {
                     startX = 0
-                    endX = (worldSize.width / 2)
+                    endX = (worldSize.width / threadCount)
                 }
             //2nd half
                 2 -> {
-                    startX = (worldSize.width / 2)
+                    startX = (worldSize.width / threadCount)
                     endX = worldSize.width
                 }
             }
+            */
+
+            val partitionedWidth = worldSize.width / threadCount
+
+            val startX = (threadNumber - 1) * partitionedWidth
+            val endX = startX + partitionedWidth
 
             val finalModule = groundSelect
             for (x in startX..endX - 1) {
@@ -547,6 +579,11 @@ class WorldGenerator(private val m_world: OreWorld) {
                     imageArray[index] = value.toFloat()
                 }
             }
+
+            counter.stop()
+            println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
+
+            workerThreadsRemainingLatch!!.countDown()
 
         }
     }
