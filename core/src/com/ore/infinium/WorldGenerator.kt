@@ -252,7 +252,7 @@ class WorldGenerator(private val m_world: OreWorld) {
          */
         var workerThreadsRemainingLatch: CountDownLatch? = null
 
-        fun generateThreaded(worldSize: WorldSize = WorldSize.Large) {
+        fun generateThreaded(worldSize: WorldSize = WorldSize.Small) {
             val threadCount = 8
 
             workerThreadsRemainingLatch = CountDownLatch(threadCount)
@@ -262,7 +262,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val seed2 = 34247L
 
             var seed2 = random.nextLong()
-            seed2 = -41663470753411
+            seed2 = 4163470753411
             println("seed was $seed2")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -309,6 +309,16 @@ class WorldGenerator(private val m_world: OreWorld) {
                 }
             }
 
+            //create guideline in output image to help world gen
+            // tuning, for sky, to not go above/below too much
+            for (x in 0..worldSize.width - 1) {
+                val y = 200
+
+                pixmap.setColor(1f, 0f, 1f, 1f)
+                pixmap.drawPixel(x, y)
+            }
+
+
             PixmapIO.writePNG(handle, pixmap)
         }
 
@@ -351,7 +361,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             // lowland_scale
             val lowlandScale = ModuleScaleOffset()
             lowlandScale.setScale(0.125)
-            lowlandScale.setOffset(-0.45)
+            lowlandScale.setOffset(-0.15)
             lowlandScale.setSource(lowlandAutoCorrect)
 
             // lowland_y_scale
