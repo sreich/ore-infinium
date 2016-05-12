@@ -255,14 +255,16 @@ class WorldGenerator(private val m_world: OreWorld) {
             seed2 = -416634707531411
             print("seed was $seed2")
 
+            var imageArray = FloatArray(worldSize.width * worldSize.height + 1)
+
             print("server world gen, worldgen starting")
 
             val counter = PerformanceCounter("test")
             counter.start()
 
-            val thread2 = thread { generate1(worldSize, 2, seed2, pixmap) }
+            val thread2 = thread { generate1(worldSize, 2, seed2, imageArray) }
 
-            generate1(worldSize, 1, seed2, pixmap)
+            generate1(worldSize, 1, seed2, imageArray)
 
 
             thread2.join()
@@ -271,13 +273,27 @@ class WorldGenerator(private val m_world: OreWorld) {
             val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
             print(s)
 
+            for (x in 0..worldSize.width - 1) {
+                for (y in 0..worldSize.height - 1) {
+
+                    val final = imageArray[x * worldSize.height + y]
+                    val r = final
+                    val g = r
+                    val b = r
+
+                    pixmap.setColor(r, g, b, 1f)
+                    pixmap.drawPixel(x, y)
+                }
+            }
+
+
             PixmapIO.writePNG(handle, pixmap)
         }
 
         fun generate1(worldSize: WorldSize,
                       threadNumber: Int,
-                      seed2: Long,
-                      pixmap: Pixmap) {
+                      seed2: Long, imageArray: FloatArray
+                     ) {
 
 
             /*
@@ -505,34 +521,30 @@ class WorldGenerator(private val m_world: OreWorld) {
             //first half
                 1 -> {
                     startX = 0
-                    endX = (worldSize.width / 2) - 1
+                    endX = (worldSize.width / 2)
                 }
             //2nd half
                 2 -> {
-                    startX = (worldSize.width / 2) + 1
+                    startX = (worldSize.width / 2)
                     endX = worldSize.width
                 }
             }
 
             val finalModule = groundSelect
-            //           for (x in 0..worldSize.width) {
-//                for (y in 0..worldSize.height) {
-            for (x in startX..endX) {
-                for (y in 0..worldSize.height) {
+            for (x in startX..endX - 1) {
+                for (y in 0..worldSize.height - 1) {
+
 
                     val xRatio = worldSize.width.toDouble() / worldSize.height.toDouble()
                     val value = finalModule.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
                                                 y.toDouble() / worldSize.height.toDouble())
 
-                    //val expectedMax = worldHeight.toDouble()
+                    if (value > 0.0) {
+                    }
 
-                    val final = value//(value / expectedMax)
-                    val r = final.toFloat()
-                    val g = r
-                    val b = r
+                    val index = x * worldSize.height + y
 
-                    pixmap.setColor(r, g, b, 1f)
-                    pixmap.drawPixel(x, y)
+                    imageArray[index] = value.toFloat()
                 }
             }
 
