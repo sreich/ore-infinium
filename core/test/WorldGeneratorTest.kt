@@ -32,7 +32,8 @@ class WorldGeneratorTest {
     @Throws(Exception::class)
     fun generate1() {
         GdxNativesLoader.load()
-        WorldGenerator.generate1()
+//        WorldGenerator.generate1()
+        WorldGenerator.generateThreaded()
     }
 
 }
