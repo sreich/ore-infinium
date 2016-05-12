@@ -339,8 +339,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             val lowlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.BILLOW,
                                                     ModuleBasisFunction.BasisType.GRADIENT,
                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
-            lowlandShapeFractal.setNumOctaves(2)
-            lowlandShapeFractal.setFrequency(0.25)
+            lowlandShapeFractal.setNumOctaves(8)
+            lowlandShapeFractal.setFrequency(0.85)
             lowlandShapeFractal.seed = seed2
 
             // lowland_autocorrect
