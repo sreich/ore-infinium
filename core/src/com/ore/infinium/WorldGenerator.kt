@@ -264,7 +264,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val seed2 = 34247L
 
             var seed2 = random.nextLong()
-            seed2 = 582270557303510727
+            seed2 = 7422821140700086880
+
             println("seed was $seed2")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -491,7 +492,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val groundSelect = ModuleSelect()
             groundSelect.setLowSource(0.0)
             groundSelect.setHighSource(1.0)
-            groundSelect.setThreshold(0.16)
+            groundSelect.setThreshold(0.17)
             groundSelect.setControlSource(highlandLowlandSelectCache)
 
             /*
