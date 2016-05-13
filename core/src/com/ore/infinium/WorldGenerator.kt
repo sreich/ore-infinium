@@ -264,7 +264,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val seed2 = 34247L
 
             var seed2 = random.nextLong()
-            seed2 = 7582270557303510727
+            seed2 = 582270557303510727
             println("seed was $seed2")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
