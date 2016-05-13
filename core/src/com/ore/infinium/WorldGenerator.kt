@@ -434,7 +434,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             // mountain_y_scale
             val mountainYScale = ModuleScaleDomain()
-            mountainYScale.setScaleY(0.1)
+            mountainYScale.setScaleY(0.5)
             mountainYScale.setSource(mountainScale)
 
             // mountain_terrain
