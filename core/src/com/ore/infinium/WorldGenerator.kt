@@ -319,18 +319,19 @@ class WorldGenerator(private val m_world: OreWorld) {
             // tuning, for sky, to not go above/below too much
             //         pixmap.setColor(1f, 0f, 1f, 1f)
 
-            graphics.color = Color.LIGHT_GRAY;
-            graphics.fillRect(0, 0, 200, 50);
-            graphics.color = Color.BLACK;
-            graphics.font = Font("Arial Black", Font.BOLD, 20);
 
             graphics.color = Color.magenta;
             graphics.drawLine(0, 200, worldSize.width, 200)
 
-            graphics.drawString("test", 10, 25);
+            graphics.font = Font("SansSerif", Font.PLAIN, 12);
+            graphics.drawString("y=200", 10, 190);
 
             ImageIO.write(bufferedImage, "png", File("test/generated/worldgeneration.png"));
         }
+
+//public Font(@Nullable java.lang.String s,
+//            @org.intellij.lang.annotations.MagicConstant(flags={java.awt.Font.PLAIN, java.awt.Font.BOLD, java.awt.Font.ITALIC}) int i,
+//            int i1)
 
         fun generate1(worldSize: WorldSize,
                       threadNumber: Int,
