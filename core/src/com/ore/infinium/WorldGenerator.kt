@@ -296,9 +296,6 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
 
         private fun writeWorldPng(imageArray: FloatArray, worldSize: WorldGenerator.WorldSize) {
-            //           val handle = FileHandle("test/generated/worldgeneration.png")
-            //          val pixmap = Pixmap(worldSize.width, worldSize.height, Pixmap.Format.RGB888)
-
             val bufferedImage = BufferedImage(worldSize.width, worldSize.height, BufferedImage.TYPE_INT_RGB);
             val graphics = bufferedImage.graphics;
 
@@ -310,15 +307,8 @@ class WorldGenerator(private val m_world: OreWorld) {
                     val g = r
                     val b = r
                     bufferedImage.setRGB(x, y, Color(r, g, b).rgb)
-//                    pixmap.setColor(r, g, b, 1f)
-                    //                   pixmap.drawPixel(x, y)
                 }
             }
-
-            //create guideline in output image to help world gen
-            // tuning, for sky, to not go above/below too much
-            //         pixmap.setColor(1f, 0f, 1f, 1f)
-
 
             graphics.color = Color.magenta;
             graphics.drawLine(0, 200, worldSize.width, 200)
