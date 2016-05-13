@@ -264,7 +264,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val seed2 = 34247L
 
             var seed2 = random.nextLong()
-            seed2 = 7422821140700086880
+            seed2= 5199581358702662645
 
             println("seed was $seed2")
 
@@ -363,7 +363,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             // lowland_scale
             val lowlandScale = ModuleScaleOffset()
             lowlandScale.setScale(0.125)
-            lowlandScale.setOffset(-0.15)
+            lowlandScale.setOffset(-0.10)
             lowlandScale.setSource(lowlandAutoCorrect)
 
             // lowland_y_scale
