@@ -97,6 +97,7 @@ class OreBlock private constructor() {
         /**
          * number of byte fields we use for each block.
          * because they're all stored in one array, as primitives.
+         * each is a byte..obviously
          *
          *
          * As follows are:
@@ -105,16 +106,16 @@ class OreBlock private constructor() {
          * -wallType
          * -flags
          */
-        const val BLOCK_FIELD_COUNT = 4
+        const val BLOCK_BYTE_FIELD_COUNT = 4
 
         /**
          * index offset within the big byte block array,
          * since BLOCK_FIELD_COUNT elements are stored for each
          * actual block
          */
-        const val BLOCK_FIELD_INDEX_TYPE = 0
-        const val BLOCK_FIELD_INDEX_MESHTYPE = 1
-        const val BLOCK_FIELD_INDEX_WALLTYPE = 2
-        const val BLOCK_FIELD_INDEX_FLAGS = 3
+        const val BLOCK_BYTE_FIELD_INDEX_TYPE = 0
+        const val BLOCK_BYTE_FIELD_INDEX_MESHTYPE = 1
+        const val BLOCK_BYTE_FIELD_INDEX_WALLTYPE = 2
+        const val BLOCK_BYTE_FIELD_INDEX_FLAGS = 3
     }
 }

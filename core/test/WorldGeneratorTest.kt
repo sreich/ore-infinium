@@ -28,12 +28,20 @@ import org.junit.Test
 
 class WorldGeneratorTest {
 
+
     @Test
     @Throws(Exception::class)
-    fun generate1() {
+    fun generateWorldAndOutputImage() {
+        GdxNativesLoader.load()
+        WorldGenerator.generateWorldAndOutputImage()
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun generateWorldAndOutputMultipleImages() {
         GdxNativesLoader.load()
 //        WorldGenerator.generate1()
-        WorldGenerator.generateThreaded()
+        //       WorldGenerator.generateWorldAndOutputMultipleImages(numberOfImages = 500)
     }
 
 }

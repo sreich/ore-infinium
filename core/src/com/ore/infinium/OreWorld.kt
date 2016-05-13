@@ -113,7 +113,7 @@ class OreWorld
 
         //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
         //        blocks = new OreBlock[WORLD_SIZE_Y * WORLD_SIZE_X];
-        blocks = ByteArray(WORLD_SIZE_Y * WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT)
+        blocks = ByteArray(WORLD_SIZE_Y * WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT)
     }
 
     internal fun init() {
@@ -385,7 +385,7 @@ class OreWorld
         var y = y
         x = MathUtils.clamp(x, 0, WORLD_SIZE_X - 1)
         y = MathUtils.clamp(y, 0, WORLD_SIZE_Y - 1)
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE]
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
     }
 
     /**
@@ -417,86 +417,86 @@ class OreWorld
     //blocks[(x * 2400 + y) * 4 + i] where i = 0, 1, 2 or 3
     inline fun blockType(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE) {
             "blockType index out of range. x: $x, y: $y"
         }
 
         //todo can change it to bitshift if we want to...the jvm should already know to do this though..but idk if it
         // will do it
         //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE]
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
     }
 
     inline fun blockWallType(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE) {
             "blockWallType index out of range. x: $x, y: $y"
         }
 
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE]
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE]
     }
 
     inline fun blockMeshType(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE) {
             "blockMeshType index out of range. x: $x, y: $y"
         }
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE]
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE]
     }
 
     inline fun blockFlags(x: Int, y: Int): Byte {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "blockFlags index out of range. x: $x, y: $y"
         }
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS]
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
     }
 
     inline fun blockHasFlag(x: Int, y: Int, flag: Byte): Boolean {
 
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "blockHasFlag index out of range. x: $x, y: $y"
         }
 
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS].toInt().and(
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().and(
                 flag.toInt()) != 0
     }
 
     inline fun setBlockType(x: Int, y: Int, type: Byte) {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE) {
             "setBlockType index out of range. x: $x, y: $y"
         }
 
         //todo can change it to bitshift if we want to...the jvm should already know to do this though..but idk
         //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_TYPE] = type
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE] = type
     }
 
     inline fun setBlockWallType(x: Int, y: Int, wallType: Byte) {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE) {
             "setBlockWallType index out of range. x: $x, y: $y"
         }
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_WALLTYPE] = wallType
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE] = wallType
     }
 
     inline fun setBlockMeshType(x: Int, y: Int, meshType: Byte) {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE) {
             "setBlockMeshType index out of range. x: $x, y: $y"
         }
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_MESHTYPE] = meshType
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE] = meshType
     }
 
     /**
@@ -510,11 +510,11 @@ class OreWorld
      */
     inline fun setBlockFlags(x: Int, y: Int, flags: Byte) {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "setBlockFlags index out of range. x: $x, y: $y"
         }
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS] = flags
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = flags
     }
 
     /**
@@ -528,13 +528,13 @@ class OreWorld
      */
     inline fun unsetBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "enableBlockFlags index out of range. x: $x, y: $y"
         }
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS] =
-                blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS].toInt().and(
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] =
+                blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().and(
                         flagToEnable.toInt()).inv().toByte()
     }
 
@@ -549,13 +549,13 @@ class OreWorld
      */
     inline fun setBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS) {
+                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "enableBlockFlags index out of range. x: $x, y: $y"
         }
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS] =
-                blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_FIELD_COUNT + OreBlock.BLOCK_FIELD_INDEX_FLAGS].toInt().or(
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] =
+                blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().or(
                         flagToEnable.toInt()).toByte()
     }
 

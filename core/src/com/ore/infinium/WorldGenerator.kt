@@ -233,6 +233,9 @@ class WorldGenerator(private val m_world: OreWorld) {
         Large(8400, 2400)
     }
 
+    class WorldGenOutputInfo(val imageArray: FloatArray, val worldSize: WorldSize, val seed: Long, val useUniqueImageName: Boolean) {
+    }
+
     /**
      * starbound world sizes:
      * smallest: 2048x1504
@@ -254,7 +257,20 @@ class WorldGenerator(private val m_world: OreWorld) {
          */
         var workerThreadsRemainingLatch: CountDownLatch? = null
 
-        fun generateThreaded(worldSize: WorldSize = WorldSize.Small) {
+        /**
+         * generates @param numberOfImages number of worlds to generate, and each one
+         * will get output as a unique image. for batch testing of world gen
+         */
+        fun generateWorldAndOutputMultipleImages(worldSize: WorldSize = WorldSize.Small,
+                                                 threadCount: Int = 8,
+                                                 numberOfImages: Int) {
+
+            for (i in 1..numberOfImages) {
+                generateWorldAndOutputImage(worldSize, useUniqueImageName = true)
+            }
+        }
+
+        fun generateWorldAndOutputImage(worldSize: WorldSize = WorldSize.Small, useUniqueImageName: Boolean = false) {
             val threadCount = 8
 
             workerThreadsRemainingLatch = CountDownLatch(threadCount)
@@ -264,7 +280,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val seed2 = 34247L
 
             var seed2 = random.nextLong()
-            seed2= 5199581358702662645
+            //       seed2= 5199581358702662645
 
             println("seed was $seed2")
 
@@ -293,17 +309,19 @@ class WorldGenerator(private val m_world: OreWorld) {
             val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
             println(s)
 
-            writeWorldPng(imageArray, worldSize)
+            val worldGenInfo = WorldGenOutputInfo(imageArray, worldSize, seed2, useUniqueImageName)
+            writeWorldPng(worldGenInfo)
         }
 
-        private fun writeWorldPng(imageArray: FloatArray, worldSize: WorldGenerator.WorldSize) {
-            val bufferedImage = BufferedImage(worldSize.width, worldSize.height, BufferedImage.TYPE_INT_RGB);
+        private fun writeWorldPng(worldGenInfo: WorldGenOutputInfo) {
+            val bufferedImage = BufferedImage(worldGenInfo.worldSize.width, worldGenInfo.worldSize.height,
+                                              BufferedImage.TYPE_INT_RGB);
             val graphics = bufferedImage.graphics;
 
-            for (x in 0..worldSize.width - 1) {
-                for (y in 0..worldSize.height - 1) {
+            for (x in 0..worldGenInfo.worldSize.width - 1) {
+                for (y in 0..worldGenInfo.worldSize.height - 1) {
 
-                    val final = imageArray[x * worldSize.height + y]
+                    val final = worldGenInfo.imageArray[x * worldGenInfo.worldSize.height + y]
                     val r = final
                     val g = r
                     val b = r
@@ -312,12 +330,21 @@ class WorldGenerator(private val m_world: OreWorld) {
             }
 
             graphics.color = Color.magenta;
-            graphics.drawLine(0, 200, worldSize.width, 200)
+            graphics.drawLine(0, 200, worldGenInfo.worldSize.width, 200)
 
-            graphics.font = Font("SansSerif", Font.PLAIN, 12);
+            graphics.font = Font("SansSerif", Font.PLAIN, 8);
+            graphics.drawString("seed: ${worldGenInfo.seed}", 0, 10)
+
             graphics.drawString("y=200", 10, 190);
 
-            ImageIO.write(bufferedImage, "png", File("test/generated/worldgeneration.png"));
+            val fileUrl: String
+            if (worldGenInfo.useUniqueImageName) {
+                fileUrl = "test/generated/worldgeneration-${worldGenInfo.seed}.png"
+            } else {
+                fileUrl = "test/generated/worldgeneration.png"
+            }
+
+            ImageIO.write(bufferedImage, "png", File(fileUrl));
         }
 
 //public Font(@Nullable java.lang.String s,
@@ -600,4 +627,5 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
     }
 }
+
 
