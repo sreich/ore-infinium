@@ -27,17 +27,19 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.files.FileHandle
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.utils.PerformanceCounter
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.sudoplay.joise.module.*
+import java.awt.Color
+import java.awt.Font
+import java.awt.image.BufferedImage
+import java.io.File
 import java.util.*
 import java.util.concurrent.CountDownLatch
+import javax.imageio.ImageIO
 import kotlin.concurrent.thread
 
 @Wire
@@ -294,8 +296,12 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
 
         private fun writeWorldPng(imageArray: FloatArray, worldSize: WorldGenerator.WorldSize) {
-            val handle = FileHandle("test/generated/worldgeneration.png")
-            val pixmap = Pixmap(worldSize.width, worldSize.height, Pixmap.Format.RGB888)
+            //           val handle = FileHandle("test/generated/worldgeneration.png")
+            //          val pixmap = Pixmap(worldSize.width, worldSize.height, Pixmap.Format.RGB888)
+
+            val bufferedImage = BufferedImage(worldSize.width, worldSize.height, BufferedImage.TYPE_INT_RGB);
+            val graphics = bufferedImage.graphics;
+
             for (x in 0..worldSize.width - 1) {
                 for (y in 0..worldSize.height - 1) {
 
@@ -303,23 +309,27 @@ class WorldGenerator(private val m_world: OreWorld) {
                     val r = final
                     val g = r
                     val b = r
-
-                    pixmap.setColor(r, g, b, 1f)
-                    pixmap.drawPixel(x, y)
+                    bufferedImage.setRGB(x, y, Color(r, g, b).rgb)
+//                    pixmap.setColor(r, g, b, 1f)
+                    //                   pixmap.drawPixel(x, y)
                 }
             }
 
             //create guideline in output image to help world gen
             // tuning, for sky, to not go above/below too much
-            for (x in 0..worldSize.width - 1) {
-                val y = 200
+            //         pixmap.setColor(1f, 0f, 1f, 1f)
 
-                pixmap.setColor(1f, 0f, 1f, 1f)
-                pixmap.drawPixel(x, y)
-            }
+            graphics.color = Color.LIGHT_GRAY;
+            graphics.fillRect(0, 0, 200, 50);
+            graphics.color = Color.BLACK;
+            graphics.font = Font("Arial Black", Font.BOLD, 20);
 
+            graphics.color = Color.magenta;
+            graphics.drawLine(0, 200, worldSize.width, 200)
 
-            PixmapIO.writePNG(handle, pixmap)
+            graphics.drawString("test", 10, 25);
+
+            ImageIO.write(bufferedImage, "png", File("test/generated/worldgeneration.png"));
         }
 
         fun generate1(worldSize: WorldSize,
