@@ -394,7 +394,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             // highland_scale
             val highlandScale = ModuleScaleOffset()
-            highlandScale.setScale(0.25)
+            highlandScale.setScale(0.05)
             highlandScale.setOffset(0.0)
             highlandScale.setSource(highlandAutoCorrect)
 
@@ -427,8 +427,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             // mountain_scale
             val mountainScale = ModuleScaleOffset()
-            mountainScale.setScale(0.25)
-            mountainScale.setOffset(0.15)
+            mountainScale.setScale(0.10)
+            mountainScale.setOffset(0.0)
             mountainScale.setSource(mountainAutoCorrect)
 
             // mountain_y_scale
