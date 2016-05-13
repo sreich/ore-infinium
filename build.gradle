@@ -17,7 +17,7 @@ buildscript {
         jcommanderVersion = "1.48"
         tweenEngineVersion = "6.3.3"
 
-        kotlinVersion = '1.0.2-eap-74'
+        kotlinVersion = '1.0.2'
 
         junitVersion = '4.12'
     }
