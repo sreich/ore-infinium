@@ -491,7 +491,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val groundSelect = ModuleSelect()
             groundSelect.setLowSource(0.0)
             groundSelect.setHighSource(1.0)
-            groundSelect.setThreshold(0.10)
+            groundSelect.setThreshold(0.16)
             groundSelect.setControlSource(highlandLowlandSelectCache)
 
             /*
