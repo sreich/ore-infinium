@@ -470,7 +470,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandMountainSelect.setLowSource(highlandTerrain)
             highlandMountainSelect.setHighSource(mountainTerrain)
             highlandMountainSelect.setControlSource(terrainTypeCache)
-            highlandMountainSelect.setThreshold(0.65)
+            highlandMountainSelect.setThreshold(0.55)
             highlandMountainSelect.setFalloff(0.2)
 
             val highlandLowlandSelect = ModuleSelect()
@@ -478,7 +478,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandLowlandSelect.setHighSource(highlandMountainSelect)
             highlandLowlandSelect.setControlSource(terrainTypeCache)
             highlandLowlandSelect.setThreshold(0.25)
-            highlandLowlandSelect.setFalloff(0.15)
+            highlandLowlandSelect.setFalloff(0.00)
 
             val highlandLowlandSelectCache = ModuleCache()
             highlandLowlandSelectCache.setSource(highlandLowlandSelect)
