@@ -279,10 +279,10 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val seed = random.nextLong()
 //            val seed2 = 34247L
 
-            var seed2 = random.nextLong()
-            //       seed2= 5199581358702662645
+            var seed = random.nextLong()
+            seed = -1309343314773953948
 
-            println("seed was $seed2")
+            println("seed was $seed")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
 
@@ -292,7 +292,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             counter.start()
 
             for (thread in 1..threadCount) {
-                thread { generate1(worldSize, thread, threadCount, seed2, imageArray) }
+                thread { generate1(worldSize, thread, threadCount, seed, imageArray) }
             }
 
             //halt until all threads come back up. remember, for client-hosted server,
@@ -309,7 +309,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
             println(s)
 
-            val worldGenInfo = WorldGenOutputInfo(imageArray, worldSize, seed2, useUniqueImageName)
+            val worldGenInfo = WorldGenOutputInfo(imageArray, worldSize, seed, useUniqueImageName)
             writeWorldPng(worldGenInfo)
         }
 
@@ -510,6 +510,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             //////////////// cave
 
+
             val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
                                           ModuleBasisFunction.InterpolationType.QUINTIC)
             caveShape.setNumOctaves(1)
@@ -552,7 +553,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundCaveMultiply.setSource(0, caveSelect)
             groundCaveMultiply.setSource(1, groundSelect)
 
-            val genCaves = true
+            val genCaves = false
 
             var finalModule: Module = groundSelect
             if (genCaves) {
