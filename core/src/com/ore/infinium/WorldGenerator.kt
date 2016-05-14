@@ -279,9 +279,9 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             var seed = random.nextLong()
             /*
-            seed =
-                    7942990784511492305
                    */
+            seed =
+                    -4054644727897976167
             println("seed was $seed")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -499,7 +499,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             caveShape.setFrequency(8.0)
             caveShape.seed = seed
 
-            val caveAttenuateBias = ModuleBias(0.825)
+            val caveAttenuateBias = ModuleBias(0.95)
             caveAttenuateBias.setSource(highlandLowlandSelectCache)
 
             val caveShapeAttenuate = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
@@ -514,7 +514,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             cavePerturbFractal.seed = seed
 
             val cavePerturbScale = ModuleScaleOffset()
-            cavePerturbScale.setScale(0.25)
+            cavePerturbScale.setScale(0.75)
             cavePerturbScale.setOffset(0.0)
             cavePerturbScale.setSource(cavePerturbFractal)
 
@@ -526,7 +526,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             caveSelect.setLowSource(1.0)
             caveSelect.setHighSource(0.0)
             caveSelect.setControlSource(cavePerturb)
-            caveSelect.setThreshold(0.8)
+            caveSelect.setThreshold(0.9)
             caveSelect.setFalloff(0.0)
 
             //final step
@@ -535,7 +535,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundCaveMultiply.setSource(0, caveSelect)
             groundCaveMultiply.setSource(1, groundSelect)
 
-            val genCaves = false
+            val genCaves = true
 
             var finalModule: Module = groundSelect
             if (genCaves) {
