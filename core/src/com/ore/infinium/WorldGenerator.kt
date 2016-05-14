@@ -281,7 +281,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             /*
                    */
             seed =
-                    -1182864315969261830
+                    7942990784511492305
             println("seed was $seed")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -406,7 +406,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandAutoCorrect.calculate()
 
             val highlandScale = ModuleScaleOffset()
-            highlandScale.setScale(0.05)
+            highlandScale.setScale(0.03)
             highlandScale.setOffset(0.0)
             highlandScale.setSource(highlandAutoCorrect)
 
@@ -451,7 +451,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                    ModuleBasisFunction.BasisType.GRADIENT,
                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-            terrainTypeFractal.setNumOctaves(3)
+            terrainTypeFractal.setNumOctaves(9)
             terrainTypeFractal.setFrequency(1.825)
             terrainTypeFractal.seed = seed
 
@@ -477,8 +477,9 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandLowlandSelect.setLowSource(lowlandTerrain)
             highlandLowlandSelect.setHighSource(highlandMountainSelect)
             highlandLowlandSelect.setControlSource(terrainTypeCache)
-            highlandLowlandSelect.setThreshold(0.25)
+            highlandLowlandSelect.setThreshold(0.15)
             highlandLowlandSelect.setFalloff(0.10)
+
 
             val highlandLowlandSelectCache = ModuleCache()
             highlandLowlandSelectCache.setSource(highlandLowlandSelect)
