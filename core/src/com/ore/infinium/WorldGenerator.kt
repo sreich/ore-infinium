@@ -362,19 +362,13 @@ class WorldGenerator(private val m_world: OreWorld) {
             val counter = PerformanceCounter("world gen thread $threadNumber")
             counter.start()
 
-            /*
-         * ground_gradient
-         */
+            //initial ground
 
-            // ground_gradient
             val groundGradient = ModuleGradient()
             groundGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
-            /*
-         * lowland
-         */
+            ////////////////////////// lowland
 
-            // lowland_shape_fractal
             val lowlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.BILLOW,
                                                     ModuleBasisFunction.BasisType.GRADIENT,
                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
@@ -382,32 +376,24 @@ class WorldGenerator(private val m_world: OreWorld) {
             lowlandShapeFractal.setFrequency(0.85)
             lowlandShapeFractal.seed = seed
 
-            // lowland_autocorrect
             val lowlandAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
             lowlandAutoCorrect.setSource(lowlandShapeFractal)
             lowlandAutoCorrect.calculate()
 
-            // lowland_scale
             val lowlandScale = ModuleScaleOffset()
             lowlandScale.setScale(0.125)
             lowlandScale.setOffset(-0.10)
             lowlandScale.setSource(lowlandAutoCorrect)
 
-            // lowland_y_scale
             val lowlandYScale = ModuleScaleDomain()
             lowlandYScale.setScaleY(0.0)
             lowlandYScale.setSource(lowlandScale)
 
-            // lowland_terrain
             val lowlandTerrain = ModuleTranslateDomain()
             lowlandTerrain.setAxisYSource(lowlandYScale)
             lowlandTerrain.setSource(groundGradient)
 
-            /*
-         * highland
-         */
-
-            // highland_shape_fractal
+            ////////////////////////// highland
             val highlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                      ModuleBasisFunction.BasisType.GRADIENT,
                                                      ModuleBasisFunction.InterpolationType.QUINTIC)
@@ -415,23 +401,19 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandShapeFractal.setFrequency(2.0)
             highlandShapeFractal.seed = seed
 
-            // highland_autocorrect
             val highlandAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
             highlandAutoCorrect.setSource(highlandShapeFractal)
             highlandAutoCorrect.calculate()
 
-            // highland_scale
             val highlandScale = ModuleScaleOffset()
             highlandScale.setScale(0.05)
             highlandScale.setOffset(0.0)
             highlandScale.setSource(highlandAutoCorrect)
 
-            // highland_y_scale
             val highlandYScale = ModuleScaleDomain()
             highlandYScale.setScaleY(0.0)
             highlandYScale.setSource(highlandScale)
 
-            // highland_terrain
             val highlandTerrain = ModuleTranslateDomain()
             highlandTerrain.setAxisYSource(highlandYScale)
             highlandTerrain.setSource(groundGradient)
@@ -440,7 +422,6 @@ class WorldGenerator(private val m_world: OreWorld) {
          * mountain
          */
 
-            // mountain_shape_fractal
             val mountainShapeFractal = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
                                                      ModuleBasisFunction.BasisType.GRADIENT,
                                                      ModuleBasisFunction.InterpolationType.QUINTIC)
