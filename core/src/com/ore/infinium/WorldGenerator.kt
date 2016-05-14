@@ -279,9 +279,9 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             var seed = random.nextLong()
             /*
-                   */
             seed =
                     7942990784511492305
+                   */
             println("seed was $seed")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -406,7 +406,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandAutoCorrect.calculate()
 
             val highlandScale = ModuleScaleOffset()
-            highlandScale.setScale(0.03)
+            highlandScale.setScale(0.015)
             highlandScale.setOffset(0.0)
             highlandScale.setSource(highlandAutoCorrect)
 
