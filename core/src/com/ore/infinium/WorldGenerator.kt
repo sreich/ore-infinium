@@ -276,12 +276,12 @@ class WorldGenerator(private val m_world: OreWorld) {
             workerThreadsRemainingLatch = CountDownLatch(threadCount)
 
             val random = Random()
-//            val seed = random.nextLong()
-//            val seed2 = 34247L
 
             var seed = random.nextLong()
-            seed = -1309343314773953948
-
+            /*
+                    */
+            seed =
+                    8654905697924069421
             println("seed was $seed")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -373,7 +373,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                     ModuleBasisFunction.BasisType.GRADIENT,
                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
             lowlandShapeFractal.setNumOctaves(8)
-            lowlandShapeFractal.setFrequency(0.85)
+            lowlandShapeFractal.setFrequency(8.85)
             lowlandShapeFractal.seed = seed
 
             val lowlandAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
@@ -381,8 +381,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             lowlandAutoCorrect.calculate()
 
             val lowlandScale = ModuleScaleOffset()
-            lowlandScale.setScale(0.125)
-            lowlandScale.setOffset(-0.10)
+            lowlandScale.setScale(0.155)
+            lowlandScale.setOffset(-0.13)
             lowlandScale.setSource(lowlandAutoCorrect)
 
             val lowlandYScale = ModuleScaleDomain()
@@ -397,8 +397,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             val highlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                      ModuleBasisFunction.BasisType.GRADIENT,
                                                      ModuleBasisFunction.InterpolationType.QUINTIC)
-            highlandShapeFractal.setNumOctaves(4)
-            highlandShapeFractal.setFrequency(2.0)
+            highlandShapeFractal.setNumOctaves(8)
+            highlandShapeFractal.setFrequency(9.0)
             highlandShapeFractal.seed = seed
 
             val highlandAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
@@ -426,7 +426,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                      ModuleBasisFunction.BasisType.GRADIENT,
                                                      ModuleBasisFunction.InterpolationType.QUINTIC)
             mountainShapeFractal.setNumOctaves(8)
-            mountainShapeFractal.setFrequency(1.0)
+            mountainShapeFractal.setFrequency(2.0)
             mountainShapeFractal.seed = seed
 
             val mountainAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
@@ -452,7 +452,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                    ModuleBasisFunction.BasisType.GRADIENT,
                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
             terrainTypeFractal.setNumOctaves(3)
-            terrainTypeFractal.setFrequency(0.125)
+            terrainTypeFractal.setFrequency(1.825)
             terrainTypeFractal.seed = seed
 
             val terrainAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
