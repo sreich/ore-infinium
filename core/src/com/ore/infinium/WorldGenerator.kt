@@ -230,7 +230,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         Smallest(2048, 1500),
         Small(4000, 1500),
         Medium(6400, 1800),
-        Large(8400, 2400)
+        Large(8400, 2400),
+        Huge(8400, 8400)
     }
 
     class WorldGenOutputInfo(val imageArray: FloatArray, val worldSize: WorldSize, val seed: Long, val useUniqueImageName: Boolean) {
