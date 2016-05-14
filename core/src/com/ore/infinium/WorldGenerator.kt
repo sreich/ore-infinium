@@ -354,7 +354,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         fun generate1(worldSize: WorldSize,
                       threadNumber: Int,
                       threadCount: Int,
-                      seed2: Long, imageArray: FloatArray
+                      seed: Long, imageArray: FloatArray
                      ) {
 
             println("...thread $threadNumber started generation")
@@ -380,7 +380,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
             lowlandShapeFractal.setNumOctaves(8)
             lowlandShapeFractal.setFrequency(0.85)
-            lowlandShapeFractal.seed = seed2
+            lowlandShapeFractal.seed = seed
 
             // lowland_autocorrect
             val lowlandAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
@@ -413,7 +413,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                      ModuleBasisFunction.InterpolationType.QUINTIC)
             highlandShapeFractal.setNumOctaves(4)
             highlandShapeFractal.setFrequency(2.0)
-            highlandShapeFractal.seed = seed2
+            highlandShapeFractal.seed = seed
 
             // highland_autocorrect
             val highlandAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
@@ -446,56 +446,45 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                      ModuleBasisFunction.InterpolationType.QUINTIC)
             mountainShapeFractal.setNumOctaves(8)
             mountainShapeFractal.setFrequency(1.0)
-            mountainShapeFractal.seed = seed2
+            mountainShapeFractal.seed = seed
 
-            // mountain_autocorrect
             val mountainAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
             mountainAutoCorrect.setSource(mountainShapeFractal)
             mountainAutoCorrect.calculate()
 
-            // mountain_scale
             val mountainScale = ModuleScaleOffset()
             mountainScale.setScale(0.10)
             mountainScale.setOffset(0.0)
             mountainScale.setSource(mountainAutoCorrect)
 
-            // mountain_y_scale
             val mountainYScale = ModuleScaleDomain()
             mountainYScale.setScaleY(0.5)
             mountainYScale.setSource(mountainScale)
 
-            // mountain_terrain
             val mountainTerrain = ModuleTranslateDomain()
             mountainTerrain.setAxisYSource(mountainYScale)
             mountainTerrain.setSource(groundGradient)
 
-            /*
-         * terrain
-         */
+            //////////////// terrain
 
-            // terrain_type_fractal
             val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                    ModuleBasisFunction.BasisType.GRADIENT,
                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
             terrainTypeFractal.setNumOctaves(3)
             terrainTypeFractal.setFrequency(0.125)
-            terrainTypeFractal.seed = seed2
+            terrainTypeFractal.seed = seed
 
-            // terrain_autocorrect
             val terrainAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
             terrainAutoCorrect.setSource(terrainTypeFractal)
             terrainAutoCorrect.calculate()
 
-            // terrain_type_y_scale
             val terrainTypeYScale = ModuleScaleDomain()
             terrainTypeYScale.setScaleY(0.0)
             terrainTypeYScale.setSource(terrainAutoCorrect)
 
-            // terrain_type_cache
             val terrainTypeCache = ModuleCache()
             terrainTypeCache.setSource(terrainTypeYScale)
 
-            // highland_mountain_select
             val highlandMountainSelect = ModuleSelect()
             highlandMountainSelect.setLowSource(highlandTerrain)
             highlandMountainSelect.setHighSource(mountainTerrain)
@@ -503,7 +492,6 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandMountainSelect.setThreshold(0.65)
             highlandMountainSelect.setFalloff(0.2)
 
-            // highland_lowland_select
             val highlandLowlandSelect = ModuleSelect()
             highlandLowlandSelect.setLowSource(lowlandTerrain)
             highlandLowlandSelect.setHighSource(highlandMountainSelect)
@@ -511,39 +499,30 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandLowlandSelect.setThreshold(0.25)
             highlandLowlandSelect.setFalloff(0.15)
 
-            // highland_lowland_select_cache
             val highlandLowlandSelectCache = ModuleCache()
             highlandLowlandSelectCache.setSource(highlandLowlandSelect)
 
-            // ground_select
             val groundSelect = ModuleSelect()
             groundSelect.setLowSource(0.0)
             groundSelect.setHighSource(1.0)
             groundSelect.setThreshold(0.17)
             groundSelect.setControlSource(highlandLowlandSelectCache)
 
-            /*
-         * cave
-         */
+            //////////////// cave
 
-            /*
-            // cave_shape
             val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
                                           ModuleBasisFunction.InterpolationType.QUINTIC)
             caveShape.setNumOctaves(1)
             caveShape.setFrequency(8.0)
             caveShape.seed = seed
 
-            // cave_attenuate_bias
             val caveAttenuateBias = ModuleBias(0.825)
             caveAttenuateBias.setSource(highlandLowlandSelectCache)
 
-            // cave_shape_attenuate
             val caveShapeAttenuate = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             caveShapeAttenuate.setSource(0, caveShape)
             caveShapeAttenuate.setSource(1, caveAttenuateBias)
 
-            // cave_perturb_fractal
             val cavePerturbFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                    ModuleBasisFunction.BasisType.GRADIENT,
                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
@@ -551,57 +530,57 @@ class WorldGenerator(private val m_world: OreWorld) {
             cavePerturbFractal.setFrequency(3.0)
             cavePerturbFractal.seed = seed
 
-            // cave_perturb_scale
             val cavePerturbScale = ModuleScaleOffset()
             cavePerturbScale.setScale(0.25)
             cavePerturbScale.setOffset(0.0)
             cavePerturbScale.setSource(cavePerturbFractal)
 
-            // cave_perturb
             val cavePerturb = ModuleTranslateDomain()
             cavePerturb.setAxisXSource(cavePerturbScale)
             cavePerturb.setSource(caveShapeAttenuate)
 
-            // cave_select
             val caveSelect = ModuleSelect()
             caveSelect.setLowSource(1.0)
             caveSelect.setHighSource(0.0)
             caveSelect.setControlSource(cavePerturb)
             caveSelect.setThreshold(0.8)
             caveSelect.setFalloff(0.0)
-            */
 
-            /*
-         * final
-         */
+            //final step
 
-            // ground_cave_multiply
-            /*
             val groundCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             groundCaveMultiply.setSource(0, caveSelect)
             groundCaveMultiply.setSource(1, groundSelect)
-*/
-            /*
-            when (threadNumber) {
-            //first half
-                1 -> {
-                    startX = 0
-                    endX = (worldSize.width / threadCount)
-                }
-            //2nd half
-                2 -> {
-                    startX = (worldSize.width / threadCount)
-                    endX = worldSize.width
-                }
-            }
-            */
 
+            val genCaves = true
+
+            var finalModule: Module = groundSelect
+            if (genCaves) {
+                finalModule = groundCaveMultiply
+            }
+
+            outputWorldToArray(finalModule, imageArray, worldSize, threadCount, threadNumber)
+
+            counter.stop()
+            println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
+
+            workerThreadsRemainingLatch!!.countDown()
+
+        }
+
+        /**
+         * samples from the final module, outputs it to the world array
+         */
+        private fun outputWorldToArray(finalModule: Module,
+                                       imageArray: FloatArray,
+                                       worldSize: WorldGenerator.WorldSize,
+                                       threadCount: Int,
+                                       threadNumber: Int) {
             val partitionedWidth = worldSize.width / threadCount
 
             val startX = (threadNumber - 1) * partitionedWidth
             val endX = startX + partitionedWidth
 
-            val finalModule = groundSelect
             for (x in startX..endX - 1) {
                 for (y in 0..worldSize.height - 1) {
 
@@ -618,13 +597,8 @@ class WorldGenerator(private val m_world: OreWorld) {
                     imageArray[index] = value.toFloat()
                 }
             }
-
-            counter.stop()
-            println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
-
-            workerThreadsRemainingLatch!!.countDown()
-
         }
+
     }
 }
 
