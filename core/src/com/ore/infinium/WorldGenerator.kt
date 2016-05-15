@@ -599,6 +599,27 @@ class WorldGenerator(private val m_world: OreWorld) {
             semiRareSelect.setThreshold(SEMIRARE_DENSITY)
             semiRareSelect.setFalloff(0.1)
 
+            /////////////////////////////////////////////////////////
+            val dirtFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                                        ModuleBasisFunction.InterpolationType.QUINTIC)
+            dirtFBM.seed = seed
+            dirtFBM.setNumOctaves(4)
+            dirtFBM.setFrequency(25.0)
+
+            val dirtFBMRemap = ModuleScaleOffset()
+            dirtFBMRemap.setSource(dirtFBM)
+            dirtFBMRemap.setScale(0.5)
+            dirtFBMRemap.setOffset(0.5)
+
+            val DIRT_DENSITY = 0.6
+            val dirtSelect = ModuleSelect()
+            dirtSelect.setControlSource(semiRareFBMRemap)
+            dirtSelect.setLowSource(Stone.toDouble())
+            dirtSelect.setHighSource(Copper.toDouble())
+            dirtSelect.setThreshold(DIRT_DENSITY)
+            dirtSelect.setFalloff(0.1)
+
+
             ///////////////////////////////////////////////////////////////////////
 
             val rareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
