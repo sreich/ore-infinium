@@ -562,7 +562,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val Open = 1
             val Dirt = 2
             val Stone = 3
-            val SemiRare = 4
+            val Copper = 4
             val Rare = 5
             val Bedrock = 6
 
@@ -595,7 +595,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val semiRareSelect = ModuleSelect()
             semiRareSelect.setControlSource(semiRareFBMRemap)
             semiRareSelect.setLowSource(Stone.toDouble())
-            semiRareSelect.setHighSource(SemiRare.toDouble())
+            semiRareSelect.setHighSource(Copper.toDouble())
             semiRareSelect.setThreshold(SEMIRARE_DENSITY)
             semiRareSelect.setFalloff(0.1)
 
@@ -664,7 +664,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                     //print(",result $result")
                     when (result.toInt()) {
-                        SemiRare -> color = Color.ORANGE
+                        Copper -> color = Color.ORANGE
                         Stone -> color = Color.GRAY
 
 
