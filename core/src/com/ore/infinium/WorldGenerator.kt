@@ -272,7 +272,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
 
         fun generateWorldAndOutputImage(worldSize: WorldSize = WorldSize.Small, useUniqueImageName: Boolean = false) {
-            val threadCount = 8
+            val threadCount = 1
 
             workerThreadsRemainingLatch = CountDownLatch(threadCount)
 
@@ -419,9 +419,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandTerrain.setAxisYSource(highlandYScale)
             highlandTerrain.setSource(groundGradient)
 
-            /*
-         * mountain
-         */
+            /////////////////// mountain
 
             val mountainShapeFractal = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
                                                      ModuleBasisFunction.BasisType.GRADIENT,
@@ -536,6 +534,12 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundCaveMultiply.setSource(0, caveSelect)
             groundCaveMultiply.setSource(1, groundSelect)
 
+            //////////////////////////////////////////////////////////////////////////
+            ///////////////////////////// ORE GENERATION
+            generateOres(worldSize, seed)
+
+            ///////////////////////////////////////////////
+
             val genCaves = true
 
             var finalModule: Module = groundSelect
@@ -543,13 +547,125 @@ class WorldGenerator(private val m_world: OreWorld) {
                 finalModule = groundCaveMultiply
             }
 
-            outputWorldToArray(finalModule, imageArray, worldSize, threadCount, threadNumber)
+//            outputWorldToArray(finalModule, imageArray, worldSize, threadCount, threadNumber)
 
             counter.stop()
             println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
 
             workerThreadsRemainingLatch!!.countDown()
 
+        }
+
+        private fun generateOres(worldSize: WorldSize, seed: Long) {
+
+            val Open = 1
+            val Dirt = 2
+            val Stone = 3
+            val SemiRare = 4
+            val Rare = 5
+            val Bedrock = 6
+
+            val Constant1 = 1
+            val Constant0 = 0
+
+            val SEMIRARE_DENSITY = 0.6
+            val RARE_DENSITY = 0.9
+            val RARE_GRADIENT_SCALE = 1.0
+
+            /////////////////////////////////////////////////////
+
+            val mainGradient = ModuleGradient()
+            mainGradient.setGradient(0.0, 0.0, 0.0, 0.5)
+
+            val mainGradientRemap = ModuleScaleOffset()
+            mainGradientRemap.setSource(mainGradient)
+            mainGradientRemap.setScale(0.5)
+            mainGradientRemap.setOffset(0.5)
+
+            val semiRareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                                            ModuleBasisFunction.InterpolationType.QUINTIC)
+            semiRareFBM.seed = seed
+            semiRareFBM.setNumOctaves(4)
+            semiRareFBM.setFrequency(2.0)
+
+            val semiRareFBMRemap = ModuleScaleOffset()
+            semiRareFBMRemap.setSource(semiRareFBM)
+            semiRareFBMRemap.setScale(0.5)
+            semiRareFBMRemap.setOffset(0.5)
+
+            val semiRareSelect = ModuleSelect()
+            semiRareSelect.setControlSource(semiRareFBMRemap)
+            semiRareSelect.setLowSource(Stone.toDouble())
+            semiRareSelect.setHighSource(SemiRare.toDouble())
+            semiRareSelect.setThreshold(SEMIRARE_DENSITY)
+            semiRareSelect.setFalloff(0.0)
+
+            ///////////////////////////////////////////////////////////////////////
+
+            val rareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                                        ModuleBasisFunction.InterpolationType.QUINTIC)
+            rareFBM.seed = seed
+            rareFBM.setNumOctaves(3)
+            rareFBM.setFrequency(3.0)
+
+            val rareFBMRemap = ModuleScaleOffset()
+            rareFBMRemap.setSource(rareFBM)
+            rareFBMRemap.setScale(0.5)
+            rareFBMRemap.setOffset(0.5)
+
+            val rareFBMScale = ModuleScaleOffset()
+            rareFBMRemap.setSource(rareFBMRemap)
+            rareFBMRemap.setScale(RARE_GRADIENT_SCALE)
+            rareFBMRemap.setOffset(0.0)
+
+            val rareMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            rareMult.setSource(0, rareFBMScale)
+            rareMult.setSource(1, mainGradientRemap)
+
+            val rareMultScale = ModuleScaleOffset()
+            rareFBMRemap.setSource(rareMult)
+            rareFBMRemap.setScale(RARE_DENSITY)
+            rareFBMRemap.setOffset(0.0)
+
+            val rareSelect = ModuleSelect()
+            rareSelect.setControlSource(rareMultScale)
+            rareSelect.setLowSource(semiRareSelect)
+            rareSelect.setHighSource(Rare.toDouble())
+            rareSelect.setThreshold(0.5)
+            rareSelect.setFalloff(0.0)
+
+            val finalGen = rareSelect
+
+            var color: Color
+
+            val bufferedImage = BufferedImage(worldSize.width, worldSize.height, BufferedImage.TYPE_INT_RGB);
+
+            val xRatio = worldSize.width.toDouble() / worldSize.height.toDouble()
+
+            for (x in 0..worldSize.width - 1) {
+                for (y in 0..worldSize.height - 1) {
+                    //val result = finalGen.get(px.toDouble(), py.toDouble())
+
+                    val result = finalGen.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
+                                              y.toDouble() / worldSize.height.toDouble())
+
+                    //print(",result $result")
+                    when (result.toInt()) {
+                        SemiRare -> color = Color.ORANGE
+
+                        Stone -> color = Color.GRAY
+
+                        Rare -> color = Color.BLUE
+
+                        else -> color = Color.MAGENTA
+                    }
+
+                    bufferedImage.setRGB(x, y, color.rgb)
+                }
+            }
+
+            val fileUrl = "test/generated/worldgeneration-ores.png"
+            ImageIO.write(bufferedImage, "png", File(fileUrl));
         }
 
         /**
