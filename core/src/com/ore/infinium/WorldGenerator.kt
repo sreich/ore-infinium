@@ -605,35 +605,44 @@ class WorldGenerator(private val m_world: OreWorld) {
             val rareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                                         ModuleBasisFunction.InterpolationType.QUINTIC)
             rareFBM.seed = seed
-            rareFBM.setNumOctaves(3)
-            rareFBM.setFrequency(3.0)
+            rareFBM.setNumOctaves(4)//3
+            rareFBM.setFrequency(2.0)//3.0
+
+            val rareAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
+            rareAutoCorrect.setSource(rareFBM)
+            rareAutoCorrect.calculate()
+
 
             val rareFBMRemap = ModuleScaleOffset()
-            rareFBMRemap.setSource(rareFBM)
+            rareFBMRemap.setSource(rareAutoCorrect)
             rareFBMRemap.setScale(0.5)
             rareFBMRemap.setOffset(0.5)
 
             val rareFBMScale = ModuleScaleOffset()
-            rareFBMRemap.setSource(rareFBMRemap)
-            rareFBMRemap.setScale(RARE_GRADIENT_SCALE)
-            rareFBMRemap.setOffset(0.0)
+            rareFBMScale.setSource(rareFBMRemap)
+            rareFBMScale.setScale(RARE_GRADIENT_SCALE)
+            rareFBMScale.setOffset(0.0)
 
             val rareMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             rareMult.setSource(0, rareFBMScale)
             rareMult.setSource(1, mainGradientRemap)
 
             val rareMultScale = ModuleScaleOffset()
-            rareFBMRemap.setSource(rareMult)
-            rareFBMRemap.setScale(RARE_DENSITY)
-            rareFBMRemap.setOffset(0.0)
+            rareMultScale.setSource(rareMult)
+            rareMultScale.setScale(RARE_DENSITY)
+            rareMultScale.setOffset(0.0)
 
             val rareSelect = ModuleSelect()
             rareSelect.setControlSource(rareMultScale)
             rareSelect.setLowSource(semiRareSelect)
             rareSelect.setHighSource(Rare.toDouble())
-            rareSelect.setThreshold(0.5)
+            rareSelect.setThreshold(0.501)
             rareSelect.setFalloff(0.0)
 
+            //hack anything for rare should be blue
+
+
+//            val finalGen = rareFBMRemap
             val finalGen = rareSelect
 
             var color: Color
@@ -657,7 +666,12 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                         Rare -> color = Color.BLUE
 
-                        else -> color = Color.MAGENTA
+                        else -> {
+                            if (result > 0.0) {
+                                assert(true, { "WORKING SLIGHTLY" })
+                            }
+                            color = Color(result.toFloat(), result.toFloat(), result.toFloat())
+                        }
                     }
 
                     bufferedImage.setRGB(x, y, color.rgb)
