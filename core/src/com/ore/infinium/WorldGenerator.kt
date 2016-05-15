@@ -568,9 +568,6 @@ class WorldGenerator(private val m_world: OreWorld) {
             val Constant1 = 1
             val Constant0 = 0
 
-            val SEMIRARE_DENSITY = 0.6
-            val RARE_DENSITY = 0.9
-            val RARE_GRADIENT_SCALE = 1.0
 
             /////////////////////////////////////////////////////
 
@@ -593,6 +590,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             semiRareFBMRemap.setScale(0.5)
             semiRareFBMRemap.setOffset(0.5)
 
+            val SEMIRARE_DENSITY = 0.6
             val semiRareSelect = ModuleSelect()
             semiRareSelect.setControlSource(semiRareFBMRemap)
             semiRareSelect.setLowSource(Stone.toDouble())
@@ -605,19 +603,22 @@ class WorldGenerator(private val m_world: OreWorld) {
             val rareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                                         ModuleBasisFunction.InterpolationType.QUINTIC)
             rareFBM.seed = seed
-            rareFBM.setNumOctaves(4)//3
-            rareFBM.setFrequency(2.0)//3.0
+            rareFBM.setNumOctaves(5)
+            rareFBM.setFrequency(3.0)
 
+            /*
             val rareAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
             rareAutoCorrect.setSource(rareFBM)
             rareAutoCorrect.calculate()
+            */
 
 
             val rareFBMRemap = ModuleScaleOffset()
-            rareFBMRemap.setSource(rareAutoCorrect)
+            rareFBMRemap.setSource(rareFBM)
             rareFBMRemap.setScale(0.5)
             rareFBMRemap.setOffset(0.5)
 
+            val RARE_GRADIENT_SCALE = 1.0
             val rareFBMScale = ModuleScaleOffset()
             rareFBMScale.setSource(rareFBMRemap)
             rareFBMScale.setScale(RARE_GRADIENT_SCALE)
@@ -627,6 +628,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             rareMult.setSource(0, rareFBMScale)
             rareMult.setSource(1, mainGradientRemap)
 
+            val RARE_DENSITY = 0.8
             val rareMultScale = ModuleScaleOffset()
             rareMultScale.setSource(rareMult)
             rareMultScale.setScale(RARE_DENSITY)
@@ -636,7 +638,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             rareSelect.setControlSource(rareMultScale)
             rareSelect.setLowSource(semiRareSelect)
             rareSelect.setHighSource(Rare.toDouble())
-            rareSelect.setThreshold(0.501)
+            rareSelect.setThreshold(0.5)
             rareSelect.setFalloff(0.0)
 
             //hack anything for rare should be blue
