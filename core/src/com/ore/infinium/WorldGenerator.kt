@@ -583,7 +583,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                             ModuleBasisFunction.InterpolationType.QUINTIC)
             semiRareFBM.seed = seed
             semiRareFBM.setNumOctaves(4)
-            semiRareFBM.setFrequency(2.0)
+            semiRareFBM.setFrequency(5.0)
 
             val semiRareFBMRemap = ModuleScaleOffset()
             semiRareFBMRemap.setSource(semiRareFBM)
@@ -604,7 +604,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                         ModuleBasisFunction.InterpolationType.QUINTIC)
             rareFBM.seed = seed
             rareFBM.setNumOctaves(5)
-            rareFBM.setFrequency(3.0)
+            rareFBM.setFrequency(35.0)
 
             /*
             val rareAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
