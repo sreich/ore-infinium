@@ -32,6 +32,7 @@ import com.badlogic.gdx.utils.PerformanceCounter
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.util.Color2
 import com.sudoplay.joise.module.*
 import java.awt.Color
 import java.awt.Font
@@ -583,7 +584,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                             ModuleBasisFunction.InterpolationType.QUINTIC)
             semiRareFBM.seed = seed
             semiRareFBM.setNumOctaves(4)
-            semiRareFBM.setFrequency(5.0)
+            semiRareFBM.setFrequency(25.0)
 
             val semiRareFBMRemap = ModuleScaleOffset()
             semiRareFBMRemap.setSource(semiRareFBM)
@@ -596,7 +597,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             semiRareSelect.setLowSource(Stone.toDouble())
             semiRareSelect.setHighSource(SemiRare.toDouble())
             semiRareSelect.setThreshold(SEMIRARE_DENSITY)
-            semiRareSelect.setFalloff(0.0)
+            semiRareSelect.setFalloff(0.1)
 
             ///////////////////////////////////////////////////////////////////////
 
@@ -660,13 +661,14 @@ class WorldGenerator(private val m_world: OreWorld) {
                     val result = finalGen.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
                                               y.toDouble() / worldSize.height.toDouble())
 
+
                     //print(",result $result")
                     when (result.toInt()) {
                         SemiRare -> color = Color.ORANGE
-
                         Stone -> color = Color.GRAY
 
-                        Rare -> color = Color.BLUE
+
+                        Rare -> color = Color2.teal
 
                         else -> {
                             if (result > 0.0) {
