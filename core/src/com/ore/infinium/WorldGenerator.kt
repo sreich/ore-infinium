@@ -751,7 +751,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             var finalGen: Module = dirtStoneSelect
 
             val showCavesAndOres = false
-            if (!showCavesAndOres) {
+            if (showCavesAndOres) {
                 finalGen = oreCaveMultiply
             }
 
