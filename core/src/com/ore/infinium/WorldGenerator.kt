@@ -114,8 +114,8 @@ class WorldGenerator(private val m_world: OreWorld) {
                 val treeY = y.toFloat()
 
                 when (m_world.isEntityFullyGrounded(entityX = treeX, entityY = treeY,
-                                                    entityWidth = spriteComponent.sprite.width,
-                                                    entityHeight = spriteComponent.sprite.height)) {
+                        entityWidth = spriteComponent.sprite.width,
+                        entityHeight = spriteComponent.sprite.height)) {
                     OreWorld.EntitySolidGroundStatus.FullyEmpty -> {
                     }
 
@@ -170,7 +170,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                 val blockType = m_world.blockType(x, y)
 
                 if (blockType == OreBlock.BlockType.DirtBlockType && m_world.blockHasFlag(x, y,
-                                                                                          OreBlock.BlockFlags.GrassBlock)) {
+                        OreBlock.BlockFlags.GrassBlock)) {
 
                     val topBlockType = m_world.blockTypeSafely(x, y - 1)
                     //OreBlock bottomBlock = blockTypeSafely(x, y + 1);
@@ -317,7 +317,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         private fun writeWorldPng(worldGenInfo: WorldGenOutputInfo) {
             val bufferedImage = BufferedImage(worldGenInfo.worldSize.width, worldGenInfo.worldSize.height,
-                                              BufferedImage.TYPE_INT_RGB);
+                    BufferedImage.TYPE_INT_RGB);
             val graphics = bufferedImage.graphics;
 
             for (x in 0..worldGenInfo.worldSize.width - 1) {
@@ -357,7 +357,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                       threadNumber: Int,
                       threadCount: Int,
                       seed: Long, imageArray: FloatArray
-                     ) {
+        ) {
 
             println("...thread $threadNumber started generation")
 
@@ -372,8 +372,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             ////////////////////////// lowland
 
             val lowlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.BILLOW,
-                                                    ModuleBasisFunction.BasisType.GRADIENT,
-                                                    ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             lowlandShapeFractal.setNumOctaves(8)
             lowlandShapeFractal.setFrequency(8.85)
             lowlandShapeFractal.seed = seed
@@ -397,8 +397,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             ////////////////////////// highland
             val highlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                                     ModuleBasisFunction.BasisType.GRADIENT,
-                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             highlandShapeFractal.setNumOctaves(8)
             highlandShapeFractal.setFrequency(9.0)
             highlandShapeFractal.seed = seed
@@ -423,8 +423,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             /////////////////// mountain
 
             val mountainShapeFractal = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
-                                                     ModuleBasisFunction.BasisType.GRADIENT,
-                                                     ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             mountainShapeFractal.setNumOctaves(8)
             mountainShapeFractal.setFrequency(2.0)
             mountainShapeFractal.seed = seed
@@ -449,8 +449,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             //////////////// terrain
 
             val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                                   ModuleBasisFunction.BasisType.GRADIENT,
-                                                   ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             terrainTypeFractal.setNumOctaves(9)
             terrainTypeFractal.setFrequency(1.825)
             terrainTypeFractal.seed = seed
@@ -494,7 +494,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
 
             val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
-                                          ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             caveShape.setNumOctaves(1)
             caveShape.setFrequency(8.0)
             caveShape.seed = seed
@@ -507,8 +507,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             caveShapeAttenuate.setSource(1, caveAttenuateBias)
 
             val cavePerturbFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                                   ModuleBasisFunction.BasisType.GRADIENT,
-                                                   ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             cavePerturbFractal.setNumOctaves(6)
             cavePerturbFractal.setFrequency(3.0)
             cavePerturbFractal.seed = seed
@@ -565,6 +565,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val Copper = 4
             val Rare = 5
             val Rare2 = 6
+            val Coal = 7
             val Bedrock = 6
 
             val Constant1 = 1
@@ -582,7 +583,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             mainGradientRemap.setOffset(0.5)
 
             val semiRareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                            ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             semiRareFBM.seed = seed
             semiRareFBM.setNumOctaves(4)
             semiRareFBM.setFrequency(25.0)
@@ -601,13 +602,11 @@ class WorldGenerator(private val m_world: OreWorld) {
             semiRareSelect.setFalloff(0.1)
 
             /////////////////////////////////////////////////////////
-
-            ////////////////////////////// DIRT
             val rare2FBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                     ModuleBasisFunction.InterpolationType.QUINTIC)
             rare2FBM.seed = seed
             rare2FBM.setNumOctaves(5)
-            rare2FBM.setFrequency(35.0)
+            rare2FBM.setFrequency(55.0)
 
             val rare2FBMRemap = ModuleScaleOffset()
             rare2FBMRemap.setSource(rare2FBM)
@@ -637,11 +636,46 @@ class WorldGenerator(private val m_world: OreWorld) {
             rare2Select.setThreshold(0.5)
             rare2Select.setFalloff(0.0)
 
+            //////////////////////////////////////////////// COAL
+            val coalFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
+            coalFBM.seed = seed
+            coalFBM.setNumOctaves(5)
+            coalFBM.setFrequency(65.0)
+
+            val coalFBMRemap = ModuleScaleOffset()
+            coalFBMRemap.setSource(coalFBM)
+            coalFBMRemap.setScale(0.5)
+            coalFBMRemap.setOffset(0.5)
+
+            val COAL_GRADIENT_SCALE = 1.0
+            val coalFBMScale = ModuleScaleOffset()
+            coalFBMScale.setSource(coalFBMRemap)
+            coalFBMScale.setScale(COAL_GRADIENT_SCALE)
+            coalFBMScale.setOffset(0.0)
+
+            val coalMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            coalMult.setSource(0, coalFBMScale)
+            coalMult.setSource(1, mainGradientRemap)
+
+            val COAL_DENSITY = 1.0
+            val coalMultScale = ModuleScaleOffset()
+            coalMultScale.setSource(coalMult)
+            coalMultScale.setScale(COAL_DENSITY)
+            coalMultScale.setOffset(0.0)
+
+            val coalSelect = ModuleSelect()
+            coalSelect.setControlSource(coalMultScale)
+            coalSelect.setLowSource(rare2Select)
+            coalSelect.setHighSource(Coal.toDouble())
+            coalSelect.setThreshold(0.5)
+            coalSelect.setFalloff(0.0)
+
 
             ///////////////////////////////////////////////////////////////////////
 
             val rareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                        ModuleBasisFunction.InterpolationType.QUINTIC)
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
             rareFBM.seed = seed
             rareFBM.setNumOctaves(5)
             rareFBM.setFrequency(35.0)
@@ -669,16 +703,45 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val rareSelect = ModuleSelect()
             rareSelect.setControlSource(rareMultScale)
-            rareSelect.setLowSource(rare2Select)
+            rareSelect.setLowSource(coalSelect)
             rareSelect.setHighSource(Rare.toDouble())
             rareSelect.setThreshold(0.5)
             rareSelect.setFalloff(0.0)
 
-            //hack anything for rare should be blue
 
+            ////////////////////////////// DIRT
+            //{name="DirtStoneSelect", type="select", main_source="MainGradientRemap", low_source="Dirt", high_source="RareSelect", threshold=DIRT_THRESHOLD, falloff=0},
+            //{name="GroundSelect", type="select", main_source="MainGradientRemap", low_source="Open", high_source="DirtStoneSelect", threshold=0.000001, falloff=0},
+            val dirtGradient = ModuleGradient()
+            dirtGradient.setGradient(0.0, 0.0, 0.0, 0.5)
+
+            val dirtGradientRemap = ModuleScaleOffset()
+            dirtGradientRemap.setSource(mainGradient)
+            dirtGradientRemap.setScale(0.5)
+            dirtGradientRemap.setOffset(0.5)
+
+            val DIRT_THRESHOLD = 0.50
+            val dirtStoneSelect = ModuleSelect()
+            dirtStoneSelect.setControlSource(dirtGradientRemap)
+            dirtStoneSelect.setLowSource(Dirt.toDouble())
+            dirtStoneSelect.setHighSource(rareSelect)
+            dirtStoneSelect.setThreshold(DIRT_THRESHOLD)
+            dirtStoneSelect.setFalloff(0.05)
+
+
+            /*
+            not needed
+            val groundSelect = ModuleSelect()
+            groundSelect.setControlSource(mainGradientRemap)
+            groundSelect.setLowSource(Open.toDouble())
+            groundSelect.setHighSource(dirtStoneSelect)
+            groundSelect.setThreshold(0.000000)
+            groundSelect.setFalloff(0.0)
+            */
 
 //            val finalGen = rareFBMRemap
-            val finalGen = rareSelect
+//            val finalGen = rareSelect
+            val finalGen = dirtStoneSelect
 
             var color: Color
 
@@ -691,7 +754,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                     //val result = finalGen.get(px.toDouble(), py.toDouble())
 
                     val result = finalGen.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
-                                              y.toDouble() / worldSize.height.toDouble())
+                            y.toDouble() / worldSize.height.toDouble())
 
 
                     //print(",result $result")
@@ -699,10 +762,11 @@ class WorldGenerator(private val m_world: OreWorld) {
                         Dirt -> color = Color2.BROWN
                         Copper -> color = Color2.COPPER
                         Stone -> color = Color.GRAY
+                        Coal -> color = Color.DARK_GRAY
                         Rare -> color = Color2.TEAL
                         Rare2 -> color = Color2.ROYAL_BLUE
 
-                        //Coal -> color = Color.BLACK
+                    //Coal -> color = Color.BLACK
 
                         else -> {
                             if (result > 0.0) {
@@ -718,6 +782,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val fileUrl = "test/generated/worldgeneration-ores.png"
             ImageIO.write(bufferedImage, "png", File(fileUrl));
+
+            //FIXME: at the end of all of this, slap bedrock on the bottom (and sides) with just a simple loop, so they can't dig beyond the edges of the world
         }
 
         /**
@@ -739,7 +805,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                     val xRatio = worldSize.width.toDouble() / worldSize.height.toDouble()
                     val value = finalModule.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
-                                                y.toDouble() / worldSize.height.toDouble())
+                            y.toDouble() / worldSize.height.toDouble())
 
                     if (value > 0.0) {
                     }
