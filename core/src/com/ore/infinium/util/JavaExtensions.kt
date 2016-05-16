@@ -28,7 +28,9 @@ SOFTWARE.
 
 object Color2 {
     val TEAL = Color(0, 128, 128)
-    val BROWN = Color(165, 42,42)
+
+    //saddle brown
+    val BROWN = Color(139, 69, 19)
     val COPPER = Color(184, 115, 51)
     val ROYAL_BLUE = Color(65,105,225)
 }

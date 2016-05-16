@@ -582,24 +582,24 @@ class WorldGenerator(private val m_world: OreWorld) {
             mainGradientRemap.setScale(0.5)
             mainGradientRemap.setOffset(0.5)
 
-            val semiRareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                    ModuleBasisFunction.InterpolationType.QUINTIC)
-            semiRareFBM.seed = seed
-            semiRareFBM.setNumOctaves(4)
-            semiRareFBM.setFrequency(25.0)
+            val copperAndStoneFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                                                  ModuleBasisFunction.InterpolationType.QUINTIC)
+            copperAndStoneFBM.seed = seed
+            copperAndStoneFBM.setNumOctaves(4)
+            copperAndStoneFBM.setFrequency(45.0)
 
-            val semiRareFBMRemap = ModuleScaleOffset()
-            semiRareFBMRemap.setSource(semiRareFBM)
-            semiRareFBMRemap.setScale(0.5)
-            semiRareFBMRemap.setOffset(0.5)
+            val CopperAndStoneFBMRemap = ModuleScaleOffset()
+            CopperAndStoneFBMRemap.setSource(copperAndStoneFBM)
+            CopperAndStoneFBMRemap.setScale(0.5)
+            CopperAndStoneFBMRemap.setOffset(0.5)
 
-            val SEMIRARE_DENSITY = 0.6
-            val semiRareSelect = ModuleSelect()
-            semiRareSelect.setControlSource(semiRareFBMRemap)
-            semiRareSelect.setLowSource(Stone.toDouble())
-            semiRareSelect.setHighSource(Copper.toDouble())
-            semiRareSelect.setThreshold(SEMIRARE_DENSITY)
-            semiRareSelect.setFalloff(0.1)
+            val COPPER_AND_STONE_DENSITY = 0.4
+            val copperAndStoneSelect = ModuleSelect()
+            copperAndStoneSelect.setControlSource(CopperAndStoneFBMRemap)
+            copperAndStoneSelect.setLowSource(Stone.toDouble())
+            copperAndStoneSelect.setHighSource(Copper.toDouble())
+            copperAndStoneSelect.setThreshold(COPPER_AND_STONE_DENSITY)
+            copperAndStoneSelect.setFalloff(0.1)
 
             /////////////////////////////////////////////////////////
             val rare2FBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
@@ -631,7 +631,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val rare2Select = ModuleSelect()
             rare2Select.setControlSource(rare2MultScale)
-            rare2Select.setLowSource(semiRareSelect)
+            rare2Select.setLowSource(copperAndStoneSelect)
             rare2Select.setHighSource(Rare2.toDouble())
             rare2Select.setThreshold(0.5)
             rare2Select.setFalloff(0.0)
@@ -695,7 +695,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             rareMult.setSource(0, rareFBMScale)
             rareMult.setSource(1, mainGradientRemap)
 
-            val RARE_DENSITY = 0.8
+            val RARE_DENSITY = 0.6
             val rareMultScale = ModuleScaleOffset()
             rareMultScale.setSource(rareMult)
             rareMultScale.setScale(RARE_DENSITY)
