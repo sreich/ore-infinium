@@ -720,7 +720,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             dirtGradientRemap.setScale(0.5)
             dirtGradientRemap.setOffset(0.5)
 
-            val DIRT_THRESHOLD = 0.50
+            val DIRT_THRESHOLD = 0.70
             val dirtStoneSelect = ModuleSelect()
             dirtStoneSelect.setControlSource(dirtGradientRemap)
             dirtStoneSelect.setLowSource(Dirt.toDouble())
@@ -729,11 +729,6 @@ class WorldGenerator(private val m_world: OreWorld) {
             dirtStoneSelect.setFalloff(0.05)
 
 
-            //now combine with the cave/world, to cut out all the places where
-            //we do not want ores to be
-            val oreCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            oreCaveMultiply.setSource(0, groundCaveMultiply)
-            oreCaveMultiply.setSource(1, dirtStoneSelect)
 
             /*
             not needed
@@ -745,10 +740,20 @@ class WorldGenerator(private val m_world: OreWorld) {
             groundSelect.setFalloff(0.0)
             */
 
+            //now combine with the cave/world, to cut out all the places where
+            //we do not want ores to be
+            val oreCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            oreCaveMultiply.setSource(0, groundCaveMultiply)
+            oreCaveMultiply.setSource(1, dirtStoneSelect)
+
 //            val finalGen = rareFBMRemap
 //            val finalGen = rareSelect
-//            val finalGen = dirtStoneSelect
-            val finalGen = oreCaveMultiply
+            var finalGen: Module = dirtStoneSelect
+
+            val showCavesAndOres = false
+            if (!showCavesAndOres) {
+                finalGen = oreCaveMultiply
+            }
 
             var color: Color
 
