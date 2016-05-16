@@ -26,8 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-//class Color2 {
 object Color2 {
-    val teal = Color(0, 128, 128)
+    val TEAL = Color(0, 128, 128)
+    val BROWN = Color(165, 42,42)
+    val COPPER = Color(184, 115, 51)
+    val ROYAL_BLUE = Color(65,105,225)
 }
-//}

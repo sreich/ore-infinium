@@ -564,6 +564,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val Stone = 3
             val Copper = 4
             val Rare = 5
+            val Rare2 = 6
             val Bedrock = 6
 
             val Constant1 = 1
@@ -600,24 +601,41 @@ class WorldGenerator(private val m_world: OreWorld) {
             semiRareSelect.setFalloff(0.1)
 
             /////////////////////////////////////////////////////////
-            val dirtFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                        ModuleBasisFunction.InterpolationType.QUINTIC)
-            dirtFBM.seed = seed
-            dirtFBM.setNumOctaves(4)
-            dirtFBM.setFrequency(25.0)
 
-            val dirtFBMRemap = ModuleScaleOffset()
-            dirtFBMRemap.setSource(dirtFBM)
-            dirtFBMRemap.setScale(0.5)
-            dirtFBMRemap.setOffset(0.5)
+            ////////////////////////////// DIRT
+            val rare2FBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
+            rare2FBM.seed = seed
+            rare2FBM.setNumOctaves(5)
+            rare2FBM.setFrequency(35.0)
 
-            val DIRT_DENSITY = 0.6
-            val dirtSelect = ModuleSelect()
-            dirtSelect.setControlSource(semiRareFBMRemap)
-            dirtSelect.setLowSource(Stone.toDouble())
-            dirtSelect.setHighSource(Copper.toDouble())
-            dirtSelect.setThreshold(DIRT_DENSITY)
-            dirtSelect.setFalloff(0.1)
+            val rare2FBMRemap = ModuleScaleOffset()
+            rare2FBMRemap.setSource(rare2FBM)
+            rare2FBMRemap.setScale(0.5)
+            rare2FBMRemap.setOffset(0.5)
+
+            val RARE2_GRADIENT_SCALE = 1.0
+            val rare2FBMScale = ModuleScaleOffset()
+            rare2FBMScale.setSource(rare2FBMRemap)
+            rare2FBMScale.setScale(RARE2_GRADIENT_SCALE)
+            rare2FBMScale.setOffset(0.0)
+
+            val rare2Mult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            rare2Mult.setSource(0, rare2FBMScale)
+            rare2Mult.setSource(1, mainGradientRemap)
+
+            val RARE2_DENSITY = 1.0
+            val rare2MultScale = ModuleScaleOffset()
+            rare2MultScale.setSource(rare2Mult)
+            rare2MultScale.setScale(RARE2_DENSITY)
+            rare2MultScale.setOffset(0.0)
+
+            val rare2Select = ModuleSelect()
+            rare2Select.setControlSource(rare2MultScale)
+            rare2Select.setLowSource(semiRareSelect)
+            rare2Select.setHighSource(Rare2.toDouble())
+            rare2Select.setThreshold(0.5)
+            rare2Select.setFalloff(0.0)
 
 
             ///////////////////////////////////////////////////////////////////////
@@ -627,13 +645,6 @@ class WorldGenerator(private val m_world: OreWorld) {
             rareFBM.seed = seed
             rareFBM.setNumOctaves(5)
             rareFBM.setFrequency(35.0)
-
-            /*
-            val rareAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
-            rareAutoCorrect.setSource(rareFBM)
-            rareAutoCorrect.calculate()
-            */
-
 
             val rareFBMRemap = ModuleScaleOffset()
             rareFBMRemap.setSource(rareFBM)
@@ -658,7 +669,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val rareSelect = ModuleSelect()
             rareSelect.setControlSource(rareMultScale)
-            rareSelect.setLowSource(semiRareSelect)
+            rareSelect.setLowSource(rare2Select)
             rareSelect.setHighSource(Rare.toDouble())
             rareSelect.setThreshold(0.5)
             rareSelect.setFalloff(0.0)
@@ -685,11 +696,13 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                     //print(",result $result")
                     when (result.toInt()) {
-                        Copper -> color = Color.ORANGE
+                        Dirt -> color = Color2.BROWN
+                        Copper -> color = Color2.COPPER
                         Stone -> color = Color.GRAY
+                        Rare -> color = Color2.TEAL
+                        Rare2 -> color = Color2.ROYAL_BLUE
 
-
-                        Rare -> color = Color2.teal
+                        //Coal -> color = Color.BLACK
 
                         else -> {
                             if (result > 0.0) {
