@@ -560,17 +560,18 @@ class WorldGenerator(private val m_world: OreWorld) {
         private fun generateOres(worldSize: WorldSize, seed: Long, groundCaveMultiply: ModuleCombiner) {
 
             val Open = 1
+
             val Dirt = 2
             val Stone = 3
             val Copper = 4
-            val Rare = 5
-            val Rare2 = 6
+            val Diamond = 5
+            val Gold = 6
             val Coal = 7
+            val Silver = 8
+            val Iron = 9
+            val Uranium = 10
+
             val Bedrock = 6
-
-            val Constant1 = 1
-            val Constant0 = 0
-
 
             /////////////////////////////////////////////////////
 
@@ -632,7 +633,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val rare2Select = ModuleSelect()
             rare2Select.setControlSource(rare2MultScale)
             rare2Select.setLowSource(copperAndStoneSelect)
-            rare2Select.setHighSource(Rare2.toDouble())
+            rare2Select.setHighSource(Gold.toDouble())
             rare2Select.setThreshold(0.5)
             rare2Select.setFalloff(0.0)
 
@@ -704,7 +705,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val rareSelect = ModuleSelect()
             rareSelect.setControlSource(rareMultScale)
             rareSelect.setLowSource(coalSelect)
-            rareSelect.setHighSource(Rare.toDouble())
+            rareSelect.setHighSource(Diamond.toDouble())
             rareSelect.setThreshold(0.5)
             rareSelect.setFalloff(0.0)
 
@@ -775,8 +776,9 @@ class WorldGenerator(private val m_world: OreWorld) {
                         Copper -> color = Color2.COPPER
                         Stone -> color = Color.GRAY
                         Coal -> color = Color.DARK_GRAY
-                        Rare -> color = Color2.TEAL
-                        Rare2 -> color = Color2.ROYAL_BLUE
+                        Diamond -> color = Color2.TEAL
+                        Gold -> color = Color.YELLOW
+                        Silver -> color = Color.LIGHT_GRAY
 
                     //Coal -> color = Color.BLACK
 
