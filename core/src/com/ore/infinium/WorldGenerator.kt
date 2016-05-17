@@ -604,6 +604,42 @@ class WorldGenerator(private val m_world: OreWorld) {
             copperSelect.setFalloff(0.1)
 
             /////////////////////////////////////////////////////////
+
+            val silverFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                    ModuleBasisFunction.InterpolationType.QUINTIC)
+            silverFBM.seed = seed
+            silverFBM.setNumOctaves(5)
+            silverFBM.setFrequency(550.0)
+
+            val silverFBMRemap = ModuleScaleOffset()
+            silverFBMRemap.setSource(silverFBM)
+            silverFBMRemap.setScale(0.5)
+            silverFBMRemap.setOffset(0.5)
+
+            val SILVER_GRADIENT_SCALE = 1.0
+            val silverFBMScale = ModuleScaleOffset()
+            silverFBMScale.setSource(silverFBMRemap)
+            silverFBMScale.setScale(SILVER_GRADIENT_SCALE)
+            silverFBMScale.setOffset(0.0)
+
+            val silverMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            silverMult.setSource(0, silverFBMScale)
+            silverMult.setSource(1, mainGradientRemap)
+
+            val SILVER_DENSITY = 1.0
+            val silverMultScale = ModuleScaleOffset()
+            silverMultScale.setSource(silverMult)
+            silverMultScale.setScale(SILVER_DENSITY)
+            silverMultScale.setOffset(0.0)
+
+            val silverSelect = ModuleSelect()
+            silverSelect.setControlSource(silverMultScale)
+            silverSelect.setLowSource(copperSelect)
+            silverSelect.setHighSource(Silver.toDouble())
+            silverSelect.setThreshold(0.5)
+            silverSelect.setFalloff(0.0)
+
+            //////////////////////////////////////////////////////////// SILVER
             val goldFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                     ModuleBasisFunction.InterpolationType.QUINTIC)
             goldFBM.seed = seed
@@ -633,7 +669,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val goldSelect = ModuleSelect()
             goldSelect.setControlSource(goldMultScale)
-            goldSelect.setLowSource(copperSelect)
+            goldSelect.setLowSource(silverSelect)
             goldSelect.setHighSource(Gold.toDouble())
             goldSelect.setThreshold(0.5)
             goldSelect.setFalloff(0.0)
@@ -672,7 +708,6 @@ class WorldGenerator(private val m_world: OreWorld) {
             coalSelect.setHighSource(Coal.toDouble())
             coalSelect.setThreshold(0.5)
             coalSelect.setFalloff(0.0)
-
 
             ///////////////////////////////////////////////////////////////////////
 
@@ -809,14 +844,13 @@ class WorldGenerator(private val m_world: OreWorld) {
                     when (result.toInt()) {
                         Dirt -> color = Color2.BROWN
                         Copper -> color = Color2.COPPER
+                        //Iron -> color = Color.
                         Stone -> color = Color.GRAY
-                        Coal -> color = Color.DARK_GRAY
+                        Coal -> color = Color.BLACK
                         Diamond -> color = Color2.TEAL
                         Gold -> color = Color.YELLOW
-                        Silver -> color = Color.LIGHT_GRAY
+                        Silver -> color = Color2.SILVER
                         Uranium -> color = Color2.LIME_GREEN
-
-                    //Coal -> color = Color.BLACK
 
                         else -> {
                             if (result > 0.0) {
