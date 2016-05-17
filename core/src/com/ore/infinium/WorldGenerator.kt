@@ -586,7 +586,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                   ModuleBasisFunction.InterpolationType.QUINTIC)
             copperAndStoneFBM.seed = seed
             copperAndStoneFBM.setNumOctaves(4)
-            copperAndStoneFBM.setFrequency(45.0)
+            copperAndStoneFBM.setFrequency(450.0)
 
             val CopperAndStoneFBMRemap = ModuleScaleOffset()
             CopperAndStoneFBMRemap.setSource(copperAndStoneFBM)
@@ -606,7 +606,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                     ModuleBasisFunction.InterpolationType.QUINTIC)
             rare2FBM.seed = seed
             rare2FBM.setNumOctaves(5)
-            rare2FBM.setFrequency(55.0)
+            rare2FBM.setFrequency(550.0)
 
             val rare2FBMRemap = ModuleScaleOffset()
             rare2FBMRemap.setSource(rare2FBM)
@@ -641,7 +641,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                     ModuleBasisFunction.InterpolationType.QUINTIC)
             coalFBM.seed = seed
             coalFBM.setNumOctaves(5)
-            coalFBM.setFrequency(65.0)
+            coalFBM.setFrequency(650.0)
 
             val coalFBMRemap = ModuleScaleOffset()
             coalFBMRemap.setSource(coalFBM)
@@ -678,7 +678,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                     ModuleBasisFunction.InterpolationType.QUINTIC)
             rareFBM.seed = seed
             rareFBM.setNumOctaves(5)
-            rareFBM.setFrequency(35.0)
+            rareFBM.setFrequency(650.0)
 
             val rareFBMRemap = ModuleScaleOffset()
             rareFBMRemap.setSource(rareFBM)
