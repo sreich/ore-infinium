@@ -583,59 +583,60 @@ class WorldGenerator(private val m_world: OreWorld) {
             mainGradientRemap.setScale(0.5)
             mainGradientRemap.setOffset(0.5)
 
-            val copperAndStoneFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+            val copperFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                                                   ModuleBasisFunction.InterpolationType.QUINTIC)
-            copperAndStoneFBM.seed = seed
-            copperAndStoneFBM.setNumOctaves(4)
-            copperAndStoneFBM.setFrequency(450.0)
+            copperFBM.seed = seed
+            copperFBM.setNumOctaves(4)
+            copperFBM.setFrequency(450.0)
 
-            val CopperAndStoneFBMRemap = ModuleScaleOffset()
-            CopperAndStoneFBMRemap.setSource(copperAndStoneFBM)
-            CopperAndStoneFBMRemap.setScale(0.5)
-            CopperAndStoneFBMRemap.setOffset(0.5)
+            val copperFBMRemap = ModuleScaleOffset()
+            copperFBMRemap.setSource(copperFBM)
+            copperFBMRemap.setScale(0.5)
+            copperFBMRemap.setOffset(0.5)
 
-            val COPPER_AND_STONE_DENSITY = 0.4
-            val copperAndStoneSelect = ModuleSelect()
-            copperAndStoneSelect.setControlSource(CopperAndStoneFBMRemap)
-            copperAndStoneSelect.setLowSource(Stone.toDouble())
-            copperAndStoneSelect.setHighSource(Copper.toDouble())
-            copperAndStoneSelect.setThreshold(COPPER_AND_STONE_DENSITY)
-            copperAndStoneSelect.setFalloff(0.1)
+            //copper or stone. lower density == more stone
+            val COPPER_DENSITY = 0.4
+            val copperSelect = ModuleSelect()
+            copperSelect.setControlSource(copperFBMRemap)
+            copperSelect.setLowSource(Stone.toDouble())
+            copperSelect.setHighSource(Copper.toDouble())
+            copperSelect.setThreshold(COPPER_DENSITY)
+            copperSelect.setFalloff(0.1)
 
             /////////////////////////////////////////////////////////
-            val rare2FBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+            val goldFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                     ModuleBasisFunction.InterpolationType.QUINTIC)
-            rare2FBM.seed = seed
-            rare2FBM.setNumOctaves(5)
-            rare2FBM.setFrequency(550.0)
+            goldFBM.seed = seed
+            goldFBM.setNumOctaves(5)
+            goldFBM.setFrequency(550.0)
 
-            val rare2FBMRemap = ModuleScaleOffset()
-            rare2FBMRemap.setSource(rare2FBM)
-            rare2FBMRemap.setScale(0.5)
-            rare2FBMRemap.setOffset(0.5)
+            val goldFBMRemap = ModuleScaleOffset()
+            goldFBMRemap.setSource(goldFBM)
+            goldFBMRemap.setScale(0.5)
+            goldFBMRemap.setOffset(0.5)
 
-            val RARE2_GRADIENT_SCALE = 1.0
-            val rare2FBMScale = ModuleScaleOffset()
-            rare2FBMScale.setSource(rare2FBMRemap)
-            rare2FBMScale.setScale(RARE2_GRADIENT_SCALE)
-            rare2FBMScale.setOffset(0.0)
+            val GOLD_GRADIENT_SCALE = 1.0
+            val goldFBMScale = ModuleScaleOffset()
+            goldFBMScale.setSource(goldFBMRemap)
+            goldFBMScale.setScale(GOLD_GRADIENT_SCALE)
+            goldFBMScale.setOffset(0.0)
 
-            val rare2Mult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            rare2Mult.setSource(0, rare2FBMScale)
-            rare2Mult.setSource(1, mainGradientRemap)
+            val goldMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            goldMult.setSource(0, goldFBMScale)
+            goldMult.setSource(1, mainGradientRemap)
 
-            val RARE2_DENSITY = 1.0
-            val rare2MultScale = ModuleScaleOffset()
-            rare2MultScale.setSource(rare2Mult)
-            rare2MultScale.setScale(RARE2_DENSITY)
-            rare2MultScale.setOffset(0.0)
+            val GOLD_DENSITY = 1.0
+            val goldMultScale = ModuleScaleOffset()
+            goldMultScale.setSource(goldMult)
+            goldMultScale.setScale(GOLD_DENSITY)
+            goldMultScale.setOffset(0.0)
 
-            val rare2Select = ModuleSelect()
-            rare2Select.setControlSource(rare2MultScale)
-            rare2Select.setLowSource(copperAndStoneSelect)
-            rare2Select.setHighSource(Gold.toDouble())
-            rare2Select.setThreshold(0.5)
-            rare2Select.setFalloff(0.0)
+            val goldSelect = ModuleSelect()
+            goldSelect.setControlSource(goldMultScale)
+            goldSelect.setLowSource(copperSelect)
+            goldSelect.setHighSource(Gold.toDouble())
+            goldSelect.setThreshold(0.5)
+            goldSelect.setFalloff(0.0)
 
             //////////////////////////////////////////////// COAL
             val coalFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
@@ -667,7 +668,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val coalSelect = ModuleSelect()
             coalSelect.setControlSource(coalMultScale)
-            coalSelect.setLowSource(rare2Select)
+            coalSelect.setLowSource(goldSelect)
             coalSelect.setHighSource(Coal.toDouble())
             coalSelect.setThreshold(0.5)
             coalSelect.setFalloff(0.0)
@@ -675,39 +676,39 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             ///////////////////////////////////////////////////////////////////////
 
-            val rareFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+            val diamondFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                     ModuleBasisFunction.InterpolationType.QUINTIC)
-            rareFBM.seed = seed
-            rareFBM.setNumOctaves(5)
-            rareFBM.setFrequency(650.0)
+            diamondFBM.seed = seed
+            diamondFBM.setNumOctaves(5)
+            diamondFBM.setFrequency(650.0)
 
-            val rareFBMRemap = ModuleScaleOffset()
-            rareFBMRemap.setSource(rareFBM)
-            rareFBMRemap.setScale(0.5)
-            rareFBMRemap.setOffset(0.5)
+            val diamondFBMRemap = ModuleScaleOffset()
+            diamondFBMRemap.setSource(diamondFBM)
+            diamondFBMRemap.setScale(0.5)
+            diamondFBMRemap.setOffset(0.5)
 
-            val RARE_GRADIENT_SCALE = 1.0
-            val rareFBMScale = ModuleScaleOffset()
-            rareFBMScale.setSource(rareFBMRemap)
-            rareFBMScale.setScale(RARE_GRADIENT_SCALE)
-            rareFBMScale.setOffset(0.0)
+            val DIAMOND_GRADIENT_SCALE = 1.0
+            val diamondFBMScale = ModuleScaleOffset()
+            diamondFBMScale.setSource(diamondFBMRemap)
+            diamondFBMScale.setScale(DIAMOND_GRADIENT_SCALE)
+            diamondFBMScale.setOffset(0.0)
 
-            val rareMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            rareMult.setSource(0, rareFBMScale)
-            rareMult.setSource(1, mainGradientRemap)
+            val diamondMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            diamondMult.setSource(0, diamondFBMScale)
+            diamondMult.setSource(1, mainGradientRemap)
 
-            val RARE_DENSITY = 0.6
-            val rareMultScale = ModuleScaleOffset()
-            rareMultScale.setSource(rareMult)
-            rareMultScale.setScale(RARE_DENSITY)
-            rareMultScale.setOffset(0.0)
+            val DIAMOND_DENSITY = 0.2
+            val diamondMultScale = ModuleScaleOffset()
+            diamondMultScale.setSource(diamondMult)
+            diamondMultScale.setScale(DIAMOND_DENSITY)
+            diamondMultScale.setOffset(0.0)
 
-            val rareSelect = ModuleSelect()
-            rareSelect.setControlSource(rareMultScale)
-            rareSelect.setLowSource(coalSelect)
-            rareSelect.setHighSource(Diamond.toDouble())
-            rareSelect.setThreshold(0.5)
-            rareSelect.setFalloff(0.0)
+            val diamondSelect = ModuleSelect()
+            diamondSelect.setControlSource(diamondMultScale)
+            diamondSelect.setLowSource(coalSelect)
+            diamondSelect.setHighSource(Diamond.toDouble())
+            diamondSelect.setThreshold(0.5)
+            diamondSelect.setFalloff(0.0)
 
 
             ////////////////////////////// DIRT
@@ -725,7 +726,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val dirtStoneSelect = ModuleSelect()
             dirtStoneSelect.setControlSource(dirtGradientRemap)
             dirtStoneSelect.setLowSource(Dirt.toDouble())
-            dirtStoneSelect.setHighSource(rareSelect)
+            dirtStoneSelect.setHighSource(diamondSelect)
             dirtStoneSelect.setThreshold(DIRT_THRESHOLD)
             dirtStoneSelect.setFalloff(0.05)
 
