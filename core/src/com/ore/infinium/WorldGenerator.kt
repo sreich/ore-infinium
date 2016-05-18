@@ -739,42 +739,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             ///////////////////////////////////////////////////////////////////////
 
-            val diamondFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                           ModuleBasisFunction.InterpolationType.QUINTIC)
-            diamondFBM.seed = seed
-            diamondFBM.setNumOctaves(5)
-            diamondFBM.setFrequency(650.0)
-
-            val diamondFBMRemap = ModuleScaleOffset()
-            diamondFBMRemap.setSource(diamondFBM)
-            diamondFBMRemap.setScale(0.5)
-            diamondFBMRemap.setOffset(0.5)
-
-            val DIAMOND_GRADIENT_SCALE = 1.0
-            val diamondFBMScale = ModuleScaleOffset()
-            diamondFBMScale.setSource(diamondFBMRemap)
-            diamondFBMScale.setScale(DIAMOND_GRADIENT_SCALE)
-            diamondFBMScale.setOffset(0.0)
-
-            val diamondMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            diamondMult.setSource(0, diamondFBMScale)
-            diamondMult.setSource(1, mainGradientRemap)
-
-            val DIAMOND_DENSITY = 0.2
-            val diamondMultScale = ModuleScaleOffset()
-            diamondMultScale.setSource(diamondMult)
-            diamondMultScale.setScale(DIAMOND_DENSITY)
-            diamondMultScale.setOffset(0.0)
-
-            val diamondSelect = ModuleSelect()
-            diamondSelect.setControlSource(diamondMultScale)
-            diamondSelect.setLowSource(coalSelect)
-            diamondSelect.setHighSource(OreValues.Diamond.oreValue.toDouble())
-            diamondSelect.setThreshold(0.5)
-            diamondSelect.setFalloff(0.0)
             ////////////////////////////////////////////////////////////////////
-
-            ///////////////////////////////////////////////////////////////////////
 
             val uraniumFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                                            ModuleBasisFunction.InterpolationType.QUINTIC)
@@ -805,11 +770,46 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val uraniumSelect = ModuleSelect()
             uraniumSelect.setControlSource(uraniumMultScale)
-            uraniumSelect.setLowSource(diamondSelect)
+            uraniumSelect.setLowSource(coalSelect)
             uraniumSelect.setHighSource(OreValues.Uranium.oreValue.toDouble())
             uraniumSelect.setThreshold(0.5)
             uraniumSelect.setFalloff(0.0)
 
+            ///////////////////////////////////////////////////////////////////////
+
+            val diamondFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
+                                           ModuleBasisFunction.InterpolationType.QUINTIC)
+            diamondFBM.seed = seed
+            diamondFBM.setNumOctaves(5)
+            diamondFBM.setFrequency(650.0)
+
+            val diamondFBMRemap = ModuleScaleOffset()
+            diamondFBMRemap.setSource(diamondFBM)
+            diamondFBMRemap.setScale(0.5)
+            diamondFBMRemap.setOffset(0.5)
+
+            val DIAMOND_GRADIENT_SCALE = 1.0
+            val diamondFBMScale = ModuleScaleOffset()
+            diamondFBMScale.setSource(diamondFBMRemap)
+            diamondFBMScale.setScale(DIAMOND_GRADIENT_SCALE)
+            diamondFBMScale.setOffset(0.0)
+
+            val diamondMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            diamondMult.setSource(0, diamondFBMScale)
+            diamondMult.setSource(1, mainGradientRemap)
+
+            val DIAMOND_DENSITY = 0.2
+            val diamondMultScale = ModuleScaleOffset()
+            diamondMultScale.setSource(diamondMult)
+            diamondMultScale.setScale(DIAMOND_DENSITY)
+            diamondMultScale.setOffset(0.0)
+
+            val diamondSelect = ModuleSelect()
+            diamondSelect.setControlSource(diamondMultScale)
+            diamondSelect.setLowSource(uraniumSelect)
+            diamondSelect.setHighSource(OreValues.Diamond.oreValue.toDouble())
+            diamondSelect.setThreshold(0.5)
+            diamondSelect.setFalloff(0.0)
 
             ////////////////////////////// DIRT
             //{name="DirtStoneSelect", type="select", main_source="MainGradientRemap", low_source="Dirt", high_source="RareSelect", threshold=DIRT_THRESHOLD, falloff=0},
@@ -826,7 +826,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val dirtStoneSelect = ModuleSelect()
             dirtStoneSelect.setControlSource(dirtGradientRemap)
             dirtStoneSelect.setLowSource(OreValues.Dirt.oreValue.toDouble())
-            dirtStoneSelect.setHighSource(uraniumSelect)
+            dirtStoneSelect.setHighSource(diamondSelect)
             dirtStoneSelect.setThreshold(DIRT_THRESHOLD)
             dirtStoneSelect.setFalloff(0.05)
 
