@@ -31,8 +31,9 @@ object Color2 {
 
     //saddle brown
     val BROWN = Color(139, 69, 19)
+    val RED4 = Color(139, 0, 0)
     val COPPER = Color(184, 115, 51)
-    val ROYAL_BLUE = Color(65,105,225)
-    val LIME_GREEN = Color(50,205,50)
-    val SILVER = Color(192,192,192)
+    val ROYAL_BLUE = Color(65, 105, 225)
+    val LIME_GREEN = Color(50, 205, 50)
+    val SILVER = Color(192, 192, 192)
 }
