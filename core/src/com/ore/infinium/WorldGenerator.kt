@@ -576,12 +576,12 @@ class WorldGenerator(private val m_world: OreWorld) {
             Dirt(2),
             Stone (3),
             Copper (4),
-            Diamond (5),
-            Gold (6),
-            Coal (7),
-            Silver (8),
-            Iron (9),
-            Uranium (10),
+            Coal (5),
+            Iron (6),
+            Silver (7),
+            Gold (8),
+            Uranium (9),
+            Diamond (10),
             Bedrock (11)
         }
 
@@ -699,7 +699,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             goldSelect.setControlSource(goldMultScale)
             goldSelect.setLowSource(silverSelect)
             goldSelect.setHighSource(OreValues.Gold.oreValue.toDouble())
-            goldSelect.setThreshold(0.5)
+            goldSelect.setThreshold(0.7)
             goldSelect.setFalloff(0.0)
 
             //////////////////////////////////////////////// COAL
