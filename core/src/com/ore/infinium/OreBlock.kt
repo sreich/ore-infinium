@@ -80,16 +80,24 @@ class OreBlock private constructor() {
     }
 
     object BlockFlags {
+        /// theoretically more things belong in here. except i ran out of ideas :(
         const val OnFireBlock = (1 shl 0).toByte()
         const val GrassBlock = (1 shl 1).toByte()
-        //        public static final int GrassBlock = 1 << 2;
-        /*
-        SunlightVisible((byte) (1 << 1)),
-        GrassBlock((byte) (1 << 2));
 
-        /// theoretically more things belong in here. except i ran out of ideas :(
-        // OnFireBlockFlag(1 << 0)
-        */
+        /**
+         * whether or not this block currently has sunlight access.
+         * this flag is used to indicate a global illumination,
+         * is recalculated on block destruction.
+         *
+         * this way, we can decide to darken every tile which
+         * hits the sunlight, by a global illumination when
+         * dusk starts approaching. it probably won't be used
+         * for logic though, just a visual aesthetic
+         *
+         * this is also in addition to the per light
+         */
+        const val SunlightVisible = (1 shl 2).toByte()
+
     }
 
     companion object {
@@ -104,17 +112,45 @@ class OreBlock private constructor() {
          * -type
          * -wallType
          * -flags
+         * -light level
          */
-        const val BLOCK_FIELD_COUNT = 4
+        const val BLOCK_FIELD_COUNT = 5
 
         /**
-         * index offset within the big byte block array,
+         * these are all index offsets within the big byte block array,
          * since BLOCK_FIELD_COUNT elements are stored for each
          * actual block
          */
+
+        /**
+         * tile type (dirt, stone, ...)
+         */
         const val BLOCK_FIELD_INDEX_TYPE = 0
+
+        /**
+         * precalculated mesh type, to determine how tiles should
+         * transition with each other.
+         *
+         * CLIENT SIDE ONLY
+         */
         const val BLOCK_FIELD_INDEX_MESHTYPE = 1
-        const val BLOCK_FIELD_INDEX_WALLTYPE = 2
-        const val BLOCK_FIELD_INDEX_FLAGS = 3
+
+        const val BLOCK_FIELD_INDEX_WALL_TYPE = 2
+
+        /**
+         * Light level of each tile, impacted by sunlight,
+         * player placed lights, and so on.
+         *
+         * NOTE: this byte is actually rather underused.
+         * we're only using light levels of < 255
+         * @see TileLightingSystem
+         */
+        const val BLOCK_FIELD_INDEX_LIGHT_LEVEL = 3
+
+        /**
+         * additional flags to store in the block
+         * @see BlockFlags
+         */
+        const val BLOCK_FIELD_INDEX_FLAGS = 4
     }
 }
