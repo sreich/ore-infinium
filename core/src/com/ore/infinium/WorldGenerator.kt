@@ -902,7 +902,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
 //            val finalGen = rareFBMRemap
 //            val finalGen = rareSelect
-            var finalGen: Module = dirtStoneSelect
+            var finalGen: Module = copperSelect
 
             val showCavesAndOres = false
             if (showCavesAndOres) {
@@ -936,7 +936,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             writeWorldImageLegendImprint(bufferedImage)
 
-            val fileUrl = "test/generated/worldgeneration-ores.png"
+            val fileUrl = "build/resources/test/worldgeneration-ores.png"
             ImageIO.write(bufferedImage, "png", File(fileUrl));
 
             //FIXME: at the end of all of this, slap bedrock on the bottom (and sides) with just a simple loop, so they can't dig beyond the edges of the world
