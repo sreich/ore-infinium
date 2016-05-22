@@ -562,6 +562,15 @@ class OreWorld
                 //                blocks[dragSourceIndex].wallType = Block::Wall
             }
         }
+
+        for (x in 180..190) {
+            for (y in 29..40) {
+
+                setBlockType(x, y, OreBlock.BlockType.DirtBlockType)
+            }
+        }
+
+
         //        for (int x = 0; x < WORLD_SIZE_X; ++x) {
         //            for (int y = seaLevel(); y < WORLD_SIZE_Y; ++y) {
         //                Block block = blockAt(x, y);

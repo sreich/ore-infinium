@@ -67,22 +67,39 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         //sets the flag to indicate it is caused by sunlight
 
         //todo max y should be a reasonable base level, not far below ground
-        for (y in 0..OreWorld.WORLD_SIZE_Y - 1) {
+        for (y in 0..200 - 1) {
             for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
                 if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.NullWallType) {
                     //including the one that we first find that is solid
-                    if (m_world.blockLightLevel(x, y) == 0.toByte()) {
-                        m_world.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
-                    }
+//                    if (m_world.blockLightLevel(x, y) == 0.toByte()) {
+                    m_world.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
+                    //                   }
 
                     //ambient/sunlight
-                    diamondSunlightFloodFill(x, y, MAX_TILE_LIGHT_LEVEL)
+                    //            diamondSunlightFloodFill(x, y, MAX_TILE_LIGHT_LEVEL)
+                }
+            }
+        }
+        for (y in 0..200 - 1) {
+            for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
+                if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.NullWallType) {
+                    //including the one that we first find that is solid
+                    val lightLevel = m_world.blockLightLevel(x, y)
+
+                    //ambient/sunlight
+                    diamondSunlightFloodFill(x - 1, y, lightLevel)
+                    diamondSunlightFloodFill(x + 1, y, lightLevel)
+                    diamondSunlightFloodFill(x, y + 1, lightLevel)
+                    diamondSunlightFloodFill(x, y - 1, lightLevel)
+//                    diamondSunlightFloodFill(x, y, lightLevel)
+                    //                   diamondSunlightFloodFill(x, y, lightLevel)
                 }
             }
         }
     }
 
-    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte) {
+    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte, depth: Int = 0) {
+        var currentDepth = depth
         if (y == 50) {
             val x = 2
         }
@@ -104,16 +121,19 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         val currentLightLevel = m_world.blockLightLevel(x, y)
 
         //don't overwrite previous light values that were greater
+//        if (newLightLevel <= currentLightLevel - 1) {
         if (newLightLevel <= currentLightLevel) {
+//        if (currentDepth >= 5) {
             return
         }
 
+        currentDepth += 1
         m_world.setBlockLightLevel(x, y, newLightLevel)
 
-        diamondSunlightFloodFill(x - 1, y, newLightLevel)
-        diamondSunlightFloodFill(x + 1, y, newLightLevel)
-        diamondSunlightFloodFill(x, y - 1, newLightLevel)
-        diamondSunlightFloodFill(x, y + 1, newLightLevel)
+        diamondSunlightFloodFill(x - 1, y, newLightLevel, currentDepth)
+        diamondSunlightFloodFill(x + 1, y, newLightLevel, currentDepth)
+        diamondSunlightFloodFill(x, y - 1, newLightLevel, currentDepth)
+        diamondSunlightFloodFill(x, y + 1, newLightLevel, currentDepth)
     }
 
     override fun processSystem() {
