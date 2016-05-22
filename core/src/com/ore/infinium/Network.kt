@@ -407,10 +407,14 @@ object Network {
         }
 
         companion object {
-            const val BLOCK_FIELD_COUNT = 3
+            //different than what is in the Block class, because we don't send everything
+            //over. some things are client only, some are serverside only.
+            const val BLOCK_FIELD_COUNT = 4
+
             const val BLOCK_FIELD_INDEX_TYPE = 0
             const val BLOCK_FIELD_INDEX_WALLTYPE = 1
-            const val BLOCK_FIELD_INDEX_FLAGS = 2
+            const val BLOCK_FIELD_INDEX_LIGHT_LEVEL = 2
+            const val BLOCK_FIELD_INDEX_FLAGS = 3
         }
     }
 }

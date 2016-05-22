@@ -660,12 +660,17 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         for (blockY in y..y2) {
             for (blockX in x..x2) {
 
+                //note we never send mesh type. that is not serialized to net, client side only
+
+                //NOTE: order should be *ascending* (to hopefully avoid a bit of thrashing)
                 val blockType = m_world.blockType(blockX, blockY)
                 val wallType = m_world.blockWallType(blockX, blockY)
+                val lightLevel = m_world.blockLightLevel(blockX, blockY)
                 val flags = m_world.blockFlags(blockX, blockY)
 
                 blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE] = blockType
                 blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE] = wallType
+                blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
                 blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS] = flags
                 ++blockIndex
             }

@@ -168,6 +168,7 @@ class OreWorld
                                            .with(ServerBlockDiggingSystem(this))
                                            .with(PlayerSystem(this))
                                            .with(ServerNetworkSystem(this, m_server!!))
+                                           .with(TileLightingSystem(this))
                                            .register(GameLoopSystemInvocationStrategy(25, true))
                                            .build())
             //inject the mappers into the world, before we start doing things
@@ -255,15 +256,22 @@ class OreWorld
 
         init {
             blockAttributes.put(OreBlock.BlockType.NullBlockType,
-                                BlockAttributes("NULL", BlockAttributes.Collision.False,
-                                                BlockAttributes.BlockCategory.Null,
-                                                0))
+                                BlockAttributes(textureName = "NULL",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Null,
+                                                blockTotalHealth = 0))
+
             blockAttributes.put(OreBlock.BlockType.DirtBlockType,
-                                BlockAttributes("dirt", BlockAttributes.Collision.True,
-                                                BlockAttributes.BlockCategory.Dirt, 200))
+                                BlockAttributes(textureName = "dirt",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Dirt,
+                                                blockTotalHealth = 200))
+
             blockAttributes.put(OreBlock.BlockType.StoneBlockType,
-                                BlockAttributes("stone", BlockAttributes.Collision.True,
-                                                BlockAttributes.BlockCategory.Ore, 300))
+                                BlockAttributes(textureName = "stone",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
         }
 
         const val s_itemPlacementOverlay = "itemPlacementOverlay"
@@ -437,7 +445,11 @@ class OreWorld
         }
         */
 
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE]
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALL_TYPE]
+    }
+
+    inline fun blockLightLevel(x: Int, y: Int): Byte {
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_LIGHT_LEVEL]
     }
 
     inline fun blockMeshType(x: Int, y: Int): Byte {
@@ -498,7 +510,7 @@ class OreWorld
         }
         */
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE] = wallType
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALL_TYPE] = wallType
     }
 
     inline fun setBlockMeshType(x: Int, y: Int, meshType: Byte) {
@@ -511,6 +523,10 @@ class OreWorld
         */
 
         blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE] = meshType
+    }
+
+    inline fun setBlockLightLevel(x: Int, y: Int, lightLevel: Byte) {
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
     }
 
     /**
@@ -929,27 +945,6 @@ class OreWorld
             setBlockWallType(x, y, sparseBlock.block!!.wallType)
             setBlockFlags(x, y, sparseBlock.block!!.flags)
         }
-    }
-
-    fun loadBlockRegion(region: Network.BlockRegion) {
-
-        var sourceIndex = 0
-        for (y in region.y..region.y2) {
-            for (x in region.x..region.x2) {
-                setBlockType(x, y,
-                             region.blocks!![sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE])
-                setBlockWallType(x, y,
-                                 region.blocks!![sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE])
-                setBlockFlags(x, y,
-                              region.blocks!![sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS])
-
-                ++sourceIndex
-            }
-        }
-
-        //log("client block region", "received/loaded $sourceIndex tiles from server");
-
-        //fixme should re transition tiles in this area
     }
 
     /**

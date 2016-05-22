@@ -135,6 +135,7 @@ class OreServer : Runnable {
 
         val seaLevel = m_world.seaLevel()
 
+        //collision test
         //left
         for (y in 0..seaLevel - 1) {
             //m_world.blockAt(tilex - 24, tiley + y).type = Block.BlockType.StoneBlockType;

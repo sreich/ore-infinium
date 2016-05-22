@@ -254,7 +254,8 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
                     blockMeshType.toInt())
         }
 
-        val s = "tile($x, $y), block type: $blockType, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass"
+        val lightLevel = m_world.blockLightLevel(x, y)
+        val s = "tile($x, $y), block type: $blockType, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel"
 
         m_font.draw(m_batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
@@ -346,21 +347,21 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         var entityUnderMouse = -1
 
-        var airComponent: AirComponent?
-        var airGeneratorComponent: AirGeneratorComponent?
-        var blockComponent: BlockComponent?
-        var controllableComponent: ControllableComponent?
-        var healthComponent: HealthComponent?
-        var itemComponent: ItemComponent?
-        var jumpComponent: JumpComponent?
-        var lightComponent: LightComponent?
-        var playerComponent: PlayerComponent?
-        var powerConsumerComponent: PowerConsumerComponent?
-        var powerDeviceComponent: PowerDeviceComponent?
-        var powerGeneratorComponent: PowerGeneratorComponent?
+        val airComponent: AirComponent?
+        val airGeneratorComponent: AirGeneratorComponent?
+        val blockComponent: BlockComponent?
+        val controllableComponent: ControllableComponent?
+        val healthComponent: HealthComponent?
+        val itemComponent: ItemComponent?
+        val jumpComponent: JumpComponent?
+        val lightComponent: LightComponent?
+        val playerComponent: PlayerComponent?
+        val powerConsumerComponent: PowerConsumerComponent?
+        val powerDeviceComponent: PowerDeviceComponent?
+        val powerGeneratorComponent: PowerGeneratorComponent?
         var spriteComponent: SpriteComponent?
-        var toolComponent: ToolComponent?
-        var velocityComponent: VelocityComponent?
+        val toolComponent: ToolComponent?
+        val velocityComponent: VelocityComponent?
 
         val components = Array<Component>()
         for (i in entities.indices) {
