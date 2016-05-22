@@ -317,6 +317,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             writeWorldPng(worldGenInfo)
         }
 
+        private const val WORLD_OUTPUT_IMAGE_BASE_PATH = "saveData/worldImages/"
+
         private fun writeWorldPng(worldGenInfo: WorldGenOutputInfo) {
             val bufferedImage = BufferedImage(worldGenInfo.worldSize.width, worldGenInfo.worldSize.height,
                     BufferedImage.TYPE_INT_RGB);
@@ -341,11 +343,16 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             graphics.drawString("y=200", 10, 190);
 
-            val fileUrl: String
+            var fileUrl = WORLD_OUTPUT_IMAGE_BASE_PATH
+            val dir = File(fileUrl)
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
+
             if (worldGenInfo.useUniqueImageName) {
-                fileUrl = "test/generated/worldgeneration-${worldGenInfo.seed}.png"
+                fileUrl += "worldgeneration-${worldGenInfo.seed}.png"
             } else {
-                fileUrl = "test/generated/worldgeneration.png"
+                fileUrl += "worldgeneration.png"
             }
 
             ImageIO.write(bufferedImage, "png", File(fileUrl));
@@ -592,12 +599,12 @@ class WorldGenerator(private val m_world: OreWorld) {
          */
         val OreNoiseColorMap = mapOf(OreValues.Dirt.oreValue to Color2.BROWN,
                                      OreValues.Stone.oreValue to Color.GRAY,
-                                     OreValues.Copper.oreValue to Color2.COPPER,
+                                     OreValues.Copper.oreValue to Color2.NEON_CARROT,
                                      OreValues.Diamond.oreValue to Color2.TEAL,
                                      OreValues.Gold.oreValue to Color.YELLOW,
                                      OreValues.Coal.oreValue to Color.BLACK,
                                      OreValues.Silver.oreValue to Color2.SILVER,
-                                     OreValues.Iron.oreValue to Color.DARK_GRAY,
+                                     OreValues.Iron.oreValue to Color2.TERRA_COTTA,
                                      OreValues.Uranium.oreValue to Color2.LIME_GREEN,
                                      OreValues.Iron.oreValue to Color2.RED4,
                                      OreValues.Bedrock.oreValue to Color.CYAN
@@ -936,7 +943,16 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             writeWorldImageLegendImprint(bufferedImage)
 
-            val fileUrl = "build/resources/test/worldgeneration-ores.png"
+            var fileUrl = WORLD_OUTPUT_IMAGE_BASE_PATH
+
+            val dir = File(fileUrl)
+            if (!dir.exists()) {
+                dir.mkdirs()
+            }
+
+
+            fileUrl += "worldgeneration-ores.png"
+
             ImageIO.write(bufferedImage, "png", File(fileUrl));
 
             //FIXME: at the end of all of this, slap bedrock on the bottom (and sides) with just a simple loop, so they can't dig beyond the edges of the world
