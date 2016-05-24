@@ -676,47 +676,17 @@ class WorldGenerator(private val m_world: OreWorld) {
             ironSelect.setFalloff(0.0)
 
             //////////////////////////////////////////////// COAL
-            val coalGradient = ModuleGradient()
-//            coalGradient.setGradient(0.0, 0.0, 0.0, 0.5)
-            coalGradient.setGradient(0.0, 0.0, 0.5, 0.0)
-
-            val coalGradientRemap = ModuleScaleOffset()
-            coalGradientRemap.setSource(coalGradient)
-            coalGradientRemap.setScale(0.5)
-            coalGradientRemap.setOffset(0.5)
 
             val coalFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                     ModuleBasisFunction.InterpolationType.QUINTIC)
-            coalFBM.seed = seed
+            coalFBM.seed = seed + 10
             coalFBM.setNumOctaves(7)
             coalFBM.setFrequency(250.0)
 
-            val coalFBMRemap = ModuleScaleOffset()
-            coalFBMRemap.setSource(coalFBM)
-            coalFBMRemap.setScale(0.5)
-            coalFBMRemap.setOffset(0.5)
-
-            val COAL_GRADIENT_SCALE = 1.0
-            val coalFBMScale = ModuleScaleOffset()
-            coalFBMScale.setSource(coalFBMRemap)
-            coalFBMScale.setScale(COAL_GRADIENT_SCALE)
-            coalFBMScale.setOffset(0.0)
-
-            val coalMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            coalMult.setSource(0, coalFBMScale)
-            coalMult.setSource(1, coalGradientRemap)
-
-            val COAL_DENSITY = 0.2
-            val coalMultScale = ModuleScaleOffset()
-            coalMultScale.setSource(coalMult)
-//            coalMultScale.setSource(coalFBMScale)
-            coalMultScale.setScale(COAL_DENSITY)
-            coalMultScale.setOffset(0.0)
-
             val coalSelect = ModuleSelect()
-            coalSelect.setControlSource(coalMultScale)
             coalSelect.setLowSource(ironSelect)
             coalSelect.setHighSource(OreValues.Coal.oreValue.toDouble())
+            coalSelect.setControlSource(coalFBM)
             coalSelect.setThreshold(0.5)
             coalSelect.setFalloff(0.0)
 
@@ -871,20 +841,25 @@ class WorldGenerator(private val m_world: OreWorld) {
             //{name="DirtStoneSelect", type="select", main_source="MainGradientRemap", low_source="Dirt", high_source="RareSelect", threshold=DIRT_THRESHOLD, falloff=0},
             //{name="GroundSelect", type="select", main_source="MainGradientRemap", low_source="Open", high_source="DirtStoneSelect", threshold=0.000001, falloff=0},
             val dirtGradient = ModuleGradient()
-            dirtGradient.setGradient(0.0, 0.0, 0.0, 0.5)
+            dirtGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
-            val dirtGradientRemap = ModuleScaleOffset()
-            dirtGradientRemap.setSource(mainGradient)
-            dirtGradientRemap.setScale(0.5)
-            dirtGradientRemap.setOffset(0.5)
+
+            val dirtRestrict = ModuleSelect()
+            dirtRestrict.setControlSource(dirtGradient)
+            dirtRestrict.setLowSource(0.0)
+            dirtRestrict.setHighSource(1.0)
+            dirtRestrict.setThreshold(0.05)
+            dirtRestrict.setFalloff(0.0)
+
 
             val DIRT_THRESHOLD = 0.70
-            val dirtStoneSelect = ModuleSelect()
-            dirtStoneSelect.setControlSource(dirtGradientRemap)
-            dirtStoneSelect.setLowSource(OreValues.Dirt.oreValue.toDouble())
-            dirtStoneSelect.setHighSource(diamondSelect)
-            dirtStoneSelect.setThreshold(DIRT_THRESHOLD)
-            dirtStoneSelect.setFalloff(0.05)
+            val dirtSelect = ModuleSelect()
+            dirtSelect.setControlSource(dirtRestrict)//dirtGradient)
+            dirtSelect.setLowSource(OreValues.Dirt.oreValue.toDouble())
+            dirtSelect.setHighSource(coalSelect)
+            dirtSelect.setThreshold(DIRT_THRESHOLD)
+            dirtSelect.setFalloff(0.05)
+
 
             /*
             not needed
@@ -900,11 +875,11 @@ class WorldGenerator(private val m_world: OreWorld) {
             //we do not want ores to be
             val oreCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             oreCaveMultiply.setSource(0, groundCaveMultiply)
-            oreCaveMultiply.setSource(1, dirtStoneSelect)
+            oreCaveMultiply.setSource(1, dirtSelect)
 
 //            val finalGen = rareFBMRemap
 //            val finalGen = rareSelect
-            var finalGen: Module = ironSelect
+            var finalGen: Module = dirtSelect
 
             val showCavesAndOres = false
             if (showCavesAndOres) {
