@@ -614,12 +614,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             /////////////////////////////////////////////////////
             val mainGradient = ModuleGradient()
-            mainGradient.setGradient(0.0, 0.0, 0.0, 0.5)
-
-            val mainGradientRemap = ModuleScaleOffset()
-            mainGradientRemap.setSource(mainGradient)
-            mainGradientRemap.setScale(0.5)
-            mainGradientRemap.setOffset(0.5)
+            mainGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
             val copperFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
                     ModuleBasisFunction.InterpolationType.QUINTIC)
@@ -627,16 +622,16 @@ class WorldGenerator(private val m_world: OreWorld) {
             copperFBM.setNumOctaves(4)
             copperFBM.setFrequency(450.0)
 
-            val copperFBMRemap = ModuleScaleOffset()
-            copperFBMRemap.setSource(copperFBM)
-            copperFBMRemap.setScale(0.5)
-            copperFBMRemap.setOffset(0.5)
+//            val copperFBMRemap = ModuleScaleOffset()
+//            copperFBMRemap.setSource(copperFBM)
+//            copperFBMRemap.setScale(0.5)
+//            copperFBMRemap.setOffset(0.5)
 
             //copper or stone. higher density == more stone. fuck if i know why.
 //            val COPPER_DENSITY = 0.58
-            val COPPER_DENSITY = 0.58
+            val COPPER_DENSITY = 0.2
             val copperSelect = ModuleSelect()
-            copperSelect.setControlSource(copperFBMRemap)
+            copperSelect.setControlSource(copperFBM)
             copperSelect.setLowSource(OreValues.Stone.oreValue.toDouble())
             copperSelect.setHighSource(OreValues.Copper.oreValue.toDouble())
             copperSelect.setThreshold(COPPER_DENSITY)
@@ -649,16 +644,16 @@ class WorldGenerator(private val m_world: OreWorld) {
             ironFBM.setNumOctaves(5)
             ironFBM.setFrequency(250.0)
 
-            val ironFBMRemap = ModuleScaleOffset()
-            ironFBMRemap.setSource(ironFBM)
-            ironFBMRemap.setScale(0.5)
-            ironFBMRemap.setOffset(0.5)
-
-            val IRON_GRADIENT_SCALE = 1.0
-            val ironFBMScale = ModuleScaleOffset()
-            ironFBMScale.setSource(ironFBMRemap)
-            ironFBMScale.setScale(IRON_GRADIENT_SCALE)
-            ironFBMScale.setOffset(0.0)
+//            val ironFBMRemap = ModuleScaleOffset()
+//            ironFBMRemap.setSource(ironFBM)
+//            ironFBMRemap.setScale(0.5)
+//            ironFBMRemap.setOffset(0.5)
+//
+//            val IRON_GRADIENT_SCALE = 1.0
+//            val ironFBMScale = ModuleScaleOffset()
+//            ironFBMScale.setSource(ironFBMRemap)
+//            ironFBMScale.setScale(IRON_GRADIENT_SCALE)
+//            ironFBMScale.setOffset(0.0)
 
             /*
             val ironMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
@@ -666,17 +661,17 @@ class WorldGenerator(private val m_world: OreWorld) {
             ironMult.setSource(1, ironGradientRemap)
             */
 
-            val IRON_DENSITY = 0.7
-            val ironMultScale = ModuleScaleOffset()
+            //         val IRON_DENSITY = 0.7
+            //          val ironMultScale = ModuleScaleOffset()
 //            ironMultScale.setSource(ironMult)
-            ironMultScale.setSource(ironFBMScale)
-            ironMultScale.setScale(IRON_DENSITY)
-            ironMultScale.setOffset(0.0)
+//            ironMultScale.setSource(ironFBMScale)
+//            ironMultScale.setScale(IRON_DENSITY)
+            //           ironMultScale.setOffset(0.0)
 
             val ironSelect = ModuleSelect()
-            ironSelect.setControlSource(ironMultScale)
             ironSelect.setLowSource(copperSelect)
             ironSelect.setHighSource(OreValues.Iron.oreValue.toDouble())
+            ironSelect.setControlSource(ironFBM)
             ironSelect.setThreshold(0.5)
             ironSelect.setFalloff(0.0)
 
@@ -750,7 +745,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val silverMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             silverMult.setSource(0, silverFBMScale)
-            silverMult.setSource(1, mainGradientRemap)
+            //hack silverMult.setSource(1, mainGradientRemap)
 
             val SILVER_DENSITY = 0.2
             val silverMultScale = ModuleScaleOffset()
@@ -785,7 +780,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val goldMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             goldMult.setSource(0, goldFBMScale)
-            goldMult.setSource(1, mainGradientRemap)
+            //hack goldMult.setSource(1, mainGradientRemap)
 
             val GOLD_DENSITY = 0.5
             val goldMultScale = ModuleScaleOffset()
@@ -821,7 +816,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val uraniumMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             uraniumMult.setSource(0, uraniumFBMScale)
-            uraniumMult.setSource(1, mainGradientRemap)
+            //hack uraniumMult.setSource(1, mainGradientRemap)
 
             val URANIUM_DENSITY = 0.4
             val uraniumMultScale = ModuleScaleOffset()
@@ -857,7 +852,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             val diamondMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
             diamondMult.setSource(0, diamondFBMScale)
-            diamondMult.setSource(1, mainGradientRemap)
+            //hack diamondMult.setSource(1, mainGradientRemap)
 
             val DIAMOND_DENSITY = 0.2
             val diamondMultScale = ModuleScaleOffset()
@@ -909,7 +904,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
 //            val finalGen = rareFBMRemap
 //            val finalGen = rareSelect
-            var finalGen: Module = copperSelect
+            var finalGen: Module = ironSelect
 
             val showCavesAndOres = false
             if (showCavesAndOres) {
