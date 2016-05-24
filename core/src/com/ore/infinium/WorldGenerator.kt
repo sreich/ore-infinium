@@ -844,21 +844,21 @@ class WorldGenerator(private val m_world: OreWorld) {
             dirtGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
 
+            val DIRT_THRESHOLD = 0.32
+
             val dirtRestrict = ModuleSelect()
             dirtRestrict.setControlSource(dirtGradient)
-            dirtRestrict.setLowSource(0.0)
+            dirtRestrict.setLowSource(0.2)
             dirtRestrict.setHighSource(1.0)
-            dirtRestrict.setThreshold(0.05)
-            dirtRestrict.setFalloff(0.0)
+            dirtRestrict.setThreshold(DIRT_THRESHOLD)
+            dirtRestrict.setFalloff(0.4)
 
-
-            val DIRT_THRESHOLD = 0.70
             val dirtSelect = ModuleSelect()
             dirtSelect.setControlSource(dirtRestrict)//dirtGradient)
             dirtSelect.setLowSource(OreValues.Dirt.oreValue.toDouble())
             dirtSelect.setHighSource(coalSelect)
             dirtSelect.setThreshold(DIRT_THRESHOLD)
-            dirtSelect.setFalloff(0.05)
+            dirtSelect.setFalloff(0.08) //0.03
 
 
             /*
@@ -881,7 +881,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val finalGen = rareSelect
             var finalGen: Module = dirtSelect
 
-            val showCavesAndOres = false
+            val showCavesAndOres = true
             if (showCavesAndOres) {
                 finalGen = oreCaveMultiply
             }
