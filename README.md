@@ -16,8 +16,8 @@ Written in **[Kotlin](https://kotlinlang.org/)** (Java/JVM language)
 
 Libraries used:
 * **[LibGDX](https://libgdx.badlogicgames.com/)(base cross platform game framework)
-* artemis-odb (entity component systems)
-* KryoNet(networking)
+* [artemis-odb](https://github.com/junkdog/artemis-odb) (entity component systems library)
+* [KryoNet](https://github.com/EsotericSoftware/kryonet)(networking library)
 * Scene2D.ui(GUI)**, part of libgdx
 * [Joise](https://github.com/SudoPlayGames/Joise)(noise module chaining framework, for generating the game world in complex ways)
 
@@ -35,7 +35,7 @@ I get more functionality (functionality being more important, and lag compensati
 can be a bit of an after thought, as it is more time consuming and requires
 a lot of tuning)..not to mention the protocol will need to be optimized,
 eg things like block sending are very inefficient, as I
-work on getting other featuresr in. It also currently spams packets like
+work on getting other features in. It also currently spams packets like
 crazy, when it should be aiming for 20-30 packets/s each for client or server.
 
 #Platforms
