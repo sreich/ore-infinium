@@ -706,32 +706,23 @@ class WorldGenerator(private val m_world: OreWorld) {
             goldFBM.setNumOctaves(5)
             goldFBM.setFrequency(550.0)
 
-            val goldFBMRemap = ModuleScaleOffset()
-            goldFBMRemap.setSource(goldFBM)
-            goldFBMRemap.setScale(0.5)
-            goldFBMRemap.setOffset(0.5)
+            //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
+            val goldRestrictSelect = ModuleSelect()
+            goldRestrictSelect.setLowSource(0.0)
+            goldRestrictSelect.setHighSource(1.0)
+            goldRestrictSelect.setControlSource(mainGradient)
+            goldRestrictSelect.setThreshold(0.7)
+            goldRestrictSelect.setFalloff(0.0)
 
-            val GOLD_GRADIENT_SCALE = 1.0
-            val goldFBMScale = ModuleScaleOffset()
-            goldFBMScale.setSource(goldFBMRemap)
-            goldFBMScale.setScale(GOLD_GRADIENT_SCALE)
-            goldFBMScale.setOffset(0.0)
-
-            val goldMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            goldMult.setSource(0, goldFBMScale)
-            //hack goldMult.setSource(1, mainGradientRemap)
-
-            val GOLD_DENSITY = 0.5
-            val goldMultScale = ModuleScaleOffset()
-            goldMultScale.setSource(goldMult)
-            goldMultScale.setScale(GOLD_DENSITY)
-            goldMultScale.setOffset(0.0)
+            val goldRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            goldRestrictMult.setSource(0, silverFBM)
+            goldRestrictMult.setSource(1, silverRestrictSelect)
 
             val goldSelect = ModuleSelect()
-            goldSelect.setControlSource(goldMultScale)
             goldSelect.setLowSource(silverSelect)
             goldSelect.setHighSource(OreValues.Gold.oreValue.toDouble())
-            goldSelect.setThreshold(0.7)
+            goldSelect.setControlSource(goldRestrictMult)
+            goldSelect.setThreshold(0.55)
             goldSelect.setFalloff(0.0)
 
             ////////////////////////////////////////////////////////////////////
@@ -740,33 +731,24 @@ class WorldGenerator(private val m_world: OreWorld) {
                     ModuleBasisFunction.InterpolationType.QUINTIC)
             uraniumFBM.seed = seed + 5
             uraniumFBM.setNumOctaves(5)
-            uraniumFBM.setFrequency(650.0)
+            uraniumFBM.setFrequency(950.0)
 
-            val uraniumFBMRemap = ModuleScaleOffset()
-            uraniumFBMRemap.setSource(uraniumFBM)
-            uraniumFBMRemap.setScale(0.5)
-            uraniumFBMRemap.setOffset(0.5)
+            //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
+            val uraniumRestrictSelect = ModuleSelect()
+            uraniumRestrictSelect.setLowSource(0.0)
+            uraniumRestrictSelect.setHighSource(1.0)
+            uraniumRestrictSelect.setControlSource(mainGradient)
+            uraniumRestrictSelect.setThreshold(0.7)
+            uraniumRestrictSelect.setFalloff(0.6)
 
-            val URANIUM_GRADIENT_SCALE = 1.0
-            val uraniumFBMScale = ModuleScaleOffset()
-            uraniumFBMScale.setSource(uraniumFBMRemap)
-            uraniumFBMScale.setScale(URANIUM_GRADIENT_SCALE)
-            uraniumFBMScale.setOffset(0.0)
-
-            val uraniumMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            uraniumMult.setSource(0, uraniumFBMScale)
-            //hack uraniumMult.setSource(1, mainGradientRemap)
-
-            val URANIUM_DENSITY = 0.4
-            val uraniumMultScale = ModuleScaleOffset()
-            uraniumMultScale.setSource(uraniumMult)
-            uraniumMultScale.setScale(URANIUM_DENSITY)
-            uraniumMultScale.setOffset(0.0)
+            val uraniumRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            uraniumRestrictMult.setSource(0, uraniumFBM)
+            uraniumRestrictMult.setSource(1, uraniumRestrictSelect)
 
             val uraniumSelect = ModuleSelect()
-            uraniumSelect.setControlSource(uraniumMultScale)
             uraniumSelect.setLowSource(goldSelect)
             uraniumSelect.setHighSource(OreValues.Uranium.oreValue.toDouble())
+            uraniumSelect.setControlSource(uraniumRestrictMult)
             uraniumSelect.setThreshold(0.5)
             uraniumSelect.setFalloff(0.0)
 
@@ -778,43 +760,30 @@ class WorldGenerator(private val m_world: OreWorld) {
             diamondFBM.setNumOctaves(5)
             diamondFBM.setFrequency(650.0)
 
-            val diamondFBMRemap = ModuleScaleOffset()
-            diamondFBMRemap.setSource(diamondFBM)
-            diamondFBMRemap.setScale(0.5)
-            diamondFBMRemap.setOffset(0.5)
+            //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
+            val diamondRestrictSelect = ModuleSelect()
+            diamondRestrictSelect.setLowSource(0.0)
+            diamondRestrictSelect.setHighSource(1.0)
+            diamondRestrictSelect.setControlSource(mainGradient)
+            diamondRestrictSelect.setThreshold(0.3)
+            diamondRestrictSelect.setFalloff(0.8)
 
-            val DIAMOND_GRADIENT_SCALE = 1.0
-            val diamondFBMScale = ModuleScaleOffset()
-            diamondFBMScale.setSource(diamondFBMRemap)
-            diamondFBMScale.setScale(DIAMOND_GRADIENT_SCALE)
-            diamondFBMScale.setOffset(0.0)
-
-            val diamondMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-            diamondMult.setSource(0, diamondFBMScale)
-            //hack diamondMult.setSource(1, mainGradientRemap)
-
-            val DIAMOND_DENSITY = 0.2
-            val diamondMultScale = ModuleScaleOffset()
-            diamondMultScale.setSource(diamondMult)
-            diamondMultScale.setScale(DIAMOND_DENSITY)
-            diamondMultScale.setOffset(0.0)
+            val diamondRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            diamondRestrictMult.setSource(0, diamondFBM)
+            diamondRestrictMult.setSource(1, diamondRestrictSelect)
 
             val diamondSelect = ModuleSelect()
-            diamondSelect.setControlSource(diamondMultScale)
             diamondSelect.setLowSource(uraniumSelect)
             diamondSelect.setHighSource(OreValues.Diamond.oreValue.toDouble())
-            diamondSelect.setThreshold(0.5)
+            diamondSelect.setControlSource(diamondRestrictMult)
+            diamondSelect.setThreshold(0.65)
             diamondSelect.setFalloff(0.0)
 
             ////////////////////////////// DIRT
-            //{name="DirtStoneSelect", type="select", main_source="MainGradientRemap", low_source="Dirt", high_source="RareSelect", threshold=DIRT_THRESHOLD, falloff=0},
-            //{name="GroundSelect", type="select", main_source="MainGradientRemap", low_source="Open", high_source="DirtStoneSelect", threshold=0.000001, falloff=0},
             val dirtGradient = ModuleGradient()
             dirtGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
-
             val DIRT_THRESHOLD = 0.32
-//            val DIRT_THRESHOLD = 0.7
 
             val dirtRestrict = ModuleSelect()
             dirtRestrict.setControlSource(dirtGradient)
@@ -827,8 +796,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             val dirtSelect = ModuleSelect()
             dirtSelect.setControlSource(dirtRestrict)
             dirtSelect.setLowSource(OreValues.Dirt.oreValue.toDouble())
-            //dirtSelect.setHighSource(ironSelect)
-            dirtSelect.setHighSource(silverSelect)
+            dirtSelect.setHighSource(diamondSelect)
             dirtSelect.setThreshold(DIRT_THRESHOLD)
             dirtSelect.setFalloff(0.08)
             //dirtSelect.setFalloff(0.8)
@@ -854,7 +822,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val finalGen = rareFBMRemap
 //            val finalGen = rareSelect
             //var finalGen: Module = dirtSelect
-            var finalGen: Module = silverSelect
+            var finalGen: Module = dirtSelect
             //var finalGen: Module = coalSelect
 
             val showCavesAndOres = false
