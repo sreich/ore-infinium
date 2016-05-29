@@ -680,10 +680,22 @@ class WorldGenerator(private val m_world: OreWorld) {
             silverFBM.setNumOctaves(5)
             silverFBM.setFrequency(550.0)
 
+            //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
+            val silverRestrictSelect = ModuleSelect()
+            silverRestrictSelect.setLowSource(0.0)
+            silverRestrictSelect.setHighSource(1.0)
+            silverRestrictSelect.setControlSource(mainGradient)
+            silverRestrictSelect.setThreshold(0.5)
+            silverRestrictSelect.setFalloff(0.0)
+
+            val silverRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+            silverRestrictMult.setSource(0, silverFBM)
+            silverRestrictMult.setSource(1, silverRestrictSelect)
+
             val silverSelect = ModuleSelect()
             silverSelect.setLowSource(ironSelect)
             silverSelect.setHighSource(OreValues.Silver.oreValue.toDouble())
-            silverSelect.setControlSource(silverFBM)
+            silverSelect.setControlSource(silverRestrictMult)
             silverSelect.setThreshold(0.5)
             silverSelect.setFalloff(0.0)
 
@@ -841,7 +853,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 
 //            val finalGen = rareFBMRemap
 //            val finalGen = rareSelect
-            var finalGen: Module = dirtSelect
+            //var finalGen: Module = dirtSelect
+            var finalGen: Module = silverSelect
             //var finalGen: Module = coalSelect
 
             val showCavesAndOres = false
