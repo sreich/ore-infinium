@@ -15,7 +15,7 @@ through using these things.
 Written in **[Kotlin](https://kotlinlang.org/)** (Java/JVM language)
 
 Libraries used:
-* **[LibGDX](https://libgdx.badlogicgames.com/)(base cross platform game framework)
+* [LibGDX](https://libgdx.badlogicgames.com/)(base cross platform game framework)
 * [artemis-odb](https://github.com/junkdog/artemis-odb) (entity component systems library)
 * [KryoNet](https://github.com/EsotericSoftware/kryonet)(networking library)
 * Scene2D.ui(GUI)**, part of libgdx
@@ -46,8 +46,6 @@ Windows, Mac OS X).
 **You will need java 8 (jre 1.8) installed.**
 **OpenGL 3.0+** (shouldn't be difficult to meet, linux open source drivers meet that easily. Any integrated gpu in the past several years should support it).
 
-Tested with intellij IDEA. 
-
 # Builds
 Regular builds (jar files) can be downloaded from [my dropbox builds](https://www.dropbox.com/sh/utrgredr6xx44jd/AACycdKZElceSHSrIFSvXPkXa?dl=0)
 
@@ -59,7 +57,7 @@ If you wish to test and such, you'll probably want to enable assertions, as I us
 them all over the place to ensure consistent game state, and sane behavior. You
 must pass '-ea' ("enable assertions") to VM Options.
 
-For IDEA, see: http://www.jetbrains.com/idea/help/setting-configuration-options.html
+Should work with every IDE just fine. For IDEA, see: http://www.jetbrains.com/idea/help/setting-configuration-options.html
 
 To build locally, just check out the code. It uses a submodule currently, for the assets. So run git clone --recursive <the url>. If you've already checked out the main repo and forgot to run it with --recursive, you won't have the submodule located in ore-infinium/core/assets. So, do git submodule update --recursive
 
@@ -90,7 +88,7 @@ I run it and figure out my mistake an hour later. Loads of convenience things th
 modern language will have. Unfortunately, java has none of those, and probably never will.
 
 # Contributing and Contact
-, feel free to ask questions and get help, create issues, make patches! 
+Feel free to talk to me on gitter, ask questions, get help, create issues, make patches!
 
 Chat with me on gitter(github messenging):
 [![Join the chat at https://gitter.im/sreich/ore-infinium](https://badges.gitter.im/sreich/ore-infinium.svg)](https://gitter.im/sreich/ore-infinium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
