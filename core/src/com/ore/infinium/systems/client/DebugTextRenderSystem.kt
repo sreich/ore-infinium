@@ -230,6 +230,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         val x = mousePos.x.toInt()
         val y = mousePos.y.toInt()
 
+        //fixme check x, y against world size, out of bounds errors
         val blockType = m_world.blockType(x, y)
         val blockMeshType = m_world.blockMeshType(x, y)
         val blockWallType = m_world.blockWallType(x, y)

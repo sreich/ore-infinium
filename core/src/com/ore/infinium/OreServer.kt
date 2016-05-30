@@ -125,13 +125,13 @@ class OreServer : Runnable {
 
         //TODO:make better server player first-spawning code
         //TODO: (much later) make it try to load the player position from previous world data, if any.
-        val posX = 200f
+        val posX = OreWorld.WORLD_SIZE.width * 0.5f
         var posY = 0f //start at the overground
         val tilex = posX.toInt()
         val tiley = posY.toInt()
 
         //fixme for collision test shouldn't be so...gross. as of 2015-12-14 idk wtf this is, delete it
-        posY = 34f
+        posY = 20f
 
         val seaLevel = m_world.seaLevel()
 

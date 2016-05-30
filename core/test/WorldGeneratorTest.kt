@@ -23,7 +23,6 @@ SOFTWARE.
  */
 
 import com.badlogic.gdx.utils.GdxNativesLoader
-import com.ore.infinium.WorldGenerator
 import org.junit.Ignore
 import org.junit.Test
 
@@ -35,7 +34,7 @@ class WorldGeneratorTest {
     @Throws(Exception::class)
     fun generateWorldAndOutputImage() {
         GdxNativesLoader.load()
-        WorldGenerator.generateWorldAndOutputImage()
+        //WorldGenerator.generateWorldAndOutputImage()
     }
 
     @Test

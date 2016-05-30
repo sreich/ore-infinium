@@ -231,17 +231,44 @@ class OreWorld
         }
     }
 
+    /**
+     * starbound world sizes:
+     * smallest: 2048x1504
+     * average: 4000x4000
+     * large: 6016x4000
+     * massive: 8000x4992
+     *
+     * terraria world sized:
+     * small: 4200x1200, sky limit 360-370 above underground level
+     * medium: 6400x1800, 450-600 blocks above underground(sky)
+     * large: 8400x2400, sky limit: 800-900 blocks above ground
+     *
+     */
+    enum class WorldSize(val width: Int, val height: Int) {
+        TestTiny(1024, 1024),
+        Smallest(2048, 1500),
+        Small(4000, 1500),
+        Medium(6400, 1800),
+        Large(8400, 2400),
+        Huge(8400, 8400)
+    }
+
     companion object {
         val GRAVITY_ACCEL = 0.5f
         val GRAVITY_ACCEL_CLAMP = 0.5f
 
         const val BLOCK_SIZE_PIXELS = 16.0f
 
+
+        //TODO runtime configurable at world gen creation time,
+        //client and server obvs must agree on sizes!
+        val WORLD_SIZE = WorldSize.TestTiny
+
         /**
          * @see WorldGenerator
          */
-        val WORLD_SIZE_X = 8400
-        val WORLD_SIZE_Y = 2400
+        val WORLD_SIZE_X = WORLD_SIZE.width
+        val WORLD_SIZE_Y = WORLD_SIZE.height
         val WORLD_SEA_LEVEL = 50
 
         /**
@@ -327,7 +354,7 @@ class OreWorld
     }
 
     private fun generateWorld() {
-        m_worldGenerator!!.generateWorld()
+        m_worldGenerator!!.generateWorld2(WorldSize.TestTiny)
     }
 
     /**
