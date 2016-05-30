@@ -284,8 +284,9 @@ class WorldGenerator(private val m_world: OreWorld) {
             var seed = random.nextLong()
             /*
                    */
-            seed =
-                    -4058144727897976167
+//            seed =
+            //                   -4058144727897976167
+            seed = 5243159850199723543
             println("seed was $seed")
 
             val imageArray = FloatArray(worldSize.width * worldSize.height)
@@ -486,7 +487,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             highlandLowlandSelect.setLowSource(lowlandTerrain)
             highlandLowlandSelect.setHighSource(highlandMountainSelect)
             highlandLowlandSelect.setControlSource(terrainTypeCache)
-            highlandLowlandSelect.setThreshold(0.15)
+            highlandLowlandSelect.setThreshold(0.15) //.19 ?
             highlandLowlandSelect.setFalloff(0.10)
 
 
@@ -557,7 +558,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                 finalModule = groundCaveMultiply
             }
 
-//            outputWorldToArray(finalModule, imageArray, worldSize, threadCount, threadNumber)
+            outputWorldToArray(finalModule, imageArray, worldSize, threadCount, threadNumber)
 
             counter.stop()
             println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
@@ -581,8 +582,8 @@ class WorldGenerator(private val m_world: OreWorld) {
          * not suspect they would.
          */
         enum class OreValues(val oreValue: Int) {
-            Sand(0),
-            Open (1),
+            Open (0),
+            Sand(1),
             Dirt(2),
             Stone (3),
             Copper (4),
@@ -825,7 +826,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             var finalGen: Module = dirtSelect
             //var finalGen: Module = coalSelect
 
-            val showCavesAndOres = false
+            val showCavesAndOres = true
             if (showCavesAndOres) {
                 finalGen = oreCaveMultiply
             }
@@ -922,8 +923,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                     val value = finalModule.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
                             y.toDouble() / worldSize.height.toDouble())
 
-                    if (value > 0.0) {
-                    }
+                    assert (value == value.toInt().toDouble()) { "output to world array, but units aren't in round numbers -- invalid ore types" }
 
                     val index = x * worldSize.height + y
 
