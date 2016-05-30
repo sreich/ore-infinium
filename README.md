@@ -6,7 +6,7 @@
 
 [![Build Status](https://travis-ci.org/sreich/ore-infinium.svg?branch=master)](https://travis-ci.org/sreich/ore-infinium)
 
-Ore Infinium, an **Open Source** Terraria-inspired Sci-fi game with a special focus
+Ore Infinium, an **Open Source** multiplayer Terraria-inspired Sci-fi game with a special focus
 on in-game tech devices, energy generation/consumption, resources gathering and the survival
 through using these things. 
 
