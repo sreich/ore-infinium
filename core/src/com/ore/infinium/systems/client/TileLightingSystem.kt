@@ -69,7 +69,7 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         //todo max y should be a reasonable base level, not far below ground
         for (y in 0..200 - 1) {
             for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
-                if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.NullWallType) {
+                if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.AirWallType) {
                     //including the one that we first find that is solid
 //                    if (m_world.blockLightLevel(x, y) == 0.toByte()) {
                     m_world.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
@@ -82,7 +82,7 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         }
         for (y in 0..200 - 1) {
             for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
-                if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.NullWallType) {
+                if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.AirWallType) {
                     //including the one that we first find that is solid
                     val lightLevel = m_world.blockLightLevel(x, y)
 
@@ -111,7 +111,7 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         val blockType = m_world.blockType(x, y)
 
         val lightAttenuation = when (blockType) {
-            OreBlock.BlockType.NullBlockType -> 0
+            OreBlock.BlockType.AirBlockType -> 0
             else -> 1
         }
 

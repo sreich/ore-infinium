@@ -176,7 +176,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         }
 
         val blockType = m_world.blockType(x, y)
-        if (blockType == OreBlock.BlockType.NullBlockType) {
+        if (blockType == OreBlock.BlockType.AirBlockType) {
             return false
         }
 

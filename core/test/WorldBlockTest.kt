@@ -45,7 +45,7 @@ class WorldBlockTest {
     fun testBlockSolid() {
         assertTrue(true)
 
-        world.setBlockType(500, 500, OreBlock.BlockType.NullBlockType)
+        world.setBlockType(500, 500, OreBlock.BlockType.AirBlockType)
         assertFalse(world.isBlockSolid(500, 500))
 
         world.setBlockType(100, 100, OreBlock.BlockType.CopperBlockType)
@@ -56,7 +56,7 @@ class WorldBlockTest {
     //tile origin is top left
     @Test
     public void testBlockAtPositionExactly() throws Exception {
-        //our marker block. the rest of the ones in the world are NullBlockType
+        //our marker block. the rest of the ones in the world are AirBlockType
         world.setBlockType(10, 10, OreBlock.BlockType.CopperBlockType);
 
         assertEquals(world.blockType(10, 10), world.blockTypeAtPosition(new Vector2(10.0f, 10.0f)));

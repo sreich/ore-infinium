@@ -155,7 +155,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                 if (blockType == OreBlock.BlockType.DirtBlockType) {
                     val topBlockType = m_world.blockTypeSafely(x, y - 1)
 
-                    if (topBlockType == OreBlock.BlockType.NullBlockType) {
+                    if (topBlockType == OreBlock.BlockType.AirBlockType) {
                         m_world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
                         y = OreWorld.WORLD_SIZE_Y
@@ -180,7 +180,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                     //                    boolean leftEmpty =
 
                     //grows grass here
-                    if (topBlockType == OreBlock.BlockType.NullBlockType) {
+                    if (topBlockType == OreBlock.BlockType.AirBlockType) {
                         m_world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
                     }
                 }
@@ -192,8 +192,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
             for (y in 0..OreWorld.WORLD_SIZE_Y - 1) {
 
-                m_world.setBlockType(x, y, OreBlock.BlockType.NullBlockType)
-                m_world.setBlockWallType(x, y, OreBlock.WallType.NullWallType)
+                m_world.setBlockType(x, y, OreBlock.BlockType.AirBlockType)
+                m_world.setBlockWallType(x, y, OreBlock.WallType.AirWallType)
 
                 //create some sky
                 if (y <= m_world.seaLevel()) {
@@ -204,7 +204,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                 //hack MathUtils.random(0, 3)
                 when (2) {
-                    0 -> m_world.setBlockType(x, y, OreBlock.BlockType.NullBlockType)
+                    0 -> m_world.setBlockType(x, y, OreBlock.BlockType.AirBlockType)
 
                     1 -> m_world.setBlockType(x, y, OreBlock.BlockType.DirtBlockType)
                 //fixme, simulate only dirt for now. blocks[index].type = Block.BlockType.StoneBlockType;

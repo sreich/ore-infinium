@@ -63,14 +63,30 @@ class OreBlock private constructor() {
      * Determines the health and texture of the Block.
      */
     object BlockType {
-        const val NullBlockType: Byte = 0
+        const val AirBlockType: Byte = 0
+
         const val DirtBlockType: Byte = 1
-        const val StoneBlockType: Byte = 2
-        const val CopperBlockType: Byte = 3
+        const val SandBlockType: Byte = 2
+
+        const val StoneBlockType: Byte = 3
+        const val CoalBlockType: Byte = 4
+
+        const val CopperBlockType: Byte = 5
+        const val IronBlockType: Byte = 6
+        const val SilverBlockType: Byte = 7
+        const val GoldBlockType: Byte = 8
+
+        const val UraniumBlockType: Byte = 9
+        const val DiamondBlockType: Byte = 10
+
+        //todo obsidian (only from when lava hits water)? or should we just use stone
+
+        const val BedrockBlockType: Byte = 11
     }
 
     object WallType {
-        const val NullWallType: Byte = 0
+        const val AirWallType: Byte = 0
+
         const val DirtWallType: Byte = 1
         const val DirtUndergroundWallType: Byte = 2
     }

@@ -132,15 +132,15 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
                 if (blockType == OreBlock.BlockType.DirtBlockType && blockHasGrass) {
 
                     //should have grass on left side of this block..or not.
-                    val leftEmpty = leftBlockType == OreBlock.BlockType.NullBlockType
-                    val leftLeftEmpty = leftLeftBlockType == OreBlock.BlockType.NullBlockType
+                    val leftEmpty = leftBlockType == OreBlock.BlockType.AirBlockType
+                    val leftLeftEmpty = leftLeftBlockType == OreBlock.BlockType.AirBlockType
 
-                    val rightEmpty = rightBlockType == OreBlock.BlockType.NullBlockType
-                    val rightRightEmpty = rightRightBlockType == OreBlock.BlockType.NullBlockType
+                    val rightEmpty = rightBlockType == OreBlock.BlockType.AirBlockType
+                    val rightRightEmpty = rightRightBlockType == OreBlock.BlockType.AirBlockType
 
-                    val topEmpty = topBlockType == OreBlock.BlockType.NullBlockType
+                    val topEmpty = topBlockType == OreBlock.BlockType.AirBlockType
 
-                    val bottomEmpty = bottomBlockType == OreBlock.BlockType.NullBlockType
+                    val bottomEmpty = bottomBlockType == OreBlock.BlockType.AirBlockType
 
                     //if block to the left is dirt..
                     val leftDirt = leftBlockType == OreBlock.BlockType.DirtBlockType
@@ -149,10 +149,10 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
                     val bottomDirt = bottomBlockType == OreBlock.BlockType.DirtBlockType
 
                     //handled a bit differently,
-                    val topLeftEmpty = topLeftBlockType == OreBlock.BlockType.NullBlockType
-                    val topRightEmpty = topRightBlockType == OreBlock.BlockType.NullBlockType
-                    val bottomLeftEmpty = bottomLeftBlockType == OreBlock.BlockType.NullBlockType
-                    val bottomRightEmpty = bottomRightBlockType == OreBlock.BlockType.NullBlockType
+                    val topLeftEmpty = topLeftBlockType == OreBlock.BlockType.AirBlockType
+                    val topRightEmpty = topRightBlockType == OreBlock.BlockType.AirBlockType
+                    val bottomLeftEmpty = bottomLeftBlockType == OreBlock.BlockType.AirBlockType
+                    val bottomRightEmpty = bottomRightBlockType == OreBlock.BlockType.AirBlockType
 
                     val leftOre = OreWorld.blockAttributes[leftBlockType]!!.category == OreWorld.BlockAttributes.BlockCategory.Ore
 
@@ -266,7 +266,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
             for (x in blockRegion.x..blockRegion.width) {
 
                 val type = m_world.blockType(x, y)
-                if (type == OreBlock.BlockType.NullBlockType) {
+                if (type == OreBlock.BlockType.AirBlockType) {
                     continue
                 }
 

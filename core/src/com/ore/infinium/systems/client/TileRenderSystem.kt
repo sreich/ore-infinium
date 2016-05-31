@@ -179,8 +179,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                     textureName = stoneBlockMeshes.get(blockMeshType.toInt())
                     assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
-                } else if (blockType == OreBlock.BlockType.NullBlockType) {
-                    if (blockWallType == OreBlock.WallType.NullWallType) {
+                } else if (blockType == OreBlock.BlockType.AirBlockType) {
+                    if (blockWallType == OreBlock.WallType.AirWallType) {
                         //we can skip a draw call iff the wall, and block is null
                         continue
                     } else {
