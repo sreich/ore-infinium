@@ -190,7 +190,43 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                         }
                     }
 
-                    else -> {
+                    OreBlock.BlockType.CoalBlockType -> {
+                        textureName = "coal"
+                    }
+
+                    OreBlock.BlockType.CopperBlockType -> {
+                        textureName = "copper-00"
+                    }
+
+                    OreBlock.BlockType.UraniumBlockType -> {
+                        textureName = "uranium"
+                    }
+
+                    OreBlock.BlockType.DiamondBlockType -> {
+                        textureName = "diamond"
+                    }
+
+                    OreBlock.BlockType.IronBlockType -> {
+                        textureName = "iron"
+                    }
+
+                    OreBlock.BlockType.SandBlockType -> {
+                        textureName = "sand"
+                    }
+
+                    OreBlock.BlockType.BedrockBlockType -> {
+                        textureName = "bedrock"
+                    }
+
+                    OreBlock.BlockType.SilverBlockType -> {
+                        textureName = "silver"
+                    }
+
+                    OreBlock.BlockType.GoldBlockType -> {
+                        textureName = "gold"
+                    }
+                    else
+                    -> {
                         assert(false) { "unhandled block" }
                     }
                 }
