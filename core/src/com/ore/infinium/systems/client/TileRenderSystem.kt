@@ -151,7 +151,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         //fixme all instances of findRegion need to be replaced with cached
         //versions. they're allegedly quite slow
         for (x in startX..endX - 1) {
-            for (y in startY..endY - 1) {
+            loop@ for (y in startY..endY - 1) {
                 ++debugTilesInViewCount
 
                 val blockType = m_world.blockType(x, y)
@@ -162,32 +162,37 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 var drawWallTile = false
 
-                val tileX = x.toFloat()
-                val tileY = y.toFloat()
-
                 //String textureName = World.blockAttributes.get(block.type).textureName;
-                if (blockType == OreBlock.BlockType.DirtBlockType) {
+                when(blockType) {
+                    OreBlock.BlockType.DirtBlockType -> {
 
-                    if (hasGrass) {
-                        textureName = grassBlockMeshes.get(blockMeshType.toInt())
-                        assert(textureName != null) { "block mesh lookup failure" }
-                    } else {
-                        textureName = dirtBlockMeshes.get(blockMeshType.toInt())
+                        if (hasGrass) {
+                            textureName = grassBlockMeshes.get(blockMeshType.toInt())
+                            assert(textureName != null) { "block mesh lookup failure" }
+                        } else {
+                            textureName = dirtBlockMeshes.get(blockMeshType.toInt())
+                            assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
+                        }
+                    }
+
+                    OreBlock.BlockType.StoneBlockType -> {
+                        textureName = stoneBlockMeshes.get(blockMeshType.toInt())
                         assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
-                    }
-                } else if (blockType == OreBlock.BlockType.StoneBlockType) {
-                    textureName = stoneBlockMeshes.get(blockMeshType.toInt())
-                    assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
-                } else if (blockType == OreBlock.BlockType.AirBlockType) {
-                    if (blockWallType == OreBlock.WallType.AirWallType) {
-                        //we can skip a draw call iff the wall, and block is null
-                        continue
-                    } else {
-                        drawWallTile = true
                     }
-                } else {
-                    assert(false) { "unhandled block" }
+
+                    OreBlock.BlockType.AirBlockType -> {
+                        if (blockWallType == OreBlock.WallType.AirWallType) {
+                            //we can skip a draw call iff the wall, and block is null
+                            continue@loop
+                        } else {
+                            drawWallTile = true
+                        }
+                    }
+
+                    else -> {
+                        assert(false) { "unhandled block" }
+                    }
                 }
 
                 if (drawWallTile) {
@@ -200,6 +205,9 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 }
 
                 val blockLightLevel = m_world.blockLightLevel(x, y)
+
+                val tileX = x.toFloat()
+                val tileY = y.toFloat()
 
                 //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some*
                 // scenarios..)
