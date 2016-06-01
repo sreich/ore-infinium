@@ -246,12 +246,12 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         var texture = ""
 
         when (blockType) {
-            OreBlock.BlockType.DirtBlockType -> if (hasGrass) {
+            OreBlock.BlockType.Dirt.oreValue -> if (hasGrass) {
                 texture = m_tileRenderSystem.grassBlockMeshes.get(blockMeshType.toInt())
             } else {
                 texture = m_tileRenderSystem.dirtBlockMeshes.get(blockMeshType.toInt())
             }
-            OreBlock.BlockType.StoneBlockType -> texture = m_tileRenderSystem.stoneBlockMeshes.get(
+            OreBlock.BlockType.Stone.oreValue -> texture = m_tileRenderSystem.stoneBlockMeshes.get(
                     blockMeshType.toInt())
         }
 

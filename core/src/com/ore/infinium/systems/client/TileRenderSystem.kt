@@ -164,7 +164,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 //String textureName = World.blockAttributes.get(block.type).textureName;
                 when(blockType) {
-                    OreBlock.BlockType.DirtBlockType -> {
+                    OreBlock.BlockType.Dirt.oreValue -> {
 
                         if (hasGrass) {
                             textureName = grassBlockMeshes.get(blockMeshType.toInt())
@@ -175,13 +175,13 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                         }
                     }
 
-                    OreBlock.BlockType.StoneBlockType -> {
+                    OreBlock.BlockType.Stone.oreValue -> {
                         textureName = stoneBlockMeshes.get(blockMeshType.toInt())
                         assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
                     }
 
-                    OreBlock.BlockType.AirBlockType -> {
+                    OreBlock.BlockType.Air.oreValue -> {
                         if (blockWallType == OreBlock.WallType.AirWallType) {
                             //we can skip a draw call iff the wall, and block is null
                             continue@loop
@@ -190,39 +190,39 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                         }
                     }
 
-                    OreBlock.BlockType.CoalBlockType -> {
+                    OreBlock.BlockType.Coal.oreValue -> {
                         textureName = "coal"
                     }
 
-                    OreBlock.BlockType.CopperBlockType -> {
+                    OreBlock.BlockType.Copper.oreValue -> {
                         textureName = "copper-00"
                     }
 
-                    OreBlock.BlockType.UraniumBlockType -> {
+                    OreBlock.BlockType.Uranium.oreValue -> {
                         textureName = "uranium"
                     }
 
-                    OreBlock.BlockType.DiamondBlockType -> {
+                    OreBlock.BlockType.Diamond.oreValue -> {
                         textureName = "diamond"
                     }
 
-                    OreBlock.BlockType.IronBlockType -> {
+                    OreBlock.BlockType.Iron.oreValue -> {
                         textureName = "iron"
                     }
 
-                    OreBlock.BlockType.SandBlockType -> {
+                    OreBlock.BlockType.Sand.oreValue -> {
                         textureName = "sand"
                     }
 
-                    OreBlock.BlockType.BedrockBlockType -> {
+                    OreBlock.BlockType.Bedrock.oreValue -> {
                         textureName = "bedrock"
                     }
 
-                    OreBlock.BlockType.SilverBlockType -> {
+                    OreBlock.BlockType.Silver.oreValue -> {
                         textureName = "silver"
                     }
 
-                    OreBlock.BlockType.GoldBlockType -> {
+                    OreBlock.BlockType.Gold.oreValue -> {
                         textureName = "gold"
                     }
                     else

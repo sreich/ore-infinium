@@ -90,7 +90,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
      */
     fun processAndRemoveDigRequests(blockToDig: BlockToDig): Boolean {
         val blockType = m_world.blockType(blockToDig.x, blockToDig.y)
-        if (blockType == OreBlock.BlockType.AirBlockType) {
+        if (blockType == OreBlock.BlockType.Air.oreValue) {
             return true
         }
 
@@ -185,7 +185,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     fun blockDiggingBegin(x: Int, y: Int, playerEntity: Int) {
-        if (m_world.blockType(x, y) == OreBlock.BlockType.AirBlockType) {
+        if (m_world.blockType(x, y) == OreBlock.BlockType.Air.oreValue) {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
             OreWorld.log("server, block digging system",

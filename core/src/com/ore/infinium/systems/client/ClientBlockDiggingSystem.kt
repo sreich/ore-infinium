@@ -176,7 +176,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         }
 
         val blockType = m_world.blockType(x, y)
-        if (blockType == OreBlock.BlockType.AirBlockType) {
+        if (blockType == OreBlock.BlockType.Air.oreValue) {
             return false
         }
 
@@ -230,10 +230,10 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
                 m_clientNetworkSystem.sendBlockDigFinish(blockX, blockY)
 
                 when (blockType) {
-                    OreBlock.BlockType.DirtBlockType ->
+                    OreBlock.BlockType.Dirt.oreValue ->
                         m_soundSystem.playDirtAttackFinish()
 
-                    OreBlock.BlockType.StoneBlockType ->
+                    OreBlock.BlockType.Stone.oreValue ->
                         m_soundSystem.playStoneAttackFinish()
 
                 }
@@ -245,8 +245,8 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
             if (attacked) {
                 when (blockType) {
-                    OreBlock.BlockType.DirtBlockType -> m_soundSystem.playDirtAttack()
-                    OreBlock.BlockType.StoneBlockType -> m_soundSystem.playDrillAttack()
+                    OreBlock.BlockType.Dirt.oreValue -> m_soundSystem.playDirtAttack()
+                    OreBlock.BlockType.Stone.oreValue -> m_soundSystem.playDrillAttack()
                 }
             }
         }

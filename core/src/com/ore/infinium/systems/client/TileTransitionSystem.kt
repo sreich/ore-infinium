@@ -129,30 +129,30 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
 
                 val blockType = m_world.blockTypeSafely(x, y)
                 val blockHasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
-                if (blockType == OreBlock.BlockType.DirtBlockType && blockHasGrass) {
+                if (blockType == OreBlock.BlockType.Dirt.oreValue && blockHasGrass) {
 
                     //should have grass on left side of this block..or not.
-                    val leftEmpty = leftBlockType == OreBlock.BlockType.AirBlockType
-                    val leftLeftEmpty = leftLeftBlockType == OreBlock.BlockType.AirBlockType
+                    val leftEmpty = leftBlockType == OreBlock.BlockType.Air.oreValue
+                    val leftLeftEmpty = leftLeftBlockType == OreBlock.BlockType.Air.oreValue
 
-                    val rightEmpty = rightBlockType == OreBlock.BlockType.AirBlockType
-                    val rightRightEmpty = rightRightBlockType == OreBlock.BlockType.AirBlockType
+                    val rightEmpty = rightBlockType == OreBlock.BlockType.Air.oreValue
+                    val rightRightEmpty = rightRightBlockType == OreBlock.BlockType.Air.oreValue
 
-                    val topEmpty = topBlockType == OreBlock.BlockType.AirBlockType
+                    val topEmpty = topBlockType == OreBlock.BlockType.Air.oreValue
 
-                    val bottomEmpty = bottomBlockType == OreBlock.BlockType.AirBlockType
+                    val bottomEmpty = bottomBlockType == OreBlock.BlockType.Air.oreValue
 
                     //if block to the left is dirt..
-                    val leftDirt = leftBlockType == OreBlock.BlockType.DirtBlockType
-                    val rightDirt = rightBlockType == OreBlock.BlockType.DirtBlockType
-                    val topDirt = topBlockType == OreBlock.BlockType.DirtBlockType
-                    val bottomDirt = bottomBlockType == OreBlock.BlockType.DirtBlockType
+                    val leftDirt = leftBlockType == OreBlock.BlockType.Dirt.oreValue
+                    val rightDirt = rightBlockType == OreBlock.BlockType.Dirt.oreValue
+                    val topDirt = topBlockType == OreBlock.BlockType.Dirt.oreValue
+                    val bottomDirt = bottomBlockType == OreBlock.BlockType.Dirt.oreValue
 
                     //handled a bit differently,
-                    val topLeftEmpty = topLeftBlockType == OreBlock.BlockType.AirBlockType
-                    val topRightEmpty = topRightBlockType == OreBlock.BlockType.AirBlockType
-                    val bottomLeftEmpty = bottomLeftBlockType == OreBlock.BlockType.AirBlockType
-                    val bottomRightEmpty = bottomRightBlockType == OreBlock.BlockType.AirBlockType
+                    val topLeftEmpty = topLeftBlockType == OreBlock.BlockType.Air.oreValue
+                    val topRightEmpty = topRightBlockType == OreBlock.BlockType.Air.oreValue
+                    val bottomLeftEmpty = bottomLeftBlockType == OreBlock.BlockType.Air.oreValue
+                    val bottomRightEmpty = bottomRightBlockType == OreBlock.BlockType.Air.oreValue
 
                     val leftOre = OreWorld.blockAttributes[leftBlockType]!!.category == OreWorld.BlockAttributes.BlockCategory.Ore
 
@@ -266,14 +266,14 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
             for (x in blockRegion.x..blockRegion.width) {
 
                 val type = m_world.blockType(x, y)
-                if (type == OreBlock.BlockType.AirBlockType) {
+                if (type == OreBlock.BlockType.Air.oreValue) {
                     continue
                 }
 
-                if (type == OreBlock.BlockType.DirtBlockType) {
+                if (type == OreBlock.BlockType.Dirt.oreValue) {
                     //fixme may be able to be made generic. MAYBE.
                     transitionDirtTile(x, y)
-                } else if (type == OreBlock.BlockType.StoneBlockType) {
+                } else if (type == OreBlock.BlockType.Stone.oreValue) {
                     transitionStoneTile(x, y)
                 }
             }

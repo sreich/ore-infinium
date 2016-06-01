@@ -277,78 +277,78 @@ class OreWorld
         //        val ENTITY_INVALID = -1
 
         /**
-         * looks up the texture prefix name for each block type. e.g. DirtBlockType -> "dirt", etc.
+         * looks up the texture prefix name for each block type. e.g. Dirt -> "dirt", etc.
          */
         val blockAttributes = HashMap<Byte, BlockAttributes>()
 
         init {
-            blockAttributes.put(OreBlock.BlockType.AirBlockType,
+            blockAttributes.put(OreBlock.BlockType.Air.oreValue,
                                 BlockAttributes(textureName = "NULL because it's air",
                                                 collision = BlockAttributes.Collision.False,
                                                 category = BlockAttributes.BlockCategory.Null,
                                                 blockTotalHealth = 0))
 
-            blockAttributes.put(OreBlock.BlockType.DirtBlockType,
+            blockAttributes.put(OreBlock.BlockType.Dirt.oreValue,
                                 BlockAttributes(textureName = "dirt",
                                                 collision = BlockAttributes.Collision.True,
                                                 category = BlockAttributes.BlockCategory.Dirt,
                                                 blockTotalHealth = 200))
 
-            blockAttributes.put(OreBlock.BlockType.StoneBlockType,
+            blockAttributes.put(OreBlock.BlockType.Stone.oreValue,
                                 BlockAttributes(textureName = "stone",
                                                 collision = BlockAttributes.Collision.True,
                                                 category = BlockAttributes.BlockCategory.Ore,
                                                 blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.SandBlockType,
+            blockAttributes.put(OreBlock.BlockType.Sand.oreValue,
                                 BlockAttributes(textureName = "sand",
                                                 collision = BlockAttributes.Collision.True,
                                                 category = BlockAttributes.BlockCategory.Dirt,
                                                 blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.CopperBlockType,
+            blockAttributes.put(OreBlock.BlockType.Copper.oreValue,
                     BlockAttributes(textureName = "copper",
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
                             blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.IronBlockType,
+            blockAttributes.put(OreBlock.BlockType.Iron.oreValue,
                     BlockAttributes(textureName = "iron",
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
                             blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.SilverBlockType,
+            blockAttributes.put(OreBlock.BlockType.Silver.oreValue,
                                 BlockAttributes(textureName = "silver",
                                                 collision = BlockAttributes.Collision.True,
                                                 category = BlockAttributes.BlockCategory.Ore,
                                                 blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.GoldBlockType,
+            blockAttributes.put(OreBlock.BlockType.Gold.oreValue,
                     BlockAttributes(textureName = "gold",
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
                             blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.CoalBlockType,
+            blockAttributes.put(OreBlock.BlockType.Coal.oreValue,
                     BlockAttributes(textureName = "coal",
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
                             blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.UraniumBlockType,
+            blockAttributes.put(OreBlock.BlockType.Uranium.oreValue,
                     BlockAttributes(textureName = "uranium",
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
                             blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.DiamondBlockType,
+            blockAttributes.put(OreBlock.BlockType.Diamond.oreValue,
                     BlockAttributes(textureName = "diamond",
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
                             blockTotalHealth = 300))
 
-            blockAttributes.put(OreBlock.BlockType.BedrockBlockType,
+            blockAttributes.put(OreBlock.BlockType.Bedrock.oreValue,
                     BlockAttributes(textureName = "bedrock",
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
@@ -682,7 +682,7 @@ class OreWorld
      * must be called when destroying a block, so it looks like it was dug.
      */
     inline fun destroyBlock(x: Int, y: Int) {
-        setBlockType(x, y, OreBlock.BlockType.AirBlockType)
+        setBlockType(x, y, OreBlock.BlockType.Air.oreValue)
         setBlockMeshType(x, y, 0)
         //wall type doesn't get nulled out. i think that's what we want
         setBlockFlags(x, y, 0)
@@ -693,7 +693,7 @@ class OreWorld
 
         val type = blockType(x, y)
 
-        if (type == OreBlock.BlockType.AirBlockType) {
+        if (type == OreBlock.BlockType.Air.oreValue) {
             solid = false
         }
 
@@ -738,7 +738,7 @@ class OreWorld
         val blockType = blockTypeSafely(x, y)
 
         //attempt to place one if the area is empty
-        if (blockType == OreBlock.BlockType.AirBlockType) {
+        if (blockType == OreBlock.BlockType.Air.oreValue) {
             setBlockType(x, y, placedBlockType)
 
             val bottomBlockX = x
@@ -938,7 +938,7 @@ class OreWorld
         //check collision against blocks first
         for (x in startX..endX - 1) {
             for (y in startY..endY - 1) {
-                if (blockType(x, y) != OreBlock.BlockType.AirBlockType) {
+                if (blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
                     return false
                 }
             }

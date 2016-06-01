@@ -123,17 +123,17 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                     val topBlockHasGrass = m_world.blockHasFlag(topBlockX, topBlockY, OreBlock.BlockFlags.GrassBlock)
 
                     //grow left
-                    if (leftBlockType == OreBlock.BlockType.DirtBlockType && !leftBlockHasGrass) {
+                    if (leftBlockType == OreBlock.BlockType.Dirt.oreValue && !leftBlockHasGrass) {
 
                         val leftLeftX = m_world.blockXSafe(leftBlockX - 1)
                         val leftLeftY = leftBlockY
                         val leftLeftBlockType = m_world.blockType(leftLeftX, leftLeftY)
 
-                        if (leftLeftBlockType == OreBlock.BlockType.AirBlockType ||
-                                topLeftBlockType == OreBlock.BlockType.AirBlockType ||
-                                bottomLeftBlockType == OreBlock.BlockType.AirBlockType ||
-                                bottomLeftBlockType == OreBlock.BlockType.DirtBlockType && bottomBlockType == OreBlock.BlockType.AirBlockType ||
-                                topLeftBlockType == OreBlock.BlockType.DirtBlockType && topBlockType == OreBlock.BlockType.AirBlockType) {
+                        if (leftLeftBlockType == OreBlock.BlockType.Air.oreValue ||
+                                topLeftBlockType == OreBlock.BlockType.Air.oreValue ||
+                                bottomLeftBlockType == OreBlock.BlockType.Air.oreValue ||
+                                bottomLeftBlockType == OreBlock.BlockType.Dirt.oreValue && bottomBlockType == OreBlock.BlockType.Air.oreValue ||
+                                topLeftBlockType == OreBlock.BlockType.Dirt.oreValue && topBlockType == OreBlock.BlockType.Air.oreValue) {
 
                             m_world.setBlockFlag(leftBlockX, leftBlockY, OreBlock.BlockFlags.GrassBlock)
                             //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
@@ -144,17 +144,17 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                     }
 
                     //grow right
-                    if (rightBlockType == OreBlock.BlockType.DirtBlockType && !rightBlockHasGrass) {
+                    if (rightBlockType == OreBlock.BlockType.Dirt.oreValue && !rightBlockHasGrass) {
 
                         val rightRightX = m_world.blockXSafe(rightBlockX + 1)
                         val rightRightY = rightBlockY
                         val rightRightBlockType = m_world.blockType(rightRightX, rightRightY)
 
-                        if (rightRightBlockType == OreBlock.BlockType.AirBlockType ||
-                                topRightBlockType == OreBlock.BlockType.AirBlockType ||
-                                bottomRightBlockType == OreBlock.BlockType.AirBlockType ||
-                                bottomRightBlockType == OreBlock.BlockType.DirtBlockType && bottomBlockType == OreBlock.BlockType.AirBlockType ||
-                                topRightBlockType == OreBlock.BlockType.DirtBlockType && topBlockType == OreBlock.BlockType.AirBlockType) {
+                        if (rightRightBlockType == OreBlock.BlockType.Air.oreValue ||
+                                topRightBlockType == OreBlock.BlockType.Air.oreValue ||
+                                bottomRightBlockType == OreBlock.BlockType.Air.oreValue ||
+                                bottomRightBlockType == OreBlock.BlockType.Dirt.oreValue && bottomBlockType == OreBlock.BlockType.Air.oreValue ||
+                                topRightBlockType == OreBlock.BlockType.Dirt.oreValue && topBlockType == OreBlock.BlockType.Air.oreValue) {
 
                             m_world.setBlockFlag(rightBlockX, rightBlockY, OreBlock.BlockFlags.GrassBlock)
                             //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
@@ -166,15 +166,15 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                     }
 
                     //grow down
-                    if (bottomBlockType == OreBlock.BlockType.DirtBlockType && !bottomBlockHasGrass) {
+                    if (bottomBlockType == OreBlock.BlockType.Dirt.oreValue && !bottomBlockHasGrass) {
 
                         //only spread grass to the lower block, if that block has open space left, right, or
                         //top left, etc. (from our perspective..the block with grass, it is our right block that
                         //we are checking for empty)
-                        if (bottomLeftBlockType == OreBlock.BlockType.AirBlockType ||
-                                bottomRightBlockType == OreBlock.BlockType.AirBlockType ||
-                                leftBlockType == OreBlock.BlockType.AirBlockType ||
-                                rightBlockType == OreBlock.BlockType.AirBlockType) {
+                        if (bottomLeftBlockType == OreBlock.BlockType.Air.oreValue ||
+                                bottomRightBlockType == OreBlock.BlockType.Air.oreValue ||
+                                leftBlockType == OreBlock.BlockType.Air.oreValue ||
+                                rightBlockType == OreBlock.BlockType.Air.oreValue) {
 
                             m_world.setBlockFlag(bottomBlockX, bottomBlockY, OreBlock.BlockFlags.GrassBlock)
 
@@ -183,15 +183,15 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                     }
 
                     //grow up
-                    if (topBlockType == OreBlock.BlockType.DirtBlockType && !topBlockHasGrass) {
+                    if (topBlockType == OreBlock.BlockType.Dirt.oreValue && !topBlockHasGrass) {
 
                         //only spread grass to the upper block, if that block has open space left, right, or
                         //top left, etc. (from our perspective..the block with grass, it is our right block that
                         //we are checking for empty)
-                        if (topLeftBlockType == OreBlock.BlockType.AirBlockType ||
-                                topRightBlockType == OreBlock.BlockType.AirBlockType ||
-                                leftBlockType == OreBlock.BlockType.AirBlockType ||
-                                rightBlockType == OreBlock.BlockType.AirBlockType) {
+                        if (topLeftBlockType == OreBlock.BlockType.Air.oreValue ||
+                                topRightBlockType == OreBlock.BlockType.Air.oreValue ||
+                                leftBlockType == OreBlock.BlockType.Air.oreValue ||
+                                rightBlockType == OreBlock.BlockType.Air.oreValue) {
 
                             m_world.setBlockFlag(topBlockX, topBlockY, OreBlock.BlockFlags.GrassBlock)
 
@@ -200,7 +200,7 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                     }
 
                     //grow top-right
-                    if (topRightBlockType == OreBlock.BlockType.DirtBlockType) {
+                    if (topRightBlockType == OreBlock.BlockType.Dirt.oreValue) {
                         //fixme                        int topRightTopRightX = blockXSafe(topRightBlockX + 1);
                         //fixme                        int topRightTopRightY = blockYSafe(topRightBlockY + 1);
 

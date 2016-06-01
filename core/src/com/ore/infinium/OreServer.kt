@@ -138,16 +138,16 @@ class OreServer : Runnable {
         //collision test
         //left
         for (y in 0..seaLevel - 1) {
-            //m_world.blockAt(tilex - 24, tiley + y).type = Block.BlockType.StoneBlockType;
+            //m_world.blockAt(tilex - 24, tiley + y).type = Block.BlockType.Stone;
         }
 
         //right
         for (y in 0..seaLevel - 1) {
-            //        m_world->blockAt(tilex + 24, tiley + y).primitiveType = Block::StoneBlockType;
+            //        m_world->blockAt(tilex + 24, tiley + y).primitiveType = Block::Stone;
         }
         //top
         for (x in tilex - 54..tilex + 50 - 1) {
-            //m_world.blockAt(x, tiley).type = Block.BlockType.StoneBlockType;
+            //m_world.blockAt(x, tiley).type = Block.BlockType.Stone;
         }
 
         val playerSprite = spriteMapper.get(player)
@@ -212,7 +212,7 @@ class OreServer : Runnable {
         val playerComponent = playerMapper.get(playerEntity)
         playerComponent.hotbarInventory!!.setSlot(0, drill)
 
-        val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.DirtBlockType)
+        val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
 
         val dirtBlockItemComponent = itemMapper.get(dirtBlock)
         dirtBlockItemComponent.inventoryIndex = 1
@@ -220,7 +220,7 @@ class OreServer : Runnable {
 
         playerComponent.hotbarInventory!!.setSlot(1, dirtBlock)
 
-        val stoneBlock = m_world.createBlockItem(OreBlock.BlockType.StoneBlockType)
+        val stoneBlock = m_world.createBlockItem(OreBlock.BlockType.Stone.oreValue)
 
         val stoneBlockItemComponent = itemMapper.get(stoneBlock)
         stoneBlockItemComponent.inventoryIndex = 2

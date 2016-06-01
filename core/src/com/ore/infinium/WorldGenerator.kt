@@ -152,10 +152,10 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                 //fixme check biomes and their ranges
                 //fill the surface/exposed dirt blocks with grass blocks
-                if (blockType == OreBlock.BlockType.DirtBlockType) {
+                if (blockType == OreBlock.BlockType.Dirt.oreValue) {
                     val topBlockType = m_world.blockTypeSafely(x, y - 1)
 
-                    if (topBlockType == OreBlock.BlockType.AirBlockType) {
+                    if (topBlockType == OreBlock.BlockType.Air.oreValue) {
                         m_world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
                         y = OreWorld.WORLD_SIZE_Y
@@ -169,7 +169,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             for (y in 0..OreWorld.WORLD_SIZE_Y - 1) {
                 val blockType = m_world.blockType(x, y)
 
-                if (blockType == OreBlock.BlockType.DirtBlockType && m_world.blockHasFlag(x, y,
+                if (blockType == OreBlock.BlockType.Dirt.oreValue && m_world.blockHasFlag(x, y,
                                                                                           OreBlock.BlockFlags.GrassBlock)) {
 
                     val topBlockType = m_world.blockTypeSafely(x, y - 1)
@@ -180,7 +180,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                     //                    boolean leftEmpty =
 
                     //grows grass here
-                    if (topBlockType == OreBlock.BlockType.AirBlockType) {
+                    if (topBlockType == OreBlock.BlockType.Air.oreValue) {
                         m_world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
                     }
                 }
@@ -192,7 +192,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
             for (y in 0..OreWorld.WORLD_SIZE_Y - 1) {
 
-                m_world.setBlockType(x, y, OreBlock.BlockType.AirBlockType)
+                m_world.setBlockType(x, y, OreBlock.BlockType.Air.oreValue)
                 m_world.setBlockWallType(x, y, OreBlock.WallType.AirWallType)
 
                 //create some sky
@@ -204,11 +204,11 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                 //hack MathUtils.random(0, 3)
                 when (2) {
-                    0 -> m_world.setBlockType(x, y, OreBlock.BlockType.AirBlockType)
+                    0 -> m_world.setBlockType(x, y, OreBlock.BlockType.Air.oreValue)
 
-                    1 -> m_world.setBlockType(x, y, OreBlock.BlockType.DirtBlockType)
-                //fixme, simulate only dirt for now. blocks[index].type = Block.BlockType.StoneBlockType;
-                    2 -> m_world.setBlockType(x, y, OreBlock.BlockType.DirtBlockType)
+                    1 -> m_world.setBlockType(x, y, OreBlock.BlockType.Dirt.oreValue)
+                //fixme, simulate only dirt for now. blocks[index].type = Block.BlockType.Stone;
+                    2 -> m_world.setBlockType(x, y, OreBlock.BlockType.Dirt.oreValue)
                 }
 
                 //                if (underground) {
@@ -221,7 +221,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         //        for (int x = 0; x < WORLD_SIZE_X; ++x) {
         //            for (int y = seaLevel(); y < WORLD_SIZE_Y; ++y) {
         //                Block block = blockAt(x, y);
-        //                block.type = Block.BlockType.DirtBlockType;
+        //                block.type = Block.BlockType.Dirt;
         //            }
         //        }
     }
@@ -249,37 +249,23 @@ class WorldGenerator(private val m_world: OreWorld) {
      * these, so changing this changes in-memory and thus on-disk format.
      * (which is the only thing that would be hard-coded, is the world save)
      */
-    enum class OreValues(val oreValue: Int) {
-        Open (0),
-        Sand(1),
-        Dirt(2),
-        Stone (3),
-        Copper (4),
-        Coal (5),
-        Iron (6),
-        Silver (7),
-        Gold (8),
-        Uranium (9),
-        Diamond (10),
-        Bedrock (11)
-    }
 
     /**
      * map ores to a color so we can output the image
      */
-    val OreNoiseColorMap = mapOf(OreValues.Dirt.oreValue to Color2.BROWN,
-                                 OreValues.Sand.oreValue to Color.ORANGE,
-                                 OreValues.Stone.oreValue to Color.GRAY,
-                                 OreValues.Copper.oreValue to Color2.NEON_CARROT,
-                                 OreValues.Diamond.oreValue to Color2.TEAL,
-                                 OreValues.Gold.oreValue to Color.YELLOW,
-                                 OreValues.Coal.oreValue to Color.BLACK,
-                                 OreValues.Silver.oreValue to Color2.SILVER,
-                                 OreValues.Iron.oreValue to Color2.TERRA_COTTA,
-                                 OreValues.Uranium.oreValue to Color2.LIME_GREEN,
-                                 OreValues.Iron.oreValue to Color2.RED4,
-                                 OreValues.Bedrock.oreValue to Color.CYAN,
-                                 OreValues.Open.oreValue to Color.BLACK
+    val OreNoiseColorMap = mapOf(OreBlock.BlockType.Dirt.oreValue to Color2.BROWN,
+                                 OreBlock.BlockType.Sand.oreValue to Color.ORANGE,
+                                 OreBlock.BlockType.Stone.oreValue to Color.GRAY,
+                                 OreBlock.BlockType.Copper.oreValue to Color2.NEON_CARROT,
+                                 OreBlock.BlockType.Diamond.oreValue to Color2.TEAL,
+                                 OreBlock.BlockType.Gold.oreValue to Color.YELLOW,
+                                 OreBlock.BlockType.Coal.oreValue to Color.BLACK,
+                                 OreBlock.BlockType.Silver.oreValue to Color2.SILVER,
+                                 OreBlock.BlockType.Iron.oreValue to Color2.TERRA_COTTA,
+                                 OreBlock.BlockType.Uranium.oreValue to Color2.LIME_GREEN,
+                                 OreBlock.BlockType.Iron.oreValue to Color2.RED4,
+                                 OreBlock.BlockType.Bedrock.oreValue to Color.CYAN,
+                                 OreBlock.BlockType.Air.oreValue to Color.BLACK
                                 )
 
 
@@ -584,8 +570,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            val COPPER_DENSITY = 0.58
         val COPPER_DENSITY = 0.2
         val copperSelect = ModuleSelect()
-        copperSelect.setLowSource(OreValues.Stone.oreValue.toDouble())
-        copperSelect.setHighSource(OreValues.Copper.oreValue.toDouble())
+        copperSelect.setLowSource(OreBlock.BlockType.Stone.oreValue.toDouble())
+        copperSelect.setHighSource(OreBlock.BlockType.Copper.oreValue.toDouble())
         copperSelect.setControlSource(copperFBM)
         copperSelect.setThreshold(COPPER_DENSITY)
         copperSelect.setFalloff(0.1)
@@ -601,7 +587,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val coalSelect = ModuleSelect()
         coalSelect.setLowSource(copperSelect)
-        coalSelect.setHighSource(OreValues.Coal.oreValue.toDouble())
+        coalSelect.setHighSource(OreBlock.BlockType.Coal.oreValue.toDouble())
         coalSelect.setControlSource(coalFBM)
         coalSelect.setThreshold(0.5)
         coalSelect.setFalloff(0.0)
@@ -615,7 +601,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val ironSelect = ModuleSelect()
         ironSelect.setLowSource(coalSelect)
-        ironSelect.setHighSource(OreValues.Iron.oreValue.toDouble())
+        ironSelect.setHighSource(OreBlock.BlockType.Iron.oreValue.toDouble())
         ironSelect.setControlSource(ironFBM)
         ironSelect.setThreshold(0.5)
         ironSelect.setFalloff(0.0)
@@ -644,7 +630,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val silverSelect = ModuleSelect()
         silverSelect.setLowSource(ironSelect)
-        silverSelect.setHighSource(OreValues.Silver.oreValue.toDouble())
+        silverSelect.setHighSource(OreBlock.BlockType.Silver.oreValue.toDouble())
         silverSelect.setControlSource(silverRestrictMult)
         silverSelect.setThreshold(0.5)
         silverSelect.setFalloff(0.0)
@@ -670,7 +656,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val goldSelect = ModuleSelect()
         goldSelect.setLowSource(silverSelect)
-        goldSelect.setHighSource(OreValues.Gold.oreValue.toDouble())
+        goldSelect.setHighSource(OreBlock.BlockType.Gold.oreValue.toDouble())
         goldSelect.setControlSource(goldRestrictMult)
         goldSelect.setThreshold(0.55)
         goldSelect.setFalloff(0.0)
@@ -697,7 +683,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val uraniumSelect = ModuleSelect()
         uraniumSelect.setLowSource(goldSelect)
-        uraniumSelect.setHighSource(OreValues.Uranium.oreValue.toDouble())
+        uraniumSelect.setHighSource(OreBlock.BlockType.Uranium.oreValue.toDouble())
         uraniumSelect.setControlSource(uraniumRestrictMult)
         uraniumSelect.setThreshold(0.5)
         uraniumSelect.setFalloff(0.0)
@@ -724,7 +710,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val diamondSelect = ModuleSelect()
         diamondSelect.setLowSource(uraniumSelect)
-        diamondSelect.setHighSource(OreValues.Diamond.oreValue.toDouble())
+        diamondSelect.setHighSource(OreBlock.BlockType.Diamond.oreValue.toDouble())
         diamondSelect.setControlSource(diamondRestrictMult)
         diamondSelect.setThreshold(0.65)
         diamondSelect.setFalloff(0.0)
@@ -745,7 +731,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val dirtSelect = ModuleSelect()
         dirtSelect.setControlSource(dirtRestrict)
-        dirtSelect.setLowSource(OreValues.Dirt.oreValue.toDouble())
+        dirtSelect.setLowSource(OreBlock.BlockType.Dirt.oreValue.toDouble())
         dirtSelect.setHighSource(diamondSelect)
         dirtSelect.setThreshold(DIRT_THRESHOLD)
         dirtSelect.setFalloff(0.08)
@@ -804,7 +790,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
             graphics.color = Color.MAGENTA
 
-            val oreName = OreValues.values().first { it -> it.oreValue == oreValue }.name
+            val oreName = OreBlock.BlockType.values().first { it -> it.oreValue == oreValue }.name
             graphics.drawString(oreName, leftX + oreLegendRectSize * 2, y + 3)
 
             ++index
@@ -868,7 +854,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         for (x in 0..worldGenInfo.worldSize.width - 1) {
             for (y in 0..worldGenInfo.worldSize.height - 1) {
-                val blockType = m_world.blockType(x, y).toInt()
+                val blockType = m_world.blockType(x, y)
 
                 //if we fail to match a color, we just output its raw value, something's strange here.
                 val colorForOre = OreNoiseColorMap[blockType]!!

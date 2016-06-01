@@ -111,7 +111,7 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         val blockType = m_world.blockType(x, y)
 
         val lightAttenuation = when (blockType) {
-            OreBlock.BlockType.AirBlockType -> 0
+            OreBlock.BlockType.Air.oreValue -> 0
             else -> 1
         }
 
