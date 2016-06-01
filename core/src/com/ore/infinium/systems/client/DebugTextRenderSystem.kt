@@ -232,6 +232,10 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         //fixme check x, y against world size, out of bounds errors
         val blockType = m_world.blockType(x, y)
+
+        //so we can get the enum/name of it
+        val blockTypeEnum = OreBlock.BlockType.values().firstOrNull {  it.oreValue == blockType }!!
+
         val blockMeshType = m_world.blockMeshType(x, y)
         val blockWallType = m_world.blockWallType(x, y)
         val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
@@ -251,12 +255,13 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             } else {
                 texture = m_tileRenderSystem.dirtBlockMeshes.get(blockMeshType.toInt())
             }
+
             OreBlock.BlockType.Stone.oreValue -> texture = m_tileRenderSystem.stoneBlockMeshes.get(
                     blockMeshType.toInt())
         }
 
         val lightLevel = m_world.blockLightLevel(x, y)
-        val s = "tile($x, $y), block type: $blockType, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel"
+        val s = "tile($x, $y), block type: $blockTypeEnum!!.name, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
 
         m_font.draw(m_batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
