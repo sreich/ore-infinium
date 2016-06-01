@@ -61,27 +61,28 @@ class OreBlock private constructor() {
 
     /**
      * Determines the health and texture of the Block.
+     * WARNING: these values must be the same as what is in OreGenerator.
      */
     object BlockType {
-        const val AirBlockType: Byte = 0
+        val AirBlockType: Byte = WorldGenerator.OreValues.Open.oreValue.toByte()
 
-        const val DirtBlockType: Byte = 1
-        const val SandBlockType: Byte = 2
+        val DirtBlockType: Byte = WorldGenerator.OreValues.Dirt.oreValue.toByte()
+        val SandBlockType: Byte = WorldGenerator.OreValues.Sand.oreValue.toByte()
 
-        const val StoneBlockType: Byte = 3
-        const val CoalBlockType: Byte = 4
+        val StoneBlockType: Byte = WorldGenerator.OreValues.Stone.oreValue.toByte()
+        val CoalBlockType: Byte = WorldGenerator.OreValues.Coal.oreValue.toByte()
 
-        const val CopperBlockType: Byte = 5
-        const val IronBlockType: Byte = 6
-        const val SilverBlockType: Byte = 7
-        const val GoldBlockType: Byte = 8
+        val CopperBlockType: Byte = WorldGenerator.OreValues.Copper.oreValue.toByte()
+        val IronBlockType: Byte = WorldGenerator.OreValues.Iron.oreValue.toByte()
+        val SilverBlockType: Byte = WorldGenerator.OreValues.Silver.oreValue.toByte()
+        val GoldBlockType: Byte = WorldGenerator.OreValues.Gold.oreValue.toByte()
 
-        const val UraniumBlockType: Byte = 9
-        const val DiamondBlockType: Byte = 10
+        val UraniumBlockType: Byte = WorldGenerator.OreValues.Uranium.oreValue.toByte()
+        val DiamondBlockType: Byte = WorldGenerator.OreValues.Diamond.oreValue.toByte()
 
         //todo obsidian (only from when lava hits water)? or should we just use stone
 
-        const val BedrockBlockType: Byte = 11
+        val BedrockBlockType: Byte = WorldGenerator.OreValues.Bedrock.oreValue.toByte()
     }
 
     object WallType {

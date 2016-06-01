@@ -243,6 +243,11 @@ class WorldGenerator(private val m_world: OreWorld) {
      * but..we'd have to refactor this all and hopefully share more code
      * but i'd have to see if the noise functions appreciate that. i do
      * not suspect they would.
+     *
+     * WARNING: if you add to this, you must change OreBlock, also changing
+     * values would be considered backwards incompatible. OreBlock references
+     * these, so changing this changes in-memory and thus on-disk format.
+     * (which is the only thing that would be hard-coded, is the world save)
      */
     enum class OreValues(val oreValue: Int) {
         Open (0),
