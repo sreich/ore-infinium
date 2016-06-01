@@ -29,6 +29,12 @@ class DesktopLauncher {
         val config = LwjglApplicationConfiguration()
         config.useGL30 = true
         config.title = "Ore Infinium"
+        //config.addIcon()
+
+        //borderless window mode
+        //System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
+        //config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width;
+        //config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height;
 
         config.width = OreSettings.width
         config.height = OreSettings.height
