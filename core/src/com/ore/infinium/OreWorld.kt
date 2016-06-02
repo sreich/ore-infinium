@@ -143,8 +143,8 @@ class OreWorld
                                            .with(TileRenderSystem(m_camera, this))
                                            .with(SpriteRenderSystem(this))
                                            .with(DebugTextRenderSystem(m_camera, this))
-                                           .with(PowerOverlayRenderSystem(this, m_client!!.stage,
-                                                                          m_client!!.skin))
+                                           .with(PowerOverlayRenderSystem(this, m_client!!.m_stage,
+                                                                          m_client!!.m_skin))
                                            .with(TileTransitionSystem(m_camera, this))
                                            .build())
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);

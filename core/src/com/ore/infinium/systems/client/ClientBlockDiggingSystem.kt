@@ -155,7 +155,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
      * @return
      */
     fun ableToDigAtIndex(x: Int, y: Int): Boolean {
-        if (!m_client.leftMouseDown) {
+        if (!m_client.m_leftMouseDown) {
             return false
         }
 

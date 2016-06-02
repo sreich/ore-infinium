@@ -91,11 +91,9 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     private val m_batch: SpriteBatch
     private val m_debugServerBatch: SpriteBatch
 
-    private val junktexture: Texture
+    private val m_junkTexture: Texture
 
     var m_guiDebug: Boolean = false
-
-    var m_renderTiles = true
 
     var m_renderDebugServer = false
     var m_renderDebugClient = false
@@ -107,17 +105,17 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     private var m_textYRight: Int = 0
     private var m_textYLeft: Int = 0
 
-    private var debugStrings = mutableListOf("E - power overlay. Q - drop item",
-                                             "1-8 or mouse wheel for inventory selection")
+    private var m_debugStrings = mutableListOf("E - power overlay. Q - drop item",
+                                               "1-8 or mouse wheel for inventory selection")
 
     init {
         m_batch = SpriteBatch()
 
         GLProfiler.enable()
 
-        decimalFormat.maximumFractionDigits = 4
+        m_decimalFormat.maximumFractionDigits = 4
 
-        junktexture = Texture(Gdx.files.internal("entities/debug.png"))
+        m_junkTexture = Texture(Gdx.files.internal("entities/debug.png"))
         m_debugServerBatch = SpriteBatch()
 
         m_fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
@@ -155,62 +153,63 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         m_textYRight = OreSettings.height - 120
         m_textYLeft = OreSettings.height - 130
 
-        if (frameTimer.milliseconds() > 300) {
-            frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
-            fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
-            textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
-            shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
-            drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
+        if (m_frameTimer.milliseconds() > 300) {
+            m_frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
+            m_fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
+            m_textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
+            m_shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
+            m_drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
 
             //fixme
             //            if (m_server != null) {
-            frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
+            m_frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
             //           }
 
-            guiDebugString = "F12 - gui debug. Enabled: $m_guiDebug"
-            guiRenderToggleString = "F11 - gui render. Enabled: ${m_world!!.m_client!!.m_renderGui}"
-            tileRenderDebugString = "F10 - tile render.Enabled: ${m_tileRenderSystem.debugRenderTiles}"
-            networkSyncDebug = "F9 - server sprite debug render.Enabled Client: $m_renderDebugClient.Enabled Server:$m_renderDebugServer"
+            m_guiDebugString = "F12 - gui debug. Enabled: $m_guiDebug"
+            m_guiRenderToggleString = "F11 - gui render. Enabled: ${m_world!!.m_client!!.m_renderGui}"
+            m_tileRenderDebugString = "F10 - tile render.Enabled: ${m_tileRenderSystem.debugRenderTiles}"
+            m_networkSyncDebugString = "F9 - server sprite debug render.Enabled Client: $m_renderDebugClient.Enabled Server:$m_renderDebugServer"
 
-            spriteRenderDebug = "F8 - client sprite debug render. Enabled: $m_renderDebugClient"
+            m_spriteRenderDebugString = "F8 - client sprite debug render. Enabled: $m_renderDebugClient"
+            m_lightingRendererDebugString = "F7 - tile lighting renderer debug. Enabled: ${m_tileRenderSystem.debugRenderTileLighting}"
 
-            frameTimer.reset()
+            m_frameTimer.reset()
         }
 
         m_batch.begin()
         printInfoForEntityAtPosition(m_textYLeft)
 
-        m_font.draw(m_batch, fpsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_fpsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, frameTimeString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_frameTimeString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         //fixme
         //        if (m_server != null) {
-        m_font.draw(m_batch, frameTimeServerString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_frameTimeServerString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         //       }
 
-        m_font.draw(m_batch, guiDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_guiDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, guiRenderToggleString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_guiRenderToggleString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, tileRenderDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_tileRenderDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, networkSyncDebug, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_networkSyncDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, spriteRenderDebug, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_spriteRenderDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         m_font.draw(m_batch, "F7 - system profiler toggle", TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        for (s in debugStrings) {
+        for (s in m_debugStrings) {
             m_font.draw(m_batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
             m_textYLeft -= TEXT_Y_SPACING
         }
@@ -220,11 +219,11 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         m_font.draw(m_batch, "tiles rendered: ${m_tileRenderSystem.debugTilesInViewCount}", TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, textureSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_textureSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, shaderSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_shaderSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, drawCallsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        m_font.draw(m_batch, m_drawCallsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         val mousePos = m_world!!.mousePositionWorldCoords()
@@ -252,12 +251,12 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         when (blockType) {
             OreBlock.BlockType.Dirt.oreValue -> if (hasGrass) {
-                texture = m_tileRenderSystem.grassBlockMeshes.get(blockMeshType.toInt())
+                texture = m_tileRenderSystem.m_grassBlockMeshes.get(blockMeshType.toInt())
             } else {
-                texture = m_tileRenderSystem.dirtBlockMeshes.get(blockMeshType.toInt())
+                texture = m_tileRenderSystem.m_dirtBlockMeshes.get(blockMeshType.toInt())
             }
 
-            OreBlock.BlockType.Stone.oreValue -> texture = m_tileRenderSystem.stoneBlockMeshes.get(
+            OreBlock.BlockType.Stone.oreValue -> texture = m_tileRenderSystem.m_stoneBlockMeshes.get(
                     blockMeshType.toInt())
         }
 
@@ -332,7 +331,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             for (i in 0..entities.size() - 1) {
                 val spriteComponent = spriteMapper.get(entities.get(i))
 
-                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
+                m_debugServerBatch.draw(m_junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
                                         spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
                                         spriteComponent.sprite.width,
                                         spriteComponent.sprite.height)
@@ -444,7 +443,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         m_font.draw(m_batch, "entity id: $entityUnderMouse", TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
         m_textYRight -= TEXT_Y_SPACING
 
-        val builder = StringBuilder(300)
+        val builder = StringBuilder()
         for (c in components) {
             if (c == null) {
                 continue
@@ -457,21 +456,22 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     }
 
     companion object {
-        internal var frameTimer = OreTimer()
+        internal var m_frameTimer = OreTimer()
 
-        internal var frameTimeString = ""
-        internal var frameTimeServerString = ""
-        internal var fpsString = ""
-        internal var textureSwitchesString = ""
-        internal var shaderSwitchesString = ""
-        internal var drawCallsString = ""
-        internal var guiDebugString = ""
-        internal var tileRenderDebugString = ""
-        internal var networkSyncDebug = ""
-        internal var spriteRenderDebug = ""
-        internal var guiRenderToggleString = ""
+        internal var m_frameTimeString = ""
+        internal var m_frameTimeServerString = ""
+        internal var m_fpsString = ""
+        internal var m_textureSwitchesString = ""
+        internal var m_shaderSwitchesString = ""
+        internal var m_drawCallsString = ""
+        internal var m_guiDebugString = ""
+        internal var m_tileRenderDebugString = ""
+        internal var m_lightingRendererDebugString = ""
+        internal var m_networkSyncDebugString = ""
+        internal var m_spriteRenderDebugString = ""
+        internal var m_guiRenderToggleString = ""
 
-        internal var decimalFormat = DecimalFormat("#.")
+        internal var m_decimalFormat = DecimalFormat("#.")
     }
 
 }

@@ -50,7 +50,7 @@ import java.io.IOException
 
 class OreClient : ApplicationListener, InputProcessor {
 
-    var leftMouseDown: Boolean = false
+    var m_leftMouseDown: Boolean = false
     lateinit var viewport: StretchViewport
     public var m_world: OreWorld? = null
 
@@ -76,15 +76,15 @@ class OreClient : ApplicationListener, InputProcessor {
 
     lateinit private var m_multiplexer: InputMultiplexer
 
-    lateinit var stage: Stage
-    lateinit var skin: Skin
+    lateinit var m_stage: Stage
+    lateinit var m_skin: Skin
 
     var m_chat: Chat? = null
     private var m_sidebar: Sidebar? = null
 
     private var m_dragAndDrop: DragAndDrop? = null
 
-    private var dialog: Dialog? = null
+    private var m_dialog: Dialog? = null
     private var m_chatDialog: ChatDialog? = null
     private var m_hotbarView: HotbarInventoryView? = null
     private var m_inventoryView: InventoryView? = null
@@ -129,8 +129,8 @@ class OreClient : ApplicationListener, InputProcessor {
         m_dragAndDrop = DragAndDrop()
 
         viewport = StretchViewport(OreSettings.width.toFloat(), OreSettings.height.toFloat())
-        stage = Stage(viewport)
-        m_multiplexer = InputMultiplexer(stage, this)
+        m_stage = Stage(viewport)
+        m_multiplexer = InputMultiplexer(m_stage, this)
 
         Gdx.input.inputProcessor = m_multiplexer
 
@@ -145,16 +145,16 @@ class OreClient : ApplicationListener, InputProcessor {
 
         m_fontGenerator.dispose()
 
-        skin = Skin()
-        skin.addRegions(TextureAtlas(Gdx.files.internal("packed/ui.atlas")))
-        skin.add("myfont", bitmapFont_8pt, BitmapFont::class.java)
-        skin.load(Gdx.files.internal("ui/ui.json"))
+        m_skin = Skin()
+        m_skin.addRegions(TextureAtlas(Gdx.files.internal("packed/ui.atlas")))
+        m_skin.add("myfont", bitmapFont_8pt, BitmapFont::class.java)
+        m_skin.load(Gdx.files.internal("ui/ui.json"))
 
-        m_chatDialog = ChatDialog(this, stage, skin)
+        m_chatDialog = ChatDialog(this, m_stage, m_skin)
         m_chat = Chat()
         m_chat!!.addListener(m_chatDialog!!)
 
-        m_sidebar = Sidebar(stage, skin, this)
+        m_sidebar = Sidebar(m_stage, m_skin, this)
 
         hostAndJoin()
     }
@@ -341,8 +341,8 @@ class OreClient : ApplicationListener, InputProcessor {
         }
 
         if (m_renderGui) {
-            stage.act(Math.min(Gdx.graphics.deltaTime, 1 / 30f))
-            stage.draw()
+            m_stage.act(Math.min(Gdx.graphics.deltaTime, 1 / 30f))
+            m_stage.draw()
         }
 
         val zoomAmount = 0.004f
@@ -363,24 +363,24 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     private fun showFailToConnectDialog() {
-        dialog = object : Dialog("", skin, "dialog") {
+        m_dialog = object : Dialog("", m_skin, "dialog") {
             override fun result(obj: Any?) {
                 println("Chosen: " + obj!!)
             }
 
         }
 
-        var dbutton = TextButton("Yes", skin, "default")
-        dialog!!.button(dbutton, true)
+        var dbutton = TextButton("Yes", m_skin, "default")
+        m_dialog!!.button(dbutton, true)
 
-        dbutton = TextButton("No", skin, "default")
-        dialog!!.button(dbutton, false)
-        dialog!!.key(Input.Keys.ENTER, true).key(Input.Keys.ESCAPE, false)
-        dialog!!.invalidateHierarchy()
-        dialog!!.invalidate()
-        dialog!!.layout()
+        dbutton = TextButton("No", m_skin, "default")
+        m_dialog!!.button(dbutton, false)
+        m_dialog!!.key(Input.Keys.ENTER, true).key(Input.Keys.ESCAPE, false)
+        m_dialog!!.invalidateHierarchy()
+        m_dialog!!.invalidate()
+        m_dialog!!.layout()
         //m_stage.addActor(dialog);
-        dialog!!.show(stage)
+        m_dialog!!.show(m_stage)
 
     }
 
@@ -408,7 +408,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     override fun resize(width: Int, height: Int) {
-        stage.viewport.update(width, height, true)
+        m_stage.viewport.update(width, height, true)
     }
 
     override fun pause() {
@@ -421,6 +421,8 @@ class OreClient : ApplicationListener, InputProcessor {
         when (keycode) {
             Input.Keys.ESCAPE -> shutdown()
             Input.Keys.F7 -> {
+                val tileRenderSystem = m_world!!.m_artemisWorld.getSystem(TileRenderSystem::class.java)
+                tileRenderSystem.debugRenderTileLighting = !tileRenderSystem.debugRenderTileLighting
             }
             Input.Keys.F8 -> //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
                 // could derive from. so we could just call this, and await the return...all of the debug things could be
@@ -428,11 +430,14 @@ class OreClient : ApplicationListener, InputProcessor {
                 //directly in there. but the question is, what to do for everything else.
                 m_debugTextRenderSystem.m_renderDebugClient = !m_debugTextRenderSystem.m_renderDebugClient
             Input.Keys.F9 -> m_debugTextRenderSystem.m_renderDebugServer = !m_debugTextRenderSystem.m_renderDebugServer
-            Input.Keys.F10 -> m_debugTextRenderSystem.m_renderTiles = !m_debugTextRenderSystem.m_renderTiles
+            Input.Keys.F10 -> {
+                val tileRenderSystem = m_world!!.m_artemisWorld.getSystem(TileRenderSystem::class.java)
+                tileRenderSystem.debugRenderTiles = !tileRenderSystem.debugRenderTiles
+            }
             Input.Keys.F11 -> m_renderGui = !m_renderGui
             Input.Keys.F12 -> {
                 m_debugTextRenderSystem.m_guiDebug = !m_debugTextRenderSystem.m_guiDebug
-                stage.setDebugAll(m_debugTextRenderSystem.m_guiDebug)
+                m_stage.setDebugAll(m_debugTextRenderSystem.m_guiDebug)
             }
             Input.Keys.I -> if (m_inventoryView != null) {
                 m_inventoryView!!.setVisible(!m_inventoryView!!.inventoryVisible)
@@ -551,7 +556,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        leftMouseDown = true
+        m_leftMouseDown = true
 
         if (m_world != null) {
             return m_world!!.touchDown(screenX, screenY, pointer, button)
@@ -563,7 +568,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        leftMouseDown = false
+        m_leftMouseDown = false
         if (m_world != null) {
             return m_world!!.touchUp(screenX, screenY, pointer, button)
         }
@@ -629,8 +634,9 @@ class OreClient : ApplicationListener, InputProcessor {
         m_inventory = Inventory(player, Inventory.InventoryType.Inventory)
         playerComponent.inventory = m_inventory
 
-        m_hotbarView = HotbarInventoryView(stage, skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
-        m_inventoryView = InventoryView(stage, skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
+        m_hotbarView = HotbarInventoryView(m_stage, m_skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
+                                           m_world!!)
+        m_inventoryView = InventoryView(m_stage, m_skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
         m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
         m_world!!.m_artemisWorld.inject(m_inventory, true)

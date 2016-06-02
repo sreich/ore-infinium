@@ -43,6 +43,8 @@ import com.ore.infinium.systems.server.TileLightingSystem
 class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
+    //false if lighting should be disabled/ignored
+    var debugRenderTileLighting = true
     var debugTilesInViewCount: Int = 0
 
     var m_blockAtlas: TextureAtlas
@@ -61,9 +63,9 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
     private lateinit var m_tagManager: TagManager
 
     // <byte mesh type, string texture name>
-    var dirtBlockMeshes: IntMap<String>
-    var stoneBlockMeshes: IntMap<String>
-    var grassBlockMeshes: IntMap<String>
+    var m_dirtBlockMeshes: IntMap<String>
+    var m_stoneBlockMeshes: IntMap<String>
+    var m_grassBlockMeshes: IntMap<String>
 
     init {
         m_batch = SpriteBatch(5000)
@@ -78,25 +80,25 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         //dirt 16 and beyond are transition things.
         val dirtMax = 25
-        dirtBlockMeshes = IntMap<String>(dirtMax)
+        m_dirtBlockMeshes = IntMap<String>(dirtMax)
         for (i in 0..dirtMax) {
             val formatted = "dirt-%02d".format(i)
-            dirtBlockMeshes.put(i, formatted)
+            m_dirtBlockMeshes.put(i, formatted)
         }
 
         //18+ are transition helpers
         val grassMax = 31
-        grassBlockMeshes = IntMap<String>(grassMax)
+        m_grassBlockMeshes = IntMap<String>(grassMax)
         for (i in 0..grassMax) {
             val formatted = "grass-%02d".format(i)
-            grassBlockMeshes.put(i, formatted)
+            m_grassBlockMeshes.put(i, formatted)
         }
 
         val stoneMax = 30
-        stoneBlockMeshes = IntMap<String>(stoneMax)
+        m_stoneBlockMeshes = IntMap<String>(stoneMax)
         for (i in 0..stoneMax) {
             val formatted = "stone-%02d".format(i)
-            stoneBlockMeshes.put(i, formatted)
+            m_stoneBlockMeshes.put(i, formatted)
         }
     }
 
@@ -168,16 +170,16 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                     OreBlock.BlockType.Dirt.oreValue -> {
 
                         if (hasGrass) {
-                            textureName = grassBlockMeshes.get(blockMeshType.toInt())
+                            textureName = m_grassBlockMeshes.get(blockMeshType.toInt())
                             assert(textureName != null) { "block mesh lookup failure" }
                         } else {
-                            textureName = dirtBlockMeshes.get(blockMeshType.toInt())
+                            textureName = m_dirtBlockMeshes.get(blockMeshType.toInt())
                             assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
                         }
                     }
 
                     OreBlock.BlockType.Stone.oreValue -> {
-                        textureName = stoneBlockMeshes.get(blockMeshType.toInt())
+                        textureName = m_stoneBlockMeshes.get(blockMeshType.toInt())
                         assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
                     }
@@ -241,7 +243,11 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 }
 
-                val blockLightLevel = m_world.blockLightLevel(x, y)
+                val blockLightLevel = if (debugRenderTileLighting) {
+                    m_world.blockLightLevel(x, y)
+                } else {
+                    TileLightingSystem.MAX_TILE_LIGHT_LEVEL
+                }
 
                 val tileX = x.toFloat()
                 val tileY = y.toFloat()
@@ -251,7 +257,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 if (drawWallTile) {
                     //draw walls
                     //fixme of course, for wall drawing, walls should have their own textures
-                    textureName = dirtBlockMeshes.get(0)
+                    textureName = m_dirtBlockMeshes.get(0)
                     assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
                     //offset y to flip orientation around to normal
@@ -280,5 +286,6 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         m_batch.end()
     }
+
 
 }

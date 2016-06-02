@@ -52,7 +52,7 @@ class InputSystem(private val m_camera: OrthographicCamera, private val m_world:
     private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
 
     override fun processSystem() {
-        if (m_world.m_client!!.leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible) {
+        if (m_world.m_client!!.m_leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible) {
 
             m_world.m_client!!.handleLeftMousePrimaryAttack()
         }
