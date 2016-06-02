@@ -549,7 +549,7 @@ class WorldGenerator(private val m_world: OreWorld) {
     /**
      * @return the final module of the ores
      */
-    private fun generateOres(worldSize: OreWorld.WorldSize, seed: Long, groundCaveMultiply: ModuleCombiner): Module {
+    private fun generateOres(worldSize: OreWorld.WorldSize, seed: Long, groundCaveMultiply: Module): Module {
 
         /////////////////////////////////////////////////////
         val mainGradient = ModuleGradient()
@@ -868,7 +868,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         graphics.drawLine(0, 200, worldGenInfo.worldSize.width, 200)
 
         graphics.font = Font("SansSerif", Font.PLAIN, 8);
-        graphics.drawString("seed: ${worldGenInfo.seed}", 20, 10)
+        graphics.drawString("seed: ${worldGenInfo.seed}", 200, 10)
 
         graphics.drawString("y=200", 10, 190);
 
