@@ -46,6 +46,7 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
 import com.ore.infinium.util.indices

@@ -37,6 +37,7 @@ import com.badlogic.gdx.utils.IntMap
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.server.TileLightingSystem
 
 @Wire
 class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {

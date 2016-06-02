@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package com.ore.infinium.systems.client
+package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
