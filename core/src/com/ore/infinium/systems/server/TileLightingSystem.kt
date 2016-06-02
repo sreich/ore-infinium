@@ -138,10 +138,8 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
 
     override fun processSystem() {
         if (!initialized) {
-            if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
                 computeWorldTileLighting()
                 initialized = true
-            }
         }
     }
 
