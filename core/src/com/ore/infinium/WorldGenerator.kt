@@ -478,9 +478,39 @@ class WorldGenerator(private val m_world: OreWorld) {
         groundSelect.setThreshold(0.14)
         groundSelect.setControlSource(highlandLowlandSelectCache)
 
-        //////////////// cave
+        val cavesModule = generateCaves(worldSize, seed, highlandLowlandSelectCache = highlandLowlandSelectCache,
+                                        groundSelect = groundSelect)
 
+        //////////////////////////////////////////////////////////////////////////
+        ///////////////////////////// ORE GENERATION
+        val finalOreModule = generateOres(worldSize, seed, cavesModule)
 
+        ///////////////////////////////////////////////
+
+        //hack, set block wall type for each part that's underground!
+        //m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUndergroundWallType)
+
+        //hack: debugging
+//        val genCaves = true
+
+        var finalModule: Module = finalOreModule
+        //       if (genCaves) {
+        //          finalModule = groundCaveMultiply
+        //     }
+
+        outputGeneratedWorldToBlockArrayThreaded(finalModule, worldSize, threadCount, threadNumber)
+
+        counter.stop()
+        println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
+
+        workerThreadsRemainingLatch!!.countDown()
+
+    }
+
+    private fun generateCaves(worldSize: OreWorld.WorldSize,
+                              seed: Long,
+                              highlandLowlandSelectCache: Module,
+                              groundSelect: Module): Module {
         val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
                                       ModuleBasisFunction.InterpolationType.QUINTIC)
         caveShape.setNumOctaves(1)
@@ -523,27 +553,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         groundCaveMultiply.setSource(0, caveSelect)
         groundCaveMultiply.setSource(1, groundSelect)
 
-        //////////////////////////////////////////////////////////////////////////
-        ///////////////////////////// ORE GENERATION
-        val finalOreModule = generateOres(worldSize, seed, groundCaveMultiply)
-
-        ///////////////////////////////////////////////
-
-        //hack: debugging
-//        val genCaves = true
-
-        var finalModule: Module = finalOreModule
-        //       if (genCaves) {
-        //          finalModule = groundCaveMultiply
-        //     }
-
-        outputGeneratedWorldToBlockArrayThreaded(finalModule, worldSize, threadCount, threadNumber)
-
-        counter.stop()
-        println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
-
-        workerThreadsRemainingLatch!!.countDown()
-
+        return groundCaveMultiply
     }
 
     /**
