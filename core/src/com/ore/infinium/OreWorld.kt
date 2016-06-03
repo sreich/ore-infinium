@@ -408,7 +408,7 @@ class OreWorld
     }
 
     private fun generateWorld() {
-        m_worldGenerator!!.generateWorld2(WorldSize.TestTiny)
+        m_worldGenerator!!.generateWorld(WorldSize.TestTiny)
     }
 
     /**

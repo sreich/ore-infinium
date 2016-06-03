@@ -53,7 +53,6 @@ class WorldGenerator(private val m_world: OreWorld) {
         val counter = PerformanceCounter("test")
         counter.start()
 
-        generateOres()
         generateGrassTiles()
         generateTrees()
 
@@ -188,45 +187,6 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
     }
 
-    private fun generateOres() {
-        for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
-            for (y in 0..OreWorld.WORLD_SIZE_Y - 1) {
-
-                m_world.setBlockType(x, y, OreBlock.BlockType.Air.oreValue)
-                m_world.setBlockWallType(x, y, OreBlock.WallType.AirWallType)
-
-                //create some sky
-                if (y <= m_world.seaLevel()) {
-                    continue
-                }
-
-                //              boolean underground = true;
-
-                //hack MathUtils.random(0, 3)
-                when (2) {
-                    0 -> m_world.setBlockType(x, y, OreBlock.BlockType.Air.oreValue)
-
-                    1 -> m_world.setBlockType(x, y, OreBlock.BlockType.Dirt.oreValue)
-                //fixme, simulate only dirt for now. blocks[index].type = Block.BlockType.Stone;
-                    2 -> m_world.setBlockType(x, y, OreBlock.BlockType.Dirt.oreValue)
-                }
-
-                //                if (underground) {
-                m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUndergroundWallType)
-                //               }
-
-                //                blocks[dragSourceIndex].wallType = Block::Wall
-            }
-        }
-        //        for (int x = 0; x < WORLD_SIZE_X; ++x) {
-        //            for (int y = seaLevel(); y < WORLD_SIZE_Y; ++y) {
-        //                Block block = blockAt(x, y);
-        //                block.type = Block.BlockType.Dirt;
-        //            }
-        //        }
-    }
-
-
     class WorldGenOutputInfo(val worldSize: OreWorld.WorldSize, val seed: Long, val useUniqueImageName: Boolean) {
     }
 
@@ -292,8 +252,12 @@ class WorldGenerator(private val m_world: OreWorld) {
     }
     */
 
-    fun generateWorld2(worldSize: OreWorld.WorldSize = OreWorld.WorldSize.TestTiny) {
-        val threadCount = 1
+    /**
+     * Performs all world generation according to parameters
+     * Multithreaded to the number of cpus (logical) the system has, automatically
+     */
+    fun generateWorld(worldSize: OreWorld.WorldSize = OreWorld.WorldSize.TestTiny) {
+        val threadCount = Runtime.getRuntime().availableProcessors()
 
         workerThreadsRemainingLatch = CountDownLatch(threadCount)
 
@@ -353,8 +317,31 @@ class WorldGenerator(private val m_world: OreWorld) {
         val counter = PerformanceCounter("world gen thread $threadNumber")
         counter.start()
 
-        //initial ground
+        val (groundSelect, highlandLowlandSelectCache) = generateTerrain(seed)
 
+        val cavesModule = generateCavesThreaded(worldSize, seed, highlandLowlandSelectCache = highlandLowlandSelectCache,
+                                        groundSelect = groundSelect)
+
+        val finalOreModule = generateOresThreaded(worldSize, seed, cavesModule)
+
+        //hack, set block wall type for each part that's underground!
+        //m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUndergroundWallType)
+
+        //hack: debugging
+
+        val finalModule: Module = finalOreModule
+
+        outputGeneratedWorldToBlockArrayThreaded(finalModule, worldSize, threadCount, threadNumber)
+
+        counter.stop()
+        println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
+
+        workerThreadsRemainingLatch!!.countDown()
+    }
+
+    data class GenerateTerrainResult(val groundSelect: Module, val highlandLowlandSelectCache: Module)
+    private fun generateTerrain(seed: Long): GenerateTerrainResult {
+        //initial ground
         val groundGradient = ModuleGradient()
         groundGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
@@ -478,39 +465,13 @@ class WorldGenerator(private val m_world: OreWorld) {
         groundSelect.setThreshold(0.14)
         groundSelect.setControlSource(highlandLowlandSelectCache)
 
-        val cavesModule = generateCaves(worldSize, seed, highlandLowlandSelectCache = highlandLowlandSelectCache,
-                                        groundSelect = groundSelect)
-
-        //////////////////////////////////////////////////////////////////////////
-        ///////////////////////////// ORE GENERATION
-        val finalOreModule = generateOres(worldSize, seed, cavesModule)
-
-        ///////////////////////////////////////////////
-
-        //hack, set block wall type for each part that's underground!
-        //m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUndergroundWallType)
-
-        //hack: debugging
-//        val genCaves = true
-
-        var finalModule: Module = finalOreModule
-        //       if (genCaves) {
-        //          finalModule = groundCaveMultiply
-        //     }
-
-        outputGeneratedWorldToBlockArrayThreaded(finalModule, worldSize, threadCount, threadNumber)
-
-        counter.stop()
-        println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
-
-        workerThreadsRemainingLatch!!.countDown()
-
+        return GenerateTerrainResult(groundSelect,highlandLowlandSelectCache)
     }
 
-    private fun generateCaves(worldSize: OreWorld.WorldSize,
-                              seed: Long,
-                              highlandLowlandSelectCache: Module,
-                              groundSelect: Module): Module {
+    private fun generateCavesThreaded(worldSize: OreWorld.WorldSize,
+                                      seed: Long,
+                                      highlandLowlandSelectCache: Module,
+                                      groundSelect: Module): Module {
         val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
                                       ModuleBasisFunction.InterpolationType.QUINTIC)
         caveShape.setNumOctaves(1)
@@ -559,7 +520,7 @@ class WorldGenerator(private val m_world: OreWorld) {
     /**
      * @return the final module of the ores
      */
-    private fun generateOres(worldSize: OreWorld.WorldSize, seed: Long, groundCaveMultiply: Module): Module {
+    private fun generateOresThreaded(worldSize: OreWorld.WorldSize, seed: Long, groundCaveMultiply: Module): Module {
 
         /////////////////////////////////////////////////////
         val mainGradient = ModuleGradient()
@@ -812,19 +773,23 @@ class WorldGenerator(private val m_world: OreWorld) {
      * meant to be called in a threaded fashion. (since each module.get()
      * call on each of the indices in the world, takes a lot of time due
      * to all the module chaining)
+     * Meant to be called from multiple threads, automatically partitions
+     * each worker into exclusive regions which they operate on the world with
      */
     private fun outputGeneratedWorldToBlockArrayThreaded(finalModule: Module,
                                                          worldSize: OreWorld.WorldSize,
                                                          threadCount: Int,
                                                          threadNumber: Int) {
-        val partitionedWidth = worldSize.width / threadCount
+        //divide the world into n threads, so that each can write to their own region simultaneously
+        val partitionedHeight = worldSize.height / threadCount
 
-        val startX = (threadNumber - 1) * partitionedWidth
-        val endX = startX + partitionedWidth
+        val startY = (threadNumber - 1) * partitionedHeight
+        val endY = startY + partitionedHeight
+        //fixme i'm very skeptical what happens if given an odd number of world size...maybe we need to use the remainder?
+        //don't want to be accidentally squishing 1 block per thread, or stretching by 1 block
 
-        for (x in startX..endX - 1) {
-            for (y in 0..worldSize.height - 1) {
-
+        for (y in startY..endY - 1) {
+            for (x in 0..worldSize.width - 1) {
 
                 val xRatio = worldSize.width.toDouble() / worldSize.height.toDouble()
                 val value = finalModule.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
