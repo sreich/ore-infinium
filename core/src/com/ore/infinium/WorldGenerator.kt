@@ -290,6 +290,17 @@ class WorldGenerator(private val m_world: OreWorld) {
         //ui values
         workerThreadsRemainingLatch!!.await()
 
+        //hack, set block wall type for each part that's underground!
+        //obviously will need replaced with something less stupid
+        for (y in 0..worldSize.height - 1) {
+            for (x in 0..worldSize.width - 1) {
+                if (m_world.blockType(x,y) != OreBlock.BlockType.Air.oreValue) {
+                    m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUndergroundWallType)
+                }
+            }
+        }
+
+
         counter.stop()
         val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
         println(s)
@@ -323,11 +334,6 @@ class WorldGenerator(private val m_world: OreWorld) {
                                         groundSelect = groundSelect)
 
         val finalOreModule = generateOresThreaded(worldSize, seed, cavesModule)
-
-        //hack, set block wall type for each part that's underground!
-        //m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUndergroundWallType)
-
-        //hack: debugging
 
         val finalModule: Module = finalOreModule
 
