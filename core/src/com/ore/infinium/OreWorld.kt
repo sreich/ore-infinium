@@ -35,12 +35,16 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.math.*
+import com.badlogic.gdx.math.RandomXS128
+import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
+import com.ore.infinium.util.floor
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
 import com.ore.infinium.util.nextInt
@@ -429,29 +433,28 @@ class OreWorld
                               entityWidth: Float,
                               entityHeight: Float): EntitySolidGroundStatus {
         //fixme to round or truncate, that is the question
-        val rightSide = MathUtils.floor(entityX + (entityWidth * 0.5f))
-        val leftSide = MathUtils.floor(entityX - (entityWidth * 0.5f)).coerceIn(0, WORLD_SIZE_X - 10)
-        val bottomY = MathUtils.floor(entityY + (entityHeight * 0.5f))
+        val rightSide = (entityX + (entityWidth * 0.5f)).floor()
+        val leftSide = (entityX - (entityWidth * 0.5f)).floor().coerceIn(0, WORLD_SIZE_X - 10)
+        val bottomY = (entityY + (entityHeight * 0.5f)).floor()
 
-        var solidBlocks = mutableListOf<Boolean>()
+        val solidBlocks = mutableListOf<Boolean>()
 
         (leftSide..rightSide).forEach { tileX -> solidBlocks.add(isBlockSolid(tileX, bottomY)) }
 
         //all solid,
-        if (solidBlocks.all { it == true }) {
+        if (solidBlocks.all { blockSolid -> blockSolid == true }) {
             return EntitySolidGroundStatus.FullySolid
         }
 
         //all empty
-        if (solidBlocks.all { it == false }) {
+        if (solidBlocks.all { blockSolid -> blockSolid == false }) {
             return EntitySolidGroundStatus.FullyEmpty
         }
 
         //some empty
-        if (solidBlocks.any { it == false }) {
+        if (solidBlocks.any { blockSolid -> blockSolid == false }) {
             return EntitySolidGroundStatus.PartiallyGrounded
         }
-
 
         throw InternalError()
     }
@@ -467,8 +470,8 @@ class OreWorld
      * @return
      */
     inline fun blockTypeSafely(x: Int, y: Int): Byte {
-        var x = x.coerceIn(0, WORLD_SIZE_X - 1)
-        var y = y.coerceIn(0, WORLD_SIZE_Y - 1)
+        val x = x.coerceIn(0, WORLD_SIZE_X - 1)
+        val y = y.coerceIn(0, WORLD_SIZE_Y - 1)
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
     }
 
@@ -754,7 +757,7 @@ class OreWorld
 
     fun mousePositionWorldCoords(): Vector2 {
         //libgdx can and probably will return negative mouse coords..
-        val mouse = Vector3(Math.max(Gdx.input.x, 0).toFloat(), Math.max(Gdx.input.y, 0).toFloat(), 0f)
+        val mouse = Vector3((Gdx.input.x).coerceAtLeast(0).toFloat(), (Gdx.input.y).coerceAtLeast(0).toFloat(), 0f)
         val finalMouse = m_camera.unproject(mouse)
 
         return Vector2(finalMouse.x, finalMouse.y)
@@ -765,8 +768,8 @@ class OreWorld
      * @param size of the entity
      */
     fun alignPositionToBlocks(pos: Vector2, size: Vector2) {
-        var x = MathUtils.floor(pos.x).toFloat()
-        var y = MathUtils.floor(pos.y).toFloat()
+        var x = (pos.x).floor().toFloat()
+        var y = (pos.y).floor().toFloat()
 
         //if size is odd,  it won't look aligned properly
         if (size.x % 2 == 1f) {
@@ -940,11 +943,6 @@ class OreWorld
                 }
             }
         }
-
-        //float x = Math.min(pos.x - (BLOCK_SIZE * 20), 0.0f);
-        //float y = Math.min(pos.y - (BLOCK_SIZE * 20), 0.0f);
-        //float x2 = Math.min(pos.x + (BLOCK_SIZE * 20), WORLD_SIZE_X * BLOCK_SIZE);
-        //float y2 = Math.min(pos.y + (BLOCK_SIZE * 20), WORLD_SIZE_Y * BLOCK_SIZE);
 
         //check collision against entities
         val entities = m_artemisWorld.aspectSubscriptionManager.get(

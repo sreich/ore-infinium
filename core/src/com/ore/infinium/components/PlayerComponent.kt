@@ -66,7 +66,6 @@ class PlayerComponent : Component() {
     val equippedPrimaryItem: Int?
         get() = hotbarInventory!!.itemEntity(hotbarInventory!!.selectedSlot)
 
-
     companion object {
         val jumpVelocity = MovementSystem.GRAVITY_ACCEL * 18
         val movementSpeed = 3.5f

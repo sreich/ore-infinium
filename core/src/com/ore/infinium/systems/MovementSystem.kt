@@ -30,13 +30,13 @@ import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.server.ServerNetworkSystem
+import com.ore.infinium.util.abs
 import com.ore.infinium.util.getNullable
 
 @Wire(failOnNull = false)
@@ -133,6 +133,12 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         acceleration = maybePerformJump(acceleration, playerEntity = entity)
 
+        //start slowly than ramp acceleration up as they continue moving that direction
+        //        acceleration.x = 2f
+        //hack
+        acceleration.x *= 1.1f
+        acceleration.x.coerceAtMost(PlayerComponent.maxMovementSpeed)
+
         newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta)
 
         //bleed velocity a bit
@@ -142,10 +148,10 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         //on both x and y, independently
         //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
         //and don't send anything if not dirty
-        if (Math.abs(newVelocity.x) < VELOCITY_MINIMUM_CUTOFF) {
+        if (newVelocity.x.abs() < VELOCITY_MINIMUM_CUTOFF) {
             newVelocity.x = 0f
         }
-        if (Math.abs(newVelocity.y) < VELOCITY_MINIMUM_CUTOFF) {
+        if (newVelocity.y.abs() < VELOCITY_MINIMUM_CUTOFF) {
             newVelocity.y = 0f
         }
 
@@ -212,7 +218,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         val acceleration = Vector2(0.0f, GRAVITY_ACCEL)
 
-        if (itemComponent.playerIdWhoDropped != null && itemComponent.justDropped ) {
+        if (itemComponent.playerIdWhoDropped != null && itemComponent.justDropped) {
             val playerEntityWhoDropped = m_world.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped!!)
             val playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped)
             val playerVelocity = Vector2(playerVelocityComponent.velocity)
@@ -231,19 +237,19 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         itemNewVelocity.x *= 0.55f
 
-        itemNewVelocity.x = MathUtils.clamp(itemNewVelocity.x, -PlayerComponent.maxMovementSpeed,
-                                            PlayerComponent.maxMovementSpeed)
+        itemNewVelocity.x = (itemNewVelocity.x).coerceIn(-PlayerComponent.maxMovementSpeed,
+                                                         PlayerComponent.maxMovementSpeed)
         //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
         // .GRAVITY_ACCEL_CLAMP);
-        itemNewVelocity.y = MathUtils.clamp(itemNewVelocity.y, -GRAVITY_VELOCITY_CLAMP * 10,
-                                            GRAVITY_VELOCITY_CLAMP)
+        itemNewVelocity.y = (itemNewVelocity.y).coerceIn(-GRAVITY_VELOCITY_CLAMP * 10,
+                                                         GRAVITY_VELOCITY_CLAMP)
 
         //gets small enough velocity, cease movement/sleep object.
         //on both x and y, independently
-        if (Math.abs(itemNewVelocity.x) < VELOCITY_MINIMUM_CUTOFF) {
+        if (itemNewVelocity.x.abs() < VELOCITY_MINIMUM_CUTOFF) {
             itemNewVelocity.x = 0f
         }
-        if (Math.abs(itemNewVelocity.y) < VELOCITY_MINIMUM_CUTOFF) {
+        if (itemNewVelocity.y.abs() < VELOCITY_MINIMUM_CUTOFF) {
             itemNewVelocity.y = 0f
         }
 

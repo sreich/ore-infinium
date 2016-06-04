@@ -195,8 +195,7 @@ class EntityOverlaySystem(private val m_world: OreWorld) : BaseSystem() {
         val spriteComponent = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_crosshair).id)
 
         val mouse = m_world.mousePositionWorldCoords()
-        //Vector2 crosshairPosition = new Vector2(OreWorld.BLOCK_SIZE * MathUtils.floor(mouse.x / OreWorld.BLOCK_SIZE),
-        //                                      OreWorld.BLOCK_SIZE * MathUtils.floor(mouse.y / OreWorld.BLOCK_SIZE));
+        //                                      OreWorld.BLOCK_SIZE * (mouse.y / OreWorld.BLOCK_SIZE).floor());
         val crosshairPosition = Vector2(mouse)
 
         //fixme this might not work..remove above dead code too

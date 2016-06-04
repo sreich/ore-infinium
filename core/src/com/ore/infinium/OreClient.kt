@@ -341,7 +341,7 @@ class OreClient : ApplicationListener, InputProcessor {
         }
 
         if (m_renderGui) {
-            m_stage.act(Math.min(Gdx.graphics.deltaTime, 1 / 30f))
+            m_stage.act(Gdx.graphics.deltaTime.coerceAtLeast(1f / 30f))
             m_stage.draw()
         }
 
@@ -599,10 +599,10 @@ class OreClient : ApplicationListener, InputProcessor {
         val index = m_hotbarInventory!!.selectedSlot
         if (amount > 0) {
             //right, inventory selection scrolling does not wrap around.
-            m_hotbarInventory!!.selectSlot(Math.min(index + 1, Inventory.maxHotbarSlots - 1))
+            m_hotbarInventory!!.selectSlot((index + 1).coerceAtMost(Inventory.maxHotbarSlots - 1))
         } else {
             //left
-            m_hotbarInventory!!.selectSlot(Math.max(index - 1, 0))
+            m_hotbarInventory!!.selectSlot((index - 1).coerceAtLeast(0))
         }
 
         return true

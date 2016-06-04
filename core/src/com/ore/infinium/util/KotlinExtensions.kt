@@ -24,6 +24,8 @@ SOFTWARE.
 
 package com.ore.infinium.util
 
+import com.badlogic.gdx.math.MathUtils
+
 /**
  *
  * returns result of lambda, so we can e.g. return an element outward, by doing
@@ -39,3 +41,22 @@ inline fun <T, R : Any> Iterable<T>.firstNotNull(selector: (T) -> R?): R? {
     return null
 }
 
+fun Float.isNegative(): Boolean {
+    return Math.abs(this) != this
+}
+
+fun Float.abs(): Float {
+    return Math.abs(this)
+}
+
+fun Float.floor(): Int {
+    return MathUtils.floor(this)
+}
+
+fun Float.ceil(): Int {
+    return MathUtils.ceil(this)
+}
+
+fun Float.round(): Int {
+    return Math.round(this)
+}

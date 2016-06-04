@@ -37,10 +37,10 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.SpriteTween
 import com.ore.infinium.components.*
+import com.ore.infinium.util.floor
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.getTagNullable
 import com.ore.infinium.util.indices
@@ -107,11 +107,6 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
 
         var itemComponent: ItemComponent?
         for (i in entities.indices) {
-            //hack fixmeasap
-            if (entities.get(i) == 55) {
-                val c = 2
-            }
-
             itemComponent = itemMapper.getNullable(entities.get(i))
             //don't draw in-inventory or not dropped items
             if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
@@ -155,8 +150,8 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
             val originY = height * 0.5f
             //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
 
-            m_batch!!.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f,
-                           MathUtils.floor(y * 16.0f) / 16.0f, originX, originY, width, height, scaleX, scaleY,
+            m_batch!!.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
+                           (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
                            rotation)
         }
     }

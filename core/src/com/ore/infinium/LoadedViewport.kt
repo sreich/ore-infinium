@@ -43,11 +43,11 @@ class LoadedViewport {
         val halfWidth = (MAX_VIEWPORT_WIDTH / 2).toFloat()
         val halfHeight = (MAX_VIEWPORT_HEIGHT / 2).toFloat()
 
-        rect.x = Math.max(0.0f, pos.x - halfWidth)
-        rect.y = Math.max(0.0f, pos.y - halfHeight)
+        rect.x = (pos.x - halfWidth).coerceAtLeast(0.0f)
+        rect.y = (pos.y - halfHeight).coerceAtLeast(0.0f)
 
-        rect.width = Math.min(OreWorld.WORLD_SIZE_X.toFloat(), pos.x + halfWidth)
-        rect.height = Math.min(OreWorld.WORLD_SIZE_Y.toFloat(), pos.y + halfHeight)
+        rect.width = (pos.x + halfWidth).coerceAtMost(OreWorld.WORLD_SIZE_X.toFloat())
+        rect.height = (pos.y + halfHeight).coerceAtMost(OreWorld.WORLD_SIZE_Y.toFloat())
     }
 
     operator fun contains(pos: Vector2): Boolean {

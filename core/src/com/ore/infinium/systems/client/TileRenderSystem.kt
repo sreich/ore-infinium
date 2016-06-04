@@ -130,22 +130,12 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         val tilesInView = (m_camera.viewportHeight * m_camera.zoom).toInt()
         //m_camera.project(tileSize);
-        val startX = Math.max(tilesBeforeX - tilesInView - 2, 0)
-        val startY = Math.max(tilesBeforeY - tilesInView - 2, 0)
-        val endX = Math.min(tilesBeforeX + tilesInView + 2, OreWorld.WORLD_SIZE_X)
-        val endY = Math.min(tilesBeforeY + tilesInView + 2, OreWorld.WORLD_SIZE_Y)
-
-        /*
-      if (Math.abs(startX) != startX) {
-          //qCDebug(ORE_TILE_RENDERER) << "FIXME, WENT INTO NEGATIVE COLUMN!!";
-          throw new IndexOutOfBoundsException("went into negative world column");
-      } else if (Math.abs(startY) != startY) {
-          throw new IndexOutOfBoundsException("went into negative world row");
-      }
-      */
+        val startX = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
+        val startY = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
+        val endX = (tilesBeforeX + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_X)
+        val endY = (tilesBeforeY + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_Y)
 
         m_batch.begin()
-
 
         debugTilesInViewCount = 0
 
