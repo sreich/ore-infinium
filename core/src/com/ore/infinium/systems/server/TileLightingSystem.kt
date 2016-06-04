@@ -51,7 +51,7 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
          * we might want to use the rest of the byte for something else.
          * haven't decided what for
          */
-        const val MAX_TILE_LIGHT_LEVEL: Byte = 10
+        const val MAX_TILE_LIGHT_LEVEL: Byte = 5
     }
 
     /**
