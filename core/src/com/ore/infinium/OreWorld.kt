@@ -360,7 +360,7 @@ class OreWorld
             val datetime = java.time.LocalDateTime.now()
             val time = datetime.format(java.time.format.DateTimeFormatter.ofPattern("HH:m:s:S"))
 
-            Gdx.app.log(tag, "$message [$time ]")
+            Gdx.app.log(tag, "[$time ] $message")
         }
     }
 

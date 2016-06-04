@@ -29,7 +29,6 @@ import com.artemis.annotations.Wire
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.utils.PerformanceCounter
-import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.util.Color2
@@ -269,9 +268,9 @@ class WorldGenerator(private val m_world: OreWorld) {
 //            seed =
         //                   -4058144727897976167
         seed = 5243159850199723543
-        println("seed was $seed")
+        OreWorld.log("world gen", "seed was $seed")
 
-        println("server world gen, worldgen starting")
+        OreWorld.log("world gen", "worldgen starting on $threadCount threads")
 
         val counter = PerformanceCounter("world gen")
         counter.start()
@@ -303,7 +302,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         counter.stop()
         val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
-        println(s)
+        OreWorld.log("world gen", s)
 
         val worldGenInfo = WorldGenOutputInfo(worldSize, seed, useUniqueImageName = false)
         writeWorldImage(worldGenInfo)
@@ -322,9 +321,6 @@ class WorldGenerator(private val m_world: OreWorld) {
                                       threadNumber: Int,
                                       threadCount: Int,
                                       seed: Long) {
-
-        println("...thread $threadNumber started generation")
-
         val counter = PerformanceCounter("world gen thread $threadNumber")
         counter.start()
 
@@ -341,7 +337,6 @@ class WorldGenerator(private val m_world: OreWorld) {
         outputGeneratedWorldToBlockArrayThreaded(finalModule, worldSize, threadCount, threadNumber)
 
         counter.stop()
-        println("thread $threadNumber finished generation in ${counter.current} s at ${TimeUtils.millis()} ms")
 
         workerThreadsRemainingLatch!!.countDown()
     }
