@@ -58,6 +58,9 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     //lowest value we want to represent before killing velocity
     private val VELOCITY_MINIMUM_CUTOFF = 0.008f
 
+    val GRAVITY_ACCEL = 0.5f
+    val GRAVITY_ACCEL_CLAMP = 0.5f
+
     override fun setWorld(world: World) {
         super.setWorld(world)
     }
@@ -124,7 +127,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         val desiredDirection = controlMapper.get(entity).desiredDirection
 
         //acceleration due to gravity
-        val acceleration = Vector2(desiredDirection.x * PlayerComponent.movementSpeed, OreWorld.GRAVITY_ACCEL)
+        val acceleration = Vector2(desiredDirection.x * PlayerComponent.movementSpeed, GRAVITY_ACCEL)
 
         val jumpComponent = jumpMapper.get(entity)
         if (jumpComponent.canJump && jumpComponent.shouldJump) {
@@ -202,7 +205,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         val itemOldVelocity = Vector2(itemVelocityComponent.velocity)
         val itemNewVelocity = Vector2(itemVelocityComponent.velocity)
 
-        val acceleration = Vector2(0.0f, OreWorld.GRAVITY_ACCEL)
+        val acceleration = Vector2(0.0f, GRAVITY_ACCEL)
 
         if (itemComponent.playerIdWhoDropped != null && itemComponent.justDropped ) {
             val playerEntityWhoDropped = m_world.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped!!)
@@ -215,7 +218,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             //only add player velocity the firstEntity tick, as soon as they drop it.
             //so that we can throw things harder using players current speed
             itemComponent.justDropped = false
-            acceleration.y += -OreWorld.GRAVITY_ACCEL * 3.0f
+            acceleration.y += -GRAVITY_ACCEL * 3.0f
             acceleration.x += 0.5f
         }
 
@@ -227,8 +230,8 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
                                             PlayerComponent.maxMovementSpeed)
         //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
         // .GRAVITY_ACCEL_CLAMP);
-        itemNewVelocity.y = MathUtils.clamp(itemNewVelocity.y, -OreWorld.GRAVITY_ACCEL_CLAMP * 10,
-                                            OreWorld.GRAVITY_ACCEL_CLAMP)
+        itemNewVelocity.y = MathUtils.clamp(itemNewVelocity.y, -GRAVITY_ACCEL_CLAMP * 10,
+                                            GRAVITY_ACCEL_CLAMP)
 
         //gets small enough velocity, cease movement/sleep object.
         //on both x and y, independently

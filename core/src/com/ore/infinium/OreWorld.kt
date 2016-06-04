@@ -254,9 +254,6 @@ class OreWorld
     }
 
     companion object {
-        val GRAVITY_ACCEL = 0.5f
-        val GRAVITY_ACCEL_CLAMP = 0.5f
-
         const val BLOCK_SIZE_PIXELS = 16.0f
 
 
