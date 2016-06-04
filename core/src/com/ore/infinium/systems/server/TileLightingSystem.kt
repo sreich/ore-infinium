@@ -98,8 +98,7 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte, depth: Int = 0) {
-        var currentDepth = depth
+    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte) {
         if (y == 50) {
             val x = 2
         }
@@ -123,17 +122,15 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         //don't overwrite previous light values that were greater
 //        if (newLightLevel <= currentLightLevel - 1) {
         if (newLightLevel <= currentLightLevel) {
-//        if (currentDepth >= 5) {
             return
         }
 
-        currentDepth += 1
         m_world.setBlockLightLevel(x, y, newLightLevel)
 
-        diamondSunlightFloodFill(x - 1, y, newLightLevel, currentDepth)
-        diamondSunlightFloodFill(x + 1, y, newLightLevel, currentDepth)
-        diamondSunlightFloodFill(x, y - 1, newLightLevel, currentDepth)
-        diamondSunlightFloodFill(x, y + 1, newLightLevel, currentDepth)
+        diamondSunlightFloodFill(x - 1, y, newLightLevel)
+        diamondSunlightFloodFill(x + 1, y, newLightLevel)
+        diamondSunlightFloodFill(x, y - 1, newLightLevel)
+        diamondSunlightFloodFill(x, y + 1, newLightLevel)
     }
 
     override fun processSystem() {
