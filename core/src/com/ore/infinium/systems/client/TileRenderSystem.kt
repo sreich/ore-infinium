@@ -152,14 +152,15 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         var textureName: String? = ""
         //fixme all instances of findRegion need to be replaced with cached
         //versions. they're allegedly quite slow
-        for (x in startX..endX - 1) {
-            loop@ for (y in startY..endY - 1) {
+        for (y in startY..endY - 1) {
+            loop@ for (x in startX..endX - 1) {
 
                 val blockType = m_world.blockType(x, y)
                 val blockMeshType = m_world.blockMeshType(x, y)
                 val blockWallType = m_world.blockWallType(x, y)
 
                 val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+                var drawForegroundTile = true
 
                 //String textureName = World.blockAttributes.get(block.type).textureName;
                 when (blockType) {
@@ -184,6 +185,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                         if (blockWallType == OreBlock.WallType.Air.oreValue) {
                             //we can skip a draw iff the wall, and block is air
                             continue@loop
+                        } else {
+                            drawForegroundTile = false
                         }
                     }
 
@@ -257,19 +260,21 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 ///////////////////////////////////// draw foreground tile
 
-                val foregroundTileRegion = m_tilesAtlas.findRegion(textureName)
-                assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName!!}" }
+                if (drawForegroundTile) {
+                    val foregroundTileRegion = m_tilesAtlas.findRegion(textureName)
+                    assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName!!}" }
 
 //                    if (blockLightLevel != 0.toByte()) {
-                m_batch.setColor(lightValue, lightValue, lightValue, 1f)
-                //                   } else {
-                //                      m_batch.setColor(1f, 1f, 1f, 1f)
-                //                 }
+                    m_batch.setColor(lightValue, lightValue, lightValue, 1f)
+                    //                   } else {
+                    //                      m_batch.setColor(1f, 1f, 1f, 1f)
+                    //                 }
 
-                //offset y to flip orientation around to normal
-                m_batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
+                    //offset y to flip orientation around to normal
+                    m_batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
 
-                //////////////////////////////////////////////////////////
+                    //////////////////////////////////////////////////////////
+                }
 
                 ++debugTilesInViewCount
             }
