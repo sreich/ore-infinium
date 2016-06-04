@@ -131,19 +131,14 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         val desiredDirection = controlMapper.get(entity).desiredDirection
 
-        val rampUpFactor = 2.0f
-
+        val acceleration = Vector2()
+        //x movement has an initial ramp up time until it hits max speed (similar feel as terraria)
+        acceleration.x = ((desiredDirection.x * PlayerComponent.maxMovementSpeed) - oldVelocity.x) *
+                PlayerComponent.movementRampUpFactor
         //acceleration due to gravity
-        val acceleration = Vector2(
-                ((desiredDirection.x * PlayerComponent.maxMovementSpeed) - oldVelocity.x) * rampUpFactor,
-                GRAVITY_ACCEL)
+        acceleration.y = GRAVITY_ACCEL
 
         acceleration.y = maybePerformJump(acceleration.y, playerEntity = entity)
-
-        //start slowly than ramp acceleration up as they continue moving that direction
-        //        acceleration.x = 2f
-        //hack
-//        acceleration.x = acceleration.x.coerceAtMost(PlayerComponent.maxMovementSpeed)
 
         newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta)
 
@@ -151,16 +146,19 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         if (noClip) {
             acceleration.y = 0f
             newVelocity.y = 0f
+            //allow simple movement up/down...doesn't use fancy ramp up though
+            //may be able to once we get ladders implemented
+            newVelocity.y = desiredDirection.y * PlayerComponent.maxMovementSpeed
         }
 
         if (desiredDirection.x == 0f) {
-            //bleed velocity a bit
+            //bleed velocity a bit, due to friction
             newVelocity.x *= 0.6f
         }
 
         //gets small enough velocity, cease movement/sleep object.
         //on both x and y, independently
-        //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
+        //so we don't infinitely move and thus burn through ticks/packets
         //and don't send anything if not dirty
         if (newVelocity.x.abs() < VELOCITY_MINIMUM_CUTOFF) {
             newVelocity.x = 0f
