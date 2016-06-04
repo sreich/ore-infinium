@@ -294,8 +294,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         //obviously will need replaced with something less stupid
         for (y in 0..worldSize.height - 1) {
             for (x in 0..worldSize.width - 1) {
-                if (m_world.blockType(x,y) != OreBlock.BlockType.Air.oreValue) {
-                    m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUndergroundWallType)
+                if (m_world.blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
+                    m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUnderground.oreValue)
                 }
             }
         }

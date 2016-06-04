@@ -261,7 +261,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         }
 
         val lightLevel = m_world.blockLightLevel(x, y)
-        val s = "tile($x, $y), block type: $blockTypeEnum!!.name, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
+        val s = "tile($x, $y), block type: ${blockTypeEnum.name}, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
 
         m_font.draw(m_batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING

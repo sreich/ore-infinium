@@ -77,11 +77,10 @@ class OreBlock private constructor() {
         Bedrock (11)
     }
 
-    object WallType {
-        const val AirWallType: Byte = 0
-
-        const val DirtWallType: Byte = 1
-        const val DirtUndergroundWallType: Byte = 2
+    enum class WallType(val oreValue: Byte) {
+        Air (0),
+        Dirt (1),
+        DirtUnderground (2)
     }
 
     fun destroy() {

@@ -185,11 +185,9 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                     }
 
                     OreBlock.BlockType.Air.oreValue -> {
-                        if (blockWallType == OreBlock.WallType.AirWallType) {
-                            //we can skip a draw call iff the wall, and block is null
+                        if (blockWallType == OreBlock.WallType.Air.oreValue) {
+                            //we can skip a draw iff the wall, and block is air
                             continue@loop
-                        } else {
-                            drawWallTile = true
                         }
                     }
 
