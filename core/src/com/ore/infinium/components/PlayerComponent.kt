@@ -28,7 +28,7 @@ import com.artemis.Component
 import com.ore.infinium.Inventory
 import com.ore.infinium.LoadedViewport
 import com.ore.infinium.OreTimer
-import com.ore.infinium.OreWorld
+import com.ore.infinium.systems.MovementSystem
 
 class PlayerComponent : Component() {
 
@@ -68,7 +68,7 @@ class PlayerComponent : Component() {
 
 
     companion object {
-        val jumpVelocity = OreWorld.GRAVITY_ACCEL * 18
+        val jumpVelocity = MovementSystem.GRAVITY_ACCEL * 18
         val movementSpeed = 3.5f
         val maxMovementSpeed = movementSpeed * 1.2f
 

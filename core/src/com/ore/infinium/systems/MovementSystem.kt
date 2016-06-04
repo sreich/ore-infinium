@@ -58,8 +58,10 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     //lowest value we want to represent before killing velocity
     private val VELOCITY_MINIMUM_CUTOFF = 0.008f
 
-    val GRAVITY_ACCEL = 0.5f
-    val GRAVITY_ACCEL_CLAMP = 0.5f
+    companion object {
+        val GRAVITY_ACCEL = 0.5f
+        val GRAVITY_ACCEL_CLAMP = 0.5f
+    }
 
     override fun setWorld(world: World) {
         super.setWorld(world)
@@ -127,9 +129,48 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         val desiredDirection = controlMapper.get(entity).desiredDirection
 
         //acceleration due to gravity
-        val acceleration = Vector2(desiredDirection.x * PlayerComponent.movementSpeed, GRAVITY_ACCEL)
+        var acceleration = Vector2(desiredDirection.x * PlayerComponent.movementSpeed, GRAVITY_ACCEL)
 
-        val jumpComponent = jumpMapper.get(entity)
+        acceleration = maybePerformJump(acceleration, playerEntity = entity)
+
+        newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta)
+
+        //bleed velocity a bit
+        newVelocity.x *= 0.8f
+
+        //gets small enough velocity, cease movement/sleep object.
+        //on both x and y, independently
+        //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
+        //and don't send anything if not dirty
+        if (Math.abs(newVelocity.x) < VELOCITY_MINIMUM_CUTOFF) {
+            newVelocity.x = 0f
+        }
+        if (Math.abs(newVelocity.y) < VELOCITY_MINIMUM_CUTOFF) {
+            newVelocity.y = 0f
+        }
+
+        //        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent
+        // .maxMovementSpeed);
+        //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
+        // .GRAVITY_ACCEL_CLAMP);
+
+
+        //todo  clamp both axes between some max/min values..
+        velocityComponent.velocity.set(newVelocity.x, newVelocity.y)
+
+        ///////// the desired position uses velocity verlet integration
+        // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
+
+        // newVelocity is now invalid, note (vector reference modification).
+        val desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)))
+        val finalPosition = performCollision(desiredPosition, entity)
+
+        spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y)
+        //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
+    }
+
+    private fun maybePerformJump(acceleration: Vector2, playerEntity: Int): Vector2 {
+        val jumpComponent = jumpMapper.get(playerEntity)
         if (jumpComponent.canJump && jumpComponent.shouldJump) {
 
             if (jumpComponent.jumpTimer.milliseconds() >= jumpComponent.jumpInterval) {
@@ -143,41 +184,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         jumpComponent.canJump = false
         jumpComponent.shouldJump = false
 
-        newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta)
-
-        //bleed velocity a bit
-        newVelocity.x *= 0.8f
-
-        //gets small enough velocity, cease movement/sleep object.
-        //on both x and y, independently
-        if (Math.abs(newVelocity.x) < VELOCITY_MINIMUM_CUTOFF) {
-            newVelocity.x = 0f
-        }
-        if (Math.abs(newVelocity.y) < VELOCITY_MINIMUM_CUTOFF) {
-            newVelocity.y = 0f
-        }
-
-        val dt = Vector2(delta, delta)
-
-        //        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent
-        // .maxMovementSpeed);
-        //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
-        // .GRAVITY_ACCEL_CLAMP);
-
-        ///////// velocity verlet integration
-        // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
-
-        //TODO: add threshold to nullify velocity..so we don't infinitely move and thus burn through ticks/packets
-
-        //todo  clamp both axes between some max/min values..
-        velocityComponent.velocity.set(newVelocity.x, newVelocity.y)
-
-        // newVelocity is now invalid, note (vector reference modification).
-        val desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)))
-        val finalPosition = performCollision(desiredPosition, entity)
-
-        spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y)
-        //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
+        return acceleration
     }
 
     private fun simulateNoClip(entity: Int, delta: Float) {
