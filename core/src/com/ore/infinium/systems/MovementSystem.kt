@@ -59,8 +59,10 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     private val VELOCITY_MINIMUM_CUTOFF = 0.008f
 
     companion object {
-        val GRAVITY_ACCEL = 0.5f
-        val GRAVITY_ACCEL_CLAMP = 0.5f
+        val GRAVITY_ACCEL = 1.2f
+
+        //max velocity that can be obtained via gravity
+        val GRAVITY_VELOCITY_CLAMP = 0.6f
     }
 
     override fun setWorld(world: World) {
@@ -119,8 +121,6 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         //fixme handle noclip
         val spriteComponent = spriteMapper.get(entity)
-        val origPosition = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
-
         val velocityComponent = velocityMapper.get(entity)
 
         val oldVelocity = Vector2(velocityComponent.velocity)
@@ -149,17 +149,15 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             newVelocity.y = 0f
         }
 
-        //        newVelocity.x = MathUtils.clamp(newVelocity.x, -PlayerComponent.maxMovementSpeed, PlayerComponent
-        // .maxMovementSpeed);
-        //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
-        // .GRAVITY_ACCEL_CLAMP);
-
+        newVelocity.y = newVelocity.y.coerceAtMost(GRAVITY_VELOCITY_CLAMP)
 
         //todo  clamp both axes between some max/min values..
         velocityComponent.velocity.set(newVelocity.x, newVelocity.y)
 
         ///////// the desired position uses velocity verlet integration
         // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
+
+        val origPosition = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
 
         // newVelocity is now invalid, note (vector reference modification).
         val desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)))
@@ -237,8 +235,8 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
                                             PlayerComponent.maxMovementSpeed)
         //        newVelocity.y = MathUtils.clamp(newVelocity.y, PlayerComponent.jumpVelocity, World
         // .GRAVITY_ACCEL_CLAMP);
-        itemNewVelocity.y = MathUtils.clamp(itemNewVelocity.y, -GRAVITY_ACCEL_CLAMP * 10,
-                                            GRAVITY_ACCEL_CLAMP)
+        itemNewVelocity.y = MathUtils.clamp(itemNewVelocity.y, -GRAVITY_VELOCITY_CLAMP * 10,
+                                            GRAVITY_VELOCITY_CLAMP)
 
         //gets small enough velocity, cease movement/sleep object.
         //on both x and y, independently
