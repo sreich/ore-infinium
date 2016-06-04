@@ -154,7 +154,6 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         //versions. they're allegedly quite slow
         for (x in startX..endX - 1) {
             loop@ for (y in startY..endY - 1) {
-                ++debugTilesInViewCount
 
                 val blockType = m_world.blockType(x, y)
                 val blockMeshType = m_world.blockMeshType(x, y)
@@ -271,6 +270,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 m_batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
 
                 //////////////////////////////////////////////////////////
+
+                ++debugTilesInViewCount
             }
         }
 
