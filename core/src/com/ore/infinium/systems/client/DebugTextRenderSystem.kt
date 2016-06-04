@@ -238,6 +238,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         val blockMeshType = m_world.blockMeshType(x, y)
         val blockWallType = m_world.blockWallType(x, y)
+
         val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
         val damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y)

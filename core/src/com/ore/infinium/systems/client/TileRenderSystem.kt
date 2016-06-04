@@ -146,11 +146,10 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         m_batch.begin()
 
-        var region: TextureAtlas.AtlasRegion?
-        var textureName: String? = ""
 
         debugTilesInViewCount = 0
 
+        var textureName: String? = ""
         //fixme all instances of findRegion need to be replaced with cached
         //versions. they're allegedly quite slow
         for (x in startX..endX - 1) {
@@ -163,10 +162,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
-                var drawWallTile = false
-
                 //String textureName = World.blockAttributes.get(block.type).textureName;
-                when(blockType) {
+                when (blockType) {
                     OreBlock.BlockType.Dirt.oreValue -> {
 
                         if (hasGrass) {
@@ -232,15 +229,6 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                     }
                 }
 
-                if (drawWallTile) {
-                    m_batch.setColor(0.5f, 0.5f, 0.5f, 1f)
-                }
-
-                if (x % 2 == 0) {
-                    m_batch.setColor(0.5f, 0f, 0f, 1f)
-
-                }
-
                 val blockLightLevel = if (debugRenderTileLighting) {
                     m_world.blockLightLevel(x, y)
                 } else {
@@ -250,35 +238,39 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 val tileX = x.toFloat()
                 val tileY = y.toFloat()
 
-                //either we draw the wall tile, or the foreground tile. never both (yet? there might be *some*
-                // scenarios..)
-                if (drawWallTile) {
-                    //draw walls
-                    //fixme of course, for wall drawing, walls should have their own textures
-                    textureName = m_dirtBlockMeshes.get(0)
-                    assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
+                val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
 
-                    //offset y to flip orientation around to normal
-                    region = m_tilesAtlas.findRegion(textureName)
-                    m_batch.draw(region, tileX, tileY + 1, 1f, -1f)
+                ///////////////////////////////// draw walls
+                val wallTextureName = m_dirtBlockMeshes.get(0)
+                assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
-                    m_batch.setColor(1f, 1f, 1f, 1f)
-                } else {
-                    region = m_tilesAtlas.findRegion(textureName)
-                    assert(region != null) { "texture region for tile was null. textureName: ${textureName!!}" }
+                //fixme of course, for wall drawing, walls should have their own textures
+                //m_batch.setColor(0.5f, 0.5f, 0.5f, 1f)
+                //m_batch.setColor(1.0f, 0f, 0f, 1f)
+                m_batch.setColor(lightValue, lightValue, lightValue, 1f)
+
+                //offset y to flip orientation around to normal
+                val regionWall = m_tilesAtlas.findRegion(wallTextureName)
+                m_batch.draw(regionWall, tileX, tileY + 1, 1f, -1f)
+
+                m_batch.setColor(1f, 1f, 1f, 1f)
+                //////////////////////////////////////
+
+                ///////////////////////////////////// draw foreground tile
+
+                val foregroundTileRegion = m_tilesAtlas.findRegion(textureName)
+                assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName!!}" }
 
 //                    if (blockLightLevel != 0.toByte()) {
-                    val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
-                    m_batch.setColor(lightValue, lightValue, lightValue, 1f)
-                    //                   } else {
-                    //                      m_batch.setColor(1f, 1f, 1f, 1f)
-                    //                 }
+                m_batch.setColor(lightValue, lightValue, lightValue, 1f)
+                //                   } else {
+                //                      m_batch.setColor(1f, 1f, 1f, 1f)
+                //                 }
 
-                    //offset y to flip orientation around to normal
-                    m_batch.draw(region, tileX, tileY + 1, 1f, -1f)
+                //offset y to flip orientation around to normal
+                m_batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
 
-
-                }
+                //////////////////////////////////////////////////////////
             }
         }
 

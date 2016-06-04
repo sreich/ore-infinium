@@ -330,8 +330,9 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         val (groundSelect, highlandLowlandSelectCache) = generateTerrain(seed)
 
-        val cavesModule = generateCavesThreaded(worldSize, seed, highlandLowlandSelectCache = highlandLowlandSelectCache,
-                                        groundSelect = groundSelect)
+        val cavesModule = generateCavesThreaded(worldSize, seed,
+                                                highlandLowlandSelectCache = highlandLowlandSelectCache,
+                                                groundSelect = groundSelect)
 
         val finalOreModule = generateOresThreaded(worldSize, seed, cavesModule)
 
@@ -346,6 +347,7 @@ class WorldGenerator(private val m_world: OreWorld) {
     }
 
     data class GenerateTerrainResult(val groundSelect: Module, val highlandLowlandSelectCache: Module)
+
     private fun generateTerrain(seed: Long): GenerateTerrainResult {
         //initial ground
         val groundGradient = ModuleGradient()
@@ -471,7 +473,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         groundSelect.setThreshold(0.14)
         groundSelect.setControlSource(highlandLowlandSelectCache)
 
-        return GenerateTerrainResult(groundSelect,highlandLowlandSelectCache)
+        return GenerateTerrainResult(groundSelect, highlandLowlandSelectCache)
     }
 
     private fun generateCavesThreaded(worldSize: OreWorld.WorldSize,
