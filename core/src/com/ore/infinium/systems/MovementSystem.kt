@@ -56,7 +56,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     private lateinit var m_tagManager: TagManager
 
     //lowest value we want to represent before killing velocity
-    private val VELOCITY_MINIMUM_CUTOFF = 0.005f
+    private val VELOCITY_MINIMUM_CUTOFF = 0.008f
 
     override fun setWorld(world: World) {
         super.setWorld(world)
