@@ -68,8 +68,8 @@ class PlayerComponent : Component() {
 
     companion object {
         val jumpVelocity = MovementSystem.GRAVITY_ACCEL * 18
-        val movementSpeed = 3.5f
-        val maxMovementSpeed = movementSpeed * 1.2f
+        const val normalMovementSpeed = 1.8f
+        var maxMovementSpeed = normalMovementSpeed
 
         //ms
         val placeableItemDelay = 300

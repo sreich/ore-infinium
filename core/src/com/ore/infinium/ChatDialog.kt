@@ -88,32 +88,50 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
         m_scrollPaneTable.layout()
         m_scroll.layout()
         m_scroll.scrollPercentY = 100f
+
+        //TODO convert away from anonymous class..
         m_stage.addListener(object : InputListener() {
             override //fixme override mouse as well, to ignroe those.
             fun keyDown(event: InputEvent?, keycode: Int): Boolean {
-                if (keycode == Input.Keys.ENTER) {
-                    if (chatVisibilityState == ChatVisibility.Normal) {
-                        closeChatDialog()
-                        sendChat()
-                    } else {
-                        openChatDialog()
+                when {
+                    keycode == Input.Keys.ENTER -> {
+                        if (chatVisibilityState == ChatVisibility.Normal) {
+                            closeChatDialog()
+                            sendChat()
+                        } else {
+                            openChatDialog()
+                        }
+
+                        return true
                     }
 
-                    return true
-                }
+                    keycode == Input.Keys.ESCAPE -> {
+                        closeChatDialog()
 
-                if (keycode == Input.Keys.ESCAPE) {
-                    closeChatDialog()
+                        return false
+                    }
 
-                    return false
-                }
+                    keycode == Input.Keys.SLASH -> {
+                        if (chatVisibilityState != ChatVisibility.Normal) {
+                            openChatDialog()
+
+                            //add in helper command sequence
+                            m_messageField.text = "/"
+                            //focus the end of it, otherwise it'd be at the beginning
+                            m_messageField.cursorPosition = m_messageField.text!!.length
+
+                            return true
+                        }
+
+                        return false
+                    }
 
                 //ignore all keys if we're in non-focused mode
-                if (chatVisibilityState != ChatVisibility.Normal) {
-                    return false
+                    chatVisibilityState != ChatVisibility.Normal -> return false
+
+                    else -> return super.keyDown(event, keycode)
                 }
 
-                return super.keyDown(event, keycode)
             }
         })
 
@@ -176,16 +194,26 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
     /**
      * processes local chat commands like /help, /admin
      * /whateverelse
+     *
+     * only works locally if the player is hosting server!
 
      * @return true if it was a command, false if not
      */
     private fun processLocalChatCommands(): Boolean {
-        val chat = m_messageField.text
+        val chat = m_messageField.text.toLowerCase()
         when (chat) {
             "/noclip" -> {
-                OreSettings.noclip = !OreSettings.noclip
+                OreSettings.noClip = !OreSettings.noClip
 
-                val response = "noclip is now: " + OreSettings.noclip
+                val response = "noclip is now: ${OreSettings.noClip}"
+                sendLocalChat(response)
+                return true
+            }
+
+            "/fastwalk" -> {
+                OreSettings.fastWalk = !OreSettings.fastWalk
+
+                val response = "fastWalk is now: ${OreSettings.fastWalk}"
                 sendLocalChat(response)
                 return true
             }
@@ -193,13 +221,19 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
             "/lockright" -> {
                 OreSettings.lockRight = !OreSettings.lockRight
 
-                val response = "lock right is: " + OreSettings.lockRight
+                val response = "lockRight is: ${OreSettings.lockRight}"
                 sendLocalChat(response)
                 return true
             }
 
             "/help" -> {
-                val response = "type /help for this message." + "/noclip if authorized, ignores collisions for your player"
+                val response = """
+                type /help for this message. (commands case insensitive)
+                /noclip if authorized, ignores collisions for your player
+                /fastwalk increases max speed of player
+                /lockright keeps moving right until disabled
+                """
+
                 sendLocalChat(response)
                 return true
             }

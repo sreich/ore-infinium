@@ -43,7 +43,8 @@ object OreSettings {
     var help: Boolean = false
 
     //client options//////
-    @Parameter(names = arrayOf("--pack"), description = "Pack the images on ../assets, into ../assets/packed, and into their corresponding " + "texture atlases. Only images from the packed atlases will be used, so if changes are " + "made to the assets, this must be run")
+    @Parameter(names = arrayOf("--pack"),
+               description = "Pack the images on ../assets, into ../assets/packed, and into their corresponding " + "texture atlases. Only images from the packed atlases will be used, so if changes are " + "made to the assets, this must be run")
     @JvmField
     var pack: Boolean = false
 
@@ -70,13 +71,16 @@ object OreSettings {
     //////////////////////////
 
     /////////////// server and client network related options
-    @Parameter(names = arrayOf("--hostAndJoin"), description = "immediately jumps into hosting a server and joining it locally. Basically singleplayer," + " but with other people being able to join, technically.")
+    @Parameter(names = arrayOf("--hostAndJoin"),
+               description = "immediately jumps into hosting a server and joining it locally. Basically singleplayer," + " but with other people being able to join, technically.")
     private val hostAndJoin: Boolean = false
 
-    @Parameter(names = arrayOf("--host"), description = "Hosts a server. Additional settings that must or can be set are: port")
+    @Parameter(names = arrayOf("--host"),
+               description = "Hosts a server. Additional settings that must or can be set are: port")
     private val host: Boolean = false
 
-    @Parameter(names = arrayOf("--join"), description = "joins a server. Additional settings that must or can be set are: ip(required), port")
+    @Parameter(names = arrayOf("--join"),
+               description = "joins a server. Additional settings that must or can be set are: ip(required), port")
     private val join: Boolean = false
 
     @Parameter(names = arrayOf("--playerName"), description = "applies only to the client")
@@ -95,24 +99,37 @@ object OreSettings {
     @JvmField
     var networkLog: Boolean = false
 
-    @Parameter(names = arrayOf("--lagMin"), description = "emulates a slow network guaranteed to have this much latency. For network debugging.")
+    @Parameter(names = arrayOf("--lagMin"),
+               description = "emulates a slow network guaranteed to have this much latency. For network debugging.")
     @JvmField
     var lagMinMs = 0
 
-    @Parameter(names = arrayOf("--lagMax"), description = "emulates a slow network guaranteed to have less than this much latency. For network " + "debugging.")
+    @Parameter(names = arrayOf("--lagMax"),
+               description = "emulates a slow network guaranteed to have less than this much latency. For network " + "debugging.")
     @JvmField
     var lagMaxMs = 0
 
-    @Parameter(names = arrayOf("--noclip"), description = "enable noclip. the server will verify if authorized (if it's a local game server, then " + "it is always authorized.")
+    /**
+     * cheat
+     */
+    @Parameter(names = arrayOf("--noclip"),
+               description = "enable noclip. the server will verify if authorized (if it's a local game server, then " + "it is always authorized.")
     @JvmField
-    var noclip: Boolean = false
-    /////////
+    var noClip: Boolean = false
 
     /// lock movement of player to continue moving right
     @JvmField
     var lockRight: Boolean = false
 
-    @Parameter(names = arrayOf("--debugPacketTypeStatistics"), description = "enable network debug to stdout for displaying frequencies of each packet received, for both client and server.")
+    /**
+     * cheat
+     */
+    @JvmField
+    var fastWalk = false
+
+    @Parameter(names = arrayOf("--debugPacketTypeStatistics"),
+               description = "enable network debug to stdout for displaying frequencies of each packet received, for both client and server.")
     @JvmField
     var debugPacketTypeStatistics: Boolean = false
+
 }
