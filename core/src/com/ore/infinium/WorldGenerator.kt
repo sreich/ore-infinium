@@ -380,7 +380,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                  ModuleBasisFunction.InterpolationType.QUINTIC)
         highlandShapeFractal.setNumOctaves(8)
         highlandShapeFractal.setFrequency(9.0)
-        highlandShapeFractal.seed = seed
+        highlandShapeFractal.seed = seed + 1
 
         val highlandAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
         highlandAutoCorrect.setSource(highlandShapeFractal)
@@ -406,7 +406,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                  ModuleBasisFunction.InterpolationType.QUINTIC)
         mountainShapeFractal.setNumOctaves(8)
         mountainShapeFractal.setFrequency(2.0)
-        mountainShapeFractal.seed = seed
+        mountainShapeFractal.seed = seed + 2
 
         val mountainAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
         mountainAutoCorrect.setSource(mountainShapeFractal)
@@ -432,7 +432,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                ModuleBasisFunction.InterpolationType.QUINTIC)
         terrainTypeFractal.setNumOctaves(9)
         terrainTypeFractal.setFrequency(1.825)
-        terrainTypeFractal.seed = seed
+        terrainTypeFractal.seed = seed + 3
 
         val terrainAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
         terrainAutoCorrect.setSource(terrainTypeFractal)
@@ -467,6 +467,16 @@ class WorldGenerator(private val m_world: OreWorld) {
         groundSelect.setHighSource(1.0)
         groundSelect.setThreshold(0.14)
         groundSelect.setControlSource(highlandLowlandSelectCache)
+
+        /////////////// lakes
+        /*
+        val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
+                                               ModuleBasisFunction.BasisType.GRADIENT,
+                                               ModuleBasisFunction.InterpolationType.QUINTIC)
+        terrainTypeFractal.setNumOctaves(9)
+        terrainTypeFractal.setFrequency(1.825)
+        terrainTypeFractal.seed = seed
+        */
 
         return GenerateTerrainResult(groundSelect, highlandLowlandSelectCache)
     }
