@@ -50,9 +50,11 @@ class InputSystem(private val m_camera: OrthographicCamera, private val m_world:
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
     private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
+    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
 
     override fun processSystem() {
-        if (m_world.m_client!!.m_leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible) {
+        if (m_world.m_client!!.m_leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible &&
+                m_clientNetworkSystem.connected) {
 
             m_world.m_client!!.handleLeftMousePrimaryAttack()
         }
