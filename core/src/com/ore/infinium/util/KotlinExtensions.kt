@@ -41,6 +41,10 @@ inline fun <T, R : Any> Iterable<T>.firstNotNull(selector: (T) -> R?): R? {
     return null
 }
 
+fun Int.isNegative(): Boolean {
+    return Math.abs(this) != this
+}
+
 fun Float.isNegative(): Boolean {
     return Math.abs(this) != this
 }

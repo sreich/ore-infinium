@@ -228,11 +228,11 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
 
             "/help" -> {
                 val response = """
-                type /help for this message. (commands case insensitive)
-                /noclip if authorized, ignores collisions for your player
-                /fastwalk increases max speed of player
-                /lockright keeps moving right until disabled
-                """
+                |type /help for this message. (commands case insensitive)
+                |/noclip if authorized, ignores collisions for your player
+                |/fastwalk increases max speed of player
+                |/lockright keeps moving right until disabled
+                """.trimMargin()
 
                 sendLocalChat(response)
                 return true
@@ -291,8 +291,7 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
 
         container.layout()
         m_scrollPaneTable.layout()
-        m_scroll.layout()
-        m_scroll.scrollPercentY = 100f
+        scrollToBottom()
 
         showForNotification()
     }

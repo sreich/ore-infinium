@@ -477,7 +477,7 @@ class OreWorld
 
     /**
      * take a possibly-unsafe x block index,
-     * and return a safe (clamped) one
+     * and return a safe (clamped to world size) one
 
      * @param x
      * *
@@ -490,7 +490,7 @@ class OreWorld
 
     /**
      * take a possibly-unsafe y block index,
-     * and return a safe (clamped) one
+     * and return a safe (clamped to world size) one
 
      * @param y
      * *

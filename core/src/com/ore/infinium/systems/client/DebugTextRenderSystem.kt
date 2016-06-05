@@ -153,32 +153,60 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         m_textYRight = OreSettings.height - 120
         m_textYLeft = OreSettings.height - 130
 
-        if (m_frameTimer.milliseconds() > 300) {
-            m_frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
-            m_fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
-            m_textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
-            m_shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
-            m_drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
-
-            //fixme
-            //            if (m_server != null) {
-            m_frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
-            //           }
-
-            m_guiDebugString = "F12 - gui debug. Enabled: $m_guiDebug"
-            m_guiRenderToggleString = "F11 - gui render. Enabled: ${m_world!!.m_client!!.m_renderGui}"
-            m_tileRenderDebugString = "F10 - tile render.Enabled: ${m_tileRenderSystem.debugRenderTiles}"
-            m_networkSyncDebugString = "F9 - server sprite debug render.Enabled Client: $m_renderDebugClient.Enabled Server:$m_renderDebugServer"
-
-            m_spriteRenderDebugString = "F8 - client sprite debug render. Enabled: $m_renderDebugClient"
-            m_lightingRendererDebugString = "F7 - tile lighting renderer debug. Enabled: ${m_tileRenderSystem.debugRenderTileLighting}"
-
-            m_frameTimer.reset()
-        }
+        updateStandardDebugInfo()
 
         m_batch.begin()
-        printInfoForEntityAtPosition(m_textYLeft)
 
+        drawDebugInfoForEntityAtMouse(m_textYLeft)
+        drawStandardDebugInfo()
+
+        m_batch.end()
+
+        if (m_renderDebugServer && false) {
+            /*
+            m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
+            m_debugServerBatch.begin();
+            m_debugServerBatch.setColor(1, 0, 0, 0.5f);
+            ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent
+            .class).get());
+            for (int i = 0; i < entities.size(); ++i) {
+                SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+
+                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth
+                () * 0.5f),
+                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
+                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+            }
+
+            m_debugServerBatch.end();
+            */
+        }
+
+        if (m_renderDebugClient) {
+            m_debugServerBatch.projectionMatrix = m_world!!.m_camera.combined
+            m_debugServerBatch.begin()
+            m_debugServerBatch.color = Color.MAGENTA
+
+            val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
+            val entities = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java)).entities
+
+            for (i in 0..entities.size() - 1) {
+                val spriteComponent = spriteMapper.get(entities.get(i))
+
+                m_debugServerBatch.draw(m_junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
+                                        spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
+                                        spriteComponent.sprite.width,
+                                        spriteComponent.sprite.height)
+            }
+
+            m_debugServerBatch.end()
+        }
+
+        GLProfiler.reset()
+
+    }
+
+    private fun drawStandardDebugInfo() {
         m_font.draw(m_batch, m_fpsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
         m_font.draw(m_batch, m_frameTimeString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
@@ -227,14 +255,14 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         m_textYLeft -= TEXT_Y_SPACING
 
         val mousePos = m_world!!.mousePositionWorldCoords()
-        val x = mousePos.x.toInt()
-        val y = mousePos.y.toInt()
+        val x = m_world.blockXSafe(mousePos.x.toInt())
+        val y = m_world.blockYSafe(mousePos.y.toInt())
 
         //fixme check x, y against world size, out of bounds errors
         val blockType = m_world.blockType(x, y)
 
         //so we can get the enum/name of it
-        val blockTypeEnum = OreBlock.BlockType.values().firstOrNull {  it.oreValue == blockType }!!
+        val blockTypeEnum = OreBlock.BlockType.values().firstOrNull { it.oreValue == blockType }!!
 
         val blockMeshType = m_world.blockMeshType(x, y)
         val blockWallType = m_world.blockWallType(x, y)
@@ -299,53 +327,34 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_batch.end()
-
-        if (m_renderDebugServer && false) {
-            /*
-            m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
-            m_debugServerBatch.begin();
-            m_debugServerBatch.setColor(1, 0, 0, 0.5f);
-            ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent
-            .class).get());
-            for (int i = 0; i < entities.size(); ++i) {
-                SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
-
-                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth
-                () * 0.5f),
-                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
-            }
-
-            m_debugServerBatch.end();
-            */
-        }
-
-        if (m_renderDebugClient) {
-            m_debugServerBatch.projectionMatrix = m_world.m_camera.combined
-            m_debugServerBatch.begin()
-            m_debugServerBatch.color = Color.MAGENTA
-
-            val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
-            val entities = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java)).entities
-
-            for (i in 0..entities.size() - 1) {
-                val spriteComponent = spriteMapper.get(entities.get(i))
-
-                m_debugServerBatch.draw(m_junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
-                                        spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
-                                        spriteComponent.sprite.width,
-                                        spriteComponent.sprite.height)
-            }
-
-            m_debugServerBatch.end()
-        }
-
-        GLProfiler.reset()
-
     }
 
-    private fun printInfoForEntityAtPosition(textY: Int) {
+    private fun updateStandardDebugInfo() {
+        if (m_frameTimer.milliseconds() > 300) {
+            m_frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
+            m_fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
+            m_textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
+            m_shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
+            m_drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
+
+            //fixme
+            //            if (m_server != null) {
+            m_frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
+            //           }
+
+            m_guiDebugString = "F12 - gui debug. Enabled: $m_guiDebug"
+            m_guiRenderToggleString = "F11 - gui render. Enabled: ${m_world!!.m_client!!.m_renderGui}"
+            m_tileRenderDebugString = "F10 - tile render.Enabled: ${m_tileRenderSystem.debugRenderTiles}"
+            m_networkSyncDebugString = "F9 - server sprite debug render.Enabled Client: $m_renderDebugClient.Enabled Server:$m_renderDebugServer"
+
+            m_spriteRenderDebugString = "F8 - client sprite debug render. Enabled: $m_renderDebugClient"
+            m_lightingRendererDebugString = "F7 - tile lighting renderer debug. Enabled: ${m_tileRenderSystem.debugRenderTileLighting}"
+
+            m_frameTimer.reset()
+        }
+    }
+
+    private fun drawDebugInfoForEntityAtMouse(textY: Int) {
         val mousePos = m_world!!.mousePositionWorldCoords()
 
         val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
