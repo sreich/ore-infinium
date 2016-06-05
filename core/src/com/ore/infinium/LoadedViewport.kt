@@ -44,13 +44,15 @@ class LoadedViewport {
         val halfWidth = (MAX_VIEWPORT_WIDTH / 2).toFloat()
         val halfHeight = (MAX_VIEWPORT_HEIGHT / 2).toFloat()
 
-        rect.x = (pos.x - halfWidth).coerceAtLeast(0.0f)
-        rect.y = (pos.y - halfHeight).coerceAtLeast(0.0f)
+        rect.x = (pos.x - halfWidth).coerceIn(0f, OreWorld.WORLD_SIZE_X - 1f)
+        rect.y = (pos.y - halfHeight).coerceIn(0f, OreWorld.WORLD_SIZE_Y - 1f)
 
-        rect.width = (pos.x + halfWidth).coerceAtMost(OreWorld.WORLD_SIZE_X.toFloat() - 1f)
-        rect.height = (pos.y + halfHeight).coerceAtMost(OreWorld.WORLD_SIZE_Y.toFloat() - 1f)
-        assert(!rect.height.isNegative() && !rect.width.isNegative()) {
-            "rect negagttive!"
+        rect.width = (pos.x + halfWidth).coerceIn(0f, OreWorld.WORLD_SIZE_X - 1f)
+        rect.height = (pos.y + halfHeight).coerceIn(0f, OreWorld.WORLD_SIZE_Y - 1f)
+
+        assert (!rect.height.isNegative() && !rect.width.isNegative()
+                        && !rect.x.isNegative() && !rect.y.isNegative()) {
+            "viewport is either negative (unlikely) or nan"
         }
     }
 

@@ -126,8 +126,13 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         //cheat
         if (OreSettings.speedRun) {
-            velocityComponent.velocity.setZero()
-            PlayerComponent.maxMovementSpeed *= 2f
+            // reset velocity each time, or it'll be too fast for bleed off
+            //velocityComponent.velocity.setZero()
+            PlayerComponent.maxMovementSpeed = PlayerComponent.NORMAL_MOVEMENT_SPEED + 1f
+            PlayerComponent.movementRampUpFactor = PlayerComponent.NORMAL_MOVEMENT_RAMP_UP_FACTOR * 1.5f
+        } else {
+            PlayerComponent.maxMovementSpeed = PlayerComponent.NORMAL_MOVEMENT_SPEED
+            PlayerComponent.movementRampUpFactor = PlayerComponent.NORMAL_MOVEMENT_RAMP_UP_FACTOR
         }
 
         val oldVelocity = Vector2(velocityComponent.velocity)
@@ -175,7 +180,9 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             newVelocity.y = 0f
         }
 
-        newVelocity.y = newVelocity.y.coerceAtMost(GRAVITY_VELOCITY_CLAMP)
+        if (!noClip) {
+            newVelocity.y = newVelocity.y.coerceAtMost(GRAVITY_VELOCITY_CLAMP)
+        }
 
         //todo  clamp both axes between some max/min values..
         velocityComponent.velocity.set(newVelocity.x, newVelocity.y)
