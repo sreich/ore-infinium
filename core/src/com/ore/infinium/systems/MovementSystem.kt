@@ -119,14 +119,16 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             return
         }
 
-        //cheat
-        if (OreSettings.fastWalk) {
-            PlayerComponent.maxMovementSpeed *= 2f
-        }
 
         //fixme handle noclip
         val spriteComponent = spriteMapper.get(entity)
         val velocityComponent = velocityMapper.get(entity)
+
+        //cheat
+        if (OreSettings.speedRun) {
+            velocityComponent.velocity.setZero()
+            PlayerComponent.maxMovementSpeed *= 2f
+        }
 
         val oldVelocity = Vector2(velocityComponent.velocity)
         var newVelocity = Vector2(oldVelocity)

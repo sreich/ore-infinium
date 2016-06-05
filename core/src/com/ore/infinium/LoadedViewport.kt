@@ -26,6 +26,7 @@ package com.ore.infinium
 
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import com.ore.infinium.util.isNegative
 
 /**
  * Entities and tiles within this region should be assumed loaded (within reason)
@@ -46,8 +47,11 @@ class LoadedViewport {
         rect.x = (pos.x - halfWidth).coerceAtLeast(0.0f)
         rect.y = (pos.y - halfHeight).coerceAtLeast(0.0f)
 
-        rect.width = (pos.x + halfWidth).coerceAtMost(OreWorld.WORLD_SIZE_X.toFloat())
-        rect.height = (pos.y + halfHeight).coerceAtMost(OreWorld.WORLD_SIZE_Y.toFloat())
+        rect.width = (pos.x + halfWidth).coerceAtMost(OreWorld.WORLD_SIZE_X.toFloat() - 1f)
+        rect.height = (pos.y + halfHeight).coerceAtMost(OreWorld.WORLD_SIZE_Y.toFloat() - 1f)
+        assert(!rect.height.isNegative() && !rect.width.isNegative()) {
+            "rect negagttive!"
+        }
     }
 
     operator fun contains(pos: Vector2): Boolean {

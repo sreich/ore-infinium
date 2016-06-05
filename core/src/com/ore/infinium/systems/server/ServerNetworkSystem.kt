@@ -39,7 +39,6 @@ import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
-import com.ore.infinium.util.isNegative
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -656,7 +655,6 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         val blockRegion = Network.BlockRegion(x, y, x2, y2)
         val count = (x2 - x + 1) * (y2 - y + 1)
 
-        assert(!count.isNegative())
         blockRegion.blocks = ByteArray(count * Network.BlockRegion.BLOCK_FIELD_COUNT)
         var blockIndex = 0
         for (blockY in y..y2) {

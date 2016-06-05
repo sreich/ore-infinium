@@ -47,9 +47,7 @@ import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.TileLightingSystem
-import com.ore.infinium.util.getNullable
-import com.ore.infinium.util.getTagNullable
-import com.ore.infinium.util.indices
+import com.ore.infinium.util.*
 import java.text.DecimalFormat
 
 /**
@@ -342,13 +340,18 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             m_frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
             //           }
 
-            m_guiDebugString = "F12 - gui debug. Enabled: $m_guiDebug"
-            m_guiRenderToggleString = "F11 - gui render. Enabled: ${m_world!!.m_client!!.m_renderGui}"
-            m_tileRenderDebugString = "F10 - tile render.Enabled: ${m_tileRenderSystem.debugRenderTiles}"
-            m_networkSyncDebugString = "F9 - server sprite debug render.Enabled Client: $m_renderDebugClient.Enabled Server:$m_renderDebugServer"
+            m_guiDebugString = "F12 - gui debug (${m_guiDebug.enabledString()})"
+            m_guiRenderToggleString = "F11 - gui render (${m_world!!.m_client!!.m_renderGui.enabledString()})"
+            m_tileRenderDebugString = "F10 - tile render (${m_tileRenderSystem.debugRenderTiles})"
 
-            m_spriteRenderDebugString = "F8 - client sprite debug render. Enabled: $m_renderDebugClient"
-            m_lightingRendererDebugString = "F7 - tile lighting renderer debug. Enabled: ${m_tileRenderSystem.debugRenderTileLighting}"
+            m_networkSyncDebugString = """
+            |F9 - server sprite debug render.
+            |Client (${m_renderDebugClient.enabledString()})
+            |Server: (${m_renderDebugServer.enabledString()})
+            """.toSingleLine()
+
+            m_spriteRenderDebugString = "F8 - client sprite debug render (${m_renderDebugClient.enabledString()})"
+            m_lightingRendererDebugString = "F7 - tile lighting renderer debug (${m_tileRenderSystem.debugRenderTileLighting.enabledString()})"
 
             m_frameTimer.reset()
         }
@@ -485,3 +488,4 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     }
 
 }
+

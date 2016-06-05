@@ -45,14 +45,49 @@ fun Int.isNegative(): Boolean {
     return Math.abs(this) != this
 }
 
+/**
+ * converts a multiline (\n)string into a single line one,
+ * also trims the margin, delimited by '|'.
+ *
+ * this is for allowing to use the multiline string syntax
+ * but still keep it on one actual line. string concatenation
+ * is what I hate, but I also hate huge length statements
+ */
+fun String.toSingleLine(): String {
+    return this.trimMargin().filterNot { it -> it == '\n' }
+}
+
+/**
+ * @return string indicating "enabled" or "disabled,
+ * based on true/false
+ * @author sreich
+ */
+fun Boolean.enabledString(): String {
+    return if (this) {
+        "enabled"
+    } else {
+        "disabled"
+    }
+}
+
+/**
+ * @return true if negative
+ * @author sreich
+ */
 fun Float.isNegative(): Boolean {
     return Math.abs(this) != this
 }
 
+/**
+ * @author sreich
+ */
 fun Float.abs(): Float {
     return Math.abs(this)
 }
 
+/**
+ * @author sreich
+ */
 fun Float.floor(): Int {
     return MathUtils.floor(this)
 }

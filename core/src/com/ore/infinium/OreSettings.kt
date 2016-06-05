@@ -125,7 +125,7 @@ object OreSettings {
      * cheat
      */
     @JvmField
-    var fastWalk = false
+    var speedRun = false
 
     @Parameter(names = arrayOf("--debugPacketTypeStatistics"),
                description = "enable network debug to stdout for displaying frequencies of each packet received, for both client and server.")

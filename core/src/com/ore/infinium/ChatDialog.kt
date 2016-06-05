@@ -31,6 +31,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
 import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.util.enabledString
 
 class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, private val m_skin: Skin) : Chat.ChatListener {
 
@@ -205,15 +206,15 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
             "/noclip" -> {
                 OreSettings.noClip = !OreSettings.noClip
 
-                val response = "noclip is now: ${OreSettings.noClip}"
+                val response = "noclip is now ${OreSettings.noClip.enabledString()}"
                 sendLocalChat(response)
                 return true
             }
 
-            "/fastwalk" -> {
-                OreSettings.fastWalk = !OreSettings.fastWalk
+            "/speedrun" -> {
+                OreSettings.speedRun = !OreSettings.speedRun
 
-                val response = "fastWalk is now: ${OreSettings.fastWalk}"
+                val response = "speedrun is now ${OreSettings.speedRun.enabledString()}"
                 sendLocalChat(response)
                 return true
             }
@@ -221,7 +222,7 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
             "/lockright" -> {
                 OreSettings.lockRight = !OreSettings.lockRight
 
-                val response = "lockRight is: ${OreSettings.lockRight}"
+                val response = "lockRight is ${OreSettings.lockRight.enabledString()}"
                 sendLocalChat(response)
                 return true
             }
@@ -230,7 +231,7 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
                 val response = """
                 |type /help for this message. (commands case insensitive)
                 |/noclip if authorized, ignores collisions for your player
-                |/fastwalk increases max speed of player
+                |/speedrun increases max speed of player
                 |/lockright keeps moving right until disabled
                 """.trimMargin()
 
