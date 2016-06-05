@@ -639,7 +639,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     /**
-     * @param player
+     * @param playerEntityId
      * *         entity id
      * *
      * @param x
@@ -650,7 +650,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
      * *
      * @param y2
      */
-    fun sendPlayerBlockRegion(player: Int, x: Int, y: Int, x2: Int, y2: Int) {
+    fun sendPlayerBlockRegion(playerEntityId: Int, x: Int, y: Int, x2: Int, y2: Int) {
         //FIXME: avoid array realloc, preferably
         val blockRegion = Network.BlockRegion(x, y, x2, y2)
         val count = (x2 - x + 1) * (y2 - y + 1)
@@ -677,7 +677,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         }
         //OreWorld.log("networkserversystem", "sendplayerblockregion blockcount: " + blockIndex);
 
-        val playerComponent = playerMapper.get(player)
+        val playerComponent = playerMapper.get(playerEntityId)
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, blockRegion)
     }
 

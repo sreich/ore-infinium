@@ -48,6 +48,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
 
     private lateinit var m_serverNetworkSystem: ServerNetworkSystem
+    private lateinit var m_tileLightingSystem: TileLightingSystem
     private lateinit var m_gameTickSystem: GameTickSystem
 
     private lateinit var m_tagManager: TagManager
@@ -114,11 +115,15 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             // though!!
 
             OreWorld.log("server, block digging system", "processSystem block succeeded. sending")
-            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, blockToDig.x, blockToDig.y)
+
+            val x = blockToDig.x
+            val y = blockToDig.y
+
+            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, x, y)
 
             val droppedBlock = m_world.createBlockItem(blockType)
             spriteMapper.get(droppedBlock).apply {
-                sprite.setPosition(blockToDig.x + 0.5f, blockToDig.y + 0.5f)
+                sprite.setPosition(x + 0.5f, y + 0.5f)
                 sprite.setSize(0.5f, 0.5f)
             }
 
@@ -134,7 +139,16 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             //auto finds and spawns it
             // m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
 
-            m_world.destroyBlock(blockToDig.x, blockToDig.y)
+            m_world.destroyBlock(x, y)
+
+            //update lighting in the area
+            val lightLevel = m_world.blockLightLevel(x, y)
+
+            m_tileLightingSystem.updateTileLighting(x, y, lightLevel)
+
+            //hack, this is a big region, and we'd have to calculate actual lights in this, as well i think.
+            //but we wouldn't want it to be bigger than the affected region
+            m_serverNetworkSystem.sendPlayerBlockRegion(playerEntityId, x - 20, y - 20, x + 20, y + 20)
 
             //remove fulfilled request from our queue.
             return true

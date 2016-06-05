@@ -87,10 +87,8 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
                     val lightLevel = m_world.blockLightLevel(x, y)
 
                     //ambient/sunlight
-                    diamondSunlightFloodFill(x - 1, y, lightLevel)
-                    diamondSunlightFloodFill(x + 1, y, lightLevel)
-                    diamondSunlightFloodFill(x, y + 1, lightLevel)
-                    diamondSunlightFloodFill(x, y - 1, lightLevel)
+                    updateTileLighting(x, y, lightLevel)
+
 //                    diamondSunlightFloodFill(x, y, lightLevel)
                     //                   diamondSunlightFloodFill(x, y, lightLevel)
                 }
@@ -98,10 +96,14 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte) {
-        if (y == 50) {
-            val x = 2
-        }
+    fun updateTileLighting(x: Int, y: Int, lightLevel: Byte) {
+        diamondSunlightFloodFill(x - 1, y, lightLevel)
+        diamondSunlightFloodFill(x + 1, y, lightLevel)
+        diamondSunlightFloodFill(x, y + 1, lightLevel)
+        diamondSunlightFloodFill(x, y - 1, lightLevel)
+    }
+
+    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte, firstRun: Boolean = true) {
         if (m_world.blockXSafe(x) != x || m_world.blockXSafe(y) != y) {
             //out of world bounds, abort
             return
@@ -109,9 +111,13 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
 
         val blockType = m_world.blockType(x, y)
 
-        val lightAttenuation = when (blockType) {
+        var lightAttenuation = when (blockType) {
             OreBlock.BlockType.Air.oreValue -> 0
             else -> 1
+        }
+
+        if (firstRun) {
+            lightAttenuation = 0
         }
 
         //light bleed off value
@@ -127,10 +133,10 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
 
         m_world.setBlockLightLevel(x, y, newLightLevel)
 
-        diamondSunlightFloodFill(x - 1, y, newLightLevel)
-        diamondSunlightFloodFill(x + 1, y, newLightLevel)
-        diamondSunlightFloodFill(x, y - 1, newLightLevel)
-        diamondSunlightFloodFill(x, y + 1, newLightLevel)
+        diamondSunlightFloodFill(x - 1, y, newLightLevel, firstRun = false)
+        diamondSunlightFloodFill(x + 1, y, newLightLevel, firstRun = false)
+        diamondSunlightFloodFill(x, y - 1, newLightLevel, firstRun = false)
+        diamondSunlightFloodFill(x, y + 1, newLightLevel, firstRun = false)
     }
 
     override fun processSystem() {
