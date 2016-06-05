@@ -100,6 +100,12 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         }
     }
 
+    /**
+     * simulate physics against the world for this entity
+     *
+     * the desiredPosition var uses velocity verlet integration
+     * http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
+     */
     private fun simulate(entity: Int, delta: Float) {
         if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
             //server doesn't process past here. client tells us where they are.
@@ -171,9 +177,6 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         //todo  clamp both axes between some max/min values..
         velocityComponent.velocity.set(newVelocity.x, newVelocity.y)
-
-        ///////// the desired position uses velocity verlet integration
-        // http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
 
         val origPosition = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
 
