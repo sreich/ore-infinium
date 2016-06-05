@@ -503,7 +503,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                ModuleBasisFunction.InterpolationType.QUINTIC)
         cavePerturbFractal.setNumOctaves(6)
         cavePerturbFractal.setFrequency(3.0)
-        cavePerturbFractal.seed = seed
+        cavePerturbFractal.seed = seed + 1
 
         val cavePerturbScale = ModuleScaleOffset()
         cavePerturbScale.setScale(0.75)
