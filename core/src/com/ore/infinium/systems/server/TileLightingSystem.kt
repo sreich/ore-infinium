@@ -103,6 +103,7 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         diamondSunlightFloodFill(x, y - 1, lightLevel)
     }
 
+    //fixme create a max depth so we don't stack overflow when there's too many air blocks
     private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte, firstRun: Boolean = true) {
         if (m_world.blockXSafe(x) != x || m_world.blockXSafe(y) != y) {
             //out of world bounds, abort

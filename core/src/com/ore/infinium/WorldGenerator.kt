@@ -330,7 +330,15 @@ class WorldGenerator(private val m_world: OreWorld) {
                                                 highlandLowlandSelectCache = highlandLowlandSelectCache,
                                                 groundSelect = groundSelect)
 
-        val finalOreModule = generateOresThreaded(worldSize, seed, cavesModule)
+        val finalOreModule: Module
+
+        //hack, debug
+        val hackNoCaves = true
+        if (hackNoCaves) {
+            finalOreModule = groundSelect
+        } else {
+            finalOreModule = generateOresThreaded(worldSize, seed, cavesModule)
+        }
 
         val finalModule: Module = finalOreModule
 
@@ -399,6 +407,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandTerrain.setAxisYSource(highlandYScale)
         highlandTerrain.setSource(groundGradient)
 
+
         /////////////////// mountain
 
         val mountainShapeFractal = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
@@ -445,15 +454,35 @@ class WorldGenerator(private val m_world: OreWorld) {
         val terrainTypeCache = ModuleCache()
         terrainTypeCache.setSource(terrainTypeYScale)
 
+        ///////////////////////////////
+
+
+        /////////////// lakes
+        val lakeFBM = ModuleFractal(ModuleFractal.FractalType.FBM,
+                                    ModuleBasisFunction.BasisType.GRADIENT,
+                                    ModuleBasisFunction.InterpolationType.QUINTIC)
+        lakeFBM.setNumOctaves(9)
+        lakeFBM.setFrequency(1.825)
+        lakeFBM.seed = seed + 4
+
+        val highlandLakeSelect = ModuleSelect()
+        highlandLakeSelect.setLowSource(lakeFBM)
+        highlandLakeSelect.setHighSource(1.0)
+        highlandLakeSelect.setThreshold(0.1)
+        highlandLakeSelect.setControlSource(highlandTerrain)
+
         val highlandMountainSelect = ModuleSelect()
-        highlandMountainSelect.setLowSource(highlandTerrain)
+//        highlandMountainSelect.setLowSource(highlandTerrain) //WARNING this is where we're interested? for lakes
+        highlandMountainSelect.setLowSource(highlandLakeSelect)
         highlandMountainSelect.setHighSource(mountainTerrain)
         highlandMountainSelect.setControlSource(terrainTypeCache)
         highlandMountainSelect.setThreshold(0.55)
         highlandMountainSelect.setFalloff(0.2)
 
+
         val highlandLowlandSelect = ModuleSelect()
         highlandLowlandSelect.setLowSource(lowlandTerrain)
+//        highlandLowlandSelect.setLowSource(lakeSelect) HACK
         highlandLowlandSelect.setHighSource(highlandMountainSelect)
         highlandLowlandSelect.setControlSource(terrainTypeCache)
         highlandLowlandSelect.setThreshold(0.15) //.19 ?
@@ -468,22 +497,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         groundSelect.setThreshold(0.14)
         groundSelect.setControlSource(highlandLowlandSelectCache)
 
-        /////////////// lakes
-        val lakeFBM = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                    ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-        lakeFBM.setNumOctaves(9)
-        lakeFBM.setFrequency(1.825)
-        lakeFBM.seed = seed + 4
-
-        val lakeSelect = ModuleSelect()
-        lakeSelect.setLowSource(0.0)
-        lakeSelect.setHighSource(highlandLowlandSelectCache)
-        lakeSelect.setThreshold(0.14)
-        lakeSelect.setControlSource(lakeFBM)
-
-
-        return GenerateTerrainResult(groundSelect, lakeSelect)//highlandLowlandSelectCache)
+        return GenerateTerrainResult(groundSelect = groundSelect,
+                                     highlandLowlandSelectCache = highlandLowlandSelectCache)
     }
 
     private fun generateCavesThreaded(worldSize: OreWorld.WorldSize,
@@ -740,6 +755,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         //now combine with the cave/world, to cut out all the places where
         //we do not want ores to be
         val oreCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+
         oreCaveMultiply.setSource(0, groundCaveMultiply)
         //oreCaveMultiply.setSource(1, dirtSelect)
         oreCaveMultiply.setSource(1, dirtSelect)
@@ -750,8 +766,9 @@ class WorldGenerator(private val m_world: OreWorld) {
         var finalGen: Module = dirtSelect
         //var finalGen: Module = coalSelect
 
-        val showCavesAndOres = true
-        if (showCavesAndOres) {
+        //hack
+        val showCaves = true
+        if (showCaves) {
             finalGen = oreCaveMultiply
         }
 
