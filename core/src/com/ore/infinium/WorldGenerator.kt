@@ -469,16 +469,21 @@ class WorldGenerator(private val m_world: OreWorld) {
         groundSelect.setControlSource(highlandLowlandSelectCache)
 
         /////////////// lakes
-        /*
-        val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                               ModuleBasisFunction.BasisType.GRADIENT,
-                                               ModuleBasisFunction.InterpolationType.QUINTIC)
-        terrainTypeFractal.setNumOctaves(9)
-        terrainTypeFractal.setFrequency(1.825)
-        terrainTypeFractal.seed = seed
-        */
+        val lakeFBM = ModuleFractal(ModuleFractal.FractalType.FBM,
+                                    ModuleBasisFunction.BasisType.GRADIENT,
+                                    ModuleBasisFunction.InterpolationType.QUINTIC)
+        lakeFBM.setNumOctaves(9)
+        lakeFBM.setFrequency(1.825)
+        lakeFBM.seed = seed + 4
 
-        return GenerateTerrainResult(groundSelect, highlandLowlandSelectCache)
+        val lakeSelect = ModuleSelect()
+        lakeSelect.setLowSource(0.0)
+        lakeSelect.setHighSource(highlandLowlandSelectCache)
+        lakeSelect.setThreshold(0.14)
+        lakeSelect.setControlSource(lakeFBM)
+
+
+        return GenerateTerrainResult(groundSelect, lakeSelect)//highlandLowlandSelectCache)
     }
 
     private fun generateCavesThreaded(worldSize: OreWorld.WorldSize,
