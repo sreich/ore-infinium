@@ -265,9 +265,13 @@ class WorldGenerator(private val m_world: OreWorld) {
         var seed = random.nextLong()
         /*
                */
-//            seed =
-        //                   -4058144727897976167
-        seed = 5243159850199723543
+        seed = -12798241782634058
+
+        //seed = -12798241782634058 DEFINITELY WORKS!! 2 lakes baby!!
+        //-7257021391824154752 WORKS with lake i think?
+        //seed = -4058144727897976167 //problematic caves, caves are too..long and..pipey/flat
+        //seed = 5243159850199723543
+
         OreWorld.log("world gen", "seed was $seed")
 
         OreWorld.log("world gen", "worldgen starting on $threadCount threads")
@@ -333,9 +337,9 @@ class WorldGenerator(private val m_world: OreWorld) {
         val finalOreModule: Module
 
         //hack, debug
-        val hackNoCaves = true
-        if (hackNoCaves) {
-            finalOreModule = groundSelect
+        val noCaves = false
+        if (noCaves) {
+            finalOreModule = generateOresThreaded(worldSize, seed, groundSelect)
         } else {
             finalOreModule = generateOresThreaded(worldSize, seed, cavesModule)
         }
@@ -461,8 +465,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         val lakeFBM = ModuleFractal(ModuleFractal.FractalType.FBM,
                                     ModuleBasisFunction.BasisType.GRADIENT,
                                     ModuleBasisFunction.InterpolationType.QUINTIC)
-        lakeFBM.setNumOctaves(9)
-        lakeFBM.setFrequency(0.025)
+        lakeFBM.setNumOctaves(6)
+        lakeFBM.setFrequency(1.005)
         lakeFBM.seed = seed + 4
 
         /*
@@ -478,8 +482,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         lakeAutoCorrect.calculate()
 
         val lakeScale = ModuleScaleOffset()
-        lakeScale.setScale(0.00000000155)
-        lakeScale.setOffset(0.0)//-0.23)
+        lakeScale.setScale(-0.200)
+        lakeScale.setOffset(0.00)
         lakeScale.setSource(lakeAutoCorrect)
 
         val lakeYScale = ModuleScaleDomain()
@@ -493,7 +497,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         ////////////////// end lake
 
         //HACK, debug only
-        val selectLakes = false
+        val selectLakes = true
 
         val highlandLakeSelect = ModuleSelect()
 //        highlandMountainSelect.setLowSource(highlandTerrain) //WARNING this is where we're interested? for lakes
@@ -501,8 +505,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandLakeSelect.setLowSource(lakeTerrain)
         highlandLakeSelect.setHighSource(highlandTerrain)
         highlandLakeSelect.setControlSource(terrainTypeCache)
-        highlandLakeSelect.setThreshold(0.00)
-         highlandLakeSelect.setFalloff(0.0)
+        highlandLakeSelect.setThreshold(0.51)
+        highlandLakeSelect.setFalloff(0.05)
         //highlandLakeSelect.setFalloff(0.5)
 
 
@@ -514,7 +518,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
         highlandMountainSelect.setHighSource(mountainTerrain)
         highlandMountainSelect.setControlSource(terrainTypeCache)
-        highlandMountainSelect.setThreshold(0.55)
+        highlandMountainSelect.setThreshold(0.65)
         highlandMountainSelect.setFalloff(0.2)
 
 
