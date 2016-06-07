@@ -462,7 +462,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                     ModuleBasisFunction.BasisType.GRADIENT,
                                     ModuleBasisFunction.InterpolationType.QUINTIC)
         lakeFBM.setNumOctaves(9)
-        lakeFBM.setFrequency(0.925)
+        lakeFBM.setFrequency(0.025)
         lakeFBM.seed = seed + 4
 
         /*
@@ -478,8 +478,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         lakeAutoCorrect.calculate()
 
         val lakeScale = ModuleScaleOffset()
-        lakeScale.setScale(0.155)
-        lakeScale.setOffset(-0.23)
+        lakeScale.setScale(0.00000000155)
+        lakeScale.setOffset(0.0)//-0.23)
         lakeScale.setSource(lakeAutoCorrect)
 
         val lakeYScale = ModuleScaleDomain()
@@ -491,22 +491,27 @@ class WorldGenerator(private val m_world: OreWorld) {
         lakeTerrain.setSource(groundGradient)
 
         ////////////////// end lake
+
+        //HACK, debug only
+        val selectLakes = false
+
         val highlandLakeSelect = ModuleSelect()
 //        highlandMountainSelect.setLowSource(highlandTerrain) //WARNING this is where we're interested? for lakes
         //highlandMountainSelect.setLowSource(highlandLakeSelect)
         highlandLakeSelect.setLowSource(lakeTerrain)
         highlandLakeSelect.setHighSource(highlandTerrain)
         highlandLakeSelect.setControlSource(terrainTypeCache)
-        highlandLakeSelect.setThreshold(0.55)
-        // highlandLakeSelect.setFalloff(0.2)
-        highlandLakeSelect.setFalloff(0.5)
-
+        highlandLakeSelect.setThreshold(0.00)
+         highlandLakeSelect.setFalloff(0.0)
+        //highlandLakeSelect.setFalloff(0.5)
 
 
         val highlandMountainSelect = ModuleSelect()
-//        highlandMountainSelect.setLowSource(highlandTerrain) //WARNING this is where we're interested? for lakes
-        highlandMountainSelect.setLowSource(highlandLakeSelect)
-        highlandMountainSelect.setLowSource(lakeTerrain)
+        if (selectLakes) {
+            highlandMountainSelect.setLowSource(highlandLakeSelect)
+        } else {
+            highlandMountainSelect.setLowSource(highlandTerrain)
+        }
         highlandMountainSelect.setHighSource(mountainTerrain)
         highlandMountainSelect.setControlSource(terrainTypeCache)
         highlandMountainSelect.setThreshold(0.55)
