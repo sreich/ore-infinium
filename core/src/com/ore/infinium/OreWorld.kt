@@ -184,7 +184,7 @@ class OreWorld
             generateWorld()
 
             if (OreSettings.generateWorld) {
-                shutdown()
+                Runtime.getRuntime().halt(0)
             }
         }
 

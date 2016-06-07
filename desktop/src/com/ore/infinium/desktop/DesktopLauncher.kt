@@ -36,6 +36,11 @@ class DesktopLauncher {
         //config.width = LwjglApplicationConfiguration.getDesktopDisplayMode().width;
         //config.height = LwjglApplicationConfiguration.getDesktopDisplayMode().height;
 
+        if (OreSettings.generateWorld) {
+            OreSettings.width = 1
+            OreSettings.height = 1
+        }
+
         config.width = OreSettings.width
         config.height = OreSettings.height
         config.resizable = OreSettings.resizable

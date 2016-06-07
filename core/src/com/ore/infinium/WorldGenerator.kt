@@ -462,7 +462,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                                     ModuleBasisFunction.BasisType.GRADIENT,
                                     ModuleBasisFunction.InterpolationType.QUINTIC)
         lakeFBM.setNumOctaves(9)
-        lakeFBM.setFrequency(1.025)
+        lakeFBM.setFrequency(0.925)
         lakeFBM.seed = seed + 4
 
         /*

@@ -103,8 +103,14 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         diamondSunlightFloodFill(x, y - 1, lightLevel)
     }
 
+    // todo find a good number, this is a complete guess.
+    // this happens when the world is mostly air, stack overflow otherwise
+    val MAX_LIGHTING_DEPTH = 20
     //fixme create a max depth so we don't stack overflow when there's too many air blocks
-    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte, firstRun: Boolean = true) {
+    /**
+     * @param depth current depth the function is going to (so we blowing out the stack)
+     */
+    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte, firstRun: Boolean = true, depth: Int = 0) {
         if (m_world.blockXSafe(x) != x || m_world.blockXSafe(y) != y) {
             //out of world bounds, abort
             return
@@ -134,10 +140,15 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
 
         m_world.setBlockLightLevel(x, y, newLightLevel)
 
-        diamondSunlightFloodFill(x - 1, y, newLightLevel, firstRun = false)
-        diamondSunlightFloodFill(x + 1, y, newLightLevel, firstRun = false)
-        diamondSunlightFloodFill(x, y - 1, newLightLevel, firstRun = false)
-        diamondSunlightFloodFill(x, y + 1, newLightLevel, firstRun = false)
+        if (depth == MAX_LIGHTING_DEPTH) {
+            return
+        }
+
+        val newDepth = depth + 1
+        diamondSunlightFloodFill(x - 1, y, newLightLevel, firstRun = false, depth = newDepth)
+        diamondSunlightFloodFill(x + 1, y, newLightLevel, firstRun = false, depth = newDepth)
+        diamondSunlightFloodFill(x, y - 1, newLightLevel, firstRun = false, depth = newDepth)
+        diamondSunlightFloodFill(x, y + 1, newLightLevel, firstRun = false, depth = newDepth)
     }
 
     override fun processSystem() {
