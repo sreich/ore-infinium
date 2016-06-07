@@ -182,6 +182,10 @@ class OreWorld
             m_artemisWorld.inject(m_worldGenerator, true)
 
             generateWorld()
+
+            if (OreSettings.generateWorld) {
+                shutdown()
+            }
         }
 
         //        assetManager = new AssetManager();

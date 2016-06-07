@@ -117,6 +117,11 @@ object OreSettings {
     @JvmField
     var noClip: Boolean = false
 
+    @Parameter(names = arrayOf("--generateWorld"),
+           description = "Generates the world with default params, outputs to image and immediately exits. For testing.")
+    @JvmField
+    var generateWorld: Boolean = false
+
     /// lock movement of player to continue moving right
     @JvmField
     var lockRight: Boolean = false

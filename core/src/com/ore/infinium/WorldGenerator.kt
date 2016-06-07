@@ -499,7 +499,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandLakeSelect.setControlSource(terrainTypeCache)
         highlandLakeSelect.setThreshold(0.55)
         // highlandLakeSelect.setFalloff(0.2)
-        highlandLakeSelect.setFalloff(0.0)
+        highlandLakeSelect.setFalloff(0.5)
 
 
 
