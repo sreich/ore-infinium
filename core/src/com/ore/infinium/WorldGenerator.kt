@@ -267,12 +267,12 @@ class WorldGenerator(private val m_world: OreWorld) {
                */
 
         seed =
--7198005506662559321
+                -7198005506662559321
 
-                //seed = 5428724783975243130
-                // -8419318201523289748 // looks fine
-                //seed = 1259463552345147173 too mountainy???
-                // seed = 5528222012793640519 really good looking, 1 big, 1 med, 1 small lake, rather mountainy terrain
+        //seed = 5428724783975243130
+        // -8419318201523289748 // looks fine
+        //seed = 1259463552345147173 too mountainy???
+        // seed = 5528222012793640519 really good looking, 1 big, 1 med, 1 small lake, rather mountainy terrain
 
         //seed = -6138229519190689039 looks good, pretty lakey
 
