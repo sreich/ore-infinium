@@ -255,7 +255,7 @@ class WorldGenerator(private val m_world: OreWorld) {
      * Performs all world generation according to parameters
      * Multithreaded to the number of cpus (logical) the system has, automatically
      */
-    fun generateWorld(worldSize: OreWorld.WorldSize = OreWorld.WorldSize.TestTiny) {
+    fun generateWorld(worldSize: OreWorld.WorldSize) {
         val threadCount = Runtime.getRuntime().availableProcessors()
 
         workerThreadsRemainingLatch = CountDownLatch(threadCount)
@@ -265,7 +265,19 @@ class WorldGenerator(private val m_world: OreWorld) {
         var seed = random.nextLong()
         /*
                */
-        seed = -12798241782634058
+
+        seed = 5528222012793640519
+
+       // seed = 5528222012793640519 really good looking, 1 big, 1 med, 1 small lake, rather mountainy terrain
+
+        //seed = -6138229519190689039 looks good, pretty lakey
+
+        //seed = -8923710370920184611 seems fine, multiple smaller lakes?
+
+        //seed = 4102601002453631916 //showcase of it being broken (and hopefully fixed)
+
+
+
 
         //seed = -12798241782634058 DEFINITELY WORKS!! 2 lakes baby!!
         //-7257021391824154752 WORKS with lake i think?
@@ -482,7 +494,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         lakeAutoCorrect.calculate()
 
         val lakeScale = ModuleScaleOffset()
-        lakeScale.setScale(-0.200)
+        lakeScale.setScale(-0.100) //-.150
         lakeScale.setOffset(0.00)
         lakeScale.setSource(lakeAutoCorrect)
 
@@ -505,8 +517,9 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandLakeSelect.setLowSource(lakeTerrain)
         highlandLakeSelect.setHighSource(highlandTerrain)
         highlandLakeSelect.setControlSource(terrainTypeCache)
-        highlandLakeSelect.setThreshold(0.51)
-        highlandLakeSelect.setFalloff(0.05)
+        highlandLakeSelect.setThreshold(0.21)//51 seemed decent
+        //or .31
+        highlandLakeSelect.setFalloff(0.1) // 0.1 is good, 0 is for testing
         //highlandLakeSelect.setFalloff(0.5)
 
 
@@ -518,8 +531,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         }
         highlandMountainSelect.setHighSource(mountainTerrain)
         highlandMountainSelect.setControlSource(terrainTypeCache)
-        highlandMountainSelect.setThreshold(0.65)
-        highlandMountainSelect.setFalloff(0.2)
+        highlandMountainSelect.setThreshold(0.55)//.35 //.65
+        highlandMountainSelect.setFalloff(0.5)
 
 
         val highlandLowlandSelect = ModuleSelect()
@@ -528,8 +541,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 //        highlandLowlandSelect.setHighSource(highlandMountainSelect)
         highlandLowlandSelect.setHighSource(highlandMountainSelect)
         highlandLowlandSelect.setControlSource(terrainTypeCache)
-        highlandLowlandSelect.setThreshold(0.15) //.19 ?
-        highlandLowlandSelect.setFalloff(0.10)
+        highlandLowlandSelect.setThreshold(0.09)//.15 //.19 ?
+        highlandLowlandSelect.setFalloff(0.1) // .5
 
         val highlandLowlandSelectCache = ModuleCache()
         highlandLowlandSelectCache.setSource(highlandLowlandSelect)
