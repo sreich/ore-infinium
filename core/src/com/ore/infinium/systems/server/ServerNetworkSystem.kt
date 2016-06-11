@@ -128,7 +128,8 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
      * shuts down the network connection and other resources, for this server network system
      */
     override fun dispose() {
-        //m_serverKryo.stop(); fixme needed?
+        //tell it to stop its thread, or we can't exit
+        m_serverKryo.stop()
         m_serverKryo.close()
     }
 

@@ -263,6 +263,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         val random = Random()
 
         var seed = random.nextLong()
+
+        //seed = 5731577342163850638 at least 3 sizeable possible lakes
         /*
                */
 
@@ -322,9 +324,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             }
         }
 
-
         counter.stop()
-        val s = "total world gen took (incl transitioning, etc): ${counter.current} seconds"
+        val s = "total world generation finished after ${counter.current} seconds"
         OreWorld.log("world gen", s)
 
         val worldGenInfo = WorldGenOutputInfo(worldSize, seed, useUniqueImageName = false)

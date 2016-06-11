@@ -120,7 +120,7 @@ class OreWorld
         blocks = ByteArray(WORLD_SIZE_Y * WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT)
     }
 
-    internal fun init() {
+    fun init() {
         assert(isHotspotOptimizationEnabled) { "error, hotspot optimization (artemis-odb weaving) is not enabled" }
 
         if (worldInstanceType == WorldInstanceType.Client || worldInstanceType == WorldInstanceType.ClientHostingServer) {
@@ -182,10 +182,6 @@ class OreWorld
             m_artemisWorld.inject(m_worldGenerator, true)
 
             generateWorld()
-
-            if (OreSettings.generateWorld) {
-                Runtime.getRuntime().halt(0)
-            }
         }
 
         //        assetManager = new AssetManager();
@@ -368,7 +364,7 @@ class OreWorld
             val datetime = java.time.LocalDateTime.now()
             val time = datetime.format(java.time.format.DateTimeFormatter.ofPattern("HH:m:s:S"))
 
-            Gdx.app.log(tag, "[$time ] $message")
+            println("[$tag] [$time] $message")
         }
     }
 
