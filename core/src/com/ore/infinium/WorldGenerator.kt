@@ -266,13 +266,16 @@ class WorldGenerator(private val m_world: OreWorld) {
         /*
                */
 
-        seed =
-                -7198005506662559321
+        // seed = -7198005506662559321 //HACK come back tot his one
+
+        //seed = -1035968868854334198 //nice
+
+        //        seed = -2508926092370260247
 
         //seed = 5428724783975243130
         // -8419318201523289748 // looks fine
         //seed = 1259463552345147173 too mountainy???
-        // seed = 5528222012793640519 really good looking, 1 big, 1 med, 1 small lake, rather mountainy terrain
+        // seed = 5528222012793640519 //really good looking, 1 big, 1 med, 1 small lake, rather mountainy terrain
 
         //seed = -6138229519190689039 looks good, pretty lakey
 
@@ -428,31 +431,59 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandTerrain.setSource(groundGradient)
 
 
-        /////////////////// mountain
+        /////////////////// mountain 1
 
-        val mountainShapeFractal = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
-                                                 ModuleBasisFunction.BasisType.GRADIENT,
-                                                 ModuleBasisFunction.InterpolationType.QUINTIC)
-        mountainShapeFractal.setNumOctaves(8)
-        mountainShapeFractal.setFrequency(2.0)
-        mountainShapeFractal.seed = seed + 2
+        val mountainShapeFractal1 = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
+                                                  ModuleBasisFunction.BasisType.GRADIENT,
+                                                  ModuleBasisFunction.InterpolationType.QUINTIC)
+        mountainShapeFractal1.setNumOctaves(8)
+        mountainShapeFractal1.setFrequency(2.0)
+        mountainShapeFractal1.seed = seed + 100
 
-        val mountainAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
-        mountainAutoCorrect.setSource(mountainShapeFractal)
-        mountainAutoCorrect.calculate()
+        val mountainAutoCorrect1 = ModuleAutoCorrect(-1.0, 1.0)
+        mountainAutoCorrect1.setSource(mountainShapeFractal1)
+        mountainAutoCorrect1.calculate()
 
-        val mountainScale = ModuleScaleOffset()
-        mountainScale.setScale(0.10)
-        mountainScale.setOffset(0.0)
-        mountainScale.setSource(mountainAutoCorrect)
+        val mountainScale1 = ModuleScaleOffset()
+        mountainScale1.setScale(0.10)
+        mountainScale1.setOffset(0.0)
+        mountainScale1.setSource(mountainAutoCorrect1)
 
-        val mountainYScale = ModuleScaleDomain()
-        mountainYScale.setScaleY(0.5)
-        mountainYScale.setSource(mountainScale)
+        val mountainYScale1 = ModuleScaleDomain()
+        mountainYScale1.setScaleY(0.5)
+        mountainYScale1.setSource(mountainScale1)
 
-        val mountainTerrain = ModuleTranslateDomain()
-        mountainTerrain.setAxisYSource(mountainYScale)
-        mountainTerrain.setSource(groundGradient)
+        val mountainTerrain1 = ModuleTranslateDomain()
+        mountainTerrain1.setAxisYSource(mountainYScale1)
+        mountainTerrain1.setSource(groundGradient)
+        ////////////////////////////////
+
+        /////////////////// mountain 2
+
+        val mountainShapeFractal2 = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
+                                                  ModuleBasisFunction.BasisType.GRADIENT,
+                                                  ModuleBasisFunction.InterpolationType.QUINTIC)
+        mountainShapeFractal2.setNumOctaves(8)
+        mountainShapeFractal2.setFrequency(2.0)
+        mountainShapeFractal2.seed = seed + 2
+
+        val mountainAutoCorrect2 = ModuleAutoCorrect(-1.0, 1.0)
+        mountainAutoCorrect2.setSource(mountainShapeFractal2)
+        mountainAutoCorrect2.calculate()
+
+        val mountainScale2 = ModuleScaleOffset()
+        mountainScale2.setScale(0.10)
+        mountainScale2.setOffset(0.0)
+        mountainScale2.setSource(mountainAutoCorrect2)
+
+        val mountainYScale2 = ModuleScaleDomain()
+        mountainYScale2.setScaleY(0.5)
+        mountainYScale2.setSource(mountainScale2)
+
+        val mountainTerrain2 = ModuleTranslateDomain()
+        mountainTerrain2.setAxisYSource(mountainYScale2)
+        mountainTerrain2.setSource(groundGradient)
+
 
         //////////////// terrain
 
@@ -526,24 +557,31 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandLakeSelect.setFalloff(0.1) // 0.1 is good, 0 is for testing
         //highlandLakeSelect.setFalloff(0.5)
 
-
-        val highlandMountainSelect = ModuleSelect()
+        val highlandMountainSelect1 = ModuleSelect()
         if (selectLakes) {
-            highlandMountainSelect.setLowSource(highlandLakeSelect)
+            highlandMountainSelect1.setLowSource(highlandLakeSelect)
         } else {
-            highlandMountainSelect.setLowSource(highlandTerrain)
+            highlandMountainSelect1.setLowSource(highlandTerrain)
         }
-        highlandMountainSelect.setHighSource(mountainTerrain)
-        highlandMountainSelect.setControlSource(terrainTypeCache)
-        highlandMountainSelect.setThreshold(0.55)//.35 //.65
-        highlandMountainSelect.setFalloff(0.0)
+        highlandMountainSelect1.setHighSource(mountainTerrain2)
+        highlandMountainSelect1.setControlSource(terrainTypeCache)
+        highlandMountainSelect1.setThreshold(0.45)//.35 //.65
+        //small falloffs give us nice occasional mountainy cliffs
+        highlandMountainSelect1.setFalloff(0.02)
+
+        val highlandMountainSelect2 = ModuleSelect()
+        highlandMountainSelect2.setLowSource(mountainTerrain2)
+        highlandMountainSelect2.setHighSource(highlandMountainSelect1)
+        highlandMountainSelect2.setControlSource(terrainTypeCache)
+        highlandMountainSelect2.setThreshold(0.35)//.35 //.65
+        highlandMountainSelect2.setFalloff(0.1)
 
 
         val highlandLowlandSelect = ModuleSelect()
         highlandLowlandSelect.setLowSource(lowlandTerrain)
 //        highlandLowlandSelect.setLowSource(lakeSelect) HACK
 //        highlandLowlandSelect.setHighSource(highlandMountainSelect)
-        highlandLowlandSelect.setHighSource(highlandMountainSelect)
+        highlandLowlandSelect.setHighSource(highlandMountainSelect2)
         highlandLowlandSelect.setControlSource(terrainTypeCache)
         highlandLowlandSelect.setThreshold(0.09)//.15 //.19 ?
         highlandLowlandSelect.setFalloff(0.1) // .5
