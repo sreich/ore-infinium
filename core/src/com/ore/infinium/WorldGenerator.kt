@@ -268,8 +268,6 @@ class WorldGenerator(private val m_world: OreWorld) {
         //seed = 4102601002453631916 //showcase of it being broken (and hopefully fixed)
 
 
-
-
         //seed = -12798241782634058 DEFINITELY WORKS!! 2 lakes baby!!
         //-7257021391824154752 WORKS with lake i think?
         //seed = -4058144727897976167 //problematic caves, caves are too..long and..pipey/flat
@@ -306,7 +304,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             }
         }
 
-        detectPeaks(worldSize)
+        generateLakesAndVolcanoes(worldSize)
 
         counter.stop()
         val s = "total world generation finished after ${counter.current} seconds"
@@ -316,32 +314,31 @@ class WorldGenerator(private val m_world: OreWorld) {
         writeWorldImage(worldGenInfo)
     }
 
-    private fun detectPeaks(worldSize: OreWorld.WorldSize) {
-        val terrainContour = ArrayList <Double>()
+    private fun generateLakesAndVolcanoes(worldSize: OreWorld.WorldSize) {
+        val terrainContour = ArrayList <Int>()
         for (x in 0..worldSize.width - 1) {
             for (y in 0..worldSize.height - 1) {
-                if (m_world.blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
+                if (m_world.isBlockSolid(x, y)) {
                     //x is implied via index
-                    terrainContour.add(y.toDouble())
+                    terrainContour.add(y)
                     break
                 }
             }
         }
 
+        val delta = 7
+        val peakResult = findPeaks(terrainContour, delta)
 
-        //val b = (0..4).map { 100 + it }
-
-        val delta = 15.0
-        val maximaMinima = Tmp.peak_detection(terrainContour, delta)
-
-        val maxima = maximaMinima[0]
-        val minima = maximaMinima[1]
-
-        for ((x, y) in maxima) {
+        //NOTE: we swap minima and maxima, because when we're going downward
+        //on the map, from top y, a mountain would appear smaller.
+        //but it'd be more confusing to subtract the world height, and then
+        //readd it back afterwards. so, minimas would be mountains..where
+        //lava is and stuff
+        for ((x, y) in peakResult.minima) {
             m_world.setBlockType(x, y.toInt(), OreBlock.BlockType.Lava.oreValue)
         }
 
-        for ((x, y) in minima) {
+        for ((x, y) in peakResult.maxima) {
             m_world.setBlockType(x, y.toInt(), OreBlock.BlockType.Water.oreValue)
         }
     }
@@ -1013,6 +1010,71 @@ class WorldGenerator(private val m_world: OreWorld) {
     }
 
 
+    class PeakResult() {
+        //val minima = mutableListOf<XYPair>()
+        val minima = HashMap <Int, Int>()
+        val maxima = HashMap <Int, Int>()
+
+        //data class XYPair(val x: Int, val y: Int)
+    }
+
+    /**
+     *
+     * @param values list of y values on a contour, to be checked for
+     * min and max. X values are currently implicitly the indices
+     * of this array
+     *
+     * @param delta difference between values to consider if it is
+     * a local max or min
+     *
+     * @return list of minima and maxima
+     *
+     * based on http://billauer.co.il/peakdet.html
+     */
+    fun findPeaks(values: List<Int>, delta: Int): PeakResult {
+        val peakResult = PeakResult()
+
+        var maximum = 0
+        var minimum = 0
+
+        var maximumPos = 0
+        var minimumPos = 0
+
+        var lookForMax = true
+
+        for ((index, value) in values.withIndex()) {
+            if (value > maximum) {
+                maximum = value
+                maximumPos = index
+            }
+
+            if (value < minimum) {
+                minimum = value
+                minimumPos = index
+            }
+
+            if (lookForMax) {
+                if (value < maximum - delta) {
+                    peakResult.maxima.put(maximumPos, value)
+
+                    minimum = value
+                    minimumPos = index
+                    lookForMax = false
+                }
+            } else {
+                if (value > minimum + delta) {
+                    //peakResult.minima.add(PeakResult.XYPair(x = minimumPos, y = value))
+                    peakResult.minima.put(minimumPos, value)
+
+                    maximum = value
+                    maximumPos = index
+                    lookForMax = true
+                }
+            }
+        }
+
+        return peakResult
+    }
 }
 
 

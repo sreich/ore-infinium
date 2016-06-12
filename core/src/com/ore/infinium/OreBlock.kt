@@ -66,26 +66,26 @@ class OreBlock private constructor() {
      * todo obsidian (only from when lava hits water)? or should we just use stone
      */
     enum class BlockType(val oreValue: Byte) {
-        Air (0),
+        Air(0),
         Sand(1),
         Dirt(2),
-        Stone (3),
-        Copper (4),
-        Coal (5),
-        Iron (6),
-        Silver (7),
-        Gold (8),
-        Uranium (9),
-        Diamond (10),
-        Bedrock (11),
+        Stone(3),
+        Copper(4),
+        Coal(5),
+        Iron(6),
+        Silver(7),
+        Gold(8),
+        Uranium(9),
+        Diamond(10),
+        Bedrock(11),
         Water(12),
         Lava(13)
     }
 
     enum class WallType(val oreValue: Byte) {
-        Air (0),
-        Dirt (1),
-        DirtUnderground (2)
+        Air(0),
+        Dirt(1),
+        DirtUnderground(2)
     }
 
     fun destroy() {
@@ -117,23 +117,22 @@ class OreBlock private constructor() {
         /**
          * map ores to a color so we can output the image
          */
-        val OreNoiseColorMap = mapOf(OreBlock.BlockType.Dirt.oreValue to Color2.BROWN,
-                                     OreBlock.BlockType.Sand.oreValue to Color.ORANGE,
-                                     OreBlock.BlockType.Stone.oreValue to Color.GRAY,
-                                     OreBlock.BlockType.Copper.oreValue to Color2.NEON_CARROT,
-                                     OreBlock.BlockType.Diamond.oreValue to Color2.TEAL,
-                                     OreBlock.BlockType.Gold.oreValue to Color.YELLOW,
-                                     OreBlock.BlockType.Coal.oreValue to Color.BLACK,
-                                     OreBlock.BlockType.Silver.oreValue to Color2.SILVER,
-                                     OreBlock.BlockType.Iron.oreValue to Color2.TERRA_COTTA,
-                                     OreBlock.BlockType.Uranium.oreValue to Color2.LIME_GREEN,
-                                     OreBlock.BlockType.Iron.oreValue to Color2.RED4,
-                                     OreBlock.BlockType.Bedrock.oreValue to Color.CYAN,
-                                     OreBlock.BlockType.Air.oreValue to Color.BLACK,
-                                     OreBlock.BlockType.Water.oreValue to Color2.WATER_BLUE,
-                                     OreBlock.BlockType.Lava.oreValue to Color.RED
+        val OreNoiseColorMap = mapOf(BlockType.Dirt.oreValue to Color2.BROWN,
+                                     BlockType.Sand.oreValue to Color.ORANGE,
+                                     BlockType.Stone.oreValue to Color.GRAY,
+                                     BlockType.Copper.oreValue to Color2.NEON_CARROT,
+                                     BlockType.Diamond.oreValue to Color2.TEAL,
+                                     BlockType.Gold.oreValue to Color.YELLOW,
+                                     BlockType.Coal.oreValue to Color.BLACK,
+                                     BlockType.Silver.oreValue to Color2.SILVER,
+                                     BlockType.Iron.oreValue to Color2.TERRA_COTTA,
+                                     BlockType.Uranium.oreValue to Color2.LIME_GREEN,
+                                     BlockType.Iron.oreValue to Color2.RED4,
+                                     BlockType.Bedrock.oreValue to Color.CYAN,
+                                     BlockType.Air.oreValue to Color.BLACK,
+                                     BlockType.Water.oreValue to Color2.WATER_BLUE,
+                                     BlockType.Lava.oreValue to Color.RED
                                     )
-
 
         /**
          * number of byte fields we use for each block.
