@@ -31,7 +31,6 @@ import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
-import com.ore.infinium.util.Color2
 import com.sudoplay.joise.module.*
 import java.awt.Color
 import java.awt.Font
@@ -208,24 +207,6 @@ class WorldGenerator(private val m_world: OreWorld) {
      * these, so changing this changes in-memory and thus on-disk format.
      * (which is the only thing that would be hard-coded, is the world save)
      */
-
-    /**
-     * map ores to a color so we can output the image
-     */
-    val OreNoiseColorMap = mapOf(OreBlock.BlockType.Dirt.oreValue to Color2.BROWN,
-                                 OreBlock.BlockType.Sand.oreValue to Color.ORANGE,
-                                 OreBlock.BlockType.Stone.oreValue to Color.GRAY,
-                                 OreBlock.BlockType.Copper.oreValue to Color2.NEON_CARROT,
-                                 OreBlock.BlockType.Diamond.oreValue to Color2.TEAL,
-                                 OreBlock.BlockType.Gold.oreValue to Color.YELLOW,
-                                 OreBlock.BlockType.Coal.oreValue to Color.BLACK,
-                                 OreBlock.BlockType.Silver.oreValue to Color2.SILVER,
-                                 OreBlock.BlockType.Iron.oreValue to Color2.TERRA_COTTA,
-                                 OreBlock.BlockType.Uranium.oreValue to Color2.LIME_GREEN,
-                                 OreBlock.BlockType.Iron.oreValue to Color2.RED4,
-                                 OreBlock.BlockType.Bedrock.oreValue to Color.CYAN,
-                                 OreBlock.BlockType.Air.oreValue to Color.BLACK
-                                )
 
 
     /**
@@ -886,7 +867,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         val leftX = 5
         val startY = 8
         var index = 0
-        for ((oreValue, oreColor) in OreNoiseColorMap) {
+        for ((oreValue, oreColor) in OreBlock.OreNoiseColorMap) {
             val y = startY + index * 8
 
             val oreLegendRectSize = 2
@@ -967,7 +948,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                 val blockType = m_world.blockType(x, y)
 
                 //if we fail to match a color, we just output its raw value, something's strange here.
-                val colorForOre = OreNoiseColorMap[blockType]!!
+                val colorForOre = OreBlock.OreNoiseColorMap[blockType]!!
 
                 val final = colorForOre
                 bufferedImage.setRGB(x, y, final.rgb)
@@ -998,6 +979,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         ImageIO.write(bufferedImage, "png", File(fileUrl));
     }
+
 
 }
 

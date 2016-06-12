@@ -24,6 +24,9 @@ SOFTWARE.
 
 package com.ore.infinium
 
+import com.ore.infinium.util.Color2
+import java.awt.Color
+
 class OreBlock private constructor() {
 
     /**
@@ -74,7 +77,9 @@ class OreBlock private constructor() {
         Gold (8),
         Uranium (9),
         Diamond (10),
-        Bedrock (11)
+        Bedrock (11),
+        Water(12),
+        Lava(13)
     }
 
     enum class WallType(val oreValue: Byte) {
@@ -109,6 +114,26 @@ class OreBlock private constructor() {
     }
 
     companion object {
+        /**
+         * map ores to a color so we can output the image
+         */
+        val OreNoiseColorMap = mapOf(OreBlock.BlockType.Dirt.oreValue to Color2.BROWN,
+                                     OreBlock.BlockType.Sand.oreValue to Color.ORANGE,
+                                     OreBlock.BlockType.Stone.oreValue to Color.GRAY,
+                                     OreBlock.BlockType.Copper.oreValue to Color2.NEON_CARROT,
+                                     OreBlock.BlockType.Diamond.oreValue to Color2.TEAL,
+                                     OreBlock.BlockType.Gold.oreValue to Color.YELLOW,
+                                     OreBlock.BlockType.Coal.oreValue to Color.BLACK,
+                                     OreBlock.BlockType.Silver.oreValue to Color2.SILVER,
+                                     OreBlock.BlockType.Iron.oreValue to Color2.TERRA_COTTA,
+                                     OreBlock.BlockType.Uranium.oreValue to Color2.LIME_GREEN,
+                                     OreBlock.BlockType.Iron.oreValue to Color2.RED4,
+                                     OreBlock.BlockType.Bedrock.oreValue to Color.CYAN,
+                                     OreBlock.BlockType.Air.oreValue to Color.BLACK,
+                                     OreBlock.BlockType.Water.oreValue to Color2.WATER_BLUE,
+                                     OreBlock.BlockType.Lava.oreValue to Color.RED
+                                    )
+
 
         /**
          * number of byte fields we use for each block.
