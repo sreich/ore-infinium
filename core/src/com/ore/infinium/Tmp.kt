@@ -31,6 +31,7 @@ import java.util.*
  */
 object Tmp {
 
+    /// based on http://billauer.co.il/peakdet.html
     /**
      * Detects peaks (calculates local minima and maxima) in the
      * vector `values`. The resulting list contains
@@ -57,9 +58,9 @@ object Tmp {
      * *
      * @return List of maps (maxima and minima pairs) of detected peaks
      */
-    fun <U> peak_detection(values: List<Double>, delta: Double?, indices: List<U>?): List<Map<U, Double>> {
-        assert(indices != null)
-        assert(values.size != indices!!.size)
+    fun <U> peak_detection(values: List<Double>, delta: Double?, indices: List<U>): List<Map<U, Double>> {
+        //       assert (indices != null);
+        //        assert (values.size() != indices.size());
 
         val maxima = HashMap<U, Double>()
         val minima = HashMap<U, Double>()
@@ -74,30 +75,30 @@ object Tmp {
 
         var lookForMax = true
 
-        var pos: Int? = 0
+        var pos: Int = 0
         for (value in values) {
             if (maximum == null || value > maximum) {
                 maximum = value
-                maximumPos = indices[pos!!]
+                maximumPos = indices[pos]
             }
 
             if (minimum == null || value < minimum) {
                 minimum = value
-                minimumPos = indices[pos!!]
+                minimumPos = indices[pos]
             }
 
             if (lookForMax) {
                 if (value < maximum - delta!!) {
                     maxima.put(maximumPos!!, value)
                     minimum = value
-                    minimumPos = indices[pos!!]
+                    minimumPos = indices[pos]
                     lookForMax = false
                 }
             } else {
                 if (value > minimum + delta!!) {
                     minima.put(minimumPos!!, value)
                     maximum = value
-                    maximumPos = indices[pos!!]
+                    maximumPos = indices[pos]
                     lookForMax = true
                 }
             }

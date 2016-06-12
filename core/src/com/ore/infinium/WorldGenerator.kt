@@ -306,12 +306,44 @@ class WorldGenerator(private val m_world: OreWorld) {
             }
         }
 
+        detectPeaks(worldSize)
+
         counter.stop()
         val s = "total world generation finished after ${counter.current} seconds"
         OreWorld.log("world gen", s)
 
         val worldGenInfo = WorldGenOutputInfo(worldSize, seed, useUniqueImageName = false)
         writeWorldImage(worldGenInfo)
+    }
+
+    private fun detectPeaks(worldSize: OreWorld.WorldSize) {
+        val terrainContour = ArrayList <Double>()
+        for (x in 0..worldSize.width - 1) {
+            for (y in 0..worldSize.height - 1) {
+                if (m_world.blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
+                    //x is implied via index
+                    terrainContour.add(y.toDouble())
+                    break
+                }
+            }
+        }
+
+
+        //val b = (0..4).map { 100 + it }
+
+        val delta = 15.0
+        val maximaMinima = Tmp.peak_detection(terrainContour, delta)
+
+        val maxima = maximaMinima[0]
+        val minima = maximaMinima[1]
+
+        for ((x, y) in maxima) {
+            m_world.setBlockType(x, y.toInt(), OreBlock.BlockType.Lava.oreValue)
+        }
+
+        for ((x, y) in minima) {
+            m_world.setBlockType(x, y.toInt(), OreBlock.BlockType.Water.oreValue)
+        }
     }
 
 //public Font(@Nullable java.lang.String s,
