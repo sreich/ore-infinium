@@ -281,14 +281,14 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun receiveChatMessage(chat: Network.ChatMessageFromServer) {
-        m_world.m_client!!.m_chat!!.addChatLine(chat.timestamp!!, chat.playerName!!, chat.message!!, chat.sender!!)
+        m_world.m_client!!.m_chat.addChatLine(chat.timestamp, chat.playerName, chat.message, chat.sender)
     }
 
     private fun receiveEntityMoved(entityMove: Network.EntityMovedFromServer) {
         val entity = m_entityForNetworkId[entityMove.id]
 
         val spriteComponent = spriteMapper.get(entity!!)
-        spriteComponent.sprite.setPosition(entityMove.position!!.x, entityMove.position!!.y)
+        spriteComponent.sprite.setPosition(entityMove.position.x, entityMove.position.y)
     }
 
     /*
@@ -324,8 +324,8 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
     private fun receiveMultipleEntityDestroy(entityDestroy: Network.EntityDestroyMultipleFromServer) {
         var debug = "receiveMultipleEntityDestroy [ "
-        for (i in entityDestroy.entitiesToDestroy!!.indices) {
-            val networkEntityId = entityDestroy.entitiesToDestroy!![i]
+        for (i in entityDestroy.entitiesToDestroy.indices) {
+            val networkEntityId = entityDestroy.entitiesToDestroy[i]
 
             //cleanup the maps
             val localId = m_entityForNetworkId.remove(networkEntityId)

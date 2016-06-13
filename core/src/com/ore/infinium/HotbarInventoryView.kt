@@ -118,7 +118,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
     override fun countChanged(index: Int, inventory: Inventory) {
         val itemComponent = itemMapper.get(inventory.itemEntity(index)!!)
-        m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize))
+        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
     }
 
     override operator fun set(index: Int, inventory: Inventory) {
@@ -126,7 +126,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize))
+        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
 
         val region: TextureRegion?
         val spriteComponent = spriteMapper.get(itemEntity)
@@ -134,7 +134,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         if (blockMapper.getNullable(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
-                    spriteComponent.textureName!! + "-00")
+                    "${spriteComponent.textureName!!}-00")
         } else {
             region = m_world.m_atlas.findRegion(spriteComponent.textureName)
         }
@@ -238,7 +238,10 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         }
 
         override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {
-            payload!!.dragActor.setColor(1f, 1f, 1f, 1f)
+            payload ?: error("payload is null. bad state")
+
+            payload.dragActor.setColor(1f, 1f, 1f, 1f)
+
             actor.color = Color.WHITE
             //restore selection, it was just dropped..
             inventory.selected(inventory.m_hotbarInventory.selectedSlot, inventory.m_hotbarInventory)
@@ -246,33 +249,37 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int) {
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
+            val hotbarInventory = inventory.m_hotbarInventory
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_hotbarInventory.itemEntity(this.index) != null) {
+            if (hotbarInventory.itemEntity(this.index) != null) {
                 return
             }
 
+
+            val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
+
             if (dragWrapper.type == Inventory.InventoryType.Hotbar) {
                 //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
-                inventory.m_hotbarInventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(
-                        dragWrapper.dragSourceIndex)!!)
-                inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendInventoryMove(
-                        Inventory.InventoryType.Hotbar,
-                        dragWrapper.dragSourceIndex,
+                val itemEntity = inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
+
+                hotbarInventory.setSlot(this.index, itemEntity!!)
+
+                clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
                         Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
-                inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
+                hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
             } else {
                 //main inventory
+                val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
 
                 //move the item from the source to the dest (from main inventory, to this hotbar inventory)
-                inventory.m_hotbarInventory.setSlot(this.index,
-                                                    inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)!!)
+                hotbarInventory.setSlot(this.index, itemEntity!!)
+
                 //fixme?                    inventory.m_previousSelectedSlot = index;
-                inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendInventoryMove(
-                        Inventory.InventoryType.Inventory,
-                        dragWrapper.dragSourceIndex,
+
+                clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
                         Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
@@ -280,9 +287,8 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
             }
 
             //select new index
-            inventory.m_hotbarInventory.selectSlot(index)
+            hotbarInventory.selectSlot(index)
         }
-
     }
 
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView, private val index: Int) : InputListener() {

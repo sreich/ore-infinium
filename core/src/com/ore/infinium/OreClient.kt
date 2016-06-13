@@ -71,6 +71,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private lateinit var m_tagManager: TagManager
     private lateinit var m_debugTextRenderSystem: DebugTextRenderSystem
     private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
+    private lateinit var m_tileRenderSystem: TileRenderSystem
     private lateinit var m_clientBlockDiggingSystem: ClientBlockDiggingSystem
     private lateinit var m_soundSystem: SoundSystem
 
@@ -79,13 +80,14 @@ class OreClient : ApplicationListener, InputProcessor {
     lateinit var m_stage: Stage
     lateinit var m_skin: Skin
 
-    var m_chat: Chat? = null
+    lateinit var m_chat: Chat
     private var m_sidebar: Sidebar? = null
 
     private var m_dragAndDrop: DragAndDrop? = null
 
     private var m_dialog: Dialog? = null
-    private var m_chatDialog: ChatDialog? = null
+    private lateinit var m_chatDialog: ChatDialog
+
     private var m_hotbarView: HotbarInventoryView? = null
     private var m_inventoryView: InventoryView? = null
 
@@ -151,8 +153,9 @@ class OreClient : ApplicationListener, InputProcessor {
         m_skin.load(Gdx.files.internal("ui/ui.json"))
 
         m_chatDialog = ChatDialog(this, m_stage, m_skin)
+
         m_chat = Chat()
-        m_chat!!.addListener(m_chatDialog!!)
+        m_chat.addListener(m_chatDialog)
 
         m_sidebar = Sidebar(m_stage, m_skin, this)
 
@@ -285,10 +288,10 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     fun toggleChatVisible() {
-        if (m_chatDialog!!.chatVisibilityState == ChatDialog.ChatVisibility.Normal) {
-            m_chatDialog!!.closeChatDialog()
+        if (m_chatDialog.chatVisibilityState == ChatDialog.ChatVisibility.Normal) {
+            m_chatDialog.closeChatDialog()
         } else {
-            m_chatDialog!!.openChatDialog()
+            m_chatDialog.openChatDialog()
         }
     }
 
@@ -421,8 +424,7 @@ class OreClient : ApplicationListener, InputProcessor {
         when (keycode) {
             Input.Keys.ESCAPE -> shutdown()
             Input.Keys.F7 -> {
-                val tileRenderSystem = m_world!!.m_artemisWorld.getSystem(TileRenderSystem::class.java)
-                tileRenderSystem.debugRenderTileLighting = !tileRenderSystem.debugRenderTileLighting
+                m_tileRenderSystem.debugRenderTileLighting = !m_tileRenderSystem.debugRenderTileLighting
             }
             Input.Keys.F8 -> //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
                 // could derive from. so we could just call this, and await the return...all of the debug things could be
@@ -431,8 +433,7 @@ class OreClient : ApplicationListener, InputProcessor {
                 m_debugTextRenderSystem.m_renderDebugClient = !m_debugTextRenderSystem.m_renderDebugClient
             Input.Keys.F9 -> m_debugTextRenderSystem.m_renderDebugServer = !m_debugTextRenderSystem.m_renderDebugServer
             Input.Keys.F10 -> {
-                val tileRenderSystem = m_world!!.m_artemisWorld.getSystem(TileRenderSystem::class.java)
-                tileRenderSystem.debugRenderTiles = !tileRenderSystem.debugRenderTiles
+                m_tileRenderSystem.debugRenderTiles = !m_tileRenderSystem.debugRenderTiles
             }
             Input.Keys.F11 -> m_renderGui = !m_renderGui
             Input.Keys.F12 -> {

@@ -146,10 +146,10 @@ object Network {
     }
 
     class ChatMessageFromServer {
-        var timestamp: String ? = null
-        var playerName: String ? = null
-        var message: String ? = null
-        var sender: Chat.ChatSender ? = null
+        lateinit var timestamp: String
+        lateinit var playerName: String
+        lateinit var message: String
+        lateinit var sender: Chat.ChatSender
     }
 
     //fixme: unneeded??
@@ -265,7 +265,7 @@ object Network {
      * @see EntityKilledFromServer
      */
     class EntityDestroyMultipleFromServer {
-        var entitiesToDestroy: List<Int>? = null
+        lateinit var entitiesToDestroy: List<Int>
     }
 
     class EntitySpawnFromServer {
@@ -308,7 +308,7 @@ object Network {
 
     class EntityMovedFromServer {
         var id: Int = 0
-        var position: Vector2? = null
+        var position= Vector2()
     }
 
     /**

@@ -40,7 +40,7 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
     private val m_errorMessage: JComponent
     private val m_mainComponent: JComponent
     private var _details: JScrollPane? = null
-    private var m_stackTracePane: JTextPane? = null
+    private lateinit var m_stackTracePane: JTextPane
 
     init {
         m_errorMessage = createErrorMessage(m_exception)
@@ -76,9 +76,9 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
 
                     _details = createDetailedMessage(m_exception)
 
-                    m_stackTracePane!!.text = errors.toString()
-                    m_stackTracePane!!.background = m_mainComponent.background
-                    m_stackTracePane!!.preferredSize = STACKTRACE_SIZE
+                    m_stackTracePane.text = errors.toString()
+                    m_stackTracePane.background = m_mainComponent.background
+                    m_stackTracePane.preferredSize = STACKTRACE_SIZE
                 }
                 m_mainComponent.add(_details, BorderLayout.CENTER)
                 m_mainComponent.validate()
@@ -133,7 +133,7 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
      */
     internal fun createDetailedMessage(t: Throwable): JScrollPane {
         m_stackTracePane = JTextPane()
-        m_stackTracePane!!.isEditable = false
+        m_stackTracePane.isEditable = false
         val pane = JScrollPane(m_stackTracePane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 

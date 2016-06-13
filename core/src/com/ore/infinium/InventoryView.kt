@@ -120,8 +120,9 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
     }
 
     override fun countChanged(index: Int, inventory: Inventory) {
-        val itemComponent = itemMapper.get(inventory.itemEntity(index)!!)
-        m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize))
+        val itemEntity = inventory.itemEntity(index)!!
+        val itemComponent = itemMapper.get(itemEntity)
+        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
     }
 
     override operator fun set(index: Int, inventory: Inventory) {
@@ -160,7 +161,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
             val payload = DragAndDrop.Payload()
 
             val dragWrapper = InventorySlotDragWrapper(type = Inventory.InventoryType.Inventory,
-                                                       dragSourceIndex = index)
+                    dragSourceIndex = index)
             payload.`object` = dragWrapper
 
             payload.dragActor = dragImage
@@ -210,7 +211,9 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
         }
 
         override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {
-            payload!!.dragActor.setColor(1f, 1f, 1f, 1f)
+            payload ?: error("error, payload invalid")
+
+            payload.dragActor.setColor(1f, 1f, 1f, 1f)
             actor.color = Color.WHITE
         }
 
@@ -218,14 +221,16 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
 
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
+            val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
+
             //ensure the dest is empty before attempting any drag & drop!
             if (inventory.m_inventory.itemEntity(this.index) == null) {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
+                    val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.m_inventory.setSlot(this.index,
-                                                  inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)!!)
-                    inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendInventoryMove(
-                            Inventory.InventoryType.Inventory,
+                    inventory.m_inventory.setSlot(this.index, itemEntity!!)
+
+                    clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
                             dragWrapper.dragSourceIndex,
                             Inventory.InventoryType.Inventory, index)
 
@@ -233,18 +238,19 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
                 } else {
                     //hotbar inventory
+                    val hotbarInventory = inventory.m_hotbarInventory
 
+                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
-                    inventory.m_inventory.setSlot(this.index, inventory.m_hotbarInventory.itemEntity(
-                            dragWrapper.dragSourceIndex)!!)
 
-                    inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendInventoryMove(
-                            Inventory.InventoryType.Hotbar,
+                    inventory.m_inventory.setSlot(this.index, itemEntity!!)
+
+                    clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
                             dragWrapper.dragSourceIndex,
                             Inventory.InventoryType.Inventory, index)
 
                     //remove the source item
-                    inventory.m_hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
+                    hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
                 }
             }
 

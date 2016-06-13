@@ -42,7 +42,7 @@ class Inventory
 
     internal var m_listeners = mutableListOf<SlotListener>()
 
-    private val itemMapper: ComponentMapper<ItemComponent>? = null
+    private lateinit var itemMapper: ComponentMapper<ItemComponent>
 
     private val m_slots: Array<Int?>
 
@@ -64,7 +64,7 @@ class Inventory
     fun setCount(index: Int, newCount: Int) {
         val item = m_slots[index]
         if (item != null) {
-            itemMapper!!.get(item).stackSize = newCount
+            itemMapper.get(item).stackSize = newCount
 
             m_listeners.forEach { it.countChanged(index, this) }
         }
