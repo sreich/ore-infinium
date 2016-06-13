@@ -52,7 +52,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
     var m_leftMouseDown: Boolean = false
     lateinit var viewport: StretchViewport
-    public var m_world: OreWorld? = null
+    var m_world: OreWorld? = null
 
     // zoom every n ms, while zoom key is held down
     private val zoomInterval = 30

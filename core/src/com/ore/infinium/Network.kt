@@ -145,6 +145,12 @@ object Network {
         var message: String? = null
     }
 
+    object Server {
+    }
+
+    object Client {
+    }
+
     class ChatMessageFromServer {
         lateinit var timestamp: String
         lateinit var playerName: String
@@ -154,7 +160,7 @@ object Network {
 
     //fixme: unneeded??
     class LoadedViewportMovedFromServer {
-        var rect: Rectangle? = null
+        lateinit var rect: Rectangle
     }
 
     //todo reduce data type sizes for lots of this stuff...
@@ -356,9 +362,9 @@ object Network {
 
     class SingleSparseBlock {
 
-        public var block: SingleBlock? = null
-        public var x: Int = 0
-        public var y: Int = 0
+        var block: SingleBlock? = null
+        var x: Int = 0
+        var y: Int = 0
 
         constructor() {
         }
@@ -389,7 +395,7 @@ object Network {
          * amount of fields per each block. e.g. every 3 bytes
          * is for each block. but we don't send mesh type
          */
-        var blocks: ByteArray? = null
+        lateinit var blocks: ByteArray
         //start and end indices, inclusive(a rect)
         var x: Int = 0
         var y: Int = 0

@@ -363,7 +363,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
         //var debug = "receiveMultipleEntitySpawn [ "
-        for (spawn in entitySpawn.entitySpawn!!) {
+        for (spawn in entitySpawn.entitySpawn) {
 
             val e = getWorld().create()
 
@@ -413,7 +413,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
     private fun receiveLoadedViewportMoved(viewportMove: Network.LoadedViewportMovedFromServer) {
         val c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer))
-        c.loadedViewport.rect = viewportMove.rect!!
+        c.loadedViewport.rect = viewportMove.rect
     }
 
     private fun receiveSparseBlockUpdate(sparseBlockUpdate: Network.SparseBlockUpdate) {
@@ -457,16 +457,16 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         var sourceIndex = 0
         for (y in region.y..region.y2) {
             for (x in region.x..region.x2) {
-                val blockType = region.blocks!![sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE]
+                val blockType = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE]
                 m_world.setBlockType(x, y, blockType)
 
-                val wallType = region.blocks!![sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE]
+                val wallType = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE]
                 m_world.setBlockWallType(x, y, wallType)
 
-                val lightLevel = region.blocks!![sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL]
+                val lightLevel = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL]
                 m_world.setBlockLightLevel(x, y, lightLevel)
 
-                val flags = region.blocks!![sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS]
+                val flags = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS]
                 m_world.setBlockFlags(x, y, flags)
 
                 ++sourceIndex

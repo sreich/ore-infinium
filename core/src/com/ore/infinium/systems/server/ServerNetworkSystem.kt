@@ -80,7 +80,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
      * Listener for notifying when a player has joined/disconnected,
      * systems and such interested can subscribe.
      */
-    public interface NetworkServerConnectionListener {
+    interface NetworkServerConnectionListener {
         /**
          * note this does not indicate when a connection *actually*
          * first happened, since we wouldn't have a player object,
@@ -669,10 +669,10 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                 val lightLevel = m_world.blockLightLevel(blockX, blockY)
                 val flags = m_world.blockFlags(blockX, blockY)
 
-                blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE] = blockType
-                blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE] = wallType
-                blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
-                blockRegion.blocks!![blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS] = flags
+                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE] = blockType
+                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE] = wallType
+                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
+                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS] = flags
                 ++blockIndex
             }
         }

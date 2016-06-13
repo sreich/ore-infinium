@@ -55,7 +55,7 @@ import java.text.DecimalFormat
  * of the game. Things like how many tiles are rendered, connections, entities, etc.
  */
 @Wire
-class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: OreWorld?) : BaseSystem(), RenderSystemMarker {
+class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
 
     private lateinit var airMapper: ComponentMapper<AirComponent>
     private lateinit var airGeneratormapper: ComponentMapper<AirGeneratorComponent>
@@ -181,7 +181,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         }
 
         if (m_renderDebugClient) {
-            m_debugServerBatch.projectionMatrix = m_world!!.m_camera.combined
+            m_debugServerBatch.projectionMatrix = m_world.m_camera.combined
             m_debugServerBatch.begin()
             m_debugServerBatch.color = Color.MAGENTA
 
@@ -252,7 +252,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         m_font.draw(m_batch, m_drawCallsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        val mousePos = m_world!!.mousePositionWorldCoords()
+        val mousePos = m_world.mousePositionWorldCoords()
         val x = m_world.blockXSafe(mousePos.x.toInt())
         val y = m_world.blockYSafe(mousePos.y.toInt())
 
@@ -341,7 +341,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             //           }
 
             m_guiDebugString = "F12 - gui debug (${m_guiDebug.enabledString()})"
-            m_guiRenderToggleString = "F11 - gui render (${m_world!!.m_client!!.m_renderGui.enabledString()})"
+            m_guiRenderToggleString = "F11 - gui render (${m_world.m_client!!.m_renderGui.enabledString()})"
             m_tileRenderDebugString = "F10 - tile render (${m_tileRenderSystem.debugRenderTiles})"
 
             m_networkSyncDebugString = """
@@ -358,7 +358,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     }
 
     private fun drawDebugInfoForEntityAtMouse(textY: Int) {
-        val mousePos = m_world!!.mousePositionWorldCoords()
+        val mousePos = m_world.mousePositionWorldCoords()
 
         val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))

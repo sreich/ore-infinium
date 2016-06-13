@@ -243,7 +243,7 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
     }
 
     private fun sendLocalChat(message: String) {
-        m_client.m_chat!!.addLocalChatLine(Chat.timestamp(), message)
+        m_client.m_chat.addLocalChatLine(Chat.timestamp(), message)
     }
 
     private fun scrollToBottom() {

@@ -30,6 +30,7 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Sound
+import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
@@ -46,48 +47,51 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     private lateinit var m_clientNetworkSystem: ClientNetworkSystem
     private lateinit var m_tagManager: TagManager
 
-    private var m_itemPickupSound: Sound? = null
-    private var m_itemPlaceSound: Sound? = null
+    private lateinit var m_itemPickupSound: Sound
+    private lateinit var m_itemPlaceSound: Sound
 
-    private var m_drillAttackSound: Sound? = null
+    private lateinit var m_drillAttackSound: Sound
 
-    private var m_dirtAttackSound: Sound? = null
-    private var m_dirtPlaceSound: Sound? = null
-    private var m_dirtAttackFinishSound: Sound? = null
+    private lateinit var m_dirtAttackSound: Sound
+    private lateinit var m_dirtPlaceSound: Sound
+    private lateinit var m_dirtAttackFinishSound: Sound
 
     //last ms time it played triggered
     private var m_dirtAttackLastMs = 0L
 
-    private var m_stoneAttackFinishSound: Sound? = null
+    private lateinit var m_stoneAttackFinishSound: Sound
 
     override fun initialize() {
-        m_itemPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPlace.ogg"))
-        m_itemPickupSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPickup.wav"))
+        try {
+            m_itemPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPlace.ogg"))
+            m_itemPickupSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPickup.wav"))
 
-        m_drillAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/drillAttack.ogg"))
+            m_drillAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/drillAttack.ogg"))
 
-        m_dirtAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttack.ogg"))
-        m_dirtPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtPlace.ogg"))
-        m_dirtAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttackFinish.ogg"))
+            m_dirtAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttack.ogg"))
+            m_dirtPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtPlace.ogg"))
+            m_dirtAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttackFinish.ogg"))
 
-        m_stoneAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/stoneAttackFinish.ogg"))
+            m_stoneAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/stoneAttackFinish.ogg"))
+        } catch (e:GdxRuntimeException) {
+            error("sounds failed to load" )
+        }
 
-        assert(m_itemPickupSound != null) { "sound failed to load" }
     }
 
     override fun processSystem() {
     }
 
     fun playItemPickup() {
-        m_itemPickupSound!!.play(0.20f)
+        m_itemPickupSound.play(0.20f)
     }
 
     fun playItemPlace() {
-        m_itemPlaceSound!!.play()
+        m_itemPlaceSound.play()
     }
 
     fun playDrillAttack() {
-        m_drillAttackSound!!.play(0.30f)
+        m_drillAttackSound.play(0.30f)
     }
 
     //todo for all of these, i think we want to have only 1 playing at a time. if another happens to play,
@@ -95,19 +99,19 @@ class SoundSystem(private val m_world: OreWorld) : BaseSystem() {
     fun playDirtAttack() {
         if (m_dirtAttackLastMs == 0L || TimeUtils.timeSinceMillis(m_dirtAttackLastMs) >= 300) {
             m_dirtAttackLastMs = TimeUtils.millis()
-            m_dirtAttackSound!!.play(0.50f)
+            m_dirtAttackSound.play(0.50f)
         }
     }
 
     fun playDirtPlace() {
-        m_dirtPlaceSound!!.play()
+        m_dirtPlaceSound.play()
     }
 
     fun playStoneAttackFinish() {
-        m_stoneAttackFinishSound!!.play()
+        m_stoneAttackFinishSound.play()
     }
 
     fun playDirtAttackFinish() {
-        m_dirtAttackFinishSound!!.play()
+        m_dirtAttackFinishSound.play()
     }
 }
