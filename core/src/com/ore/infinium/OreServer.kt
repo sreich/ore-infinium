@@ -82,7 +82,7 @@ class OreServer : Runnable {
         m_chat = Chat()
         m_chat.addListener(object : Chat.ChatListener {
             override fun lineAdded(line: Chat.ChatLine) {
-                val message = Network.ChatMessageFromServer().apply {
+                val message = Network.Server.ChatMessage().apply {
                     message = line.chatText
                     playerName = line.playerName
                     sender = line.chatSender

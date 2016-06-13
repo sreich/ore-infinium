@@ -124,7 +124,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
         //todo send a disconnection reason along with the disconnect event. to eg differentiate between a kick or a
         // connection loss, or a server shutdown
-        open fun disconnected(disconnectReason: Network.DisconnectReason) {
+        open fun disconnected(disconnectReason: Network.Shared.DisconnectReason) {
         }
     }
 
@@ -173,7 +173,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun sendInitialClientData() {
-        val initialClientData = Network.InitialClientDataFromClient()
+        val initialClientData = Network.Client.InitialClientData()
 
         initialClientData.playerName = OreSettings.playerName
 
@@ -205,24 +205,24 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             NetworkHelper.debugPacketFrequencies(receivedObject, m_debugPacketFrequencyByType)
 
             when (receivedObject) {
-                is Network.DisconnectReason -> receiveDisconnectReason(receivedObject)
+                is Network.Shared.DisconnectReason -> receiveDisconnectReason(receivedObject)
 
-                is Network.BlockRegion -> receiveBlockRegion(receivedObject)
-                is Network.SparseBlockUpdate -> receiveSparseBlockUpdate(receivedObject)
+                is Network.Shared.BlockRegion -> receiveBlockRegion(receivedObject)
+                is Network.Shared.SparseBlockUpdate -> receiveSparseBlockUpdate(receivedObject)
 
-                is Network.LoadedViewportMovedFromServer -> receiveLoadedViewportMoved(receivedObject)
-                is Network.PlayerSpawnHotbarInventoryItemFromServer -> receivePlayerSpawnHotbarInventoryItem(
+                is Network.Server.LoadedViewportMoved -> receiveLoadedViewportMoved(receivedObject)
+                is Network.Server.PlayerSpawnHotbarInventoryItem -> receivePlayerSpawnHotbarInventoryItem(
                         receivedObject)
 
-                is Network.PlayerSpawnedFromServer -> receivePlayerSpawn(receivedObject)
+                is Network.Server.PlayerSpawned -> receivePlayerSpawn(receivedObject)
             //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
 
-                is Network.EntitySpawnMultipleFromServer -> receiveMultipleEntitySpawn(receivedObject)
-                is Network.EntityDestroyMultipleFromServer -> receiveMultipleEntityDestroy(receivedObject)
-                is Network.EntityKilledFromServer -> receiveEntityKilled(receivedObject)
-                is Network.EntityMovedFromServer -> receiveEntityMoved(receivedObject)
+                is Network.Server.EntitySpawnMultiple -> receiveMultipleEntitySpawn(receivedObject)
+                is Network.Server.EntityDestroyMultiple -> receiveMultipleEntityDestroy(receivedObject)
+                is Network.Server.EntityKilled -> receiveEntityKilled(receivedObject)
+                is Network.Server.EntityMoved -> receiveEntityMoved(receivedObject)
 
-                is Network.ChatMessageFromServer -> receiveChatMessage(receivedObject)
+                is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
 
                 is FrameworkMessage.Ping -> {
                 }
@@ -238,7 +238,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun receiveEntityKilled(receivedObject: Network.EntityKilledFromServer) {
+    private fun receiveEntityKilled(receivedObject: Network.Server.EntityKilled) {
         //todo play a death sound and such for this entity? and possibly some effects
         //depending on what it does.
         //actual destruction should happen Real Soon Now i would think.
@@ -246,7 +246,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         //but possible for some hard to find desync bugs if i do that
     }
 
-    private fun receivePlayerSpawnHotbarInventoryItem(spawn: Network.PlayerSpawnHotbarInventoryItemFromServer) {
+    private fun receivePlayerSpawnHotbarInventoryItem(spawn: Network.Server.PlayerSpawnHotbarInventoryItem) {
         //fixme spawn.id, sprite!!
         val spawnedItemEntityId = getWorld().create()
         for (c in spawn.components!!) {
@@ -280,11 +280,11 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
     }
 
-    private fun receiveChatMessage(chat: Network.ChatMessageFromServer) {
+    private fun receiveChatMessage(chat: Network.Server.ChatMessage) {
         m_world.m_client!!.m_chat.addChatLine(chat.timestamp, chat.playerName, chat.message, chat.sender)
     }
 
-    private fun receiveEntityMoved(entityMove: Network.EntityMovedFromServer) {
+    private fun receiveEntityMoved(entityMove: Network.Server.EntityMoved) {
         val entity = m_entityForNetworkId[entityMove.id]
 
         val spriteComponent = spriteMapper.get(entity!!)
@@ -322,7 +322,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
     */
 
-    private fun receiveMultipleEntityDestroy(entityDestroy: Network.EntityDestroyMultipleFromServer) {
+    private fun receiveMultipleEntityDestroy(entityDestroy: Network.Server.EntityDestroyMultiple) {
         var debug = "receiveMultipleEntityDestroy [ "
         for (i in entityDestroy.entitiesToDestroy.indices) {
             val networkEntityId = entityDestroy.entitiesToDestroy[i]
@@ -358,7 +358,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         //OreWorld.log("networkclientsystem", debug)
     }
 
-    private fun receiveMultipleEntitySpawn(entitySpawn: Network.EntitySpawnMultipleFromServer) {
+    private fun receiveMultipleEntitySpawn(entitySpawn: Network.Server.EntitySpawnMultiple) {
         //fixme this and hotbar code needs consolidation
         //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
@@ -411,22 +411,22 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         //OreWorld.log("networkclientsystem", debug)
     }
 
-    private fun receiveLoadedViewportMoved(viewportMove: Network.LoadedViewportMovedFromServer) {
+    private fun receiveLoadedViewportMoved(viewportMove: Network.Server.LoadedViewportMoved) {
         val c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer))
         c.loadedViewport.rect = viewportMove.rect
     }
 
-    private fun receiveSparseBlockUpdate(sparseBlockUpdate: Network.SparseBlockUpdate) {
+    private fun receiveSparseBlockUpdate(sparseBlockUpdate: Network.Shared.SparseBlockUpdate) {
         m_world.loadSparseBlockUpdate(sparseBlockUpdate)
     }
 
-    private fun receiveDisconnectReason(disconnectReason: Network.DisconnectReason) {
+    private fun receiveDisconnectReason(disconnectReason: Network.Shared.DisconnectReason) {
         for (listener in m_listeners) {
             listener.disconnected(disconnectReason)
         }
     }
 
-    private fun receivePlayerSpawn(spawn: Network.PlayerSpawnedFromServer) {
+    private fun receivePlayerSpawn(spawn: Network.Server.PlayerSpawned) {
         //it is our main player (the client's player, aka us)
         if (!connected) {
             //fixme not ideal, calling into the client to do this????
@@ -453,20 +453,20 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun receiveBlockRegion(region: Network.BlockRegion) {
+    private fun receiveBlockRegion(region: Network.Shared.BlockRegion) {
         var sourceIndex = 0
         for (y in region.y..region.y2) {
             for (x in region.x..region.x2) {
-                val blockType = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE]
+                val blockType = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_TYPE]
                 m_world.setBlockType(x, y, blockType)
 
-                val wallType = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE]
+                val wallType = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE]
                 m_world.setBlockWallType(x, y, wallType)
 
-                val lightLevel = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL]
+                val lightLevel = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL]
                 m_world.setBlockLightLevel(x, y, lightLevel)
 
-                val flags = region.blocks[sourceIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS]
+                val flags = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_FLAGS]
                 m_world.setBlockFlags(x, y, flags)
 
                 ++sourceIndex
@@ -481,7 +481,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
     fun sendInventoryMove(sourceInventoryType: Inventory.InventoryType, sourceIndex: Int,
                           destInventoryType: Inventory.InventoryType, destIndex: Int) {
-        val inventoryItemFromClient = Network.PlayerMoveInventoryItemFromClient()
+        val inventoryItemFromClient = Network.Client.PlayerMoveInventoryItem()
         inventoryItemFromClient.sourceType = sourceInventoryType
         inventoryItemFromClient.sourceIndex = sourceIndex.toByte()
         inventoryItemFromClient.destType = destInventoryType
@@ -491,7 +491,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     fun sendEntityAttack(currentEntity: Int) {
-        val attack = Network.EntityAttackFromClient()
+        val attack = Network.Client.EntityAttack()
 
         val networkId = m_networkIdForEntityId[currentEntity]!!
         attack.id = networkId
@@ -506,21 +506,21 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         val mainPlayer = m_tagManager.getEntity("mainPlayer").id
         val sprite = spriteMapper.get(mainPlayer)
 
-        val move = Network.PlayerMoveFromClient()
+        val move = Network.Client.PlayerMove()
         move.position = Vector2(sprite.sprite.x, sprite.sprite.y)
 
         m_clientKryo.sendTCP(move)
     }
 
     fun sendChatMessage(message: String) {
-        val chatMessageFromClient = Network.ChatMessageFromClient()
+        val chatMessageFromClient = Network.Client.ChatMessage()
         chatMessageFromClient.message = message
 
         m_clientKryo.sendTCP(chatMessageFromClient)
     }
 
     fun sendHotbarEquipped(index: Byte) {
-        val playerEquipHotbarIndexFromClient = Network.PlayerEquipHotbarIndexFromClient()
+        val playerEquipHotbarIndexFromClient = Network.Client.PlayerEquipHotbarIndex()
         playerEquipHotbarIndexFromClient.index = index
 
         m_clientKryo.sendTCP(playerEquipHotbarIndexFromClient)
@@ -536,28 +536,28 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
      * @param y
      */
     fun sendBlockDigBegin(x: Int, y: Int) {
-        val blockDigFromClient = Network.BlockDigBeginFromClient()
+        val blockDigFromClient = Network.Client.BlockDigBegin()
         blockDigFromClient.x = x
         blockDigFromClient.y = y
         m_clientKryo.sendTCP(blockDigFromClient)
     }
 
     fun sendBlockDigFinish(blockX: Int, blockY: Int) {
-        val blockDigFromClient = Network.BlockDigFinishFromClient()
+        val blockDigFromClient = Network.Client.BlockDigFinish()
         blockDigFromClient.x = blockX
         blockDigFromClient.y = blockY
         m_clientKryo.sendTCP(blockDigFromClient)
     }
 
     fun sendBlockPlace(x: Int, y: Int) {
-        val blockPlaceFromClient = Network.BlockPlaceFromClient()
+        val blockPlaceFromClient = Network.Client.BlockPlace()
         blockPlaceFromClient.x = x
         blockPlaceFromClient.y = y
         m_clientKryo.sendTCP(blockPlaceFromClient)
     }
 
     fun sendItemPlace(x: Float, y: Float) {
-        val itemPlace = Network.ItemPlaceFromClient()
+        val itemPlace = Network.Client.ItemPlace()
         itemPlace.x = x
         itemPlace.y = y
 

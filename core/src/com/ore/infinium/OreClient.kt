@@ -500,7 +500,7 @@ class OreClient : ApplicationListener, InputProcessor {
         val playerComponent = playerMapper.get(player)
 
         val itemEntity = playerComponent.equippedPrimaryItem
-        val dropItemRequestFromClient = Network.HotbarDropItemFromClient()
+        val dropItemRequestFromClient = Network.Client.HotbarDropItem()
         val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
         dropItemRequestFromClient.index = currentEquippedIndex.toByte()
 
@@ -687,7 +687,7 @@ class OreClient : ApplicationListener, InputProcessor {
             //todo surely there's some first-time connection stuff we must do?
         }
 
-        override fun disconnected(disconnectReason: Network.DisconnectReason) {
+        override fun disconnected(disconnectReason: Network.Shared.DisconnectReason) {
             //todo show gui, say we've disconnected
         }
 

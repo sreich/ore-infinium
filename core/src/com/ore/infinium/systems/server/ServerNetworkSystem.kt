@@ -147,7 +147,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         val playerComp = playerMapper.get(entityId)
         val spriteComp = spriteMapper.get(entityId)
 
-        val spawn = Network.PlayerSpawnedFromServer()
+        val spawn = Network.Server.PlayerSpawned()
         spawn.connectionId = playerComp.connectionPlayerId
         spawn.playerName = playerComp.playerName
         spawn.pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
@@ -167,7 +167,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         val spriteComp = spriteMapper.get(entityId)
 
         OreWorld.log("server", "sending spawn player command")
-        val spawn = Network.PlayerSpawnedFromServer()
+        val spawn = Network.Server.PlayerSpawned()
         spawn.connectionId = playerComp.connectionPlayerId
         spawn.playerName = playerComp.playerName
         spawn.pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
@@ -210,7 +210,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     fun sendSpawnMultipleEntities(entitiesToSpawn: List<Int>, connectionPlayerId: Int) {
         assert(entitiesToSpawn.size > 0) { "server told to spawn 0 entities, this is impossible" }
 
-        val spawnMultiple = Network.EntitySpawnMultipleFromServer()
+        val spawnMultiple = Network.Server.EntitySpawnMultiple()
 
         for (i in entitiesToSpawn.indices) {
             val entityId = entitiesToSpawn[i]
@@ -234,7 +234,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                 */
             }
 
-            val spawn = Network.EntitySpawnFromServer()
+            val spawn = Network.Server.EntitySpawn()
             spawn.id = entityId
             spawn.components = serializeComponents(entityId)
 
@@ -255,7 +255,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     fun sendDestroyMultipleEntities(entitiesToDestroy: List<Int>, connectionPlayerId: Int) {
         assert(entitiesToDestroy.size > 0) { "server told to destroy 0 entities, this is impossible" }
 
-        val destroyMultiple = Network.EntityDestroyMultipleFromServer()
+        val destroyMultiple = Network.Server.EntityDestroyMultiple()
         destroyMultiple.entitiesToDestroy = entitiesToDestroy
 
         //OreWorld.log("networkserversystem",
@@ -310,7 +310,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                                      index: Int,
                                      owningPlayerEntityId: Int,
                                      causedByPickedUpItem: Boolean) {
-        val spawn = Network.PlayerSpawnHotbarInventoryItemFromServer()
+        val spawn = Network.Server.PlayerSpawnHotbarInventoryItem()
         spawn.components = serializeComponents(itemEntityId)
 
         //todo want a flag here to indicate..both for hotbar and regular inventory, that this spawn is due to a pickup! this is so they can play
@@ -327,7 +327,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     fun sendEntityKilled(entityToKill: Int) {
-        val kill = Network.EntityKilledFromServer()
+        val kill = Network.Server.EntityKilled()
         kill.entityToKill = entityToKill
 
         //todo send to all players who have this in their viewport!
@@ -356,19 +356,19 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             NetworkHelper.debugPacketFrequencies(receivedObject, m_debugPacketFrequencyByType)
 
             when (receivedObject) {
-                is Network.InitialClientDataFromClient -> receiveInitialClientData(job, receivedObject)
-                is Network.PlayerMoveFromClient -> receivePlayerMove(job, receivedObject)
-                is Network.ChatMessageFromClient -> receiveChatMessage(job, receivedObject)
-                is Network.PlayerMoveInventoryItemFromClient -> receivePlayerMoveInventoryItem(job, receivedObject)
+                is Network.Client.InitialClientData -> receiveInitialClientData(job, receivedObject)
+                is Network.Client.PlayerMove -> receivePlayerMove(job, receivedObject)
+                is Network.Client.ChatMessage -> receiveChatMessage(job, receivedObject)
+                is Network.Client.PlayerMoveInventoryItem -> receivePlayerMoveInventoryItem(job, receivedObject)
 
-                is Network.BlockDigBeginFromClient -> receiveBlockDigBegin(job, receivedObject)
-                is Network.BlockDigFinishFromClient -> receiveBlockDigFinish(job, receivedObject)
-                is Network.BlockPlaceFromClient -> receiveBlockPlace(job, receivedObject)
+                is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
+                is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
+                is Network.Client.BlockPlace -> receiveBlockPlace(job, receivedObject)
 
-                is Network.PlayerEquipHotbarIndexFromClient -> receivePlayerEquipHotbarIndex(job, receivedObject)
-                is Network.HotbarDropItemFromClient -> receiveHotbarDropItem(job, receivedObject)
-                is Network.EntityAttackFromClient -> receiveEntityAttack(job, receivedObject)
-                is Network.ItemPlaceFromClient -> receiveItemPlace(job, receivedObject)
+                is Network.Client.PlayerEquipHotbarIndex -> receivePlayerEquipHotbarIndex(job, receivedObject)
+                is Network.Client.HotbarDropItem -> receiveHotbarDropItem(job, receivedObject)
+                is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
+                is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
 
                 is FrameworkMessage.Ping -> if (receivedObject.isReply) {
 
@@ -384,7 +384,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         }
     }
 
-    private fun receiveEntityAttack(job: NetworkJob, attack: Network.EntityAttackFromClient) {
+    private fun receiveEntityAttack(job: NetworkJob, attack: Network.Client.EntityAttack) {
         val entityToAttack = getWorld().getEntity(attack.id)
         if (entityToAttack.isActive) {
             val healthComponent = healthMapper.get(entityToAttack)
@@ -407,11 +407,11 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         }
     }
 
-    private fun receiveBlockDigFinish(job: NetworkJob, dig: Network.BlockDigFinishFromClient) {
+    private fun receiveBlockDigFinish(job: NetworkJob, dig: Network.Client.BlockDigFinish) {
         m_serverBlockDiggingSystem.blockDiggingFinished(dig.x, dig.y)
     }
 
-    private fun receiveInitialClientData(job: NetworkJob, initialClientData: Network.InitialClientDataFromClient) {
+    private fun receiveInitialClientData(job: NetworkJob, initialClientData: Network.Client.InitialClientData) {
         var name = initialClientData.playerName
 
         if (name == null) {
@@ -437,8 +437,8 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         if (initialClientData.versionMajor != OreClient.ORE_VERSION_MAJOR ||
                 initialClientData.versionMinor != OreClient.ORE_VERSION_MINOR ||
                 initialClientData.versionRevision != OreClient.ORE_VERSION_MINOR) {
-            val reason = Network.DisconnectReason()
-            reason.reason = Network.DisconnectReason.Reason.VersionMismatch
+            val reason = Network.Shared.DisconnectReason()
+            reason.reason = Network.Shared.DisconnectReason.Reason.VersionMismatch
 
             job.connection.sendTCP(reason)
             job.connection.close()
@@ -454,12 +454,12 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         }
     }
 
-    private fun receivePlayerMove(job: NetworkJob, playerMove: Network.PlayerMoveFromClient) {
+    private fun receivePlayerMove(job: NetworkJob, playerMove: Network.Client.PlayerMove) {
         val sprite = spriteMapper.get(job.connection.playerEntityId)
         sprite.sprite.setPosition(playerMove.position!!.x, playerMove.position!!.y)
     }
 
-    private fun receiveChatMessage(job: NetworkJob, chatMessage: Network.ChatMessageFromClient) {
+    private fun receiveChatMessage(job: NetworkJob, chatMessage: Network.Client.ChatMessage) {
         //FIXME: do some verification stuff, make sure strings are safe
 
         val date = SimpleDateFormat("HH:mm:ss")
@@ -467,7 +467,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                                     Chat.ChatSender.Player)
     }
 
-    private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.ItemPlaceFromClient) {
+    private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {
         val playerComponent = playerMapper.get(job.connection.playerEntityId)
 
         val placedItem = m_world.cloneEntity(playerComponent.equippedPrimaryItem!!)
@@ -484,7 +484,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
      * @param job
      */
-    private fun receiveHotbarDropItem(job: NetworkJob, itemDrop: Network.HotbarDropItemFromClient) {
+    private fun receiveHotbarDropItem(job: NetworkJob, itemDrop: Network.Client.HotbarDropItem) {
         val playerComponent = playerMapper.get(job.connection.playerEntityId)
 
         val itemToDrop = playerComponent.hotbarInventory!!.itemEntity(itemDrop.index.toInt())!!
@@ -527,13 +527,13 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         //note we do not send anything, because later on the network system will figure out it needs to spawn that entity
     }
 
-    private fun receivePlayerEquipHotbarIndex(job: NetworkJob, playerEquip: Network.PlayerEquipHotbarIndexFromClient) {
+    private fun receivePlayerEquipHotbarIndex(job: NetworkJob, playerEquip: Network.Client.PlayerEquipHotbarIndex) {
         val playerComponent = playerMapper.get(job.connection.playerEntityId)
 
         playerComponent.hotbarInventory!!.selectSlot(playerEquip.index.toInt())
     }
 
-    private fun receiveBlockPlace(job: NetworkJob, blockPlace: Network.BlockPlaceFromClient) {
+    private fun receiveBlockPlace(job: NetworkJob, blockPlace: Network.Client.BlockPlace) {
         val playerComponent = playerMapper.get(job.connection.playerEntityId)
 
         val item = playerComponent.equippedPrimaryItem!!
@@ -555,12 +555,12 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
      * @param job
      */
-    private fun receiveBlockDigBegin(job: NetworkJob, dig: Network.BlockDigBeginFromClient) {
+    private fun receiveBlockDigBegin(job: NetworkJob, dig: Network.Client.BlockDigBegin) {
         m_serverBlockDiggingSystem.blockDiggingBegin(dig.x, dig.y, job.connection.playerEntityId)
     }
 
     private fun receivePlayerMoveInventoryItem(job: NetworkJob,
-                                               playerMoveItem: Network.PlayerMoveInventoryItemFromClient) {
+                                               playerMoveItem: Network.Client.PlayerMoveInventoryItem) {
         val playerComponent = playerMapper.get(job.connection.playerEntityId)
 
         //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
@@ -596,7 +596,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
         val playerComponent = playerMapper.get(player)
 
-        val v = Network.LoadedViewportMovedFromServer()
+        val v = Network.Server.LoadedViewportMoved()
         v.rect = playerComponent.loadedViewport.rect
 
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, v)
@@ -624,13 +624,13 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
      * @param y
      */
     fun sendPlayerSingleBlock(player: Int, x: Int, y: Int) {
-        val sparseBlockUpdate = Network.SparseBlockUpdate()
+        val sparseBlockUpdate = Network.Shared.SparseBlockUpdate()
 
         //fixme just use a plain ol' byte array for all of these
         val blockType = m_world.blockType(x, y)
         val wallType = m_world.blockWallType(x, y)
         val flags = m_world.blockFlags(x, y)
-        sparseBlockUpdate.blocks.add(Network.SingleSparseBlock(x, y, blockType, wallType, flags))
+        sparseBlockUpdate.blocks.add(Network.Shared.SingleSparseBlock(x, y, blockType, wallType, flags))
 
         //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
         // purpose of this, whcih is to reduce the need to send an entire packet for 1 block. queue them up.
@@ -653,10 +653,10 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
      */
     fun sendPlayerBlockRegion(playerEntityId: Int, x: Int, y: Int, x2: Int, y2: Int) {
         //FIXME: avoid array realloc, preferably
-        val blockRegion = Network.BlockRegion(x, y, x2, y2)
+        val blockRegion = Network.Shared.BlockRegion(x, y, x2, y2)
         val count = (x2 - x + 1) * (y2 - y + 1)
 
-        blockRegion.blocks = ByteArray(count * Network.BlockRegion.BLOCK_FIELD_COUNT)
+        blockRegion.blocks = ByteArray(count * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT)
         var blockIndex = 0
         for (blockY in y..y2) {
             for (blockX in x..x2) {
@@ -669,10 +669,10 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                 val lightLevel = m_world.blockLightLevel(blockX, blockY)
                 val flags = m_world.blockFlags(blockX, blockY)
 
-                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_TYPE] = blockType
-                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE] = wallType
-                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
-                blockRegion.blocks[blockIndex * Network.BlockRegion.BLOCK_FIELD_COUNT + Network.BlockRegion.BLOCK_FIELD_INDEX_FLAGS] = flags
+                blockRegion.blocks[blockIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_TYPE] = blockType
+                blockRegion.blocks[blockIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE] = wallType
+                blockRegion.blocks[blockIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
+                blockRegion.blocks[blockIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_FLAGS] = flags
                 ++blockIndex
             }
         }
@@ -700,7 +700,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         val playerComponent = playerMapper.get(player)
         val spriteComponent = spriteMapper.get(entity)
 
-        val move = Network.EntityMovedFromServer()
+        val move = Network.Server.EntityMoved()
         move.id = entity
 
         move.position = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
@@ -745,7 +745,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             val connection = c as PlayerConnection?
             connection?.let {
                 // Announce to everyone that someone (with a registered playerName) has left.
-                val chatMessage = Network.ChatMessageFromServer()
+                val chatMessage = Network.Server.ChatMessage()
                 chatMessage.message = connection.playerName + " disconnected."
                 chatMessage.sender = Chat.ChatSender.Server
                 m_serverKryo.sendToAllTCP(chatMessage)

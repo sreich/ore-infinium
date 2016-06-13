@@ -1011,15 +1011,15 @@ class OreWorld
         return collides
     }
 
-    fun loadSparseBlockUpdate(update: Network.SparseBlockUpdate) {
+    fun loadSparseBlockUpdate(update: Network.Shared.SparseBlockUpdate) {
         //log("sparse block update", "loaded, count: " + update.blocks.size);
 
         for (sparseBlock in update.blocks) {
             val x = sparseBlock.x
             val y = sparseBlock.y
-            setBlockType(x, y, sparseBlock.block!!.type)
-            setBlockWallType(x, y, sparseBlock.block!!.wallType)
-            setBlockFlags(x, y, sparseBlock.block!!.flags)
+            setBlockType(x, y, sparseBlock.block.type)
+            setBlockWallType(x, y, sparseBlock.block.wallType)
+            setBlockFlags(x, y, sparseBlock.block.flags)
         }
     }
 
