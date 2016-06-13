@@ -221,8 +221,8 @@ class OreWorld
         enum class BlockCategory {
             Null,
             Dirt,
-            Ore
-            //liquid
+            Ore,
+            Liquid
         }
 
         enum class Collision {
@@ -354,6 +354,18 @@ class OreWorld
                             collision = BlockAttributes.Collision.True,
                             category = BlockAttributes.BlockCategory.Ore,
                             blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Water.oreValue,
+                                BlockAttributes(textureName = "water",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Liquid,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Lava.oreValue,
+                                BlockAttributes(textureName = "lava",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Liquid,
+                                                blockTotalHealth = 300))
         }
 
         const val s_itemPlacementOverlay = "itemPlacementOverlay"

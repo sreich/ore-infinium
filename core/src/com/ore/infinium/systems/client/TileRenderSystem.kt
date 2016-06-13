@@ -215,9 +215,17 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                     OreBlock.BlockType.Gold.oreValue -> {
                         textureName = "gold"
                     }
+
+                    OreBlock.BlockType.Water.oreValue -> {
+                        textureName = "water"
+                    }
+
+                    OreBlock.BlockType.Lava.oreValue -> {
+                        textureName = "lava"
+                    }
                     else
                     -> {
-                        assert(false) { "unhandled block" }
+                        assert(false) { "unhandled block blockType: $blockType" }
                     }
                 }
 

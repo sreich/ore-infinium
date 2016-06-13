@@ -45,6 +45,8 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
                     dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {
     var inventoryVisible: Boolean = false
 
+    private lateinit var clientNetworkSystem: ClientNetworkSystem
+    private lateinit var tileRenderSystem: TileRenderSystem
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private val m_slots = mutableListOf<SlotElement>()
     private val m_window: Window
@@ -128,7 +130,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
     override operator fun set(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
 
-        val region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion("dirt-00")
+        val region = tileRenderSystem.m_tilesAtlas.findRegion("dirt-00")
         val slotImage = slot.itemImage
         slotImage.drawable = TextureRegionDrawable(region)
         slotImage.setSize(region.regionWidth.toFloat(), region.regionHeight.toFloat())
@@ -136,7 +138,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
 
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(Integer.toString(itemComponent.stackSize))
+        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
 
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
         //.maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
@@ -221,8 +223,6 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
 
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
-            val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
-
             //ensure the dest is empty before attempting any drag & drop!
             if (inventory.m_inventory.itemEntity(this.index) == null) {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
@@ -230,9 +230,10 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
                     //move the item from the source to the dest (from main inventory to main inventory)
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
-                    clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
-                            dragWrapper.dragSourceIndex,
-                            Inventory.InventoryType.Inventory, index)
+                    inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
+                                                                    dragWrapper.dragSourceIndex,
+                                                                    Inventory.InventoryType.Inventory,
+                                                                    index)
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
@@ -245,9 +246,9 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
 
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
-                    clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
-                            dragWrapper.dragSourceIndex,
-                            Inventory.InventoryType.Inventory, index)
+                    inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
+                                                                    dragWrapper.dragSourceIndex,
+                                                                    Inventory.InventoryType.Inventory, index)
 
                     //remove the source item
                     hotbarInventory.takeItem(dragWrapper.dragSourceIndex)

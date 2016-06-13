@@ -244,7 +244,9 @@ class WorldGenerator(private val m_world: OreWorld) {
         val random = Random()
 
         var seed = random.nextLong()
-        seed = -1918956776030106261
+        seed = -789257892798191
+
+        //seed = -1918956776030106261 //awesome volcanos, lakes
 
         //seed = 5731577342163850638 at least 3 sizeable possible lakes
         /*
@@ -326,7 +328,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             }
         }
 
-        val delta = 7
+        val delta = 10//7
         val peakResult = findPeaks(terrainContour, delta)
 
         //NOTE: we swap minima and maxima, because when we're going downward
@@ -341,6 +343,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         for ((x, y) in peakResult.maxima) {
             m_world.setBlockType(x, y.toInt(), OreBlock.BlockType.Water.oreValue)
         }
+
+
     }
 
 //public Font(@Nullable java.lang.String s,
@@ -1008,7 +1012,6 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         ImageIO.write(bufferedImage, "png", File(fileUrl));
     }
-
 
     class PeakResult() {
         //val minima = mutableListOf<XYPair>()
