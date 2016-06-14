@@ -48,11 +48,14 @@ class GameLoopSystemInvocationStrategy
 
     private inner class SystemAndProfiler(internal var system: BaseSystem, internal var profiler: SystemProfiler)
 
-    private var m_accumulator: Long = 0
+    private var m_accumulatorNs: Long = 0
 
     //delta time
     private val m_nsPerTick: Long
-    private var m_currentTime = System.nanoTime()
+    private var m_currentTimeNs = System.nanoTime()
+
+    private val minMsPerFrame: Long = 250
+    private val minNsPerFrame = TimeUtils.millisToNanos(minMsPerFrame)
 
     private var m_systemsSorted: Boolean = false
 
@@ -137,23 +140,21 @@ class GameLoopSystemInvocationStrategy
             m_systemsSorted = true
         }
 
-        val newTime = System.nanoTime()
+        val newTimeNs = System.nanoTime()
         //nanoseconds
-        var frameTime = newTime - m_currentTime
+        var frameTimeNs = newTimeNs - m_currentTimeNs
 
-        //ms per frame
-        val minMsPerFrame: Long = 250
-        if (frameTime > TimeUtils.millisToNanos(minMsPerFrame)) {
-            frameTime = TimeUtils.millisToNanos(minMsPerFrame)    // Note: Avoid spiral of death
+        if (frameTimeNs > minNsPerFrame) {
+            frameTimeNs = minNsPerFrame    // Note: Avoid spiral of death
         }
 
-        m_currentTime = newTime
-        m_accumulator += frameTime
+        m_currentTimeNs = newTimeNs
+        m_accumulatorNs += frameTimeNs
 
         //convert from nanos to millis then to seconds, to get fractional second dt
         world.setDelta(TimeUtils.nanosToMillis(m_nsPerTick) / 1000.0f)
 
-        while (m_accumulator >= m_nsPerTick) {
+        while (m_accumulatorNs >= m_nsPerTick) {
             /** Process all entity systems inheriting from [RenderSystemMarker]  */
             for (i in m_logicSystems.indices) {
                 val systemAndProfiler = m_logicSystems.get(i)
@@ -163,7 +164,7 @@ class GameLoopSystemInvocationStrategy
                 updateEntityStates()
             }
 
-            m_accumulator -= m_nsPerTick
+            m_accumulatorNs -= m_nsPerTick
         }
 
         //Gdx.app.log("frametime", Double.toString(frameTime));
