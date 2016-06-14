@@ -46,7 +46,7 @@ class GameLoopSystemInvocationStrategy
     private val m_renderSystems = mutableListOf<SystemAndProfiler>()
     private val m_logicSystems = mutableListOf<SystemAndProfiler>()
 
-    private inner class SystemAndProfiler(internal var system: BaseSystem/*, internal var profiler: SystemProfiler?*/)
+    private inner class SystemAndProfiler(internal var system: BaseSystem, internal var profiler: SystemProfiler)
 
     private var m_accumulator: Long = 0
 
@@ -70,13 +70,20 @@ class GameLoopSystemInvocationStrategy
                 val system = systemsData[i] as BaseSystem
                 if (system is RenderSystemMarker) {
                     //m_renderSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
-                    m_renderSystems.add(SystemAndProfiler(system))
+                    m_renderSystems.add(createSystemAndProfiler(system))
                 } else {
                     //m_logicSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
-                    m_logicSystems.add(SystemAndProfiler(system))
+                    m_logicSystems.add(createSystemAndProfiler(system))
                 }
             }
         }
+    }
+
+    private fun createSystemAndProfiler(system: BaseSystem): SystemAndProfiler {
+        val profiler = SystemProfiler()
+        profiler.initialize(system, world)
+
+        return SystemAndProfiler(system, profiler)
     }
 
     override fun initialize() {
@@ -186,7 +193,7 @@ class GameLoopSystemInvocationStrategy
             val systemAndProfiler = m_renderSystems.get(i)
             //TODO interpolate before this
             //processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
-            systemAndProfiler.system.process();
+            systemAndProfiler.system.process()
 
             updateEntityStates()
         }
