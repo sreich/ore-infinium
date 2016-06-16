@@ -30,7 +30,9 @@ import com.artemis.utils.Bag
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.utils.TimeUtils
+import com.ore.infinium.OreSettings
 import com.ore.infinium.systems.client.RenderSystemMarker
+import com.ore.infinium.util.format
 import com.ore.infinium.util.indices
 
 class GameLoopSystemInvocationStrategy
@@ -59,7 +61,7 @@ class GameLoopSystemInvocationStrategy
 
     private var m_systemsSorted: Boolean = false
 
-//    protected lateinit var frameProfiler: SystemProfiler
+    //    protected lateinit var frameProfiler: SystemProfiler
     private var initialized = false
 
     init {
@@ -91,7 +93,7 @@ class GameLoopSystemInvocationStrategy
 
     override fun initialize() {
         if (!m_isServer) {
-     //       createFrameProfiler()
+            //       createFrameProfiler()
         }
     }
 
@@ -100,33 +102,36 @@ class GameLoopSystemInvocationStrategy
         frameProfiler = SystemProfiler.create("Frame Profiler")
         frameProfiler.setColor(1f, 1f, 1f, 1f)
     }
-
-    private fun processProfileSystem(profiler: SystemProfiler?, system: BaseSystem) {
-        profiler?.start()
-
-        system.process()
-
-        profiler?.stop()
-    }
-
-    private fun createSystemProfiler(system: BaseSystem): SystemProfiler? {
-        var old: SystemProfiler? = null
-
-        if (!m_isServer) {
-            old = SystemProfiler.getFor(system)
-            if (old == null) {
-                old = SystemProfiler.createFor(system, world)
-            }
-        }
-
-        return old
-    }
     */
+
+    private fun processProfileSystem(systemAndProfiler: SystemAndProfiler) =
+            systemAndProfiler.apply {
+                profiler.start()
+                system.process()
+                profiler.stop()
+
+                profiler.counter.tick()
+            }
+
+//
+//    private fun createSystemProfiler(system: BaseSystem): SystemProfiler? {
+//        var old: SystemProfiler? = null
+//
+//        if (!m_isServer) {
+//            old = SystemProfiler.getFor(system)
+//            if (old == null) {
+//                old = SystemProfiler.createFor(system, world)
+//            }
+//        }
+//
+//        return old
+//    }
+//    */
 
     override fun process(systems: Bag<BaseSystem>) {
 
         if (!m_isServer) {
-        //    frameProfiler.start()
+            //    frameProfiler.start()
         }
 
         //fixme isn't this(initialized) called automatically??
@@ -159,7 +164,7 @@ class GameLoopSystemInvocationStrategy
             for (i in m_logicSystems.indices) {
                 val systemAndProfiler = m_logicSystems.get(i)
                 //TODO interpolate before this
-        //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
+                //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
                 systemAndProfiler.system.process()
                 updateEntityStates()
             }
@@ -191,17 +196,59 @@ class GameLoopSystemInvocationStrategy
             //State state = currentState * alpha +
             //previousState * ( 1.0 - alpha );
 
-            val systemAndProfiler = m_renderSystems.get(i)
+            val systemAndProfiler = m_renderSystems[i]
             //TODO interpolate before this
             //processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
-            systemAndProfiler.system.process()
+            processProfileSystem(systemAndProfiler)
 
             updateEntityStates()
+        }
+
+        if (OreSettings.profilerEnabled) {
+            profilerStats()
+            updateProfilerStats()
         }
 
         if (!m_isServer) {
 //            f.rameProfiler.stop()
         }
+    }
+
+    private fun updateProfilerStats() {
+        val list = clientPerfCounter
+        if (m_isServer) {
+
+        }
+    }
+
+    class PerfStat(val systemName: String, val timeMin: Float, val timeMax: Float, val timeAvg: Float,
+                   val loadMin: Float, val loadMax: Float, val loadAvg: Float)
+
+    //separated to reduce theoretical thread lock-stepping/stuttering
+    //since client will want to reach in and grab server perf stats,
+    //which will require synchronization to do so reliably (or you could
+    //be grabbing half stats from prior frames)
+    val serverPerfCounter = mutableListOf<PerfStat>()
+    val clientPerfCounter = mutableListOf<PerfStat>()
+
+    private fun profilerStats(): List<String> {
+        val list = mutableListOf<String>()
+        for (systemAndProfiler in m_logicSystems) {
+            val counter = systemAndProfiler.profiler.counter
+
+
+            val s = """tmin: ${counter.time.min.format()}
+                    tmax: ${counter.time.max.format()}
+                    tavg: ${counter.time.average.format()}
+                    lmin: ${counter.load.min.format()}
+                    lmin: ${counter.load.max.format()}
+                    lmin: ${counter.load.average.format()}
+                    """
+
+            list.add(s)
+        }
+
+        return list
     }
 }
 

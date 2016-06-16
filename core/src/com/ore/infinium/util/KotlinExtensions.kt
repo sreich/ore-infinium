@@ -46,6 +46,11 @@ fun Int.isNegative(): Boolean {
 }
 
 /**
+ * format to 2 decimals by default, or whatever you specify.
+ */
+fun Float.format(format: String = "%.2f") = String.format(format, this)
+
+/**
  * converts a multiline (\n)string into a single line one,
  * also trims the margin, delimited by '|'.
  *

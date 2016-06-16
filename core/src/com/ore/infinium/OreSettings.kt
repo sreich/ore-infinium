@@ -137,4 +137,5 @@ object OreSettings {
     @JvmField
     var debugPacketTypeStatistics: Boolean = false
 
+    var profilerEnabled = false
 }

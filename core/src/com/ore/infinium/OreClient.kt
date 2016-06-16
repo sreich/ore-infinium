@@ -423,6 +423,9 @@ class OreClient : ApplicationListener, InputProcessor {
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.ESCAPE -> shutdown()
+            Input.Keys.F6 -> {
+                OreSettings.profilerEnabled = !OreSettings.profilerEnabled
+            }
             Input.Keys.F7 -> {
                 m_tileRenderSystem.debugRenderTileLighting = !m_tileRenderSystem.debugRenderTileLighting
             }

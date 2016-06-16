@@ -34,9 +34,8 @@ class SystemProfiler() : ArtemisProfiler {
 
     lateinit var counter: PerformanceCounter
     override fun initialize(owner: BaseSystem, world: World) {
-        counter = PerformanceCounter(owner.javaClass.name, counterWindowSize)
+        counter = PerformanceCounter(owner.javaClass.simpleName, counterWindowSize)
     }
-
 
     override fun stop() {
         counter.stop()
