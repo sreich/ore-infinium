@@ -215,17 +215,16 @@ class GameLoopSystemInvocationStrategy
     }
 
     private fun updateProfilers() {
-        val hash = if (m_isServer) {
-            serverPerfCounter
+        if (m_isServer) {
+            synchronized(serverPerfCounter) {
+                updateProfilerStatsForSystems(m_logicSystems, serverPerfCounter)
+            }
+            //obviously, no rendering systems here..
         } else {
-            clientPerfCounter
+            //client
+            updateProfilerStatsForSystems(m_renderSystems, clientPerfCounter)
+            updateProfilerStatsForSystems(m_logicSystems, clientPerfCounter)
         }
-
-        //obviously, no rendering systems here..
-        if (!m_isServer) {
-            updateProfilerStatsForSystems(m_renderSystems, hash)
-        }
-        updateProfilerStatsForSystems(m_logicSystems, hash)
     }
 
     private fun updateProfilerStatsForSystems(systems: List<SystemAndProfiler>, hash: HashMap<BaseSystem, PerfStat>) {
@@ -247,6 +246,7 @@ class GameLoopSystemInvocationStrategy
                    var loadAverage: Float = 0f) {
     }
 
+
     //separated to reduce theoretical thread lock-stepping/stuttering
     //since client will want to reach in and grab server perf stats,
     //which will require synchronization to do so reliably (or you could
@@ -256,6 +256,7 @@ class GameLoopSystemInvocationStrategy
     val clientPerfCounter = hashMapOf<BaseSystem, PerfStat>()
 
     private fun printProfilerStats() {
+
         if (m_isServer) {
             serverPerfCounter.forEach { baseSystem, perfStat ->
                 val s = """tmin: ${perfStat.timeMin.format()}

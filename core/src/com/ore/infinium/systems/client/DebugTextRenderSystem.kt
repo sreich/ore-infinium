@@ -210,13 +210,13 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
     }
 
     private fun drawProfilerStats() {
-        val strategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
+        val clientStrategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
 
-        var y = 400f
+        var y = OreSettings.height - 50f
         val x = 400f
 
-        strategy.clientPerfCounter.forEach { baseSystem, perfStat ->
-            val s = """system: ${perfStat.systemName}
+        for (perfStat in clientStrategy.clientPerfCounter.values) {
+            val s = """(client) system: ${perfStat.systemName}
             |   timeMin: ${perfStat.timeMin.format()}
             |   timeMax: ${perfStat.timeMax.format()}
             |   timeAvg: ${perfStat.timeAverage.format()}
@@ -225,6 +225,27 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
             m_font.draw(m_batch, s, x, y)
             y -= 15f
+        }
+
+        y -= 15f
+
+        if (m_world.m_server != null) {
+            val serverStrategy = m_world.m_server!!.m_world.
+                    m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
+
+            synchronized(serverStrategy.serverPerfCounter) {
+                for (perfStat in serverStrategy.serverPerfCounter.values) {
+                    val s = """(server) system: ${perfStat.systemName}
+                    |   timeMin: ${perfStat.timeMin.format()}
+                    |   timeMax: ${perfStat.timeMax.format()}
+                    |   timeAvg: ${perfStat.timeAverage.format()}
+                    |   timeCurrent: ${perfStat.timeCurrent.format()}
+                    |""".toSingleLine()
+
+                    m_font.draw(m_batch, s, x, y)
+                    y -= 15f
+                }
+            }
         }
     }
 
