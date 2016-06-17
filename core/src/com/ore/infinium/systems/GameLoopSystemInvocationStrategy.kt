@@ -163,7 +163,7 @@ class GameLoopSystemInvocationStrategy
                 val systemAndProfiler = m_logicSystems[i]
                 //TODO interpolate before this
                 //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
-                systemAndProfiler.system.process()
+                processProfileSystem(systemAndProfiler)
                 updateEntityStates()
             }
 
@@ -203,8 +203,10 @@ class GameLoopSystemInvocationStrategy
         }
 
         if (OreSettings.profilerEnabled) {
-            profilerStats()
             updateProfilers()
+
+            //defunct
+            // printProfilerStats()
         }
 
         if (!m_isServer) {
@@ -223,52 +225,62 @@ class GameLoopSystemInvocationStrategy
         if (!m_isServer) {
             updateProfilerStatsForSystems(m_renderSystems, hash)
         }
-
-        updateProfilerStatsForSystems(m_logicSystems,hash)
+        updateProfilerStatsForSystems(m_logicSystems, hash)
     }
 
-    private fun updateProfilerStatsForSystems(m_renderSystems: List<SystemAndProfiler>, hash: HashMap<BaseSystem, PerfStat>) {
-            for (systemAndProfiler in m_renderSystems) {
-                val counter = systemAndProfiler.profiler.counter
+    private fun updateProfilerStatsForSystems(systems: List<SystemAndProfiler>, hash: HashMap<BaseSystem, PerfStat>) {
+        for (systemAndProfiler in systems) {
+            val counter = systemAndProfiler.profiler.counter
 
-                val perfStat = hash[systemAndProfiler.system]!!
-                perfStat.timeMin = counter.time.min
-                perfStat.timeMax = counter.time.max
-                perfStat.timeAverage = counter.time.average
-                perfStat.loadMin = counter.load.min
-                perfStat.loadMax = counter.load.max
-                perfStat.loadAverage = counter.load.average
-            }
+            val perfStat = hash[systemAndProfiler.system]!!
+            perfStat.timeMin = counter.time.min * 1000f
+            perfStat.timeMax = counter.time.max * 1000f
+            perfStat.timeCurrent = counter.time.latest * 1000f
+            perfStat.timeAverage = counter.time.average * 1000f
+        }
 
     }
 
-    class PerfStat(val systemName: String, var timeMin: Float = 0f, var timeMax: Float = 0f, var timeAverage: Float = 0f,
-                   var loadMin: Float = 0f, var loadMax: Float = 0f, var loadAverage: Float = 0f)
+    class PerfStat(val systemName: String, var timeMin: Float = 0f, var timeMax: Float = 0f,
+                   var timeAverage: Float = 0f, var timeCurrent: Float = 0f,
+                   var loadMin: Float = 0f, var loadMax: Float = 0f,
+                   var loadAverage: Float = 0f) {
+    }
 
     //separated to reduce theoretical thread lock-stepping/stuttering
     //since client will want to reach in and grab server perf stats,
     //which will require synchronization to do so reliably (or you could
     //be grabbing half stats from prior frames)
     val serverPerfCounter = hashMapOf<BaseSystem, PerfStat>()
+
     val clientPerfCounter = hashMapOf<BaseSystem, PerfStat>()
 
-    private fun profilerStats(): List<String> {
-        val list = mutableListOf<String>()
-        for (systemAndProfiler in m_logicSystems) {
-            val counter = systemAndProfiler.profiler.counter
-
-            val s = """tmin: ${counter.time.min.format()}
-                    tmax: ${counter.time.max.format()}
-                    tavg: ${counter.time.average.format()}
-                    lmin: ${counter.load.min.format()}
-                    lmin: ${counter.load.max.format()}
-                    lmin: ${counter.load.average.format()}
+    private fun printProfilerStats() {
+        if (m_isServer) {
+            serverPerfCounter.forEach { baseSystem, perfStat ->
+                val s = """tmin: ${perfStat.timeMin.format()}
+                    tmax: ${perfStat.timeMax.format()}
+                    tavg: ${perfStat.timeAverage.format()}
+                    lmin: ${perfStat.loadMin.format()}
+                    lmin: ${perfStat.loadMax.format()}
+                    lmin: ${perfStat.loadAverage.format()}
                     """
-
-            list.add(s)
+                println(s)
+            }
+        } else {
+            /*
+            clientPerfCounter.forEach { baseSystem, perfStat ->
+                val s = """tmin: ${perfStat.timeMin.format()}
+                    tmax: ${perfStat.timeMax.format()}
+                    tavg: ${perfStat.timeAverage.format()}
+                    lmin: ${perfStat.loadMin.format()}
+                    lmin: ${perfStat.loadMax.format()}
+                    lmin: ${perfStat.loadAverage.format()}
+                    """
+                println(s)
+            }
+            */
         }
-
-        return list
     }
 }
 

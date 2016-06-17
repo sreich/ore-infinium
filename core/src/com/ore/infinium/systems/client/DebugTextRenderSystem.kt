@@ -46,6 +46,7 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
 import java.text.DecimalFormat
@@ -158,6 +159,10 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         drawDebugInfoForEntityAtMouse(m_textYLeft)
         drawStandardDebugInfo()
 
+        if (OreSettings.profilerEnabled) {
+            drawProfilerStats()
+        }
+
         m_batch.end()
 
         if (m_renderDebugServer && false) {
@@ -202,6 +207,25 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         GLProfiler.reset()
 
+    }
+
+    private fun drawProfilerStats() {
+        val strategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
+
+        var y = 400f
+        val x = 400f
+
+        strategy.clientPerfCounter.forEach { baseSystem, perfStat ->
+            val s = """system: ${perfStat.systemName}
+            |   timeMin: ${perfStat.timeMin.format()}
+            |   timeMax: ${perfStat.timeMax.format()}
+            |   timeAvg: ${perfStat.timeAverage.format()}
+            |   timeCurrent: ${perfStat.timeCurrent.format()}
+            |""".toSingleLine()
+
+            m_font.draw(m_batch, s, x, y)
+            y -= 15f
+        }
     }
 
     private fun drawStandardDebugInfo() {
