@@ -43,7 +43,11 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
                     private val m_hotbarInventory: Inventory, //the model for this view
                     private val m_inventory: Inventory,
                     dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {
-    var inventoryVisible: Boolean = false
+    var inventoryVisible: Boolean
+        get() = m_window.isVisible
+        set(value) {
+            m_window.setVisible(value)
+        }
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tileRenderSystem: TileRenderSystem
@@ -108,12 +112,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
         }
 
         stage.addActor(m_window)
-        setVisible(false)
-    }
-
-    fun setVisible(visible: Boolean) {
-        m_window.isVisible = visible
-        inventoryVisible = visible
+        inventoryVisible = false
     }
 
     private fun setSlotVisible(index: Int, visible: Boolean) {
@@ -163,7 +162,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
             val payload = DragAndDrop.Payload()
 
             val dragWrapper = InventorySlotDragWrapper(type = Inventory.InventoryType.Inventory,
-                    dragSourceIndex = index)
+                                                       dragSourceIndex = index)
             payload.`object` = dragWrapper
 
             payload.dragActor = dragImage

@@ -90,6 +90,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
     private var m_hotbarView: HotbarInventoryView? = null
     private var m_inventoryView: InventoryView? = null
+    private var m_debugProfilerView: DebugProfilerView? = null
 
     var m_hotbarInventory: Inventory? = null
     private var m_inventory: Inventory? = null
@@ -296,7 +297,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     fun toggleInventoryVisible() {
-        m_inventoryView!!.setVisible(!m_inventoryView!!.inventoryVisible)
+        m_inventoryView!!.inventoryVisible = !m_inventoryView!!.inventoryVisible
     }
 
     /**
@@ -423,7 +424,10 @@ class OreClient : ApplicationListener, InputProcessor {
         when (keycode) {
             Input.Keys.ESCAPE -> shutdown()
             Input.Keys.F6 -> {
-                OreSettings.profilerEnabled = !OreSettings.profilerEnabled
+                if (m_clientNetworkSystem.connected) {
+                    OreSettings.profilerEnabled = !OreSettings.profilerEnabled
+                    m_debugProfilerView!!.profilerVisible = !m_debugProfilerView!!.profilerVisible
+                }
             }
             Input.Keys.F7 -> {
                 m_tileRenderSystem.debugRenderTileLighting = !m_tileRenderSystem.debugRenderTileLighting
@@ -443,7 +447,7 @@ class OreClient : ApplicationListener, InputProcessor {
                 m_stage.setDebugAll(m_debugTextRenderSystem.m_guiDebug)
             }
             Input.Keys.I -> if (m_inventoryView != null) {
-                m_inventoryView!!.setVisible(!m_inventoryView!!.inventoryVisible)
+                toggleInventoryVisible()
             }
         }
 
@@ -640,6 +644,8 @@ class OreClient : ApplicationListener, InputProcessor {
         m_hotbarView = HotbarInventoryView(m_stage, m_skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
                                            m_world!!)
         m_inventoryView = InventoryView(m_stage, m_skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
+
+        m_debugProfilerView = DebugProfilerView(m_stage, m_skin, m_world!!)
 
         m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
         m_world!!.m_artemisWorld.inject(m_inventory, true)
