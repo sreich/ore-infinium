@@ -138,4 +138,6 @@ object OreSettings {
     var debugPacketTypeStatistics: Boolean = false
 
     var profilerEnabled = false
+
+    val zoomAmount = 0.004f
 }

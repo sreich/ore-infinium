@@ -240,7 +240,7 @@ class OreClient : ApplicationListener, InputProcessor {
                                           spriteComp.sprite.width, spriteComp.sprite.height)
 
                 if (rectangle.contains(mouse)) {
-                    var send = true;
+                    var send = true
                     itemMapper.getNullable(currentEntity)?.apply {
                         //don't let them attack dropped items, makes no sense
                         if (state == ItemComponent.State.DroppedInWorld) {
@@ -348,18 +348,17 @@ class OreClient : ApplicationListener, InputProcessor {
             m_stage.draw()
         }
 
-        val zoomAmount = 0.004f
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
             if (m_zoomTimer.milliseconds() >= zoomInterval) {
                 //zoom out
-                zoom(1.0f + zoomAmount)
+                zoom(1.0f + OreSettings.zoomAmount)
                 m_zoomTimer.reset()
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
             if (m_zoomTimer.milliseconds() >= zoomInterval) {
-                zoom(1.0f - zoomAmount)
+                zoom(1.0f - OreSettings.zoomAmount)
                 m_zoomTimer.reset()
             }
         }
