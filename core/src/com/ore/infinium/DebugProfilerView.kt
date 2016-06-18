@@ -26,10 +26,7 @@ package com.ore.infinium
 
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.Window
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
 import com.ore.infinium.util.GdxAlign
 import com.ore.infinium.util.format
@@ -49,6 +46,7 @@ class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inv
     private val MIN_LABEL_WIDTH = 75f
 
     private val m_profilerRows = mutableListOf<ProfilerRow>()
+    private val m_scrollPane: ScrollPane
 
     init {
         /*
@@ -65,6 +63,7 @@ class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inv
         m_profilerHeader.add(createLabel("min", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
         m_profilerHeader.add(createLabel("max", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
         m_profilerHeader.add(createLabel("average", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
+        m_profilerHeader.add(createLabel("current", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
 
         //fixme;not centering or anything, all hardcoded :(
         this.setPosition(900f, 100f)
@@ -77,10 +76,18 @@ class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inv
         this.row()
 
         m_profilerRowsTable = Table(m_skin)
+        /*
         this.add(m_profilerRowsTable).expand().fill().bottom()
-        profilerVisible = false
+        */
 
+        m_scrollPane = ScrollPane(m_profilerRowsTable)
+        m_scrollPane.setScrollBarPositions(false, true)
+        this.add(m_scrollPane).fill().padRight(10f)
+
+        m_scrollPane.setScrollingDisabled(false, false)
 //        this.add(container).fill().expand()
+
+        profilerVisible = false
 
         stage.addActor(this)
     }
@@ -103,19 +110,35 @@ class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inv
 
         //       this.add(m_profilerRowsTable).expand()
         this.layout()
+        m_profilerRowsTable.layout()
+        m_scrollPane.layout()
+        m_scrollPane.setScrollPercentY(100f)
     }
 
     override fun act(delta: Float) {
         val strategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
 
-        val combinedProfilers = strategy.clientPerfCounter.values + strategy.serverPerfCounter.values
+        // synchronized(s)
+        val combinedProfilers = strategy.clientPerfCounter.values.toMutableList()
+
+        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.ClientHostingServer || m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
+            val serverWorld = m_world.m_server!!.m_world
+            val serverStrategy = serverWorld.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
+
+            synchronized(serverStrategy.serverPerfCounter) {
+                combinedProfilers.addAll(serverStrategy.serverPerfCounter.values)
+            }
+        }
+
         if (m_profilerRows.size != combinedProfilers.size) {
-            setupProfilerLayout(combinedProfilers)
+            setupProfilerLayout(combinedProfilers.toList())
         }
 
         combinedProfilers.forEachIndexed { i, perfStat ->
             m_profilerRows[i].minLabel.setText(perfStat.timeMin.format())
+            m_profilerRows[i].maxLabel.setText(perfStat.timeMax.format())
             m_profilerRows[i].averageLabel.setText(perfStat.timeAverage.format())
+            m_profilerRows[i].currentLabel.setText(perfStat.timeCurrent.format())
         }
     }
 
@@ -137,6 +160,7 @@ class ProfilerRow(m_skin: Skin) : Table(m_skin) {
     val minLabel: Label
     val maxLabel: Label
     val averageLabel: Label
+    val currentLabel: Label
 
     init {
         nameLabel = Label("systemN", m_skin)
@@ -144,10 +168,12 @@ class ProfilerRow(m_skin: Skin) : Table(m_skin) {
         minLabel = Label("min", m_skin)
         maxLabel = Label("max", m_skin)
         averageLabel = Label("average", m_skin)
+        currentLabel = Label("current", m_skin)
 
         this.add(nameLabel).expand().left()
         this.add(minLabel).expandX()
         this.add(maxLabel).expandX()
         this.add(averageLabel).expandX()
+        this.add(currentLabel).expandX()
     }
 }
