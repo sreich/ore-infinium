@@ -32,9 +32,13 @@ SOFTWARE.
 class SystemProfiler() : ArtemisProfiler {
     val counterWindowSize = 5
 
+
+    override fun initialize(owner: BaseSystem?, world: World?) {
+    }
+
     lateinit var counter: PerformanceCounter
-    override fun initialize(owner: BaseSystem, world: World) {
-        counter = PerformanceCounter(owner.javaClass.simpleName, counterWindowSize)
+    fun initialize(owner: BaseSystem, world: World, name: String) {
+        counter = PerformanceCounter(name, counterWindowSize)
     }
 
     override fun stop() {

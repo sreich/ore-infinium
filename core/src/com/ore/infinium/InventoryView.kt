@@ -46,7 +46,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
     var inventoryVisible: Boolean
         get() = m_window.isVisible
         set(value) {
-            m_window.setVisible(value)
+            m_window.isVisible = value
         }
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem

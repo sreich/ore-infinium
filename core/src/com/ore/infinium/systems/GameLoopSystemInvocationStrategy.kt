@@ -83,10 +83,18 @@ class GameLoopSystemInvocationStrategy
     }
 
     private fun createSystemAndProfiler(system: BaseSystem): SystemAndProfiler {
-        val profiler = SystemProfiler()
-        profiler.initialize(system, world)
+        val prepender = if (m_isServer) {
+            "server"
+        } else {
+            "client"
+        }
 
-        val perfStat = PerfStat(profiler.counter.name)
+        val profilerName = "$prepender.${system.javaClass.simpleName}"
+
+        val profiler = SystemProfiler()
+        profiler.initialize(system, world, profilerName)
+
+        val perfStat = PerfStat(profilerName)
 
         val hash = if (m_isServer) {
             serverPerfCounter
