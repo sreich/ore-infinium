@@ -152,82 +152,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
                 var drawForegroundTile = true
 
+                textureName = findTextureNameForBlock(x, y)
                 //String textureName = World.blockAttributes.get(block.type).textureName;
-                when (blockType) {
-                    OreBlock.BlockType.Dirt.oreValue -> {
-
-                        if (hasGrass) {
-                            textureName = m_grassBlockMeshes.get(blockMeshType.toInt())
-                            assert(textureName != null) { "block mesh lookup failure" }
-                        } else {
-                            textureName = m_dirtBlockMeshes.get(blockMeshType.toInt())
-                            assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
-                        }
-                    }
-
-                    OreBlock.BlockType.Stone.oreValue -> {
-                        textureName = m_stoneBlockMeshes.get(blockMeshType.toInt())
-                        assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
-
-                    }
-
-                    OreBlock.BlockType.Air.oreValue -> {
-                        if (blockWallType == OreBlock.WallType.Air.oreValue) {
-                            //we can skip a draw iff the wall, and block is air
-                            continue@loop
-                        } else {
-                            drawForegroundTile = false
-                        }
-                    }
-
-                    OreBlock.BlockType.Coal.oreValue -> {
-                        textureName = "coal"
-                    }
-
-                    OreBlock.BlockType.Copper.oreValue -> {
-                        textureName = "copper-00"
-                    }
-
-                    OreBlock.BlockType.Uranium.oreValue -> {
-                        textureName = "uranium"
-                    }
-
-                    OreBlock.BlockType.Diamond.oreValue -> {
-                        textureName = "diamond"
-                    }
-
-                    OreBlock.BlockType.Iron.oreValue -> {
-                        textureName = "iron"
-                    }
-
-                    OreBlock.BlockType.Sand.oreValue -> {
-                        textureName = "sand"
-                    }
-
-                    OreBlock.BlockType.Bedrock.oreValue -> {
-                        textureName = "bedrock"
-                    }
-
-                    OreBlock.BlockType.Silver.oreValue -> {
-                        textureName = "silver"
-                    }
-
-                    OreBlock.BlockType.Gold.oreValue -> {
-                        textureName = "gold"
-                    }
-
-                    OreBlock.BlockType.Water.oreValue -> {
-                        textureName = "water"
-                    }
-
-                    OreBlock.BlockType.Lava.oreValue -> {
-                        textureName = "lava"
-                    }
-                    else
-                    -> {
-                        assert(false) { "unhandled block blockType: $blockType" }
-                    }
-                }
 
                 val blockLightLevel = if (debugRenderTileLighting) {
                     m_world.blockLightLevel(x, y)
@@ -279,6 +205,94 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         }
 
         m_batch.end()
+    }
+
+    private fun findTextureNameForBlock(x: Int, y: Int): String {
+        val blockType = m_world.blockType(x, y)
+        val blockMeshType = m_world.blockMeshType(x, y)
+        val blockWallType = m_world.blockWallType(x, y)
+
+        val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+
+        var textureName = "notfound"
+        when (blockType) {
+            OreBlock.BlockType.Dirt.oreValue -> {
+
+                if (hasGrass) {
+                    textureName = m_grassBlockMeshes.get(blockMeshType.toInt())
+                    assert(textureName != null) { "block mesh lookup failure" }
+                } else {
+                    textureName = m_dirtBlockMeshes.get(blockMeshType.toInt())
+                    assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
+                }
+            }
+
+            OreBlock.BlockType.Stone.oreValue -> {
+                textureName = m_stoneBlockMeshes.get(blockMeshType.toInt())
+                assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
+
+            }
+
+            OreBlock.BlockType.Air.oreValue -> {
+                if (blockWallType == OreBlock.WallType.Air.oreValue) {
+                    //we can skip a draw iff the wall, and block is air
+                    //fixme this, if we want to do this, would belong somewhere else
+                    //continue@loop
+                } else {
+                    //fixme this too drawForegroundTile = false
+                }
+            }
+
+            OreBlock.BlockType.Coal.oreValue -> {
+                textureName = "coal"
+            }
+
+            OreBlock.BlockType.Copper.oreValue -> {
+                textureName = "copper-00"
+            }
+
+            OreBlock.BlockType.Uranium.oreValue -> {
+                textureName = "uranium"
+            }
+
+            OreBlock.BlockType.Diamond.oreValue -> {
+                textureName = "diamond"
+            }
+
+            OreBlock.BlockType.Iron.oreValue -> {
+                textureName = "iron"
+            }
+
+            OreBlock.BlockType.Sand.oreValue -> {
+                textureName = "sand"
+            }
+
+            OreBlock.BlockType.Bedrock.oreValue -> {
+                textureName = "bedrock"
+            }
+
+            OreBlock.BlockType.Silver.oreValue -> {
+                textureName = "silver"
+            }
+
+            OreBlock.BlockType.Gold.oreValue -> {
+                textureName = "gold"
+            }
+
+            OreBlock.BlockType.Water.oreValue -> {
+                textureName = "water"
+            }
+
+            OreBlock.BlockType.Lava.oreValue -> {
+                textureName = "lava"
+            }
+            else
+            -> {
+                assert(false) { "unhandled block blockType: $blockType" }
+            }
+        }
+
+        return textureName
     }
 
 
