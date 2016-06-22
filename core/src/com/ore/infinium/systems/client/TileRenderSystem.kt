@@ -166,6 +166,13 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
 
+                if (blockWallType == OreBlock.WallType.Air.oreValue
+                        && blockType == OreBlock.BlockType.Air.oreValue) {
+                    continue@loop
+                } else {
+                    drawForegroundTile = false
+                }
+
                 ///////////////////////////////// draw walls
                 val wallTextureName = m_dirtBlockMeshes.get(0)
                 assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
@@ -214,7 +221,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
-        var textureName = "notfound"
+        var textureName: String ? = null
         when (blockType) {
             OreBlock.BlockType.Dirt.oreValue -> {
 
@@ -234,13 +241,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
             }
 
             OreBlock.BlockType.Air.oreValue -> {
-                if (blockWallType == OreBlock.WallType.Air.oreValue) {
-                    //we can skip a draw iff the wall, and block is air
-                    //fixme this, if we want to do this, would belong somewhere else
-                    //continue@loop
-                } else {
-                    //fixme this too drawForegroundTile = false
-                }
+                //not drawn/handled by this function at all
             }
 
             OreBlock.BlockType.Coal.oreValue -> {
@@ -290,6 +291,11 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
             -> {
                 assert(false) { "unhandled block blockType: $blockType" }
             }
+        }
+
+        if (textureName == null) {
+            error("block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
+                    blockType)}")
         }
 
         return textureName

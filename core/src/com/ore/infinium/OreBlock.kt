@@ -185,5 +185,10 @@ class OreBlock private constructor() {
          * @see BlockFlags
          */
         const val BLOCK_BYTE_FIELD_INDEX_FLAGS = 4
+
+        fun nameOfBlockType(blockType: Byte?): String? {
+            return OreBlock.BlockType.values().firstOrNull { it.oreValue == blockType }?.name
+        }
+
     }
 }
