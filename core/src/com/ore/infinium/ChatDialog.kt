@@ -54,7 +54,6 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
     }
 
     init {
-
         m_notificationTimer = Timer()
 
         container = Table()
@@ -91,55 +90,57 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
         m_scroll.scrollPercentY = 100f
 
         //TODO convert away from anonymous class..
-        m_stage.addListener(object : InputListener() {
-            override //fixme override mouse as well, to ignroe those.
-            fun keyDown(event: InputEvent?, keycode: Int): Boolean {
-                when {
-                    keycode == Input.Keys.ENTER -> {
-                        if (chatVisibilityState == ChatVisibility.Normal) {
-                            closeChatDialog()
-                            sendChat()
-                        } else {
-                            openChatDialog()
-                        }
-
-                        return true
-                    }
-
-                    keycode == Input.Keys.ESCAPE -> {
-                        closeChatDialog()
-
-                        return false
-                    }
-
-                    keycode == Input.Keys.SLASH -> {
-                        if (chatVisibilityState != ChatVisibility.Normal) {
-                            openChatDialog()
-
-                            //add in helper command sequence
-                            m_messageField.text = "/"
-                            //focus the end of it, otherwise it'd be at the beginning
-                            m_messageField.cursorPosition = m_messageField.text!!.length
-
-                            return true
-                        }
-
-                        return false
-                    }
-
-                //ignore all keys if we're in non-focused mode
-                    chatVisibilityState != ChatVisibility.Normal -> return false
-
-                    else -> return super.keyDown(event, keycode)
-                }
-
-            }
-        })
+        m_stage.addListener(ChatInputListener(this))
 
         closeChatDialog()
         closeChatDialog()
         closeChatDialog()
         //   showForNotification();
+    }
+
+    class ChatInputListener(val chatDialog: ChatDialog) : InputListener() {
+        override //fixme override mouse as well, to ignroe those.
+        fun keyDown(event: InputEvent?, keycode: Int): Boolean {
+            when {
+                keycode == Input.Keys.ENTER -> {
+                    if (chatDialog.chatVisibilityState == ChatVisibility.Normal) {
+                        chatDialog.closeChatDialog()
+                        chatDialog.sendChat()
+                    } else {
+                        chatDialog.openChatDialog()
+                    }
+
+                    return true
+                }
+
+                keycode == Input.Keys.ESCAPE -> {
+                    chatDialog.closeChatDialog()
+
+                    return false
+                }
+
+                keycode == Input.Keys.SLASH -> {
+                    if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
+                        chatDialog.openChatDialog()
+
+                        //add in helper command sequence
+                        chatDialog.m_messageField.text = "/"
+                        //focus the end of it, otherwise it'd be at the beginning
+                        chatDialog.m_messageField.cursorPosition = chatDialog.m_messageField.text!!.length
+
+                        return true
+                    }
+
+                    return false
+                }
+
+            //ignore all keys if we're in non-focused mode
+                chatDialog.chatVisibilityState != ChatVisibility.Normal -> return false
+
+                else -> return super.keyDown(event, keycode)
+            }
+
+        }
     }
 
     private fun showForNotification() {
@@ -287,7 +288,7 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
         m_scrollPaneTable.add(messageLabel).expandX().fill()
 
         val element = ChatElement(timestampLabel = timeStampLabel, playerNameLabel = playerNameLabel,
-                                  chatTextLabel = messageLabel)
+                chatTextLabel = messageLabel)
         m_elements.add(element)
 
         container.layout()
