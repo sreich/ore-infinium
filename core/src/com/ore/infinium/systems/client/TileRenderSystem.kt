@@ -242,6 +242,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
             OreBlock.BlockType.Air.oreValue -> {
                 //not drawn/handled by this function at all
+                textureName = "air NOT USED"
             }
 
             OreBlock.BlockType.Coal.oreValue -> {
@@ -294,7 +295,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         }
 
         if (textureName == null) {
-            error("block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
+            error("tile renderer block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
                     blockType)}")
         }
 

@@ -36,6 +36,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.TimeUtils
@@ -80,6 +81,7 @@ class OreClient : ApplicationListener, InputProcessor {
     lateinit var m_stage: Stage
     lateinit var m_skin: Skin
 
+    lateinit var m_rootTable: Table
     lateinit var m_chat: Chat
     private var m_sidebar: Sidebar? = null
 
@@ -132,7 +134,12 @@ class OreClient : ApplicationListener, InputProcessor {
         m_dragAndDrop = DragAndDrop()
 
         viewport = StretchViewport(OreSettings.width.toFloat(), OreSettings.height.toFloat())
+
         m_stage = Stage(viewport)
+        m_rootTable = Table()
+        m_rootTable.setFillParent(true)
+        m_stage.addActor(m_rootTable)
+
         m_multiplexer = InputMultiplexer(m_stage, this)
 
         Gdx.input.inputProcessor = m_multiplexer
@@ -645,7 +652,8 @@ class OreClient : ApplicationListener, InputProcessor {
                                            m_world!!)
         m_inventoryView = InventoryView(m_stage, m_skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
-        m_debugProfilerView = DebugProfilerView(m_stage, m_skin, m_world!!)
+        m_debugProfilerView = DebugProfilerView(stage = m_stage, m_skin = m_skin, m_world = m_world!!,
+                                                m_rootTable = m_rootTable)
 
         m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
         m_world!!.m_artemisWorld.inject(m_inventory, true)

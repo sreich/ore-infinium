@@ -33,7 +33,8 @@ import com.ore.infinium.util.format
 
 @Wire
 class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inventory, for drag and drop
-                        private val m_world: OreWorld) : Window("profiler window", m_skin) {
+                        private val m_world: OreWorld, m_rootTable: Table) : Window("profiler window",
+                                                                                    m_skin) {
     var profilerVisible: Boolean
         get() = isVisible
         set(value) {
@@ -129,7 +130,6 @@ override fun lineAdded(line: Chat.ChatLine) {
         m_profilerHeader.add(createLabel("current", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
         */
 
-
         container = Table()
 
         container.top().right().padBottom(5f).setSize(600f, 300f)
@@ -162,6 +162,7 @@ override fun lineAdded(line: Chat.ChatLine) {
             addT()
         }
 
+        m_rootTable.add(container)
 
 
         profilerVisible = false
