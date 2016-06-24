@@ -50,8 +50,8 @@ class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inv
     private val MIN_LABEL_WIDTH = 75f
 
     private val m_profilerRows = mutableListOf<ProfilerRow>()
-    private val m_scrollPane: VisScrollPane
-    private val container: VisTable
+//    private val m_scrollPane: VisScrollPane
+    //   private val container: VisTable
 
 /*
 private val m_elements = Array<ChatElement>()
@@ -133,12 +133,13 @@ override fun lineAdded(line: Chat.ChatLine) {
         m_profilerHeader.add(createLabel("current", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
         */
 
+        /*Lkkk
         container = VisTable()
 
         container.top().right().padBottom(5f).setSize(600f, 300f)
         container.setFillParent(true)
 
-        m_profilerRowsTable = VisTable()
+        m_profilerRowsTable = VisTable(true)
 
         m_scrollPane = VisScrollPane(m_profilerRowsTable)
 
@@ -154,7 +155,7 @@ override fun lineAdded(line: Chat.ChatLine) {
 
         //        container.background("default-window");
 
-        stage.addActor(container)
+        //stage.addActor(container)
 
         container.layout()
         m_profilerRowsTable.layout()
@@ -165,9 +166,44 @@ override fun lineAdded(line: Chat.ChatLine) {
             addT()
         }
 
-        m_rootTable.add(container)
+        this.add(m_scrollPane).fill().expand().pad(10f)
+//        m_rootTable.add(container)
 
 
+        */
+
+
+        val root = VisTable()
+        root.setFillParent(true)
+        stage.addActor(root)
+
+        val textButton = VisTextButton("click me!")
+
+        val window = VisWindow("example window")
+        window.add("this is a simple VisUI window").padTop(5f).row()
+        window.add(textButton).pad(10f).row()
+
+        val textRows = VisTable(true)
+
+        for (i in 0..10) {
+            val label = VisLabel("label test")
+
+            val textRow = VisTable()
+            textRow.add(label).fillX().expandX()
+
+            textRows.add(textRow).fillX().expandX().row()
+        }
+
+        val scroll = VisScrollPane(textRows)
+
+        window.add(scroll).size(200f, 90f)//.fill().expand()
+        window.pack()
+        window.centerWindow()
+
+        stage.addActor(window.fadeIn())
+
+
+//        stage.addActor(this)
         profilerVisible = false
 
     }
@@ -192,17 +228,20 @@ override fun lineAdded(line: Chat.ChatLine) {
         }
 
         //       this.add(m_profilerRowsTable).expand()
+        /*
         m_profilerRowsTable.layout()
         m_scrollPane.layout()
         m_scrollPane.layout()
         this.layout()
         m_scrollPane.layout()
+        */
     }
 
     fun addT() {
         m_profilerRowsTable.row().left()
 
 
+        /*
         val timeStampLabel = Label("timestamp label", m_skin)
         m_profilerRowsTable.add(timeStampLabel).top().left().fill().padRight(4f)//.expandX();
 
@@ -215,10 +254,12 @@ override fun lineAdded(line: Chat.ChatLine) {
 
         container.layout()
         m_profilerRowsTable.layout()
+        */
     }
 
     override fun act(delta: Float) {
-        m_scrollPane.scrollPercentY = 100f
+        return
+        //hack m_scrollPane.scrollPercentY = 100f
         val strategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
 
         // synchronized(s)

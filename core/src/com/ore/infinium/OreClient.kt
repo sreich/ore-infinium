@@ -136,6 +136,8 @@ class OreClient : ApplicationListener, InputProcessor {
 
         viewport = StretchViewport(OreSettings.width.toFloat(), OreSettings.height.toFloat())
 
+        //load before stage
+        VisUI.load(VisUI.SkinScale.X1)
         m_stage = Stage(viewport)
         m_rootTable = VisTable()
         m_rootTable.setFillParent(true)
@@ -143,7 +145,6 @@ class OreClient : ApplicationListener, InputProcessor {
 
         m_multiplexer = InputMultiplexer(m_stage, this)
 
-        VisUI.load(VisUI.SkinScale.X1)
 
         Gdx.input.inputProcessor = m_multiplexer
 
