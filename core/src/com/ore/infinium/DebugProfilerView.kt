@@ -26,15 +26,18 @@ package com.ore.infinium
 
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
 import com.ore.infinium.util.GdxAlign
 import com.ore.infinium.util.format
 
 @Wire
 class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inventory, for drag and drop
-                        private val m_world: OreWorld, m_rootTable: Table) : Window("profiler window",
-                                                                                    m_skin) {
+                        private val m_world: OreWorld, m_rootTable: VisTable) : VisWindow("profiler window") {
+
     var profilerVisible: Boolean
         get() = isVisible
         set(value) {
@@ -42,13 +45,13 @@ class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inv
         }
 
     private lateinit var m_profilerHeader: Table
-    private lateinit var m_profilerRowsTable: Table
+    private lateinit var m_profilerRowsTable: VisTable
 
     private val MIN_LABEL_WIDTH = 75f
 
     private val m_profilerRows = mutableListOf<ProfilerRow>()
-    private val m_scrollPane: ScrollPane
-    private val container: Table
+    private val m_scrollPane: VisScrollPane
+    private val container: VisTable
 
 /*
 private val m_elements = Array<ChatElement>()
@@ -130,22 +133,22 @@ override fun lineAdded(line: Chat.ChatLine) {
         m_profilerHeader.add(createLabel("current", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
         */
 
-        container = Table()
+        container = VisTable()
 
         container.top().right().padBottom(5f).setSize(600f, 300f)
         container.setFillParent(true)
 
-        m_profilerRowsTable = Table()
+        m_profilerRowsTable = VisTable()
 
-        m_scrollPane = ScrollPane(m_profilerRowsTable)
+        m_scrollPane = VisScrollPane(m_profilerRowsTable)
 
         container.add(m_scrollPane).expand().fill().colspan(4)
         container.row().space(2f)
 
-        val m_messageField = TextField("", m_skin)
+        val m_messageField = VisTextField("")
         container.add(m_messageField).expandX().fill()
 
-        val m_send = TextButton("send", m_skin)
+        val m_send = VisTextButton("send")
 
         container.add(m_send).right()
 

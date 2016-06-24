@@ -22,6 +22,8 @@ buildscript {
         junitVersion = '4.12'
 
         joiseVersion = '1.0.1'
+
+        visUiVersion = '1.1.1'
     }
 
     repositories {
@@ -152,6 +154,8 @@ project(":core") {
         compile "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+
+        compile "com.kotcrab.vis:vis-ui:$visUiVersion"
 
         //junit
         testCompile "junit:junit:$junitVersion"

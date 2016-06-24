@@ -36,13 +36,14 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Dialog
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
+import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.getNullable
@@ -81,7 +82,7 @@ class OreClient : ApplicationListener, InputProcessor {
     lateinit var m_stage: Stage
     lateinit var m_skin: Skin
 
-    lateinit var m_rootTable: Table
+    lateinit var m_rootTable: VisTable
     lateinit var m_chat: Chat
     private var m_sidebar: Sidebar? = null
 
@@ -136,11 +137,13 @@ class OreClient : ApplicationListener, InputProcessor {
         viewport = StretchViewport(OreSettings.width.toFloat(), OreSettings.height.toFloat())
 
         m_stage = Stage(viewport)
-        m_rootTable = Table()
+        m_rootTable = VisTable()
         m_rootTable.setFillParent(true)
         m_stage.addActor(m_rootTable)
 
         m_multiplexer = InputMultiplexer(m_stage, this)
+
+        VisUI.load(VisUI.SkinScale.X1)
 
         Gdx.input.inputProcessor = m_multiplexer
 
