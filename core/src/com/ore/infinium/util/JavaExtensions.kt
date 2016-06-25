@@ -39,4 +39,5 @@ object Color2 {
     val SILVER = Color(192, 192, 192)
 
     val WATER_BLUE = Color(15, 60, 157)
+    val SKY_BLUE = Color(155, 209, 255)
 }

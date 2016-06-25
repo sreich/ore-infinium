@@ -53,6 +53,7 @@ class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inv
 //    private val m_scrollPane: VisScrollPane
     //   private val container: VisTable
 
+
 /*
 private val m_elements = Array<ChatElement>()
 
@@ -173,15 +174,15 @@ override fun lineAdded(line: Chat.ChatLine) {
         */
 
 
-        val root = VisTable()
-        root.setFillParent(true)
-        stage.addActor(root)
+        //      val root = VisTable()
+        //       root.setFillParent(true)
+//        stage.addActor(root)
 
         val textButton = VisTextButton("click me!")
 
-        val window = VisWindow("example window")
-        window.add("this is a simple VisUI window").padTop(5f).row()
-        window.add(textButton).pad(10f).row()
+        //val window = VisWindow("example window")
+        this.add("this is a simple VisUI window").padTop(5f).row()
+        this.add(textButton).pad(10f).row()
 
         val textRows = VisTable(true)
 
@@ -196,12 +197,12 @@ override fun lineAdded(line: Chat.ChatLine) {
 
         val scroll = VisScrollPane(textRows)
 
-        window.add(scroll).size(200f, 90f)//.fill().expand()
-        window.pack()
-        window.centerWindow()
+        this.add(scroll).size(200f, 90f)//.fill().expand()
+        //       this.pack()
+//        this.centerWindow()
+        this.isResizable = true
 
-        stage.addActor(window.fadeIn())
-
+        m_rootTable.add(this).top().right()
 
 //        stage.addActor(this)
         profilerVisible = false
@@ -258,6 +259,7 @@ override fun lineAdded(line: Chat.ChatLine) {
     }
 
     override fun act(delta: Float) {
+        super.act(delta)
         return
         //hack m_scrollPane.scrollPercentY = 100f
         val strategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()

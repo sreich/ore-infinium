@@ -129,7 +129,7 @@ class OreBlock private constructor() {
                                      BlockType.Uranium.oreValue to Color2.LIME_GREEN,
                                      BlockType.Iron.oreValue to Color2.RED4,
                                      BlockType.Bedrock.oreValue to Color.CYAN,
-                                     BlockType.Air.oreValue to Color.BLACK,
+                                     BlockType.Air.oreValue to Color2.SKY_BLUE,
                                      BlockType.Water.oreValue to Color2.WATER_BLUE,
                                      BlockType.Lava.oreValue to Color.RED
                                     )

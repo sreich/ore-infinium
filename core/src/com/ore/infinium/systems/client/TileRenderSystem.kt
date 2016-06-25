@@ -166,11 +166,12 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
 
-                if (blockWallType == OreBlock.WallType.Air.oreValue
-                        && blockType == OreBlock.BlockType.Air.oreValue) {
-                    continue@loop
-                } else {
+                if (blockType == OreBlock.BlockType.Air.oreValue) {
                     drawForegroundTile = false
+                    if (blockWallType == OreBlock.WallType.Air.oreValue) {
+                        //can skip over entirely empty blocks
+                        continue@loop
+                    }
                 }
 
                 ///////////////////////////////// draw walls
