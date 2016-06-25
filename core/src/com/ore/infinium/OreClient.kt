@@ -164,7 +164,7 @@ class OreClient : ApplicationListener, InputProcessor {
         m_skin.add("myfont", bitmapFont_8pt, BitmapFont::class.java)
         m_skin.load(Gdx.files.internal("ui/ui.json"))
 
-        m_chatDialog = ChatDialog(this, m_stage, m_skin)
+        m_chatDialog = ChatDialog(this, m_stage, m_skin, m_rootTable)
 
         m_chat = Chat()
         m_chat.addListener(m_chatDialog)

@@ -26,52 +26,54 @@ package com.ore.infinium
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.scenes.scene2d.*
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
+import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.enabledString
 
-class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, private val m_skin: Skin) : Chat.ChatListener {
+class ChatDialog(private val m_client: OreClient,
+                 private val m_stage: Stage,
+                 private val m_skin: Skin, m_rootTable: VisTable) : Chat.ChatListener {//, VisWindow("chat") {
 
-    private val container: Table
+    private val container: VisTable
 
     private val m_elements = Array<ChatElement>()
 
-    private val m_scroll: ScrollPane
-    private val m_scrollPaneTable: Table
-    private val m_messageField: TextField
-    private val m_send: TextButton
+    private val m_scroll: VisScrollPane
+    private val m_scrollPaneTable: VisTable
+    private val m_messageField: VisTextField
+    private val m_send: VisTextButton
 
     var chatVisibilityState = ChatVisibility.Normal
 
     internal var m_notificationTimer: Timer
 
-    private inner class ChatElement(internal var timestampLabel: Label,
-                                    internal var playerNameLabel: Label,
-                                    internal var chatTextLabel: Label) {
-    }
+    private inner class ChatElement(internal var timestampLabel: VisLabel,
+                                    internal var playerNameLabel: VisLabel,
+                                    internal var chatTextLabel: VisLabel)
 
     init {
         m_notificationTimer = Timer()
 
-        container = Table()
+        container = VisTable()
+
+        m_scrollPaneTable = VisTable()
+
+        m_scroll = VisScrollPane(m_scrollPaneTable)
 
         m_stage.addActor(container)
         container.bottom().left().padBottom(5f).setSize(600f, 300f)
 
-        m_scrollPaneTable = Table()
-
-        m_scroll = ScrollPane(m_scrollPaneTable)
-
         container.add(m_scroll).expand().fill().colspan(4)
         container.row().space(2f)
 
-        m_messageField = TextField("", m_skin)
+        m_messageField = VisTextField()
         container.add(m_messageField).expandX().fill()
 
-        m_send = TextButton("send", m_skin)
+        m_send = VisTextButton("send")
 
         m_send.addListener(object : ChangeListener() {
             override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
@@ -84,12 +86,13 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
         m_stage.keyboardFocus = m_send
         //        container.background("default-window");
 
+//        m_rootTable.add(container).bottom().left().padBottom(5f).size(500f, 200f)
+
         container.layout()
         m_scrollPaneTable.layout()
         m_scroll.layout()
         m_scroll.scrollPercentY = 100f
 
-        //TODO convert away from anonymous class..
         m_stage.addListener(ChatInputListener(this))
 
         closeChatDialog()
@@ -277,18 +280,18 @@ class ChatDialog(private val m_client: OreClient, private val m_stage: Stage, pr
         m_scrollPaneTable.row().left()
 
 
-        val timeStampLabel = Label(line.timestamp, m_skin)
+        val timeStampLabel = VisLabel(line.timestamp)
         m_scrollPaneTable.add(timeStampLabel).top().left().fill().padRight(4f)//.expandX();
 
-        val playerNameLabel = Label(line.playerName, m_skin)
+        val playerNameLabel = VisLabel(line.playerName)
         m_scrollPaneTable.add(playerNameLabel).top().left().fill().padRight(4f)
 
-        val messageLabel = Label(line.chatText, m_skin)
+        val messageLabel = VisLabel(line.chatText)
         messageLabel.setWrap(true)
         m_scrollPaneTable.add(messageLabel).expandX().fill()
 
         val element = ChatElement(timestampLabel = timeStampLabel, playerNameLabel = playerNameLabel,
-                chatTextLabel = messageLabel)
+                                  chatTextLabel = messageLabel)
         m_elements.add(element)
 
         container.layout()
