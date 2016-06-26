@@ -88,6 +88,7 @@ class DebugProfilerView(stage: Stage,
 
         this.add(container).fill().expand()//.size(200f, 500f)
 
+        this.setSize(600f, 600f)
         this.isResizable = true
         stage.addActor(this)
         this.centerWindow()
@@ -152,6 +153,10 @@ class ProfilerRow() : VisTable() {
     val averageLabel: VisLabel
     val currentLabel: VisLabel
 
+    private val COLUMNS_WIDTH = 80f
+
+    private val COLUMNS_NAME_WIDTH = 250f
+
     init {
         nameLabel = VisLabel("systemN")
 
@@ -160,10 +165,10 @@ class ProfilerRow() : VisTable() {
         averageLabel = VisLabel("average")
         currentLabel = VisLabel("current")
 
-        this.add(nameLabel).expandX()
-        this.add(minLabel).expandX().fillX()
-        this.add(maxLabel).expandX().fillX()
-        this.add(averageLabel).expandX().fillX()
-        this.add(currentLabel).expandX().fillX()
+        this.add(nameLabel).width(COLUMNS_NAME_WIDTH)
+        this.add(minLabel).width(COLUMNS_WIDTH)
+        this.add(maxLabel).width(COLUMNS_WIDTH)
+        this.add(averageLabel).width(COLUMNS_WIDTH)
+        this.add(currentLabel).width(COLUMNS_WIDTH)
     }
 }
