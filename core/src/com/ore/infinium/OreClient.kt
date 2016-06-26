@@ -29,21 +29,19 @@ import com.artemis.ComponentMapper
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
 import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.getNullable
@@ -80,7 +78,6 @@ class OreClient : ApplicationListener, InputProcessor {
     lateinit private var m_multiplexer: InputMultiplexer
 
     lateinit var m_stage: Stage
-    lateinit var m_skin: Skin
 
     lateinit var m_rootTable: VisTable
     lateinit var m_chat: Chat
@@ -88,7 +85,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
     private var m_dragAndDrop: DragAndDrop? = null
 
-    private var m_dialog: Dialog? = null
+    private var m_dialog: VisDialog? = null
     private lateinit var m_chatDialog: ChatDialog
 
     private var m_hotbarView: HotbarInventoryView? = null
@@ -124,12 +121,6 @@ class OreClient : ApplicationListener, InputProcessor {
         //        Gdx.app.setLogLevel(Application.LOG_NONE);
         //        Log.set(Log.LEVEL_INF
 
-        //        ProgressBar progressBar = new ProgressBar(0, 100, 10, false, m_skin);
-        //        progressBar.setValue(50);
-        //        progressBar.getStyle().knobBefore = progressBar.getStyle().knob;
-        //        progressBar.getStyle().knob.setMinHeight(50);
-        //        container.add(progressBar);
-
         Thread.currentThread().name = "client render thread (GL)"
 
         m_dragAndDrop = DragAndDrop()
@@ -138,6 +129,10 @@ class OreClient : ApplicationListener, InputProcessor {
 
         //load before stage
         VisUI.load(VisUI.SkinScale.X1)
+
+        //todo custom skin
+        //VisUI.load(Gdx.files.internal("ui/ui.json"))
+
         m_stage = Stage(viewport)
         m_rootTable = VisTable()
         m_rootTable.setFillParent(true)
@@ -159,17 +154,12 @@ class OreClient : ApplicationListener, InputProcessor {
 
         m_fontGenerator.dispose()
 
-        m_skin = Skin()
-        m_skin.addRegions(TextureAtlas(Gdx.files.internal("packed/ui.atlas")))
-        m_skin.add("myfont", bitmapFont_8pt, BitmapFont::class.java)
-        m_skin.load(Gdx.files.internal("ui/ui.json"))
-
-        m_chatDialog = ChatDialog(this, m_stage, m_skin, m_rootTable)
+        m_chatDialog = ChatDialog(this, m_stage, m_rootTable)
 
         m_chat = Chat()
         m_chat.addListener(m_chatDialog)
 
-        m_sidebar = Sidebar(m_stage, m_skin, this)
+        m_sidebar = Sidebar(m_stage, this)
 
         hostAndJoin()
     }
@@ -377,17 +367,17 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     private fun showFailToConnectDialog() {
-        m_dialog = object : Dialog("", m_skin, "dialog") {
+        m_dialog = object : VisDialog("", "dialog") {
             override fun result(obj: Any?) {
                 println("Chosen: " + obj!!)
             }
 
         }
 
-        var dbutton = TextButton("Yes", m_skin, "default")
+        var dbutton = VisTextButton("Yes")
         m_dialog!!.button(dbutton, true)
 
-        dbutton = TextButton("No", m_skin, "default")
+        dbutton = VisTextButton("No")
         m_dialog!!.button(dbutton, false)
         m_dialog!!.key(Input.Keys.ENTER, true).key(Input.Keys.ESCAPE, false)
         m_dialog!!.invalidateHierarchy()
@@ -652,11 +642,11 @@ class OreClient : ApplicationListener, InputProcessor {
         m_inventory = Inventory(player, Inventory.InventoryType.Inventory)
         playerComponent.inventory = m_inventory
 
-        m_hotbarView = HotbarInventoryView(m_stage, m_skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
+        m_hotbarView = HotbarInventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
                                            m_world!!)
-        m_inventoryView = InventoryView(m_stage, m_skin, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
+        m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
-        m_debugProfilerView = DebugProfilerView(stage = m_stage, m_skin = m_skin, m_world = m_world!!,
+        m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!,
                                                 m_rootTable = m_rootTable)
 
         m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)

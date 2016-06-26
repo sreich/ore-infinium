@@ -26,7 +26,6 @@ package com.ore.infinium
 
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.scenes.scene2d.*
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
@@ -36,7 +35,7 @@ import com.ore.infinium.util.enabledString
 
 class ChatDialog(private val m_client: OreClient,
                  private val m_stage: Stage,
-                 private val m_skin: Skin, m_rootTable: VisTable) : Chat.ChatListener {//, VisWindow("chat") {
+                 m_rootTable: VisTable) : Chat.ChatListener {
 
     private val container: VisTable
 
@@ -64,8 +63,8 @@ class ChatDialog(private val m_client: OreClient,
 
         m_scroll = VisScrollPane(m_scrollPaneTable)
 
-        m_stage.addActor(container)
-        container.bottom().left().padBottom(5f).setSize(600f, 300f)
+//        m_stage.addActor(container)
+        //       container.bottom().left().padBottom(5f).setSize(600f, 300f)
 
         container.add(m_scroll).expand().fill().colspan(4)
         container.row().space(2f)
@@ -85,8 +84,7 @@ class ChatDialog(private val m_client: OreClient,
 
         m_stage.keyboardFocus = m_send
         //        container.background("default-window");
-
-//        m_rootTable.add(container).bottom().left().padBottom(5f).size(500f, 200f)
+        m_rootTable.add(container).expand().bottom().left().padBottom(5f).size(500f, 200f)
 
         container.layout()
         m_scrollPaneTable.layout()

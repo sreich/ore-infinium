@@ -34,8 +34,9 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getTagNullable
@@ -43,9 +44,10 @@ import com.ore.infinium.util.indices
 
 @Wire
 class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
-
-            private val m_world: OreWorld, private val m_stage: Stage, private val m_skin: Skin) : IteratingSystem(
+        private val m_world: OreWorld,
+        private val m_stage: Stage) : IteratingSystem(
             Aspect.all(PowerDeviceComponent::class.java)), RenderSystemMarker {
+
     var overlayVisible = false
     private lateinit var m_batch: SpriteBatch
 
@@ -88,32 +90,32 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
         tooltipSprite.sprite.setRegion(m_world.m_atlas.findRegion(tooltipSprite.textureName))
         tooltipSprite.noClip = true
 
-        m_container = Table(m_skin)
+        m_container = VisTable()
         m_container.setFillParent(true)
         //      m_container.padLeft(10).padTop(10);
         //        m_container.set
 
-        m_totalStatsTable = Table(m_skin)
+        m_totalStatsTable = VisTable()
         m_totalStatsTable.top().left().pad(0f, 6f, 0f, 0f)
         m_totalStatsTable.setBackground("default-pane")
 
-        val headerLabel = Label("Electricity Resources", m_skin)
+        val headerLabel = VisLabel("Electricity Resources")
         m_totalStatsTable.add(headerLabel).left()
 
         m_totalStatsTable.row()
 
-        val demandLabel = Label("Energy Demand:", m_skin)
+        val demandLabel = VisLabel("Energy Demand:")
         m_totalStatsTable.add(demandLabel).left()
 
-        m_circuitDemandLabel = Label("-1", m_skin)
+        m_circuitDemandLabel = VisLabel("-1")
         m_totalStatsTable.add<Label>(m_circuitDemandLabel)
 
         m_totalStatsTable.row()
 
-        val supplyLabel = Label("Energy Supply:", m_skin)
+        val supplyLabel = VisLabel("Energy Supply:")
         m_totalStatsTable.add(supplyLabel).left()
 
-        m_circuitSupplyLabel = Label("-1", m_skin)
+        m_circuitSupplyLabel = VisLabel("-1")
         m_totalStatsTable.add<Label>(m_circuitSupplyLabel)
 
         m_container.add<Table>(m_totalStatsTable).expand().bottom().right().size(400f, 100f)

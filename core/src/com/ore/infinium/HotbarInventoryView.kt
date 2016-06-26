@@ -31,12 +31,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Scaling
+import com.kotcrab.vis.ui.widget.VisImage
+import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
@@ -44,19 +46,21 @@ import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.getNullable
 
-class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, //the model for this view
-                          private val m_hotbarInventory: Inventory, //the main player inventory, for drag and drop
+class HotbarInventoryView(private val m_stage: Stage,
+        //the model for this view
+                          private val m_hotbarInventory: Inventory,
+        //the main player inventory, for drag and drop
                           private val m_inventory: Inventory,
                           dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {
 
-    private val container: Table
+    private val container: VisTable
     private val m_slots = mutableListOf<SlotElement>()
 
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
-    private val m_tooltip: Label
+    private val m_tooltip: VisLabel
 
     init {
         //        m_slots = arrayListOf()
@@ -65,7 +69,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         //attach to the inventory model
         m_hotbarInventory.addListener(this)
 
-        container = Table(m_skin)
+        container = VisTable()
         container.setFillParent(true)
         container.top().left().setSize(800f, 100f)
         container.padLeft(10f).padTop(10f)
@@ -74,14 +78,14 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         m_stage.addActor(container)
 
-        val dragImage = Image()
+        val dragImage = VisImage()
         dragImage.setSize(32f, 32f)
 
         for (i in 0..Inventory.maxHotbarSlots - 1) {
 
-            val slotImage = Image()
+            val slotImage = VisImage()
 
-            val slotTable = Table(m_skin)
+            val slotTable = VisTable()
             slotTable.touchable = Touchable.enabled
             slotTable.addListener(SlotClickListener(this, i))
             slotTable.addListener(SlotInputListener(this, i))
@@ -91,7 +95,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
             slotTable.row()
 
-            val itemCount = Label(null, m_skin)
+            val itemCount = VisLabel()
             slotTable.add(itemCount).bottom().fill()
 
             //            container.add(slotTable).size(50, 50);
@@ -108,7 +112,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
 
         }
 
-        m_tooltip = Label(null, m_skin)
+        m_tooltip = VisLabel()
         m_stage.addActor(m_tooltip)
     }
 
@@ -200,7 +204,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         }
     }
 
-    private class HotbarDragTarget(slotTable: Table, private val index: Int, private val inventory: HotbarInventoryView) : DragAndDrop.Target(
+    private class HotbarDragTarget(slotTable: VisTable, private val index: Int, private val inventory: HotbarInventoryView) : DragAndDrop.Target(
             slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
@@ -266,7 +270,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
                 hotbarInventory.setSlot(this.index, itemEntity!!)
 
                 clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
-                        Inventory.InventoryType.Hotbar, index)
+                                                      Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
                 hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
@@ -280,7 +284,7 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
                 //fixme?                    inventory.m_previousSelectedSlot = index;
 
                 clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
-                        Inventory.InventoryType.Hotbar, index)
+                                                      Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
                 inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
@@ -327,6 +331,6 @@ class HotbarInventoryView(private val m_stage: Stage, private val m_skin: Skin, 
         }
     }
 
-    private inner class SlotElement(var itemImage: Image, var itemCountLabel: Label, var table: Table) {
+    private inner class SlotElement(var itemImage: Image, var itemCountLabel: Label, var table: VisTable) {
     }
 }

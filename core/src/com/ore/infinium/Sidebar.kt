@@ -26,28 +26,28 @@ SOFTWARE.
 
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Align
+import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisTextButton
 
 /**
  * class that is an action  bar on the side of the screen.
  * simply gives quick actions to things like chat, inventory..etc.
  */
-class Sidebar(stage: Stage, private val m_skin: Skin, client: OreClient) {
+class Sidebar(stage: Stage, client: OreClient) {
     private val container: Table
 
     init {
 
-        container = Table(m_skin)
+        container = VisTable()
         container.setFillParent(true)
         container.bottom().left().setSize(20f, 400f)
         container.padLeft(10f).padBottom(400f)
         container.defaults().space(4f).align(Align.left)
 
-        val chatButton = TextButton("chat [enter]", m_skin)
+        val chatButton = VisTextButton("chat [enter]")
         container.add(chatButton)
 
         chatButton.addListener(object : ChangeListener() {
@@ -58,7 +58,7 @@ class Sidebar(stage: Stage, private val m_skin: Skin, client: OreClient) {
 
         container.row()
 
-        val inventoryButton = TextButton("inventory [i]", m_skin)
+        val inventoryButton = VisTextButton("inventory [i]")
         container.add(inventoryButton)
 
         inventoryButton.addListener(object : ChangeListener() {

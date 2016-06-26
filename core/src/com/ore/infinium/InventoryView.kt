@@ -30,19 +30,28 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Image
+import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Scaling
+import com.kotcrab.vis.ui.widget.VisImage
+import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.VisWindow
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
 
 @Wire
-class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar inventory, for drag and drop
-                    private val m_hotbarInventory: Inventory, //the model for this view
+class InventoryView(stage: Stage,
+        //the hotbar inventory, for drag and drop
+                    private val m_hotbarInventory: Inventory,
+        //the model for this view
                     private val m_inventory: Inventory,
-                    dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {
+                    dragAndDrop: DragAndDrop,
+                    private val m_world: OreWorld) : Inventory.SlotListener {
+
     var inventoryVisible: Boolean
         get() = m_window.isVisible
         set(value) {
@@ -53,19 +62,19 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
     private lateinit var tileRenderSystem: TileRenderSystem
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private val m_slots = mutableListOf<SlotElement>()
-    private val m_window: Window
+    private val m_window: VisWindow
 
     init {
         //attach to the inventory model
         m_inventory.addListener(this)
 
-        val container = Table(m_skin)
+        val container = VisTable()
         container.setFillParent(true)
         container.center() //top().right().setSize(800, 100);
         container.defaults().space(4f)
         container.padLeft(10f).padTop(10f)
 
-        m_window = Window("Inventory", m_skin)
+        m_window = VisWindow("Inventory")
         //fixme;not centering or anythign, all hardcoded :(
         m_window.setPosition(900f, 100f)
         m_window.top().right().setSize(400f, 500f)
@@ -74,7 +83,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
         m_window.add(container).fill().expand()
 
         val region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion("dirt-00")
-        val dragImage = Image(region)
+        val dragImage = VisImage(region)
         dragImage.setSize(32f, 32f)
 
         val slotsPerRow = 5
@@ -82,9 +91,9 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
         while (i < Inventory.maxSlots) {
             var slot = 0
             while (slot < slotsPerRow && i < Inventory.maxSlots) {
-                val slotImage = Image()
+                val slotImage = VisImage()
 
-                val slotTable = Table(m_skin)
+                val slotTable = VisTable()
                 slotTable.touchable = Touchable.enabled
 
                 slotTable.add(slotImage)
@@ -92,7 +101,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
 
                 slotTable.row()
 
-                val itemName = Label(null, m_skin)
+                val itemName = VisLabel()
                 slotTable.add(itemName).bottom().fill()
 
                 val element = SlotElement(itemImage = slotImage, table = slotTable, itemCountLabel = itemName)
@@ -257,7 +266,7 @@ class InventoryView(stage: Stage, private val m_skin: Skin, //the hotbar invento
         }
     }
 
-    private inner class SlotElement(var itemImage: Image, var itemCountLabel: Label, var table: Table) {
+    private inner class SlotElement(var itemImage: VisImage, var itemCountLabel: VisLabel, var table: VisTable) {
     }
 
     override fun selected(index: Int, inventory: Inventory) {

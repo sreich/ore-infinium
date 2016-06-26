@@ -27,7 +27,6 @@ package com.ore.infinium
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
@@ -35,8 +34,9 @@ import com.ore.infinium.util.GdxAlign
 import com.ore.infinium.util.format
 
 @Wire
-class DebugProfilerView(stage: Stage, private val m_skin: Skin, //the hotbar inventory, for drag and drop
-                        private val m_world: OreWorld, m_rootTable: VisTable) : VisWindow("profiler window") {
+class DebugProfilerView(stage: Stage,
+                        private val m_world: OreWorld,
+                        m_rootTable: VisTable) : VisWindow("profiler window") {
 
     var profilerVisible: Boolean
         get() = isVisible
@@ -199,10 +199,10 @@ override fun lineAdded(line: Chat.ChatLine) {
 
         this.add(scroll).size(200f, 90f)//.fill().expand()
         //       this.pack()
-//        this.centerWindow()
         this.isResizable = true
 
-        m_rootTable.add(this).top().right()
+        stage.addActor(this)
+        this.centerWindow()
 
 //        stage.addActor(this)
         profilerVisible = false
@@ -217,7 +217,7 @@ override fun lineAdded(line: Chat.ChatLine) {
 
         return
         for (perfStat in combinedProfilers) {
-            val profilerRow = ProfilerRow(m_skin).apply {
+            val profilerRow = ProfilerRow().apply {
                 nameLabel.setText(perfStat.systemName)
             }
 
@@ -293,15 +293,15 @@ override fun lineAdded(line: Chat.ChatLine) {
 //            @org.intellij.lang.annotations.MagicConstant(flags={java.awt.Font.PLAIN, java.awt.Font.BOLD, java.awt.Font.ITALIC}) int i,
 //            int i1)
 
-    private fun createLabel(text: String, align: GdxAlign): Label {
-        val label = Label(text, m_skin, "default")
+    private fun createLabel(text: String, align: GdxAlign): VisLabel {
+        val label = VisLabel(text, "default")
         label.setAlignment(align.alignValue)
 
         return label
 }
 }
 
-class ProfilerRow(m_skin: Skin) : Table(m_skin) {
+class ProfilerRow() : VisTable() {
     val nameLabel: Label
     val minLabel: Label
     val maxLabel: Label
@@ -309,12 +309,12 @@ class ProfilerRow(m_skin: Skin) : Table(m_skin) {
     val currentLabel: Label
 
     init {
-        nameLabel = Label("systemN", m_skin)
+        nameLabel = VisLabel("systemN")
 
-        minLabel = Label("min", m_skin)
-        maxLabel = Label("max", m_skin)
-        averageLabel = Label("average", m_skin)
-        currentLabel = Label("current", m_skin)
+        minLabel = VisLabel("min")
+        maxLabel = VisLabel("max")
+        averageLabel = VisLabel("average")
+        currentLabel = VisLabel("current")
 
         this.add(nameLabel)
         //       this.add(minLabel).expandX().fillX()
