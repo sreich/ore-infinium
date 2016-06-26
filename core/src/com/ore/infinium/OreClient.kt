@@ -646,8 +646,7 @@ class OreClient : ApplicationListener, InputProcessor {
                                            m_world!!)
         m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
-        m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!,
-                                                m_rootTable = m_rootTable)
+        m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)
 
         m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
         m_world!!.m_artemisWorld.inject(m_inventory, true)
