@@ -80,7 +80,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
     override fun processSystem() {
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_tweenManager.update(world.getDelta())
-
+        Thread.sleep(5)
         m_batch!!.begin()
         renderEntities(world.getDelta())
         m_batch!!.end()

@@ -24,7 +24,7 @@ SOFTWARE.
 
 package com.ore.infinium
 
-import com.artemis.annotations.Wire
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.kotcrab.vis.ui.widget.VisLabel
@@ -34,7 +34,6 @@ import com.kotcrab.vis.ui.widget.VisWindow
 import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
 import com.ore.infinium.util.format
 
-@Wire
 class DebugProfilerView(stage: Stage,
                         private val m_world: OreWorld) : VisWindow("profiler window") {
 
@@ -47,44 +46,38 @@ class DebugProfilerView(stage: Stage,
     private lateinit var m_profilerHeader: Table
     private lateinit var m_profilerRowsTable: VisTable
 
-    private val MIN_LABEL_WIDTH = 75f
+    companion object {
+        internal val COLUMNS_WIDTH = 80f
+        internal val COLUMNS_NAME_WIDTH = 250f
+    }
 
     private val m_profilerRows = mutableListOf<ProfilerRow>()
     private val m_scrollPane: VisScrollPane
     private val container: VisTable
 
-
     init {
-        /*
-        val container = Table(m_skin)
-        container.setFillParent(true)
-        container.center() //top().right().setSize(800, 100);
-        container.defaults().space(4f)
-        container.padLeft(10f).padTop(10f)
-        */
-
-        /*
         m_profilerHeader = Table()
-        m_profilerHeader.add(createLabel("System Name", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
+        m_profilerHeader.add(VisLabel("System Name")).minWidth(COLUMNS_NAME_WIDTH)
         m_profilerHeader.add().expandX().fillX()
-        m_profilerHeader.add(createLabel("min", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
-        m_profilerHeader.add(createLabel("max", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
-        m_profilerHeader.add(createLabel("average", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
-        m_profilerHeader.add(createLabel("current", GdxAlign.Right)).minWidth(MIN_LABEL_WIDTH)
-        */
+        m_profilerHeader.add(VisLabel("min(ms)")).minWidth(COLUMNS_WIDTH)
+        m_profilerHeader.add(VisLabel("max(ms)")).minWidth(COLUMNS_WIDTH)
+        m_profilerHeader.add(VisLabel("average(ms)")).minWidth(COLUMNS_WIDTH)
+        m_profilerHeader.add(VisLabel("current(ms)")).minWidth(COLUMNS_WIDTH)
 
         container = VisTable()
+        container.defaults().space(4f)
+        container.add(m_profilerHeader).row()
 
         m_profilerRowsTable = VisTable(true)
 
         m_scrollPane = VisScrollPane(m_profilerRowsTable)
+        m_scrollPane.setFadeScrollBars(false)
 
         container.add(m_scrollPane).fill().expand().pad(10f)
 
         container.layout()
         m_profilerRowsTable.layout()
         m_scrollPane.layout()
-        m_scrollPane.scrollPercentY = 100f
 
         this.add(container).fill().expand()//.size(200f, 500f)
 
@@ -103,7 +96,7 @@ class DebugProfilerView(stage: Stage,
                 nameLabel.setText(perfStat.systemName)
             }
 
-            m_profilerRowsTable.add(profilerRow).expandX().fill().spaceTop(8f)
+            m_profilerRowsTable.add(profilerRow).expandX().fillX().spaceTop(8f)
             m_profilerRowsTable.row()
 
             m_profilerRows.add(profilerRow)
@@ -138,10 +131,33 @@ class DebugProfilerView(stage: Stage,
         }
 
         combinedProfilers.forEachIndexed { i, perfStat ->
-            m_profilerRows[i].minLabel.setText(perfStat.timeMin.format())
-            m_profilerRows[i].maxLabel.setText(perfStat.timeMax.format())
-            m_profilerRows[i].averageLabel.setText(perfStat.timeAverage.format())
-            m_profilerRows[i].currentLabel.setText(perfStat.timeCurrent.format())
+            val row = m_profilerRows[i]
+            row.minLabel.setText(perfStat.timeMin.format())
+            row.maxLabel.setText(perfStat.timeMax.format())
+            row.averageLabel.setText(perfStat.timeAverage.format())
+            row.currentLabel.setText(perfStat.timeCurrent.format())
+
+            val color = colorForTime(perfStat.timeCurrent)
+            setProfilerRowColor(row, color)
+        }
+    }
+
+    private fun setProfilerRowColor(row: ProfilerRow, color: Color) {
+        row.nameLabel.color = color
+        row.currentLabel.color = color
+        row.minLabel.color = color
+        row.maxLabel.color = color
+        row.averageLabel.color = color
+    }
+
+    private fun colorForTime(timeCurrent: Float): Color {
+        return when (timeCurrent) {
+            in 0.0f..0.5f -> Color.GREEN
+            in 0.5f..0.9f -> Color.LIME
+            in 0.9f..2.0f -> Color.YELLOW
+            in 2.0f..4.0f -> Color.ORANGE
+            in 4.0f..Float.POSITIVE_INFINITY -> Color.RED
+            else -> Color.WHITE
         }
     }
 }
@@ -153,10 +169,6 @@ class ProfilerRow() : VisTable() {
     val averageLabel: VisLabel
     val currentLabel: VisLabel
 
-    private val COLUMNS_WIDTH = 80f
-
-    private val COLUMNS_NAME_WIDTH = 250f
-
     init {
         nameLabel = VisLabel("systemN")
 
@@ -165,10 +177,10 @@ class ProfilerRow() : VisTable() {
         averageLabel = VisLabel("average")
         currentLabel = VisLabel("current")
 
-        this.add(nameLabel).width(COLUMNS_NAME_WIDTH)
-        this.add(minLabel).width(COLUMNS_WIDTH)
-        this.add(maxLabel).width(COLUMNS_WIDTH)
-        this.add(averageLabel).width(COLUMNS_WIDTH)
-        this.add(currentLabel).width(COLUMNS_WIDTH)
+        this.add(nameLabel).width(DebugProfilerView.COLUMNS_NAME_WIDTH)
+        this.add(minLabel).width(DebugProfilerView.COLUMNS_WIDTH)
+        this.add(maxLabel).width(DebugProfilerView.COLUMNS_WIDTH)
+        this.add(averageLabel).width(DebugProfilerView.COLUMNS_WIDTH)
+        this.add(currentLabel).width(DebugProfilerView.COLUMNS_WIDTH)
     }
 }
