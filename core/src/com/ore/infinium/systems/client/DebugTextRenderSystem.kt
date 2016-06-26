@@ -46,7 +46,6 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
 import java.text.DecimalFormat
@@ -159,10 +158,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         drawDebugInfoForEntityAtMouse(m_textYLeft)
         drawStandardDebugInfo()
 
-        if (OreSettings.profilerEnabled) {
-            drawProfilerStats()
-        }
-
         m_batch.end()
 
         if (m_renderDebugServer && false) {
@@ -209,45 +204,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
     }
 
-    private fun drawProfilerStats() {
-        val clientStrategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
-
-        var y = OreSettings.height - 50f
-        val x = 400f
-
-        for (perfStat in clientStrategy.clientPerfCounter.values) {
-            val s = """(client) system: ${perfStat.systemName}
-            |   timeMin: ${perfStat.timeMin.format()}
-            |   timeMax: ${perfStat.timeMax.format()}
-            |   timeAvg: ${perfStat.timeAverage.format()}
-            |   timeCurrent: ${perfStat.timeCurrent.format()}
-            |""".toSingleLine()
-
-            m_font.draw(m_batch, s, x, y)
-            y -= 15f
-        }
-
-        y -= 15f
-
-        if (m_world.m_server != null) {
-            val serverStrategy = m_world.m_server!!.m_world.
-                    m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
-
-            synchronized(serverStrategy.serverPerfCounter) {
-                for (perfStat in serverStrategy.serverPerfCounter.values) {
-                    val s = """(server) system: ${perfStat.systemName}
-                    |   timeMin: ${perfStat.timeMin.format()}
-                    |   timeMax: ${perfStat.timeMax.format()}
-                    |   timeAvg: ${perfStat.timeAverage.format()}
-                    |   timeCurrent: ${perfStat.timeCurrent.format()}
-                    |""".toSingleLine()
-
-                    m_font.draw(m_batch, s, x, y)
-                    y -= 15f
-                }
-            }
-        }
-    }
 
     private fun drawStandardDebugInfo() {
         m_font.draw(m_batch, m_fpsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
