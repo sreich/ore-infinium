@@ -32,7 +32,6 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
 import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
-import com.ore.infinium.util.GdxAlign
 import com.ore.infinium.util.format
 
 @Wire
@@ -98,11 +97,6 @@ class DebugProfilerView(stage: Stage,
     }
 
     private fun setupProfilerLayout(combinedProfilers: List<GameLoopSystemInvocationStrategy.PerfStat>) {
-//       m_profilerRowsTable.clear()
-//        m_profilerRows.clear()
-//        this.clear()
-//        m_profilerRowsTable.remove()
-
         for (perfStat in combinedProfilers) {
             val profilerRow = ProfilerRow().apply {
                 nameLabel.setText(perfStat.systemName)
@@ -110,12 +104,10 @@ class DebugProfilerView(stage: Stage,
 
             m_profilerRowsTable.add(profilerRow).expandX().fill().spaceTop(8f)
             m_profilerRowsTable.row()
-//            m_scrollPaneTable.add(messageLabel).expandX().fill()
 
             m_profilerRows.add(profilerRow)
         }
 
-//       this.add(m_profilerRowsTable).expand()
         m_profilerRowsTable.layout()
         m_scrollPane.layout()
         this.layout()
@@ -142,22 +134,14 @@ class DebugProfilerView(stage: Stage,
 
         if (m_profilerRows.size != combinedProfilers.size) {
             setupProfilerLayout(combinedProfilers.toList())
-
-            //hack just do it once for now till we get scrolling happening
-            combinedProfilers.forEachIndexed { i, perfStat ->
-                m_profilerRows[i].minLabel.setText(perfStat.timeMin.format())
-                m_profilerRows[i].maxLabel.setText(perfStat.timeMax.format())
-                m_profilerRows[i].averageLabel.setText(perfStat.timeAverage.format())
-                m_profilerRows[i].currentLabel.setText(perfStat.timeCurrent.format())
-            }
         }
-    }
 
-    private fun createLabel(text: String, align: GdxAlign): VisLabel {
-        val label = VisLabel(text, "default")
-        label.setAlignment(align.alignValue)
-
-        return label
+        combinedProfilers.forEachIndexed { i, perfStat ->
+            m_profilerRows[i].minLabel.setText(perfStat.timeMin.format())
+            m_profilerRows[i].maxLabel.setText(perfStat.timeMax.format())
+            m_profilerRows[i].averageLabel.setText(perfStat.timeAverage.format())
+            m_profilerRows[i].currentLabel.setText(perfStat.timeCurrent.format())
+        }
     }
 }
 
@@ -177,9 +161,9 @@ class ProfilerRow() : VisTable() {
         currentLabel = VisLabel("current")
 
         this.add(nameLabel).expandX()
-//       this.add(minLabel).expandX().fillX()
-//      this.add(maxLabel).expandX().fillX()
-//     this.add(averageLabel).expandX().fillX()
-//        this.add(currentLabel).expandX().fillX()
+        this.add(minLabel).expandX().fillX()
+        this.add(maxLabel).expandX().fillX()
+        this.add(averageLabel).expandX().fillX()
+        this.add(currentLabel).expandX().fillX()
     }
 }

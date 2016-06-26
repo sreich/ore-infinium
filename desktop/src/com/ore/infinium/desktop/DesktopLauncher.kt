@@ -6,6 +6,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglInput
 import com.badlogic.gdx.tools.texturepacker.TexturePacker
 import com.beust.jcommander.JCommander
 import com.ore.infinium.*
+import kotlin.system.measureTimeMillis
 
 class DesktopLauncher {
 
@@ -39,7 +40,8 @@ class DesktopLauncher {
         }
 
         if (OreSettings.pack) {
-            packTextures()
+            val ms = measureTimeMillis { packTextures() }
+            OreWorld.log("startup texture packing", "texture packing took $ms ms")
         }
 
         LwjglApplication(OreClient(), createLwjglConfig())
