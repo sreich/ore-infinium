@@ -47,7 +47,7 @@ import com.ore.infinium.util.indices
 
 @Wire
 class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
-    private var m_batch: SpriteBatch? = null
+    private lateinit var m_batch: SpriteBatch
 
     private lateinit var playerMapper: ComponentMapper<PlayerComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
@@ -69,27 +69,27 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
     }
 
     override fun dispose() {
-        m_batch!!.dispose()
+        m_batch.dispose()
     }
 
     override fun begin() {
-        m_batch!!.projectionMatrix = m_world.m_camera.combined
+        m_batch.projectionMatrix = m_world.m_camera.combined
         //       m_batch.begin();
     }
 
     override fun processSystem() {
         //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
         m_tweenManager.update(world.getDelta())
-        Thread.sleep(5)
-        m_batch!!.begin()
-        renderEntities(world.getDelta())
-        m_batch!!.end()
 
-        m_batch!!.begin()
+        m_batch.begin()
+        renderEntities(world.getDelta())
+        m_batch.end()
+
+        m_batch.begin()
         renderDroppedEntities(world.getDelta())
-        m_batch!!.end()
+        m_batch.end()
         //restore color
-        m_batch!!.color = Color.WHITE
+        m_batch.color = Color.WHITE
 
     }
 
@@ -114,18 +114,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
 
             val spriteComponent = spriteMapper.get(entities.get(i))
 
-            if (!m_tweenManager.containsTarget(spriteComponent.sprite)) {
-
-                Timeline.createSequence().push(
-                        Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f).target(0.2f, 0.2f).ease(
-                                Sine.IN)).push(
-                        Tween.to(spriteComponent.sprite, SpriteTween.SCALE, 2.8f).target(.5f, .5f).ease(
-                                Sine.OUT)).repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager)
-
-                val glow = Color.GOLDENROD
-                Tween.to(spriteComponent.sprite, SpriteTween.COLOR, 2.8f).target(glow.r, glow.g, glow.b, 1f).ease(
-                        TweenEquations.easeInOutSine).repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager)
-            }
+            glowDroppedSprite(spriteComponent.sprite)
 
             /*
             m_batch.draw(spriteComponent.sprite,
@@ -133,7 +122,7 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
                          spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
                          spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
             */
-            m_batch!!.color = spriteComponent.sprite.color
+            m_batch.color = spriteComponent.sprite.color
 
             val x = spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f
             val y = spriteComponent.sprite.y + spriteComponent.sprite.height * 0.5f
@@ -149,9 +138,24 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
             val originY = height * 0.5f
             //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
 
-            m_batch!!.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
-                           (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
-                           rotation)
+            m_batch.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
+                         (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
+                         rotation)
+        }
+    }
+
+    private fun glowDroppedSprite(sprite: Sprite) {
+        if (!m_tweenManager.containsTarget(sprite)) {
+
+            Timeline.createSequence().push(
+                    Tween.to(sprite, SpriteTween.SCALE, 2.8f).target(0.2f, 0.2f).ease(
+                            Sine.IN)).push(
+                    Tween.to(sprite, SpriteTween.SCALE, 2.8f).target(.5f, .5f).ease(
+                            Sine.OUT)).repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager)
+
+            val glowColor = Color.GOLDENROD
+            Tween.to(sprite, SpriteTween.COLOR, 2.8f).target(glowColor.r, glowColor.g, glowColor.b, 1f).ease(
+                    TweenEquations.easeInOutSine).repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager)
         }
     }
 
@@ -191,9 +195,9 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
                 placementGhost = true
 
                 if (spriteComponent.placementValid) {
-                    m_batch!!.setColor(0f, 1f, 0f, 0.6f)
+                    m_batch.setColor(0f, 1f, 0f, 0.6f)
                 } else {
-                    m_batch!!.setColor(1f, 0f, 0f, 0.6f)
+                    m_batch.setColor(1f, 0f, 0f, 0.6f)
                 }
             }
 
@@ -217,11 +221,11 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
             // 16.0f,
             //            originX, originY, width, height, scaleX, scaleY, rotation);
 
-            m_batch!!.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
+            m_batch.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
 
             //reset color for next run
             if (placementGhost) {
-                m_batch!!.setColor(1f, 1f, 1f, 1f)
+                m_batch.setColor(1f, 1f, 1f, 1f)
             }
         }
     }
