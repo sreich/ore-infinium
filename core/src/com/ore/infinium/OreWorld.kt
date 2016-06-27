@@ -556,6 +556,20 @@ class OreWorld
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE]
     }
 
+    /**
+     * retrieves from the per-block flags, the liquid level from 1 to 15
+     * 0 wouldn't make sense, because then it wouldn't be a liquid block.
+     */
+    inline fun liquidLevel(x: Int, y: Int): Byte {
+        //hack
+        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
+    }
+
+    inline fun setLiquidLevel(x: Int, y: Int, level: Byte) {
+        //hack
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE] = level
+    }
+
     inline fun blockFlags(x: Int, y: Int): Byte {
         /*
         assert(x >= 0 && y >= 0 &&
@@ -819,6 +833,29 @@ class OreWorld
         itemComponent.maxStackSize = 900
 
         return block
+    }
+
+    fun createLiquidGun(): Int {
+        val liquidGun = m_artemisWorld.create()
+        velocityMapper.create(liquidGun)
+
+        val drillToolComponent = toolMapper.create(liquidGun)
+        drillToolComponent.type = ToolComponent.ToolType.Bucket
+
+        spriteMapper.create(liquidGun).apply {
+            textureName = "drill"
+            sprite.setSize(2f, 2f)
+        }
+
+        val newStackSize = 1
+        itemMapper.create(liquidGun).apply {
+            stackSize = newStackSize
+            maxStackSize = newStackSize
+            inventoryIndex = 0
+            state = ItemComponent.State.InInventoryState
+        }
+
+        return liquidGun
     }
 
     fun createLight(): Int {
