@@ -192,62 +192,68 @@ class OreServer : Runnable {
         val drill = m_world.m_artemisWorld.create()
         velocityMapper.create(drill)
 
-        val drillToolComponent = toolMapper.create(drill)
-        drillToolComponent.type = ToolComponent.ToolType.Drill
-        drillToolComponent.blockDamage = 400f
+        val drillToolComponent = toolMapper.create(drill).apply {
+            type = ToolComponent.ToolType.Drill
+            blockDamage = 400f
+        }
 
         val toolSprite = spriteMapper.create(drill)
         toolSprite.textureName = "drill"
 
         toolSprite.sprite.setSize(2f, 2f)
 
-        val itemComponent = itemMapper.create(drill)
-
-        val stackSize = 64000
-        itemComponent.stackSize = stackSize
-        itemComponent.maxStackSize = stackSize
-        itemComponent.inventoryIndex = 0
-        itemComponent.state = ItemComponent.State.InInventoryState
+        val newStackSize = 64000
+        val itemComponent = itemMapper.create(drill).apply {
+            stackSize = newStackSize
+            maxStackSize = newStackSize
+            inventoryIndex = 0
+            state = ItemComponent.State.InInventoryState
+        }
 
         val playerComponent = playerMapper.get(playerEntity)
+        //todo all of the setSlot.. should get replaced with something that already updates the slot in the component for me
         playerComponent.hotbarInventory!!.setSlot(0, drill)
 
         val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
 
-        val dirtBlockItemComponent = itemMapper.get(dirtBlock)
-        dirtBlockItemComponent.inventoryIndex = 1
-        dirtBlockItemComponent.state = ItemComponent.State.InInventoryState
+        val dirtBlockItemComponent = itemMapper.get(dirtBlock).apply {
+            inventoryIndex = 1
+            state = ItemComponent.State.InInventoryState
+        }
 
         playerComponent.hotbarInventory!!.setSlot(1, dirtBlock)
 
         val stoneBlock = m_world.createBlockItem(OreBlock.BlockType.Stone.oreValue)
 
-        val stoneBlockItemComponent = itemMapper.get(stoneBlock)
-        stoneBlockItemComponent.inventoryIndex = 2
-        stoneBlockItemComponent.state = ItemComponent.State.InInventoryState
+        val stoneBlockItemComponent = itemMapper.get(stoneBlock).apply {
+            inventoryIndex = 2
+            state = ItemComponent.State.InInventoryState
+        }
 
         playerComponent.hotbarInventory!!.setSlot(2, stoneBlock)
 
         val powerGen = m_world.createPowerGenerator()
-        val powerGenItem = itemMapper.get(powerGen)
-        powerGenItem.inventoryIndex = 3
-        powerGenItem.state = ItemComponent.State.InInventoryState
+        val powerGenItem = itemMapper.get(powerGen).apply {
+            inventoryIndex = 3
+            state = ItemComponent.State.InInventoryState
+        }
 
         playerComponent.hotbarInventory!!.setSlot(3, powerGen)
 
         for (i in 4..6) {
             val light = m_world.createLight()
 
-            val lightItemComponent = itemMapper.get(light)
-            lightItemComponent.stackSize = MathUtils.random(10, 5000)
-            lightItemComponent.maxStackSize = 64000
-            lightItemComponent.state = ItemComponent.State.InInventoryState
-            lightItemComponent.inventoryIndex = i
+            val lightItemComponent = itemMapper.get(light).apply {
+                stackSize = MathUtils.random(10, 5000)
+                maxStackSize = 64000
+                state = ItemComponent.State.InInventoryState
+                inventoryIndex = i
+            }
 
             playerComponent.hotbarInventory!!.setSlot(i, light)
         }
 
-        for (i in 0..Inventory.maxHotbarSlots - 1) {
+        for (i in 0 until Inventory.maxHotbarSlots) {
             val entity = playerComponent.hotbarInventory!!.itemEntity(i)
 
             entity?.let {
