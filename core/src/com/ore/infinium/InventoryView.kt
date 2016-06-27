@@ -27,6 +27,7 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
@@ -39,9 +40,12 @@ import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisWindow
+import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
+import com.ore.infinium.util.getNullable
 
 @Wire
 class InventoryView(stage: Stage,
@@ -60,7 +64,11 @@ class InventoryView(stage: Stage,
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tileRenderSystem: TileRenderSystem
+
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
+    private lateinit var blockMapper: ComponentMapper<BlockComponent>
+    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+
     private val m_slots = mutableListOf<SlotElement>()
     private val m_window: VisWindow
 
@@ -138,20 +146,38 @@ class InventoryView(stage: Stage,
     override operator fun set(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
 
-        val region = tileRenderSystem.m_tilesAtlas.findRegion("dirt-00")
+        val itemEntity = inventory.itemEntity(index)!!
+        val itemComponent = itemMapper.get(itemEntity)
+        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+
+        val spriteComponent = spriteMapper.get(itemEntity)
+
+        val region = textureForInventoryItem(itemEntity, spriteComponent.textureName!!)
+
         val slotImage = slot.itemImage
         slotImage.drawable = TextureRegionDrawable(region)
         slotImage.setSize(region.regionWidth.toFloat(), region.regionHeight.toFloat())
         slotImage.setScaling(Scaling.fit)
 
-        val itemEntity = inventory.itemEntity(index)!!
-        val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
-
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
         //.maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
-
     }
+
+    fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
+        val region: TextureRegion?
+        if (blockMapper.getNullable(itemEntity) != null) {
+            //fixme this concat is pretty...iffy
+            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
+                    "$textureName-00")
+        } else {
+            region = m_world.m_atlas.findRegion(textureName)
+        }
+
+        assert(region != null) { "textureregion for inventory item entity id: $itemEntity, was not found!" }
+
+        return region!!
+    }
+
 
     override fun removed(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
@@ -171,7 +197,7 @@ class InventoryView(stage: Stage,
             val payload = DragAndDrop.Payload()
 
             val dragWrapper = InventorySlotDragWrapper(type = Inventory.InventoryType.Inventory,
-                                                       dragSourceIndex = index)
+                    dragSourceIndex = index)
             payload.`object` = dragWrapper
 
             payload.dragActor = dragImage
@@ -239,9 +265,9 @@ class InventoryView(stage: Stage,
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
-                                                                    dragWrapper.dragSourceIndex,
-                                                                    Inventory.InventoryType.Inventory,
-                                                                    index)
+                            dragWrapper.dragSourceIndex,
+                            Inventory.InventoryType.Inventory,
+                            index)
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
@@ -255,8 +281,8 @@ class InventoryView(stage: Stage,
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
-                                                                    dragWrapper.dragSourceIndex,
-                                                                    Inventory.InventoryType.Inventory, index)
+                            dragWrapper.dragSourceIndex,
+                            Inventory.InventoryType.Inventory, index)
 
                     //remove the source item
                     hotbarInventory.takeItem(dragWrapper.dragSourceIndex)

@@ -132,21 +132,11 @@ class HotbarInventoryView(private val m_stage: Stage,
         val itemComponent = itemMapper.get(itemEntity)
         m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
 
-        val region: TextureRegion?
         val spriteComponent = spriteMapper.get(itemEntity)
 
-        if (blockMapper.getNullable(itemEntity) != null) {
-            //fixme this concat is pretty...iffy
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
-                    "${spriteComponent.textureName!!}-00")
-        } else {
-            region = m_world.m_atlas.findRegion(spriteComponent.textureName)
-        }
-
-        assert(region != null) { "textureregion for inventory item was not found!" }
+        val region = textureForInventoryItem(itemEntity, spriteComponent.textureName!!)
 
         val slotImage = slot.itemImage
-        //        //m_blockAtlas.findRegion("stone"));
 
         slotImage.drawable = TextureRegionDrawable(region)
         slotImage.setSize(region.regionWidth.toFloat(), region.regionHeight.toFloat())
@@ -156,6 +146,22 @@ class HotbarInventoryView(private val m_stage: Stage,
 
         //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
         //.maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
+    }
+
+    //fixme this is also duped in the InventoryView, but not sure where else to put it...the current way is a hack anyway
+      fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
+        val region: TextureRegion?
+        if (blockMapper.getNullable(itemEntity) != null) {
+            //fixme this concat is pretty...iffy
+            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
+                    "$textureName-00")
+        } else {
+            region = m_world.m_atlas.findRegion(textureName)
+        }
+
+        assert(region != null) { "textureregion for inventory item entity id: $itemEntity, was not found!" }
+
+        return region!!
     }
 
     override fun removed(index: Int, inventory: Inventory) {
@@ -270,7 +276,7 @@ class HotbarInventoryView(private val m_stage: Stage,
                 hotbarInventory.setSlot(this.index, itemEntity!!)
 
                 clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
-                                                      Inventory.InventoryType.Hotbar, index)
+                        Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
                 hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
@@ -284,7 +290,7 @@ class HotbarInventoryView(private val m_stage: Stage,
                 //fixme?                    inventory.m_previousSelectedSlot = index;
 
                 clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
-                                                      Inventory.InventoryType.Hotbar, index)
+                        Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
                 inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
