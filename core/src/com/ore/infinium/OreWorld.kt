@@ -958,7 +958,7 @@ class OreWorld
         //check collision against entities
         val entities = m_artemisWorld.aspectSubscriptionManager.get(
                 Aspect.all(SpriteComponent::class.java)).entities
-        for (i in 0..entities.size() - 1) {
+        for (i in entities.indices) {
             //it's the item we're trying to place, don't count a collision with ourselves
             if (entities.get(i) == entity) {
                 continue
