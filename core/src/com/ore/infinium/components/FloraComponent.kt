@@ -49,6 +49,15 @@ class FloraComponent : Component() {
     }
 
     /**
+     * determines if the item component is the same, in other words,
+     * if it is the same kind of item. to determine if it can merge/combine
+     */
+    fun canCombineWith(otherComp: FloraComponent): Boolean {
+        return this.numberOfDropsWhenDestroyed == otherComp.numberOfDropsWhenDestroyed
+    }
+
+
+    /**
      * copy a component (similar to copy constructor)
 
      * @param healthComponent

@@ -89,7 +89,7 @@ class ItemComponent : Component() {
     /**
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
-    var inventoryIndex: Int = 0
+    var inventoryIndex: Int = -1
 
     /**
      * flag to indicate the item was *just* dropped this frame and has not yet
@@ -113,6 +113,16 @@ class ItemComponent : Component() {
         InInventoryState,
         DroppedInWorld
     }
+
+    /**
+     * determines if the item component is the same, in other words,
+     * if it is the same kind of item. to determine if it can merge/combine
+     */
+    fun canCombineWith(otherComp: ItemComponent): Boolean {
+        return this.name == otherComp.name &&
+                this.maxStackSize == otherComp.maxStackSize
+    }
+
 
     /**
      * copy a component (similar to copy constructor)

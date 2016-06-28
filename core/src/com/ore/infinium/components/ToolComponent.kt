@@ -55,6 +55,18 @@ class ToolComponent : Component() {
     }
 
     /**
+     * determines if the item component is the same, in other words,
+     * if it is the same kind of item. to determine if it can merge/combine
+     */
+    fun canCombineWith(otherComp: ToolComponent): Boolean {
+        return this.attackRadius == otherComp.attackRadius &&
+                this.attackTickInterval == otherComp.attackTickInterval &&
+                this.blockDamage == otherComp.blockDamage &&
+                this.material == otherComp.material &&
+                this.type == otherComp.type
+    }
+
+    /**
      * copy a component (similar to copy constructor)
 
      * @param toolComponent

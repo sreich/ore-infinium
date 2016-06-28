@@ -44,6 +44,15 @@ class BlockComponent : Component() {
         blockType = blockComponent.blockType
     }
 
+    /**
+     * determines if the item component is the same, in other words,
+     * if it is the same kind of item. to determine if it can merge/combine
+     */
+    fun canCombineWith(otherComp: BlockComponent): Boolean {
+        return this.blockType == otherComp.blockType
+    }
+
+
     override fun toString(): String {
         val c = javaClass.simpleName
         return """

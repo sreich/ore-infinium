@@ -26,7 +26,6 @@ package com.ore.infinium
 
 import com.artemis.Aspect
 import com.artemis.ComponentMapper
-import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.indices
@@ -189,54 +188,31 @@ class OreServer : Runnable {
     private fun loadHotbarInventory(playerEntity: Int) {
         //TODO: load the player's inventory and hotbarinventory from file..for now, initialize *the whole thing* with
         // bullshit
+        val playerComponent = playerMapper.get(playerEntity)
 
         val drill = m_world.createDrill()
-        val drillItem = itemMapper.get(drill).apply {
-            inventoryIndex = 0
-            state = ItemComponent.State.InInventoryState
-        }
-
-        val playerComponent = playerMapper.get(playerEntity)
-        //todo all of the setSlot.. should get replaced with something that already updates the slot in the component for me
-        playerComponent.hotbarInventory!!.setSlot(0, drill)
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(drill)
 
         val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
-
-        val dirtBlockItemComponent = itemMapper.get(dirtBlock).apply {
-            inventoryIndex = 1
-            state = ItemComponent.State.InInventoryState
-        }
-
-        playerComponent.hotbarInventory!!.setSlot(1, dirtBlock)
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(dirtBlock)
 
         val stoneBlock = m_world.createBlockItem(OreBlock.BlockType.Stone.oreValue)
-
-        val stoneBlockItemComponent = itemMapper.get(stoneBlock).apply {
-            inventoryIndex = 2
-            state = ItemComponent.State.InInventoryState
-        }
-
-        playerComponent.hotbarInventory!!.setSlot(2, stoneBlock)
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(stoneBlock)
 
         val powerGen = m_world.createPowerGenerator()
-        val powerGenItem = itemMapper.get(powerGen).apply {
-            inventoryIndex = 3
-            state = ItemComponent.State.InInventoryState
-        }
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(powerGen)
 
-        playerComponent.hotbarInventory!!.setSlot(3, powerGen)
-
+        //hack no need for all this, they get merged anyways probably/hopefully.
+        //but we do need to test merging
         for (i in 4..6) {
             val light = m_world.createLight()
 
-            val lightItemComponent = itemMapper.get(light).apply {
-                stackSize = MathUtils.random(10, 5000)
+            itemMapper.get(light).apply {
+                stackSize = 63999
                 maxStackSize = 64000
-                state = ItemComponent.State.InInventoryState
-                inventoryIndex = i
             }
 
-            playerComponent.hotbarInventory!!.setSlot(i, light)
+            playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(light)
         }
 
         for (i in 0 until Inventory.maxHotbarSlots) {
