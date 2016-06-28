@@ -62,7 +62,7 @@ class HotbarInventoryView(private val m_stage: Stage,
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
-    private val m_tooltip2: Tooltip<VisTable>
+    private val m_tooltip: Tooltip<VisTable>
     private val m_tooltipLabel: VisLabel
 
     init {
@@ -82,7 +82,7 @@ class HotbarInventoryView(private val m_stage: Stage,
         val dragImage = VisImage()
         dragImage.setSize(32f, 32f)
 
-        for (i in 0..Inventory.maxHotbarSlots - 1) {
+        for (i in 0 until Inventory.maxHotbarSlots) {
 
             val slotImage = VisImage()
 
@@ -121,7 +121,7 @@ class HotbarInventoryView(private val m_stage: Stage,
             background = style.background
         }
 
-        m_tooltip2 = Tooltip<VisTable>(tooltipTable)
+        m_tooltip = Tooltip<VisTable>(tooltipTable)
     }
 
     private fun deselectPreviousSlot() {
@@ -274,7 +274,6 @@ class HotbarInventoryView(private val m_stage: Stage,
                 return
             }
 
-
             val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
 
             if (dragWrapper.type == Inventory.InventoryType.Hotbar) {
@@ -311,31 +310,27 @@ class HotbarInventoryView(private val m_stage: Stage,
 
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView, private val index: Int) : InputListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-            inventory.m_tooltip2.enter(event, x, y, pointer, fromActor)
+            inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
 
             super.enter(event, x, y, pointer, fromActor)
         }
 
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
-            inventory.m_tooltip2.mouseMoved(event, x, y)
+            inventory.m_tooltip.mouseMoved(event, x, y)
 
             val itemEntity = inventory.m_hotbarInventory.itemEntity(index)
 
             if (itemEntity != null) {
-                //fixme, obviously texture name is not a valid tooltip text. we need a real name, but should it be in
-                // sprite or item? everything should probably have a canonical name, no?
                 val itemComponent = inventory.itemMapper.get(itemEntity)
                 val spriteComponent = inventory.spriteMapper.get(itemEntity)
                 inventory.m_tooltipLabel.setText(itemComponent.name)
-            } else {
-//hack                inventory.m_tooltip.isVisible = false
             }
 
             return super.mouseMoved(event, x, y)
         }
 
         override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-            inventory.m_tooltip2.exit(event, x, y, pointer, toActor)
+            inventory.m_tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)
         }
