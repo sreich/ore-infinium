@@ -16,9 +16,9 @@ eclipse.project {
 // artemis-odb: weaving settings.
 weave {
     enableArtemisPlugin = true
-    enablePackedWeaving = true
+//    enablePackedWeaving = true
     enablePooledWeaving = true
-    ideFriendlyPacking = true
+//    ideFriendlyPacking = true
     optimizeEntitySystems = true
     //generateLinkMutators = true
     classesDir = sourceSets.main.output.classesDir
