@@ -307,16 +307,16 @@ class OreWorld
                                                 blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Copper.oreValue,
-                    BlockAttributes(textureName = "copper",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "copper",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Iron.oreValue,
-                    BlockAttributes(textureName = "iron",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "iron",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Silver.oreValue,
                                 BlockAttributes(textureName = "silver",
@@ -325,34 +325,34 @@ class OreWorld
                                                 blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Gold.oreValue,
-                    BlockAttributes(textureName = "gold",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "gold",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Coal.oreValue,
-                    BlockAttributes(textureName = "coal",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "coal",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Uranium.oreValue,
-                    BlockAttributes(textureName = "uranium",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "uranium",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Diamond.oreValue,
-                    BlockAttributes(textureName = "diamond",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "diamond",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Bedrock.oreValue,
-                    BlockAttributes(textureName = "bedrock",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "bedrock",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Water.oreValue,
                                 BlockAttributes(textureName = "water",
@@ -1256,7 +1256,7 @@ class OreWorld
             //same for rubber trees. but they may also drop a sapling
             val cloned = cloneEntity(entityToKill)
             val clonedSpriteComp = spriteMapper.get(cloned)
-            val random = RandomXS128 ()
+            val random = RandomXS128()
             clonedSpriteComp.sprite.apply {
                 x += random.nextInt(0, 5)
                 y += random.nextInt(0, 5)
