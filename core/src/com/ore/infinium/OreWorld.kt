@@ -558,17 +558,24 @@ class OreWorld
     }
 
     /**
-     * retrieves from the per-block flags, the liquid level from 1 to 15
-     * 0 wouldn't make sense, because then it wouldn't be a liquid block.
+     * would return range from 0 to 15. 0 would be the first water level (it is
+     * not empty, because otherwise it wouldn't be a liquid block anyways)
      */
     inline fun liquidLevel(x: Int, y: Int): Byte {
         //hack
+        //val level = OreBlock.MAX_LIQUID_LEVEL.toInt().and(0b00001111)
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
     }
 
+    //fixme we can mess with using adding bit flags and stuff to them. right now i just have
     inline fun setLiquidLevel(x: Int, y: Int, level: Byte) {
+        //val level = OreBlock.MAX_LIQUID_LEVEL.toInt().and(0b00001111)
+        val current = blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt()
+
+        //the flags to not wipe
+        //val upper4Bits = current
         //hack
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE] = level
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = level.toByte()
     }
 
     inline fun blockFlags(x: Int, y: Int): Byte {
@@ -1210,6 +1217,12 @@ class OreWorld
         }
 
         throw IllegalStateException("player id attempted to be obtained from world, but this player does not exist")
+    }
+
+    fun players(): IntBag {
+        val aspectSubscriptionManager = m_artemisWorld.aspectSubscriptionManager
+        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
+        return entitySubscription.entities
     }
 
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
