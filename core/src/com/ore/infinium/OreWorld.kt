@@ -814,9 +814,11 @@ class OreWorld
 
         blockSprite.sprite.setSize(1f, 1f)
 
-        val itemComponent = itemMapper.create(block)
-        itemComponent.stackSize = 800
-        itemComponent.maxStackSize = 900
+        val itemComponent = itemMapper.create(block).apply {
+            stackSize = 800
+            maxStackSize = 900
+            name = OreBlock.nameOfBlockType(blockType)!!
+        }
 
         return block
     }
@@ -826,9 +828,11 @@ class OreWorld
 
         velocityMapper.create(light)
 
-        val itemComponent = itemMapper.create(light)
-        itemComponent.stackSize = 800
-        itemComponent.maxStackSize = 900
+        val itemComponent = itemMapper.create(light).apply {
+            stackSize = 800
+            maxStackSize = 900
+            name = "Light"
+        }
 
         val powerDeviceComponent = powerDeviceMapper.create(light)
 
@@ -848,9 +852,11 @@ class OreWorld
 
         velocityMapper.create(power)
 
-        val itemComponent = itemMapper.create(power)
-        itemComponent.stackSize = 800
-        itemComponent.maxStackSize = 900
+        val itemComponent = itemMapper.create(power).apply {
+            stackSize = 800
+            maxStackSize = 900
+            name = "Power Generator"
+        }
 
         val powerDeviceComponent = powerDeviceMapper.create(power)
 
@@ -870,6 +876,7 @@ class OreWorld
         val itemComponent = itemMapper.create(air).apply {
             stackSize = 800
             maxStackSize = 900
+            name = "Air Generator"
         }
 
         velocityMapper.create(air)
@@ -897,6 +904,7 @@ class OreWorld
         itemMapper.create(tree).apply {
             state = ItemComponent.State.InWorldState
             maxStackSize = 64
+            name = "Tree"
         }
 
         when (type) {

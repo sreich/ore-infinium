@@ -249,7 +249,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     private fun receivePlayerSpawnHotbarInventoryItem(spawn: Network.Server.PlayerSpawnHotbarInventoryItem) {
         //fixme spawn.id, sprite!!
         val spawnedItemEntityId = getWorld().create()
-        for (c in spawn.components!!) {
+        for (c in spawn.components) {
             val entityEdit = getWorld().edit(spawnedItemEntityId)
             entityEdit.add(c)
         }
@@ -269,6 +269,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         val toolComponent = toolMapper.getNullable(spawnedItemEntityId)
 
         val itemComponent = itemMapper.get(spawnedItemEntityId)
+
         //fixme this indirection isn't so hot...
         m_world.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
 

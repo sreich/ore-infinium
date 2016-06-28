@@ -163,8 +163,9 @@ object Network {
 
             //pos not sent
 
+            var name: String = ""
             var id: Int = 0
-            var components: Array<Component>? = null
+            lateinit var components: Array<Component>
 
             /**
              * true if this was spawn because a user picked up an item.

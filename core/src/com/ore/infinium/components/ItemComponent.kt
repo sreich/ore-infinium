@@ -32,6 +32,7 @@ class ItemComponent : Component() {
     var stackSize: Int = 0
     //the max a single item stack can hold
     var maxStackSize: Int = 0
+    var name: String = ""
 
     /**
      * indicates the ms point in time that the player dropped the item.
@@ -126,6 +127,7 @@ class ItemComponent : Component() {
         state = itemComponent.state
         inventoryIndex = itemComponent.inventoryIndex
         justDropped = itemComponent.justDropped
+        name = itemComponent.name
         //sizeBeforeDropped is not copied, intentionally
     }
 
@@ -136,6 +138,7 @@ class ItemComponent : Component() {
         $c.maxStackSize: $maxStackSize
         $c.playerIdWhoDropped: $playerIdWhoDropped
         $c.state: $state
-        $c.justDropped: $justDropped"""
+        $c.justDropped: $justDropped
+        $c.name: $name"""
     }
 }
