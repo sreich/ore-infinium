@@ -142,7 +142,7 @@ class WorldGenerator(private val m_world: OreWorld) {
      * world gen, generates the initial grass of the world
      */
     private fun generateGrassTiles() {
-        for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
+        for (x in 0 until OreWorld.WORLD_SIZE_X) {
             var y = 0
             while (y < OreWorld.WORLD_SIZE_Y) {
                 val blockType = m_world.blockType(x, y)
@@ -162,8 +162,8 @@ class WorldGenerator(private val m_world: OreWorld) {
             }
         }
 
-        for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
-            for (y in 0..OreWorld.WORLD_SIZE_Y - 1) {
+        for (x in 0 until OreWorld.WORLD_SIZE_X) {
+            for (y in 0 until OreWorld.WORLD_SIZE_Y) {
                 val blockType = m_world.blockType(x, y)
 
                 if (blockType == OreBlock.BlockType.Dirt.oreValue && m_world.blockHasFlag(x, y,
@@ -298,8 +298,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         //hack, set block wall type for each part that's underground!
         //obviously will need replaced with something less stupid
-        for (y in 0..worldSize.height - 1) {
-            for (x in 0..worldSize.width - 1) {
+        for (y in 0 until worldSize.height) {
+            for (x in 0 until worldSize.width) {
                 if (m_world.blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
                     m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUnderground.oreValue)
                 }
@@ -318,8 +318,8 @@ class WorldGenerator(private val m_world: OreWorld) {
 
     private fun generateLakesAndVolcanoes(worldSize: OreWorld.WorldSize) {
         val terrainContour = ArrayList <Int>()
-        for (x in 0..worldSize.width - 1) {
-            for (y in 0..worldSize.height - 1) {
+        for (x in 0 until worldSize.width) {
+            for (y in 0 until worldSize.height) {
                 if (m_world.isBlockSolid(x, y)) {
                     //x is implied via index
                     terrainContour.add(y)
@@ -937,8 +937,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         //fixme i'm very skeptical what happens if given an odd number of world size...maybe we need to use the remainder?
         //don't want to be accidentally squishing 1 block per thread, or stretching by 1 block
 
-        for (y in startY..endY - 1) {
-            for (x in 0..worldSize.width - 1) {
+        for (y in startY until endY) {
+            for (x in 0 until worldSize.width) {
 
                 val xRatio = worldSize.width.toDouble() / worldSize.height.toDouble()
                 val value = finalModule.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
@@ -976,8 +976,8 @@ class WorldGenerator(private val m_world: OreWorld) {
                                           BufferedImage.TYPE_INT_RGB);
         val graphics = bufferedImage.graphics;
 
-        for (x in 0..worldGenInfo.worldSize.width - 1) {
-            for (y in 0..worldGenInfo.worldSize.height - 1) {
+        for (x in 0 until worldGenInfo.worldSize.width) {
+            for (y in 0 until worldGenInfo.worldSize.height) {
                 val blockType = m_world.blockType(x, y)
 
                 //if we fail to match a color, we just output its raw value, something's strange here.

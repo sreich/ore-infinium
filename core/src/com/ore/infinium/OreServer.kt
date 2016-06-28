@@ -54,7 +54,6 @@ class OreServer : Runnable {
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var airGeneratorMapper: ComponentMapper<AirGeneratorComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
     private lateinit var airMapper: ComponentMapper<AirComponent>
     private lateinit var healthMapper: ComponentMapper<HealthComponent>
@@ -136,16 +135,16 @@ class OreServer : Runnable {
 
         //collision test
         //left
-        for (y in 0..seaLevel - 1) {
+        for (y in 0 until seaLevel) {
             //m_world.blockAt(tilex - 24, tiley + y).type = Block.BlockType.Stone;
         }
 
         //right
-        for (y in 0..seaLevel - 1) {
+        for (y in 0 until seaLevel) {
             //        m_world->blockAt(tilex + 24, tiley + y).primitiveType = Block::Stone;
         }
         //top
-        for (x in tilex - 54..tilex + 50 - 1) {
+        for (x in tilex - 54 until tilex + 50) {
             //m_world.blockAt(x, tiley).type = Block.BlockType.Stone;
         }
 
