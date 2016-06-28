@@ -189,23 +189,9 @@ class OreServer : Runnable {
     private fun loadHotbarInventory(playerEntity: Int) {
         //TODO: load the player's inventory and hotbarinventory from file..for now, initialize *the whole thing* with
         // bullshit
-        val drill = m_world.m_artemisWorld.create()
-        velocityMapper.create(drill)
 
-        val drillToolComponent = toolMapper.create(drill).apply {
-            type = ToolComponent.ToolType.Drill
-            blockDamage = 400f
-        }
-
-        val toolSprite = spriteMapper.create(drill)
-        toolSprite.textureName = "drill"
-
-        toolSprite.sprite.setSize(2f, 2f)
-
-        val newStackSize = 64000
-        val itemComponent = itemMapper.create(drill).apply {
-            stackSize = newStackSize
-            maxStackSize = newStackSize
+        val drill = m_world.createDrill()
+        val drillItem = itemMapper.get(drill).apply {
             inventoryIndex = 0
             state = ItemComponent.State.InInventoryState
         }

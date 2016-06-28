@@ -871,6 +871,29 @@ class OreWorld
         return power
     }
 
+    fun createDrill() : Int {
+        val drill = m_artemisWorld.create()
+        velocityMapper.create(drill)
+
+        val drillToolComponent = toolMapper.create(drill).apply {
+            type = ToolComponent.ToolType.Drill
+            blockDamage = 400f
+        }
+
+        val toolSprite = spriteMapper.create(drill)
+        toolSprite.textureName = "drill"
+
+        toolSprite.sprite.setSize(2f, 2f)
+
+        val newStackSize = 64000
+        val itemComponent = itemMapper.create(drill).apply {
+            stackSize = newStackSize
+            maxStackSize = newStackSize
+        }
+
+        return drill
+    }
+
     fun createAirGenerator(): Int {
         val air = m_artemisWorld.create()
         val itemComponent = itemMapper.create(air).apply {
