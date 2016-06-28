@@ -32,6 +32,7 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.PlayerSystem
+import com.ore.infinium.util.indices
 
 /**
  * Handles the random growing of grass blocks in the world
@@ -61,14 +62,14 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
     private fun randomGrowGrass() {
         val players = m_playerSystem.entityIds
 
-        for (i in 0..players.size() - 1) {
+        for (i in players.indices) {
             val playerEntity = players.get(i)
 
             val playerComponent = playerMapper.get(playerEntity)
 
             val region = playerComponent.loadedViewport.blockRegionInViewport()
 
-            //each tick, resample 100 or so blocks to see if grass can grow. this may need to be
+            //each tick, resample n or so blocks to see if grass can grow. this may need to be
             //reduced, but for debugging right now it's good.
             for (j in 0..999) {
                 val randomX = MathUtils.random(region.x, region.width)

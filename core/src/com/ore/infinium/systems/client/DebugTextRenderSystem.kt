@@ -58,9 +58,9 @@ import java.text.DecimalFormat
 class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
 
     private lateinit var airMapper: ComponentMapper<AirComponent>
-    private lateinit var airGeneratormapper: ComponentMapper<AirGeneratorComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var controlMapper: ComponentMapper<ControllableComponent>
+    private lateinit var floraMapper: ComponentMapper<FloraComponent>
     private lateinit var healthMapper: ComponentMapper<HealthComponent>
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
@@ -188,7 +188,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
             val entities = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java)).entities
 
-            for (i in 0..entities.size() - 1) {
+            for (i in entities.indices) {
                 val spriteComponent = spriteMapper.get(entities.get(i))
 
                 m_debugServerBatch.draw(m_junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
@@ -368,10 +368,10 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         var entityUnderMouse = -1
 
         val airComponent: AirComponent?
-        val airGeneratorComponent: AirGeneratorComponent?
         val blockComponent: BlockComponent?
         val controllableComponent: ControllableComponent?
         val healthComponent: HealthComponent?
+        val floraComponent: FloraComponent?
         val itemComponent: ItemComponent?
         val jumpComponent: JumpComponent?
         val lightComponent: LightComponent?
@@ -408,14 +408,14 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
                 airComponent = airMapper.getNullable(currentEntity)
                 components.add(airComponent)
 
-                airGeneratorComponent = airGeneratormapper.getNullable(currentEntity)
-                components.add(airGeneratorComponent)
-
                 blockComponent = blockMapper.getNullable(currentEntity)
                 components.add(blockComponent)
 
                 controllableComponent = controlMapper.getNullable(currentEntity)
                 components.add(controllableComponent)
+
+                floraComponent = floraMapper.getNullable(currentEntity)
+                components.add(floraComponent)
 
                 healthComponent = healthMapper.getNullable(currentEntity)
                 components.add(healthComponent)

@@ -87,7 +87,6 @@ object Network {
         kryo.register(PowerDeviceComponent::class.java)
         kryo.register(ItemComponent.State::class.java)
         kryo.register(AirComponent::class.java)
-        kryo.register(AirGeneratorComponent::class.java)
         kryo.register(PowerGeneratorComponent::class.java)
         kryo.register(PowerConsumerComponent::class.java)
         kryo.register(PowerDeviceComponent::class.java)
@@ -163,8 +162,9 @@ object Network {
 
             //pos not sent
 
+            var name: String = ""
             var id: Int = 0
-            var components: Array<Component>? = null
+            lateinit var components: Array<Component>
 
             /**
              * true if this was spawn because a user picked up an item.

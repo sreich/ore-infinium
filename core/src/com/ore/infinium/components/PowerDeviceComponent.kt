@@ -44,6 +44,14 @@ class PowerDeviceComponent : Component() {
         //we don't copy over circuits or wires, that's for sure.
     }
 
+    /**
+     * determines if the item component is the same, in other words,
+     * if it is the same kind of item. to determine if it can merge/combine
+     */
+    fun canCombineWith(otherComp: PowerDeviceComponent): Boolean {
+        return true //this.name == otherComp.name
+    }
+
     override fun toString(): String {
         val c = javaClass.simpleName
         return """

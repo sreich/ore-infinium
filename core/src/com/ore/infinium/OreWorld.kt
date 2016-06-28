@@ -77,7 +77,6 @@ class OreWorld
     private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var airGeneratorMapper: ComponentMapper<AirGeneratorComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
     private lateinit var airMapper: ComponentMapper<AirComponent>
     private lateinit var healthMapper: ComponentMapper<HealthComponent>
@@ -134,22 +133,22 @@ class OreWorld
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
             m_artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
-                                           .with(TagManager())
-                                           .with(PlayerManager())
-                                           .with(MovementSystem(this))
-                                           .with(SoundSystem(this))
-                                           .with(ClientNetworkSystem(this))
-                                           .with(InputSystem(m_camera, this))
-                                           .with(EntityOverlaySystem(this))
-                                           .with(PlayerSystem(this))
-                                           .with(GameTickSystem(this))
-                                           .with(ClientBlockDiggingSystem(this, m_client!!))
-                                           .with(TileRenderSystem(m_camera, this))
-                                           .with(SpriteRenderSystem(this))
-                                           .with(DebugTextRenderSystem(m_camera, this))
-                                           .with(PowerOverlayRenderSystem(this, m_client!!.m_stage))
-                                           .with(TileTransitionSystem(m_camera, this))
-                                           .build())
+                    .with(TagManager())
+                    .with(PlayerManager())
+                    .with(MovementSystem(this))
+                    .with(SoundSystem(this))
+                    .with(ClientNetworkSystem(this))
+                    .with(InputSystem(m_camera, this))
+                    .with(EntityOverlaySystem(this))
+                    .with(PlayerSystem(this))
+                    .with(GameTickSystem(this))
+                    .with(ClientBlockDiggingSystem(this, m_client!!))
+                    .with(TileRenderSystem(m_camera, this))
+                    .with(SpriteRenderSystem(this))
+                    .with(DebugTextRenderSystem(m_camera, this))
+                    .with(PowerOverlayRenderSystem(this, m_client!!.m_stage))
+                    .with(TileTransitionSystem(m_camera, this))
+                    .build())
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
             //inject the mappers into the world, before we start doing things
@@ -159,21 +158,21 @@ class OreWorld
             val h = Gdx.graphics.height.toFloat()
         } else if (worldInstanceType == WorldInstanceType.Server) {
             m_artemisWorld = World(WorldConfigurationBuilder()
-                                           .with(TagManager())
-                                           .with(SpatialSystem(this))
-                                           .with(PlayerManager())
-                                           .with(MovementSystem(this))
-                                           .with(ServerPowerSystem(this))
-                                           .with(GameTickSystem(this))
-                                           .with(DroppedItemPickupSystem(this))
-                                           .with(GrassBlockSystem(this))
-                                           .with(ServerNetworkEntitySystem(this))
-                                           .with(ServerBlockDiggingSystem(this))
-                                           .with(PlayerSystem(this))
-                                           .with(ServerNetworkSystem(this, m_server!!))
-                                           .with(TileLightingSystem(this))
-                                           .register(GameLoopSystemInvocationStrategy(25, true))
-                                           .build())
+                    .with(TagManager())
+                    .with(SpatialSystem(this))
+                    .with(PlayerManager())
+                    .with(MovementSystem(this))
+                    .with(ServerPowerSystem(this))
+                    .with(GameTickSystem(this))
+                    .with(DroppedItemPickupSystem(this))
+                    .with(GrassBlockSystem(this))
+                    .with(ServerNetworkEntitySystem(this))
+                    .with(ServerBlockDiggingSystem(this))
+                    .with(PlayerSystem(this))
+                    .with(ServerNetworkSystem(this, m_server!!))
+                    .with(TileLightingSystem(this))
+                    .register(GameLoopSystemInvocationStrategy(25, true))
+                    .build())
             //inject the mappers into the world, before we start doing things
             m_artemisWorld.inject(this, true)
 
@@ -283,28 +282,28 @@ class OreWorld
 
         init {
             blockAttributes.put(OreBlock.BlockType.Air.oreValue,
-                                BlockAttributes(textureName = "NULL because it's air",
-                                                collision = BlockAttributes.Collision.False,
-                                                category = BlockAttributes.BlockCategory.Null,
-                                                blockTotalHealth = 0))
+                    BlockAttributes(textureName = "NULL because it's air",
+                            collision = BlockAttributes.Collision.False,
+                            category = BlockAttributes.BlockCategory.Null,
+                            blockTotalHealth = 0))
 
             blockAttributes.put(OreBlock.BlockType.Dirt.oreValue,
-                                BlockAttributes(textureName = "dirt",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Dirt,
-                                                blockTotalHealth = 200))
+                    BlockAttributes(textureName = "dirt",
+                            collision = BlockAttributes.Collision.True,
+                            category = BlockAttributes.BlockCategory.Dirt,
+                            blockTotalHealth = 200))
 
             blockAttributes.put(OreBlock.BlockType.Stone.oreValue,
-                                BlockAttributes(textureName = "stone",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
+                    BlockAttributes(textureName = "stone",
+                            collision = BlockAttributes.Collision.True,
+                            category = BlockAttributes.BlockCategory.Ore,
+                            blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Sand.oreValue,
-                                BlockAttributes(textureName = "sand",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Dirt,
-                                                blockTotalHealth = 300))
+                    BlockAttributes(textureName = "sand",
+                            collision = BlockAttributes.Collision.True,
+                            category = BlockAttributes.BlockCategory.Dirt,
+                            blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Copper.oreValue,
                     BlockAttributes(textureName = "copper",
@@ -319,10 +318,10 @@ class OreWorld
                             blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Silver.oreValue,
-                                BlockAttributes(textureName = "silver",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
+                    BlockAttributes(textureName = "silver",
+                            collision = BlockAttributes.Collision.True,
+                            category = BlockAttributes.BlockCategory.Ore,
+                            blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Gold.oreValue,
                     BlockAttributes(textureName = "gold",
@@ -355,16 +354,16 @@ class OreWorld
                             blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Water.oreValue,
-                                BlockAttributes(textureName = "water",
-                                                collision = BlockAttributes.Collision.False,
-                                                category = BlockAttributes.BlockCategory.Liquid,
-                                                blockTotalHealth = 300))
+                    BlockAttributes(textureName = "water",
+                            collision = BlockAttributes.Collision.False,
+                            category = BlockAttributes.BlockCategory.Liquid,
+                            blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Lava.oreValue,
-                                BlockAttributes(textureName = "lava",
-                                                collision = BlockAttributes.Collision.False,
-                                                category = BlockAttributes.BlockCategory.Liquid,
-                                                blockTotalHealth = 300))
+                    BlockAttributes(textureName = "lava",
+                            collision = BlockAttributes.Collision.False,
+                            category = BlockAttributes.BlockCategory.Liquid,
+                            blockTotalHealth = 300))
         }
 
         const val s_itemPlacementOverlay = "itemPlacementOverlay"
@@ -392,22 +391,24 @@ class OreWorld
         val playerSprite = spriteMapper.create(playerEntity)
         velocityMapper.create(playerEntity)
 
-        val playerComponent = playerMapper.create(playerEntity)
-        playerComponent.connectionPlayerId = connectionId
-        //fixme fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on
-        // the server?? at least the component, maybe not inner sprite
-        playerComponent.noClip = m_noClipEnabled
+        val playerComponent = playerMapper.create(playerEntity).apply {
+            connectionPlayerId = connectionId
+            //fixme fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on
+            // the server?? at least the component, maybe not inner sprite
+            noClip = m_noClipEnabled
 
+            loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
+                    LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
+            loadedViewport.centerOn(Vector2(playerSprite.sprite.x, playerSprite.sprite.y))
+        }
         playerComponent.playerName = playerName
-        playerComponent.loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
-                                                        LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
-        playerComponent.loadedViewport.centerOn(Vector2(playerSprite.sprite.x, playerSprite.sprite.y))
 
         playerSprite.sprite.setSize(2f, 3f)
-        controlMapper.create(playerEntity)
 
         playerSprite.textureName = "player1Standing1"
         playerSprite.category = SpriteComponent.EntityCategory.Character
+
+        controlMapper.create(playerEntity)
         jumpMapper.create(playerEntity)
 
         val healthComponent = healthMapper.create(playerEntity)
@@ -481,9 +482,9 @@ class OreWorld
      * @return
      */
     inline fun blockTypeSafely(x: Int, y: Int): Byte {
-        val x = x.coerceIn(0, WORLD_SIZE_X - 1)
-        val y = y.coerceIn(0, WORLD_SIZE_Y - 1)
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
+        val safeX = x.coerceIn(0, WORLD_SIZE_X - 1)
+        val safeY = y.coerceIn(0, WORLD_SIZE_Y - 1)
+        return blocks[(safeX * WORLD_SIZE_Y + safeY) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
     }
 
     /**
@@ -828,9 +829,11 @@ class OreWorld
 
         blockSprite.sprite.setSize(1f, 1f)
 
-        val itemComponent = itemMapper.create(block)
-        itemComponent.stackSize = 800
-        itemComponent.maxStackSize = 900
+        val itemComponent = itemMapper.create(block).apply {
+            stackSize = 800
+            maxStackSize = 900
+            name = OreBlock.nameOfBlockType(blockType)!!
+        }
 
         return block
     }
@@ -863,9 +866,11 @@ class OreWorld
 
         velocityMapper.create(light)
 
-        val itemComponent = itemMapper.create(light)
-        itemComponent.stackSize = 800
-        itemComponent.maxStackSize = 900
+        val itemComponent = itemMapper.create(light).apply {
+            stackSize = 800
+            maxStackSize = 900
+            name = "Light"
+        }
 
         val powerDeviceComponent = powerDeviceMapper.create(light)
 
@@ -885,9 +890,11 @@ class OreWorld
 
         velocityMapper.create(power)
 
-        val itemComponent = itemMapper.create(power)
-        itemComponent.stackSize = 800
-        itemComponent.maxStackSize = 900
+        val itemComponent = itemMapper.create(power).apply {
+            stackSize = 800
+            maxStackSize = 900
+            name = "Power Generator"
+        }
 
         val powerDeviceComponent = powerDeviceMapper.create(power)
 
@@ -902,26 +909,27 @@ class OreWorld
         return power
     }
 
-    fun createAirGenerator(): Int {
-        val air = m_artemisWorld.create()
-        val itemComponent = itemMapper.create(air).apply {
-            stackSize = 800
-            maxStackSize = 900
+    fun createDrill(): Int {
+        val drill = m_artemisWorld.create()
+        velocityMapper.create(drill)
+
+        val drillToolComponent = toolMapper.create(drill).apply {
+            type = ToolComponent.ToolType.Drill
+            blockDamage = 400f
         }
 
-        velocityMapper.create(air)
+        val toolSprite = spriteMapper.create(drill)
+        toolSprite.textureName = "drill"
 
-        val power = powerDeviceMapper.create(air)
+        toolSprite.sprite.setSize(2f, 2f)
 
-        val airSprite = spriteMapper.create(air)
-        airSprite.textureName = "air-generator-64x64"
+        val newStackSize = 64000
+        val itemComponent = itemMapper.create(drill).apply {
+            stackSize = newStackSize
+            maxStackSize = newStackSize
+        }
 
-        airSprite.sprite.setSize(4f, 4f)
-
-        val airComponent = airGeneratorMapper.create(air)
-        airComponent.airOutputRate = 100
-
-        return air
+        return drill
     }
 
     fun createWoodenTree(type: FloraComponent.TreeSize): Int {
@@ -934,6 +942,7 @@ class OreWorld
         itemMapper.create(tree).apply {
             state = ItemComponent.State.InWorldState
             maxStackSize = 64
+            name = "Tree"
         }
 
         when (type) {
@@ -984,8 +993,8 @@ class OreWorld
         }
 
         //check collision against blocks first
-        for (x in startX..endX - 1) {
-            for (y in startY..endY - 1) {
+        for (x in startX until endX) {
+            for (y in startY until endY) {
                 if (blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
                     return false
                 }
@@ -1087,12 +1096,6 @@ class OreWorld
         if (airMapper.has(sourceEntity)) {
             val sourceComponent = airMapper.get(sourceEntity)
             val component = airMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
-        }
-
-        if (airGeneratorMapper.has(sourceEntity)) {
-            val sourceComponent = airGeneratorMapper.get(sourceEntity)
-            val component = airGeneratorMapper.create(clonedEntity)
             component.copyFrom(sourceComponent)
         }
 
@@ -1293,7 +1296,7 @@ class OreWorld
             //same for rubber trees. but they may also drop a sapling
             val cloned = cloneEntity(entityToKill)
             val clonedSpriteComp = spriteMapper.get(cloned)
-            val random = RandomXS128 ()
+            val random = RandomXS128()
             clonedSpriteComp.sprite.apply {
                 x += random.nextInt(0, 5)
                 y += random.nextInt(0, 5)
@@ -1307,7 +1310,7 @@ class OreWorld
 
                 //fixme functionalize this, duplicated of/by networkserversystem drop request
                 sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
-                                         clonedSpriteComp.sprite.height)
+                        clonedSpriteComp.sprite.height)
                 timeOfDropMs = TimeUtils.millis()
             }
 

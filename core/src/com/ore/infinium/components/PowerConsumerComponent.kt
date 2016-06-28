@@ -31,6 +31,8 @@ import com.artemis.Component
  */
 class PowerConsumerComponent : Component() {
 
+    var powerDemandRate: Int = 0
+
     /**
      * copy a component (similar to copy constructor)
 
@@ -41,7 +43,13 @@ class PowerConsumerComponent : Component() {
         powerDemandRate = component.powerDemandRate
     }
 
-    var powerDemandRate: Int = 0
+    /**
+     * determines if the item component is the same, in other words,
+     * if it is the same kind of item. to determine if it can merge/combine
+     */
+    fun canCombineWith(otherComp: PowerConsumerComponent): Boolean {
+        return this.powerDemandRate == otherComp.powerDemandRate
+    }
 
     override fun toString(): String {
         val c = javaClass.simpleName

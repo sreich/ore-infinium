@@ -67,8 +67,8 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
         //sets the flag to indicate it is caused by sunlight
 
         //todo max y should be a reasonable base level, not far below ground
-        for (y in 0..200 - 1) {
-            for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
+        for (y in 0 until 200) {
+            for (x in 0 until OreWorld.WORLD_SIZE_X) {
                 if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
                     //including the one that we first find that is solid
 //                    if (m_world.blockLightLevel(x, y) == 0.toByte()) {
@@ -80,8 +80,8 @@ class TileLightingSystem(private val m_world: OreWorld) : BaseSystem() {
                 }
             }
         }
-        for (y in 0..200 - 1) {
-            for (x in 0..OreWorld.WORLD_SIZE_X - 1) {
+        for (y in 0 until 200) {
+            for (x in 0 until OreWorld.WORLD_SIZE_X) {
                 if (!m_world.isBlockSolid(x, y) && m_world.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
                     //including the one that we first find that is solid
                     val lightLevel = m_world.blockLightLevel(x, y)

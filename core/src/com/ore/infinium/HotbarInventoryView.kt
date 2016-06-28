@@ -25,17 +25,19 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.artemis.ComponentMapper
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.Tooltip
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Scaling
+import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.Tooltip.TooltipStyle
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
@@ -60,28 +62,27 @@ class HotbarInventoryView(private val m_stage: Stage,
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
-    private val m_tooltip: VisLabel
+    private val m_tooltip: Tooltip<VisTable>
+    private val m_tooltipLabel: VisLabel
 
     init {
-        //        m_slots = arrayListOf()
-        //        Inventory.maxHotBarSlots
         m_world.m_artemisWorld.inject(this)
         //attach to the inventory model
         m_hotbarInventory.addListener(this)
 
-        container = VisTable()
-        container.setFillParent(true)
-        container.top().left().setSize(800f, 100f)
-        container.padLeft(10f).padTop(10f)
-
-        container.defaults().space(4f)
+        container = VisTable().apply {
+            setFillParent(true)
+            top().left().setSize(800f, 100f)
+            padLeft(10f).padTop(10f)
+            defaults().space(4f)
+        }
 
         m_stage.addActor(container)
 
         val dragImage = VisImage()
         dragImage.setSize(32f, 32f)
 
-        for (i in 0..Inventory.maxHotbarSlots - 1) {
+        for (i in 0 until Inventory.maxHotbarSlots) {
 
             val slotImage = VisImage()
 
@@ -112,8 +113,15 @@ class HotbarInventoryView(private val m_stage: Stage,
 
         }
 
-        m_tooltip = VisLabel()
-        m_stage.addActor(m_tooltip)
+        val style = VisUI.getSkin().get("default", TooltipStyle::class.java)
+
+        m_tooltipLabel = VisLabel()
+        val tooltipTable = VisTable().apply {
+            add(m_tooltipLabel)
+            background = style.background
+        }
+
+        m_tooltip = Tooltip<VisTable>(tooltipTable)
     }
 
     private fun deselectPreviousSlot() {
@@ -149,7 +157,7 @@ class HotbarInventoryView(private val m_stage: Stage,
     }
 
     //fixme this is also duped in the InventoryView, but not sure where else to put it...the current way is a hack anyway
-      fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
+    fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
         val region: TextureRegion?
         if (blockMapper.getNullable(itemEntity) != null) {
             //fixme this concat is pretty...iffy
@@ -266,7 +274,6 @@ class HotbarInventoryView(private val m_stage: Stage,
                 return
             }
 
-
             val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
 
             if (dragWrapper.type == Inventory.InventoryType.Hotbar) {
@@ -276,7 +283,7 @@ class HotbarInventoryView(private val m_stage: Stage,
                 hotbarInventory.setSlot(this.index, itemEntity!!)
 
                 clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
-                        Inventory.InventoryType.Hotbar, index)
+                                                      Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
                 hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
@@ -290,7 +297,7 @@ class HotbarInventoryView(private val m_stage: Stage,
                 //fixme?                    inventory.m_previousSelectedSlot = index;
 
                 clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory, dragWrapper.dragSourceIndex,
-                        Inventory.InventoryType.Hotbar, index)
+                                                      Inventory.InventoryType.Hotbar, index)
 
                 //remove the source item
                 inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
@@ -302,28 +309,28 @@ class HotbarInventoryView(private val m_stage: Stage,
     }
 
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView, private val index: Int) : InputListener() {
+        override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+            inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
+
+            super.enter(event, x, y, pointer, fromActor)
+        }
 
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
+            inventory.m_tooltip.mouseMoved(event, x, y)
+
             val itemEntity = inventory.m_hotbarInventory.itemEntity(index)
 
             if (itemEntity != null) {
-                inventory.m_tooltip.isVisible = true
-
-                inventory.m_tooltip.setPosition(Gdx.input.x.toFloat(), Gdx.graphics.height - Gdx.input.y - 50.toFloat())
-
-                //fixme, obviously texture name is not a valid tooltip text. we need a real name, but should it be in
-                // sprite or item? everything should probably have a canonical name, no?
                 val itemComponent = inventory.itemMapper.get(itemEntity)
                 val spriteComponent = inventory.spriteMapper.get(itemEntity)
-                inventory.m_tooltip.setText(spriteComponent.textureName)
-            } else {
-                inventory.m_tooltip.isVisible = false
+                inventory.m_tooltipLabel.setText(itemComponent.name)
             }
 
             return super.mouseMoved(event, x, y)
         }
 
         override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+            inventory.m_tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)
         }

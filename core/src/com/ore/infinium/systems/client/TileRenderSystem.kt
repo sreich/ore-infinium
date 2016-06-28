@@ -142,8 +142,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         var textureName: String? = ""
         //fixme all instances of findRegion need to be replaced with cached
         //versions. they're allegedly quite slow
-        for (y in startY..endY - 1) {
-            loop@ for (x in startX..endX - 1) {
+        for (y in startY until endY) {
+            loop@ for (x in startX until endX) {
 
                 val blockType = m_world.blockType(x, y)
                 val blockMeshType = m_world.blockMeshType(x, y)

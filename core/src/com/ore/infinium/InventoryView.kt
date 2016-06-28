@@ -28,14 +28,15 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.Tooltip
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Scaling
+import com.kotcrab.vis.ui.VisUI
+import com.kotcrab.vis.ui.widget.Tooltip.TooltipStyle
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
@@ -72,6 +73,9 @@ class InventoryView(stage: Stage,
     private val m_slots = mutableListOf<SlotElement>()
     private val m_window: VisWindow
 
+    private val m_tooltip: Tooltip<VisTable>
+    private val m_tooltipLabel: VisLabel
+
     init {
         //attach to the inventory model
         m_inventory.addListener(this)
@@ -96,6 +100,7 @@ class InventoryView(stage: Stage,
 
         val slotsPerRow = 5
         var i = 0
+
         while (i < Inventory.maxSlots) {
             var slot = 0
             while (slot < slotsPerRow && i < Inventory.maxSlots) {
@@ -105,6 +110,7 @@ class InventoryView(stage: Stage,
                 slotTable.touchable = Touchable.enabled
 
                 slotTable.add(slotImage)
+                slotTable.addListener(SlotInputListener(this, i))
                 slotTable.background("default-pane")
 
                 slotTable.row()
@@ -128,7 +134,18 @@ class InventoryView(stage: Stage,
             container.row()
         }
 
+        val style = VisUI.getSkin().get("default", TooltipStyle::class.java)
+
+        m_tooltipLabel = VisLabel()
+        val tooltipTable = VisTable().apply {
+            add(m_tooltipLabel)
+            background = style.background
+        }
+
+        m_tooltip = Tooltip<VisTable>(tooltipTable)
+
         stage.addActor(m_window)
+
         inventoryVisible = false
     }
 
@@ -183,6 +200,34 @@ class InventoryView(stage: Stage,
         val slot = m_slots[index]
         slot.itemImage.drawable = null
         slot.itemCountLabel.setText(null)
+    }
+
+    private class SlotInputListener internal constructor(private val inventory: InventoryView, private val index: Int) : InputListener() {
+        override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+            inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
+
+            super.enter(event, x, y, pointer, fromActor)
+        }
+
+        override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
+            inventory.m_tooltip.mouseMoved(event, x, y)
+
+            val itemEntity = inventory.m_inventory.itemEntity(index)
+
+            if (itemEntity != null) {
+                val itemComponent = inventory.itemMapper.get(itemEntity)
+                val spriteComponent = inventory.spriteMapper.get(itemEntity)
+                inventory.m_tooltipLabel.setText(itemComponent.name)
+            }
+
+            return super.mouseMoved(event, x, y)
+        }
+
+        override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+            inventory.m_tooltip.exit(event, x, y, pointer, toActor)
+
+            super.exit(event, x, y, pointer, toActor)
+        }
     }
 
     private class InventoryDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val inventoryView: InventoryView) : DragAndDrop.Source(

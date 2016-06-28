@@ -38,6 +38,7 @@ import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.abs
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.indices
 
 @Wire(failOnNull = false)
 class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
@@ -332,7 +333,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         var collision = false
         if (velocity.x > 0.0f) {
             //try moving right, only loop over tiles on the right side(inclusive, remember)
-            for (y in topY..bottomY - 1) {
+            for (y in topY until bottomY) {
                 if (m_world.isBlockSolid(rightX, y)) {
                     velocity.x = 0.0f
                     collision = true
@@ -348,7 +349,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             }
         } else if (velocity.x < 0.0f) {
             //try moving left, only loop over tiles on the left side
-            for (y in topY..bottomY - 1) {
+            for (y in topY until bottomY) {
                 if (m_world.isBlockSolid(leftX, y)) {
 
                     velocity.x = 0.0f
@@ -416,7 +417,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
         val entities = entitySubscription.entities
 
-        for (i in 0..entities.size() - 1) {
+        for (i in entities.indices) {
             val player = entities.get(i)
             val playerComponent = playerMapper.get(player)
 

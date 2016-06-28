@@ -33,6 +33,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.ScreenViewport
@@ -129,6 +130,11 @@ class OreClient : ApplicationListener, InputProcessor {
 
         //load before stage
         VisUI.load(VisUI.SkinScale.X1)
+        TooltipManager.getInstance().apply {
+            initialTime = 0f
+            hideAll()
+        }
+
 
         //todo custom skin
         //VisUI.load(Gdx.files.internal("ui/ui.json"))

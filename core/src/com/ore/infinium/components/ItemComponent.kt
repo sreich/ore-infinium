@@ -32,6 +32,7 @@ class ItemComponent : Component() {
     var stackSize: Int = 0
     //the max a single item stack can hold
     var maxStackSize: Int = 0
+    var name: String = ""
 
     /**
      * indicates the ms point in time that the player dropped the item.
@@ -88,7 +89,7 @@ class ItemComponent : Component() {
     /**
      * If this item resides in an inventory of some kind, the dragSourceIndex of where it is at will be stored here
      */
-    var inventoryIndex: Int = 0
+    var inventoryIndex: Int = -1
 
     /**
      * flag to indicate the item was *just* dropped this frame and has not yet
@@ -114,6 +115,16 @@ class ItemComponent : Component() {
     }
 
     /**
+     * determines if the item component is the same, in other words,
+     * if it is the same kind of item. to determine if it can merge/combine
+     */
+    fun canCombineWith(otherComp: ItemComponent): Boolean {
+        return this.name == otherComp.name &&
+                this.maxStackSize == otherComp.maxStackSize
+    }
+
+
+    /**
      * copy a component (similar to copy constructor)
 
      * @param itemComponent
@@ -126,6 +137,7 @@ class ItemComponent : Component() {
         state = itemComponent.state
         inventoryIndex = itemComponent.inventoryIndex
         justDropped = itemComponent.justDropped
+        name = itemComponent.name
         //sizeBeforeDropped is not copied, intentionally
     }
 
@@ -136,6 +148,7 @@ class ItemComponent : Component() {
         $c.maxStackSize: $maxStackSize
         $c.playerIdWhoDropped: $playerIdWhoDropped
         $c.state: $state
-        $c.justDropped: $justDropped"""
+        $c.justDropped: $justDropped
+        $c.name: $name"""
     }
 }
