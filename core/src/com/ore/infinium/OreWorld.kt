@@ -857,6 +857,7 @@ class OreWorld
 
         toolMapper.create(liquidGun).apply {
             type = ToolComponent.ToolType.Bucket
+            attackTickIntervalMs = 0
         }
 
         spriteMapper.create(liquidGun).apply {

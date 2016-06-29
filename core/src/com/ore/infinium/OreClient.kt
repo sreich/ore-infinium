@@ -216,7 +216,7 @@ class OreClient : ApplicationListener, InputProcessor {
                                   mouseWorldCoords: Vector2) {
 
         val currentMillis = TimeUtils.millis()
-        if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickInterval) {
+        if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickIntervalMs) {
             //fixme obviously, iterating over every entity to find the one under position is beyond dumb, use a spatial hash/quadtree etc
 
             playerComp.attackLastTick = currentMillis
