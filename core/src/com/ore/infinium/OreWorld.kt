@@ -1205,12 +1205,11 @@ class OreWorld
      * @return the player entity
      */
     fun playerEntityForPlayerConnectionID(playerId: Int): Int {
-        val playerEntities = m_artemisWorld.aspectSubscriptionManager.get(
-                Aspect.all(PlayerComponent::class.java)).entities
+        val players = players()
 
         var playerComponent: PlayerComponent
-        for (iPlayer in playerEntities.indices) {
-            val playerEntityId = playerEntities[iPlayer]
+        for (iPlayer in players.indices) {
+            val playerEntityId = players[iPlayer]
             playerComponent = playerMapper.get(playerEntityId)
             if (playerComponent.connectionPlayerId == playerId) {
                 return playerEntityId
@@ -1221,8 +1220,7 @@ class OreWorld
     }
 
     fun players(): IntBag {
-        val aspectSubscriptionManager = m_artemisWorld.aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
+        val entitySubscription = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
         return entitySubscription.entities
     }
 
