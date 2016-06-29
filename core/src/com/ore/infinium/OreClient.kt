@@ -171,7 +171,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     fun handleLeftMousePrimaryAttack() {
-        val mouse = m_world!!.mousePositionWorldCoords()
+        val mouseWorldCoords = m_world!!.mousePositionWorldCoords()
 
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
 
@@ -182,8 +182,8 @@ class OreClient : ApplicationListener, InputProcessor {
 
         if (blockComp != null) {
 
-            val x = mouse.x.toInt()
-            val y = mouse.y.toInt()
+            val x = mouseWorldCoords.x.toInt()
+            val y = mouseWorldCoords.y.toInt()
 
             val blockPlaced = m_world!!.attemptBlockPlacement(x, y, blockComp.blockType)
             if (blockPlaced) {
@@ -200,7 +200,7 @@ class OreClient : ApplicationListener, InputProcessor {
         if (equippedToolComp != null) {
 
             //note, digging is handled by its own system, not anywhere near here.
-            attemptToolAttack(playerComp, equippedToolComp, mouse)
+            attemptToolAttack(playerComp, equippedToolComp, mouseWorldCoords)
             return
         }
 
@@ -213,7 +213,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
     private fun attemptToolAttack(playerComp: PlayerComponent,
                                   equippedToolComp: ToolComponent,
-                                  mouse: Vector2) {
+                                  mouseWorldCoords: Vector2) {
 
         val currentMillis = TimeUtils.millis()
         if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickInterval) {
@@ -222,21 +222,20 @@ class OreClient : ApplicationListener, InputProcessor {
             playerComp.attackLastTick = currentMillis
 
             when (equippedToolComp.type ) {
-                ToolComponent.ToolType.Bucket -> liquidGunAttackAndSend(mouse)
+                ToolComponent.ToolType.Bucket -> liquidGunAttackAndSend(mouseWorldCoords)
 
                 //for attacking like trees and stuff. likely needs a much better system designed later on, as it evolves..
                 else ->
-                    attemptToolAttackOnAnEntityAndSend(mouse)
+                    attemptToolAttackOnAnEntityAndSend(mouseWorldCoords)
             }
         }
     }
 
-    private fun liquidGunAttackAndSend(mouse: Vector2) {
+    private fun liquidGunAttackAndSend(mouseWorldCoords: Vector2) {
         //todo play sound immediately, then send attack command
-        val worldCoords = m_world!!.screenToWorldCoords(mouse.x, mouse.y)
 
         m_clientNetworkSystem.sendEquippedItemAttack(_attackType = Network.Client.PlayerEquippedItemAttack.ItemAttackType.Primary,
-                _attackPositionWorldCoords = worldCoords)
+                                                     _attackPositionWorldCoords = mouseWorldCoords)
     }
 
     private fun attemptToolAttackOnAnEntityAndSend(mouse: Vector2) {
