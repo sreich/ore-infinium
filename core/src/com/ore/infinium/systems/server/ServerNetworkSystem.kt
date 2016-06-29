@@ -368,6 +368,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                 is Network.Client.PlayerEquipHotbarIndex -> receivePlayerEquipHotbarIndex(job, receivedObject)
                 is Network.Client.HotbarDropItem -> receiveHotbarDropItem(job, receivedObject)
                 is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
+                is Network.Client.PlayerEquippedItemAttack -> receivePlayerEquippedItemAttack(job, receivedObject)
                 is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
 
                 is FrameworkMessage.Ping -> if (receivedObject.isReply) {
@@ -381,6 +382,18 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
         if (OreSettings.debugPacketTypeStatistics) {
             OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
+        }
+    }
+
+    private fun receivePlayerEquippedItemAttack(job: NetworkJob, receivedObject: Network.Client.PlayerEquippedItemAttack) {
+        val tileX = receivedObject.attackPositionWorldCoords.x.toInt()
+        val tileY = receivedObject.attackPositionWorldCoords.y.toInt()
+
+        if (m_world.blockType(tileX, tileY) != OreBlock.BlockType.Water.oreValue) {
+            //fill with water
+            m_world.setBlockType(tileX, tileY, OreBlock.BlockType.Water.oreValue)
+            m_world.setLiquidLevel(tileX, tileY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+            this.sendSparseBlockBroadcast(tileX,  tileY)
         }
     }
 

@@ -30,7 +30,6 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager
@@ -45,8 +44,9 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
+import com.ore.infinium.util.forEach
 import com.ore.infinium.util.getNullable
-import com.ore.infinium.util.indices
+import com.ore.infinium.util.rect
 import java.io.IOException
 
 class OreClient : ApplicationListener, InputProcessor {
@@ -194,15 +194,13 @@ class OreClient : ApplicationListener, InputProcessor {
             return
         }
 
-        val equippedItemComp = itemMapper.getNullable(equippedItem)
-        if (equippedItemComp == null) {
-            return
-        }
+        val equippedItemComp = itemMapper.getNullable(equippedItem) ?: return
 
         val equippedToolComp = toolMapper.getNullable(equippedItem)
         if (equippedToolComp != null) {
 
-            attemptItemAttack(playerComp, equippedToolComp, mouse)
+            //note, digging is handled by its own system, not anywhere near here.
+            attemptToolAttack(playerComp, equippedToolComp, mouse)
             return
         }
 
@@ -213,57 +211,79 @@ class OreClient : ApplicationListener, InputProcessor {
         }
     }
 
-    private fun attemptItemAttack(playerComp: PlayerComponent,
+    private fun attemptToolAttack(playerComp: PlayerComponent,
                                   equippedToolComp: ToolComponent,
                                   mouse: Vector2) {
 
         val currentMillis = TimeUtils.millis()
         if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickInterval) {
-            //fixme obviously, iterating over every entity to find the one under position is beyond dumb
+            //fixme obviously, iterating over every entity to find the one under position is beyond dumb, use a spatial hash/quadtree etc
 
             playerComp.attackLastTick = currentMillis
 
-            val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
-            val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
-            val clientEntities = clientEntitySubscription.entities
+            when (equippedToolComp.type ) {
+                ToolComponent.ToolType.Bucket -> liquidGunAttackAndSend(mouse)
 
-            loop@ for (i in clientEntities.indices) {
-                val currentEntity = clientEntities[i]
-
-                val spriteComp = spriteMapper.get(currentEntity)
-                if (playerMapper.has(currentEntity)) {
-                    //ignore players
-                    continue
-                }
-
-                val tag = m_tagManager.getTag(m_world!!.m_artemisWorld.getEntity(currentEntity))
-                when (tag) {
-                    OreWorld.s_itemPlacementOverlay,
-                    OreWorld.s_crosshair,
-                    OreWorld.s_mainPlayer -> continue@loop
-                }
-
-                val rectangle = Rectangle(spriteComp.sprite.x - spriteComp.sprite.width * 0.5f,
-                                          spriteComp.sprite.y - spriteComp.sprite.height * 0.5f,
-                                          spriteComp.sprite.width, spriteComp.sprite.height)
-
-                if (rectangle.contains(mouse)) {
-                    var send = true
-                    itemMapper.getNullable(currentEntity)?.apply {
-                        //don't let them attack dropped items, makes no sense
-                        if (state == ItemComponent.State.DroppedInWorld) {
-                            send = false
-                        }
-                    }
-
-                    //todo check if something we can attack, also on server because..yeah.
-                    if (send) {
-                        m_clientNetworkSystem.sendEntityAttack(currentEntity)
-                    }
-                }
+                //for attacking like trees and stuff. likely needs a much better system designed later on, as it evolves..
+                else ->
+                    attemptToolAttackOnAnEntityAndSend(mouse)
             }
         }
+    }
 
+    private fun liquidGunAttackAndSend(mouse: Vector2) {
+        //todo play sound immediately, then send attack command
+        val worldCoords = m_world!!.screenToWorldCoords(mouse.x, mouse.y)
+
+        m_clientNetworkSystem.sendEquippedItemAttack(_attackType = Network.Client.PlayerEquippedItemAttack.ItemAttackType.Primary,
+                _attackPositionWorldCoords = worldCoords)
+    }
+
+    private fun attemptToolAttackOnAnEntityAndSend(mouse: Vector2) {
+        val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
+        val clientEntities = clientAspectSubscriptionManager.get(Aspect.all()).entities
+
+        //fixme, not ideal..but i don't like non-java collections anyways
+        val entities = mutableListOf<Int>()
+        clientEntities.forEach { entities.add(it) }
+
+        val entityToAttack = entities.filter { e ->
+            val spriteComp = spriteMapper.get(e)
+            //ignore players, we don't attack them
+            !playerMapper.has(e) && !shouldIgnoreEntityTag(e) &&
+                    spriteComp.sprite.rect.contains(mouse) && canAttackEntity(e)
+        }.forEach { e ->
+            m_clientNetworkSystem.sendEntityAttack(e)
+        }
+    }
+
+    /**
+     * @return true if the entity is able to be attacked.
+     *
+     * e.g. items dropped in the world are not attackable
+     */
+    private fun canAttackEntity(entityId: Int): Boolean {
+        val itemComp = itemMapper.getNullable(entityId) ?: return false
+        //don't let them attack dropped items, makes no sense
+            if (itemComp.state == ItemComponent.State.DroppedInWorld) {
+                return false
+            }
+
+        return true
+    }
+
+    /**
+     * @return true if the entity tag should be ignore for attacks and stuff.
+     * excludes stuff like main player, item overlays, crosshairs, ...
+     */
+    private fun shouldIgnoreEntityTag(entity: Int): Boolean {
+        val tag = m_tagManager.getTag(m_world!!.m_artemisWorld.getEntity(entity))
+        when (tag) {
+            OreWorld.s_itemPlacementOverlay,
+            OreWorld.s_crosshair,
+            OreWorld.s_mainPlayer -> return true
+            else -> return false
+        }
     }
 
     /**
@@ -649,7 +669,7 @@ class OreClient : ApplicationListener, InputProcessor {
         playerComponent.inventory = m_inventory
 
         m_hotbarView = HotbarInventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
-                                           m_world!!)
+                m_world!!)
         m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
         m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)

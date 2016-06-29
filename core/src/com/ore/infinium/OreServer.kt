@@ -199,18 +199,17 @@ class OreServer : Runnable {
         val powerGen = m_world.createPowerGenerator()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(powerGen)
 
-        //hack no need for all this, they get merged anyways probably/hopefully.
-        //but we do need to test merging
-        for (i in 4..6) {
-            val light = m_world.createLight()
+        val light = m_world.createLight()
 
-            itemMapper.get(light).apply {
-                stackSize = 63999
-                maxStackSize = 64000
-            }
-
-            playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(light)
+        itemMapper.get(light).apply {
+            maxStackSize = 64000
+            stackSize = maxStackSize
         }
+
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(light)
+
+        val liquidGun = m_world.createLiquidGun()
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
         for (i in 0 until Inventory.maxHotbarSlots) {
             val entity = playerComponent.hotbarInventory!!.itemEntity(i)

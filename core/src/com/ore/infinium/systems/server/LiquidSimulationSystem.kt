@@ -47,7 +47,7 @@ class LiquidSimulationSystem(private val m_world: OreWorld) : BaseSystem() {
         /**
          * values 0 through 15
          */
-        const val MAX_LIQUID_LEVEL = 15
+        const val MAX_LIQUID_LEVEL: Byte = 15
     }
 
     override fun processSystem() {

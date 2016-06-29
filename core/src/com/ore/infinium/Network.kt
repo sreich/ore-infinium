@@ -310,6 +310,21 @@ object Network {
             var sourceIndex: Byte = 0
             var destIndex: Byte = 0
         }
+
+        /**
+         * indicate that we are trying to attack whatever item is equipped,
+         * at the given vector in world coordinates.
+         */
+        class PlayerEquippedItemAttack {
+
+            var itemAttackType = ItemAttackType.Primary
+            var attackPositionWorldCoords = Vector2()
+
+            enum class ItemAttackType {
+                Primary,
+                Secondary
+            }
+        }
     }
 
     object Shared {

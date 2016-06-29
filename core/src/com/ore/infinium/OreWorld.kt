@@ -790,10 +790,15 @@ class OreWorld
 
     fun mousePositionWorldCoords(): Vector2 {
         //libgdx can and probably will return negative mouse coords..
-        val mouse = Vector3((Gdx.input.x).coerceAtLeast(0).toFloat(), (Gdx.input.y).coerceAtLeast(0).toFloat(), 0f)
-        val finalMouse = m_camera.unproject(mouse)
+        return screenToWorldCoords(Gdx.input.x.toFloat(), Gdx.input.y.toFloat())
+    }
 
-        return Vector2(finalMouse.x, finalMouse.y)
+    fun screenToWorldCoords(x: Float, y: Float): Vector2 {
+        // we ensure it is within bounds of screen (mouse pos can be negative sometimes, oddly)
+        val input = Vector3((x).coerceAtLeast(0f).toFloat(), (y).coerceAtLeast(0f).toFloat(), 0f)
+        val worldCoords = m_camera.unproject(input)
+
+        return Vector2(worldCoords.x, worldCoords.y)
     }
 
     /**
@@ -836,7 +841,7 @@ class OreWorld
 
         blockSprite.sprite.setSize(1f, 1f)
 
-        val itemComponent = itemMapper.create(block).apply {
+        itemMapper.create(block).apply {
             stackSize = 800
             maxStackSize = 900
             name = OreBlock.nameOfBlockType(blockType)!!
@@ -849,8 +854,9 @@ class OreWorld
         val liquidGun = m_artemisWorld.create()
         velocityMapper.create(liquidGun)
 
-        val drillToolComponent = toolMapper.create(liquidGun)
-        drillToolComponent.type = ToolComponent.ToolType.Bucket
+        toolMapper.create(liquidGun).apply {
+            type = ToolComponent.ToolType.Bucket
+        }
 
         spriteMapper.create(liquidGun).apply {
             textureName = "drill"
@@ -861,8 +867,7 @@ class OreWorld
         itemMapper.create(liquidGun).apply {
             stackSize = newStackSize
             maxStackSize = newStackSize
-            inventoryIndex = 0
-            state = ItemComponent.State.InInventoryState
+            name = "Liquid Gun"
         }
 
         return liquidGun
@@ -873,13 +878,13 @@ class OreWorld
 
         velocityMapper.create(light)
 
-        val itemComponent = itemMapper.create(light).apply {
+        itemMapper.create(light).apply {
             stackSize = 800
             maxStackSize = 900
             name = "Light"
         }
 
-        val powerDeviceComponent = powerDeviceMapper.create(light)
+        powerDeviceMapper.create(light)
 
         val sprite = spriteMapper.create(light)
         sprite.textureName = "light-yellow"
@@ -897,13 +902,13 @@ class OreWorld
 
         velocityMapper.create(power)
 
-        val itemComponent = itemMapper.create(power).apply {
+        itemMapper.create(power).apply {
             stackSize = 800
             maxStackSize = 900
             name = "Power Generator"
         }
 
-        val powerDeviceComponent = powerDeviceMapper.create(power)
+        powerDeviceMapper.create(power)
 
         val sprite = spriteMapper.create(power)
         sprite.textureName = "air-generator-64x64"
@@ -920,7 +925,7 @@ class OreWorld
         val drill = m_artemisWorld.create()
         velocityMapper.create(drill)
 
-        val drillToolComponent = toolMapper.create(drill).apply {
+        toolMapper.create(drill).apply {
             type = ToolComponent.ToolType.Drill
             blockDamage = 400f
         }
@@ -931,7 +936,7 @@ class OreWorld
         toolSprite.sprite.setSize(2f, 2f)
 
         val newStackSize = 64000
-        val itemComponent = itemMapper.create(drill).apply {
+        itemMapper.create(drill).apply {
             stackSize = newStackSize
             maxStackSize = newStackSize
             name = "Drill"
@@ -966,7 +971,7 @@ class OreWorld
             }
         }
 
-        val health = healthMapper.create(tree).apply {
+        healthMapper.create(tree).apply {
             maxHealth = 2000f
             health = maxHealth
         }
