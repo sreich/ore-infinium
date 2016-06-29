@@ -890,6 +890,7 @@ class OreWorld
         val itemComponent = itemMapper.create(drill).apply {
             stackSize = newStackSize
             maxStackSize = newStackSize
+            name = "Drill"
         }
 
         return drill

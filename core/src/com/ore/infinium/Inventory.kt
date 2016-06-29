@@ -122,7 +122,7 @@ class Inventory
             val mergedItemId = m_slots[slotIndexToMerge]!!
             //merge us into this one
             result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Merged)//, mergedEntityId = mergedItemId)
-            mergeItemIntoSecond(itemIdToObsolete = 0, itemIdToMerge = mergedItemId)
+            mergeItemIntoSecond(itemIdToObsolete = itemEntityId, itemIdToMerge = mergedItemId)
         }
 
         return result
