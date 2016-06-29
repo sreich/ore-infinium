@@ -62,6 +62,9 @@ object Network {
         kryo.register(Client.HotbarDropItem::class.java)
         kryo.register(Server.LoadedViewportMoved::class.java)
 
+        kryo.register(Client.PlayerEquippedItemAttack::class.java)
+        kryo.register(Client.PlayerEquippedItemAttack.ItemAttackType::class.java)
+
         kryo.register(Client.EntityAttack::class.java)
         kryo.register(Server.EntitySpawn::class.java)
         kryo.register(Server.EntitySpawnMultiple::class.java)

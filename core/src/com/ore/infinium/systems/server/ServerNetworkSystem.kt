@@ -39,6 +39,7 @@ import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.indices
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -393,7 +394,12 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
             //fill with water
             m_world.setBlockType(tileX, tileY, OreBlock.BlockType.Water.oreValue)
             m_world.setLiquidLevel(tileX, tileY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
-            this.sendSparseBlockBroadcast(tileX,  tileY)
+
+            val players = m_world.players()
+            for (i in players.indices) {
+                val player = players[i]
+                this.sendPlayerSingleBlock(player, tileX, tileY)
+            }
         }
     }
 
@@ -629,14 +635,14 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     /**
-     * @param player
+     * @param playerEntityId
      * *         entity id
      * *
      * @param x
      * *
      * @param y
      */
-    fun sendPlayerSingleBlock(player: Int, x: Int, y: Int) {
+    fun sendPlayerSingleBlock(playerEntityId: Int, x: Int, y: Int) {
         val sparseBlockUpdate = Network.Shared.SparseBlockUpdate()
 
         //fixme just use a plain ol' byte array for all of these
@@ -648,7 +654,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
         // purpose of this, whcih is to reduce the need to send an entire packet for 1 block. queue them up.
         // so put it in a queue, etc so we can deliver it when we need to..
-        val playerComponent = playerMapper.get(player)
+        val playerComponent = playerMapper.get(playerEntityId)
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, sparseBlockUpdate)
     }
 

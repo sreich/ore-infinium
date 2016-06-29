@@ -133,22 +133,22 @@ class OreWorld
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
             m_artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
-                    .with(TagManager())
-                    .with(PlayerManager())
-                    .with(MovementSystem(this))
-                    .with(SoundSystem(this))
-                    .with(ClientNetworkSystem(this))
-                    .with(InputSystem(m_camera, this))
-                    .with(EntityOverlaySystem(this))
-                    .with(PlayerSystem(this))
-                    .with(GameTickSystem(this))
-                    .with(ClientBlockDiggingSystem(this, m_client!!))
-                    .with(TileRenderSystem(m_camera, this))
-                    .with(SpriteRenderSystem(this))
-                    .with(DebugTextRenderSystem(m_camera, this))
-                    .with(PowerOverlayRenderSystem(this, m_client!!.m_stage))
-                    .with(TileTransitionSystem(m_camera, this))
-                    .build())
+                                           .with(TagManager())
+                                           .with(PlayerManager())
+                                           .with(MovementSystem(this))
+                                           .with(SoundSystem(this))
+                                           .with(ClientNetworkSystem(this))
+                                           .with(InputSystem(m_camera, this))
+                                           .with(EntityOverlaySystem(this))
+                                           .with(PlayerSystem(this))
+                                           .with(GameTickSystem(this))
+                                           .with(ClientBlockDiggingSystem(this, m_client!!))
+                                           .with(TileRenderSystem(m_camera, this))
+                                           .with(SpriteRenderSystem(this))
+                                           .with(DebugTextRenderSystem(m_camera, this))
+                                           .with(PowerOverlayRenderSystem(this, m_client!!.m_stage))
+                                           .with(TileTransitionSystem(m_camera, this))
+                                           .build())
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
             //inject the mappers into the world, before we start doing things
@@ -158,21 +158,22 @@ class OreWorld
             val h = Gdx.graphics.height.toFloat()
         } else if (worldInstanceType == WorldInstanceType.Server) {
             m_artemisWorld = World(WorldConfigurationBuilder()
-                    .with(TagManager())
-                    .with(SpatialSystem(this))
-                    .with(PlayerManager())
-                    .with(MovementSystem(this))
-                    .with(ServerPowerSystem(this))
-                    .with(GameTickSystem(this))
-                    .with(DroppedItemPickupSystem(this))
-                    .with(GrassBlockSystem(this))
-                    .with(ServerNetworkEntitySystem(this))
-                    .with(ServerBlockDiggingSystem(this))
-                    .with(PlayerSystem(this))
-                    .with(ServerNetworkSystem(this, m_server!!))
-                    .with(TileLightingSystem(this))
-                    .register(GameLoopSystemInvocationStrategy(25, true))
-                    .build())
+                                           .with(TagManager())
+                                           .with(SpatialSystem(this))
+                                           .with(PlayerManager())
+                                           .with(MovementSystem(this))
+                                           .with(ServerPowerSystem(this))
+                                           .with(GameTickSystem(this))
+                                           .with(DroppedItemPickupSystem(this))
+                                           .with(GrassBlockSystem(this))
+                                           .with(ServerNetworkEntitySystem(this))
+                                           .with(ServerBlockDiggingSystem(this))
+                                           .with(PlayerSystem(this))
+                                           .with(ServerNetworkSystem(this, m_server!!))
+                                           .with(TileLightingSystem(this))
+                                           .with(LiquidSimulationSystem(this))
+                                           .register(GameLoopSystemInvocationStrategy(25, true))
+                                           .build())
             //inject the mappers into the world, before we start doing things
             m_artemisWorld.inject(this, true)
 
@@ -282,88 +283,88 @@ class OreWorld
 
         init {
             blockAttributes.put(OreBlock.BlockType.Air.oreValue,
-                    BlockAttributes(textureName = "NULL because it's air",
-                            collision = BlockAttributes.Collision.False,
-                            category = BlockAttributes.BlockCategory.Null,
-                            blockTotalHealth = 0))
+                                BlockAttributes(textureName = "NULL because it's air",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Null,
+                                                blockTotalHealth = 0))
 
             blockAttributes.put(OreBlock.BlockType.Dirt.oreValue,
-                    BlockAttributes(textureName = "dirt",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Dirt,
-                            blockTotalHealth = 200))
+                                BlockAttributes(textureName = "dirt",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Dirt,
+                                                blockTotalHealth = 200))
 
             blockAttributes.put(OreBlock.BlockType.Stone.oreValue,
-                    BlockAttributes(textureName = "stone",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "stone",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Sand.oreValue,
-                    BlockAttributes(textureName = "sand",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Dirt,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "sand",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Dirt,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Copper.oreValue,
-                    BlockAttributes(textureName = "copper",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "copper",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Iron.oreValue,
-                    BlockAttributes(textureName = "iron",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "iron",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Silver.oreValue,
-                    BlockAttributes(textureName = "silver",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "silver",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Gold.oreValue,
-                    BlockAttributes(textureName = "gold",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "gold",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Coal.oreValue,
-                    BlockAttributes(textureName = "coal",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "coal",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Uranium.oreValue,
-                    BlockAttributes(textureName = "uranium",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "uranium",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Diamond.oreValue,
-                    BlockAttributes(textureName = "diamond",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "diamond",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Bedrock.oreValue,
-                    BlockAttributes(textureName = "bedrock",
-                            collision = BlockAttributes.Collision.True,
-                            category = BlockAttributes.BlockCategory.Ore,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "bedrock",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Water.oreValue,
-                    BlockAttributes(textureName = "water",
-                            collision = BlockAttributes.Collision.False,
-                            category = BlockAttributes.BlockCategory.Liquid,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "water",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Liquid,
+                                                blockTotalHealth = 300))
 
             blockAttributes.put(OreBlock.BlockType.Lava.oreValue,
-                    BlockAttributes(textureName = "lava",
-                            collision = BlockAttributes.Collision.False,
-                            category = BlockAttributes.BlockCategory.Liquid,
-                            blockTotalHealth = 300))
+                                BlockAttributes(textureName = "lava",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Liquid,
+                                                blockTotalHealth = 300))
         }
 
         const val s_itemPlacementOverlay = "itemPlacementOverlay"
@@ -398,7 +399,7 @@ class OreWorld
             noClip = m_noClipEnabled
 
             loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
-                    LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
+                                            LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
             loadedViewport.centerOn(Vector2(playerSprite.sprite.x, playerSprite.sprite.y))
         }
         playerComponent.playerName = playerName
@@ -1327,7 +1328,7 @@ class OreWorld
 
                 //fixme functionalize this, duplicated of/by networkserversystem drop request
                 sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
-                        clonedSpriteComp.sprite.height)
+                                         clonedSpriteComp.sprite.height)
                 timeOfDropMs = TimeUtils.millis()
             }
 
