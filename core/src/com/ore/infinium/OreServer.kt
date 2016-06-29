@@ -154,8 +154,10 @@ class OreServer : Runnable {
         val playerComponent = playerMapper.get(player)
         playerComponent.hotbarInventory = Inventory(player, Inventory.InventoryType.Hotbar)
         playerComponent.hotbarInventory!!.addListener(HotbarInventorySlotListener())
+        m_world.m_artemisWorld.inject(playerComponent.hotbarInventory!!)
 
         playerComponent.inventory = Inventory(player, Inventory.InventoryType.Inventory)
+        m_world.m_artemisWorld.inject(playerComponent.inventory!!)
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 

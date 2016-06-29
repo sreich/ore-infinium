@@ -108,7 +108,7 @@ class Inventory
         if (slotIndexToMerge == -1) {
             //merge not possible/failed. no like items. place it in a different slot
 
-            val slotIndexToInsert = m_slots.indexOfFirst { it -> it != null }
+            val slotIndexToInsert = m_slots.indexOfFirst { it -> it == null }
             if (slotIndexToInsert == -1) {
                 //no free places at all! placement failed.
                 result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Failed)
@@ -122,7 +122,7 @@ class Inventory
             val mergedItemId = m_slots[slotIndexToMerge]!!
             //merge us into this one
             result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Merged)//, mergedEntityId = mergedItemId)
-            mergeItemIntoSecond(itemIdToObsolete = 0, itemIdToMerge = mergedItemId)
+            mergeItemIntoSecond(itemIdToObsolete = itemEntityId, itemIdToMerge = mergedItemId)
         }
 
         return result
@@ -133,6 +133,8 @@ class Inventory
             state = ItemComponent.State.InInventoryState
             inventoryIndex = slotIndexToInsert
         }
+
+        setSlot(index = slotIndexToInsert, entity = itemEntityId)
     }
 
     /**
@@ -146,9 +148,14 @@ class Inventory
      * merged with.
      */
     private fun mergeItemIntoSecond(itemIdToObsolete: Int, itemIdToMerge: Int) {
+        assert(itemMapper.has(itemIdToMerge)) { "item is lacking itemcomponent for some strange reason!!" }
+        assert(itemMapper.has(itemIdToObsolete)) { "item is lacking itemcomponent for some strange reason!!" }
+
         val itemToObsoleteComp = itemMapper.get(itemIdToObsolete)
 
-        val itemToMergeComp = itemMapper.get(itemIdToMerge).apply {
+        val itemToMergeComp = itemMapper.get(itemIdToMerge)
+
+        itemToMergeComp.apply {
             //merge in the other one, combining items but don't exceed the max these types of items can hold
             stackSize = (this.stackSize + itemToObsoleteComp.stackSize).coerceAtMost(this.maxStackSize)
             //all the other state is fine, because it's already been and still remains in the same spot.
