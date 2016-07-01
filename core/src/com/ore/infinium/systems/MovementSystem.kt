@@ -330,19 +330,29 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             topY += 1
         }
 
-        var collision = false
+        var walkedUpSingleBlock = false
         if (velocity.x > 0.0f) {
-            //try moving right, only loop over tiles on the right side(inclusive, remember)
+            //try moving right, only loop over tiles on the right side
             for (y in topY until bottomY) {
                 if (m_world.isBlockSolid(rightX, y)) {
-                    velocity.x = 0.0f
-                    collision = true
-
                     val tileRight = (rightX - 0).toFloat()
 
+                    if (y == bottomY - 1) {
+                        //we're at the last iteration, closest to the bottom,
+                        //this is the only block solid and it's on our feet,
+                        //we can walk over it
+                        //todo i bet this breaks awfully when some block is above you
+                        desiredPosition.x = tileRight - 1f
+                        desiredPosition.y -= 1f
+                        velocity.y = 0f
+                        walkedUpSingleBlock = true
+                        break
+                    }
+
+                    velocity.x = 0.0f
+
+
                     //fixme: super small threshold to prevent sticking to right side,
-                    //i dont know why this isn't the same case as all the others. i feel like something
-                    //is wrong somewhere else..doesn't make sense.
                     desiredPosition.x = tileRight - sizeMeters.x * 0.5f - epsilon
                     break
                 } // else noop, move freely
@@ -352,10 +362,22 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             for (y in topY until bottomY) {
                 if (m_world.isBlockSolid(leftX, y)) {
 
-                    velocity.x = 0.0f
-                    collision = true
-
                     val tileLeft = (leftX + 1).toFloat()
+
+                    if (y == bottomY - 1) {
+                        //we're at the last iteration, closest to the bottom,
+                        //this is the only block solid and it's on our feet,
+                        //we can walk over it
+                        //todo i bet this breaks awfully when some block is above you
+                        desiredPosition.x = tileLeft + 1f
+                        desiredPosition.y -= 1f
+                        velocity.y = 0f
+                        walkedUpSingleBlock = true
+                        break
+                    }
+
+                    velocity.x = 0.0f
+
                     desiredPosition.x = tileLeft + sizeMeters.x * 0.5f + epsilon
                     break
                 } // else noop, move freely
@@ -367,20 +389,18 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         // y was not touched, so no need
         leftX = (desiredPosition.x - sizeMeters.x * 0.5f).toInt()
         rightX = (desiredPosition.x + sizeMeters.x * 0.5f).toInt()
-        collision = false
-
-        //qCDebug(ORE_IMPORTANT) << "y collision test: bottomy: " << bottomY << " leftX: " << leftX << " topY: " <<
-        // topY << " rightX: " << rightX;
 
         if (velocity.y > 0.0f) {
             //try moving down, only loop over tiles on the bottom side(inclusive, remember)
             for (x in leftX..rightX) {
                 if (m_world.isBlockSolid(x, bottomY + 0)) {
                     canJump = true
+                    if (walkedUpSingleBlock) {
+                        break
+                    }
 
                     //collision occured, stop here
                     velocity.y = 0.0f
-                    collision = true
 
                     //indexes are top-left remember, due to how it's rendered and such.
                     val tileTop = bottomY.toFloat()
@@ -394,7 +414,6 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
                 if (m_world.isBlockSolid(x, topY - 1)) {
                     //collision occured, stop here
                     velocity.y = 0.0f
-                    collision = true
 
                     //indexes are top-left remember, due to how it's rendered and such.
                     val tileBottom = topY.toFloat()
