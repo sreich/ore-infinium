@@ -246,36 +246,36 @@ class WorldGenerator(private val m_world: OreWorld) {
         var seed = random.nextLong()
         seed = -789257892798191
 
-        //seed = -1918956776030106261 //awesome volcanos, lakes
+        //inputSeed = -1918956776030106261 //awesome volcanos, lakes
 
-        //seed = 5731577342163850638 at least 3 sizeable possible lakes
+        //inputSeed = 5731577342163850638 at least 3 sizeable possible lakes
         /*
                */
 
-        // seed = -7198005506662559321 //HACK come back tot his one
+        // inputSeed = -7198005506662559321 //HACK come back tot his one
 
-        //seed = -1035968868854334198 //nice
+        //inputSeed = -1035968868854334198 //nice
 
-        //        seed = -2508926092370260247
+        //        inputSeed = -2508926092370260247
 
-        //seed = 5428724783975243130
+        //inputSeed = 5428724783975243130
         // -8419318201523289748 // looks fine
-        //seed = 1259463552345147173 too mountainy???
-        // seed = 5528222012793640519 //really good looking, 1 big, 1 med, 1 small lake, rather mountainy terrain
+        //inputSeed = 1259463552345147173 too mountainy???
+        // inputSeed = 5528222012793640519 //really good looking, 1 big, 1 med, 1 small lake, rather mountainy terrain
 
-        //seed = -6138229519190689039 looks good, pretty lakey
+        //inputSeed = -6138229519190689039 looks good, pretty lakey
 
-        //seed = -8923710370920184611 seems fine, multiple smaller lakes?
+        //inputSeed = -8923710370920184611 seems fine, multiple smaller lakes?
 
-        //seed = 4102601002453631916 //showcase of it being broken (and hopefully fixed)
+        //inputSeed = 4102601002453631916 //showcase of it being broken (and hopefully fixed)
 
 
-        //seed = -12798241782634058 DEFINITELY WORKS!! 2 lakes baby!!
+        //inputSeed = -12798241782634058 DEFINITELY WORKS!! 2 lakes baby!!
         //-7257021391824154752 WORKS with lake i think?
-        //seed = -4058144727897976167 //problematic caves, caves are too..long and..pipey/flat
-        //seed = 5243159850199723543
+        //inputSeed = -4058144727897976167 //problematic caves, caves are too..long and..pipey/flat
+        //inputSeed = 5243159850199723543
 
-        OreWorld.log("world gen", "seed was $seed")
+        OreWorld.log("world gen", "inputSeed was $seed")
 
         OreWorld.log("world gen", "worldgen starting on $threadCount threads")
 
@@ -390,133 +390,157 @@ class WorldGenerator(private val m_world: OreWorld) {
 
     data class GenerateTerrainResult(val groundSelect: Module, val highlandLowlandSelectCache: Module)
 
-    private fun generateTerrain(seed: Long): GenerateTerrainResult {
+    private fun generateTerrain(inputSeed: Long): GenerateTerrainResult {
         //initial ground
-        val groundGradient = ModuleGradient()
-        groundGradient.setGradient(0.0, 0.0, 0.0, 1.0)
+        val groundGradient = ModuleGradient().apply {
+            setGradient(0.0, 0.0, 0.0, 1.0)
+        }
 
         ////////////////////////// lowland
 
         val lowlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.BILLOW,
                                                 ModuleBasisFunction.BasisType.GRADIENT,
-                                                ModuleBasisFunction.InterpolationType.QUINTIC)
-        lowlandShapeFractal.setNumOctaves(8)
-        lowlandShapeFractal.setFrequency(8.85)
-        lowlandShapeFractal.seed = seed
+                                                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(8)
+            setFrequency(8.85)
+            seed = inputSeed
+        }
 
-        val lowlandAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
-        lowlandAutoCorrect.setSource(lowlandShapeFractal)
-        lowlandAutoCorrect.calculate()
+        val lowlandAutoCorrect = ModuleAutoCorrect(0.0, 1.0).apply {
+            setSource(lowlandShapeFractal)
+            calculate()
+        }
 
-        val lowlandScale = ModuleScaleOffset()
-        lowlandScale.setScale(0.155)
-        lowlandScale.setOffset(-0.13)
-        lowlandScale.setSource(lowlandAutoCorrect)
+        val lowlandScale = ModuleScaleOffset().apply {
+            setScale(0.155)
+            setOffset(-0.13)
+            setSource(lowlandAutoCorrect)
+        }
 
-        val lowlandYScale = ModuleScaleDomain()
-        lowlandYScale.setScaleY(0.0)
-        lowlandYScale.setSource(lowlandScale)
+        val lowlandYScale = ModuleScaleDomain().apply {
+            setScaleY(0.0)
+            setSource(lowlandScale)
+        }
 
-        val lowlandTerrain = ModuleTranslateDomain()
-        lowlandTerrain.setAxisYSource(lowlandYScale)
-        lowlandTerrain.setSource(groundGradient)
+        val lowlandTerrain = ModuleTranslateDomain().apply {
+            setAxisYSource(lowlandYScale)
+            setSource(groundGradient)
+        }
 
         ////////////////////////// highland
         val highlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                  ModuleBasisFunction.BasisType.GRADIENT,
-                                                 ModuleBasisFunction.InterpolationType.QUINTIC)
-        highlandShapeFractal.setNumOctaves(8)
-        highlandShapeFractal.setFrequency(9.0)
-        highlandShapeFractal.seed = seed + 1
+                                                 ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(8)
+            setFrequency(9.0)
+            seed = inputSeed + 1
+        }
 
-        val highlandAutoCorrect = ModuleAutoCorrect(-1.0, 1.0)
-        highlandAutoCorrect.setSource(highlandShapeFractal)
-        highlandAutoCorrect.calculate()
+        val highlandAutoCorrect = ModuleAutoCorrect(-1.0, 1.0).apply {
+            setSource(highlandShapeFractal)
+            calculate()
+        }
 
-        val highlandScale = ModuleScaleOffset()
-        highlandScale.setScale(0.015)
-        highlandScale.setOffset(0.0)
-        highlandScale.setSource(highlandAutoCorrect)
+        val highlandScale = ModuleScaleOffset().apply {
+            setScale(0.015)
+            setOffset(0.0)
+            setSource(highlandAutoCorrect)
+        }
 
-        val highlandYScale = ModuleScaleDomain()
-        highlandYScale.setScaleY(0.0)
-        highlandYScale.setSource(highlandScale)
+        val highlandYScale = ModuleScaleDomain().apply {
+            setScaleY(0.0)
+            setSource(highlandScale)
+        }
 
-        val highlandTerrain = ModuleTranslateDomain()
-        highlandTerrain.setAxisYSource(highlandYScale)
-        highlandTerrain.setSource(groundGradient)
+        val highlandTerrain = ModuleTranslateDomain().apply {
+            setAxisYSource(highlandYScale)
+            setSource(groundGradient)
+        }
 
 
         /////////////////// mountain 1
 
         val mountainShapeFractal1 = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
                                                   ModuleBasisFunction.BasisType.GRADIENT,
-                                                  ModuleBasisFunction.InterpolationType.QUINTIC)
-        mountainShapeFractal1.setNumOctaves(8)
-        mountainShapeFractal1.setFrequency(2.0)
-        mountainShapeFractal1.seed = seed + 100
+                                                  ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(8)
+            setFrequency(2.0)
+            seed = inputSeed + 100
+        }
 
-        val mountainAutoCorrect1 = ModuleAutoCorrect(-1.0, 1.0)
-        mountainAutoCorrect1.setSource(mountainShapeFractal1)
-        mountainAutoCorrect1.calculate()
+        val mountainAutoCorrect1 = ModuleAutoCorrect(-1.0, 1.0).apply {
+            setSource(mountainShapeFractal1)
+            calculate()
+        }
 
-        val mountainScale1 = ModuleScaleOffset()
-        mountainScale1.setScale(0.10)
-        mountainScale1.setOffset(0.0)
-        mountainScale1.setSource(mountainAutoCorrect1)
+        val mountainScale1 = ModuleScaleOffset().apply {
+            setScale(0.10)
+            setOffset(0.0)
+            setSource(mountainAutoCorrect1)
+        }
 
-        val mountainYScale1 = ModuleScaleDomain()
-        mountainYScale1.setScaleY(0.5)
-        mountainYScale1.setSource(mountainScale1)
+        val mountainYScale1 = ModuleScaleDomain().apply {
+            setScaleY(0.5)
+            setSource(mountainScale1)
+        }
 
-        val mountainTerrain1 = ModuleTranslateDomain()
-        mountainTerrain1.setAxisYSource(mountainYScale1)
-        mountainTerrain1.setSource(groundGradient)
+        val mountainTerrain1 = ModuleTranslateDomain().apply {
+            setAxisYSource(mountainYScale1)
+            setSource(groundGradient)
+        }
         ////////////////////////////////
 
         /////////////////// mountain 2
 
         val mountainShapeFractal2 = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
                                                   ModuleBasisFunction.BasisType.GRADIENT,
-                                                  ModuleBasisFunction.InterpolationType.QUINTIC)
-        mountainShapeFractal2.setNumOctaves(8)
-        mountainShapeFractal2.setFrequency(2.0)
-        mountainShapeFractal2.seed = seed + 2
+                                                  ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(8)
+            setFrequency(2.0)
+            seed = inputSeed + 2
+        }
 
-        val mountainAutoCorrect2 = ModuleAutoCorrect(-1.0, 1.0)
-        mountainAutoCorrect2.setSource(mountainShapeFractal2)
-        mountainAutoCorrect2.calculate()
+        val mountainAutoCorrect2 = ModuleAutoCorrect(-1.0, 1.0).apply {
+            setSource(mountainShapeFractal2)
+            calculate()
+        }
 
-        val mountainScale2 = ModuleScaleOffset()
-        mountainScale2.setScale(0.10)
-        mountainScale2.setOffset(0.0)
-        mountainScale2.setSource(mountainAutoCorrect2)
+        val mountainScale2 = ModuleScaleOffset().apply {
+            setScale(0.10)
+            setOffset(0.0)
+            setSource(mountainAutoCorrect2)
+        }
 
-        val mountainYScale2 = ModuleScaleDomain()
-        mountainYScale2.setScaleY(0.5)
-        mountainYScale2.setSource(mountainScale2)
+        val mountainYScale2 = ModuleScaleDomain().apply {
+            setScaleY(0.5)
+            setSource(mountainScale2)
+        }
 
-        val mountainTerrain2 = ModuleTranslateDomain()
-        mountainTerrain2.setAxisYSource(mountainYScale2)
-        mountainTerrain2.setSource(groundGradient)
+        val mountainTerrain2 = ModuleTranslateDomain().apply {
+            setAxisYSource(mountainYScale2)
+            setSource(groundGradient)
+        }
 
 
         //////////////// terrain
 
         val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                ModuleBasisFunction.BasisType.GRADIENT,
-                                               ModuleBasisFunction.InterpolationType.QUINTIC)
-        terrainTypeFractal.setNumOctaves(9)
-        terrainTypeFractal.setFrequency(1.825)
-        terrainTypeFractal.seed = seed + 3
+                                               ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(9)
+            setFrequency(1.825)
+            seed = inputSeed + 3
+        }
 
-        val terrainAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
-        terrainAutoCorrect.setSource(terrainTypeFractal)
-        terrainAutoCorrect.calculate()
+        val terrainAutoCorrect = ModuleAutoCorrect(0.0, 1.0).apply {
+            setSource(terrainTypeFractal)
+            calculate()
+        }
 
-        val terrainTypeYScale = ModuleScaleDomain()
-        terrainTypeYScale.setScaleY(0.0)
-        terrainTypeYScale.setSource(terrainAutoCorrect)
+        val terrainTypeYScale = ModuleScaleDomain().apply {
+            setScaleY(0.0)
+            setSource(terrainAutoCorrect)
+        }
 
         val terrainTypeCache = ModuleCache()
         terrainTypeCache.setSource(terrainTypeYScale)
@@ -527,10 +551,11 @@ class WorldGenerator(private val m_world: OreWorld) {
         /////////////// lakes
         val lakeFBM = ModuleFractal(ModuleFractal.FractalType.FBM,
                                     ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-        lakeFBM.setNumOctaves(6)
-        lakeFBM.setFrequency(1.005)
-        lakeFBM.seed = seed + 4
+                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(6)
+            setFrequency(1.005)
+            seed = inputSeed + 4
+        }
 
         /*
         val highlandLakeSelect = ModuleSelect()
@@ -540,126 +565,142 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandLakeSelect.setControlSource(highlandTerrain)
         */
 
-        val lakeAutoCorrect = ModuleAutoCorrect(0.0, 1.0)
-        lakeAutoCorrect.setSource(lakeFBM)
-        lakeAutoCorrect.calculate()
+        val lakeAutoCorrect = ModuleAutoCorrect(0.0, 1.0).apply {
+            setSource(lakeFBM)
+            calculate()
+        }
 
-        val lakeScale = ModuleScaleOffset()
-        lakeScale.setScale(-0.100) //-.150
-        lakeScale.setOffset(0.00)
-        lakeScale.setSource(lakeAutoCorrect)
+        val lakeScale = ModuleScaleOffset().apply {
+            setScale(-0.100) //-.150
+            setOffset(0.00)
+            setSource(lakeAutoCorrect)
+        }
 
-        val lakeYScale = ModuleScaleDomain()
-        lakeYScale.setScaleY(0.0)
-        lakeYScale.setSource(lakeScale)
+        val lakeYScale = ModuleScaleDomain().apply {
+            setScaleY(0.0)
+            setSource(lakeScale)
+        }
 
-        val lakeTerrain = ModuleTranslateDomain()
-        lakeTerrain.setAxisYSource(lakeYScale)
-        lakeTerrain.setSource(groundGradient)
+        val lakeTerrain = ModuleTranslateDomain().apply {
+            setAxisYSource(lakeYScale)
+            setSource(groundGradient)
+        }
 
         ////////////////// end lake
 
         //HACK, debug only
         val selectLakes = true
 
-        val highlandLakeSelect = ModuleSelect()
+        val highlandLakeSelect = ModuleSelect().apply {
 //        highlandMountainSelect.setLowSource(highlandTerrain) //WARNING this is where we're interested? for lakes
-        //highlandMountainSelect.setLowSource(highlandLakeSelect)
-        highlandLakeSelect.setLowSource(lakeTerrain)
-        highlandLakeSelect.setHighSource(highlandTerrain)
-        highlandLakeSelect.setControlSource(terrainTypeCache)
-        highlandLakeSelect.setThreshold(0.21)//51 seemed decent
-        //or .31
-        highlandLakeSelect.setFalloff(0.1) // 0.1 is good, 0 is for testing
-        //highlandLakeSelect.setFalloff(0.5)
-
-        val highlandMountainSelect1 = ModuleSelect()
-        if (selectLakes) {
-            highlandMountainSelect1.setLowSource(highlandLakeSelect)
-        } else {
-            highlandMountainSelect1.setLowSource(highlandTerrain)
+            //setLowSource(highlandLakeSelect)
+            setLowSource(lakeTerrain)
+            setHighSource(highlandTerrain)
+            setControlSource(terrainTypeCache)
+            setThreshold(0.21)//51 seemed decent
+            //or .31
+            setFalloff(0.1) // 0.1 is good, 0 is for testing
+            //setFalloff(0.5)
         }
-        highlandMountainSelect1.setHighSource(mountainTerrain2)
-        highlandMountainSelect1.setControlSource(terrainTypeCache)
-        highlandMountainSelect1.setThreshold(0.45)//.35 //.65
-        //small falloffs give us nice occasional mountainy cliffs
-        highlandMountainSelect1.setFalloff(0.40)
 
-        val highlandMountainSelect2 = ModuleSelect()
-        highlandMountainSelect2.setLowSource(mountainTerrain2)
-        highlandMountainSelect2.setHighSource(highlandMountainSelect1)
-        highlandMountainSelect2.setControlSource(terrainTypeCache)
-        highlandMountainSelect2.setThreshold(0.35)//.35 //.65
-        highlandMountainSelect2.setFalloff(0.1)
+        val highlandMountainSelect1 = ModuleSelect().apply {
+            if (selectLakes) {
+                setLowSource(highlandLakeSelect)
+            } else {
+                setLowSource(highlandTerrain)
+            }
+            setHighSource(mountainTerrain2)
+            setControlSource(terrainTypeCache)
+            setThreshold(0.45)//.35 //.65
+            //small falloffs give us nice occasional mountainy cliffs
+            setFalloff(0.40)
+        }
+
+        val highlandMountainSelect2 = ModuleSelect().apply {
+            setLowSource(mountainTerrain2)
+            setHighSource(highlandMountainSelect1)
+            setControlSource(terrainTypeCache)
+            setThreshold(0.35)//.35 //.65
+            setFalloff(0.1)
+        }
 
 
-        val highlandLowlandSelect = ModuleSelect()
-        highlandLowlandSelect.setLowSource(lowlandTerrain)
-//        highlandLowlandSelect.setLowSource(lakeSelect) HACK
-//        highlandLowlandSelect.setHighSource(highlandMountainSelect)
-        highlandLowlandSelect.setHighSource(highlandMountainSelect2)
-        highlandLowlandSelect.setControlSource(terrainTypeCache)
-        highlandLowlandSelect.setThreshold(0.09)//.15 //.19 ?
-        highlandLowlandSelect.setFalloff(0.1) // .5
+        val highlandLowlandSelect = ModuleSelect().apply {
+            setLowSource(lowlandTerrain)
+//          setLowSource(lakeSelect) HACK
+//          setHighSource(highlandMountainSelect)
+            setHighSource(highlandMountainSelect2)
+            setControlSource(terrainTypeCache)
+            setThreshold(0.09)//.15 //.19 ?
+            setFalloff(0.1) // .5
+        }
 
         val highlandLowlandSelectCache = ModuleCache()
         highlandLowlandSelectCache.setSource(highlandLowlandSelect)
 
-        val groundSelect = ModuleSelect()
-        groundSelect.setLowSource(0.0)
-        groundSelect.setHighSource(1.0)
-        groundSelect.setThreshold(0.14)
-        groundSelect.setControlSource(highlandLowlandSelectCache)
+        val groundSelect = ModuleSelect().apply {
+            setLowSource(0.0)
+            setHighSource(1.0)
+            setThreshold(0.14)
+            setControlSource(highlandLowlandSelectCache)
+        }
 
         return GenerateTerrainResult(groundSelect = groundSelect,
                                      highlandLowlandSelectCache = highlandLowlandSelectCache)
     }
 
     private fun generateCavesThreaded(worldSize: OreWorld.WorldSize,
-                                      seed: Long,
+                                      inputSeed: Long,
                                       highlandLowlandSelectCache: Module,
                                       groundSelect: Module): Module {
         val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
-                                      ModuleBasisFunction.InterpolationType.QUINTIC)
-        caveShape.setNumOctaves(1)
-        caveShape.setFrequency(8.0)
-        caveShape.seed = seed
+                                      ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(1)
+            setFrequency(8.0)
+            seed = inputSeed
+        }
 
-        val caveAttenuateBias = ModuleBias(0.95)
-        caveAttenuateBias.setSource(highlandLowlandSelectCache)
+        val caveAttenuateBias = ModuleBias(0.95).apply {
+            setSource(highlandLowlandSelectCache)
+        }
 
-        val caveShapeAttenuate = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-        caveShapeAttenuate.setSource(0, caveShape)
-        caveShapeAttenuate.setSource(1, caveAttenuateBias)
+        val caveShapeAttenuate = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
+            setSource(0, caveShape)
+            setSource(1, caveAttenuateBias)
+        }
 
         val cavePerturbFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
                                                ModuleBasisFunction.BasisType.GRADIENT,
-                                               ModuleBasisFunction.InterpolationType.QUINTIC)
-        cavePerturbFractal.setNumOctaves(6)
-        cavePerturbFractal.setFrequency(3.0)
-        cavePerturbFractal.seed = seed + 1
+                                               ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            setNumOctaves(6)
+            setFrequency(3.0)
+            seed = inputSeed + 1
+        }
 
-        val cavePerturbScale = ModuleScaleOffset()
-        cavePerturbScale.setScale(0.75)
-        cavePerturbScale.setOffset(0.0)
-        cavePerturbScale.setSource(cavePerturbFractal)
+        val cavePerturbScale = ModuleScaleOffset().apply {
+            setScale(0.75)
+            setOffset(0.0)
+            setSource(cavePerturbFractal)
+        }
 
-        val cavePerturb = ModuleTranslateDomain()
-        cavePerturb.setAxisXSource(cavePerturbScale)
-        cavePerturb.setSource(caveShapeAttenuate)
+        val cavePerturb = ModuleTranslateDomain().apply {
+            setAxisXSource(cavePerturbScale)
+            setSource(caveShapeAttenuate)
+        }
 
-        val caveSelect = ModuleSelect()
-        caveSelect.setLowSource(1.0)
-        caveSelect.setHighSource(0.0)
-        caveSelect.setControlSource(cavePerturb)
-        caveSelect.setThreshold(0.9)
-        caveSelect.setFalloff(0.0)
+        val caveSelect = ModuleSelect().apply {
+            setLowSource(1.0)
+            setHighSource(0.0)
+            setControlSource(cavePerturb)
+            setThreshold(0.9)
+            setFalloff(0.0)
+        }
 
         //final step
-
-        val groundCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-        groundCaveMultiply.setSource(0, caveSelect)
-        groundCaveMultiply.setSource(1, groundSelect)
+        val groundCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
+            setSource(0, caveSelect)
+            setSource(1, groundSelect)
+        }
 
         return groundCaveMultiply
     }
@@ -667,17 +708,20 @@ class WorldGenerator(private val m_world: OreWorld) {
     /**
      * @return the final module of the ores
      */
-    private fun generateOresThreaded(worldSize: OreWorld.WorldSize, seed: Long, groundCaveMultiply: Module): Module {
+    private fun generateOresThreaded(worldSize: OreWorld.WorldSize,
+                                     inputSeed: Long,
+                                     groundCaveMultiply: Module): Module {
 
         /////////////////////////////////////////////////////
         val mainGradient = ModuleGradient()
         mainGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
         val copperFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                      ModuleBasisFunction.InterpolationType.QUINTIC)
-        copperFBM.seed = seed
-        copperFBM.setNumOctaves(4)
-        copperFBM.setFrequency(450.0)
+                                      ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            seed = inputSeed
+            setNumOctaves(4)
+            setFrequency(450.0)
+        }
 
 //            val copperFBMRemap = ModuleScaleOffset()
 //            copperFBMRemap.setSource(copperFBM)
@@ -687,173 +731,197 @@ class WorldGenerator(private val m_world: OreWorld) {
         //copper or stone. higher density == more stone. fuck if i know why.
 //            val COPPER_DENSITY = 0.58
         val COPPER_DENSITY = 0.2
-        val copperSelect = ModuleSelect()
-        copperSelect.setLowSource(OreBlock.BlockType.Stone.oreValue.toDouble())
-        copperSelect.setHighSource(OreBlock.BlockType.Copper.oreValue.toDouble())
-        copperSelect.setControlSource(copperFBM)
-        copperSelect.setThreshold(COPPER_DENSITY)
-        copperSelect.setFalloff(0.1)
+        val copperSelect = ModuleSelect().apply {
+            setLowSource(OreBlock.BlockType.Stone.oreValue.toDouble())
+            setHighSource(OreBlock.BlockType.Copper.oreValue.toDouble())
+            setControlSource(copperFBM)
+            setThreshold(COPPER_DENSITY)
+            setFalloff(0.1)
+        }
 
 
         //////////////////////////////////////////////// COAL
 
         val coalFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-        coalFBM.seed = seed + 1
-        coalFBM.setNumOctaves(7)
-        coalFBM.setFrequency(250.0)
+                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            seed = inputSeed + 1
+            setNumOctaves(7)
+            setFrequency(250.0)
+        }
 
-        val coalSelect = ModuleSelect()
-        coalSelect.setLowSource(copperSelect)
-        coalSelect.setHighSource(OreBlock.BlockType.Coal.oreValue.toDouble())
-        coalSelect.setControlSource(coalFBM)
-        coalSelect.setThreshold(0.5)
-        coalSelect.setFalloff(0.0)
+        val coalSelect = ModuleSelect().apply {
+            setLowSource(copperSelect)
+            setHighSource(OreBlock.BlockType.Coal.oreValue.toDouble())
+            setControlSource(coalFBM)
+            setThreshold(0.5)
+            setFalloff(0.0)
+        }
 
         /////////////////////////////////////////////// IRON
         val ironFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-        ironFBM.seed = seed + 2
-        ironFBM.setNumOctaves(5)
-        ironFBM.setFrequency(250.0)
+                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            seed = inputSeed + 2
+            setNumOctaves(5)
+            setFrequency(250.0)
+        }
 
-        val ironSelect = ModuleSelect()
-        ironSelect.setLowSource(coalSelect)
-        ironSelect.setHighSource(OreBlock.BlockType.Iron.oreValue.toDouble())
-        ironSelect.setControlSource(ironFBM)
-        ironSelect.setThreshold(0.5)
-        ironSelect.setFalloff(0.0)
+        val ironSelect = ModuleSelect().apply {
+            setLowSource(coalSelect)
+            setHighSource(OreBlock.BlockType.Iron.oreValue.toDouble())
+            setControlSource(ironFBM)
+            setThreshold(0.5)
+            setFalloff(0.0)
+        }
 
         ///////////////////////////////////////////////////////////////////////
 
         ///////////////////////////////////////////////////////// SILVER
 
         val silverFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                      ModuleBasisFunction.InterpolationType.QUINTIC)
-        silverFBM.seed = seed + 3
-        silverFBM.setNumOctaves(5)
-        silverFBM.setFrequency(550.0)
+                                      ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            seed = inputSeed + 3
+            setNumOctaves(5)
+            setFrequency(550.0)
+        }
 
         //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
-        val silverRestrictSelect = ModuleSelect()
-        silverRestrictSelect.setLowSource(0.0)
-        silverRestrictSelect.setHighSource(1.0)
-        silverRestrictSelect.setControlSource(mainGradient)
-        silverRestrictSelect.setThreshold(0.5)
-        silverRestrictSelect.setFalloff(0.0)
+        val silverRestrictSelect = ModuleSelect().apply {
+            setLowSource(0.0)
+            setHighSource(1.0)
+            setControlSource(mainGradient)
+            setThreshold(0.5)
+            setFalloff(0.0)
+        }
 
-        val silverRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-        silverRestrictMult.setSource(0, silverFBM)
-        silverRestrictMult.setSource(1, silverRestrictSelect)
+        val silverRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
+            setSource(0, silverFBM)
+            setSource(1, silverRestrictSelect)
+        }
 
-        val silverSelect = ModuleSelect()
-        silverSelect.setLowSource(ironSelect)
-        silverSelect.setHighSource(OreBlock.BlockType.Silver.oreValue.toDouble())
-        silverSelect.setControlSource(silverRestrictMult)
-        silverSelect.setThreshold(0.5)
-        silverSelect.setFalloff(0.0)
+        val silverSelect = ModuleSelect().apply {
+            setLowSource(ironSelect)
+            setHighSource(OreBlock.BlockType.Silver.oreValue.toDouble())
+            setControlSource(silverRestrictMult)
+            setThreshold(0.5)
+            setFalloff(0.0)
+        }
 
         ////////////////////////////////////////////////////////////
         val goldFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC)
-        goldFBM.seed = seed + 4
-        goldFBM.setNumOctaves(5)
-        goldFBM.setFrequency(550.0)
+                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            seed = inputSeed + 4
+            setNumOctaves(5)
+            setFrequency(550.0)
+        }
 
         //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
-        val goldRestrictSelect = ModuleSelect()
-        goldRestrictSelect.setLowSource(0.0)
-        goldRestrictSelect.setHighSource(1.0)
-        goldRestrictSelect.setControlSource(mainGradient)
-        goldRestrictSelect.setThreshold(0.7)
-        goldRestrictSelect.setFalloff(0.0)
+        val goldRestrictSelect = ModuleSelect().apply {
+            setLowSource(0.0)
+            setHighSource(1.0)
+            setControlSource(mainGradient)
+            setThreshold(0.7)
+            setFalloff(0.0)
+        }
 
-        val goldRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-        goldRestrictMult.setSource(0, silverFBM)
-        goldRestrictMult.setSource(1, silverRestrictSelect)
+        val goldRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
+            setSource(0, silverFBM)
+            setSource(1, silverRestrictSelect)
+        }
 
-        val goldSelect = ModuleSelect()
-        goldSelect.setLowSource(silverSelect)
-        goldSelect.setHighSource(OreBlock.BlockType.Gold.oreValue.toDouble())
-        goldSelect.setControlSource(goldRestrictMult)
-        goldSelect.setThreshold(0.55)
-        goldSelect.setFalloff(0.0)
+        val goldSelect = ModuleSelect().apply {
+            setLowSource(silverSelect)
+            setHighSource(OreBlock.BlockType.Gold.oreValue.toDouble())
+            setControlSource(goldRestrictMult)
+            setThreshold(0.55)
+            setFalloff(0.0)
+        }
 
         ////////////////////////////////////////////////////////////////////
 
         val uraniumFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                       ModuleBasisFunction.InterpolationType.QUINTIC)
-        uraniumFBM.seed = seed + 5
-        uraniumFBM.setNumOctaves(5)
-        uraniumFBM.setFrequency(950.0)
+                                       ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            seed = inputSeed + 5
+            setNumOctaves(5)
+            setFrequency(950.0)
+        }
 
         //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
-        val uraniumRestrictSelect = ModuleSelect()
-        uraniumRestrictSelect.setLowSource(0.0)
-        uraniumRestrictSelect.setHighSource(1.0)
-        uraniumRestrictSelect.setControlSource(mainGradient)
-        uraniumRestrictSelect.setThreshold(0.7)
-        uraniumRestrictSelect.setFalloff(0.6)
+        val uraniumRestrictSelect = ModuleSelect().apply {
+            setLowSource(0.0)
+            setHighSource(1.0)
+            setControlSource(mainGradient)
+            setThreshold(0.7)
+            setFalloff(0.6)
+        }
 
-        val uraniumRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-        uraniumRestrictMult.setSource(0, uraniumFBM)
-        uraniumRestrictMult.setSource(1, uraniumRestrictSelect)
+        val uraniumRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
+            setSource(0, uraniumFBM)
+            setSource(1, uraniumRestrictSelect)
+        }
 
-        val uraniumSelect = ModuleSelect()
-        uraniumSelect.setLowSource(goldSelect)
-        uraniumSelect.setHighSource(OreBlock.BlockType.Uranium.oreValue.toDouble())
-        uraniumSelect.setControlSource(uraniumRestrictMult)
-        uraniumSelect.setThreshold(0.5)
-        uraniumSelect.setFalloff(0.0)
+        val uraniumSelect = ModuleSelect().apply {
+            setLowSource(goldSelect)
+            setHighSource(OreBlock.BlockType.Uranium.oreValue.toDouble())
+            setControlSource(uraniumRestrictMult)
+            setThreshold(0.5)
+            setFalloff(0.0)
+        }
 
         ///////////////////////////////////////////////////////////////////////
 
         val diamondFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                       ModuleBasisFunction.InterpolationType.QUINTIC)
-        diamondFBM.seed = seed + 6
-        diamondFBM.setNumOctaves(5)
-        diamondFBM.setFrequency(650.0)
+                                       ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+            seed = inputSeed + 6
+            setNumOctaves(5)
+            setFrequency(650.0)
+        }
 
         //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
-        val diamondRestrictSelect = ModuleSelect()
-        diamondRestrictSelect.setLowSource(0.0)
-        diamondRestrictSelect.setHighSource(1.0)
-        diamondRestrictSelect.setControlSource(mainGradient)
-        diamondRestrictSelect.setThreshold(0.3)
-        diamondRestrictSelect.setFalloff(0.8)
+        val diamondRestrictSelect = ModuleSelect().apply {
+            setLowSource(0.0)
+            setHighSource(1.0)
+            setControlSource(mainGradient)
+            setThreshold(0.3)
+            setFalloff(0.8)
+        }
 
-        val diamondRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
-        diamondRestrictMult.setSource(0, diamondFBM)
-        diamondRestrictMult.setSource(1, diamondRestrictSelect)
+        val diamondRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
+            setSource(0, diamondFBM)
+            setSource(1, diamondRestrictSelect)
+        }
 
-        val diamondSelect = ModuleSelect()
-        diamondSelect.setLowSource(uraniumSelect)
-        diamondSelect.setHighSource(OreBlock.BlockType.Diamond.oreValue.toDouble())
-        diamondSelect.setControlSource(diamondRestrictMult)
-        diamondSelect.setThreshold(0.65)
-        diamondSelect.setFalloff(0.0)
+        val diamondSelect = ModuleSelect().apply {
+            setLowSource(uraniumSelect)
+            setHighSource(OreBlock.BlockType.Diamond.oreValue.toDouble())
+            setControlSource(diamondRestrictMult)
+            setThreshold(0.65)
+            setFalloff(0.0)
+        }
 
         ////////////////////////////// DIRT
-        val dirtGradient = ModuleGradient()
-        dirtGradient.setGradient(0.0, 0.0, 0.0, 1.0)
+        val dirtGradient = ModuleGradient().apply {
+            setGradient(0.0, 0.0, 0.0, 1.0)
+        }
 
         val DIRT_THRESHOLD = 0.32
 
-        val dirtRestrict = ModuleSelect()
-        dirtRestrict.setControlSource(dirtGradient)
-        dirtRestrict.setLowSource(0.2)
-        dirtRestrict.setHighSource(1.0)
-        dirtRestrict.setThreshold(DIRT_THRESHOLD)
-        dirtRestrict.setFalloff(0.4)
-        //dirtRestrict.setFalloff(0.00)
+        val dirtRestrict = ModuleSelect().apply {
+            setControlSource(dirtGradient)
+            setLowSource(0.2)
+            setHighSource(1.0)
+            setThreshold(DIRT_THRESHOLD)
+            setFalloff(0.4)
+            //dirtRestrict.setFalloff(0.00)
+        }
 
-        val dirtSelect = ModuleSelect()
-        dirtSelect.setControlSource(dirtRestrict)
-        dirtSelect.setLowSource(OreBlock.BlockType.Dirt.oreValue.toDouble())
-        dirtSelect.setHighSource(diamondSelect)
-        dirtSelect.setThreshold(DIRT_THRESHOLD)
-        dirtSelect.setFalloff(0.08)
-        //dirtSelect.setFalloff(0.8)
+        val dirtSelect = ModuleSelect().apply {
+            setControlSource(dirtRestrict)
+            setLowSource(OreBlock.BlockType.Dirt.oreValue.toDouble())
+            setHighSource(diamondSelect)
+            setThreshold(DIRT_THRESHOLD)
+            setFalloff(0.08)
+            //setFalloff(0.8)
+        }
 
 
         /*
@@ -868,11 +936,12 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         //now combine with the cave/world, to cut out all the places where
         //we do not want ores to be
-        val oreCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT)
+        val oreCaveMultiply = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
 
-        oreCaveMultiply.setSource(0, groundCaveMultiply)
-        //oreCaveMultiply.setSource(1, dirtSelect)
-        oreCaveMultiply.setSource(1, dirtSelect)
+            setSource(0, groundCaveMultiply)
+            //setSource(1, dirtSelect)
+            setSource(1, dirtSelect)
+        }
 
 //            val finalGen = rareFBMRemap
 //            val finalGen = rareSelect
@@ -992,7 +1061,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         graphics.drawLine(0, 200, worldGenInfo.worldSize.width, 200)
 
         graphics.font = Font("SansSerif", Font.PLAIN, 8);
-        graphics.drawString("seed: ${worldGenInfo.seed}", 200, 10)
+        graphics.drawString("inputSeed: ${worldGenInfo.seed}", 200, 10)
 
         graphics.drawString("y=200", 10, 190);
 
