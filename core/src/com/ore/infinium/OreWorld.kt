@@ -48,7 +48,6 @@ import com.ore.infinium.util.floor
 import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
 import com.ore.infinium.util.nextInt
-import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -202,38 +201,6 @@ class OreWorld
     fun initServer() {
     }
 
-    class BlockAttributes internal constructor(var textureName: String //e.g. "dirt", "stone", etc.
-                                               ,
-                                               /**
-                                                * whether or not things should collide with this block
-                                                */
-                                               internal var collision: BlockAttributes.Collision,
-                                               var category: BlockAttributes.BlockCategory,
-                                               blockTotalHealth: Short) {
-
-        /**
-         * max starting health of the block
-         */
-        var blockTotalHealth: Float = 0f
-
-        //if this type is a type of ore (like stone, copper, ...)
-        enum class BlockCategory {
-            Null,
-            Dirt,
-            Ore,
-            Liquid
-        }
-
-        enum class Collision {
-            True,
-            False
-        }
-
-        init {
-            this.blockTotalHealth = blockTotalHealth.toFloat()
-        }
-    }
-
     /**
      * starbound world sizes:
      * smallest: 2048x1504
@@ -275,97 +242,6 @@ class OreWorld
          * indicates an invalid entity id
          */
         //        val ENTITY_INVALID = -1
-
-        /**
-         * looks up the texture prefix name for each block type. e.g. Dirt -> "dirt", etc.
-         */
-        val blockAttributes = HashMap<Byte, BlockAttributes>()
-
-        init {
-            blockAttributes.put(OreBlock.BlockType.Air.oreValue,
-                                BlockAttributes(textureName = "NULL because it's air",
-                                                collision = BlockAttributes.Collision.False,
-                                                category = BlockAttributes.BlockCategory.Null,
-                                                blockTotalHealth = 0))
-
-            blockAttributes.put(OreBlock.BlockType.Dirt.oreValue,
-                                BlockAttributes(textureName = "dirt",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Dirt,
-                                                blockTotalHealth = 200))
-
-            blockAttributes.put(OreBlock.BlockType.Stone.oreValue,
-                                BlockAttributes(textureName = "stone",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Sand.oreValue,
-                                BlockAttributes(textureName = "sand",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Dirt,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Copper.oreValue,
-                                BlockAttributes(textureName = "copper",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Iron.oreValue,
-                                BlockAttributes(textureName = "iron",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Silver.oreValue,
-                                BlockAttributes(textureName = "silver",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Gold.oreValue,
-                                BlockAttributes(textureName = "gold",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Coal.oreValue,
-                                BlockAttributes(textureName = "coal",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Uranium.oreValue,
-                                BlockAttributes(textureName = "uranium",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Diamond.oreValue,
-                                BlockAttributes(textureName = "diamond",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Bedrock.oreValue,
-                                BlockAttributes(textureName = "bedrock",
-                                                collision = BlockAttributes.Collision.True,
-                                                category = BlockAttributes.BlockCategory.Ore,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Water.oreValue,
-                                BlockAttributes(textureName = "water",
-                                                collision = BlockAttributes.Collision.False,
-                                                category = BlockAttributes.BlockCategory.Liquid,
-                                                blockTotalHealth = 300))
-
-            blockAttributes.put(OreBlock.BlockType.Lava.oreValue,
-                                BlockAttributes(textureName = "lava",
-                                                collision = BlockAttributes.Collision.False,
-                                                category = BlockAttributes.BlockCategory.Liquid,
-                                                blockTotalHealth = 300))
-        }
 
         const val s_itemPlacementOverlay = "itemPlacementOverlay"
         const val s_crosshair = "crosshair"
@@ -723,15 +599,9 @@ class OreWorld
     }
 
     inline fun isBlockSolid(x: Int, y: Int): Boolean {
-        var solid = true
-
         val type = blockType(x, y)
 
-        if (type == OreBlock.BlockType.Air.oreValue) {
-            solid = false
-        }
-
-        return solid
+        return OreBlock.blockAttributes[type]!!.collision == OreBlock.BlockAttributes.Collision.True
     }
 
     /**
@@ -838,7 +708,7 @@ class OreWorld
         blockComponent.blockType = blockType
 
         val blockSprite = spriteMapper.create(block)
-        blockSprite.textureName = blockAttributes[blockComponent.blockType]!!.textureName
+        blockSprite.textureName = OreBlock.blockAttributes[blockComponent.blockType]!!.textureName
 
         blockSprite.sprite.setSize(1f, 1f)
 

@@ -26,6 +26,7 @@ package com.ore.infinium
 
 import com.ore.infinium.util.Color2
 import java.awt.Color
+import java.util.*
 
 class OreBlock private constructor() {
 
@@ -135,6 +136,97 @@ class OreBlock private constructor() {
                                     )
 
         /**
+         * looks up the texture prefix name for each block type. e.g. Dirt -> "dirt", etc.
+         */
+        val blockAttributes = HashMap<Byte, BlockAttributes>()
+
+        init {
+            blockAttributes.put(OreBlock.BlockType.Air.oreValue,
+                                BlockAttributes(textureName = "NULL because it's air",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Null,
+                                                blockTotalHealth = 0))
+
+            blockAttributes.put(OreBlock.BlockType.Dirt.oreValue,
+                                BlockAttributes(textureName = "dirt",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Dirt,
+                                                blockTotalHealth = 200))
+
+            blockAttributes.put(OreBlock.BlockType.Stone.oreValue,
+                                BlockAttributes(textureName = "stone",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Sand.oreValue,
+                                BlockAttributes(textureName = "sand",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Dirt,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Copper.oreValue,
+                                BlockAttributes(textureName = "copper",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Iron.oreValue,
+                                BlockAttributes(textureName = "iron",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Silver.oreValue,
+                                BlockAttributes(textureName = "silver",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Gold.oreValue,
+                                BlockAttributes(textureName = "gold",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Coal.oreValue,
+                                BlockAttributes(textureName = "coal",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Uranium.oreValue,
+                                BlockAttributes(textureName = "uranium",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Diamond.oreValue,
+                                BlockAttributes(textureName = "diamond",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Bedrock.oreValue,
+                                BlockAttributes(textureName = "bedrock",
+                                                collision = BlockAttributes.Collision.True,
+                                                category = BlockAttributes.BlockCategory.Ore,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Water.oreValue,
+                                BlockAttributes(textureName = "water",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Liquid,
+                                                blockTotalHealth = 300))
+
+            blockAttributes.put(OreBlock.BlockType.Lava.oreValue,
+                                BlockAttributes(textureName = "lava",
+                                                collision = BlockAttributes.Collision.False,
+                                                category = BlockAttributes.BlockCategory.Liquid,
+                                                blockTotalHealth = 300))
+        }
+
+        /**
          * number of byte fields we use for each block.
          * because they're all stored in one array, as primitives.
          * each is a byte..obviously
@@ -191,4 +283,37 @@ class OreBlock private constructor() {
         }
 
     }
+
+    class BlockAttributes internal constructor(var textureName: String //e.g. "dirt", "stone", etc.
+                                               ,
+                                               /**
+                                                * whether or not things should collide with this block
+                                                */
+                                               var collision: BlockAttributes.Collision,
+                                               var category: BlockAttributes.BlockCategory,
+                                               blockTotalHealth: Short) {
+
+        /**
+         * max starting health of the block
+         */
+        var blockTotalHealth: Float = 0f
+
+        //if this type is a type of ore (like stone, copper, ...)
+        enum class BlockCategory {
+            Null,
+            Dirt,
+            Ore,
+            Liquid
+        }
+
+        enum class Collision {
+            True,
+            False
+        }
+
+        init {
+            this.blockTotalHealth = blockTotalHealth.toFloat()
+        }
+    }
+
 }

@@ -154,7 +154,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
                     val bottomLeftEmpty = bottomLeftBlockType == OreBlock.BlockType.Air.oreValue
                     val bottomRightEmpty = bottomRightBlockType == OreBlock.BlockType.Air.oreValue
 
-                    val leftOre = OreWorld.blockAttributes[leftBlockType]!!.category == OreWorld.BlockAttributes.BlockCategory.Ore
+                    val leftOre = OreBlock.blockAttributes[leftBlockType]!!.category == OreBlock.BlockAttributes.BlockCategory.Ore
 
                     var finalMesh: Byte = -1
 

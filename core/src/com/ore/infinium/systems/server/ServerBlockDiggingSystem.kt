@@ -103,7 +103,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
         //this queued request will now be canceled.
         val toolComponent = toolMapper.getNullable(equippedItemEntityId) ?: return true
 
-        val totalBlockHealth = OreWorld.blockAttributes[blockType]!!.blockTotalHealth
+        val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
         val damagePerTick = toolComponent.blockDamage * getWorld().getDelta()
 

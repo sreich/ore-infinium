@@ -257,7 +257,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             //we will too, but mostly just so we know not to send these requests again
             m_clientNetworkSystem.sendBlockDigBegin(blockX, blockY)
 
-            val totalBlockHealth = OreWorld.blockAttributes[blockType]!!.blockTotalHealth
+            val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
             val blockToDig = BlockToDig()
             blockToDig.damagedBlockHealth = totalBlockHealth

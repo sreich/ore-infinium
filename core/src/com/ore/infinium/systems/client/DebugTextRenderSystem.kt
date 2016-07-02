@@ -269,7 +269,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
         val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
         val damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y)
-        val totalBlockHealth = OreWorld.blockAttributes[blockType]!!.blockTotalHealth
+        val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
         m_font.draw(m_batch, "blockHealth: $damagedBlockHealth / $totalBlockHealth", TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
