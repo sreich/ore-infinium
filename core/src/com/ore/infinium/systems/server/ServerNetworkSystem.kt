@@ -39,6 +39,7 @@ import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.indices
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -368,6 +369,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
                 is Network.Client.PlayerEquipHotbarIndex -> receivePlayerEquipHotbarIndex(job, receivedObject)
                 is Network.Client.HotbarDropItem -> receiveHotbarDropItem(job, receivedObject)
                 is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
+                is Network.Client.PlayerEquippedItemAttack -> receivePlayerEquippedItemAttack(job, receivedObject)
                 is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
 
                 is FrameworkMessage.Ping -> if (receivedObject.isReply) {
@@ -381,6 +383,23 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
 
         if (OreSettings.debugPacketTypeStatistics) {
             OreWorld.log("server", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
+        }
+    }
+
+    private fun receivePlayerEquippedItemAttack(job: NetworkJob, receivedObject: Network.Client.PlayerEquippedItemAttack) {
+        val tileX = receivedObject.attackPositionWorldCoords.x.toInt()
+        val tileY = receivedObject.attackPositionWorldCoords.y.toInt()
+
+        if (m_world.blockType(tileX, tileY) != OreBlock.BlockType.Water.oreValue) {
+            //fill with water
+            m_world.setBlockType(tileX, tileY, OreBlock.BlockType.Water.oreValue)
+            m_world.setLiquidLevel(tileX, tileY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+
+            val players = m_world.players()
+            for (i in players.indices) {
+                val player = players[i]
+                this.sendPlayerSingleBlock(player, tileX, tileY)
+            }
         }
     }
 
@@ -616,14 +635,14 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
     }
 
     /**
-     * @param player
+     * @param playerEntityId
      * *         entity id
      * *
      * @param x
      * *
      * @param y
      */
-    fun sendPlayerSingleBlock(player: Int, x: Int, y: Int) {
+    fun sendPlayerSingleBlock(playerEntityId: Int, x: Int, y: Int) {
         val sparseBlockUpdate = Network.Shared.SparseBlockUpdate()
 
         //fixme just use a plain ol' byte array for all of these
@@ -635,7 +654,7 @@ class ServerNetworkSystem(private val m_world: OreWorld, private val m_server: O
         //fixme add to a send list and do it only every tick or so...obviously right now this defeats part of the
         // purpose of this, whcih is to reduce the need to send an entire packet for 1 block. queue them up.
         // so put it in a queue, etc so we can deliver it when we need to..
-        val playerComponent = playerMapper.get(player)
+        val playerComponent = playerMapper.get(playerEntityId)
         m_serverKryo.sendToTCP(playerComponent.connectionPlayerId, sparseBlockUpdate)
     }
 

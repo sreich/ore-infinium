@@ -242,7 +242,7 @@ class InventoryView(stage: Stage,
             val payload = DragAndDrop.Payload()
 
             val dragWrapper = InventorySlotDragWrapper(type = Inventory.InventoryType.Inventory,
-                    dragSourceIndex = index)
+                                                       dragSourceIndex = index)
             payload.`object` = dragWrapper
 
             payload.dragActor = dragImage
@@ -310,9 +310,9 @@ class InventoryView(stage: Stage,
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
-                            dragWrapper.dragSourceIndex,
-                            Inventory.InventoryType.Inventory,
-                            index)
+                                                                    dragWrapper.dragSourceIndex,
+                                                                    Inventory.InventoryType.Inventory,
+                                                                    index)
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
@@ -326,8 +326,8 @@ class InventoryView(stage: Stage,
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
-                            dragWrapper.dragSourceIndex,
-                            Inventory.InventoryType.Inventory, index)
+                                                                    dragWrapper.dragSourceIndex,
+                                                                    Inventory.InventoryType.Inventory, index)
 
                     //remove the source item
                     hotbarInventory.takeItem(dragWrapper.dragSourceIndex)

@@ -62,6 +62,9 @@ object Network {
         kryo.register(Client.HotbarDropItem::class.java)
         kryo.register(Server.LoadedViewportMoved::class.java)
 
+        kryo.register(Client.PlayerEquippedItemAttack::class.java)
+        kryo.register(Client.PlayerEquippedItemAttack.ItemAttackType::class.java)
+
         kryo.register(Client.EntityAttack::class.java)
         kryo.register(Server.EntitySpawn::class.java)
         kryo.register(Server.EntitySpawnMultiple::class.java)
@@ -309,6 +312,21 @@ object Network {
             var destType: Inventory.InventoryType? = null
             var sourceIndex: Byte = 0
             var destIndex: Byte = 0
+        }
+
+        /**
+         * indicate that we are trying to attack whatever item is equipped,
+         * at the given vector in world coordinates.
+         */
+        class PlayerEquippedItemAttack {
+
+            var itemAttackType = ItemAttackType.Primary
+            var attackPositionWorldCoords = Vector2()
+
+            enum class ItemAttackType {
+                Primary,
+                Secondary
+            }
         }
     }
 

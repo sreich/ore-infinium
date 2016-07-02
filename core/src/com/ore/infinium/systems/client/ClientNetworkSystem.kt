@@ -491,6 +491,23 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         m_clientKryo.sendTCP(inventoryItemFromClient)
     }
 
+    /**
+     * Activates/"shoots" the equipped inventory item
+     *
+     * used for shooting guns and things of that sort of nature.
+     * FIXME: should likely be used for tree attacking and stuff like that
+     * as well?
+     */
+    fun sendEquippedItemAttack(_attackType: Network.Client.PlayerEquippedItemAttack.ItemAttackType,
+                               _attackPositionWorldCoords: Vector2) {
+        val attack = Network.Client.PlayerEquippedItemAttack().apply {
+            itemAttackType = _attackType
+            attackPositionWorldCoords = _attackPositionWorldCoords
+        }
+
+        m_clientKryo.sendTCP(attack)
+    }
+
     fun sendEntityAttack(currentEntity: Int) {
         val attack = Network.Client.EntityAttack()
 

@@ -32,7 +32,7 @@ class WorldBlockTest {
     internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server)
 
     @Before
-    fun createWorldAndinitializeBlocksArray() {
+    fun createWorldAndInitializeBlocksArray() {
     }
 
     @Test
@@ -51,6 +51,18 @@ class WorldBlockTest {
         world.setBlockType(100, 100, OreBlock.BlockType.Copper.oreValue)
         assertTrue(world.isBlockSolid(100, 100))
     }
+
+    @Test
+    fun testBlockLiquidLevelFields() {
+        var level = 1.toByte()
+        var x = 0
+        var y = 0
+        world.setLiquidLevel(x, y, level)
+
+        val retrievedLevel = world.liquidLevel(x, y)
+        assertEquals(level, retrievedLevel)
+    }
+
 
     /*
     //tile origin is top left

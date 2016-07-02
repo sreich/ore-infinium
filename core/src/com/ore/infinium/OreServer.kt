@@ -24,7 +24,6 @@ SOFTWARE.
 
 package com.ore.infinium
 
-import com.artemis.Aspect
 import com.artemis.ComponentMapper
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.ServerNetworkSystem
@@ -121,14 +120,13 @@ class OreServer : Runnable {
             m_hostingPlayer = player
         }
 
-        //TODO:make better server player first-spawning code
-        //TODO: (much later) make it try to load the player position from previous world data, if any.
+        //TODO:make better server player first-spawning code(in new world), find a nice spot to spawn in
+        //and then TODO: (much later) make it try to load the player position from previous world data, if any.
         val posX = OreWorld.WORLD_SIZE.width * 0.5f
         var posY = 0f //start at the overground
         val tilex = posX.toInt()
         val tiley = posY.toInt()
 
-        //fixme for collision test shouldn't be so...gross. as of 2015-12-14 idk wtf this is, delete it
         posY = 20f
 
         val seaLevel = m_world.seaLevel()
@@ -164,13 +162,11 @@ class OreServer : Runnable {
         //tell all players including himself, that he joined
         m_serverNetworkSystem.sendSpawnPlayerBroadcast(player)
 
-        val aspectSubscriptionManager = m_world.m_artemisWorld.aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
-        val entities = entitySubscription.entities
+        val players = m_world.players()
         //tell this player all the current players that are on the server right now
-        for (i in entities.indices) {
+        for (i in players.indices) {
             //exclude himself, though. he already knows.
-            val entity = entities[i]
+            val entity = players[i]
             if (entity != player) {
                 m_serverNetworkSystem.sendSpawnPlayer(entity, connectionId)
             }
@@ -203,18 +199,17 @@ class OreServer : Runnable {
         val powerGen = m_world.createPowerGenerator()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(powerGen)
 
-        //hack no need for all this, they get merged anyways probably/hopefully.
-        //but we do need to test merging
-        for (i in 4..6) {
-            val light = m_world.createLight()
+        val light = m_world.createLight()
 
-            itemMapper.get(light).apply {
-                stackSize = 63999
-                maxStackSize = 64000
-            }
-
-            playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(light)
+        itemMapper.get(light).apply {
+            maxStackSize = 64000
+            stackSize = maxStackSize
         }
+
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(light)
+
+        val liquidGun = m_world.createLiquidGun()
+        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
         for (i in 0 until Inventory.maxHotbarSlots) {
             val entity = playerComponent.hotbarInventory!!.itemEntity(i)
