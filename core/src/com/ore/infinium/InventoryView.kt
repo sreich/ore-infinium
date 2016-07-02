@@ -204,7 +204,10 @@ class InventoryView(stage: Stage,
 
     private class SlotInputListener internal constructor(private val inventory: InventoryView, private val index: Int) : InputListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-            inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
+            val itemEntity = inventory.m_inventory.itemEntity(index)
+            if (itemEntity != null) {
+                inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
+            }
 
             super.enter(event, x, y, pointer, fromActor)
         }
