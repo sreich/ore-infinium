@@ -583,7 +583,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         highlandMountainSelect1.setControlSource(terrainTypeCache)
         highlandMountainSelect1.setThreshold(0.45)//.35 //.65
         //small falloffs give us nice occasional mountainy cliffs
-        highlandMountainSelect1.setFalloff(0.15)
+        highlandMountainSelect1.setFalloff(0.40)
 
         val highlandMountainSelect2 = ModuleSelect()
         highlandMountainSelect2.setLowSource(mountainTerrain2)
