@@ -161,7 +161,7 @@ class HotbarInventoryView(private val m_stage: Stage,
         val region: TextureRegion?
         if (blockMapper.getNullable(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
+            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
                     "$textureName-00")
         } else {
             region = m_world.m_atlas.findRegion(textureName)

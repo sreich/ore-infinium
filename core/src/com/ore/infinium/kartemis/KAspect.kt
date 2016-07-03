@@ -22,30 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package com.ore.infinium.systems
+package com.ore.infinium.kartemis
 
-import com.artemis.annotations.Wire
-import com.ore.infinium.OreWorld
-import com.ore.infinium.kartemis.KBaseSystem
+import com.artemis.Aspect
+import com.artemis.Component
+import kotlin.reflect.KClass
 
-@Wire
-/**
- * sigh, a whole system just for seeing how many logic ticks there are
- * since game start.
- */
-class GameTickSystem(private val m_world: OreWorld) : KBaseSystem() {
+fun allOf(vararg types: KClass<out Component>): Aspect.Builder =
+        Aspect.all(types.map { it.java })
 
-    /**
-     * increased by 1 every update()
-     */
-    var ticks: Long = 0
-        private set
+fun anyOf(vararg types: KClass<out Component>): Aspect.Builder =
+        Aspect.one(types.map { it.java })
 
-    override fun initialize() {
-        ticks = 0
-    }
-
-    override fun processSystem() {
-        ticks += 1
-    }
-}
+fun noneOf(vararg types: KClass<out Component>): Aspect.Builder =
+        Aspect.exclude(types.map { it.java })

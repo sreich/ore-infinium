@@ -86,7 +86,7 @@ class OreServer : Runnable {
                     timestamp = line.timestamp
                 }
 
-                m_serverNetworkSystem.m_serverKryo.sendToAllTCP(message)
+                m_serverNetworkSystem.serverKryo.sendToAllTCP(message)
             }
 
             override fun cleared() {

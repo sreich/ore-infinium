@@ -47,31 +47,26 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
     var debugRenderTileLighting = true
     var debugTilesInViewCount: Int = 0
 
-    var m_blockAtlas: TextureAtlas
-    var m_tilesAtlas: TextureAtlas
+    var blockAtlas: TextureAtlas
+    var tilesAtlas: TextureAtlas
 
-    private val m_batch: SpriteBatch
+    private val batch: SpriteBatch
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
 
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
-    private lateinit var m_tagManager: TagManager
+    private lateinit var clientNetworkSystem: ClientNetworkSystem
+    private lateinit var tagManager: TagManager
 
     // <byte mesh type, string texture name>
-    var m_dirtBlockMeshes: IntMap<String>
-    var m_stoneBlockMeshes: IntMap<String>
-    var m_grassBlockMeshes: IntMap<String>
+    var dirtBlockMeshes: IntMap<String>
+    var stoneBlockMeshes: IntMap<String>
+    var grassBlockMeshes: IntMap<String>
 
     init {
-        m_batch = SpriteBatch(5000)
+        batch = SpriteBatch(5000)
 
-        m_blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
-        m_tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
+        blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
+        tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
 
         //todo obviously, we can replace this map and lookup with something cheaper, i bet.
         //it's actually only used to fetch the string which then we will fetch from the texture atlas
@@ -80,25 +75,25 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         //dirt 16 and beyond are transition things.
         val dirtMax = 25
-        m_dirtBlockMeshes = IntMap<String>(dirtMax)
+        dirtBlockMeshes = IntMap<String>(dirtMax)
         for (i in 0..dirtMax) {
             val formatted = "dirt-%02d".format(i)
-            m_dirtBlockMeshes.put(i, formatted)
+            dirtBlockMeshes.put(i, formatted)
         }
 
         //18+ are transition helpers
         val grassMax = 31
-        m_grassBlockMeshes = IntMap<String>(grassMax)
+        grassBlockMeshes = IntMap<String>(grassMax)
         for (i in 0..grassMax) {
             val formatted = "grass-%02d".format(i)
-            m_grassBlockMeshes.put(i, formatted)
+            grassBlockMeshes.put(i, formatted)
         }
 
         val stoneMax = 30
-        m_stoneBlockMeshes = IntMap<String>(stoneMax)
+        stoneBlockMeshes = IntMap<String>(stoneMax)
         for (i in 0..stoneMax) {
             val formatted = "stone-%02d".format(i)
-            m_stoneBlockMeshes.put(i, formatted)
+            stoneBlockMeshes.put(i, formatted)
         }
     }
 
@@ -108,7 +103,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
     fun render(elapsed: Float) {
         //fixme the system should be disabled and enabled when this happens
-        if (!m_clientNetworkSystem.connected) {
+        if (!clientNetworkSystem.connected) {
             return
         }
 
@@ -116,8 +111,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
             return
         }
 
-        m_batch.projectionMatrix = m_camera.combined
-        val sprite = spriteMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer).id)
+        batch.projectionMatrix = m_camera.combined
+        val sprite = spriteMapper.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
 
         val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
         //new Vector3(100, 200, 0);//positionComponent->position();
@@ -135,7 +130,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         val endX = (tilesBeforeX + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_X)
         val endY = (tilesBeforeY + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_Y)
 
-        m_batch.begin()
+        batch.begin()
 
         debugTilesInViewCount = 0
 
@@ -175,35 +170,35 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 }
 
                 ///////////////////////////////// draw walls
-                val wallTextureName = m_dirtBlockMeshes.get(0)
+                val wallTextureName = dirtBlockMeshes.get(0)
                 assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
                 //fixme of course, for wall drawing, walls should have their own textures
                 //m_batch.setColor(0.5f, 0.5f, 0.5f, 1f)
                 //m_batch.setColor(1.0f, 0f, 0f, 1f)
-                m_batch.setColor(lightValue, lightValue, lightValue, 1f)
+                batch.setColor(lightValue, lightValue, lightValue, 1f)
 
                 //offset y to flip orientation around to normal
-                val regionWall = m_tilesAtlas.findRegion(wallTextureName)
-                m_batch.draw(regionWall, tileX, tileY + 1, 1f, -1f)
+                val regionWall = tilesAtlas.findRegion(wallTextureName)
+                batch.draw(regionWall, tileX, tileY + 1, 1f, -1f)
 
-                m_batch.setColor(1f, 1f, 1f, 1f)
+                batch.setColor(1f, 1f, 1f, 1f)
                 //////////////////////////////////////
 
                 ///////////////////////////////////// draw foreground tile
 
                 if (drawForegroundTile) {
-                    val foregroundTileRegion = m_tilesAtlas.findRegion(textureName)
+                    val foregroundTileRegion = tilesAtlas.findRegion(textureName)
                     assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName!!}" }
 
 //                    if (blockLightLevel != 0.toByte()) {
-                    m_batch.setColor(lightValue, lightValue, lightValue, 1f)
+                    batch.setColor(lightValue, lightValue, lightValue, 1f)
                     //                   } else {
                     //                      m_batch.setColor(1f, 1f, 1f, 1f)
                     //                 }
 
                     //offset y to flip orientation around to normal
-                    m_batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
+                    batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
 
                     //////////////////////////////////////////////////////////
                 }
@@ -212,7 +207,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
             }
         }
 
-        m_batch.end()
+        batch.end()
     }
 
     private fun findTextureNameForBlock(x: Int, y: Int): String {
@@ -227,16 +222,16 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
             OreBlock.BlockType.Dirt.oreValue -> {
 
                 if (hasGrass) {
-                    textureName = m_grassBlockMeshes.get(blockMeshType.toInt())
+                    textureName = grassBlockMeshes.get(blockMeshType.toInt())
                     assert(textureName != null) { "block mesh lookup failure" }
                 } else {
-                    textureName = m_dirtBlockMeshes.get(blockMeshType.toInt())
+                    textureName = dirtBlockMeshes.get(blockMeshType.toInt())
                     assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
                 }
             }
 
             OreBlock.BlockType.Stone.oreValue -> {
-                textureName = m_stoneBlockMeshes.get(blockMeshType.toInt())
+                textureName = stoneBlockMeshes.get(blockMeshType.toInt())
                 assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
             }

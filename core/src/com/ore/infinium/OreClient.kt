@@ -467,15 +467,15 @@ class OreClient : ApplicationListener, InputProcessor {
                 // could derive from. so we could just call this, and await the return...all of the debug things could be
                 // handled
                 //directly in there. but the question is, what to do for everything else.
-                m_debugTextRenderSystem.m_renderDebugClient = !m_debugTextRenderSystem.m_renderDebugClient
-            Input.Keys.F9 -> m_debugTextRenderSystem.m_renderDebugServer = !m_debugTextRenderSystem.m_renderDebugServer
+                m_debugTextRenderSystem.renderDebugClient = !m_debugTextRenderSystem.renderDebugClient
+            Input.Keys.F9 -> m_debugTextRenderSystem.renderDebugServer = !m_debugTextRenderSystem.renderDebugServer
             Input.Keys.F10 -> {
                 m_tileRenderSystem.debugRenderTiles = !m_tileRenderSystem.debugRenderTiles
             }
             Input.Keys.F11 -> m_renderGui = !m_renderGui
             Input.Keys.F12 -> {
-                m_debugTextRenderSystem.m_guiDebug = !m_debugTextRenderSystem.m_guiDebug
-                m_stage.setDebugAll(m_debugTextRenderSystem.m_guiDebug)
+                m_debugTextRenderSystem.guiDebug = !m_debugTextRenderSystem.guiDebug
+                m_stage.setDebugAll(m_debugTextRenderSystem.guiDebug)
             }
             Input.Keys.I -> if (m_inventoryView != null) {
                 toggleInventoryVisible()
@@ -554,7 +554,7 @@ class OreClient : ApplicationListener, InputProcessor {
             m_world!!.m_artemisWorld.delete(item)
         }
 
-        m_clientNetworkSystem.m_clientKryo.sendTCP(dropItemRequestFromClient)
+        m_clientNetworkSystem.clientKryo.sendTCP(dropItemRequestFromClient)
     }
 
     override fun keyUp(keycode: Int): Boolean {

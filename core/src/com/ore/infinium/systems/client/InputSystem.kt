@@ -24,12 +24,10 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
-import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.kartemis.KBaseSystem
 
 @Wire
 /**
@@ -40,28 +38,20 @@ import com.ore.infinium.components.*
  * Event based is used for pretty much everything else, like GUI related things (excluding scene2d, that's already
  * basically handled by itself).
  */
-class InputSystem(private val m_camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem() {
+class InputSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld) : KBaseSystem() {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-
-    private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
+    private val powerOverlayRenderSystem by system<PowerOverlayRenderSystem>()
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
 
     override fun processSystem() {
-        if (m_powerOverlayRenderSystem.overlayVisible || !m_clientNetworkSystem.connected) {
+        if (powerOverlayRenderSystem.overlayVisible || !clientNetworkSystem.connected) {
             return
         }
 
-        if (m_world.m_client!!.m_leftMouseDown) {
-            m_world.m_client!!.handlePrimaryAttack()
-        } else if (m_world.m_client!!.m_rightMouseDown) {
-            m_world.m_client!!.handleSecondaryAttack()
+        if (oreWorld.m_client!!.m_leftMouseDown) {
+            oreWorld.m_client!!.handlePrimaryAttack()
+        } else if (oreWorld.m_client!!.m_rightMouseDown) {
+            oreWorld.m_client!!.handleSecondaryAttack()
         }
     }
-
 }

@@ -22,30 +22,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package com.ore.infinium.systems
+package com.ore.infinium.kartemis
 
-import com.artemis.annotations.Wire
-import com.ore.infinium.OreWorld
-import com.ore.infinium.kartemis.KBaseSystem
+import com.artemis.Component
+import com.artemis.ComponentMapper
 
-@Wire
-/**
- * sigh, a whole system just for seeing how many logic ticks there are
- * since game start.
- */
-class GameTickSystem(private val m_world: OreWorld) : KBaseSystem() {
+class KComponentMapper<T : Component> {
+    internal var mapper: ComponentMapper<*>? = null
+    fun has(entityId: Int): Boolean = mapper!!.has(entityId)
+    fun get(entityId: Int): T = mapper!!.get(entityId) as T
+    fun opt(entityId: Int): T? = if (has(entityId)) get(entityId) else null
+    fun create(entityId: Int): T = mapper!!.create(entityId) as T
 
-    /**
-     * increased by 1 every update()
-     */
-    var ticks: Long = 0
-        private set
-
-    override fun initialize() {
-        ticks = 0
-    }
-
-    override fun processSystem() {
-        ticks += 1
+    inline fun ifPresent(entityId: Int, function: (T) -> Unit): Unit {
+        if (has(entityId))
+            function(get(entityId))
     }
 }

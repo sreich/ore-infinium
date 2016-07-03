@@ -30,28 +30,25 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.TimeUtils
+import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.kartemis.KBaseSystem
 import com.ore.infinium.systems.GameTickSystem
 import com.ore.infinium.util.getNullable
 
 @Wire(failOnNull = false)
-class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
+class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : KBaseSystem() {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
+    private val mPlayer = mapper<PlayerComponent>()
+    private val mSprite = mapper<SpriteComponent>()
+    private val mItem = mapper<ItemComponent>()
+    private val mTool = mapper<ToolComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
-    private lateinit var m_tileLightingSystem: TileLightingSystem
-    private lateinit var m_gameTickSystem: GameTickSystem
-
-    private lateinit var m_tagManager: TagManager
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+    private val tileLightingSystem by system<TileLightingSystem>()
+    private val gameTickSystem by system<GameTickSystem>()
 
     class BlockToDig {
         internal var x: Int = 0
@@ -90,18 +87,18 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
      * @return true if it was processed (and should be removed)
      */
     fun processAndRemoveDigRequests(blockToDig: BlockToDig): Boolean {
-        val blockType = m_world.blockType(blockToDig.x, blockToDig.y)
+        val blockType = oreWorld.blockType(blockToDig.x, blockToDig.y)
         if (blockType == OreBlock.BlockType.Air.oreValue) {
             return true
         }
 
-        val playerEntityId = m_world.playerEntityForPlayerConnectionID(blockToDig.playerId)
-        val playerComponent = playerMapper.get(playerEntityId)
+        val playerEntityId = oreWorld.playerEntityForPlayerConnectionID(blockToDig.playerId)
+        val playerComponent = mPlayer.get(playerEntityId)
         val equippedItemEntityId = playerComponent.equippedPrimaryItem!!
 
         //player no longer even has an item that can break stuff, equipped.
         //this queued request will now be canceled.
-        val toolComponent = toolMapper.getNullable(equippedItemEntityId) ?: return true
+        val toolComponent = mTool.opt(equippedItemEntityId) ?: return true
 
         val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
@@ -110,7 +107,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
         //this many ticks after start tick, it should have already been destroyed
         val expectedTickEnd = blockToDig.digStartTick + (totalBlockHealth / damagePerTick).toInt()
 
-        if (blockToDig.clientSaysItFinished && m_gameTickSystem.ticks >= expectedTickEnd) {
+        if (blockToDig.clientSaysItFinished && gameTickSystem.ticks >= expectedTickEnd) {
             //todo tell all clients that it was officially dug--but first we want to implement chunking
             // though!!
 
@@ -119,15 +116,15 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             val x = blockToDig.x
             val y = blockToDig.y
 
-            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, x, y)
+            serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, x, y)
 
-            val droppedBlock = m_world.createBlockItem(blockType)
-            spriteMapper.get(droppedBlock).apply {
+            val droppedBlock = oreWorld.createBlockItem(blockType)
+            mSprite.get(droppedBlock).apply {
                 sprite.setPosition(x + 0.5f, y + 0.5f)
                 sprite.setSize(0.5f, 0.5f)
             }
 
-            itemMapper.get(droppedBlock).apply {
+            mItem.get(droppedBlock).apply {
                 sizeBeforeDrop = Vector2(1f, 1f)
                 stackSize = 1
                 state = ItemComponent.State.DroppedInWorld
@@ -139,16 +136,16 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
             //auto finds and spawns it
             // m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
 
-            m_world.destroyBlock(x, y)
+            oreWorld.destroyBlock(x, y)
 
             //update lighting in the area
-            val lightLevel = m_world.blockLightLevel(x, y)
+            val lightLevel = oreWorld.blockLightLevel(x, y)
 
-            m_tileLightingSystem.updateTileLighting(x, y, lightLevel)
+            tileLightingSystem.updateTileLighting(x, y, lightLevel)
 
             //hack, this is a big region, and we'd have to calculate actual lights in this, as well i think.
             //but we wouldn't want it to be bigger than the affected region
-            m_serverNetworkSystem.sendPlayerBlockRegion(playerEntityId, x - 20, y - 20, x + 20, y + 20)
+            serverNetworkSystem.sendPlayerBlockRegion(playerEntityId, x - 20, y - 20, x + 20, y + 20)
 
             //remove fulfilled request from our queue.
             return true
@@ -156,7 +153,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
 
         //when actual ticks surpass our expected ticks, by so much
         //we assume this request times out
-        if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
+        if (gameTickSystem.ticks > expectedTickEnd + 10) {
 
             OreWorld.log("server, block digging system",
                          "processSystem block digging request timed out. this could be normal.")
@@ -199,7 +196,7 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     fun blockDiggingBegin(x: Int, y: Int, playerEntity: Int) {
-        if (m_world.blockType(x, y) == OreBlock.BlockType.Air.oreValue) {
+        if (oreWorld.blockType(x, y) == OreBlock.BlockType.Air.oreValue) {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
             OreWorld.log("server, block digging system",
@@ -210,10 +207,10 @@ class ServerBlockDiggingSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
         val blockToDig = BlockToDig()
-        blockToDig.playerId = playerMapper.get(playerEntity).connectionPlayerId
+        blockToDig.playerId = mPlayer.get(playerEntity).connectionPlayerId
         blockToDig.x = x
         blockToDig.y = y
-        blockToDig.digStartTick = m_gameTickSystem.ticks
+        blockToDig.digStartTick = gameTickSystem.ticks
         m_blocksToDig.add(blockToDig)
     }
 }

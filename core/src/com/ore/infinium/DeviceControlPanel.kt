@@ -94,7 +94,7 @@ class DeviceControlPanel(stage: Stage,
         //window.pack();
         m_window.add(container).fill().expand()
 
-        val region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion("dirt-00")
+        val region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion("dirt-00")
         val dragImage = VisImage(region)
         dragImage.setSize(32f, 32f)
 
@@ -184,7 +184,7 @@ class DeviceControlPanel(stage: Stage,
         val region: TextureRegion?
         if (blockMapper.getNullable(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
+            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
                     "$textureName-00")
         } else {
             region = m_world.m_atlas.findRegion(textureName)

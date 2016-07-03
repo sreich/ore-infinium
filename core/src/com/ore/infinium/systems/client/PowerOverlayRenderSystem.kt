@@ -24,12 +24,11 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
-import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
-import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -37,93 +36,81 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.kartemis.KIteratingSystem
+import com.ore.infinium.kartemis.allOf
+import com.ore.infinium.util.getTagNullable
+import com.ore.infinium.util.indices
 
 @Wire
-class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
-        private val m_world: OreWorld,
-        private val m_stage: Stage) : IteratingSystem(
-            Aspect.all(PowerDeviceComponent::class.java)), RenderSystemMarker {
+class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage: Stage)
+        : KIteratingSystem(allOf(PowerDeviceComponent::class)), RenderSystemMarker {
 
     var overlayVisible = false
-    private lateinit var m_batch: SpriteBatch
+    private lateinit var batch: SpriteBatch
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
-    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+    private val mSprite = mapper<SpriteComponent>()
 
-    private lateinit var m_entityOverlaySystem: EntityOverlaySystem
-    private lateinit var m_tagManager: TagManager
-
-    //    public Sprite outputNode = new Sprite();
-
-    private var m_leftClicked: Boolean = false
-    private var m_dragInProgress: Boolean = false
-    private var m_dragSourceEntity: Int? = null
+    private val entityOverlaySystem by system<EntityOverlaySystem>()
+    private val tagManager by system<TagManager>()
 
     //displays info for the current circuit
-    private var m_powerCircuitTooltipEntity: Int = 0
+    private var powerCircuitTooltipEntity: Int = 0
 
-    private lateinit var m_container: Table
-    private lateinit var m_totalStatsTable: Table
+    private lateinit var container: Table
+    private lateinit var totalStatsTable: Table
 
-    private var currentCircuitSupply = -1
-    private var currentCircuitDemand = -1
-
-    private lateinit var m_circuitSupplyLabel: Label
-    private lateinit var m_circuitDemandLabel: Label
+    private lateinit var circuitSupplyLabel: Label
+    private lateinit var circuitDemandLabel: Label
 
     override fun initialize() {
-        m_batch = SpriteBatch()
+        batch = SpriteBatch()
 
-        m_powerCircuitTooltipEntity = world.create()
+        powerCircuitTooltipEntity = world.create()
 
-        val tooltipSprite = spriteMapper.create(m_powerCircuitTooltipEntity)
+        val tooltipSprite = mSprite.create(powerCircuitTooltipEntity)
         tooltipSprite.sprite.setSize(1f, 1f)
         tooltipSprite.textureName = "debug"
-        tooltipSprite.sprite.setRegion(m_world.m_atlas.findRegion(tooltipSprite.textureName))
+        tooltipSprite.sprite.setRegion(oreWorld.m_atlas.findRegion(tooltipSprite.textureName))
         tooltipSprite.noClip = true
 
-        m_container = VisTable()
-        m_container.setFillParent(true)
-        //      m_container.padLeft(10).padTop(10);
-        //        m_container.set
+        container = VisTable()
+        container.setFillParent(true)
+        //      container.padLeft(10).padTop(10);
+        //        container.set
 
-        m_totalStatsTable = VisTable()
-        m_totalStatsTable.top().left().pad(0f, 6f, 0f, 0f)
-        m_totalStatsTable.setBackground("default-pane")
+        totalStatsTable = VisTable()
+        totalStatsTable.top().left().pad(0f, 6f, 0f, 0f)
+        totalStatsTable.setBackground("default-pane")
 
         val headerLabel = VisLabel("Electricity Resources")
-        m_totalStatsTable.add(headerLabel).left()
+        totalStatsTable.add(headerLabel).left()
 
-        m_totalStatsTable.row()
+        totalStatsTable.row()
 
         val demandLabel = VisLabel("Energy Demand:")
-        m_totalStatsTable.add(demandLabel).left()
+        totalStatsTable.add(demandLabel).left()
 
-        m_circuitDemandLabel = VisLabel("-1")
-        m_totalStatsTable.add<Label>(m_circuitDemandLabel)
+        circuitDemandLabel = VisLabel("-1")
+        totalStatsTable.add<Label>(circuitDemandLabel)
 
-        m_totalStatsTable.row()
+        totalStatsTable.row()
 
         val supplyLabel = VisLabel("Energy Supply:")
-        m_totalStatsTable.add(supplyLabel).left()
+        totalStatsTable.add(supplyLabel).left()
 
-        m_circuitSupplyLabel = VisLabel("-1")
-        m_totalStatsTable.add<Label>(m_circuitSupplyLabel)
+        circuitSupplyLabel = VisLabel("-1")
+        totalStatsTable.add<Label>(circuitSupplyLabel)
 
-        m_container.add<Table>(m_totalStatsTable).expand().bottom().right().size(400f, 100f)
+        container.add<Table>(totalStatsTable).expand().bottom().right().size(400f, 100f)
 
-        //        m_container.defaults().space(4);
-        m_container.isVisible = false
+        //        container.defaults().space(4);
+        container.isVisible = false
 
-        m_stage.addActor(m_container)
+        stage.addActor(container)
     }
 
     override fun dispose() {
-        m_batch.dispose()
+        batch.dispose()
     }
 
     //todo sufficient until we get a spatial hash or whatever
@@ -136,41 +123,41 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
             return
         }
 
-        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
-        m_batch.projectionMatrix = m_world.m_camera.combined
-        m_batch.begin()
+        //        batch.setProjectionMatrix(oreWorld.m_camera.combined);
+        batch.projectionMatrix = oreWorld.m_camera.combined
+        batch.begin()
 
        // renderEntities(this.getWorld().delta)
 
-        m_batch.end()
+        batch.end()
 
         //screen space rendering
-        m_batch.projectionMatrix = m_world.m_client!!.viewport.camera.combined
-        m_batch.begin()
+        batch.projectionMatrix = oreWorld.m_client!!.viewport.camera.combined
+        batch.begin()
 
         //fixme replace this crap w/ scene2d stuff?
-        m_world.m_client!!.bitmapFont_8pt.setColor(1f, 0f, 0f, 1f)
+        oreWorld.m_client!!.bitmapFont_8pt.setColor(1f, 0f, 0f, 1f)
 
         var fontY = 150f
-        val fontX = (m_world.m_client!!.viewport.rightGutterX - 220).toFloat()
+        val fontX = (oreWorld.m_client!!.viewport.rightGutterX - 220).toFloat()
 
-        m_batch.draw(m_world.m_atlas.findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100,
+        batch.draw(oreWorld.m_atlas.findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100,
                      fontY - 300)
 
-        m_world.m_client!!.bitmapFont_8pt.draw(m_batch, "Energy overlay visible (press E)", fontX, fontY)
+        oreWorld.m_client!!.bitmapFont_8pt.draw(batch, "Energy overlay visible (press E)", fontX, fontY)
         fontY -= 15f
 
-        m_world.m_client!!.bitmapFont_8pt.draw(m_batch, "Input: N/A Output: N/A", fontX, fontY)
+        oreWorld.m_client!!.bitmapFont_8pt.draw(batch, "Input: N/A Output: N/A", fontX, fontY)
 
-        m_world.m_client!!.bitmapFont_8pt.setColor(1f, 1f, 1f, 1f)
+        oreWorld.m_client!!.bitmapFont_8pt.setColor(1f, 1f, 1f, 1f)
 
-        m_batch.end()
+        batch.end()
 
         updateCircuitStats()
     }
 
     private fun updateCircuitStats() {
-        val mouse = m_world.mousePositionWorldCoords()
+        val mouse = oreWorld.mousePositionWorldCoords()
 
         /*
         //todo global stats
@@ -184,16 +171,16 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
             currentCircuitDemand = powerDeviceComponent.owningCircuit!!.totalDemand
             currentCircuitSupply = powerDeviceComponent.owningCircuit!!.totalSupply
 
-            m_circuitDemandLabel.setText(currentCircuitDemand.toString())
-            m_circuitSupplyLabel.setText(currentCircuitSupply.toString())
+            circuitDemandLabel.setText(currentCircuitDemand.toString())
+            circuitSupplyLabel.setText(currentCircuitSupply.toString())
         } else {
             //reset them both and update the labels
             if (currentCircuitDemand != -1) {
                 currentCircuitDemand = -1
                 currentCircuitSupply = -1
 
-                m_circuitDemandLabel.setText(currentCircuitDemand.toString())
-                m_circuitSupplyLabel.setText(currentCircuitSupply.toString())
+                circuitDemandLabel.setText(currentCircuitDemand.toString())
+                circuitSupplyLabel.setText(currentCircuitSupply.toString())
             }
         }
         */
@@ -209,13 +196,13 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
 
         //also, turn off/on the overlays, like crosshairs, itemplacement overlays and stuff.
         //when wire overlay is visible, the entity overlays should be off.
-        m_entityOverlaySystem.isEnabled = !overlayVisible
-        m_entityOverlaySystem.setOverlaysVisible(!overlayVisible)
+        entityOverlaySystem.isEnabled = !overlayVisible
+        entityOverlaySystem.setOverlaysVisible(!overlayVisible)
 
         if (overlayVisible) {
-            m_container.toFront()
+            container.toFront()
         }
 
-        m_container.isVisible = overlayVisible
+        container.isVisible = overlayVisible
     }
 }

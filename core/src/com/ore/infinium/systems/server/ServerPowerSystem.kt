@@ -30,20 +30,20 @@ import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.kartemis.KIteratingSystem
 
 @Wire
-class ServerPowerSystem(private val m_world: OreWorld) : IteratingSystem (
-        Aspect.one(PowerDeviceComponent::class.java)) {
+class ServerPowerSystem(private val oreWorld: OreWorld) : KIteratingSystem() {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
-    private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
-    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+    private val mPowerDevice = require<PowerDeviceComponent>()
+    private val mPlayer = mapper<PlayerComponent>()
+    private val mSprite = mapper<SpriteComponent>()
+    private val mItem = mapper<ItemComponent>()
+    private val mVelocity = mapper<VelocityComponent>()
+    private val mPowerConsumer = mapper<PowerConsumerComponent>()
+    private val mPowerGenerator = mapper<PowerGeneratorComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
 
 
     override fun initialize() {
@@ -70,17 +70,17 @@ class ServerPowerSystem(private val m_world: OreWorld) : IteratingSystem (
     private fun calculateSupplyAndDemandRate(entityId: Int) {
         /*
         //hack dead code
-        for (circuit in m_circuits) {
+        for (circuit in circuits) {
             circuit.totalDemand = 0
             circuit.totalSupply = 0
 
             for (generator in circuit.generators) {
-                val generatorComponent = powerGeneratorMapper.get(generator)
+                val generatorComponent = mPowerGenerator.get(generator)
                 circuit.totalSupply += generatorComponent.powerSupplyRate
             }
 
             for (consumer in circuit.consumers) {
-                val consumerComponent = powerConsumerMapper.get(consumer)
+                val consumerComponent = mPowerConsumer.get(consumer)
                 circuit.totalDemand += consumerComponent.powerDemandRate
             }
         }

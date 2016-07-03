@@ -31,13 +31,13 @@ import com.badlogic.gdx.math.Rectangle
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.kartemis.KBaseSystem
 import com.ore.infinium.util.indices
 
 @Wire
-class LiquidSimulationSystem(private val m_world: OreWorld) : BaseSystem() {
+class LiquidSimulationSystem(private val oreWorld: OreWorld) : KBaseSystem() {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
+    private val mPlayer = mapper<PlayerComponent>()
 
     override fun initialize() {
     }
@@ -51,12 +51,12 @@ class LiquidSimulationSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     override fun processSystem() {
-        val players = m_world.players()
+        val players = oreWorld.players()
 
         for (i in players.indices) {
             val player = players[i]
 
-            val playerComp = playerMapper.get(player)
+            val playerComp = mPlayer.get(player)
             val rect = playerComp.loadedViewport.rect
 
             simulateFluidsInRegion(rect)

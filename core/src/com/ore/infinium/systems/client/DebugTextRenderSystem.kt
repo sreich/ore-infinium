@@ -31,10 +31,12 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.ai.steer.behaviors.Jump
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.profiling.GLProfiler
@@ -45,6 +47,7 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.kartemis.KBaseSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
 import java.text.DecimalFormat
@@ -54,46 +57,46 @@ import java.text.DecimalFormat
  * of the game. Things like how many tiles are rendered, connections, entities, etc.
  */
 @Wire
-class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
+class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: OreWorld) : KBaseSystem(), RenderSystemMarker {
 
-    private lateinit var airMapper: ComponentMapper<AirComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var floraMapper: ComponentMapper<FloraComponent>
-    private lateinit var healthMapper: ComponentMapper<HealthComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-    private lateinit var lightMapper: ComponentMapper<LightComponent>
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
-    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
-    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
+    private val mAir = mapper<AirComponent>()
+    private val mBlock = mapper<BlockComponent>()
+    private val mControl = mapper<ControllableComponent>()
+    private val mFlora = mapper<FloraComponent>()
+    private val mHealth = mapper<HealthComponent>()
+    private val mItem = mapper<ItemComponent>()
+    private val mJump = mapper<JumpComponent>()
+    private val mLight = mapper<LightComponent>()
+    private val mPlayer = mapper<PlayerComponent>()
+    private val mPowerConsumer = mapper<PowerConsumerComponent>()
+    private val mPowerDevice = mapper<PowerDeviceComponent>()
+    private val mPowerGenerator = mapper<PowerGeneratorComponent>()
+    private val mSprite = mapper<SpriteComponent>()
+    private val mTool = mapper<ToolComponent>()
+    private val mVelocity = mapper<VelocityComponent>()
 
-    private lateinit var m_tagManager: TagManager
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
-    private lateinit var m_tileRenderSystem: TileRenderSystem
-    private lateinit var m_clientBlockDiggingSystem: ClientBlockDiggingSystem
+    private val tagManager by system<TagManager>()
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
+    private val tileRenderSystem by system<TileRenderSystem>()
+    private val clientBlockDiggingSystem by system<ClientBlockDiggingSystem>()
 
     //fixme this needs to be shared or something. having every damn system have its own is really dumb
     //the client ends up using this too like that, but its own instance..
-    internal val m_fontGenerator: FreeTypeFontGenerator
+    internal val fontGenerator: FreeTypeFontGenerator
 
     //fixme dead code
     //private BitmapFont bitmapFont_8pt;
-    private val m_font: BitmapFont
+    private val font: BitmapFont
 
-    private val m_batch: SpriteBatch
-    private val m_debugServerBatch: SpriteBatch
+    private val batch: SpriteBatch
+    private val debugServerBatch: SpriteBatch
 
-    private val m_junkTexture: Texture
+    private val junkTexture: Texture
 
-    var m_guiDebug: Boolean = false
+    var guiDebug: Boolean = false
 
-    var m_renderDebugServer = false
-    var m_renderDebugClient = false
+    var renderDebugServer = false
+    var renderDebugClient = false
 
     private val TEXT_Y_SPACING = 10
     private val TEXT_X_RIGHT = OreSettings.width - 600
@@ -106,36 +109,36 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
                                                "1-8 or mouse wheel for inventory selection")
 
     init {
-        m_batch = SpriteBatch()
+        batch = SpriteBatch()
 
         GLProfiler.enable()
 
-        m_decimalFormat.maximumFractionDigits = 4
+        decimalFormat.maximumFractionDigits = 4
 
-        m_junkTexture = Texture(Gdx.files.internal("entities/debug.png"))
-        m_debugServerBatch = SpriteBatch()
+        junkTexture = Texture(Gdx.files.internal("entities/debug.png"))
+        debugServerBatch = SpriteBatch()
 
-        m_fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
+        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.borderColor = Color.ORANGE
         parameter.borderWidth = 0.2f
 
         parameter.size = 9
-        m_font = m_fontGenerator.generateFont(parameter)
-        m_font.color = Color.ORANGE
+        font = fontGenerator.generateFont(parameter)
+        font.color = Color.ORANGE
 
-        m_fontGenerator.dispose()
+        fontGenerator.dispose()
 
     }
 
     override fun processSystem() {
-        if (m_world == null || !m_clientNetworkSystem.connected) {
+        if (oreWorld == null || !clientNetworkSystem.connected) {
             return
         }
 
-        val playerid = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComponent = playerMapper.get(playerid)
-        val controllableComponent = controlMapper.get(playerid)
+        val playerid = tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val playerComponent = mPlayer.get(playerid)
+        val controllableComponent = mControl.get(playerid)
         //debug for forcing constant movement
         if (OreSettings.lockRight) {
             OreSettings.lockRight = false
@@ -152,51 +155,51 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         updateStandardDebugInfo()
 
-        m_batch.begin()
+        batch.begin()
 
         drawDebugInfoForEntityAtMouse(m_textYLeft)
         drawStandardDebugInfo()
 
-        m_batch.end()
+        batch.end()
 
-        if (m_renderDebugServer && false) {
+        if (renderDebugServer && false) {
             /*
-            m_debugServerBatch.setProjectionMatrix(m_world.m_camera.combined);
-            m_debugServerBatch.begin();
-            m_debugServerBatch.setColor(1, 0, 0, 0.5f);
-            ImmutableArray<Entity> entities = m_server.m_world.engine.getEntitiesFor(Family.all(SpriteComponent
+            debugServerBatch.setProjectionMatrix(oreWorld.m_camera.combined);
+            debugServerBatch.begin();
+            debugServerBatch.setColor(1, 0, 0, 0.5f);
+            ImmutableArray<Entity> entities = m_server.oreWorld.engine.getEntitiesFor(Family.all(SpriteComponent
             .class).get());
             for (int i = 0; i < entities.size(); ++i) {
-                SpriteComponent spriteComponent = spriteMapper.get(entities.get(i));
+                SpriteComponent spriteComponent = mSprite.get(entities.get(i));
 
-                m_debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth
+                debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth
                 () * 0.5f),
                         spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
                         spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
             }
 
-            m_debugServerBatch.end();
+            debugServerBatch.end();
             */
         }
 
-        if (m_renderDebugClient) {
-            m_debugServerBatch.projectionMatrix = m_world.m_camera.combined
-            m_debugServerBatch.begin()
-            m_debugServerBatch.color = Color.MAGENTA
+        if (renderDebugClient) {
+            debugServerBatch.projectionMatrix = oreWorld.m_camera.combined
+            debugServerBatch.begin()
+            debugServerBatch.color = Color.MAGENTA
 
             val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
             val entities = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java)).entities
 
             for (i in entities.indices) {
-                val spriteComponent = spriteMapper.get(entities.get(i))
+                val spriteComponent = mSprite.get(entities.get(i))
 
-                m_debugServerBatch.draw(m_junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
+                debugServerBatch.draw(junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
                                         spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
                                         spriteComponent.sprite.width,
                                         spriteComponent.sprite.height)
             }
 
-            m_debugServerBatch.end()
+            debugServerBatch.end()
         }
 
         GLProfiler.reset()
@@ -205,72 +208,72 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
 
     private fun drawStandardDebugInfo() {
-        m_font.draw(m_batch, m_fpsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, fpsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, m_frameTimeString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, frameTimeString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         //fixme
         //        if (m_server != null) {
-        m_font.draw(m_batch, m_frameTimeServerString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, frameTimeServerString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         //       }
 
-        m_font.draw(m_batch, m_guiDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, guiDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, m_guiRenderToggleString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, guiRenderToggleString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, m_tileRenderDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, tileRenderDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, m_networkSyncDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, networkSyncDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, m_spriteRenderDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, spriteRenderDebugString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, "F7 - system profiler toggle", TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, "F7 - system profiler toggle", TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         for (s in m_debugStrings) {
-            m_font.draw(m_batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+            font.draw(batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
             m_textYLeft -= TEXT_Y_SPACING
         }
         //extra spacing
         m_textYLeft -= TEXT_Y_SPACING
 
-        m_font.draw(m_batch, "tiles rendered: ${m_tileRenderSystem.debugTilesInViewCount}", TEXT_X_LEFT.toFloat(),
+        font.draw(batch, "tiles rendered: ${tileRenderSystem.debugTilesInViewCount}", TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, m_textureSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, textureSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, m_shaderSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, shaderSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
-        m_font.draw(m_batch, m_drawCallsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, drawCallsString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        val mousePos = m_world.mousePositionWorldCoords()
-        val x = m_world.blockXSafe(mousePos.x.toInt())
-        val y = m_world.blockYSafe(mousePos.y.toInt())
+        val mousePos = oreWorld.mousePositionWorldCoords()
+        val x = oreWorld.blockXSafe(mousePos.x.toInt())
+        val y = oreWorld.blockYSafe(mousePos.y.toInt())
 
         //fixme check x, y against world size, out of bounds errors
-        val blockType = m_world.blockType(x, y)
+        val blockType = oreWorld.blockType(x, y)
 
         //so we can get the enum/name of it
         val blockTypeName = OreBlock.nameOfBlockType(blockType)!!
 
-        val blockMeshType = m_world.blockMeshType(x, y)
-        val blockWallType = m_world.blockWallType(x, y)
+        val blockMeshType = oreWorld.blockMeshType(x, y)
+        val blockWallType = oreWorld.blockWallType(x, y)
 
-        val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+        val hasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
-        val damagedBlockHealth = m_clientBlockDiggingSystem.blockHealthAtIndex(x, y)
+        val damagedBlockHealth = clientBlockDiggingSystem.blockHealthAtIndex(x, y)
         val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
-        m_font.draw(m_batch, "blockHealth: $damagedBlockHealth / $totalBlockHealth", TEXT_X_LEFT.toFloat(),
+        font.draw(batch, "blockHealth: $damagedBlockHealth / $totalBlockHealth", TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
@@ -278,32 +281,32 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
         when (blockType) {
             OreBlock.BlockType.Dirt.oreValue -> if (hasGrass) {
-                texture = m_tileRenderSystem.m_grassBlockMeshes.get(blockMeshType.toInt())
+                texture = tileRenderSystem.grassBlockMeshes.get(blockMeshType.toInt())
             } else {
-                texture = m_tileRenderSystem.m_dirtBlockMeshes.get(blockMeshType.toInt())
+                texture = tileRenderSystem.dirtBlockMeshes.get(blockMeshType.toInt())
             }
 
-            OreBlock.BlockType.Stone.oreValue -> texture = m_tileRenderSystem.m_stoneBlockMeshes.get(
+            OreBlock.BlockType.Stone.oreValue -> texture = tileRenderSystem.stoneBlockMeshes.get(
                     blockMeshType.toInt())
         }
 
-        val lightLevel = m_world.blockLightLevel(x, y)
+        val lightLevel = oreWorld.blockLightLevel(x, y)
         val s = "tile($x, $y), block type: ${blockTypeName}, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
 
-        m_font.draw(m_batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         val clientAspectSubscriptionManager = getWorld().aspectSubscriptionManager
         val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
         val clientEntities = clientEntitySubscription.entities
 
-        m_font.draw(m_batch, "client entities: ${clientEntities.size()}", TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
+        font.draw(batch, "client entities: ${clientEntities.size()}", TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        assert(m_world.m_server != null)
+        assert(oreWorld.m_server != null)
         //debug text only gets run on client. but this block can only be run when we have direct
         //access to the server (meaning he hosted it and is playing it)
-        if (m_world.m_server != null) {
+        if (oreWorld.m_server != null) {
 
             /*
             //fixme this has multithreading issues, obviously
@@ -312,53 +315,53 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             //object positions below. but there may be another way (like making a special system for it,
             //that will avoid interpolation..or something)
             AspectSubscriptionManager aspectSubscriptionManager =
-                    m_world.m_server.m_world.m_artemisWorld.getAspectSubscriptionManager();
+                    oreWorld.m_server.oreWorld.m_artemisWorld.getAspectSubscriptionManager();
             EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all());
             IntBag serverEntities = entitySubscription.getEntities();
-            m_font.draw(m_batch, "server entities: " + serverEntities.size(), TEXT_X_LEFT, m_textYLeft);
+            font.draw(batch, "server entities: " + serverEntities.size(), TEXT_X_LEFT, m_textYLeft);
             m_textYLeft -= TEXT_Y_SPACING;
             */
 
         }
 
-        m_font.draw(m_batch, "ping: ${m_clientNetworkSystem.m_clientKryo.returnTripTime}", TEXT_X_LEFT.toFloat(),
+        font.draw(batch, "ping: ${clientNetworkSystem.clientKryo.returnTripTime}", TEXT_X_LEFT.toFloat(),
                     m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
     }
 
     private fun updateStandardDebugInfo() {
-        if (m_frameTimer.milliseconds() > 300) {
-            m_frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
-            m_fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
-            m_textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
-            m_shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
-            m_drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
+        if (frameTimer.milliseconds() > 300) {
+            frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
+            fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
+            textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
+            shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
+            drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
 
             //fixme
             //            if (m_server != null) {
-            m_frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
+            frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
             //           }
 
-            m_guiDebugString = "F12 - gui debug (${m_guiDebug.enabledString()})"
-            m_guiRenderToggleString = "F11 - gui render (${m_world.m_client!!.m_renderGui.enabledString()})"
-            m_tileRenderDebugString = "F10 - tile render (${m_tileRenderSystem.debugRenderTiles})"
+            guiDebugString = "F12 - gui debug (${guiDebug.enabledString()})"
+            guiRenderToggleString = "F11 - gui render (${oreWorld.m_client!!.m_renderGui.enabledString()})"
+            tileRenderDebugString = "F10 - tile render (${tileRenderSystem.debugRenderTiles})"
 
-            m_networkSyncDebugString = """
+            networkSyncDebugString = """
             |F9 - server sprite debug render.
-            |Client (${m_renderDebugClient.enabledString()})
-            |Server: (${m_renderDebugServer.enabledString()})
+            |Client (${renderDebugClient.enabledString()})
+            |Server: (${renderDebugServer.enabledString()})
             """.toSingleLine()
 
-            m_spriteRenderDebugString = "F8 - client sprite debug render (${m_renderDebugClient.enabledString()})"
-            m_lightingRendererDebugString = "F7 - tile lighting renderer debug (${m_tileRenderSystem.debugRenderTileLighting.enabledString()})"
+            spriteRenderDebugString = "F8 - client sprite debug render (${renderDebugClient.enabledString()})"
+            lightingRendererDebugString = "F7 - tile lighting renderer debug (${tileRenderSystem.debugRenderTileLighting.enabledString()})"
 
-            m_frameTimer.reset()
+            frameTimer.reset()
         }
     }
 
     private fun drawDebugInfoForEntityAtMouse(textY: Int) {
-        val mousePos = m_world.mousePositionWorldCoords()
+        val mousePos = oreWorld.mousePositionWorldCoords()
 
         val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
@@ -388,7 +391,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
             val entityBoxed = world.getEntity(currentEntity)
 
-            val entityTag = m_tagManager.getTagNullable(entityBoxed)
+            val entityTag = tagManager.getTagNullable(entityBoxed)
 
             //could be placement overlay, but we don't want this. skip over.
             if (entityTag != null) {
@@ -397,53 +400,53 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
                 }
             }
 
-            spriteComponent = spriteMapper.getNullable(currentEntity)
+            spriteComponent = mSprite.opt(currentEntity)
 
             val rectangle = spriteComponent!!.sprite.rect
 
             if (rectangle.contains(mousePos)) {
-                airComponent = airMapper.getNullable(currentEntity)
+                airComponent = mAir.opt(currentEntity)
                 components.add(airComponent)
 
-                blockComponent = blockMapper.getNullable(currentEntity)
+                blockComponent = mBlock.opt(currentEntity)
                 components.add(blockComponent)
 
-                controllableComponent = controlMapper.getNullable(currentEntity)
+                controllableComponent = mControl.opt(currentEntity)
                 components.add(controllableComponent)
 
-                floraComponent = floraMapper.getNullable(currentEntity)
+                floraComponent = mFlora.opt(currentEntity)
                 components.add(floraComponent)
 
-                healthComponent = healthMapper.getNullable(currentEntity)
+                healthComponent = mHealth.opt(currentEntity)
                 components.add(healthComponent)
 
-                itemComponent = itemMapper.getNullable(currentEntity)
+                itemComponent = mItem.opt(currentEntity)
                 components.add(itemComponent)
 
-                jumpComponent = jumpMapper.getNullable(currentEntity)
+                jumpComponent = mJump.opt(currentEntity)
                 components.add(jumpComponent)
 
-                lightComponent = lightMapper.getNullable(currentEntity)
+                lightComponent = mLight.opt(currentEntity)
                 components.add(lightComponent)
 
-                playerComponent = playerMapper.getNullable(currentEntity)
+                playerComponent = mPlayer.opt(currentEntity)
                 components.add(playerComponent)
 
-                powerConsumerComponent = powerConsumerMapper.getNullable(currentEntity)
+                powerConsumerComponent = mPowerConsumer.opt(currentEntity)
                 components.add(powerConsumerComponent)
 
-                powerDeviceComponent = powerDeviceMapper.getNullable(currentEntity)
+                powerDeviceComponent = mPowerDevice.opt(currentEntity)
                 components.add(powerDeviceComponent)
 
-                powerGeneratorComponent = powerGeneratorMapper.getNullable(currentEntity)
+                powerGeneratorComponent = mPowerGenerator.opt(currentEntity)
                 components.add(powerGeneratorComponent)
 
                 components.add(spriteComponent)
 
-                toolComponent = toolMapper.getNullable(currentEntity)
+                toolComponent = mTool.opt(currentEntity)
                 components.add(toolComponent)
 
-                velocityComponent = velocityMapper.getNullable(currentEntity)
+                velocityComponent = mVelocity.opt(currentEntity)
                 components.add(velocityComponent)
 
                 entityUnderMouse = currentEntity
@@ -451,7 +454,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
             }
         }
 
-        m_font.draw(m_batch, "entity id: $entityUnderMouse", TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
+        font.draw(batch, "entity id: $entityUnderMouse", TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
         m_textYRight -= TEXT_Y_SPACING
 
         val builder = StringBuilder()
@@ -462,27 +465,27 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
             builder.append(c.toString())
         }
-        m_font.draw(m_batch, builder.toString(), TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
+        font.draw(batch, builder.toString(), TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
 
     }
 
     companion object {
-        internal var m_frameTimer = OreTimer()
+        internal var frameTimer = OreTimer()
 
-        internal var m_frameTimeString = ""
-        internal var m_frameTimeServerString = ""
-        internal var m_fpsString = ""
-        internal var m_textureSwitchesString = ""
-        internal var m_shaderSwitchesString = ""
-        internal var m_drawCallsString = ""
-        internal var m_guiDebugString = ""
-        internal var m_tileRenderDebugString = ""
-        internal var m_lightingRendererDebugString = ""
-        internal var m_networkSyncDebugString = ""
-        internal var m_spriteRenderDebugString = ""
-        internal var m_guiRenderToggleString = ""
+        internal var frameTimeString = ""
+        internal var frameTimeServerString = ""
+        internal var fpsString = ""
+        internal var textureSwitchesString = ""
+        internal var shaderSwitchesString = ""
+        internal var drawCallsString = ""
+        internal var guiDebugString = ""
+        internal var tileRenderDebugString = ""
+        internal var lightingRendererDebugString = ""
+        internal var networkSyncDebugString = ""
+        internal var spriteRenderDebugString = ""
+        internal var guiRenderToggleString = ""
 
-        internal var m_decimalFormat = DecimalFormat("#.")
+        internal var decimalFormat = DecimalFormat("#.")
     }
 
 }
