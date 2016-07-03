@@ -2,8 +2,13 @@ apply plugin: "java"
 apply plugin: "artemis"
 
 sourceCompatibility = 1.8
-sourceSets.main.java.srcDirs = ["src/"]
 
+sourceSets.main.java.srcDirs = ["src/"]
+sourceSets.main.kotlin.srcDirs = ["src/"]
+sourceSets.main.resources.srcDirs = ["assets/"]
+sourceSets.test.java.srcDirs = ["test/"]
+sourceSets.test.kotlin.srcDirs = ["test/"]
+sourceSets.test.resources.srcDirs = ["assets/"]
 
 project.ext.mainClassName = "com.ore.infinium.desktop.DesktopLauncher"
 project.ext.assetsDir = new File("../core/assets");
@@ -73,17 +78,5 @@ dist.dependsOn classes
 eclipse {
     project {
         name = appName + "-desktop"
-        linkedResource name: 'assets', type: '2', location: 'PARENT-1-PROJECT_LOC/core/assets'
-    }
-}
-
-task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
-    doLast {
-        def classpath = new XmlParser().parse(file(".classpath"))
-        new Node(classpath, "classpathentry", [kind: 'src', path: 'assets']);
-        def writer = new FileWriter(file(".classpath"))
-        def printer = new XmlNodePrinter(new PrintWriter(writer))
-        printer.setPreserveWhitespace(true)
-        printer.print(classpath)
     }
 }

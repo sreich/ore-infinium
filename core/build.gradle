@@ -5,8 +5,13 @@ apply plugin: "artemis"
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = ["src/", 'src/main/kotlin']
+sourceSets.main.java.srcDirs = ["src/"]
+sourceSets.main.kotlin.srcDirs = ["src/"]
+sourceSets.main.resources.srcDirs = ["assets/"]
 sourceSets.test.java.srcDirs = ["test/"]
+sourceSets.test.kotlin.srcDirs = ["test/"]
+sourceSets.test.resources.srcDirs = ["assets/"]
+
 test.ignoreFailures = true
 
 eclipse.project {
