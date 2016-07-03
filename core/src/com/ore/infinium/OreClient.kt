@@ -69,6 +69,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private lateinit var jumpMapper: ComponentMapper<JumpComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
+    private lateinit var deviceMapper: ComponentMapper<PowerDeviceComponent>
 
     private lateinit var m_clientNetworkSystem: ClientNetworkSystem
     private lateinit var m_tagManager: TagManager
@@ -97,6 +98,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
     var m_hotbarInventory: Inventory? = null
     private var m_inventory: Inventory? = null
+    private var m_deviceControlPanel: DeviceControlPanel? = null
 
     private val m_viewport: ScreenViewport? = null
 
@@ -216,7 +218,15 @@ class OreClient : ApplicationListener, InputProcessor {
     fun handleSecondaryAttack() {
         //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
         //or do we want a separate key for that?
-        //m_world.at
+        val mouse = m_world!!.mousePositionWorldCoords()
+        val entity = m_world!!.entityAtPosition(mouse) ?: return
+
+        attemptActivateDeviceControlPanel(entity)
+    }
+
+    private fun attemptActivateDeviceControlPanel(entity: Int) {
+        //todo request from server populating control panel (with items within it)
+        val deviceComp = deviceMapper.get(entity) ?: return
     }
 
     private fun attemptToolAttack(playerComp: PlayerComponent,
@@ -258,7 +268,7 @@ class OreClient : ApplicationListener, InputProcessor {
         val entityToAttack = entities.filter { e ->
             val spriteComp = spriteMapper.get(e)
             //ignore players, we don't attack them
-            !playerMapper.has(e) && !shouldIgnoreEntityTag(e) &&
+            !playerMapper.has(e) && !m_world!!.shouldIgnoreClientEntityTag(e) &&
                     spriteComp.sprite.rect.contains(mouse) && canAttackEntity(e)
         }.forEach { e ->
             m_clientNetworkSystem.sendEntityAttack(e)
@@ -278,20 +288,6 @@ class OreClient : ApplicationListener, InputProcessor {
         }
 
         return true
-    }
-
-    /**
-     * @return true if the entity tag should be ignore for attacks and stuff.
-     * excludes stuff like main player, item overlays, crosshairs, ...
-     */
-    private fun shouldIgnoreEntityTag(entity: Int): Boolean {
-        val tag = m_tagManager.getTag(m_world!!.m_artemisWorld.getEntity(entity))
-        when (tag) {
-            OreWorld.s_itemPlacementOverlay,
-            OreWorld.s_crosshair,
-            OreWorld.s_mainPlayer -> return true
-            else -> return false
-        }
     }
 
     /**

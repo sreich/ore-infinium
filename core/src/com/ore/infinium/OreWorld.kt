@@ -44,10 +44,7 @@ import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
-import com.ore.infinium.util.floor
-import com.ore.infinium.util.getNullable
-import com.ore.infinium.util.indices
-import com.ore.infinium.util.nextInt
+import com.ore.infinium.util.*
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -68,6 +65,7 @@ class OreWorld
 (var m_client: OreClient?, //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
         // them alone.
  var m_server: OreServer?, var worldInstanceType: OreWorld.WorldInstanceType) {
+    private lateinit var m_tagManager: TagManager
 
     private lateinit var playerMapper: ComponentMapper<PlayerComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
@@ -604,19 +602,19 @@ class OreWorld
         return OreBlock.blockAttributes[type]!!.collision == OreBlock.BlockAttributes.Collision.True
     }
 
-    private fun entityAtPosition(pos: Vector2): Int? {
-/*
+    fun entityAtPosition(pos: Vector2): Int? {
+        val entitySubscription = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
+        val entities = entitySubscription.entities
 
         var spriteComponent: SpriteComponent
-        val entities = entityIds
         for (i in entities.indices) {
             val currentEntity = entities[i]
-            val entityBoxed = world.getEntity(currentEntity)
+            val entityBoxed = m_artemisWorld.getEntity(currentEntity)
 
             val entityTag = m_tagManager.getTagNullable(entityBoxed)
 
             //could be placement overlay, but we don't want this. skip over.
-            if (entityTag != null && entityTag == OreWorld.s_itemPlacementOverlay) {
+            if (shouldIgnoreClientEntityTag(currentEntity)) {
                 continue
             }
 
@@ -629,10 +627,23 @@ class OreWorld
             }
         }
 
-    */
         return null
     }
 
+    /**
+     * @return true if the entity tag should be ignore for attacks and stuff.
+     * excludes stuff like main player, item overlays, crosshairs, for the client...
+     */
+    fun shouldIgnoreClientEntityTag(entity: Int): Boolean {
+        val tag = m_tagManager.getTag(m_artemisWorld.getEntity(entity)) ?: return false
+
+        when (tag) {
+            OreWorld.s_itemPlacementOverlay,
+            OreWorld.s_crosshair,
+            OreWorld.s_mainPlayer -> return true
+            else -> return false
+        }
+    }
 
     /**
      * Safely shutdown the world, disposing of all the systems
