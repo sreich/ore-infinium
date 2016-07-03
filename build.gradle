@@ -68,7 +68,7 @@ task wrapper(type: Wrapper) {
     gradleVersion = "2.13"
 }
 
-allprojects {
+subprojects {
 
     apply plugin: "java"
     apply plugin: "kotlin"
@@ -204,8 +204,3 @@ project(":matrix") {
     }
     build.finalizedBy generateMatrix
 }
-
-tasks.eclipse.doLast {
-    delete ".project"
-}
-
