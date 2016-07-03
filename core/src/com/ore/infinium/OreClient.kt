@@ -52,6 +52,8 @@ import java.io.IOException
 class OreClient : ApplicationListener, InputProcessor {
 
     var m_leftMouseDown: Boolean = false
+    var m_rightMouseDown: Boolean = false
+
     lateinit var viewport: StretchViewport
     var m_world: OreWorld? = null
 
@@ -589,7 +591,13 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        m_leftMouseDown = true
+        if (button == Input.Buttons.LEFT) {
+            m_leftMouseDown = true
+        }
+
+        if (button == Input.Buttons.RIGHT) {
+            m_rightMouseDown = true
+        }
 
         if (m_world != null) {
             return m_world!!.touchDown(screenX, screenY, pointer, button)
@@ -601,7 +609,14 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-        m_leftMouseDown = false
+        if (button == Input.Buttons.LEFT) {
+            m_leftMouseDown = false
+        }
+
+        if (button == Input.Buttons.RIGHT) {
+            m_rightMouseDown = false
+        }
+
         if (m_world != null) {
             return m_world!!.touchUp(screenX, screenY, pointer, button)
         }
