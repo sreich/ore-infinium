@@ -604,6 +604,36 @@ class OreWorld
         return OreBlock.blockAttributes[type]!!.collision == OreBlock.BlockAttributes.Collision.True
     }
 
+    private fun entityAtPosition(pos: Vector2): Int? {
+/*
+
+        var spriteComponent: SpriteComponent
+        val entities = entityIds
+        for (i in entities.indices) {
+            val currentEntity = entities[i]
+            val entityBoxed = world.getEntity(currentEntity)
+
+            val entityTag = m_tagManager.getTagNullable(entityBoxed)
+
+            //could be placement overlay, but we don't want this. skip over.
+            if (entityTag != null && entityTag == OreWorld.s_itemPlacementOverlay) {
+                continue
+            }
+
+            spriteComponent = spriteMapper.get(currentEntity)
+
+            val rectangle = spriteComponent.sprite.rect
+
+            if (rectangle.contains(pos)) {
+                return currentEntity
+            }
+        }
+
+    */
+        return null
+    }
+
+
     /**
      * Safely shutdown the world, disposing of all the systems
      * Each system should be designed such that it can safely shut itself down without

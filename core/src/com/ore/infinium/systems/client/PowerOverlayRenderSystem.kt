@@ -30,8 +30,6 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Rectangle
-import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -39,8 +37,6 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.util.getTagNullable
-import com.ore.infinium.util.indices
 
 @Wire
 class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
@@ -131,35 +127,6 @@ class PowerOverlayRenderSystem(//   public TextureAtlas m_atlas;
     }
 
     //todo sufficient until we get a spatial hash or whatever
-
-    private fun entityAtPosition(pos: Vector2): Int? {
-
-        var spriteComponent: SpriteComponent
-        val entities = entityIds
-        for (i in entities.indices) {
-            val currentEntity = entities[i]
-            val entityBoxed = world.getEntity(currentEntity)
-
-            val entityTag = m_tagManager.getTagNullable(entityBoxed)
-
-            //could be placement overlay, but we don't want this. skip over.
-            if (entityTag != null && entityTag == OreWorld.s_itemPlacementOverlay) {
-                continue
-            }
-
-            spriteComponent = spriteMapper.get(currentEntity)
-
-            val rectangle = Rectangle(spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
-                                      spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
-                                      spriteComponent.sprite.width, spriteComponent.sprite.height)
-
-            if (rectangle.contains(pos)) {
-                return currentEntity
-            }
-        }
-
-        return null
-    }
 
     /**
      * Process the system.

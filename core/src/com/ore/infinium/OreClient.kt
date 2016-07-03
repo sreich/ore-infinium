@@ -216,7 +216,7 @@ class OreClient : ApplicationListener, InputProcessor {
     fun handleSecondaryAttack() {
         //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
         //or do we want a separate key for that?
-
+        //m_world.at
     }
 
     private fun attemptToolAttack(playerComp: PlayerComponent,

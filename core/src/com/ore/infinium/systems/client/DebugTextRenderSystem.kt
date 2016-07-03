@@ -38,7 +38,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.profiling.GLProfiler
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.StringBuilder
 import com.ore.infinium.OreBlock
@@ -400,9 +399,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val m_world: Ore
 
             spriteComponent = spriteMapper.getNullable(currentEntity)
 
-            val rectangle = Rectangle(spriteComponent!!.sprite.x - spriteComponent.sprite.width * 0.5f,
-                                      spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
-                                      spriteComponent.sprite.width, spriteComponent.sprite.height)
+            val rectangle = spriteComponent!!.sprite.rect
 
             if (rectangle.contains(mousePos)) {
                 airComponent = airMapper.getNullable(currentEntity)
