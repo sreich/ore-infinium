@@ -53,10 +53,14 @@ class InputSystem(private val m_camera: OrthographicCamera, private val m_world:
     private lateinit var m_clientNetworkSystem: ClientNetworkSystem
 
     override fun processSystem() {
-        if (m_world.m_client!!.m_leftMouseDown && !m_powerOverlayRenderSystem.overlayVisible &&
-                m_clientNetworkSystem.connected) {
+        if (m_powerOverlayRenderSystem.overlayVisible || !m_clientNetworkSystem.connected) {
+            return
+        }
 
-            m_world.m_client!!.handleLeftMousePrimaryAttack()
+        if (m_world.m_client!!.m_leftMouseDown) {
+            m_world.m_client!!.handlePrimaryAttack()
+        } else if (m_world.m_client!!.m_rightMouseDown) {
+            m_world.m_client!!.handleSecondaryAttack()
         }
     }
 

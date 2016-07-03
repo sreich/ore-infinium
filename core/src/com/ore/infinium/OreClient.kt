@@ -172,7 +172,7 @@ class OreClient : ApplicationListener, InputProcessor {
         hostAndJoin()
     }
 
-    fun handleLeftMousePrimaryAttack() {
+    fun handlePrimaryAttack() {
         val mouseWorldCoords = m_world!!.mousePositionWorldCoords()
 
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
@@ -213,6 +213,12 @@ class OreClient : ApplicationListener, InputProcessor {
         }
     }
 
+    fun handleSecondaryAttack() {
+        //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
+        //or do we want a separate key for that?
+
+    }
+
     private fun attemptToolAttack(playerComp: PlayerComponent,
                                   equippedToolComp: ToolComponent,
                                   mouseWorldCoords: Vector2) {
@@ -223,10 +229,10 @@ class OreClient : ApplicationListener, InputProcessor {
 
             playerComp.attackLastTick = currentMillis
 
-            when (equippedToolComp.type ) {
+            when (equippedToolComp.type) {
                 ToolComponent.ToolType.Bucket -> liquidGunAttackAndSend(mouseWorldCoords)
 
-                //for attacking like trees and stuff. likely needs a much better system designed later on, as it evolves..
+            //for attacking like trees and stuff. likely needs a much better system designed later on, as it evolves..
                 else ->
                     attemptToolAttackOnAnEntityAndSend(mouseWorldCoords)
             }
@@ -236,8 +242,9 @@ class OreClient : ApplicationListener, InputProcessor {
     private fun liquidGunAttackAndSend(mouseWorldCoords: Vector2) {
         //todo play sound immediately, then send attack command
 
-        m_clientNetworkSystem.sendEquippedItemAttack(_attackType = Network.Client.PlayerEquippedItemAttack.ItemAttackType.Primary,
-                                                     _attackPositionWorldCoords = mouseWorldCoords)
+        m_clientNetworkSystem.sendEquippedItemAttack(
+                _attackType = Network.Client.PlayerEquippedItemAttack.ItemAttackType.Primary,
+                _attackPositionWorldCoords = mouseWorldCoords)
     }
 
     private fun attemptToolAttackOnAnEntityAndSend(mouse: Vector2) {
@@ -266,9 +273,9 @@ class OreClient : ApplicationListener, InputProcessor {
     private fun canAttackEntity(entityId: Int): Boolean {
         val itemComp = itemMapper.getNullable(entityId) ?: return false
         //don't let them attack dropped items, makes no sense
-            if (itemComp.state == ItemComponent.State.DroppedInWorld) {
-                return false
-            }
+        if (itemComp.state == ItemComponent.State.DroppedInWorld) {
+            return false
+        }
 
         return true
     }
@@ -683,7 +690,7 @@ class OreClient : ApplicationListener, InputProcessor {
         playerComponent.inventory = m_inventory
 
         m_hotbarView = HotbarInventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
-                m_world!!)
+                                           m_world!!)
         m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
         m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)
