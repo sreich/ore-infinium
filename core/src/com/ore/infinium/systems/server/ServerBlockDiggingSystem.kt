@@ -25,26 +25,24 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
-import com.artemis.managers.TagManager
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.TimeUtils
-import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
 import com.ore.infinium.systems.GameTickSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
+import com.ore.infinium.util.opt
 
 @Wire(failOnNull = false)
-class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : KBaseSystem() {
+class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mTool = mapper<ToolComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mTool by mapper<ToolComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
     private val tileLightingSystem by system<TileLightingSystem>()

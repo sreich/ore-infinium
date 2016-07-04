@@ -25,14 +25,15 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.artemis.utils.IntBag
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIteratingSystem
 import com.ore.infinium.systems.SpatialSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
 
 @Wire(failOnNull = false)
@@ -49,10 +50,10 @@ import com.ore.infinium.util.indices
  * commands
 
  */
-class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : KIteratingSystem() {
+class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private val mSprite = require<SpriteComponent>()
-    private val mPlayer = mapper<PlayerComponent>()
+    private val mSprite by require<SpriteComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
     private val spatialSystem by system<SpatialSystem>()

@@ -38,10 +38,10 @@ import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.opt
 import com.ore.infinium.util.indices
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -50,14 +50,14 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Handles the network side of things, for the client
  */
 @Wire
-class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer: OreServer) : KBaseSystem() {
+class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer: OreServer) : BaseSystem() {
 
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mBlock = mapper<BlockComponent>()
-    private val mHealth = mapper<HealthComponent>()
-    private val mTool = mapper<ToolComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mBlock by mapper<BlockComponent>()
+    private val mHealth by mapper<HealthComponent>()
+    private val mTool by mapper<ToolComponent>()
 
     private val serverBlockDiggingSystem by system<ServerBlockDiggingSystem>()
     private val serverNetworkEntitySystem by system<ServerNetworkEntitySystem>()
@@ -626,7 +626,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      * @param y
      */
     fun sendSparseBlockBroadcast(x: Int, y: Int) {
-        throw NotImplementedException()
+        throw UnsupportedOperationException()
     }
 
     /**

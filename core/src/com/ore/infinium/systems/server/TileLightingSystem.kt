@@ -24,13 +24,13 @@ SOFTWARE.
 
 package com.ore.infinium.systems.server
 
+import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
-import com.ore.infinium.kartemis.KBaseSystem
 
 @Wire
-class TileLightingSystem(private val oreWorld: OreWorld) : KBaseSystem() {
+class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private var initialized = false
 

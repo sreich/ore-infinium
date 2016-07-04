@@ -29,20 +29,4 @@ import com.artemis.Component
 class LightComponent : Component() {
 
     var radius = 10.0f
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param lightComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(lightComponent: LightComponent) {
-        radius = lightComponent.radius
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.radius: $radius"""
-    }
 }

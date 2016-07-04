@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IntervalSystem
@@ -34,14 +33,15 @@ import com.ore.infinium.LoadedViewport
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIntervalSystem
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import java.util.*
 
 @Wire
 class TileTransitionSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)//every n ms
-        : KIntervalSystem(600.0f / 1000.0f) {
+        : IntervalSystem(Aspect.all(), 600.0f / 1000.0f) {
 
-    private val mPlayer = mapper<PlayerComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
 
     private val tagManager by system<TagManager>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()

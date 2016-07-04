@@ -25,24 +25,24 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.Inventory
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
 
 @Wire
-class EntityOverlaySystem(private val oreWorld: OreWorld) : KBaseSystem() {
+class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
 
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mBlock = mapper<BlockComponent>()
-    private val mTool = mapper<ToolComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mBlock by mapper<BlockComponent>()
+    private val mTool by mapper<ToolComponent>()
 
     private val powerOverlayRenderSystem by system<PowerOverlayRenderSystem>()
     private val tagManager by system<TagManager>()
@@ -130,7 +130,7 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : KBaseSystem() {
             return true
         }
 
-        var entityToolComponent = mTool.opt(equippedPrimaryEntity)
+        val entityToolComponent = mTool.opt(equippedPrimaryEntity)
 
         if (entityToolComponent != null) {
             if (entityToolComponent.type == ToolComponent.ToolType.Drill) {

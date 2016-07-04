@@ -26,6 +26,7 @@ package com.ore.infinium.systems.client
 
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
+import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -36,19 +37,18 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIteratingSystem
-import com.ore.infinium.kartemis.allOf
-import com.ore.infinium.util.getTagNullable
-import com.ore.infinium.util.indices
+import com.ore.infinium.util.allOf
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 
 @Wire
 class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage: Stage)
-        : KIteratingSystem(allOf(PowerDeviceComponent::class)), RenderSystemMarker {
+        : IteratingSystem(allOf(PowerDeviceComponent::class)), RenderSystemMarker {
 
     var overlayVisible = false
     private lateinit var batch: SpriteBatch
 
-    private val mSprite = mapper<SpriteComponent>()
+    private val mSprite by mapper<SpriteComponent>()
 
     private val entityOverlaySystem by system<EntityOverlaySystem>()
     private val tagManager by system<TagManager>()

@@ -38,6 +38,8 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.TileLightingSystem
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 
 @Wire
 class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
@@ -52,10 +54,10 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
     private val batch: SpriteBatch
 
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private val mSprite by mapper<SpriteComponent>()
 
-    private lateinit var clientNetworkSystem: ClientNetworkSystem
-    private lateinit var tagManager: TagManager
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
+    private val tagManager by system<TagManager>()
 
     // <byte mesh type, string texture name>
     var dirtBlockMeshes: IntMap<String>
@@ -112,7 +114,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         }
 
         batch.projectionMatrix = m_camera.combined
-        val sprite = spriteMapper.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
+        val sprite = mSprite.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
 
         val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
         //new Vector3(100, 200, 0);//positionComponent->position();

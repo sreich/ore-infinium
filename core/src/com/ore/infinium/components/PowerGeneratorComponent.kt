@@ -30,18 +30,7 @@ import com.artemis.Component
  * Any device that can generate some amount of power on a circuit
  */
 class PowerGeneratorComponent : Component() {
-
     var powerSupplyRate: Int = 0
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param component
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(component: PowerGeneratorComponent) {
-        powerSupplyRate = component.powerSupplyRate
-    }
 
     /**
      * determines if the item component is the same, in other words,
@@ -49,11 +38,5 @@ class PowerGeneratorComponent : Component() {
      */
     fun canCombineWith(otherComp: PowerGeneratorComponent): Boolean {
         return this.powerSupplyRate == otherComp.powerSupplyRate
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.powerSupplyRate: $powerSupplyRate"""
     }
 }

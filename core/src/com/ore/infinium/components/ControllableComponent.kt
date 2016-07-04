@@ -26,23 +26,13 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.math.Vector2
+import com.ore.infinium.util.CopyableComponent
+import com.ore.infinium.util.DoNotCopy
 
-class ControllableComponent : Component() {
-    var desiredDirection = Vector2()
+class ControllableComponent : Component(), CopyableComponent<ControllableComponent> {
+    @DoNotCopy var desiredDirection = Vector2()
 
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param controllableComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(controllableComponent: ControllableComponent) {
-        desiredDirection.set(controllableComponent.desiredDirection)
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.desiredDirection: $desiredDirection"""
+    override fun copyFrom(component: ControllableComponent) {
+        desiredDirection.set(component.desiredDirection)
     }
 }

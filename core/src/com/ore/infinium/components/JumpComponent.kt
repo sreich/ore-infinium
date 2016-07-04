@@ -26,6 +26,8 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.ore.infinium.OreTimer
+import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.DoNotPrint
 
 class JumpComponent : Component() {
 
@@ -36,27 +38,5 @@ class JumpComponent : Component() {
     var jumpRequested: Boolean = false
     //ms, interval between allowed jumps
     var jumpInterval = 400
-    @Transient var jumpTimer = OreTimer()
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param jumpComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(jumpComponent: JumpComponent) {
-        canJump = jumpComponent.canJump
-        shouldJump = jumpComponent.shouldJump
-        jumpRequested = jumpComponent.jumpRequested
-        jumpInterval = jumpComponent.jumpInterval
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.canJump: $canJump
-        $c.shouldJump: $shouldJump
-        $c.jumpRequested: $jumpRequested
-        $c.jumpInterval: $jumpInterval"""
-    }
+    @DoNotCopy @DoNotPrint @Transient var jumpTimer = OreTimer()
 }

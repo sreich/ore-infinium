@@ -25,6 +25,7 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.util.DoNotCopy
 
 /**
  * A power device is anything that can reside on a circuit. Whether a consumer
@@ -32,17 +33,7 @@ import com.artemis.Component
  */
 class PowerDeviceComponent : Component() {
     //todo..or do we want an enum that has a couple states (on/off, disabled/broken?)
-    var running = false
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param component
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(component: PowerDeviceComponent) {
-        //we don't copy over circuits or wires, that's for sure.
-    }
+    @DoNotCopy var running = false
 
     /**
      * determines if the item component is the same, in other words,
@@ -50,11 +41,5 @@ class PowerDeviceComponent : Component() {
      */
     fun canCombineWith(otherComp: PowerDeviceComponent): Boolean {
         return true //this.name == otherComp.name
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.running: $running"""
     }
 }

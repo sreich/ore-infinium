@@ -46,7 +46,7 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.opt
 
 @Wire
 class InventoryView(stage: Stage,
@@ -182,7 +182,7 @@ class InventoryView(stage: Stage,
 
     fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
         val region: TextureRegion?
-        if (blockMapper.getNullable(itemEntity) != null) {
+        if (blockMapper.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
                     "$textureName-00")

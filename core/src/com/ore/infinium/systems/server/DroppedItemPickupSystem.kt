@@ -25,25 +25,27 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
+import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIteratingSystem
 import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
+import com.ore.infinium.util.ifPresent
 import com.ore.infinium.util.forEach
-import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.rect
 
 @Wire(failOnNull = false)
-class DroppedItemPickupSystem(private val oreWorld: OreWorld) : KIteratingSystem() {
+class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private val mPlayer = require<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
+    private val mPlayer by require<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()

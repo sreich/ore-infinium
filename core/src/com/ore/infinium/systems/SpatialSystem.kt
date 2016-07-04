@@ -24,12 +24,17 @@ SOFTWARE.
 
 package com.ore.infinium.systems
 
+import com.artemis.Aspect
 import com.artemis.annotations.Wire
+import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIteratingSystem
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import net.mostlyoriginal.api.utils.QuadTree
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
+import com.ore.infinium.util.ifPresent
 
 @Wire(failOnNull = false)
 /**
@@ -38,14 +43,14 @@ import net.mostlyoriginal.api.utils.QuadTree
 
  * for now this is only used by the server, so assumptions can be made based on that.
  */
-class SpatialSystem(private val oreWorld: OreWorld) : KIteratingSystem() {
+class SpatialSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private val mSprite = require<SpriteComponent>()
-    // private val mPlayer = mapper<PlayerComponent>()
-    // private val mControl = mapper<ControllableComponent>()
-    private val mItem = mapper<ItemComponent>()
-    // private val mVelocity = mapper<VelocityComponent>()
-    // private val mJump = mapper<JumpComponent>()
+    private val mSprite by require<SpriteComponent>()
+    // private val mPlayer by mapper<PlayerComponent>()
+    // private val mControl by mapper<ControllableComponent>()
+    private val mItem by mapper<ItemComponent>()
+    // private val mVelocity by mapper<VelocityComponent>()
+    // private val mJump by mapper<JumpComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
 

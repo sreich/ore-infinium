@@ -25,22 +25,22 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreClient
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
 import com.ore.infinium.systems.GameTickSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
+import com.ore.infinium.util.opt
 
 @Wire(failOnNull = false)
-class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_client: OreClient) : KBaseSystem() {
+class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_client: OreClient) : BaseSystem() {
 
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mTool = mapper<ToolComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mTool by mapper<ToolComponent>()
 
     private val gameTickSystem by system<GameTickSystem>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()

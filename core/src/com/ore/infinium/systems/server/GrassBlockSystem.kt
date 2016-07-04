@@ -25,14 +25,15 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
 import com.ore.infinium.systems.PlayerSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
 
 /**
@@ -40,15 +41,15 @@ import com.ore.infinium.util.indices
  * This is server only.
  */
 @Wire
-class GrassBlockSystem(private val oreWorld: OreWorld) : KBaseSystem() {
+class GrassBlockSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mVelocity = mapper<VelocityComponent>()
-    private val mPowerDevice = mapper<PowerDeviceComponent>()
-    private val mPowerConsumer = mapper<PowerConsumerComponent>()
-    private val mPowerGenerator = mapper<PowerGeneratorComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mVelocity by mapper<VelocityComponent>()
+    private val mPowerDevice by mapper<PowerDeviceComponent>()
+    private val mPowerConsumer by mapper<PowerConsumerComponent>()
+    private val mPowerGenerator by mapper<PowerGeneratorComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
     private val playerSystem by system<PlayerSystem>()

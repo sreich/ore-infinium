@@ -26,7 +26,6 @@ package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.EntitySubscription
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
@@ -42,9 +41,10 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.opt
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -53,7 +53,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Handles the network side of things, for the client
  */
 @Wire
-class ClientNetworkSystem(private val oreWorld: OreWorld) : KBaseSystem() {
+class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     /**
      * whether or not we're connected to the server (either local or mp).
      *
@@ -67,11 +67,11 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : KBaseSystem() {
      */
     var connected: Boolean = false
 
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mBlock = mapper<BlockComponent>()
-    private val mTool = mapper<ToolComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mBlock by mapper<BlockComponent>()
+    private val mTool by mapper<ToolComponent>()
 
     private val tagManager by system<TagManager>()
     private val tileRenderer by system<TileRenderSystem>()

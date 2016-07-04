@@ -36,27 +36,4 @@ class AirComponent : Component() {
     var air = maxAir
     //amount to decrease health per interval, when run without air
     var healthDecreaseRate = 10
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param airComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(airComponent: AirComponent) {
-        decreaseRate = airComponent.decreaseRate
-        decreaseInterval = airComponent.decreaseInterval
-        maxAir = airComponent.maxAir
-        air = airComponent.air
-        healthDecreaseRate = airComponent.healthDecreaseRate
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.air: $air
-        $c.maxAir: $air
-        $c.decreaseRate: $decreaseRate
-        $c.healthDecreaseRate: $healthDecreaseRate"""
-    }
 }

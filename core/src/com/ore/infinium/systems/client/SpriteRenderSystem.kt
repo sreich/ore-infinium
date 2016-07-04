@@ -31,7 +31,6 @@ import aurelienribon.tweenengine.TweenManager
 import aurelienribon.tweenengine.equations.Sine
 import com.artemis.Aspect
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.Color
@@ -40,18 +39,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.ore.infinium.OreWorld
 import com.ore.infinium.SpriteTween
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
-import com.ore.infinium.util.floor
-import com.ore.infinium.util.getNullable
-import com.ore.infinium.util.getTagNullable
-import com.ore.infinium.util.indices
+import com.ore.infinium.util.*
 
 @Wire
-class SpriteRenderSystem(private val oreWorld: OreWorld) : KBaseSystem(), RenderSystemMarker {
+class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderSystemMarker {
     private lateinit var batch: SpriteBatch
 
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
 
     private lateinit var tagManager: TagManager
     private lateinit var tweenManager: TweenManager

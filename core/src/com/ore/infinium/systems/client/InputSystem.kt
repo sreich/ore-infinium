@@ -24,10 +24,11 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
+import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.ore.infinium.OreWorld
-import com.ore.infinium.kartemis.KBaseSystem
+import com.ore.infinium.util.system
 
 @Wire
 /**
@@ -38,7 +39,7 @@ import com.ore.infinium.kartemis.KBaseSystem
  * Event based is used for pretty much everything else, like GUI related things (excluding scene2d, that's already
  * basically handled by itself).
  */
-class InputSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld) : KBaseSystem() {
+class InputSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld) : BaseSystem() {
 
     private val powerOverlayRenderSystem by system<PowerOverlayRenderSystem>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()

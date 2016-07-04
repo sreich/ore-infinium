@@ -31,22 +31,4 @@ class HealthComponent : Component() {
     var maxHealth = 25000.0f
     //current air level
     var health = maxHealth
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param healthComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(healthComponent: HealthComponent) {
-        maxHealth = healthComponent.maxHealth
-        health = healthComponent.health
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.maxHealth: $maxHealth
-        $c.health: $health"""
-    }
 }

@@ -25,23 +25,24 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIteratingSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 
 @Wire
-class ServerPowerSystem(private val oreWorld: OreWorld) : KIteratingSystem() {
+class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private val mPowerDevice = require<PowerDeviceComponent>()
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mVelocity = mapper<VelocityComponent>()
-    private val mPowerConsumer = mapper<PowerConsumerComponent>()
-    private val mPowerGenerator = mapper<PowerGeneratorComponent>()
+    private val mPowerDevice by require<PowerDeviceComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mVelocity by mapper<VelocityComponent>()
+    private val mPowerConsumer by mapper<PowerConsumerComponent>()
+    private val mPowerGenerator by mapper<PowerGeneratorComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
 

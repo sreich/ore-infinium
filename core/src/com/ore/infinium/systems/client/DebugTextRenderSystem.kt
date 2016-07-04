@@ -27,16 +27,13 @@ package com.ore.infinium.systems.client
 import com.artemis.Aspect
 import com.artemis.BaseSystem
 import com.artemis.Component
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.ai.steer.behaviors.Jump
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.profiling.GLProfiler
@@ -47,7 +44,6 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KBaseSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
 import java.text.DecimalFormat
@@ -57,23 +53,23 @@ import java.text.DecimalFormat
  * of the game. Things like how many tiles are rendered, connections, entities, etc.
  */
 @Wire
-class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: OreWorld) : KBaseSystem(), RenderSystemMarker {
+class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: OreWorld) : BaseSystem(), RenderSystemMarker {
 
-    private val mAir = mapper<AirComponent>()
-    private val mBlock = mapper<BlockComponent>()
-    private val mControl = mapper<ControllableComponent>()
-    private val mFlora = mapper<FloraComponent>()
-    private val mHealth = mapper<HealthComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mJump = mapper<JumpComponent>()
-    private val mLight = mapper<LightComponent>()
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mPowerConsumer = mapper<PowerConsumerComponent>()
-    private val mPowerDevice = mapper<PowerDeviceComponent>()
-    private val mPowerGenerator = mapper<PowerGeneratorComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mTool = mapper<ToolComponent>()
-    private val mVelocity = mapper<VelocityComponent>()
+    private val mAir by mapper<AirComponent>()
+    private val mBlock by mapper<BlockComponent>()
+    private val mControl by mapper<ControllableComponent>()
+    private val mFlora by mapper<FloraComponent>()
+    private val mHealth by mapper<HealthComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mJump by mapper<JumpComponent>()
+    private val mLight by mapper<LightComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mPowerConsumer by mapper<PowerConsumerComponent>()
+    private val mPowerDevice by mapper<PowerDeviceComponent>()
+    private val mPowerGenerator by mapper<PowerGeneratorComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mTool by mapper<ToolComponent>()
+    private val mVelocity by mapper<VelocityComponent>()
 
     private val tagManager by system<TagManager>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()
@@ -463,7 +459,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
                 continue
             }
 
-            builder.append(c.toString())
+            builder.append(c.printString())
         }
         font.draw(batch, builder.toString(), TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
 

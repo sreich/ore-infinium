@@ -45,7 +45,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.forEach
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.opt
 import com.ore.infinium.util.rect
 import java.io.IOException
 
@@ -182,7 +182,7 @@ class OreClient : ApplicationListener, InputProcessor {
         val playerComp = playerMapper.get(player)
         val equippedItem = playerComp.equippedPrimaryItem ?: return
 
-        val blockComp = blockMapper.getNullable(equippedItem)
+        val blockComp = blockMapper.opt(equippedItem)
 
         if (blockComp != null) {
 
@@ -198,9 +198,9 @@ class OreClient : ApplicationListener, InputProcessor {
             return
         }
 
-        val equippedItemComp = itemMapper.getNullable(equippedItem) ?: return
+        val equippedItemComp = itemMapper.opt(equippedItem) ?: return
 
-        val equippedToolComp = toolMapper.getNullable(equippedItem)
+        val equippedToolComp = toolMapper.opt(equippedItem)
         if (equippedToolComp != null) {
 
             //note, digging is handled by its own system, not anywhere near here.
@@ -281,7 +281,7 @@ class OreClient : ApplicationListener, InputProcessor {
      * e.g. items dropped in the world are not attackable
      */
     private fun canAttackEntity(entityId: Int): Boolean {
-        val itemComp = itemMapper.getNullable(entityId) ?: return false
+        val itemComp = itemMapper.opt(entityId) ?: return false
         //don't let them attack dropped items, makes no sense
         if (itemComp.state == ItemComponent.State.DroppedInWorld) {
             return false

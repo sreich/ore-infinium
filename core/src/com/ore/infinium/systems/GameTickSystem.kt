@@ -24,16 +24,12 @@ SOFTWARE.
 
 package com.ore.infinium.systems
 
+import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.ore.infinium.OreWorld
-import com.ore.infinium.kartemis.KBaseSystem
 
 @Wire
-/**
- * sigh, a whole system just for seeing how many logic ticks there are
- * since game start.
- */
-class GameTickSystem(private val m_world: OreWorld) : KBaseSystem() {
+class GameTickSystem(private val m_world: OreWorld) : BaseSystem() {
 
     /**
      * increased by 1 every update()

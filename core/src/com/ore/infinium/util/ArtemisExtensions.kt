@@ -24,21 +24,55 @@ SOFTWARE.
 
 package com.ore.infinium.util
 
-import com.artemis.Component
-import com.artemis.ComponentMapper
-import com.artemis.Entity
+import com.artemis.*
 import com.artemis.managers.TagManager
 import com.artemis.utils.Bag
 import com.artemis.utils.IntBag
+import kotlin.properties.ReadOnlyProperty
+import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
 
 /**
- * Gets the component that this mapper is for, for this @param entityId
- * @returns null if the component does not exist for this entity
+ * Denotes that a component property should not be copied
  */
-//todo remove this! it relies on getsafe which is deprecated anyways. just use get(),
-//it is nullable
-fun <T : Component?> ComponentMapper<T>.getNullable(entityId: Int): T? {
-    return this.getSafe(entityId)
+@Retention
+@Target(AnnotationTarget.PROPERTY)
+annotation class DoNotCopy
+
+interface CopyableComponent<T : CopyableComponent<T>> {
+
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    fun copyFrom(component: T): Unit
+}
+
+/**
+ * Denotes that a component property should not be printed on-screen in debug mode
+ */
+@Retention
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER)
+annotation class DoNotPrint
+
+//object ArtemisExtensions {
+fun allOf(vararg types: KClass<out Component>): Aspect.Builder =
+        Aspect.all(types.map { it.java })
+
+fun anyOf(vararg types: KClass<out Component>): Aspect.Builder =
+        Aspect.one(types.map { it.java })
+
+fun noneOf(vararg types: KClass<out Component>): Aspect.Builder =
+        Aspect.exclude(types.map { it.java })
+
+fun <T : Component> ComponentMapper<T>.opt(entityId: Int): T? = if (has(entityId)) get(entityId) else null
+
+inline fun <T : Component> ComponentMapper<T>.ifPresent(entityId: Int, function: (T) -> Unit): Unit {
+    if (has(entityId))
+        function(get(entityId))
 }
 
 fun TagManager.getTagNullable(entityId: Entity): String? {
@@ -72,4 +106,150 @@ inline fun <T> Array<out T>.forEachIndexed(action: (Int, T) -> Unit): Unit {
 }
 */
 
+private class MapperProperty<T : Component>(val type: Class<T>) : ReadOnlyProperty<BaseSystem, ComponentMapper<T>> {
+    private var cachedMapper : ComponentMapper<T>? = null
 
+    override fun getValue(thisRef: BaseSystem, property: KProperty<*>): ComponentMapper<T> {
+        if (cachedMapper == null) {
+            val worldField = BaseSystem::class.java.getDeclaredField("world")
+            worldField.isAccessible = true
+            val world = worldField.get(thisRef) as World?
+            world ?: throw IllegalStateException("world is not initialized yet")
+            cachedMapper = world.getMapper(type)
+        }
+        return cachedMapper!!
+    }
+}
+
+private class SystemProperty<T : BaseSystem>(val type: Class<T>) : ReadOnlyProperty<BaseSystem, T> {
+    private var cachedSystem : T? = null
+
+    override fun getValue(thisRef: BaseSystem, property: KProperty<*>): T {
+        if (cachedSystem == null) {
+            val worldField = BaseSystem::class.java.getDeclaredField("world")
+            worldField.isAccessible = true
+            val world = worldField.get(thisRef) as World?
+            world ?: throw IllegalStateException("world is not initialized yet")
+            cachedSystem = world.getSystem(type)
+        }
+        return cachedSystem!!
+    }
+}
+
+/**
+ * Gets a delegate that returns the `ComponentMapper` for the given component type.
+ *
+ * @param T the component type.
+ */
+inline fun <reified T : Component> BaseSystem.mapper(): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = mapper(T::class)
+
+/**
+ * Gets a delegate that returns the `ComponentMapper` for the given component type.
+ *
+ * @param T the component type.
+ * @param type the component class.
+ */
+fun <T : Component> BaseSystem.mapper(type: KClass<T>): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = MapperProperty<T>(type.java)
+
+/**
+ * Gets a delegate that returns the `ComponentMapper` for the given component type, and adds the component type
+ * to the system's aspect configuration. Note that this must be called from constructor code, or it won't be effective!
+ *
+ * @param T the component type.
+ */
+inline fun <reified T : Component> BaseEntitySystem.require(): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = require(T::class)
+
+/**
+ * Gets a delegate that returns the `ComponentMapper` for the given component type, and adds the component type
+ * to the system's aspect configuration. Note that this must be called from constructor code, or it won't be effective!
+ *
+ * @param T the component type.
+ * @param type the component class.
+ */
+fun <T : Component> BaseEntitySystem.require(type: KClass<T>): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> {
+    val aspectConfigurationField = BaseEntitySystem::class.java.getDeclaredField("aspectConfiguration")
+    aspectConfigurationField.isAccessible = true
+    val aspectConfiguration = aspectConfigurationField.get(this) as Aspect.Builder
+    aspectConfiguration.all(type.java)
+    return MapperProperty<T>(type.java)
+}
+
+/**
+ * Gets a delegate that returns the `EntitySystem` of the given type.
+ *
+ * @param T the system type.
+ */
+inline fun <reified T : BaseSystem> BaseSystem.system(): ReadOnlyProperty<BaseSystem, T> = system(T::class)
+
+/**
+ * Gets a delegate that returns the `EntitySystem` of the given type.
+ *
+ * @param T the system type.
+ * @param type the system class.
+ */
+fun <T : BaseSystem> BaseSystem.system(type: KClass<T>): ReadOnlyProperty<BaseSystem, T> = SystemProperty<T>(type.java)
+
+
+private val cacheByType = hashMapOf<Class<*>, PropertyCache>()
+
+private fun getCache(clazz: Class<*>): PropertyCache =
+            cacheByType.getOrPut(clazz, { PropertyCache(clazz.kotlin) })
+
+
+/**
+ * Cache that stores properties of component implementations.
+ */
+private class PropertyCache(clazz: KClass<*>) {
+    val copyProperties = clazz.members.mapNotNull { it as? KMutableProperty }
+            .filter { !it.annotations.any { it.annotationClass == DoNotCopy::class } }.toTypedArray()
+    val printProperties = clazz.members.mapNotNull { it as? KProperty }
+            .filter { !it.annotations.any { it.annotationClass == DoNotPrint::class } &&
+                    !it.getter.annotations.any { it.annotationClass == DoNotPrint::class }}.toTypedArray()
+}
+
+/**
+ * copy a component (similar to copy constructor)
+ *
+ * @param component
+ *         component to copy from, into this instance
+ */
+fun <T : Component> T.copyFrom(component: T) {
+    if (this is CopyableComponent<*>) {
+        this.internalCopyFrom<InternalCopyableComponent>(component)
+    } else {
+        this.defaultCopyFrom(component)
+    }
+}
+
+/**
+ * copy a component (similar to copy constructor)
+ *
+ * @param component
+ *         component to copy from, into this instance
+ */
+fun <T : Component> T.defaultCopyFrom(component: T): Unit {
+    getCache(javaClass).copyProperties.forEach { it.setter.call(this, it.getter.call(component)) }
+}
+
+// Just hacking around Kotlin generics...
+@Suppress("UNCHECKED_CAST")
+private fun <T : CopyableComponent<T>> Any.internalCopyFrom(component: Any) {
+    (this as T).copyFrom(component as T)
+}
+
+private class InternalCopyableComponent : CopyableComponent<InternalCopyableComponent> {
+    override fun copyFrom(component: InternalCopyableComponent) {
+        assert(false)
+    }
+}
+
+// TODO: Might want to introduce PrintableComponent interface
+fun <T : Component> T.printString(): String {
+    return this.defaultPrintString()
+}
+
+fun <T : Component> T.defaultPrintString(): String =
+        getCache(javaClass).printProperties.map { "${javaClass.simpleName}.${it.name} = ${it.getter.call(this)}" }
+        .joinToString(separator = "\n", postfix = "\n")
+
+//}

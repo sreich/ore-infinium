@@ -28,25 +28,29 @@ import com.artemis.Aspect
 import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
+import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIteratingSystem
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.abs
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.require
+import com.ore.infinium.util.system
+import com.ore.infinium.util.ifPresent
 
 @Wire(failOnNull = false)
-class MovementSystem(private val oreWorld: OreWorld) : KIteratingSystem() {
+class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private val mSprite = require<SpriteComponent>()
-    private val mVelocity = require<VelocityComponent>()
-    private val mPlayer = mapper<PlayerComponent>()
-    private val mControl = mapper<ControllableComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mJump = mapper<JumpComponent>()
+    private val mSprite by require<SpriteComponent>()
+    private val mVelocity by require<VelocityComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mControl by mapper<ControllableComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mJump by mapper<JumpComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()

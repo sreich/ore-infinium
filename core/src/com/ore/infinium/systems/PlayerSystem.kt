@@ -24,23 +24,23 @@ SOFTWARE.
 
 package com.ore.infinium.systems
 
+import com.artemis.Aspect
 import com.artemis.annotations.Wire
+import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.kartemis.KIteratingSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.systems.server.ServerNetworkSystem
 
 @Wire(failOnNull = false)
-class PlayerSystem(private val oreWorld: OreWorld) : KIteratingSystem() {
+class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private val mPlayer = require<PlayerComponent>()
-    private val mSprite = mapper<SpriteComponent>()
-    private val mControl = mapper<ControllableComponent>()
-    private val mItem = mapper<ItemComponent>()
-    private val mVelocity = mapper<VelocityComponent>()
-    private val mJump = mapper<JumpComponent>()
+    private val mPlayer by require<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
 

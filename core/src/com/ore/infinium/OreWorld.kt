@@ -941,7 +941,7 @@ class OreWorld
             //            continue;
             //        }
 
-            val itemComponent = itemMapper.getNullable(entities.get(i))
+            val itemComponent = itemMapper.opt(entities.get(i))
             if (itemComponent != null) {
                 // items that are dropped in the world are considered non colliding
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
@@ -1062,7 +1062,7 @@ class OreWorld
         }
 
         //player, unneeded
-        assert(playerMapper.getNullable(sourceEntity) == null)
+        assert(playerMapper.opt(sourceEntity) == null)
 
         if (spriteMapper.has(sourceEntity)) {
             val sourceComponent = spriteMapper.get(sourceEntity)
@@ -1070,6 +1070,7 @@ class OreWorld
             component.copyFrom(sourceComponent)
 
             if (worldInstanceType != WorldInstanceType.Server) {
+                System.out.println(component.textureName);
                 component.sprite.setRegion(m_atlas.findRegion(component.textureName))
             }
         }
@@ -1193,8 +1194,8 @@ class OreWorld
      * or nothing (e.g. if something just died by itself)
      */
     fun killEntity(entityToKill: Int, entityKiller: Int) {
-        val itemComp = itemMapper.getNullable(entityToKill)
-        val floraComp = floraMapper.getNullable(entityToKill)
+        val itemComp = itemMapper.opt(entityToKill)
+        val floraComp = floraMapper.opt(entityToKill)
 
         if (floraComp != null) {
             killTree(floraComp, entityToKill, entityKiller)

@@ -25,19 +25,19 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.Rectangle
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.PlayerComponent
-import com.ore.infinium.kartemis.KBaseSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
 
 @Wire
-class LiquidSimulationSystem(private val oreWorld: OreWorld) : KBaseSystem() {
+class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
-    private val mPlayer = mapper<PlayerComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
 
     override fun initialize() {
     }
