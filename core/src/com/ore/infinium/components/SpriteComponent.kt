@@ -26,11 +26,14 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.ore.infinium.util.rect
+import com.ore.infinium.util.CopyableComponent
+import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.DoNotPrint
+import com.ore.infinium.util.defaultCopyFrom
 
-class SpriteComponent : Component() {
+class SpriteComponent : Component(), CopyableComponent<SpriteComponent> {
 
-    @Transient var sprite = Sprite()
+    @DoNotCopy @DoNotPrint @Transient var sprite = Sprite()
 
     var category: EntityCategory = EntityCategory.Character
     //fixme yup..gonna redo all of this and rethink using atlases, texture packer, and assetmanager
@@ -51,33 +54,11 @@ class SpriteComponent : Component() {
         Entity
     }
 
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param spriteComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(spriteComponent: SpriteComponent) {
-        sprite = Sprite(spriteComponent.sprite)
+    override fun copyFrom(component: SpriteComponent) {
+        this.defaultCopyFrom(component)
+        sprite = Sprite(component.sprite)
         sprite.apply {
-            setPosition(spriteComponent.sprite.x, spriteComponent.sprite.y)
+            setPosition(component.sprite.x, component.sprite.y)
         }
-
-        textureName = spriteComponent.textureName
-        category = spriteComponent.category
-        noClip = spriteComponent.noClip
-        placementValid = spriteComponent.placementValid
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.category: $category
-        $c.textureName: $textureName
-        $c.visible: $visible
-        $c.noClip: $noClip
-        $c.boundingRectangle: ${this.sprite.rect.toString()} [bottomleftX, bottomleftY, w, h]
-        $c.sprite.width: w: ${sprite.width}, h: ${sprite.height}
-        $c.sprite.position: x: ${sprite.x}, y: ${sprite.y}"""
     }
 }

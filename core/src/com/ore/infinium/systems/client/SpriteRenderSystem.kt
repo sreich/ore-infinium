@@ -31,7 +31,6 @@ import aurelienribon.tweenengine.TweenManager
 import aurelienribon.tweenengine.equations.Sine
 import com.artemis.Aspect
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.Color
@@ -40,61 +39,53 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.ore.infinium.OreWorld
 import com.ore.infinium.SpriteTween
 import com.ore.infinium.components.*
-import com.ore.infinium.util.floor
-import com.ore.infinium.util.getNullable
-import com.ore.infinium.util.getTagNullable
-import com.ore.infinium.util.indices
+import com.ore.infinium.util.*
 
 @Wire
-class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
-    private lateinit var m_batch: SpriteBatch
+class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderSystemMarker {
+    private lateinit var batch: SpriteBatch
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
 
-    private lateinit var m_tagManager: TagManager
-
-    private lateinit var m_tweenManager: TweenManager
+    private lateinit var tagManager: TagManager
+    private lateinit var tweenManager: TweenManager
 
     override fun initialize() {
-        m_batch = SpriteBatch()
-        m_tweenManager = TweenManager()
+        batch = SpriteBatch()
+        tweenManager = TweenManager()
         Tween.registerAccessor(Sprite::class.java, SpriteTween())
         //default is 3, but color requires 4 (rgba)
         Tween.setCombinedAttributesLimit(4)
     }
 
     override fun dispose() {
-        m_batch.dispose()
+        batch.dispose()
     }
 
     override fun begin() {
-        m_batch.projectionMatrix = m_world.m_camera.combined
-        //       m_batch.begin();
+        batch.projectionMatrix = oreWorld.m_camera.combined
+        //       batch.begin();
     }
 
     override fun processSystem() {
-        //        m_batch.setProjectionMatrix(m_world.m_camera.combined);
-        m_tweenManager.update(world.getDelta())
+        //        batch.setProjectionMatrix(oreWorld.m_camera.combined);
+        tweenManager.update(world.getDelta())
 
-        m_batch.begin()
+        batch.begin()
         renderEntities(world.getDelta())
-        m_batch.end()
+        batch.end()
 
-        m_batch.begin()
+        batch.begin()
         renderDroppedEntities(world.getDelta())
-        m_batch.end()
+        batch.end()
         //restore color
-        m_batch.color = Color.WHITE
+        batch.color = Color.WHITE
 
     }
 
     override fun end() {
-        //        m_batch.end();
+        //        batch.end();
     }
 
     //fixme probably also droppedblocks?
@@ -106,23 +97,23 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
 
         var itemComponent: ItemComponent?
         for (i in entities.indices) {
-            itemComponent = itemMapper.getNullable(entities.get(i))
+            itemComponent = mItem.opt(entities.get(i))
             //don't draw in-inventory or not dropped items
             if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
                 continue
             }
 
-            val spriteComponent = spriteMapper.get(entities.get(i))
+            val spriteComponent = mSprite.get(entities.get(i))
 
             glowDroppedSprite(spriteComponent.sprite)
 
             /*
-            m_batch.draw(spriteComponent.sprite,
+            batch.draw(spriteComponent.sprite,
                          spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
                          spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
                          spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
             */
-            m_batch.color = spriteComponent.sprite.color
+            batch.color = spriteComponent.sprite.color
 
             val x = spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f
             val y = spriteComponent.sprite.y + spriteComponent.sprite.height * 0.5f
@@ -138,24 +129,24 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
             val originY = height * 0.5f
             //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
 
-            m_batch.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
+            batch.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
                          (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
                          rotation)
         }
     }
 
     private fun glowDroppedSprite(sprite: Sprite) {
-        if (!m_tweenManager.containsTarget(sprite)) {
+        if (!tweenManager.containsTarget(sprite)) {
 
             Timeline.createSequence().push(
                     Tween.to(sprite, SpriteTween.SCALE, 2.8f).target(0.2f, 0.2f).ease(
                             Sine.IN)).push(
                     Tween.to(sprite, SpriteTween.SCALE, 2.8f).target(.5f, .5f).ease(
-                            Sine.OUT)).repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager)
+                            Sine.OUT)).repeatYoyo(Tween.INFINITY, 0.0f).start(tweenManager)
 
             val glowColor = Color.GOLDENROD
             Tween.to(sprite, SpriteTween.COLOR, 2.8f).target(glowColor.r, glowColor.g, glowColor.b, 1f).ease(
-                    TweenEquations.easeInOutSine).repeatYoyo(Tween.INFINITY, 0.0f).start(m_tweenManager)
+                    TweenEquations.easeInOutSine).repeatYoyo(Tween.INFINITY, 0.0f).start(tweenManager)
         }
     }
 
@@ -171,14 +162,14 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
         for (i in entities.indices) {
             val entity = entities.get(i)
 
-            itemComponent = itemMapper.getNullable(entity)
+            itemComponent = mItem.opt(entity)
             //don't draw in-inventory or dropped items
             if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
                 //hack
                 continue
             }
 
-            spriteComponent = spriteMapper.get(entity)
+            spriteComponent = mSprite.get(entity)
 
             if (!spriteComponent.visible) {
                 continue
@@ -189,15 +180,15 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
 
             var placementGhost = false
 
-            val tag = m_tagManager.getTagNullable(world.getEntity(entity))
+            val tag = tagManager.getTagNullable(world.getEntity(entity))
             if (tag != null && tag == "itemPlacementOverlay") {
 
                 placementGhost = true
 
                 if (spriteComponent.placementValid) {
-                    m_batch.setColor(0f, 1f, 0f, 0.6f)
+                    batch.setColor(0f, 1f, 0f, 0.6f)
                 } else {
-                    m_batch.setColor(1f, 0f, 0f, 0.6f)
+                    batch.setColor(1f, 0f, 0f, 0.6f)
                 }
             }
 
@@ -217,15 +208,15 @@ class SpriteRenderSystem(private val m_world: OreWorld) : BaseSystem(), RenderSy
             //this prevents some jiggling of static items when player is moving, when the objects pos is
             // not rounded to a reasonable flat number,
             //but for the player it means they jiggle on all movement.
-            //m_batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) /
+            //batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) /
             // 16.0f,
             //            originX, originY, width, height, scaleX, scaleY, rotation);
 
-            m_batch.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
+            batch.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
 
             //reset color for next run
             if (placementGhost) {
-                m_batch.setColor(1f, 1f, 1f, 1f)
+                batch.setColor(1f, 1f, 1f, 1f)
             }
         }
     }

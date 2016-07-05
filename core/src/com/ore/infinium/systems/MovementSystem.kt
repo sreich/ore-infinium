@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
@@ -37,24 +36,25 @@ import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.abs
-import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.require
+import com.ore.infinium.util.system
+import com.ore.infinium.util.ifPresent
 
 @Wire(failOnNull = false)
-class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
-        Aspect.all(SpriteComponent::class.java, VelocityComponent::class.java)) {
+class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private val mSprite by require<SpriteComponent>()
+    private val mVelocity by require<VelocityComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mControl by mapper<ControllableComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mJump by mapper<JumpComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
-
-    private lateinit var m_tagManager: TagManager
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
+    private val tagManager by system<TagManager>()
 
     //lowest value we want to represent before killing velocity
     private val VELOCITY_MINIMUM_CUTOFF = 0.008f
@@ -83,21 +83,20 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         simulate(entityId, getWorld().delta)
 
         //fixme maybe make a dropped component?
-        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
-            val itemComponent = itemMapper.getNullable(entityId)
-
-            if (itemComponent != null && itemComponent.state == ItemComponent.State.DroppedInWorld) {
+        if (oreWorld.worldInstanceType == OreWorld.WorldInstanceType.Server && mItem.has(entityId)) {
+            val item = mItem.get(entityId)
+            if (item.state == ItemComponent.State.DroppedInWorld) {
                 simulateDroppedItem(entityId, getWorld().delta)
             }
         }
 
-        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
-            val mainPlayer = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
-            val playerSprite = spriteMapper.get(mainPlayer)
-            m_world.m_camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
-            m_world.m_camera.update()
+        if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+            val mainPlayer = tagManager.getEntity(OreWorld.s_mainPlayer).id
+            val playerSprite = mSprite.get(mainPlayer)
+            oreWorld.m_camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
+            oreWorld.m_camera.update()
 
-            m_clientNetworkSystem.sendPlayerMoved()
+            clientNetworkSystem.sendPlayerMoved()
         }
     }
 
@@ -108,7 +107,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
      * http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
      */
     private fun simulate(entity: Int, delta: Float) {
-        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
+        if (oreWorld.worldInstanceType == OreWorld.WorldInstanceType.Server) {
             //server doesn't process past here. client tells us where they are.
             //fixme, though we do need to eventually at least half-ass verify it, which
             //means doing it on server as well
@@ -116,14 +115,14 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         }
 
         //it isn't a player or npc or anything that can be controlled
-        if (!controlMapper.has(entity)) {
+        if (!mControl.has(entity)) {
             return
         }
 
 
         //fixme handle noclip
-        val spriteComponent = spriteMapper.get(entity)
-        val velocityComponent = velocityMapper.get(entity)
+        val spriteComponent = mSprite.get(entity)
+        val velocityComponent = mVelocity.get(entity)
 
         //cheat
         if (OreSettings.speedRun) {
@@ -141,9 +140,9 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
         //could be a player or something else..but we're only interested if this entity is a player
         //for enabling no clipping on him
-        val noClip = OreSettings.noClip && playerMapper.has(entity)
+        val noClip = OreSettings.noClip && mPlayer.has(entity)
 
-        val desiredDirection = controlMapper.get(entity).desiredDirection
+        val desiredDirection = mControl.get(entity).desiredDirection
 
         val acceleration = Vector2()
         //x movement has an initial ramp up time until it hits max speed (similar feel as terraria)
@@ -208,7 +207,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
 
     private fun maybePerformJump(acceleration: Float, playerEntity: Int): Float {
         var newAcceleration = acceleration
-        val jumpComponent = jumpMapper.get(playerEntity)
+        val jumpComponent = mJump.get(playerEntity)
         if (jumpComponent.canJump && jumpComponent.shouldJump) {
 
             if (jumpComponent.jumpTimer.milliseconds() >= jumpComponent.jumpInterval) {
@@ -226,8 +225,8 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     private fun simulateNoClip(entity: Int, delta: Float) {
-        val spriteComponent = spriteMapper.get(entity)
-        val desiredDirection = controlMapper.get(entity).desiredDirection
+        val spriteComponent = mSprite.get(entity)
+        val desiredDirection = mControl.get(entity).desiredDirection
 
         val x = spriteComponent.sprite.x
         val y = spriteComponent.sprite.y
@@ -237,11 +236,11 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     private fun simulateDroppedItem(item: Int, delta: Float) {
-        val itemComponent = itemMapper.get(item)
+        val itemComponent = mItem.get(item)
         assert(itemComponent.state == ItemComponent.State.DroppedInWorld)
 
-        val itemSpriteComponent = spriteMapper.get(item)
-        val itemVelocityComponent = velocityMapper.get(item)
+        val itemSpriteComponent = mSprite.get(item)
+        val itemVelocityComponent = mVelocity.get(item)
 
         val itemPosition = Vector2(itemSpriteComponent.sprite.x, itemSpriteComponent.sprite.y)
 
@@ -254,8 +253,8 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         val acceleration = Vector2(0.0f, GRAVITY_ACCEL)
 
         if (itemComponent.playerIdWhoDropped != null && itemComponent.justDropped) {
-            val playerEntityWhoDropped = m_world.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped!!)
-            val playerVelocityComponent = velocityMapper.get(playerEntityWhoDropped)
+            val playerEntityWhoDropped = oreWorld.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped!!)
+            val playerVelocityComponent = mVelocity.get(playerEntityWhoDropped)
             val playerVelocity = Vector2(playerVelocityComponent.velocity)
 
             //acceleration.x += Math.max(playerVelocity.x * 0.5f, World.GRAVITY_ACCEL);
@@ -311,8 +310,8 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
     private fun performCollision(desiredPosition: Vector2, entity: Int): Vector2 {
         var canJump = false
 
-        val spriteComponent = spriteMapper.get(entity)
-        val velocityComponent = velocityMapper.get(entity)
+        val spriteComponent = mSprite.get(entity)
+        val velocityComponent = mVelocity.get(entity)
         val velocity = velocityComponent.velocity
         val sizeMeters = Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height)
 
@@ -334,7 +333,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         if (velocity.x > 0.0f) {
             //try moving right, only loop over tiles on the right side
             for (y in topY until bottomY) {
-                if (m_world.isBlockSolid(rightX, y)) {
+                if (oreWorld.isBlockSolid(rightX, y)) {
                     val tileRight = (rightX - 0).toFloat()
 
                     if (y == bottomY - 1) {
@@ -360,7 +359,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         } else if (velocity.x < 0.0f) {
             //try moving left, only loop over tiles on the left side
             for (y in topY until bottomY) {
-                if (m_world.isBlockSolid(leftX, y)) {
+                if (oreWorld.isBlockSolid(leftX, y)) {
 
                     val tileLeft = (leftX + 1).toFloat()
 
@@ -393,7 +392,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         if (velocity.y > 0.0f) {
             //try moving down, only loop over tiles on the bottom side(inclusive, remember)
             for (x in leftX..rightX) {
-                if (m_world.isBlockSolid(x, bottomY + 0)) {
+                if (oreWorld.isBlockSolid(x, bottomY + 0)) {
                     canJump = true
                     if (walkedUpSingleBlock) {
                         break
@@ -411,7 +410,7 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
         } else if (velocity.y < 0.0f) {
             //try moving up, only loop over tiles on the bottom side(inclusive, remember)
             for (x in leftX..rightX) {
-                if (m_world.isBlockSolid(x, topY - 1)) {
+                if (oreWorld.isBlockSolid(x, topY - 1)) {
                     //collision occured, stop here
                     velocity.y = 0.0f
 
@@ -423,27 +422,26 @@ class MovementSystem(private val m_world: OreWorld) : IteratingSystem(
             }
         }
 
-        val jumpComponent = jumpMapper.getNullable(entity)
-        if (jumpComponent != null) {
-            jumpComponent.canJump = canJump
+        mJump.ifPresent(entity) {
+            it.canJump = canJump
         }
 
         return desiredPosition
     }
 
     private fun maybeSendEntityMoved(entity: Int) {
-        val aspectSubscriptionManager = m_world.m_artemisWorld.aspectSubscriptionManager
+        val aspectSubscriptionManager = oreWorld.m_artemisWorld.aspectSubscriptionManager
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
         val entities = entitySubscription.entities
 
         for (i in entities.indices) {
             val player = entities.get(i)
-            val playerComponent = playerMapper.get(player)
+            val playerComponent = mPlayer.get(player)
 
             //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(),
             // spriteComponent.sprite.getY()))) {
 
-            m_serverNetworkSystem.sendEntityMoved(player, entity)
+            serverNetworkSystem.sendEntityMoved(player, entity)
 
             //           }
         }

@@ -26,8 +26,10 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.math.Vector2
+import com.ore.infinium.util.CopyableComponent
+import com.ore.infinium.util.defaultCopyFrom
 
-class ItemComponent : Component() {
+class ItemComponent : Component(), CopyableComponent<ItemComponent> {
     //number of items this item has. e.g. 35 wood..things
     var stackSize: Int = 0
     //the max a single item stack can hold
@@ -123,32 +125,9 @@ class ItemComponent : Component() {
                 this.maxStackSize == otherComp.maxStackSize
     }
 
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param itemComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(itemComponent: ItemComponent) {
-        stackSize = itemComponent.stackSize
-        maxStackSize = itemComponent.maxStackSize
-        playerIdWhoDropped = itemComponent.playerIdWhoDropped
-        state = itemComponent.state
-        inventoryIndex = itemComponent.inventoryIndex
-        justDropped = itemComponent.justDropped
-        name = itemComponent.name
-        //sizeBeforeDropped is not copied, intentionally
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.stackSize: $stackSize
-        $c.maxStackSize: $maxStackSize
-        $c.playerIdWhoDropped: $playerIdWhoDropped
-        $c.state: $state
-        $c.justDropped: $justDropped
-        $c.name: $name"""
+    override fun copyFrom(component: ItemComponent) {
+        this.defaultCopyFrom(component)
+        sizeBeforeDrop = Vector2()
+        justDropped = false
     }
 }

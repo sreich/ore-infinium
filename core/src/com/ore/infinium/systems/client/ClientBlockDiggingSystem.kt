@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.ore.infinium.OreBlock
@@ -33,24 +32,22 @@ import com.ore.infinium.OreClient
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.GameTickSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
+import com.ore.infinium.util.opt
 
 @Wire(failOnNull = false)
 class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_client: OreClient) : BaseSystem() {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mTool by mapper<ToolComponent>()
 
-    private lateinit var m_gameTickSystem: GameTickSystem
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
-    private lateinit var m_soundSystem: SoundSystem
+    private val gameTickSystem by system<GameTickSystem>()
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
+    private val soundSystem by system<SoundSystem>()
 
-    private lateinit var m_tagManager: TagManager
+    private val tagManager by system<TagManager>()
+
 
     /**
      * the client only uses this to ensure it doesn't send a dig
@@ -82,13 +79,13 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         var ticksTook: Int = 0
     }
 
-    private val m_blocksToDig = mutableListOf<BlockToDig>()
+    private val blocksToDig = mutableListOf<BlockToDig>()
 
     override fun dispose() {
     }
 
     override fun processSystem() {
-        if (!m_clientNetworkSystem.connected) {
+        if (!clientNetworkSystem.connected) {
             return
         }
 
@@ -102,19 +99,19 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             dig()
         }
 
-        m_blocksToDig.removeAll { blockToDig -> expireOldDigRequests(blockToDig) }
+        blocksToDig.removeAll { blockToDig -> expireOldDigRequests(blockToDig) }
     }
 
     /**
      * @return true if it was expired, false if ignored/persisted
      */
     private fun expireOldDigRequests(blockToDig: BlockToDig): Boolean {
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val playerComponent = playerMapper.get(player)
+        val playerComponent = mPlayer.get(player)
         val itemEntity = playerComponent.equippedPrimaryItem!!
 
-        val toolComponent = toolMapper.getNullable(itemEntity)
+        val toolComponent = mTool.opt(itemEntity)
 
         //final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
@@ -131,7 +128,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
         //when actual ticks surpass our expected ticks, by so much
         //we assume this request times out
-        if (m_gameTickSystem.ticks > expectedTickEnd + 10) {
+        if (gameTickSystem.ticks > expectedTickEnd + 10) {
             return true
         }
 
@@ -159,17 +156,17 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             return false
         }
 
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
         //FIXME make this receive a vector, look at block at position,
         //see if he has the right drill type etc to even ATTEMPT a block dig
 
-        val playerComponent = playerMapper.get(player)
+        val playerComponent = mPlayer.get(player)
         val itemEntity = playerComponent.equippedPrimaryItem
         if (itemEntity == null) {
             return false
         }
 
-        val toolComponent = toolMapper.getNullable(itemEntity) ?: return false
+        val toolComponent = mTool.opt(itemEntity) ?: return false
 
         if (toolComponent.type != ToolComponent.ToolType.Drill) {
             return false
@@ -189,15 +186,15 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
      * but does handle telling the server it will be/is finished digging
      */
     fun dig() {
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val playerComponent = playerMapper.get(player)
+        val playerComponent = mPlayer.get(player)
         val itemEntity = playerComponent.equippedPrimaryItem!!
 
         val mouse = m_world.mousePositionWorldCoords()
 
         //guaranteed to have a tool, we already check that in the method call before this
-        val toolComponent = toolMapper.get(itemEntity)
+        val toolComponent = mTool.get(itemEntity)
 
         val blockX = mouse.x.toInt()
         val blockY = mouse.y.toInt()
@@ -207,7 +204,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         //if any of these blocks is what we're trying to dig
         //then we need to continue digging them
         var found = false
-        for (blockToDig in m_blocksToDig) {
+        for (blockToDig in blocksToDig) {
             //block.destroy();
             if (blockToDig.x == blockX || blockToDig.y == blockY) {
                 found = true
@@ -227,14 +224,14 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
                 blockToDig.finishSent = true
 
                 //we killed the block
-                m_clientNetworkSystem.sendBlockDigFinish(blockX, blockY)
+                clientNetworkSystem.sendBlockDigFinish(blockX, blockY)
 
                 when (blockType) {
                     OreBlock.BlockType.Dirt.oreValue ->
-                        m_soundSystem.playDirtAttackFinish()
+                        soundSystem.playDirtAttackFinish()
 
                     OreBlock.BlockType.Stone.oreValue ->
-                        m_soundSystem.playStoneAttackFinish()
+                        soundSystem.playStoneAttackFinish()
 
                 }
 
@@ -245,8 +242,8 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
             if (attacked) {
                 when (blockType) {
-                    OreBlock.BlockType.Dirt.oreValue -> m_soundSystem.playDirtAttack()
-                    OreBlock.BlockType.Stone.oreValue -> m_soundSystem.playDrillAttack()
+                    OreBlock.BlockType.Dirt.oreValue -> soundSystem.playDirtAttack()
+                    OreBlock.BlockType.Stone.oreValue -> soundSystem.playDrillAttack()
                 }
             }
         }
@@ -255,23 +252,23 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
             //inform server we're beginning to dig this block. it will track our time.
             //we will too, but mostly just so we know not to send these requests again
-            m_clientNetworkSystem.sendBlockDigBegin(blockX, blockY)
+            clientNetworkSystem.sendBlockDigBegin(blockX, blockY)
 
             val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
             val blockToDig = BlockToDig()
             blockToDig.damagedBlockHealth = totalBlockHealth
             blockToDig.totalBlockHealth = totalBlockHealth
-            blockToDig.digStartTick = m_gameTickSystem.ticks
+            blockToDig.digStartTick = gameTickSystem.ticks
             blockToDig.x = blockX
             blockToDig.y = blockY
 
-            m_blocksToDig.add(blockToDig)
+            blocksToDig.add(blockToDig)
         }
     }
 
     fun blockHealthAtIndex(x: Int, y: Int): Float {
-        for (blockToDig in m_blocksToDig) {
+        for (blockToDig in blocksToDig) {
             if (blockToDig.x == x && blockToDig.y == y) {
                 return blockToDig.damagedBlockHealth
             }

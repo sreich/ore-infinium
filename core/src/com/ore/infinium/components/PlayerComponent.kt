@@ -29,6 +29,9 @@ import com.ore.infinium.Inventory
 import com.ore.infinium.LoadedViewport
 import com.ore.infinium.OreTimer
 import com.ore.infinium.systems.MovementSystem
+import com.ore.infinium.util.CopyableComponent
+import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.DoNotPrint
 
 class PlayerComponent : Component() {
 
@@ -41,23 +44,23 @@ class PlayerComponent : Component() {
      */
     var connectionPlayerId = -1
     var killed: Boolean = false
-    @Transient var placeableItemTimer = OreTimer()
+    @DoNotCopy @DoNotPrint @Transient var placeableItemTimer = OreTimer()
 
     /**
      * the tick that an attack last took place at.
      * see ToolComponent.attackTickInterval
      */
-    @Transient var attackLastTick = 0L;
+    @DoNotCopy @DoNotPrint @Transient var attackLastTick = 0L;
 
     //    public Vector2 mousePositionWorldCoords;
     //    public boolean mouseLeftButtonHeld;
     //    public boolean mouseRightButtonHeld;
-    @Transient var ping: Int = 0
-    @Transient var noClip: Boolean = false
+    @DoNotCopy @DoNotPrint @Transient var ping: Int = 0
+    @DoNotCopy @DoNotPrint @Transient var noClip: Boolean = false
 
-    @Transient var loadedViewport = LoadedViewport()
-    @Transient var hotbarInventory: Inventory? = null
-    @Transient var inventory: Inventory? = null
+    @DoNotCopy @DoNotPrint @Transient var loadedViewport = LoadedViewport()
+    @DoNotCopy @DoNotPrint @Transient var hotbarInventory: Inventory? = null
+    @DoNotCopy @DoNotPrint @Transient var inventory: Inventory? = null
     //public int equippedItemAnimator;
 
     /**
@@ -78,17 +81,4 @@ class PlayerComponent : Component() {
         //ms
         val placeableItemDelay = 300
     }
-
-    /**
-     * note, has no copyFrom method, as it is should never be copied
-     */
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.playerName: $playerName
-        $c.connectionPlayerId: $connectionPlayerId
-        $c.killed: $killed"""
-    }
-
 }

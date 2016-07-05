@@ -26,7 +26,6 @@ package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.EntitySubscription
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
@@ -42,8 +41,10 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.opt
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -52,7 +53,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * Handles the network side of things, for the client
  */
 @Wire
-class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
+class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     /**
      * whether or not we're connected to the server (either local or mp).
      *
@@ -66,22 +67,19 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
      */
     var connected: Boolean = false
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mBlock by mapper<BlockComponent>()
+    private val mTool by mapper<ToolComponent>()
 
-    private lateinit var m_tagManager: TagManager
-    private lateinit var m_tileRenderer: TileRenderSystem
-    private lateinit var m_soundSystem: SoundSystem
+    private val tagManager by system<TagManager>()
+    private val tileRenderer by system<TileRenderSystem>()
+    private val soundSystem by system<SoundSystem>()
 
-    private val m_netQueue = ConcurrentLinkedQueue<Any>()
+    private val netQueue = ConcurrentLinkedQueue<Any>()
 
-    lateinit var m_clientKryo: Client
+    lateinit var clientKryo: Client
 
     /**
      * the network id is a special id that is used to refer to an entity across
@@ -100,22 +98,22 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
      *
      * server remote entity ID(key), client local entity id(value)
      */
-    private val m_entityForNetworkId = HashMap<Int, Int>(500)
+    private val entityForNetworkId = HashMap<Int, Int>(500)
 
     /**
      * client local entity id(key), server remote entity ID(value)
      */
-    private val m_networkIdForEntityId = HashMap<Int, Int>(500)
+    private val networkIdForEntityId = HashMap<Int, Int>(500)
 
     /**
      * keeps a tally of each packet type received and their frequency
      */
-    val m_debugPacketFrequencyByType = mutableMapOf<String, Int>()
+    val debugPacketFrequencyByType = mutableMapOf<String, Int>()
 
-    private val m_listeners = Array<NetworkClientListener>(5)
+    private val listeners = Array<NetworkClientListener>(5)
 
     fun addListener(listener: NetworkClientListener) {
-        m_listeners.add(listener)
+        listeners.add(listener)
     }
 
     interface NetworkClientListener {
@@ -135,28 +133,28 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
      */
     @Throws(IOException::class)
     fun connect(ip: String, port: Int) {
-        //m_clientKryo = new Client(16384, 8192, new JsonSerialization());
-        m_clientKryo = Client(8192, Network.bufferObjectSize)
-        m_clientKryo.start()
+        //clientKryo = new Client(16384, 8192, new JsonSerialization());
+        clientKryo = Client(8192, Network.bufferObjectSize)
+        clientKryo.start()
 
-        Network.register(m_clientKryo)
+        Network.register(clientKryo)
 
         val lagMinMs = OreSettings.lagMinMs
         val lagMaxMs = OreSettings.lagMaxMs
         if (lagMinMs == 0 && lagMaxMs == 0) {
             //network latency debug switches unset, regular connection.
-            m_clientKryo.addListener(ClientListener())
+            clientKryo.addListener(ClientListener())
         } else {
-            m_clientKryo.addListener(Listener.LagListener(lagMinMs, lagMaxMs, ClientListener()))
+            clientKryo.addListener(Listener.LagListener(lagMinMs, lagMaxMs, ClientListener()))
         }
 
-        m_clientKryo.setKeepAliveTCP(999999)
+        clientKryo.setKeepAliveTCP(999999)
 
         object : Thread("kryonet connection client thread") {
             override fun run() {
                 try {
                     Gdx.app.log("NetworkClientSystem", "client attempting to connect to server")
-                    m_clientKryo.connect(99999999 /*fixme, debug*/, ip, port)
+                    clientKryo.connect(99999999 /*fixme, debug*/, ip, port)
                     // Server communication after connection can go here, or in Listener#connected().
 
                     sendInitialClientData()
@@ -183,7 +181,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         initialClientData.versionMinor = OreClient.ORE_VERSION_MINOR
         initialClientData.versionRevision = OreClient.ORE_VERSION_REVISION
 
-        m_clientKryo.sendTCP(initialClientData)
+        clientKryo.sendTCP(initialClientData)
     }
 
     var lastPingUpdate: Long = 0
@@ -193,16 +191,16 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
         if (TimeUtils.timeSinceMillis(lastPingUpdate) > 1000) {
             lastPingUpdate = System.currentTimeMillis()
-            m_clientKryo.updateReturnTripTime()
-            val time = m_clientKryo.returnTripTime
+            clientKryo.updateReturnTripTime()
+            val time = clientKryo.returnTripTime
         }
     }
 
     private fun processNetworkQueue() {
-        while (m_netQueue.peek() != null) {
-            val receivedObject = m_netQueue.poll()
+        while (netQueue.peek() != null) {
+            val receivedObject = netQueue.poll()
 
-            NetworkHelper.debugPacketFrequencies(receivedObject, m_debugPacketFrequencyByType)
+            NetworkHelper.debugPacketFrequencies(receivedObject, debugPacketFrequencyByType)
 
             when (receivedObject) {
                 is Network.Shared.DisconnectReason -> receiveDisconnectReason(receivedObject)
@@ -234,7 +232,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
         if (OreSettings.debugPacketTypeStatistics) {
-            OreWorld.log("client", "--- packet type stats ${m_debugPacketFrequencyByType.toString()}")
+            OreWorld.log("client", "--- packet type stats ${debugPacketFrequencyByType.toString()}")
         }
     }
 
@@ -254,27 +252,27 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             entityEdit.add(c)
         }
 
-        val spriteComponent = spriteMapper.create(spawnedItemEntityId)
+        val spriteComponent = mSprite.create(spawnedItemEntityId)
         spriteComponent.textureName = spawn.textureName
         spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y)
 
         //fixme uhhhhh this isn't used at all??
         val textureRegion: TextureRegion
-        if (!blockMapper.has(spawnedItemEntityId)) {
-            textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName)
+        if (!mBlock.has(spawnedItemEntityId)) {
+            textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName)
         } else {
-            textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName)
+            textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
         }
 
-        val toolComponent = toolMapper.getNullable(spawnedItemEntityId)
+        val toolComponent = mTool.opt(spawnedItemEntityId)
 
-        val itemComponent = itemMapper.get(spawnedItemEntityId)
+        val itemComponent = mItem.get(spawnedItemEntityId)
 
         //fixme this indirection isn't so hot...
-        m_world.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
+        oreWorld.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
 
         if (spawn.causedByPickedUpItem) {
-            m_soundSystem.playItemPickup()
+            soundSystem.playItemPickup()
         }
 
         //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
@@ -282,13 +280,13 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun receiveChatMessage(chat: Network.Server.ChatMessage) {
-        m_world.m_client!!.m_chat.addChatLine(chat.timestamp, chat.playerName, chat.message, chat.sender)
+        oreWorld.m_client!!.m_chat.addChatLine(chat.timestamp, chat.playerName, chat.message, chat.sender)
     }
 
     private fun receiveEntityMoved(entityMove: Network.Server.EntityMoved) {
-        val entity = m_entityForNetworkId[entityMove.id]
+        val entity = entityForNetworkId[entityMove.id]
 
-        val spriteComponent = spriteMapper.get(entity!!)
+        val spriteComponent = mSprite.get(entity!!)
         spriteComponent.sprite.setPosition(entityMove.position.x, entityMove.position.y)
     }
 
@@ -304,22 +302,22 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         }
 
         //fixme id..see above.
-        SpriteComponent spriteComponent = spriteMapper.create(e);
+        SpriteComponent spriteComponent = mSprite.create(e);
         spriteComponent.textureName = spawn.textureName;
         spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
         spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
 
         TextureRegion textureRegion;
-        if (!blockMapper.has(e)) {
-            textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName);
+        if (!mBlock.has(e)) {
+            textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName);
         } else {
-            textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+            textureRegion = tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
         }
 
         spriteComponent.sprite.setRegion(textureRegion);
 
-        m_networkIdForEntityId.put(e, spawn.id);
-        m_entityForNetworkId.put(spawn.id, e);
+        networkIdForEntityId.put(e, spawn.id);
+        entityForNetworkId.put(spawn.id, e);
     }
     */
 
@@ -329,12 +327,12 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             val networkEntityId = entityDestroy.entitiesToDestroy[i]
 
             //cleanup the maps
-            val localId = m_entityForNetworkId.remove(networkEntityId)
+            val localId = entityForNetworkId.remove(networkEntityId)
 
             if (localId != null) {
                 //debug += "networkid:" + networkEntityId + " localid: " + localId.toInt() + ", "
 
-                val networkId = m_networkIdForEntityId.remove(localId)
+                val networkId = networkIdForEntityId.remove(localId)
                 assert(networkId != null) { "network id null on remove/destroy, but localid wasn't" }
             } else {
                 //debug += "networkid:$networkEntityId localid: $localId, "
@@ -344,15 +342,15 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
             }
 
-            assert(m_world.m_artemisWorld.getEntity(
+            assert(oreWorld.m_artemisWorld.getEntity(
                     localId!!) != null) { "entity doesn't exist locally, but we tried to delete it from the map" }
-            m_world.m_artemisWorld.delete(localId)
+            oreWorld.m_artemisWorld.delete(localId)
         }
 
-        assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
+        assert(entityForNetworkId.size == networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
 
         //no need to remove the entity maps, we're subscribed to do that already.
-        assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "destroy, network id and entity id maps are out of sync(size mismatch)" }
+        assert(entityForNetworkId.size == networkIdForEntityId.size) { "destroy, network id and entity id maps are out of sync(size mismatch)" }
 
         debug += ']'
 
@@ -376,7 +374,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             }
 
             //fixme id..see above.
-            val spriteComponent = spriteMapper.create(e)
+            val spriteComponent = mSprite.create(e)
             spriteComponent.textureName = spawn.textureName
             spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y)
             spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
@@ -384,18 +382,18 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             assert(spriteComponent.textureName != null)
 
             val textureRegion: TextureRegion?
-            if (!blockMapper.has(e)) {
-                textureRegion = m_world.m_atlas.findRegion(spriteComponent.textureName)
+            if (!mBlock.has(e)) {
+                textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName)
             } else {
-                textureRegion = m_tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName)
+                textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
             }
 
             assert(textureRegion != null) { "texture region is null on receiving entity spawn and reverse lookup of texture for this entity" }
 
             spriteComponent.sprite.setRegion(textureRegion)
 
-            val result1 = m_networkIdForEntityId.put(e, spawn.id)
-            val result2 = m_entityForNetworkId.put(spawn.id, e)
+            val result1 = networkIdForEntityId.put(e, spawn.id)
+            val result2 = entityForNetworkId.put(spawn.id, e)
 
             if (result1 != null) {
                 assert(false) {
@@ -406,23 +404,23 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
             assert(result2 == null) { "put failed for spawning, into entity bidirectional map, value already existed" }
 
-            assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "spawn, network id and entity id maps are out of sync(size mismatch)" }
+            assert(entityForNetworkId.size == networkIdForEntityId.size) { "spawn, network id and entity id maps are out of sync(size mismatch)" }
         }
 
         //OreWorld.log("networkclientsystem", debug)
     }
 
     private fun receiveLoadedViewportMoved(viewportMove: Network.Server.LoadedViewportMoved) {
-        val c = playerMapper.get(m_tagManager.getEntity(OreWorld.s_mainPlayer))
+        val c = mPlayer.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
         c.loadedViewport.rect = viewportMove.rect
     }
 
     private fun receiveSparseBlockUpdate(sparseBlockUpdate: Network.Shared.SparseBlockUpdate) {
-        m_world.loadSparseBlockUpdate(sparseBlockUpdate)
+        oreWorld.loadSparseBlockUpdate(sparseBlockUpdate)
     }
 
     private fun receiveDisconnectReason(disconnectReason: Network.Shared.DisconnectReason) {
-        for (listener in m_listeners) {
+        for (listener in listeners) {
             listener.disconnected(disconnectReason)
         }
     }
@@ -431,13 +429,13 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         //it is our main player (the client's player, aka us)
         if (!connected) {
             //fixme not ideal, calling into the client to do this????
-            val player = m_world.m_client!!.createPlayer(spawn.playerName!!, m_clientKryo.id, true)
-            val spriteComp = spriteMapper.get(player)
+            val player = oreWorld.m_client!!.createPlayer(spawn.playerName!!, clientKryo.id, true)
+            val spriteComp = mSprite.get(player)
 
             spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
 
-            val playerSprite = spriteMapper.get(player)
-            playerSprite.sprite.setRegion(m_world.m_atlas.findRegion("player-32x64"))
+            val playerSprite = mSprite.get(player)
+            playerSprite.sprite.setRegion(oreWorld.m_atlas.findRegion("player-32x64"))
 
             val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
             val subscription = aspectSubscriptionManager.get(Aspect.all())
@@ -445,7 +443,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
             connected = true
 
-            for (listener in m_listeners) {
+            for (listener in listeners) {
                 listener.connected()
             }
         } else {
@@ -459,16 +457,16 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         for (y in region.y..region.y2) {
             for (x in region.x..region.x2) {
                 val blockType = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_TYPE]
-                m_world.setBlockType(x, y, blockType)
+                oreWorld.setBlockType(x, y, blockType)
 
                 val wallType = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_WALLTYPE]
-                m_world.setBlockWallType(x, y, wallType)
+                oreWorld.setBlockWallType(x, y, wallType)
 
                 val lightLevel = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_LIGHT_LEVEL]
-                m_world.setBlockLightLevel(x, y, lightLevel)
+                oreWorld.setBlockLightLevel(x, y, lightLevel)
 
                 val flags = region.blocks[sourceIndex * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT + Network.Shared.BlockRegion.BLOCK_FIELD_INDEX_FLAGS]
-                m_world.setBlockFlags(x, y, flags)
+                oreWorld.setBlockFlags(x, y, flags)
 
                 ++sourceIndex
             }
@@ -488,7 +486,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         inventoryItemFromClient.destType = destInventoryType
         inventoryItemFromClient.destIndex = destIndex.toByte()
 
-        m_clientKryo.sendTCP(inventoryItemFromClient)
+        clientKryo.sendTCP(inventoryItemFromClient)
     }
 
     /**
@@ -505,43 +503,43 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
             attackPositionWorldCoords = _attackPositionWorldCoords
         }
 
-        m_clientKryo.sendTCP(attack)
+        clientKryo.sendTCP(attack)
     }
 
     fun sendEntityAttack(currentEntity: Int) {
         val attack = Network.Client.EntityAttack()
 
-        val networkId = m_networkIdForEntityId[currentEntity]!!
+        val networkId = networkIdForEntityId[currentEntity]!!
         attack.id = networkId
 
-        m_clientKryo.sendTCP(attack)
+        clientKryo.sendTCP(attack)
     }
 
     /**
      * Send the command indicating (main) player moved to position
      */
     fun sendPlayerMoved() {
-        val mainPlayer = m_tagManager.getEntity("mainPlayer").id
-        val sprite = spriteMapper.get(mainPlayer)
+        val mainPlayer = tagManager.getEntity("mainPlayer").id
+        val sprite = mSprite.get(mainPlayer)
 
         val move = Network.Client.PlayerMove()
         move.position = Vector2(sprite.sprite.x, sprite.sprite.y)
 
-        m_clientKryo.sendTCP(move)
+        clientKryo.sendTCP(move)
     }
 
     fun sendChatMessage(message: String) {
         val chatMessageFromClient = Network.Client.ChatMessage()
         chatMessageFromClient.message = message
 
-        m_clientKryo.sendTCP(chatMessageFromClient)
+        clientKryo.sendTCP(chatMessageFromClient)
     }
 
     fun sendHotbarEquipped(index: Byte) {
         val playerEquipHotbarIndexFromClient = Network.Client.PlayerEquipHotbarIndex()
         playerEquipHotbarIndexFromClient.index = index
 
-        m_clientKryo.sendTCP(playerEquipHotbarIndexFromClient)
+        clientKryo.sendTCP(playerEquipHotbarIndexFromClient)
     }
 
     /**
@@ -557,21 +555,21 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         val blockDigFromClient = Network.Client.BlockDigBegin()
         blockDigFromClient.x = x
         blockDigFromClient.y = y
-        m_clientKryo.sendTCP(blockDigFromClient)
+        clientKryo.sendTCP(blockDigFromClient)
     }
 
     fun sendBlockDigFinish(blockX: Int, blockY: Int) {
         val blockDigFromClient = Network.Client.BlockDigFinish()
         blockDigFromClient.x = blockX
         blockDigFromClient.y = blockY
-        m_clientKryo.sendTCP(blockDigFromClient)
+        clientKryo.sendTCP(blockDigFromClient)
     }
 
     fun sendBlockPlace(x: Int, y: Int) {
         val blockPlaceFromClient = Network.Client.BlockPlace()
         blockPlaceFromClient.x = x
         blockPlaceFromClient.y = y
-        m_clientKryo.sendTCP(blockPlaceFromClient)
+        clientKryo.sendTCP(blockPlaceFromClient)
     }
 
     fun sendItemPlace(x: Float, y: Float) {
@@ -579,7 +577,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
         itemPlace.x = x
         itemPlace.y = y
 
-        m_clientKryo.sendTCP(itemPlace)
+        clientKryo.sendTCP(itemPlace)
     }
 
     internal inner class ClientListener : Listener() {
@@ -591,7 +589,7 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
 
         //FIXME: do sanity checking (null etc) on both client, server
         override fun received(connection: Connection?, dataObject: Any?) {
-            m_netQueue.add(dataObject)
+            netQueue.add(dataObject)
         }
 
         override fun disconnected(connection: Connection?) {
@@ -621,14 +619,14 @@ class ClientNetworkSystem(private val m_world: OreWorld) : BaseSystem() {
          */
         override fun removed(entities: IntBag) {
             for (entity in entities.indices) {
-                val networkId: Int? = null//= m_networkIdForEntityId.remove(entity);
+                val networkId: Int? = null//= networkIdForEntityId.remove(entity);
                 if (networkId != null) {
                     //a local only thing, like crosshair etc
-                    m_entityForNetworkId.remove(networkId)
+                    entityForNetworkId.remove(networkId)
                 }
             }
 
-            assert(m_entityForNetworkId.size == m_networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
+            assert(entityForNetworkId.size == networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
         }
     }
 }

@@ -25,13 +25,15 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.artemis.utils.IntBag
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.SpatialSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
 
 @Wire(failOnNull = false)
@@ -48,20 +50,15 @@ import com.ore.infinium.util.indices
  * commands
 
  */
-class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem(
-        Aspect.one(SpriteComponent::class.java)) {
+class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private val mSprite by require<SpriteComponent>()
+    private val mPlayer by mapper<PlayerComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
-    private lateinit var m_spatialSystem: SpatialSystem
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+    private val spatialSystem by system<SpatialSystem>()
 
-    private val m_playerEntities = mutableListOf<PlayerEntitiesInViewport>()
+    private val playerEntities = mutableListOf<PlayerEntitiesInViewport>()
 
     //todo store a list for each player, of entities within the viewport
     //each tick we will check if entities should be added or removed
@@ -77,7 +74,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
      */
     fun entityExistsInPlayerView(playerEntityId: Int, entityId: Int): Boolean {
         //todo this gonna be really costly. should replace with hash map approach, likely
-        val playerEntityInViewport = m_playerEntities.find { it -> it.playerEntityId == playerEntityId }
+        val playerEntityInViewport = playerEntities.find { it -> it.playerEntityId == playerEntityId }
 
         val knownEntity = playerEntityInViewport!!.knownEntities.find { knownEntityId -> knownEntityId == entityId }
 
@@ -109,12 +106,12 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
     }
 
     override fun initialize() {
-        m_serverNetworkSystem.addConnectionListener(ConnectionListener())
+        serverNetworkSystem.addConnectionListener(ConnectionListener())
     }
 
     private inner class ConnectionListener : ServerNetworkSystem.NetworkServerConnectionListener {
         override fun playerDisconnected(playerEntityId: Int) {
-            m_playerEntities.removeAll { playerEntities ->
+            playerEntities.removeAll { playerEntities ->
                 //remove all entity 'copies' for this player, since he's disconnecting
                 playerEntities.playerEntityId == playerEntityId
             }
@@ -122,7 +119,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
         override fun playerConnected(playerEntityId: Int) {
             val playerEntitiesInViewport = PlayerEntitiesInViewport(playerEntityId)
-            m_playerEntities.add(playerEntitiesInViewport)
+            playerEntities.add(playerEntitiesInViewport)
         }
     }
 
@@ -138,7 +135,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
 
         //hack, dunno if this is  even needed..it's more polling based than event based, for player viewport spawns
         /*
-        for (playerEntity in m_playerEntities) {
+        for (playerEntity in playerEntities) {
             for (i in playerEntity.knownEntities.indices) {
                 val ent = playerEntity.knownEntities.get(i)
 
@@ -151,19 +148,19 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
     }
 
     override fun process(entityId: Int) {
-        val spriteComponent = spriteMapper.get(entityId)
+        val spriteComponent = mSprite.get(entityId)
 
         //for each player, check their list of entities spawned in their viewport,
         //compare with our list of entities that actually exist (spatial query)
-        for (playerEntity in m_playerEntities) {
+        for (playerEntity in playerEntities) {
             //playerEntity.knownEntities;
 
-            val playerComponent = playerMapper.get(playerEntity.playerEntityId)
+            val playerComponent = mPlayer.get(playerEntity.playerEntityId)
             val viewport = playerComponent.loadedViewport.blockRegionInViewport()
 
             //get the entities that actually exist in this viewport
             val fill = IntBag()
-            m_spatialSystem.m_tree.get(fill, viewport.x.toFloat(), viewport.y.toFloat(), viewport.width.toFloat(),
+            spatialSystem.quadTree.get(fill, viewport.x.toFloat(), viewport.y.toFloat(), viewport.width.toFloat(),
                                        viewport.height.toFloat())
 
             //hack copy to intarray only because the quadtree uses an intbag
@@ -178,13 +175,13 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                 !playerEntity.knownEntities.contains(entityInRegion) &&
                         //hack ignore players for now, we don't spawn them via this mechanisms..it'd get hairy
                         //gotta rethink player spawn/destroying
-                        !playerMapper.has(entityInRegion)
+                        !mPlayer.has(entityInRegion)
             }
 
             //list of entities we'll need to tell the client we no longer want him to have
             //remove from known, tell client he needs to delete that.
             val entitiesToDestroy = playerEntity.knownEntities.filter { knownEntity ->
-                !entitiesInRegion.contains(knownEntity) && !playerMapper.has(knownEntity)
+                !entitiesInRegion.contains(knownEntity) && !mPlayer.has(knownEntity)
             }
 
             //update  our status
@@ -196,7 +193,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
             if (entitiesToDestroy.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
                              "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
-                m_serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
+                serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
                                                                   playerComponent.connectionPlayerId)
             }
 
@@ -204,7 +201,7 @@ class ServerNetworkEntitySystem(private val m_world: OreWorld) : IteratingSystem
                 OreWorld.log("servernetworkentitysystem",
                              "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
-                m_serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
+                serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
                                                                 playerComponent.connectionPlayerId)
             }
 

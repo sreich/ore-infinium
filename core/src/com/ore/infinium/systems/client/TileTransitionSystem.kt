@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IntervalSystem
@@ -34,22 +33,18 @@ import com.ore.infinium.LoadedViewport
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import java.util.*
 
 @Wire
-class TileTransitionSystem(private val m_camera: OrthographicCamera, private val m_world: OreWorld)//every n ms
-: IntervalSystem(Aspect.all(), 600.0f / 1000.0f) {
+class TileTransitionSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)//every n ms
+        : IntervalSystem(Aspect.all(), 600.0f / 1000.0f) {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private val mPlayer by mapper<PlayerComponent>()
 
-    private lateinit var m_tagManager: TagManager
-
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
+    private val tagManager by system<TagManager>()
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
 
     /**
      * each flag here is handled (possibly, somewhat) differently depending on what kinda
@@ -99,12 +94,12 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
     }
 
     override fun processSystem() {
-        if (!m_clientNetworkSystem.connected) {
+        if (!clientNetworkSystem.connected) {
             return
         }
 
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComponent = playerMapper.get(player)
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val playerComponent = mPlayer.get(player)
         val blockRegion = playerComponent.loadedViewport.blockRegionInViewport()
 
         transitionTiles(blockRegion)
@@ -115,20 +110,20 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
         for (y in blockRegion.y..blockRegion.height) {
             for (x in blockRegion.x..blockRegion.width) {
 
-                val leftLeftBlockType = m_world.blockTypeSafely(x - 2, y)
-                val rightRightBlockType = m_world.blockTypeSafely(x + 2, y)
-                val leftBlockType = m_world.blockTypeSafely(x - 1, y)
-                val rightBlockType = m_world.blockTypeSafely(x + 1, y)
-                val topBlockType = m_world.blockTypeSafely(x, y - 1)
-                val bottomBlockType = m_world.blockTypeSafely(x, y + 1)
+                val leftLeftBlockType = oreWorld.blockTypeSafely(x - 2, y)
+                val rightRightBlockType = oreWorld.blockTypeSafely(x + 2, y)
+                val leftBlockType = oreWorld.blockTypeSafely(x - 1, y)
+                val rightBlockType = oreWorld.blockTypeSafely(x + 1, y)
+                val topBlockType = oreWorld.blockTypeSafely(x, y - 1)
+                val bottomBlockType = oreWorld.blockTypeSafely(x, y + 1)
 
-                val topLeftBlockType = m_world.blockTypeSafely(x - 1, y - 1)
-                val topRightBlockType = m_world.blockTypeSafely(x + 1, y - 1)
-                val bottomLeftBlockType = m_world.blockTypeSafely(x - 1, y + 1)
-                val bottomRightBlockType = m_world.blockTypeSafely(x + 1, y + 1)
+                val topLeftBlockType = oreWorld.blockTypeSafely(x - 1, y - 1)
+                val topRightBlockType = oreWorld.blockTypeSafely(x + 1, y - 1)
+                val bottomLeftBlockType = oreWorld.blockTypeSafely(x - 1, y + 1)
+                val bottomRightBlockType = oreWorld.blockTypeSafely(x + 1, y + 1)
 
-                val blockType = m_world.blockTypeSafely(x, y)
-                val blockHasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+                val blockType = oreWorld.blockTypeSafely(x, y)
+                val blockHasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
                 if (blockType == OreBlock.BlockType.Dirt.oreValue && blockHasGrass) {
 
                     //should have grass on left side of this block..or not.
@@ -235,7 +230,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
                         finalMesh = 15
                     }
 
-                    m_world.setBlockMeshType(x, y, finalMesh)
+                    oreWorld.setBlockMeshType(x, y, finalMesh)
 
                     if (finalMesh.toInt() == -1) {
                         assert(false) { "invalid mesh type retrieval, for some reason" }
@@ -265,7 +260,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
         for (y in blockRegion.y..blockRegion.height) {
             for (x in blockRegion.x..blockRegion.width) {
 
-                val type = m_world.blockType(x, y)
+                val type = oreWorld.blockType(x, y)
                 if (type == OreBlock.BlockType.Air.oreValue) {
                     continue
                 }
@@ -309,7 +304,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
 
         val lookup = stoneTransitionTypes[result]
         assert(lookup != null) { "transition lookup failure!" }
-        m_world.setBlockMeshType(x, y, lookup!!)
+        oreWorld.setBlockMeshType(x, y, lookup!!)
     }
 
     private fun transitionDirtTile(x: Int, y: Int) {
@@ -341,7 +336,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
 
         val lookup = dirtTransitionTypes[result]
         assert(lookup != null) { "transition lookup failure!" }
-        m_world.setBlockMeshType(x, y, lookup!!)
+        oreWorld.setBlockMeshType(x, y, lookup!!)
     }
 
     /**
@@ -365,7 +360,7 @@ class TileTransitionSystem(private val m_camera: OrthographicCamera, private val
                                          nearbyTileY: Int): Boolean {
         var isMatched = false
 
-        if (m_world.blockTypeSafely(sourceTileX, sourceTileY) == m_world.blockTypeSafely(nearbyTileX, nearbyTileY)) {
+        if (oreWorld.blockTypeSafely(sourceTileX, sourceTileY) == oreWorld.blockTypeSafely(nearbyTileX, nearbyTileY)) {
             //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"
             //some may be exceptions??
             isMatched = true

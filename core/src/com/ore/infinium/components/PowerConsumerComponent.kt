@@ -34,26 +34,10 @@ class PowerConsumerComponent : Component() {
     var powerDemandRate: Int = 0
 
     /**
-     * copy a component (similar to copy constructor)
-
-     * @param component
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(component: PowerConsumerComponent) {
-        powerDemandRate = component.powerDemandRate
-    }
-
-    /**
      * determines if the item component is the same, in other words,
      * if it is the same kind of item. to determine if it can merge/combine
      */
     fun canCombineWith(otherComp: PowerConsumerComponent): Boolean {
         return this.powerDemandRate == otherComp.powerDemandRate
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.powerDemandRate: $powerDemandRate"""
     }
 }

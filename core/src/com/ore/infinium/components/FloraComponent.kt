@@ -55,24 +55,4 @@ class FloraComponent : Component() {
     fun canCombineWith(otherComp: FloraComponent): Boolean {
         return this.numberOfDropsWhenDestroyed == otherComp.numberOfDropsWhenDestroyed
     }
-
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param healthComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(component: FloraComponent) {
-        numberOfDropsWhenDestroyed = component.numberOfDropsWhenDestroyed
-        stackSizePerDrop = component.stackSizePerDrop
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.numberOfDropsWhenDestroyed: $numberOfDropsWhenDestroyed
-        $c.stackSizePerDrop: $stackSizePerDrop
-        """
-    }
 }

@@ -35,27 +35,10 @@ class BlockComponent : Component() {
     var blockType: Byte = 0
 
     /**
-     * copy a component (similar to copy constructor)
-
-     * @param blockComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(blockComponent: BlockComponent) {
-        blockType = blockComponent.blockType
-    }
-
-    /**
      * determines if the item component is the same, in other words,
      * if it is the same kind of item. to determine if it can merge/combine
      */
     fun canCombineWith(otherComp: BlockComponent): Boolean {
         return this.blockType == otherComp.blockType
-    }
-
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.blockType: $blockType"""
     }
 }

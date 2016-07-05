@@ -25,13 +25,15 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.MathUtils
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.PlayerSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
 
 /**
@@ -39,18 +41,18 @@ import com.ore.infinium.util.indices
  * This is server only.
  */
 @Wire
-class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
+class GrassBlockSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
-    private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
-    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
+    private val mVelocity by mapper<VelocityComponent>()
+    private val mPowerDevice by mapper<PowerDeviceComponent>()
+    private val mPowerConsumer by mapper<PowerConsumerComponent>()
+    private val mPowerGenerator by mapper<PowerGeneratorComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
-    private lateinit var m_playerSystem: PlayerSystem
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+    private val playerSystem by system<PlayerSystem>()
 
     /**
      * Process the system.
@@ -60,12 +62,12 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     private fun randomGrowGrass() {
-        val players = m_playerSystem.entityIds
+        val players = playerSystem.subscription.entities
 
         for (i in players.indices) {
             val playerEntity = players.get(i)
 
-            val playerComponent = playerMapper.get(playerEntity)
+            val playerComponent = mPlayer.get(playerEntity)
 
             val region = playerComponent.loadedViewport.blockRegionInViewport()
 
@@ -75,60 +77,60 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                 val randomX = MathUtils.random(region.x, region.width)
                 val randomY = MathUtils.random(region.y, region.height)
 
-                val blockHasGrass = m_world.blockHasFlag(randomX, randomY, OreBlock.BlockFlags.GrassBlock)
+                val blockHasGrass = oreWorld.blockHasFlag(randomX, randomY, OreBlock.BlockFlags.GrassBlock)
 
                 //pick a random block, if it has grass, try to grow outward along its edges/spread the grass
                 if (blockHasGrass) {
-                    val leftBlockX = m_world.blockXSafe(randomX - 1)
-                    val leftBlockY = m_world.blockYSafe(randomY)
+                    val leftBlockX = oreWorld.blockXSafe(randomX - 1)
+                    val leftBlockY = oreWorld.blockYSafe(randomY)
 
-                    val rightBlockX = m_world.blockXSafe(randomX + 1)
-                    val rightBlockY = m_world.blockYSafe(randomY)
+                    val rightBlockX = oreWorld.blockXSafe(randomX + 1)
+                    val rightBlockY = oreWorld.blockYSafe(randomY)
 
-                    val topBlockX = m_world.blockXSafe(randomX)
-                    val topBlockY = m_world.blockYSafe(randomY - 1)
+                    val topBlockX = oreWorld.blockXSafe(randomX)
+                    val topBlockY = oreWorld.blockYSafe(randomY - 1)
 
-                    val bottomBlockX = m_world.blockXSafe(randomX)
-                    val bottomBlockY = m_world.blockYSafe(randomY + 1)
+                    val bottomBlockX = oreWorld.blockXSafe(randomX)
+                    val bottomBlockY = oreWorld.blockYSafe(randomY + 1)
 
-                    val topLeftBlockX = m_world.blockXSafe(randomX - 1)
-                    val topLeftBlockY = m_world.blockYSafe(randomY - 1)
+                    val topLeftBlockX = oreWorld.blockXSafe(randomX - 1)
+                    val topLeftBlockY = oreWorld.blockYSafe(randomY - 1)
 
-                    val topRightBlockX = m_world.blockXSafe(randomX + 1)
-                    val topRightBlockY = m_world.blockYSafe(randomY - 1)
+                    val topRightBlockX = oreWorld.blockXSafe(randomX + 1)
+                    val topRightBlockY = oreWorld.blockYSafe(randomY - 1)
 
-                    val bottomRightBlockX = m_world.blockXSafe(randomX + 1)
-                    val bottomRightBlockY = m_world.blockYSafe(randomY + 1)
+                    val bottomRightBlockX = oreWorld.blockXSafe(randomX + 1)
+                    val bottomRightBlockY = oreWorld.blockYSafe(randomY + 1)
 
-                    val bottomLeftBlockX = m_world.blockXSafe(randomX - 1)
-                    val bottomLeftBlockY = m_world.blockYSafe(randomY + 1)
+                    val bottomLeftBlockX = oreWorld.blockXSafe(randomX - 1)
+                    val bottomLeftBlockY = oreWorld.blockYSafe(randomY + 1)
 
                     //fixme move these upwards, so i can access them and divide this whole thing into method calls
-                    val leftBlockType = m_world.blockType(leftBlockX, leftBlockY)
-                    val rightBlockType = m_world.blockType(rightBlockX, rightBlockY)
-                    val topBlockType = m_world.blockType(topBlockX, topBlockY)
-                    val bottomBlockType = m_world.blockType(bottomBlockX, bottomBlockY)
-                    val topLeftBlockType = m_world.blockType(topLeftBlockX, topLeftBlockY)
-                    val topRightBlockType = m_world.blockType(topRightBlockX, topRightBlockY)
-                    val bottomLeftBlockType = m_world.blockType(bottomLeftBlockX, bottomLeftBlockY)
-                    val bottomRightBlockType = m_world.blockType(bottomRightBlockX, bottomRightBlockY)
+                    val leftBlockType = oreWorld.blockType(leftBlockX, leftBlockY)
+                    val rightBlockType = oreWorld.blockType(rightBlockX, rightBlockY)
+                    val topBlockType = oreWorld.blockType(topBlockX, topBlockY)
+                    val bottomBlockType = oreWorld.blockType(bottomBlockX, bottomBlockY)
+                    val topLeftBlockType = oreWorld.blockType(topLeftBlockX, topLeftBlockY)
+                    val topRightBlockType = oreWorld.blockType(topRightBlockX, topRightBlockY)
+                    val bottomLeftBlockType = oreWorld.blockType(bottomLeftBlockX, bottomLeftBlockY)
+                    val bottomRightBlockType = oreWorld.blockType(bottomRightBlockX, bottomRightBlockY)
 
-                    val leftBlockHasGrass = m_world.blockHasFlag(leftBlockX, leftBlockY, OreBlock.BlockFlags.GrassBlock)
+                    val leftBlockHasGrass = oreWorld.blockHasFlag(leftBlockX, leftBlockY, OreBlock.BlockFlags.GrassBlock)
 
-                    val rightBlockHasGrass = m_world.blockHasFlag(rightBlockX, rightBlockY,
+                    val rightBlockHasGrass = oreWorld.blockHasFlag(rightBlockX, rightBlockY,
                                                                   OreBlock.BlockFlags.GrassBlock)
 
-                    val bottomBlockHasGrass = m_world.blockHasFlag(bottomBlockX, bottomBlockY,
+                    val bottomBlockHasGrass = oreWorld.blockHasFlag(bottomBlockX, bottomBlockY,
                                                                    OreBlock.BlockFlags.GrassBlock)
 
-                    val topBlockHasGrass = m_world.blockHasFlag(topBlockX, topBlockY, OreBlock.BlockFlags.GrassBlock)
+                    val topBlockHasGrass = oreWorld.blockHasFlag(topBlockX, topBlockY, OreBlock.BlockFlags.GrassBlock)
 
                     //grow left
                     if (leftBlockType == OreBlock.BlockType.Dirt.oreValue && !leftBlockHasGrass) {
 
-                        val leftLeftX = m_world.blockXSafe(leftBlockX - 1)
+                        val leftLeftX = oreWorld.blockXSafe(leftBlockX - 1)
                         val leftLeftY = leftBlockY
-                        val leftLeftBlockType = m_world.blockType(leftLeftX, leftLeftY)
+                        val leftLeftBlockType = oreWorld.blockType(leftLeftX, leftLeftY)
 
                         if (leftLeftBlockType == OreBlock.BlockType.Air.oreValue ||
                                 topLeftBlockType == OreBlock.BlockType.Air.oreValue ||
@@ -136,20 +138,20 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                                 bottomLeftBlockType == OreBlock.BlockType.Dirt.oreValue && bottomBlockType == OreBlock.BlockType.Air.oreValue ||
                                 topLeftBlockType == OreBlock.BlockType.Dirt.oreValue && topBlockType == OreBlock.BlockType.Air.oreValue) {
 
-                            m_world.setBlockFlag(leftBlockX, leftBlockY, OreBlock.BlockFlags.GrassBlock)
+                            oreWorld.setBlockFlag(leftBlockX, leftBlockY, OreBlock.BlockFlags.GrassBlock)
                             //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
                             // leftLeftX, leftLeftY);
 
-                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, leftBlockX, leftBlockY)
+                            serverNetworkSystem.sendPlayerSingleBlock(playerEntity, leftBlockX, leftBlockY)
                         }
                     }
 
                     //grow right
                     if (rightBlockType == OreBlock.BlockType.Dirt.oreValue && !rightBlockHasGrass) {
 
-                        val rightRightX = m_world.blockXSafe(rightBlockX + 1)
+                        val rightRightX = oreWorld.blockXSafe(rightBlockX + 1)
                         val rightRightY = rightBlockY
-                        val rightRightBlockType = m_world.blockType(rightRightX, rightRightY)
+                        val rightRightBlockType = oreWorld.blockType(rightRightX, rightRightY)
 
                         if (rightRightBlockType == OreBlock.BlockType.Air.oreValue ||
                                 topRightBlockType == OreBlock.BlockType.Air.oreValue ||
@@ -157,12 +159,12 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                                 bottomRightBlockType == OreBlock.BlockType.Dirt.oreValue && bottomBlockType == OreBlock.BlockType.Air.oreValue ||
                                 topRightBlockType == OreBlock.BlockType.Dirt.oreValue && topBlockType == OreBlock.BlockType.Air.oreValue) {
 
-                            m_world.setBlockFlag(rightBlockX, rightBlockY, OreBlock.BlockFlags.GrassBlock)
+                            oreWorld.setBlockFlag(rightBlockX, rightBlockY, OreBlock.BlockFlags.GrassBlock)
                             //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
                             //                               m_server.sendPlayerSparseBlock(player,
                             // rightRightBlock, rightRightX, rightRightY);
 
-                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, rightBlockX, rightBlockY)
+                            serverNetworkSystem.sendPlayerSingleBlock(playerEntity, rightBlockX, rightBlockY)
                         }
                     }
 
@@ -177,9 +179,9 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                                 leftBlockType == OreBlock.BlockType.Air.oreValue ||
                                 rightBlockType == OreBlock.BlockType.Air.oreValue) {
 
-                            m_world.setBlockFlag(bottomBlockX, bottomBlockY, OreBlock.BlockFlags.GrassBlock)
+                            oreWorld.setBlockFlag(bottomBlockX, bottomBlockY, OreBlock.BlockFlags.GrassBlock)
 
-                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, bottomBlockX, bottomBlockY)
+                            serverNetworkSystem.sendPlayerSingleBlock(playerEntity, bottomBlockX, bottomBlockY)
                         }
                     }
 
@@ -194,9 +196,9 @@ class GrassBlockSystem(private val m_world: OreWorld) : BaseSystem() {
                                 leftBlockType == OreBlock.BlockType.Air.oreValue ||
                                 rightBlockType == OreBlock.BlockType.Air.oreValue) {
 
-                            m_world.setBlockFlag(topBlockX, topBlockY, OreBlock.BlockFlags.GrassBlock)
+                            oreWorld.setBlockFlag(topBlockX, topBlockY, OreBlock.BlockFlags.GrassBlock)
 
-                            m_serverNetworkSystem.sendPlayerSingleBlock(playerEntity, topBlockX, topBlockY)
+                            serverNetworkSystem.sendPlayerSingleBlock(playerEntity, topBlockX, topBlockY)
                         }
                     }
 

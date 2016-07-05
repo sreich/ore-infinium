@@ -25,27 +25,24 @@ SOFTWARE.
 package com.ore.infinium.systems
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.systems.server.ServerNetworkSystem
-import com.ore.infinium.util.getNullable
 
 @Wire(failOnNull = false)
-class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(PlayerComponent::class.java)) {
+class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private val mPlayer by require<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
 
     private val chunkTimer = OreTimer()
 
@@ -53,7 +50,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
         super.inserted(entityId)
 
         //client does nothing as of yet, with this
-        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return
         }
 
@@ -68,7 +65,7 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
     }
 
     override fun process(entityId: Int) {
-        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             return
         }
 
@@ -79,10 +76,10 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
         //server will simulate everything else(except players), and broadcast positions
 
         //should never ever, ever happen.
-        assert(spriteMapper.has(entityId) && playerMapper.has(entityId))
+        assert(mSprite.has(entityId) && mPlayer.has(entityId))
 
-        val spriteComponent = spriteMapper.getNullable(entityId)!!
-        val playerComponent = playerMapper.get(entityId)
+        val spriteComponent = mSprite.get(entityId)
+        val playerComponent = mPlayer.get(entityId)
 
         val viewportRect = playerComponent.loadedViewport.rect
         val x = spriteComponent.sprite.x
@@ -96,27 +93,27 @@ class PlayerSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(P
     }
 
     private fun calculateLoadedViewport(playerEntity: Int) {
-        val playerComponent = playerMapper.get(playerEntity)
-        val spriteComponent = spriteMapper.get(playerEntity)
+        val playerComponent = mPlayer.get(playerEntity)
+        val spriteComponent = mSprite.get(playerEntity)
 
         val loadedViewport = playerComponent.loadedViewport
 
         val center = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
         loadedViewport.centerOn(center)
 
-        m_serverNetworkSystem.sendPlayerLoadedViewportMoved(playerEntity)
+        serverNetworkSystem.sendPlayerLoadedViewportMoved(playerEntity)
 
         //todo send only partials depending on direction they're traveling(distance from origin).
         sendPlayerBlockRegion(playerEntity)
     }
 
     private fun sendPlayerBlockRegion(playerEntity: Int) {
-        val playerComponent = playerMapper.get(playerEntity)
+        val playerComponent = mPlayer.get(playerEntity)
         val loadedViewport = playerComponent.loadedViewport
 
         val region = loadedViewport.blockRegionInViewport()
 
-        m_serverNetworkSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width,
+        serverNetworkSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width,
                                                     region.height)
     }
 

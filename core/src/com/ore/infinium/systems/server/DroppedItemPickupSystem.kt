@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
@@ -34,25 +33,23 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
+import com.ore.infinium.util.ifPresent
 import com.ore.infinium.util.forEach
-import com.ore.infinium.util.getNullable
 import com.ore.infinium.util.rect
 
 @Wire(failOnNull = false)
-class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
-        Aspect.all(PlayerComponent::class.java)) {
+class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private val mPlayer by require<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
-
-    private lateinit var m_tagManager: TagManager
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
+    private val tagManager by system<TagManager>()
 
     override fun setWorld(world: World) {
         super.setWorld(world)
@@ -62,11 +59,11 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
     }
 
     override fun process(playerEntityId: Int) {
-        if (m_world.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             assert(true)
         }
 
-        val playerSpriteComponent = spriteMapper.getNullable(playerEntityId)!!
+        val playerSpriteComponent = mSprite.get(playerEntityId)
 
         //fixme use spatialsystem for this *very expensive* walking
 
@@ -76,23 +73,20 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
 
         entities.forEach { droppedItemEntityId ->
 
-            val droppedItemComponent = itemMapper.getNullable(droppedItemEntityId)
+            mItem.ifPresent(droppedItemEntityId) {
+                if (it.state == ItemComponent.State.DroppedInWorld) {
+                    val itemSpriteComponent = mSprite.get(droppedItemEntityId)
 
-            if (droppedItemComponent != null && droppedItemComponent.state == ItemComponent.State.DroppedInWorld) {
-                val itemSpriteComponent = spriteMapper.get(droppedItemEntityId)
+                    val droppedItemRect = itemSpriteComponent.sprite.rect
+                    val playerRect = playerSpriteComponent.sprite.rect
 
-                val droppedItemRect = itemSpriteComponent.sprite.rect
-                val playerRect = playerSpriteComponent.sprite.rect
-
-                if (playerRect.overlaps(droppedItemRect)) {
-                    droppedItemComponent.apply {
-                        if (timeOfDropMs != 0L &&
-                                TimeUtils.timeSinceMillis(timeOfDropMs) > ItemComponent.droppedItemCoolOffMs) {
-                            //pickup the item, he's over it
-
-                            pickupItem(droppedItemComponent, droppedItemEntityId, playerEntityId)
+                    if (playerRect.overlaps(droppedItemRect))
+                        it.apply {
+                            if (timeOfDropMs != 0L &&
+                                    TimeUtils.timeSinceMillis(timeOfDropMs) > ItemComponent.droppedItemCoolOffMs)
+                                // pickup the item, he's over it
+                                pickupItem(it, droppedItemEntityId, playerEntityId)
                         }
-                    }
                 }
             }
         }
@@ -108,15 +102,15 @@ class DroppedItemPickupSystem(private val m_world: OreWorld) : IteratingSystem(
         itemComponentToPickup.state = ItemComponent.State.InInventoryState
         itemComponentToPickup.inventoryIndex = 7
 
-        val playerComponent = playerMapper.getNullable(playerEntityId)!!
+        val playerComponent = mPlayer.get(playerEntityId)
 
         //todo, create logic which will decide what happens when an item gets added
         //to the inventory (add to hotbar, add to main inventory, probably in that order if not
         //full). also probably consider existing stacks and stuff
         playerComponent.hotbarInventory!!.setSlot(7, itemToPickupId)
 
-        m_serverNetworkSystem.sendSpawnHotbarInventoryItem(itemToPickupId, 7, playerEntityId, true)
-        m_world.destroyEntity(itemToPickupId)
+        serverNetworkSystem.sendSpawnHotbarInventoryItem(itemToPickupId, 7, playerEntityId, true)
+        oreWorld.destroyEntity(itemToPickupId)
     }
 
 }

@@ -46,7 +46,7 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
-import com.ore.infinium.util.getNullable
+import com.ore.infinium.util.opt
 
 class HotbarInventoryView(private val m_stage: Stage,
         //the model for this view
@@ -159,9 +159,9 @@ class HotbarInventoryView(private val m_stage: Stage,
     //fixme this is also duped in the InventoryView, but not sure where else to put it...the current way is a hack anyway
     fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
         val region: TextureRegion?
-        if (blockMapper.getNullable(itemEntity) != null) {
+        if (blockMapper.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).m_tilesAtlas.findRegion(
+            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
                     "$textureName-00")
         } else {
             region = m_world.m_atlas.findRegion(textureName)

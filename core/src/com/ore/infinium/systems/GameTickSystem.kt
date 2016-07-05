@@ -29,10 +29,6 @@ import com.artemis.annotations.Wire
 import com.ore.infinium.OreWorld
 
 @Wire
-/**
- * sigh, a whole system just for seeing how many logic ticks there are
- * since game start.
- */
 class GameTickSystem(private val m_world: OreWorld) : BaseSystem() {
 
     /**

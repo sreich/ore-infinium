@@ -25,19 +25,19 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.Rectangle
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
 
 @Wire
-class LiquidSimulationSystem(private val m_world: OreWorld) : BaseSystem() {
+class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
+    private val mPlayer by mapper<PlayerComponent>()
 
     override fun initialize() {
     }
@@ -51,12 +51,12 @@ class LiquidSimulationSystem(private val m_world: OreWorld) : BaseSystem() {
     }
 
     override fun processSystem() {
-        val players = m_world.players()
+        val players = oreWorld.players()
 
         for (i in players.indices) {
             val player = players[i]
 
-            val playerComp = playerMapper.get(player)
+            val playerComp = mPlayer.get(player)
             val rect = playerComp.loadedViewport.rect
 
             simulateFluidsInRegion(rect)

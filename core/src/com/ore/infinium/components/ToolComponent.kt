@@ -25,6 +25,9 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.DoNotPrint
+
 
 class ToolComponent : Component() {
 
@@ -36,7 +39,7 @@ class ToolComponent : Component() {
      * number of ticks that can pass since last attack
      * before another attack is allowed
      */
-    var attackTickIntervalMs = 400
+    @DoNotCopy @DoNotPrint var attackTickIntervalMs = 400
 
     //damage tool does to blocks
     var blockDamage: Float = 0f
@@ -64,27 +67,5 @@ class ToolComponent : Component() {
                 this.blockDamage == otherComp.blockDamage &&
                 this.material == otherComp.material &&
                 this.type == otherComp.type
-    }
-
-    /**
-     * copy a component (similar to copy constructor)
-
-     * @param toolComponent
-     * *         component to copy from, into this instance
-     */
-    fun copyFrom(toolComponent: ToolComponent) {
-        type = toolComponent.type
-        material = toolComponent.material
-        attackRadius = toolComponent.attackRadius
-        blockDamage = toolComponent.blockDamage
-    }
-
-    override fun toString(): String {
-        val c = javaClass.simpleName
-        return """
-        $c.type: $type
-        $c.material: $material
-        $c.attackRadius: $attackRadius
-        $c.blockDamage: $blockDamage"""
     }
 }

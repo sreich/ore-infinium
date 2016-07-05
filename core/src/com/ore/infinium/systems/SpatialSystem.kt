@@ -25,14 +25,16 @@ SOFTWARE.
 package com.ore.infinium.systems
 
 import com.artemis.Aspect
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.ServerNetworkSystem
-import com.ore.infinium.util.getNullable
 import net.mostlyoriginal.api.utils.QuadTree
+import com.ore.infinium.util.require
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
+import com.ore.infinium.util.ifPresent
 
 @Wire(failOnNull = false)
 /**
@@ -41,49 +43,51 @@ import net.mostlyoriginal.api.utils.QuadTree
 
  * for now this is only used by the server, so assumptions can be made based on that.
  */
-class SpatialSystem(private val m_world: OreWorld) : IteratingSystem(Aspect.one(SpriteComponent::class.java)) {
+class SpatialSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
+    private val mSprite by require<SpriteComponent>()
+    // private val mPlayer by mapper<PlayerComponent>()
+    // private val mControl by mapper<ControllableComponent>()
+    private val mItem by mapper<ItemComponent>()
+    // private val mVelocity by mapper<VelocityComponent>()
+    // private val mJump by mapper<JumpComponent>()
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
 
-    var m_tree: QuadTree
+    var quadTree: QuadTree
 
     init {
 
-        m_tree = QuadTree(0f, 0f, OreWorld.WORLD_SIZE_X.toFloat(), OreWorld.WORLD_SIZE_Y.toFloat())
+        quadTree = QuadTree(0f, 0f, OreWorld.WORLD_SIZE_X.toFloat(), OreWorld.WORLD_SIZE_Y.toFloat())
     }
 
     override fun removed(entityId: Int) {
-        m_tree.remove(entityId)
+        quadTree.remove(entityId)
     }
 
     override fun inserted(entityId: Int) {
-        val itemComponent = itemMapper.getNullable(entityId)
-        if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
-            //ignore things in an inventory
-            return
+
+        // ignore things in an inventory
+        mItem.ifPresent(entityId) {
+            if (it.state == ItemComponent.State.InInventoryState)
+                return@inserted
         }
 
-        val spriteComponent = spriteMapper.get(entityId)
-        m_tree.insert(entityId, spriteComponent.sprite.x, spriteComponent.sprite.y,
+        val spriteComponent = mSprite.get(entityId)
+        quadTree.insert(entityId, spriteComponent.sprite.x, spriteComponent.sprite.y,
                       spriteComponent.sprite.width, spriteComponent.sprite.height)
     }
 
     override fun process(entityId: Int) {
-        val itemComponent = itemMapper.getNullable(entityId)
-        if (itemComponent != null && itemComponent.state == ItemComponent.State.InInventoryState) {
-            //ignore things in an inventory
-            return
+
+        // ignore things in an inventory
+        mItem.ifPresent(entityId) {
+            if (it.state == ItemComponent.State.InInventoryState)
+                return@process
         }
 
-        val spriteComponent = spriteMapper.get(entityId)
-        m_tree.update(entityId, spriteComponent.sprite.x, spriteComponent.sprite.y,
+        val spriteComponent = mSprite.get(entityId)
+        quadTree.update(entityId, spriteComponent.sprite.x, spriteComponent.sprite.y,
                       spriteComponent.sprite.width, spriteComponent.sprite.height)
     }
 }
