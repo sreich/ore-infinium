@@ -41,10 +41,10 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.mapper
 import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -578,6 +578,10 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         itemPlace.y = y
 
         clientKryo.sendTCP(itemPlace)
+    }
+
+    fun sendOpenControlPanel(entityId: Int) {
+        throw NotImplementedError()
     }
 
     internal inner class ClientListener : Listener() {

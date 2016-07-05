@@ -150,11 +150,11 @@ class OreServer : Runnable {
         playerSprite.sprite.setPosition(posX, posY)
 
         val playerComponent = playerMapper.get(player)
-        playerComponent.hotbarInventory = Inventory(player, Inventory.InventoryType.Hotbar)
+        playerComponent.hotbarInventory = Inventory(Inventory.maxHotbarSlots)
         playerComponent.hotbarInventory!!.addListener(HotbarInventorySlotListener())
         m_world.m_artemisWorld.inject(playerComponent.hotbarInventory!!)
 
-        playerComponent.inventory = Inventory(player, Inventory.InventoryType.Inventory)
+        playerComponent.inventory = Inventory(Inventory.maxSlots)
         m_world.m_artemisWorld.inject(playerComponent.inventory!!)
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;

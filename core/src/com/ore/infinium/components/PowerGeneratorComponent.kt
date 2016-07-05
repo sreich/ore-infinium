@@ -25,12 +25,28 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.Inventory
+import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.DoNotPrint
 
 /**
  * Any device that can generate some amount of power on a circuit
  */
 class PowerGeneratorComponent : Component() {
     var powerSupplyRate: Int = 0
+
+    @Transient
+    @DoNotCopy
+    @DoNotPrint
+            /**
+             * generators tend to have inventory slots
+             * where you can store fuel sources.
+             * we also consider the first slot to be the primary
+             * fuel source (the one being burnt right now).
+             *
+             * the others are the reserves
+             */
+    var fuelSources: Inventory? = null
 
     /**
      * determines if the item component is the same, in other words,

@@ -224,9 +224,17 @@ class OreClient : ApplicationListener, InputProcessor {
         attemptActivateDeviceControlPanel(entity)
     }
 
-    private fun attemptActivateDeviceControlPanel(entity: Int) {
+    /**
+     * attempts to open a device's control panel, if this even is a device
+     */
+    private fun attemptActivateDeviceControlPanel(entity: Int) :Boolean {
         //todo request from server populating control panel (with items within it)
-        val deviceComp = deviceMapper.get(entity) ?: return
+        val deviceComp = deviceMapper.get(entity) ?: return false
+
+        m_deviceControlPanel!!.visible = true
+        m_clientNetworkSystem.sendOpenControlPanel(entityId = entity)
+
+        return true
     }
 
     private fun attemptToolAttack(playerComp: PlayerComponent,
@@ -677,12 +685,12 @@ class OreClient : ApplicationListener, InputProcessor {
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
         val playerComponent = playerMapper.get(player)
 
-        m_hotbarInventory = Inventory(player, Inventory.InventoryType.Hotbar)
+        m_hotbarInventory = Inventory(Inventory.maxHotbarSlots)
         playerComponent.hotbarInventory = m_hotbarInventory
 
         m_hotbarInventory!!.addListener(HotbarSlotListener())
 
-        m_inventory = Inventory(player, Inventory.InventoryType.Inventory)
+        m_inventory = Inventory(Inventory.maxSlots)
         playerComponent.inventory = m_inventory
 
         m_hotbarView = HotbarInventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,

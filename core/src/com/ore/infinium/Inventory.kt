@@ -29,13 +29,11 @@ import com.artemis.annotations.Wire
 import com.ore.infinium.components.*
 
 /**
- * @param _owningPlayer
- * *         entity id of player who owns this inventory
- * //fixme unneeded??
+ * @param slotCount max number of slots to have
  */
 @Wire
 class Inventory
-(var owningPlayer: Int, val inventoryType: InventoryType) {
+(val slotCount: Int) {
     //selection is hotbar only
     var selectedSlot: Int = 0
     var previousSelectedSlot: Int = 0
@@ -53,14 +51,7 @@ class Inventory
     private val m_slots: Array<Int?>
 
     init {
-
-        if (inventoryType == InventoryType.Hotbar) {
-            m_slots = arrayOfNulls(maxHotbarSlots)
-        } else {
-            //m_slots = IntArray(maxSlots)
-
-            m_slots = arrayOfNulls(maxSlots);
-        }
+            m_slots = arrayOfNulls(slotCount)
     }
 
     fun addListener(listener: SlotListener) {
@@ -289,8 +280,8 @@ class Inventory
     companion object {
         val maxHotbarSlots: Int = 8
         val maxSlots: Int = 32
+        val maxFuelSlots: Int = 32
     }
-
 }
 
 class ItemAddResult(val resultType: ItemAddResult.TypeOfAdd

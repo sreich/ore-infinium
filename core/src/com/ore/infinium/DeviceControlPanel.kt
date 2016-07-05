@@ -57,7 +57,7 @@ class DeviceControlPanel(stage: Stage,
                          dragAndDrop: DragAndDrop,
                          private val m_world: OreWorld) : Inventory.SlotListener {
 
-    var inventoryVisible: Boolean
+    var visible: Boolean
         get() = m_window.isVisible
         set(value) {
             m_window.isVisible = value
@@ -146,7 +146,7 @@ class DeviceControlPanel(stage: Stage,
 
         stage.addActor(m_window)
 
-        inventoryVisible = false
+        visible = false
     }
 
     private fun setSlotVisible(index: Int, visible: Boolean) {
