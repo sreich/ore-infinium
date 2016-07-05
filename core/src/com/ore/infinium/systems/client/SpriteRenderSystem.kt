@@ -38,7 +38,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.ore.infinium.OreWorld
 import com.ore.infinium.SpriteTween
-import com.ore.infinium.components.*
+import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.util.*
 
 @Wire
@@ -48,7 +49,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
     private val mSprite by mapper<SpriteComponent>()
     private val mItem by mapper<ItemComponent>()
 
-    private lateinit var tagManager: TagManager
+    private val tagManager by system<TagManager>()
     private lateinit var tweenManager: TweenManager
 
     override fun initialize() {
@@ -130,8 +131,8 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
             //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
 
             batch.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
-                         (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
-                         rotation)
+                    (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
+                    rotation)
         }
     }
 
