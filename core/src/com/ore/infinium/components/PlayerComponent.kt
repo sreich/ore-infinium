@@ -25,11 +25,11 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.HotbarInventory
 import com.ore.infinium.Inventory
 import com.ore.infinium.LoadedViewport
 import com.ore.infinium.OreTimer
 import com.ore.infinium.systems.MovementSystem
-import com.ore.infinium.util.CopyableComponent
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
 
@@ -59,7 +59,7 @@ class PlayerComponent : Component() {
     @DoNotCopy @DoNotPrint @Transient var noClip: Boolean = false
 
     @DoNotCopy @DoNotPrint @Transient var loadedViewport = LoadedViewport()
-    @DoNotCopy @DoNotPrint @Transient var hotbarInventory: Inventory? = null
+    @DoNotCopy @DoNotPrint @Transient var hotbarInventory: HotbarInventory? = null
     @DoNotCopy @DoNotPrint @Transient var inventory: Inventory? = null
     //public int equippedItemAnimator;
 

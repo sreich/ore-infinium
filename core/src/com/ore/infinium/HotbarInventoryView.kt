@@ -50,7 +50,7 @@ import com.ore.infinium.util.opt
 
 class HotbarInventoryView(private val m_stage: Stage,
         //the model for this view
-                          private val m_hotbarInventory: Inventory,
+                          private val m_hotbarInventory: HotbarInventory,
         //the main player inventory, for drag and drop
                           private val m_inventory: Inventory,
                           dragAndDrop: DragAndDrop, private val m_world: OreWorld) : Inventory.SlotListener {

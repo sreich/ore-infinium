@@ -32,11 +32,8 @@ import com.ore.infinium.components.*
  * @param slotCount max number of slots to have
  */
 @Wire
-class Inventory
+open class Inventory
 (val slotCount: Int) {
-    //selection is hotbar only
-    var selectedSlot: Int = 0
-    var previousSelectedSlot: Int = 0
 
     internal var m_listeners = mutableListOf<SlotListener>()
 
@@ -65,13 +62,6 @@ class Inventory
 
             m_listeners.forEach { it.countChanged(index, this) }
         }
-    }
-
-    fun selectSlot(index: Int) {
-        previousSelectedSlot = selectedSlot
-        selectedSlot = index
-
-        m_listeners.forEach { it.selected(index, this) }
     }
 
     /**

@@ -96,7 +96,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private var m_inventoryView: InventoryView? = null
     private var m_debugProfilerView: DebugProfilerView? = null
 
-    var m_hotbarInventory: Inventory? = null
+    var m_hotbarInventory: HotbarInventory? = null
     private var m_inventory: Inventory? = null
     private var m_deviceControlPanel: DeviceControlPanel? = null
 
@@ -685,7 +685,7 @@ class OreClient : ApplicationListener, InputProcessor {
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
         val playerComponent = playerMapper.get(player)
 
-        m_hotbarInventory = Inventory(Inventory.maxHotbarSlots)
+        m_hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
         playerComponent.hotbarInventory = m_hotbarInventory
 
         m_hotbarInventory!!.addListener(HotbarSlotListener())

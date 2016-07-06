@@ -150,7 +150,7 @@ class OreServer : Runnable {
         playerSprite.sprite.setPosition(posX, posY)
 
         val playerComponent = playerMapper.get(player)
-        playerComponent.hotbarInventory = Inventory(Inventory.maxHotbarSlots)
+        playerComponent.hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
         playerComponent.hotbarInventory!!.addListener(HotbarInventorySlotListener())
         m_world.m_artemisWorld.inject(playerComponent.hotbarInventory!!)
 
