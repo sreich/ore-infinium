@@ -581,7 +581,10 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     fun sendOpenControlPanel(entityId: Int) {
-        throw NotImplementedError()
+        val open = Network.Client.OpenDeviceControlPanel()
+        open.entityId = networkIdForEntityId[entityId]!!
+
+        clientKryo.sendTCP(open)
     }
 
     internal inner class ClientListener : Listener() {

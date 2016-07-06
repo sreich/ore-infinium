@@ -25,7 +25,7 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
-import com.ore.infinium.Inventory
+import com.ore.infinium.GeneratorInventory
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
 
@@ -46,7 +46,7 @@ class PowerGeneratorComponent : Component() {
              *
              * the others are the reserves
              */
-    var fuelSources: Inventory? = null
+    lateinit var fuelSources: GeneratorInventory
 
     /**
      * determines if the item component is the same, in other words,

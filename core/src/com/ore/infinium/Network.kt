@@ -60,6 +60,7 @@ object Network {
         kryo.register(Client.ItemPlace::class.java)
         kryo.register(Client.PlayerEquipHotbarIndex::class.java)
         kryo.register(Client.HotbarDropItem::class.java)
+        kryo.register(Client.OpenDeviceControlPanel::class.java)
         kryo.register(Server.LoadedViewportMoved::class.java)
 
         kryo.register(Client.PlayerEquippedItemAttack::class.java)
@@ -175,6 +176,10 @@ object Network {
              * and then a spawn message for a new one is sent, wherever that may be.
              */
             var causedByPickedUpItem = false
+        }
+
+        class SpawnInventory() {
+
         }
 
         /**
@@ -312,6 +317,15 @@ object Network {
             var destType: Inventory.InventoryType? = null
             var sourceIndex: Byte = 0
             var destIndex: Byte = 0
+        }
+
+        /**
+         * notify request, to tell server we need info
+         * for this device for us to open the control panel
+         * (like generator fuel source inventory info)
+         */
+        class OpenDeviceControlPanel {
+            var entityId: Int = -1
         }
 
         /**

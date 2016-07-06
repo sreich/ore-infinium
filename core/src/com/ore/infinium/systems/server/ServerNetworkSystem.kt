@@ -26,7 +26,6 @@ package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
 import com.artemis.Component
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.utils.Bag
 import com.badlogic.gdx.math.Vector2
@@ -38,9 +37,9 @@ import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.util.opt
 import com.ore.infinium.util.indices
 import com.ore.infinium.util.mapper
+import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
 import java.text.SimpleDateFormat
 import java.util.*
@@ -55,6 +54,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val mPlayer by mapper<PlayerComponent>()
     private val mSprite by mapper<SpriteComponent>()
     private val mItem by mapper<ItemComponent>()
+    private val mDevice by mapper<PowerDeviceComponent>()
+    private val mGenerator by mapper<PowerGeneratorComponent>()
     private val mBlock by mapper<BlockComponent>()
     private val mHealth by mapper<HealthComponent>()
     private val mTool by mapper<ToolComponent>()
@@ -62,8 +63,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val serverBlockDiggingSystem by system<ServerBlockDiggingSystem>()
     private val serverNetworkEntitySystem by system<ServerNetworkEntitySystem>()
 
-    lateinit var serverKryo: Server
-    private var netQueue = ConcurrentLinkedQueue<NetworkJob>()
+    val serverKryo: Server
+    private val netQueue = ConcurrentLinkedQueue<NetworkJob>()
 
     /**
      * keeps a tally of each packet type received and their frequency
@@ -84,11 +85,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
          * @param playerEntityId
          */
-        open fun playerConnected(playerEntityId: Int) {
+        fun playerConnected(playerEntityId: Int) {
 
         }
 
-        open fun playerDisconnected(playerEntityId: Int) {
+        fun playerDisconnected(playerEntityId: Int) {
         }
     }
 
@@ -116,9 +117,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     }
 
-    fun addConnectionListener(listener: NetworkServerConnectionListener) {
-        connectionListeners.add(listener)
-    }
+    fun addConnectionListener(listener: NetworkServerConnectionListener) = connectionListeners.add(listener)
 
     /**
      * shuts down the network connection and other resources, for this server network system
@@ -356,6 +355,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 is Network.Client.PlayerMove -> receivePlayerMove(job, receivedObject)
                 is Network.Client.ChatMessage -> receiveChatMessage(job, receivedObject)
                 is Network.Client.PlayerMoveInventoryItem -> receivePlayerMoveInventoryItem(job, receivedObject)
+                is Network.Client.OpenDeviceControlPanel -> receiveOpenDeviceControlPanel(job, receivedObject)
 
                 is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
                 is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
@@ -379,6 +379,18 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         if (OreSettings.debugPacketTypeStatistics) {
             OreWorld.log("server", "--- packet type stats ${debugPacketFrequencyByType.toString()}")
         }
+    }
+
+    private fun  receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob, receivedObject: Network.Client.OpenDeviceControlPanel) {
+        //todo fetch list of inventory items, send to client
+        val generator = mGenerator.get(receivedObject.entityId)
+        val fuel = generator.fuelSources
+        fuel.fuelSource
+        for (i in 0..fuel.slotCount) {
+            fuel.itemEntity(i)
+        }
+
+        assert(generator != null)
     }
 
     private fun receivePlayerEquippedItemAttack(job: NetworkJob, receivedObject: Network.Client.PlayerEquippedItemAttack) {
@@ -406,8 +418,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             val playerComp = mPlayer.get(job.connection.playerEntityId)
             val playerEntity = oreWorld.playerEntityForPlayerConnectionID(playerComp.connectionPlayerId)
 
-            val equippedWeapon = playerComp.equippedPrimaryItem
-            val itemComp = mItem.get(equippedWeapon!!)
+            val equippedWeapon = playerComp.equippedPrimaryItem!!
+            val itemComp = mItem.get(equippedWeapon)
             val toolComp = mTool.get(equippedWeapon)
 
             healthComponent.health -= toolComp.blockDamage
