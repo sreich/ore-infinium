@@ -227,7 +227,7 @@ class OreClient : ApplicationListener, InputProcessor {
     /**
      * attempts to open a device's control panel, if this even is a device
      */
-    private fun attemptActivateDeviceControlPanel(entity: Int) :Boolean {
+    private fun attemptActivateDeviceControlPanel(entity: Int): Boolean {
         //todo request from server populating control panel (with items within it)
         val deviceComp = deviceMapper.get(entity) ?: return false
 

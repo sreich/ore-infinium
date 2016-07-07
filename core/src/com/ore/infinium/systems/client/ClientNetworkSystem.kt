@@ -117,12 +117,12 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     interface NetworkClientListener {
-        open fun connected() {
+        fun connected() {
         }
 
         //todo send a disconnection reason along with the disconnect event. to eg differentiate between a kick or a
         // connection loss, or a server shutdown
-        open fun disconnected(disconnectReason: Network.Shared.DisconnectReason) {
+        fun disconnected(disconnectReason: Network.Shared.DisconnectReason) {
         }
     }
 
@@ -209,7 +209,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 is Network.Shared.SparseBlockUpdate -> receiveSparseBlockUpdate(receivedObject)
 
                 is Network.Server.LoadedViewportMoved -> receiveLoadedViewportMoved(receivedObject)
-                is Network.Server.PlayerSpawnHotbarInventoryItem -> receivePlayerSpawnHotbarInventoryItem(
+                is Network.Server.SpawnInventoryItems -> receivePlayerSpawnInventoryItems(
                         receivedObject)
 
                 is Network.Server.PlayerSpawned -> receivePlayerSpawn(receivedObject)
@@ -244,17 +244,27 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //but possible for some hard to find desync bugs if i do that
     }
 
-    private fun receivePlayerSpawnHotbarInventoryItem(spawn: Network.Server.PlayerSpawnHotbarInventoryItem) {
+    private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
         //fixme spawn.id, sprite!!
+        for (e in inventorySpawn.entitiesToSpawn) {
+            spawnInventoryItem(inventorySpawn = inventorySpawn, entitySpawn = e)
+        }
+
+        //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
+        // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
+    }
+
+    private fun spawnInventoryItem(entitySpawn: Network.Server.EntitySpawn,
+                                   inventorySpawn: Network.Server.SpawnInventoryItems) {
         val spawnedItemEntityId = getWorld().create()
-        for (c in spawn.components) {
+        for (c in entitySpawn.components) {
             val entityEdit = getWorld().edit(spawnedItemEntityId)
             entityEdit.add(c)
         }
 
         val spriteComponent = mSprite.create(spawnedItemEntityId)
-        spriteComponent.textureName = spawn.textureName
-        spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y)
+        spriteComponent.textureName = entitySpawn.textureName
+        spriteComponent.sprite.setSize(entitySpawn.size.size.x, entitySpawn.size.size.y)
 
         //fixme uhhhhh this isn't used at all??
         val textureRegion: TextureRegion
@@ -271,12 +281,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //fixme this indirection isn't so hot...
         oreWorld.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
 
-        if (spawn.causedByPickedUpItem) {
+        if (inventorySpawn.causedByPickedUpItem) {
             soundSystem.playItemPickup()
         }
-
-        //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
-        // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
     }
 
     private fun receiveChatMessage(chat: Network.Server.ChatMessage) {

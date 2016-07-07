@@ -97,9 +97,9 @@ class ItemComponent : Component(), CopyableComponent<ItemComponent> {
      * flag to indicate the item was *just* dropped this frame and has not yet
      * had velocity integrated yet.
      *
-     *
-     * Only set by the server, when an item is dropped, it receives the drop request
-     * from the client, server will simulate the dropped item and tell the clients.
+     * Only set by the server when an item is dropped.
+     * When it receives the drop request from the client,
+     * server will simulate the item getting dropped and tell the clients.
      */
     @Transient var justDropped: Boolean = false
 

@@ -30,15 +30,13 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.utils.TimeUtils
+import com.ore.infinium.Inventory
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.util.require
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
-import com.ore.infinium.util.ifPresent
-import com.ore.infinium.util.forEach
-import com.ore.infinium.util.rect
+import com.ore.infinium.util.*
 
 @Wire(failOnNull = false)
 class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
@@ -84,7 +82,7 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
                         it.apply {
                             if (timeOfDropMs != 0L &&
                                     TimeUtils.timeSinceMillis(timeOfDropMs) > ItemComponent.droppedItemCoolOffMs)
-                                // pickup the item, he's over it
+                            // pickup the item, he's over it
                                 pickupItem(it, droppedItemEntityId, playerEntityId)
                         }
                 }
@@ -109,7 +107,10 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
         //full). also probably consider existing stacks and stuff
         playerComponent.hotbarInventory!!.setSlot(7, itemToPickupId)
 
-        serverNetworkSystem.sendSpawnHotbarInventoryItem(itemToPickupId, 7, playerEntityId, true)
+        serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = mutableListOf(itemToPickupId),
+                                                    owningPlayerEntityId = playerEntityId,
+                                                    inventoryType = Inventory.InventoryType.Hotbar,
+                                                    causedByPickedUpItem = true)
         oreWorld.destroyEntity(itemToPickupId)
     }
 

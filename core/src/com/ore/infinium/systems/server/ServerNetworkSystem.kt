@@ -292,31 +292,34 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     /**
      * @param itemEntityId
      * *
-     * @param index
-     * *         the index to spawn it at, within the hotbar inventory
-     * *
      * @param owningPlayerEntityId
      * *         entity id
      *
      * @param causedByPickedUpItem true if this was spawned because the player picked
      * up an item that was dropped on the ground
+     *
+     * the index is handled client side, with the ItemComponent.inventoryIndex
      */
-    fun sendSpawnHotbarInventoryItem(itemEntityId: Int,
-                                     index: Int,
-                                     owningPlayerEntityId: Int,
-                                     causedByPickedUpItem: Boolean) {
-        val spawn = Network.Server.PlayerSpawnHotbarInventoryItem()
-        spawn.components = serializeComponents(itemEntityId)
-
-        //todo want a flag here to indicate..both for hotbar and regular inventory, that this spawn is due to a pickup! this is so they can play
-        //a sound like in minecraft when items get picked up. otherwise client doesn't know why it's spawning this. put flag in *spawn*fromserver packet
-
-        val spriteComponent = mSprite.get(itemEntityId)
-        spawn.size.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
-        spawn.textureName = spriteComponent.textureName
+    fun sendSpawnInventoryItems(entityIdsToSpawn: MutableList<Int>,
+                                owningPlayerEntityId: Int,
+                                inventoryType: Inventory.InventoryType,
+                                causedByPickedUpItem: Boolean) {
+        val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
+        spawn.typeOfInventory = inventoryType
 
-        //FIXME: fixme, we need to spawn it with a texture...and figure out how to do this exactly.
+        for (entityId in entityIdsToSpawn) {
+            val entitySpawn = Network.Server.EntitySpawn()
+            entitySpawn.components = serializeComponents(entityId)
+
+            //we don't normally serialize the sprite component, but in this case we bring over a few
+            //fields we definitely require
+            val spriteComponent = mSprite.get(entityId)
+            entitySpawn.size.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
+            entitySpawn.textureName = spriteComponent.textureName
+
+            spawn.entitiesToSpawn.add(entitySpawn)
+        }
 
         serverKryo.sendToTCP(mPlayer.get(owningPlayerEntityId).connectionPlayerId, spawn)
     }
@@ -325,7 +328,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val kill = Network.Server.EntityKilled()
         kill.entityToKill = entityToKill
 
-        //todo send to all players who have this in their viewport!
+        //todo only send to all players who have this in their viewport!
         serverKryo.sendToAllTCP(kill)
     }
 
@@ -381,7 +384,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         }
     }
 
-    private fun  receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob, receivedObject: Network.Client.OpenDeviceControlPanel) {
+    private fun receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob,
+                                              receivedObject: Network.Client.OpenDeviceControlPanel) {
         //todo fetch list of inventory items, send to client
         val generator = mGenerator.get(receivedObject.entityId)
         val fuel = generator.fuelSources
@@ -393,7 +397,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         assert(generator != null)
     }
 
-    private fun receivePlayerEquippedItemAttack(job: NetworkJob, receivedObject: Network.Client.PlayerEquippedItemAttack) {
+    private fun receivePlayerEquippedItemAttack(job: NetworkJob,
+                                                receivedObject: Network.Client.PlayerEquippedItemAttack) {
         val tileX = receivedObject.attackPositionWorldCoords.x.toInt()
         val tileY = receivedObject.attackPositionWorldCoords.y.toInt()
 
@@ -490,7 +495,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val date = SimpleDateFormat("HH:mm:ss")
         oreServer.m_chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
-                                    Chat.ChatSender.Player)
+                                     Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {

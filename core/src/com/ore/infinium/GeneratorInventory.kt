@@ -1,4 +1,5 @@
 package com.ore.infinium
+
 /**
 MIT License
 
@@ -23,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-class GeneratorInventory(slotCount:Int) : Inventory(slotCount) {
+class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
     /**
      * fuel source currently being burnt
      */

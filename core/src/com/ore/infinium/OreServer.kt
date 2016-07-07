@@ -211,13 +211,19 @@ class OreServer : Runnable {
         val liquidGun = m_world.createLiquidGun()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
+
+        val itemList = mutableListOf<Int>()
         for (i in 0 until Inventory.maxHotbarSlots) {
             val entity = playerComponent.hotbarInventory!!.itemEntity(i)
 
             entity?.let {
-                m_serverNetworkSystem.sendSpawnHotbarInventoryItem(entity, i, playerEntity, false)
+                itemList.add(entity)
             }
         }
+
+        m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = itemList, owningPlayerEntityId = playerEntity,
+                                                      inventoryType = Inventory.InventoryType.Hotbar,
+                                                      causedByPickedUpItem = false)
     }
 
     private fun sendServerMessage(message: String) {

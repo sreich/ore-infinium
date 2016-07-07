@@ -73,7 +73,7 @@ object Network {
         kryo.register(Server.EntityKilled::class.java)
         kryo.register(Server.EntityMoved::class.java)
 
-        kryo.register(Server.PlayerSpawnHotbarInventoryItem::class.java)
+        kryo.register(Server.SpawnInventoryItems::class.java)
 
         //modular components. some components are too fucking huge and stupid to serialize automatically (like Sprite),
         //so we split up only what we need.
@@ -155,31 +155,37 @@ object Network {
             //we don't need a size packet for player. we know how big one will be, always.
         }
 
-        //todo make itemcomponent.inventoryIndex transient, send that instead through the packets?
-        class PlayerSpawnHotbarInventoryItem {
-            var size = Shared.SizePacket()
+        class SpawnInventoryItems {
+            /**
+             * we know which index it gets spawned in due to @see ItemComponent.inventoryIndex
+             * this is a list of only non-empty inventory slots. empty ones are not sent
+             */
+            var entitiesToSpawn = mutableListOf<EntitySpawn>()
 
-            // <sprite
-
-            var textureName: String? = null
-            // </sprite
-
-            //pos not sent
-
-            var name: String = ""
-            var id: Int = 0
-            lateinit var components: Array<Component>
+            var typeOfInventory = Inventory.InventoryType.Hotbar
 
             /**
              * true if this was spawn because a user picked up an item.
              * Because when the user picks up an item, the item is destroyed(server, client),
              * and then a spawn message for a new one is sent, wherever that may be.
+             * so the client may play a pickup sound.
              */
             var causedByPickedUpItem = false
         }
 
-        class SpawnInventory() {
+        /**
+         * for loading list of items which are (probably) fuel sources
+         * that will be burned in the generator
+         */
+        class SpawnGeneratorInventoryItems() {
+            /**
+             * we know which index it gets spawned in due to @see ItemComponent.inventoryIndex
+             * this is a list of only non-empty inventory slots. empty ones are not sent
+             */
+            var entitiesToSpawn = mutableListOf<EntitySpawn>()
 
+            //entity in the currently burned fuel source
+            var fuelSourceEntity: EntitySpawn? = null
         }
 
         /**
@@ -224,7 +230,7 @@ object Network {
 
             var id: Int = 0
 
-            var components: Array<Component>? = null
+            lateinit var components: Array<Component>
         }
 
         class PlayerDisconnected {
