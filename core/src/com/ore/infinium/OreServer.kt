@@ -213,13 +213,9 @@ class OreServer : Runnable {
 
 
         val itemList = mutableListOf<Int>()
-        for (i in 0 until Inventory.maxHotbarSlots) {
-            val entity = playerComponent.hotbarInventory!!.itemEntity(i)
+        val nonNullSlots = playerComponent.hotbarInventory!!.slots().filterNotNull()
 
-            entity?.let {
-                itemList.add(entity)
-            }
-        }
+        itemList.addAll(nonNullSlots)
 
         m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = itemList, owningPlayerEntityId = playerEntity,
                                                       inventoryType = Inventory.InventoryType.Hotbar,
