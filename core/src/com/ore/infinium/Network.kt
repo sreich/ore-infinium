@@ -208,6 +208,13 @@ object Network {
         class PowerStats {
             var supply = -1
             var demand = -1
+
+            /**
+             * progress of the current fuel source burning
+             * from 0 to 99. (100 would just reset back to 0,
+             * as that fuel source would be expired/removed).
+             */
+            var progress = 0
         }
 
         /**

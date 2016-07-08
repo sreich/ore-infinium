@@ -61,13 +61,14 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
 
     private val playerEntities = mutableListOf<PlayerEntitiesInViewport>()
 
-    //todo store a list for each player, of entities within the viewport
-    //each tick we will check if entities should be added or removed
-    //on the client(client will do this automatically on their end)
-    //but we will too, so we can remove it from the list of entities each client has spawned(although, maybe we
-    // should instead send packets indicating this?)
-
-    //we may want to instead query the spatial hash and compare that list to this list?
+    /**
+     * todo store a list for each player, of entities within the viewport
+     * each tick we will check if entities should be added or removed
+     * on the client(client will do this automatically on their end)
+     * but we will too, so we can remove it from the list of entities each client has spawned(although, maybe we
+     * should instead send packets indicating this?)
+     * we may want to instead query the spatial hash and compare that list to this list?
+     */
 
     /**
      * Checks if the entity is spawned on player client
@@ -121,27 +122,12 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
     }
 
     override fun removed(entityId: Int) {
-
         //i think we can assume at this point, that the client will end up knowing in some way or another,
         //that this entity has died (e.g. if it is a player killed message, or an enemy killed,
         // or something gets destroyed), the events that send out that info should be giving the
         //appropriate information, since more context may need to be specified, other than
         //"thing removed"
-
-        // remove entity from client list
-
-        //hack, dunno if this is  even needed..it's more polling based than event based, for player viewport spawns
-        /*
-        for (playerEntity in playerEntities) {
-            for (i in playerEntity.knownEntities.indices) {
-                val ent = playerEntity.knownEntities.get(i)
-
-                if (ent == entityId) {
-                    playerEntity.knownEntities.removeAt(i)
-                }
-            }
-        }
-        */
+        //todo remove from our list? probably don't want to wait until recalc
     }
 
     override fun process(entityId: Int) {
@@ -158,7 +144,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
             //get the entities that actually exist in this viewport
             val fill = IntBag()
             spatialSystem.quadTree.get(fill, viewport.x.toFloat(), viewport.y.toFloat(), viewport.width.toFloat(),
-                                       viewport.height.toFloat())
+                    viewport.height.toFloat())
 
             //hack copy to intarray only because the quadtree uses an intbag
             val entitiesInRegion = mutableListOf<Int>()
@@ -189,17 +175,17 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
 
             if (entitiesToDestroy.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                             "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
+                        "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
                 serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
-                                                                  playerComponent.connectionPlayerId)
+                        playerComponent.connectionPlayerId)
             }
 
             if (entitiesToSpawn.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                             "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
+                        "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
-                                                                playerComponent.connectionPlayerId)
+                        playerComponent.connectionPlayerId)
             }
 
         }

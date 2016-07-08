@@ -24,17 +24,17 @@ SOFTWARE.
 
 package com.ore.infinium.systems.server
 
-import com.artemis.Aspect
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.util.require
+import com.ore.infinium.util.anyOf
 import com.ore.infinium.util.mapper
+import com.ore.infinium.util.require
 import com.ore.infinium.util.system
 
 @Wire
-class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
+class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(PowerDeviceComponent::class)) {
 
     private val mPowerDevice by require<PowerDeviceComponent>()
     private val mPlayer by mapper<PlayerComponent>()
@@ -46,11 +46,15 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
 
+    private var totalSupply = 0
+    private var totalDemand = 0
 
     override fun initialize() {
     }
 
     override fun begin() {
+        totalSupply = 0
+        totalDemand = 0
     }
 
     override fun end() {
@@ -65,26 +69,30 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect
         * wire and consumed by the clientside system system
         */
 
+        updateDevice(entityId)
+
         calculateSupplyAndDemandRate(entityId)
     }
 
-    private fun calculateSupplyAndDemandRate(entityId: Int) {
-        /*
-        //hack dead code
-        for (circuit in circuits) {
-            circuit.totalDemand = 0
-            circuit.totalSupply = 0
+    private fun updateDevice(entityId: Int) {
+        val genC = mPowerGenerator.get(entityId)
 
-            for (generator in circuit.generators) {
-                val generatorComponent = mPowerGenerator.get(generator)
-                circuit.totalSupply += generatorComponent.powerSupplyRate
-            }
-
-            for (consumer in circuit.consumers) {
-                val consumerComponent = mPowerConsumer.get(consumer)
-                circuit.totalDemand += consumerComponent.powerDemandRate
-            }
+        if (genC != null) {
+            //todo check if burning currently, if not...move a new oone over and start burning it, etc
+            //genC.fuelSources.fuelSource
         }
-        */
+    }
+
+    private fun calculateSupplyAndDemandRate(entityId: Int) {
+        val genC = mPowerGenerator.get(entityId)
+        val consumerC = mPowerConsumer.get(entityId)
+
+        if (genC != null) {
+            totalSupply += genC.powerSupplyRate
+        }
+
+        if (consumerC != null) {
+            totalDemand += consumerC.powerDemandRate
+        }
     }
 }
