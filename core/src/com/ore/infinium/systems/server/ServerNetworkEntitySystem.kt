@@ -29,12 +29,13 @@ import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.artemis.utils.IntBag
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.SpatialSystem
-import com.ore.infinium.util.require
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.require
+import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
 /**
@@ -78,11 +79,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
 
         val knownEntity = playerEntityInViewport!!.knownEntities.find { knownEntityId -> knownEntityId == entityId }
 
-        return if (knownEntity != null) {
-            true
-        } else {
-            false
-        }
+        return knownEntity != null
     }
 
     private inner class PlayerEntitiesInViewport(
