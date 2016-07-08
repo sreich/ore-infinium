@@ -27,6 +27,7 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.ore.infinium.components.*
+import com.ore.infinium.util.mutableListOfN
 
 /**
  * @param slotCount max number of slots to have
@@ -45,10 +46,17 @@ open class Inventory
     private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
-    private val m_slots: Array<Int?>
+    private val m_slots: MutableList<Int?>
 
     init {
-            m_slots = arrayOfNulls(slotCount)
+            m_slots = mutableListOfN(slotCount)
+    }
+
+    /**
+     * return read only list of inventory slots
+     */
+    fun slots() :List<Int?> {
+        return m_slots.toList()
     }
 
     fun addListener(listener: SlotListener) {

@@ -27,6 +27,21 @@ package com.ore.infinium.util
 import com.badlogic.gdx.math.MathUtils
 
 /**
+ * Returns a new mutable list of @param n items,
+ * each having the value of @param value
+ *
+ * To be more similar to Array.fill()
+ */
+fun <T> mutableListOfN(n: Int, value: T? = null) =
+        mutableListOf<T>().apply {
+            repeat(n) {
+                if (value != null) {
+                    add(value)
+                }
+            }
+        }
+
+/**
  *
  * returns result of lambda, so we can e.g. return an element outward, by doing
  *

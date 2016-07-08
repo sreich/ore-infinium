@@ -386,15 +386,33 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     private fun receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob,
                                               receivedObject: Network.Client.OpenDeviceControlPanel) {
+        val entityId = receivedObject.entityId
+
         //todo fetch list of inventory items, send to client
-        val generator = mGenerator.get(receivedObject.entityId)
-        val fuel = generator.fuelSources
-        fuel.fuelSource
-        for (i in 0..fuel.slotCount) {
-            fuel.itemEntity(i)
+        if (mGenerator.has(entityId)) {
+            sendGeneratorInventory(generatorEntityId = entityId, playerConnectionId = job.connection.id)
+        }
+    }
+
+    private fun sendGeneratorInventory(generatorEntityId: Int, playerConnectionId: Int) {
+        val spawn = Network.Server.SpawnGeneratorInventoryItems()
+        spawn.generatorEntityId = generatorEntityId
+
+
+        val genC = mGenerator.get(generatorEntityId)
+
+        genC.fuelSources.slots().filterNotNull().forEach {  itemEntityId ->
+            val spriteC = mSprite.get(itemEntityId)
+
+            val entitySpawn = Network.Server.EntitySpawn()
+            entitySpawn.id = itemEntityId
+            entitySpawn.components = serializeComponents(itemEntityId)
+            entitySpawn.textureName = spriteC.textureName
+
+            spawn.entitiesToSpawn.add(entitySpawn)
         }
 
-        assert(generator != null)
+        serverKryo.sendToTCP(playerConnectionId, spawn)
     }
 
     private fun receivePlayerEquippedItemAttack(job: NetworkJob,

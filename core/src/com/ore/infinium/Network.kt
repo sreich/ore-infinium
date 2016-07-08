@@ -175,17 +175,30 @@ object Network {
 
         /**
          * for loading list of items which are (probably) fuel sources
-         * that will be burned in the generator
+         * that will be burned in the generator.
+         *
+         * used for when the generator's device control panel is opened.
          */
         class SpawnGeneratorInventoryItems() {
+            var generatorEntityId = -1
+
             /**
              * we know which index it gets spawned in due to @see ItemComponent.inventoryIndex
              * this is a list of only non-empty inventory slots. empty ones are not sent
              */
             var entitiesToSpawn = mutableListOf<EntitySpawn>()
 
-            //entity in the currently burned fuel source
+            //entity in the currently-being-burned fuel source, if any
             var fuelSourceEntity: EntitySpawn? = null
+        }
+
+        /**
+         * updates the current output stats for the generator,
+         * visible only when the control panel is open
+         */
+        class UpdateGeneratorControlPanelStats() {
+            var entityId = -1
+            var supply = -1
         }
 
         /**
@@ -193,8 +206,8 @@ object Network {
          * or when it needs an initial update
          */
         class PowerStats {
-            var supply: Int = -1
-            var demand: Int = -1
+            var supply = -1
+            var demand = -1
         }
 
         /**
