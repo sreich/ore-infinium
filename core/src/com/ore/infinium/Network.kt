@@ -29,6 +29,7 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.IntArray
+import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryonet.EndPoint
 import com.ore.infinium.components.*
 import java.util.*
@@ -41,51 +42,15 @@ object Network {
     // This registers objects that are going to be sent over the network.
     fun register(endPoint: EndPoint) {
         val kryo = endPoint.kryo
-        kryo.register(Client.InitialClientData::class.java)
 
-        kryo.register(Client.ChatMessage::class.java)
-        kryo.register(Server.ChatMessage::class.java)
-        kryo.register(Chat.ChatSender::class.java)
+        registerClient(kryo)
+        registerServer(kryo)
+        registerShared(kryo)
 
-        kryo.register(Client.PlayerMoveInventoryItem::class.java)
-        kryo.register(Inventory.InventoryType::class.java)
-        kryo.register(Shared.DisconnectReason::class.java)
-        kryo.register(Shared.DisconnectReason.Reason::class.java)
-        kryo.register(Server.PlayerSpawned::class.java)
+        registerComponents(kryo)
+    }
 
-        kryo.register(Client.PlayerMove::class.java)
-        kryo.register(Client.BlockDigBegin::class.java)
-        kryo.register(Client.BlockDigFinish::class.java)
-        kryo.register(Client.BlockPlace::class.java)
-        kryo.register(Client.ItemPlace::class.java)
-        kryo.register(Client.PlayerEquipHotbarIndex::class.java)
-        kryo.register(Client.HotbarDropItem::class.java)
-        kryo.register(Client.OpenDeviceControlPanel::class.java)
-        kryo.register(Server.LoadedViewportMoved::class.java)
-
-        kryo.register(Client.PlayerEquippedItemAttack::class.java)
-        kryo.register(Client.PlayerEquippedItemAttack.ItemAttackType::class.java)
-
-        kryo.register(Client.EntityAttack::class.java)
-        kryo.register(Server.EntitySpawn::class.java)
-        kryo.register(Server.EntitySpawnMultiple::class.java)
-        kryo.register(Server.EntityDestroyMultiple::class.java)
-        kryo.register(Server.EntityKilled::class.java)
-        kryo.register(Server.EntityMoved::class.java)
-
-        kryo.register(Server.SpawnInventoryItems::class.java)
-
-        //modular components. some components are too fucking huge and stupid to serialize automatically (like Sprite),
-        //so we split up only what we need.
-        kryo.register(Shared.PositionPacket::class.java)
-        kryo.register(Shared.SizePacket::class.java)
-
-        kryo.register(Shared.BlockRegion::class.java)
-        kryo.register(Shared.SparseBlockUpdate::class.java)
-        kryo.register(Shared.SingleSparseBlock::class.java)
-        kryo.register(Shared.SingleBlock::class.java)
-        kryo.register(OreBlock.BlockType::class.java)
-
+    private fun registerComponents(kryo: Kryo) {
         //components
         kryo.register(Component::class.java)
         kryo.register(PowerDeviceComponent::class.java)
@@ -109,6 +74,25 @@ object Network {
         kryo.register(LightComponent::class.java)
         kryo.register(VelocityComponent::class.java)
         //////////
+    }
+
+    private fun registerShared(kryo: Kryo) {
+        kryo.register(Shared.DisconnectReason::class.java)
+        kryo.register(Shared.DisconnectReason.Reason::class.java)
+        //modular components. some components are too fucking huge and stupid to serialize automatically (like Sprite),
+        //so we split up only what we need.
+        kryo.register(Shared.PositionPacket::class.java)
+        kryo.register(Shared.SizePacket::class.java)
+
+        kryo.register(Shared.BlockRegion::class.java)
+        kryo.register(Shared.SparseBlockUpdate::class.java)
+        kryo.register(Shared.SingleSparseBlock::class.java)
+        kryo.register(Shared.SingleBlock::class.java)
+
+        kryo.register(OreBlock.BlockType::class.java)
+
+        kryo.register(Chat.ChatSender::class.java)
+        kryo.register(Inventory.InventoryType::class.java)
 
         // primitives/builtin
         //        kryo.register(String[]::class.java)
@@ -122,6 +106,42 @@ object Network {
         kryo.register(IntArray::class.java)
         //       kryo.register(Array<Any>::class.java)
         kryo.register(Rectangle::class.java)
+    }
+
+    private fun registerServer(kryo: Kryo) {
+        kryo.register(Server.EntitySpawn::class.java)
+        kryo.register(Server.EntitySpawnMultiple::class.java)
+        kryo.register(Server.EntityDestroyMultiple::class.java)
+        kryo.register(Server.EntityKilled::class.java)
+        kryo.register(Server.EntityMoved::class.java)
+
+        kryo.register(Server.SpawnInventoryItems::class.java)
+
+        kryo.register(Server.LoadedViewportMoved::class.java)
+        kryo.register(Server.PlayerSpawned::class.java)
+        kryo.register(Server.ChatMessage::class.java)
+    }
+
+    private fun registerClient(kryo: Kryo) {
+        kryo.register(Client.InitialClientData::class.java)
+
+        kryo.register(Client.ChatMessage::class.java)
+
+        kryo.register(Client.PlayerMoveInventoryItem::class.java)
+
+        kryo.register(Client.PlayerMove::class.java)
+        kryo.register(Client.BlockDigBegin::class.java)
+        kryo.register(Client.BlockDigFinish::class.java)
+        kryo.register(Client.BlockPlace::class.java)
+        kryo.register(Client.ItemPlace::class.java)
+        kryo.register(Client.PlayerEquipHotbarIndex::class.java)
+        kryo.register(Client.HotbarDropItem::class.java)
+        kryo.register(Client.OpenDeviceControlPanel::class.java)
+
+        kryo.register(Client.PlayerEquippedItemAttack::class.java)
+        kryo.register(Client.PlayerEquippedItemAttack.ItemAttackType::class.java)
+
+        kryo.register(Client.EntityAttack::class.java)
     }
 
     object Server {
@@ -210,11 +230,10 @@ object Network {
             var demand = -1
 
             /**
-             * progress of the current fuel source burning
-             * from 0 to 99. (100 would just reset back to 0,
-             * as that fuel source would be expired/removed).
+             * remaining health of the fuel (percent)
+             * 0 means that fuel source would be expired/removed.
              */
-            var progress = 0
+            var fuelHealth = 0
         }
 
         /**
@@ -349,8 +368,15 @@ object Network {
          * notify request, to tell server we need info
          * for this device for us to open the control panel
          * (like generator fuel source inventory info)
+         *
+         * server will keep track of it but we must notify when
+         * we close it
          */
         class OpenDeviceControlPanel {
+            var entityId: Int = -1
+        }
+
+        class CloseDeviceControlPanel {
             var entityId: Int = -1
         }
 

@@ -27,7 +27,7 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.ore.infinium.components.*
-import com.ore.infinium.util.mutableListOfN
+import com.ore.infinium.util.mutableListOfNulls
 
 /**
  * @param slotCount max number of slots to have
@@ -49,7 +49,7 @@ open class Inventory
     private val m_slots: MutableList<Int?>
 
     init {
-            m_slots = mutableListOfN(slotCount)
+        m_slots = mutableListOfNulls(slotCount)
     }
 
     /**

@@ -32,12 +32,10 @@ import com.badlogic.gdx.math.MathUtils
  *
  * To be more similar to Array.fill()
  */
-fun <T> mutableListOfN(n: Int, value: T? = null) =
-        mutableListOf<T>().apply {
+fun <T> mutableListOfNulls(n: Int) =
+        mutableListOf<T?>().apply {
             repeat(n) {
-                if (value != null) {
-                    add(value)
-                }
+                add(null)
             }
         }
 
