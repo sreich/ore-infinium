@@ -99,36 +99,23 @@ class InventoryView(stage: Stage,
         dragImage.setSize(32f, 32f)
 
         val slotsPerRow = 5
-        var i = 0
+        var slotIndex = 0
 
-        while (i < Inventory.maxSlots) {
-            var slot = 0
-            while (slot < slotsPerRow && i < Inventory.maxSlots) {
-                val slotImage = VisImage()
+        while (slotIndex < Inventory.maxSlots) {
+            var slotRowIndex = 0
+            while (slotRowIndex < slotsPerRow && slotIndex < Inventory.maxSlots) {
 
-                val slotTable = VisTable()
-                slotTable.touchable = Touchable.enabled
+                val element = SlotElement(this, slotIndex)
+                m_slots.add(slotIndex, element)
 
-                slotTable.add(slotImage)
-                slotTable.addListener(SlotInputListener(this, i))
-                slotTable.background("default-pane")
-
-                slotTable.row()
-
-                val itemName = VisLabel()
-                slotTable.add(itemName).bottom().fill()
-
-                val element = SlotElement(itemImage = slotImage, table = slotTable, itemCountLabel = itemName)
-                m_slots.add(i, element)
-
-                container.add(slotTable).size(50f, 50f)
+                container.add(element.slotTable).size(50f, 50f)
                 //            window.add(slotTable).fill().size(50, 50);
 
-                dragAndDrop.addSource(InventoryDragSource(slotTable, i, dragImage, this))
+                dragAndDrop.addSource(InventoryDragSource(element.slotTable, slotIndex, dragImage, this))
 
-                dragAndDrop.addTarget(InventoryDragTarget(slotTable, i, this))
-                ++slot
-                ++i
+                dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, slotIndex, this))
+                ++slotRowIndex
+                ++slotIndex
             }
 
             container.row()
@@ -150,14 +137,14 @@ class InventoryView(stage: Stage,
     }
 
     private fun setSlotVisible(index: Int, visible: Boolean) {
-        m_slots[index].itemCountLabel.isVisible = visible
-        m_slots[index].itemImage.isVisible = visible
+        m_slots[index].itemName.isVisible = visible
+        m_slots[index].slotImage.isVisible = visible
     }
 
     override fun countChanged(index: Int, inventory: Inventory) {
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        m_slots[index].itemName.setText(itemComponent.stackSize.toString())
     }
 
     override operator fun set(index: Int, inventory: Inventory) {
@@ -165,13 +152,13 @@ class InventoryView(stage: Stage,
 
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        m_slots[index].itemName.setText(itemComponent.stackSize.toString())
 
         val spriteComponent = spriteMapper.get(itemEntity)
 
         val region = textureForInventoryItem(itemEntity, spriteComponent.textureName!!)
 
-        val slotImage = slot.itemImage
+        val slotImage = slot.slotImage
         slotImage.drawable = TextureRegionDrawable(region)
         slotImage.setSize(region.regionWidth.toFloat(), region.regionHeight.toFloat())
         slotImage.setScaling(Scaling.fit)
@@ -198,8 +185,8 @@ class InventoryView(stage: Stage,
 
     override fun removed(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
-        slot.itemImage.drawable = null
-        slot.itemCountLabel.setText(null)
+        slot.slotImage.drawable = null
+        slot.itemName.setText(null)
     }
 
     private class SlotInputListener internal constructor(private val inventory: InventoryView, private val index: Int) : InputListener() {
@@ -340,7 +327,23 @@ class InventoryView(stage: Stage,
         }
     }
 
-    private inner class SlotElement(var itemImage: VisImage, var itemCountLabel: VisLabel, var table: VisTable) {
+    private inner class SlotElement(inventoryView: InventoryView, index: Int) {
+        val slotImage = VisImage()
+        val slotTable = VisTable()
+        val itemName = VisLabel()
+
+        init {
+            with(slotTable) {
+                touchable = Touchable.enabled
+                add(slotImage)
+                addListener(SlotInputListener(inventoryView, index))
+                background("default-pane")
+
+                row()
+
+                add(itemName).bottom().fill()
+            }
+        }
     }
 
     override fun selected(index: Int, inventory: Inventory) {

@@ -70,6 +70,11 @@ class GeneratorControlPanelView(stage: Stage,
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
+    /**
+     * current fuel source being burned
+     */
+    //private val fuelSource: SlotElement
+
     private val slots = mutableListOf<SlotElement>()
     private val window: VisWindow
 

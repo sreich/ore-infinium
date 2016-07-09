@@ -823,13 +823,15 @@ class OreWorld
 
         powerDeviceMapper.create(power)
 
-        val sprite = spriteMapper.create(power).apply {
+        spriteMapper.create(power).apply {
             textureName = "air-generator-64x64"
             sprite.setSize(4f, 4f)
         }
 
-        val powerComponent = powerGeneratorMapper.create(power)
-        powerComponent.powerSupplyRate = 100
+        val genC = powerGeneratorMapper.create(power).apply {
+            powerSupplyRate = 100
+            fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+        }
 
         return power
     }
