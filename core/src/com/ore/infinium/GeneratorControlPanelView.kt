@@ -49,18 +49,18 @@ import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.opt
 
 @Wire
-class DeviceControlPanel(stage: Stage,
+class GeneratorControlPanelView(stage: Stage,
         //the hotbar inventory, for drag and drop
-                         private val m_hotbarInventory: Inventory,
+                                private val generatorControlPanelInventory: Inventory,
         //the model for this view
-                         private val m_inventory: Inventory,
-                         dragAndDrop: DragAndDrop,
-                         private val m_world: OreWorld) : Inventory.SlotListener {
+                                private val inventory: Inventory,
+                                dragAndDrop: DragAndDrop,
+                                private val world: OreWorld) : Inventory.SlotListener {
 
     var visible: Boolean
-        get() = m_window.isVisible
+        get() = window.isVisible
         set(value) {
-            m_window.isVisible = value
+            window.isVisible = value
         }
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
@@ -70,15 +70,15 @@ class DeviceControlPanel(stage: Stage,
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
-    private val m_slots = mutableListOf<SlotElement>()
-    private val m_window: VisWindow
+    private val slots = mutableListOf<SlotElement>()
+    private val window: VisWindow
 
-    private val m_tooltip: Tooltip<VisTable>
-    private val m_tooltipLabel: VisLabel
+    private val tooltip: Tooltip<VisTable>
+    private val tooltipLabel: VisLabel
 
     init {
         //attach to the inventory model
-        m_inventory.addListener(this)
+        inventory.addListener(this)
 
         val container = VisTable()
         container.setFillParent(true)
@@ -86,15 +86,15 @@ class DeviceControlPanel(stage: Stage,
         container.defaults().space(4f)
         container.padLeft(10f).padTop(10f)
 
-        m_window = VisWindow("Inventory")
+        window = VisWindow("Inventory")
         //fixme;not centering or anythign, all hardcoded :(
-        m_window.setPosition(900f, 100f)
-        m_window.top().right().setSize(400f, 500f)
+        window.setPosition(900f, 100f)
+        window.top().right().setSize(400f, 500f)
         //        window.defaults().space(4);
         //window.pack();
-        m_window.add(container).fill().expand()
+        window.add(container).fill().expand()
 
-        val region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion("dirt-00")
+        val region = world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion("dirt-00")
         val dragImage = VisImage(region)
         dragImage.setSize(32f, 32f)
 
@@ -119,7 +119,7 @@ class DeviceControlPanel(stage: Stage,
                 slotTable.add(itemName).bottom().fill()
 
                 val element = SlotElement(itemImage = slotImage, table = slotTable, itemCountLabel = itemName)
-                m_slots.add(i, element)
+                slots.add(i, element)
 
                 container.add(slotTable).size(50f, 50f)
                 //            window.add(slotTable).fill().size(50, 50);
@@ -136,36 +136,36 @@ class DeviceControlPanel(stage: Stage,
 
         val style = VisUI.getSkin().get("default", TooltipStyle::class.java)
 
-        m_tooltipLabel = VisLabel()
+        tooltipLabel = VisLabel()
         val tooltipTable = VisTable().apply {
-            add(m_tooltipLabel)
+            add(tooltipLabel)
             background = style.background
         }
 
-        m_tooltip = Tooltip<VisTable>(tooltipTable)
+        tooltip = Tooltip<VisTable>(tooltipTable)
 
-        stage.addActor(m_window)
+        stage.addActor(window)
 
         visible = false
     }
 
     private fun setSlotVisible(index: Int, visible: Boolean) {
-        m_slots[index].itemCountLabel.isVisible = visible
-        m_slots[index].itemImage.isVisible = visible
+        slots[index].itemCountLabel.isVisible = visible
+        slots[index].itemImage.isVisible = visible
     }
 
     override fun countChanged(index: Int, inventory: Inventory) {
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
     }
 
     override operator fun set(index: Int, inventory: Inventory) {
-        val slot = m_slots[index]
+        val slot = slots[index]
 
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
 
         val spriteComponent = spriteMapper.get(itemEntity)
 
@@ -184,10 +184,10 @@ class DeviceControlPanel(stage: Stage,
         val region: TextureRegion?
         if (blockMapper.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
+            region = world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
                     "$textureName-00")
         } else {
-            region = m_world.m_atlas.findRegion(textureName)
+            region = world.m_atlas.findRegion(textureName)
         }
 
         assert(region != null) { "textureregion for inventory item entity id: $itemEntity, was not found!" }
@@ -197,48 +197,48 @@ class DeviceControlPanel(stage: Stage,
 
 
     override fun removed(index: Int, inventory: Inventory) {
-        val slot = m_slots[index]
+        val slot = slots[index]
         slot.itemImage.drawable = null
         slot.itemCountLabel.setText(null)
     }
 
-    private class SlotInputListener internal constructor(private val inventory: DeviceControlPanel, private val index: Int) : InputListener() {
+    private class SlotInputListener internal constructor(private val inventory: GeneratorControlPanelView, private val index: Int) : InputListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-            val itemEntity = inventory.m_inventory.itemEntity(index)
+            val itemEntity = inventory.inventory.itemEntity(index)
             if (itemEntity != null) {
-                inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
+                inventory.tooltip.enter(event, x, y, pointer, fromActor)
             }
 
             super.enter(event, x, y, pointer, fromActor)
         }
 
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
-            inventory.m_tooltip.mouseMoved(event, x, y)
+            inventory.tooltip.mouseMoved(event, x, y)
 
-            val itemEntity = inventory.m_inventory.itemEntity(index)
+            val itemEntity = inventory.inventory.itemEntity(index)
 
             if (itemEntity != null) {
                 val itemComponent = inventory.itemMapper.get(itemEntity)
                 val spriteComponent = inventory.spriteMapper.get(itemEntity)
-                inventory.m_tooltipLabel.setText(itemComponent.name)
+                inventory.tooltipLabel.setText(itemComponent.name)
             }
 
             return super.mouseMoved(event, x, y)
         }
 
         override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-            inventory.m_tooltip.exit(event, x, y, pointer, toActor)
+            inventory.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)
         }
     }
 
-    private class InventoryDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val inventoryView: DeviceControlPanel) : DragAndDrop.Source(
+    private class InventoryDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val inventoryView: GeneratorControlPanelView) : DragAndDrop.Source(
             slotTable) {
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            if (inventoryView.m_inventory.itemEntity(index) == null) {
+            if (inventoryView.inventory.itemEntity(index) == null) {
                 return null
             }
 
@@ -256,7 +256,7 @@ class DeviceControlPanel(stage: Stage,
         }
     }
 
-    private class InventoryDragTarget(slotTable: Table, private val index: Int, private val inventory: DeviceControlPanel) : DragAndDrop.Target(
+    private class InventoryDragTarget(slotTable: Table, private val index: Int, private val inventory: GeneratorControlPanelView) : DragAndDrop.Target(
             slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
@@ -288,7 +288,7 @@ class DeviceControlPanel(stage: Stage,
                 //maybe make it green? the source/dest is not the same
 
                 //only make it green if the slot is empty
-                inventory.m_inventory.itemEntity(index) ?: return true
+                inventory.inventory.itemEntity(index) ?: return true
             }
 
             return false
@@ -306,11 +306,11 @@ class DeviceControlPanel(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_inventory.itemEntity(this.index) == null) {
+            if (inventory.inventory.itemEntity(this.index) == null) {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
-                    val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
+                    val itemEntity = inventory.inventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.m_inventory.setSlot(this.index, itemEntity!!)
+                    inventory.inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
                                                                     dragWrapper.dragSourceIndex,
@@ -318,15 +318,15 @@ class DeviceControlPanel(stage: Stage,
                                                                     index)
 
                     //remove the source item
-                    inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
+                    inventory.inventory.takeItem(dragWrapper.dragSourceIndex)
                 } else {
                     //hotbar inventory
-                    val hotbarInventory = inventory.m_hotbarInventory
+                    val hotbarInventory = inventory.generatorControlPanelInventory
 
                     val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
 
-                    inventory.m_inventory.setSlot(this.index, itemEntity!!)
+                    inventory.inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
                                                                     dragWrapper.dragSourceIndex,

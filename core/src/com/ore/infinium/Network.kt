@@ -219,21 +219,21 @@ object Network {
         class UpdateGeneratorControlPanelStats() {
             var entityId = -1
             var supply = -1
-        }
-
-        /**
-         * sent when the stats of a power circuit gets changed,
-         * or when it needs an initial update
-         */
-        class PowerStats {
-            var supply = -1
-            var demand = -1
 
             /**
              * remaining health of the fuel (percent)
              * 0 means that fuel source would be expired/removed.
              */
             var fuelHealth = 0
+        }
+
+        /**
+         * sent when the stats of a global power supply/demand gets changed,
+         * or when it needs an initial update
+         */
+        class PowerStats {
+            var supply = -1
+            var demand = -1
         }
 
         /**
@@ -278,7 +278,7 @@ object Network {
 
         class EntityMoved {
             var id: Int = 0
-            var position= Vector2()
+            var position = Vector2()
         }
     }
 

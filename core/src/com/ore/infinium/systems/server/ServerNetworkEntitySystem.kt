@@ -144,7 +144,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
             //get the entities that actually exist in this viewport
             val fill = IntBag()
             spatialSystem.quadTree.get(fill, viewport.x.toFloat(), viewport.y.toFloat(), viewport.width.toFloat(),
-                    viewport.height.toFloat())
+                                       viewport.height.toFloat())
 
             //hack copy to intarray only because the quadtree uses an intbag
             val entitiesInRegion = mutableListOf<Int>()
@@ -167,7 +167,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
                 !entitiesInRegion.contains(knownEntity) && !mPlayer.has(knownEntity)
             }
 
-            //update  our status
+            //update our status
             playerEntity.knownEntities.addAll(entitiesToSpawn)
             playerEntity.knownEntities.removeAll(entitiesToDestroy)
 
@@ -175,17 +175,17 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
 
             if (entitiesToDestroy.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                        "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
+                             "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
                 serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
-                        playerComponent.connectionPlayerId)
+                                                                playerComponent.connectionPlayerId)
             }
 
             if (entitiesToSpawn.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                        "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
+                             "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
-                        playerComponent.connectionPlayerId)
+                                                              playerComponent.connectionPlayerId)
             }
 
         }

@@ -371,25 +371,26 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //var debug = "receiveMultipleEntitySpawn [ "
         for (spawn in entitySpawn.entitySpawn) {
 
-            val e = getWorld().create()
+            val localEntityId = getWorld().create()
 
             // debug += " networkid: " + spawn.id + " localid: " + e
 
-            for (c in spawn.components!!) {
-                val entityEdit = getWorld().edit(e)
+            for (c in spawn.components) {
+                val entityEdit = getWorld().edit(localEntityId)
                 entityEdit.add(c)
             }
 
             //fixme id..see above.
-            val spriteComponent = mSprite.create(e)
-            spriteComponent.textureName = spawn.textureName
-            spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y)
-            spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
+            val spriteComponent = mSprite.create(localEntityId).apply {
+                textureName = spawn.textureName
+                sprite.setSize(spawn.size.size.x, spawn.size.size.y)
+                sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
+            }
 
             assert(spriteComponent.textureName != null)
 
             val textureRegion: TextureRegion?
-            if (!mBlock.has(e)) {
+            if (!mBlock.has(localEntityId)) {
                 textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName)
             } else {
                 textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
@@ -399,12 +400,15 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             spriteComponent.sprite.setRegion(textureRegion)
 
-            val result1 = networkIdForEntityId.put(e, spawn.id)
-            val result2 = entityForNetworkId.put(spawn.id, e)
+            //keep our networkid -> localid mappings up to date
+            //since the client and server can never agree on which id to make an
+            //entity as, so we must handshake after the fact
+            val result1 = networkIdForEntityId.put(localEntityId, spawn.id)
+            val result2 = entityForNetworkId.put(spawn.id, localEntityId)
 
             if (result1 != null) {
                 assert(false) {
-                    "put failed for spawning, into entity bidirectional map, value already existed id: " + e +
+                    "put failed for spawning, into entity bidirectional map, value already existed id: " + localEntityId +
                             " networkid: " + spawn.id
                 }
             }

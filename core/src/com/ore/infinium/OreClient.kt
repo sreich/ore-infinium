@@ -35,7 +35,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.utils.TimeUtils
-import com.badlogic.gdx.utils.viewport.ScreenViewport
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
 import com.kotcrab.vis.ui.VisUI
@@ -98,9 +97,9 @@ class OreClient : ApplicationListener, InputProcessor {
 
     var m_hotbarInventory: HotbarInventory? = null
     private var m_inventory: Inventory? = null
-    private var m_deviceControlPanel: DeviceControlPanel? = null
 
-    private val m_viewport: ScreenViewport? = null
+    private var m_generatorControlPanelView: GeneratorControlPanelView? = null
+    private var m_generatorInventory: GeneratorInventory? = null
 
     var m_server: OreServer? = null
     private var m_serverThread: Thread? = null
@@ -211,7 +210,7 @@ class OreClient : ApplicationListener, InputProcessor {
         if (playerComp.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
             playerComp.placeableItemTimer.reset()
 
-            attemptItemPlace(playerComp.equippedPrimaryItem!!)
+            attemptItemPlace()
         }
     }
 
@@ -231,7 +230,7 @@ class OreClient : ApplicationListener, InputProcessor {
         //todo request from server populating control panel (with items within it)
         val deviceComp = deviceMapper.get(entity) ?: return false
 
-        m_deviceControlPanel!!.visible = true
+        m_generatorControlPanelView!!.visible = true
         m_clientNetworkSystem.sendOpenControlPanel(entityId = entity)
 
         return true
@@ -299,11 +298,12 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     /**
-     * Placement position is determined by the current position of the overlay
-
-     * @param itemEntity
+     * Everything about the placed item (including placed position) is determined
+     * by the placement overlay. then if valid to place, we then notify the server
+     * and it clones the currently equipped item and places it at the position
+     * we provided
      */
-    private fun attemptItemPlace(itemEntity: Int) {
+    private fun attemptItemPlace() {
         val placementOverlay = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay).id
         val placementOverlaySprite = spriteMapper.get(placementOverlay)
 
@@ -311,17 +311,6 @@ class OreClient : ApplicationListener, InputProcessor {
         val placeY = placementOverlaySprite.sprite.y
 
         if (m_world!!.isPlacementValid(placementOverlay)) {
-            //place the item
-            val placedItemEntity = m_world!!.cloneEntity(itemEntity)
-
-            val placedItemComponent = itemMapper.get(placedItemEntity)
-
-            placedItemComponent.state = ItemComponent.State.InWorldState
-
-            val spriteComponent = spriteMapper.get(placedItemEntity)
-            spriteComponent.sprite.setPosition(placeX, placeY)
-
-            //todo, do more validation..
             m_clientNetworkSystem.sendItemPlace(placeX, placeY)
             m_soundSystem.playItemPlace()
         }
@@ -697,12 +686,18 @@ class OreClient : ApplicationListener, InputProcessor {
                                            m_world!!)
         m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
+        m_generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+        m_generatorControlPanelView = GeneratorControlPanelView(m_stage, m_generatorInventory!!,
+                                                                m_inventory!!, m_dragAndDrop!!, m_world!!)
+
         m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)
 
         m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
         m_world!!.m_artemisWorld.inject(m_inventory, true)
         m_world!!.m_artemisWorld.inject(m_inventoryView, true)
         m_world!!.m_artemisWorld.inject(m_hotbarView, true)
+        m_world!!.m_artemisWorld.inject(m_generatorControlPanelView, true)
+        m_world!!.m_artemisWorld.inject(m_generatorInventory, true)
 
         if (mainPlayer) {
             m_tagManager.register(OreWorld.s_mainPlayer, player)

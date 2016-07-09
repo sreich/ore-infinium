@@ -29,5 +29,9 @@ class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
      * fuel source currently being burnt
      */
     var fuelSource: Int? = null
+
+    companion object {
+        val MAX_SLOTS = 32
+    }
 }
 
