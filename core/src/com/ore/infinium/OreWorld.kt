@@ -748,10 +748,10 @@ class OreWorld
         val blockComponent = blockMapper.create(block)
         blockComponent.blockType = blockType
 
-        val blockSprite = spriteMapper.create(block)
-        blockSprite.textureName = OreBlock.blockAttributes[blockComponent.blockType]!!.textureName
-
-        blockSprite.sprite.setSize(1f, 1f)
+        val blockSprite = spriteMapper.create(block).apply {
+            textureName = OreBlock.blockAttributes[blockComponent.blockType]!!.textureName
+            sprite.setSize(1f, 1f)
+        }
 
         itemMapper.create(block).apply {
             stackSize = 800
@@ -799,10 +799,10 @@ class OreWorld
 
         powerDeviceMapper.create(light)
 
-        val sprite = spriteMapper.create(light)
-        sprite.textureName = "light-yellow"
-
-        sprite.sprite.setSize(1f, 1f)
+        val sprite = spriteMapper.create(light).apply {
+            textureName = "light-yellow"
+            sprite.setSize(1f, 1f)
+        }
 
         val powerConsumerComponent = powerConsumerMapper.create(light)
         powerConsumerComponent.powerDemandRate = 100
@@ -823,10 +823,10 @@ class OreWorld
 
         powerDeviceMapper.create(power)
 
-        val sprite = spriteMapper.create(power)
-        sprite.textureName = "air-generator-64x64"
-
-        sprite.sprite.setSize(4f, 4f)
+        val sprite = spriteMapper.create(power).apply {
+            textureName = "air-generator-64x64"
+            sprite.setSize(4f, 4f)
+        }
 
         val powerComponent = powerGeneratorMapper.create(power)
         powerComponent.powerSupplyRate = 100
@@ -843,10 +843,10 @@ class OreWorld
             blockDamage = 400f
         }
 
-        val toolSprite = spriteMapper.create(drill)
-        toolSprite.textureName = "drill"
-
-        toolSprite.sprite.setSize(2f, 2f)
+        val toolSprite = spriteMapper.create(drill).apply {
+            textureName = "drill"
+            sprite.setSize(2f, 2f)
+        }
 
         val newStackSize = 64000
         itemMapper.create(drill).apply {
@@ -875,6 +875,7 @@ class OreWorld
             FloraComponent.TreeSize.Large -> {
                 sprite.textureName = "flora/tree-02";
                 sprite.sprite.setSize(5f, 13f)
+
                 flora.numberOfDropsWhenDestroyed = 4
                 flora.stackSizePerDrop = 2
             }

@@ -30,11 +30,12 @@ import com.artemis.managers.TagManager
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreClient
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.ToolComponent
 import com.ore.infinium.systems.GameTickSystem
 import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
 import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
 class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_client: OreClient) : BaseSystem() {
@@ -256,12 +257,13 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
             val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
-            val blockToDig = BlockToDig()
-            blockToDig.damagedBlockHealth = totalBlockHealth
-            blockToDig.totalBlockHealth = totalBlockHealth
-            blockToDig.digStartTick = gameTickSystem.ticks
-            blockToDig.x = blockX
-            blockToDig.y = blockY
+            val blockToDig = BlockToDig().apply {
+                damagedBlockHealth = totalBlockHealth
+                this.totalBlockHealth = totalBlockHealth
+                digStartTick = gameTickSystem.ticks
+                x = blockX
+                y = blockY
+            }
 
             blocksToDig.add(blockToDig)
         }

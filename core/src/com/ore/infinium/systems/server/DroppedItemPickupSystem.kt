@@ -97,8 +97,10 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
      * @param itemToPickupId entity id
      */
     private fun pickupItem(itemComponentToPickup: ItemComponent, itemToPickupId: Int, playerEntityId: Int) {
-        itemComponentToPickup.state = ItemComponent.State.InInventoryState
-        itemComponentToPickup.inventoryIndex = 7
+        with(itemComponentToPickup) {
+            state = ItemComponent.State.InInventoryState
+            inventoryIndex = 7
+        }
 
         val playerComponent = mPlayer.get(playerEntityId)
 

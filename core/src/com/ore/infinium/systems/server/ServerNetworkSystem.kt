@@ -142,10 +142,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val playerComp = mPlayer.get(entityId)
         val spriteComp = mSprite.get(entityId)
 
-        val spawn = Network.Server.PlayerSpawned()
-        spawn.connectionId = playerComp.connectionPlayerId
-        spawn.playerName = playerComp.playerName
-        spawn.pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
+        val spawn = Network.Server.PlayerSpawned().apply {
+            connectionId = playerComp.connectionPlayerId
+            playerName = playerComp.playerName
+            pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
+        }
 
         serverKryo.sendToAllTCP(spawn)
     }
@@ -162,10 +163,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val spriteComp = mSprite.get(entityId)
 
         OreWorld.log("server", "sending spawn player command")
-        val spawn = Network.Server.PlayerSpawned()
-        spawn.connectionId = playerComp.connectionPlayerId
-        spawn.playerName = playerComp.playerName
-        spawn.pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
+        val spawn = Network.Server.PlayerSpawned().apply {
+            this.connectionId = playerComp.connectionPlayerId
+            playerName = playerComp.playerName
+            pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
+        }
         serverKryo.sendToTCP(connectionId, spawn)
     }
 
@@ -229,15 +231,17 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 */
             }
 
-            val spawn = Network.Server.EntitySpawn()
-            spawn.id = entityId
-            spawn.components = serializeComponents(entityId)
-
             val sprite = mSprite.get(entityId)
+            val spawn = Network.Server.EntitySpawn().apply {
+                id = entityId
 
-            spawn.pos.pos.set(sprite.sprite.x, sprite.sprite.y)
-            spawn.size.size.set(sprite.sprite.width, sprite.sprite.height)
-            spawn.textureName = sprite.textureName
+                components = serializeComponents(entityId)
+
+                pos.pos.set(sprite.sprite.x, sprite.sprite.y)
+                size.size.set(sprite.sprite.width, sprite.sprite.height)
+                textureName = sprite.textureName
+            }
+
 
             spawnMultiple.entitySpawn.add(spawn)
         }
@@ -300,7 +304,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      *
      * the index is handled client side, with the ItemComponent.inventoryIndex
      */
-    fun sendSpawnInventoryItems(entityIdsToSpawn: MutableList<Int>,
+    fun sendSpawnInventoryItems(entityIdsToSpawn: List<Int>,
                                 owningPlayerEntityId: Int,
                                 inventoryType: Inventory.InventoryType,
                                 causedByPickedUpItem: Boolean) {
@@ -401,7 +405,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val genC = mGenerator.get(generatorEntityId)
 
-        genC.fuelSources.slots().filterNotNull().forEach {  itemEntityId ->
+        genC.fuelSources.slots().filterNotNull().forEach { itemEntityId ->
             val spriteC = mSprite.get(itemEntityId)
 
             val entitySpawn = Network.Server.EntitySpawn()
@@ -554,24 +558,22 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val droppedItem = oreWorld.cloneEntity(itemToDrop)
 
-        val itemDroppedComponent = mItem.get(droppedItem)
-        itemDroppedComponent.state = ItemComponent.State.DroppedInWorld
-        itemDroppedComponent.justDropped = true
-        itemDroppedComponent.playerIdWhoDropped = playerComponent.connectionPlayerId
-
         val playerSprite = mSprite.get(job.connection.playerEntityId)
-        val droppedItemSprite = mSprite.get(droppedItem)
+        val droppedItemSprite = mSprite.get(droppedItem).apply {
+            //shrink the size of all dropped items, but also store the original size first, so we can revert later
+            sprite.setSize(sprite.width * 0.5f, sprite.height * 0.5f)
+            sprite.setPosition(playerSprite.sprite.x, playerSprite.sprite.y)
+        }
 
-        itemDroppedComponent.sizeBeforeDrop = Vector2(droppedItemSprite.sprite.width, droppedItemSprite.sprite.height)
+        val itemDroppedComponent = mItem.get(droppedItem).apply {
+            state = ItemComponent.State.DroppedInWorld
+            justDropped = true
+            playerIdWhoDropped = playerComponent.connectionPlayerId
+            sizeBeforeDrop = Vector2(droppedItemSprite.sprite.width, droppedItemSprite.sprite.height)
 
-        //shrink the size of all dropped items, but also store the original size first, so we can revert later
-        droppedItemSprite.sprite.setSize(droppedItemSprite.sprite.width * 0.5f,
-                                         droppedItemSprite.sprite.height * 0.5f)
-
-        droppedItemSprite.sprite.setPosition(playerSprite.sprite.x, playerSprite.sprite.y)
-
-        //indicate when we dropped it, so pickup system knows not to pick it up for a while after
-        itemDroppedComponent.timeOfDropMs = TimeUtils.millis()
+            //indicate when we dropped it, so pickup system knows not to pick it up for a while after
+            timeOfDropMs = TimeUtils.millis()
+        }
 
         //note we do not send anything, because later on the network system will figure out it needs to spawn that entity
     }
@@ -794,9 +796,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             val connection = c as PlayerConnection?
             connection?.let {
                 // Announce to everyone that someone (with a registered playerName) has left.
-                val chatMessage = Network.Server.ChatMessage()
-                chatMessage.message = connection.playerName + " disconnected."
-                chatMessage.sender = Chat.ChatSender.Server
+                val chatMessage = Network.Server.ChatMessage().apply {
+                    message = connection.playerName + " disconnected."
+                    sender = Chat.ChatSender.Server
+                }
+
                 serverKryo.sendToAllTCP(chatMessage)
             }
         }

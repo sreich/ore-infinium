@@ -171,15 +171,14 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun sendInitialClientData() {
-        val initialClientData = Network.Client.InitialClientData()
-
-        initialClientData.playerName = OreSettings.playerName
-
-        //TODO generate some random thing
-        initialClientData.playerUUID = UUID.randomUUID().toString()
-        initialClientData.versionMajor = OreClient.ORE_VERSION_MAJOR
-        initialClientData.versionMinor = OreClient.ORE_VERSION_MINOR
-        initialClientData.versionRevision = OreClient.ORE_VERSION_REVISION
+        val initialClientData = Network.Client.InitialClientData().apply {
+            playerName = OreSettings.playerName
+            //TODO generate some random thing
+            playerUUID = UUID.randomUUID().toString()
+            versionMajor = OreClient.ORE_VERSION_MAJOR
+            versionMinor = OreClient.ORE_VERSION_MINOR
+            versionRevision = OreClient.ORE_VERSION_REVISION
+        }
 
         clientKryo.sendTCP(initialClientData)
     }

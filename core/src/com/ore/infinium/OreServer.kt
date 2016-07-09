@@ -146,13 +146,16 @@ class OreServer : Runnable {
             //m_world.blockAt(x, tiley).type = Block.BlockType.Stone;
         }
 
-        val playerSprite = spriteMapper.get(player)
-        playerSprite.sprite.setPosition(posX, posY)
+        val playerSprite = spriteMapper.get(player).apply {
+            sprite.setPosition(posX, posY)
+        }
 
-        val playerComponent = playerMapper.get(player)
-        playerComponent.hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
-        playerComponent.hotbarInventory!!.addListener(HotbarInventorySlotListener())
-        m_world.m_artemisWorld.inject(playerComponent.hotbarInventory!!)
+        val playerComponent = playerMapper.get(player).apply {
+            hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
+            hotbarInventory!!.addListener(HotbarInventorySlotListener())
+
+            m_world.m_artemisWorld.inject(hotbarInventory!!)
+        }
 
         playerComponent.inventory = Inventory(Inventory.maxSlots)
         m_world.m_artemisWorld.inject(playerComponent.inventory!!)
@@ -212,12 +215,10 @@ class OreServer : Runnable {
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
 
-        val itemList = mutableListOf<Int>()
         val nonNullSlots = playerComponent.hotbarInventory!!.slots().filterNotNull()
 
-        itemList.addAll(nonNullSlots)
-
-        m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = itemList, owningPlayerEntityId = playerEntity,
+        m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonNullSlots,
+                                                      owningPlayerEntityId = playerEntity,
                                                       inventoryType = Inventory.InventoryType.Hotbar,
                                                       causedByPickedUpItem = false)
     }
