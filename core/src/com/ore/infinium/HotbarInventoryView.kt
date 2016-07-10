@@ -29,7 +29,6 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.Image
-import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Tooltip
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
@@ -82,34 +81,16 @@ class HotbarInventoryView(private val m_stage: Stage,
         val dragImage = VisImage()
         dragImage.setSize(32f, 32f)
 
-        for (i in 0 until Inventory.maxHotbarSlots) {
-
-            val slotImage = VisImage()
-
-            val slotTable = VisTable()
-            slotTable.touchable = Touchable.enabled
-            slotTable.addListener(SlotClickListener(this, i))
-            slotTable.addListener(SlotInputListener(this, i))
-
-            slotTable.add(slotImage)
-            slotTable.background("default-pane")
-
-            slotTable.row()
-
-            val itemCount = VisLabel()
-            slotTable.add(itemCount).bottom().fill()
-
-            //            container.add(slotTable).size(50, 50);
-            container.add(slotTable).fill().size(50f, 50f)
-
-            val element = SlotElement(itemImage = slotImage, itemCountLabel = itemCount, table = slotTable)
+        repeat(Inventory.maxHotbarSlots) {
+            val element = SlotElement(this, it)
             m_slots.add(element)
+            container.add(element.slotTable).size(50f, 50f)
 
-            setHotbarSlotVisible(i, false)
+            setHotbarSlotVisible(it, false)
 
-            dragAndDrop.addSource(HotbarDragSource(slotTable, i, dragImage, this))
+            dragAndDrop.addSource(HotbarDragSource(element.slotTable, it, dragImage, this))
 
-            dragAndDrop.addTarget(HotbarDragTarget(slotTable, i, this))
+            dragAndDrop.addTarget(HotbarDragTarget(element.slotTable, it, this))
 
         }
 
@@ -125,12 +106,12 @@ class HotbarInventoryView(private val m_stage: Stage,
     }
 
     private fun deselectPreviousSlot() {
-        m_slots[m_hotbarInventory.previousSelectedSlot].table.color = Color.WHITE
+        m_slots[m_hotbarInventory.previousSelectedSlot].slotTable.color = Color.WHITE
     }
 
     override fun countChanged(index: Int, inventory: Inventory) {
         val itemComponent = itemMapper.get(inventory.itemEntity(index)!!)
-        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        m_slots[index].itemCount.setText(itemComponent.stackSize.toString())
     }
 
     override operator fun set(index: Int, inventory: Inventory) {
@@ -138,7 +119,7 @@ class HotbarInventoryView(private val m_stage: Stage,
 
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        m_slots[index].itemCount.setText(itemComponent.stackSize.toString())
 
         val spriteComponent = spriteMapper.get(itemEntity)
 
@@ -181,7 +162,7 @@ class HotbarInventoryView(private val m_stage: Stage,
 
     override fun selected(index: Int, inventory: Inventory) {
         deselectPreviousSlot()
-        m_slots[index].table.setColor(0f, 0f, 1f, 1f)
+        m_slots[index].slotTable.setColor(0f, 0f, 1f, 1f)
     }
 
     //FIXME: do the same for InventoryView
@@ -192,9 +173,9 @@ class HotbarInventoryView(private val m_stage: Stage,
     private fun setHotbarSlotVisible(index: Int, visible: Boolean) {
         if (!visible) {
             m_slots[index].itemImage.drawable = null
-            m_slots[index].itemCountLabel.setText(null)
+            m_slots[index].itemCount.setText(null)
         }
-        m_slots[index].itemCountLabel.isVisible = visible
+        m_slots[index].itemCount.isVisible = visible
         m_slots[index].itemImage.isVisible = visible
     }
 
@@ -347,6 +328,26 @@ class HotbarInventoryView(private val m_stage: Stage,
         }
     }
 
-    private inner class SlotElement(var itemImage: Image, var itemCountLabel: Label, var table: VisTable) {
+    private inner class SlotElement(inventoryView: HotbarInventoryView, index: Int) {
+        val itemImage = VisImage()
+        val slotTable = VisTable()
+        val itemCount = VisLabel()
+
+        init {
+            with(slotTable) {
+                touchable = Touchable.enabled
+                add(itemImage)
+
+                addListener(SlotClickListener(inventoryView, index))
+                addListener(SlotInputListener(inventoryView, index))
+
+                background("default-pane")
+
+                row()
+
+                add(itemCount).bottom().fill()
+            }
+        }
     }
+
 }

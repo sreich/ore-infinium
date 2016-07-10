@@ -105,26 +105,20 @@ class GeneratorControlPanelView(stage: Stage,
         dragImage.setSize(32f, 32f)
 
         val slotsPerRow = 5
-        var i = 0
-
-        while (i < Inventory.maxSlots) {
-            var slotRowIndex = 0
-            while (slotRowIndex < slotsPerRow && i < Inventory.maxSlots) {
-                val element = SlotElement(this, i)
-                slots.add(i, element)
-
-                container.add(element.slotTable).size(50f, 50f)
-                //            window.add(slotTable).fill().size(50, 50);
-
-                dragAndDrop.addSource(InventoryDragSource(element.slotTable, i, dragImage, this))
-
-                dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, i, this))
-
-                ++slotRowIndex
-                ++i
+        repeat(Inventory.maxSlots) {
+            if (it != 0 && it % slotsPerRow == 0) {
+                container.row()
             }
 
-            container.row()
+            val element = SlotElement(this, it)
+            slots.add(it, element)
+
+            container.add(element.slotTable).size(50f, 50f)
+            //            window.add(slotTable).fill().size(50, 50);
+
+            dragAndDrop.addSource(InventoryDragSource(element.slotTable, it, dragImage, this))
+
+            dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, it, this))
         }
 
         val style = VisUI.getSkin().get("default", TooltipStyle::class.java)

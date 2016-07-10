@@ -99,26 +99,20 @@ class InventoryView(stage: Stage,
         dragImage.setSize(32f, 32f)
 
         val slotsPerRow = 5
-        var slotIndex = 0
-
-        while (slotIndex < Inventory.maxSlots) {
-            var slotRowIndex = 0
-            while (slotRowIndex < slotsPerRow && slotIndex < Inventory.maxSlots) {
-
-                val element = SlotElement(this, slotIndex)
-                m_slots.add(slotIndex, element)
-
-                container.add(element.slotTable).size(50f, 50f)
-                //            window.add(slotTable).fill().size(50, 50);
-
-                dragAndDrop.addSource(InventoryDragSource(element.slotTable, slotIndex, dragImage, this))
-
-                dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, slotIndex, this))
-                ++slotRowIndex
-                ++slotIndex
+        repeat(Inventory.maxSlots) {
+            if (it != 0 && it % slotsPerRow == 0) {
+                container.row()
             }
 
-            container.row()
+            val element = SlotElement(this, it)
+            m_slots.add(it, element)
+
+            container.add(element.slotTable).size(50f, 50f)
+            //            window.add(slotTable).fill().size(50, 50);
+
+            dragAndDrop.addSource(InventoryDragSource(element.slotTable, it, dragImage, this))
+
+            dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, it, this))
         }
 
         val style = VisUI.getSkin().get("default", TooltipStyle::class.java)
