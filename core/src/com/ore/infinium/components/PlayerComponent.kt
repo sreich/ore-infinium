@@ -45,6 +45,7 @@ class PlayerComponent : Component() {
     var connectionPlayerId = -1
     var killed: Boolean = false
     @DoNotCopy @DoNotPrint @Transient var placeableItemTimer = OreTimer()
+    @DoNotCopy @DoNotPrint @Transient var secondaryActionTimer = OreTimer()
 
     /**
      * the tick that an attack last took place at.
@@ -80,5 +81,10 @@ class PlayerComponent : Component() {
 
         //ms
         val placeableItemDelay = 300
+
+        /**
+         * for interacting with things like doors and control panels
+         */
+        val secondaryActionnDelay = 300
     }
 }

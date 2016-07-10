@@ -127,7 +127,6 @@ class ItemComponent : Component(), CopyableComponent<ItemComponent> {
 
     override fun copyFrom(component: ItemComponent) {
         this.defaultCopyFrom(component)
-        sizeBeforeDrop = Vector2()
         justDropped = false
     }
 }

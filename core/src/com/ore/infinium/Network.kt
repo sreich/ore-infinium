@@ -116,6 +116,7 @@ object Network {
         kryo.register(Server.EntityMoved::class.java)
 
         kryo.register(Server.SpawnInventoryItems::class.java)
+        kryo.register(Server.SpawnGeneratorInventoryItems::class.java)
 
         kryo.register(Server.LoadedViewportMoved::class.java)
         kryo.register(Server.PlayerSpawned::class.java)

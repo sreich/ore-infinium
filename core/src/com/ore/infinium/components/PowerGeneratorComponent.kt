@@ -46,7 +46,7 @@ class PowerGeneratorComponent : Component() {
              *
              * the others are the reserves
              */
-    lateinit var fuelSources: GeneratorInventory
+    val fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
 
     /**
      * determines if the item component is the same, in other words,

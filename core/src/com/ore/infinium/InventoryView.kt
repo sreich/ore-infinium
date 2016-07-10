@@ -138,7 +138,7 @@ class InventoryView(stage: Stage,
 
     private fun setSlotVisible(index: Int, visible: Boolean) {
         m_slots[index].itemName.isVisible = visible
-        m_slots[index].slotImage.isVisible = visible
+        m_slots[index].itemImage.isVisible = visible
     }
 
     override fun countChanged(index: Int, inventory: Inventory) {
@@ -158,7 +158,7 @@ class InventoryView(stage: Stage,
 
         val region = textureForInventoryItem(itemEntity, spriteComponent.textureName!!)
 
-        val slotImage = slot.slotImage
+        val slotImage = slot.itemImage
         slotImage.drawable = TextureRegionDrawable(region)
         slotImage.setSize(region.regionWidth.toFloat(), region.regionHeight.toFloat())
         slotImage.setScaling(Scaling.fit)
@@ -185,7 +185,7 @@ class InventoryView(stage: Stage,
 
     override fun removed(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
-        slot.slotImage.drawable = null
+        slot.itemImage.drawable = null
         slot.itemName.setText(null)
     }
 
@@ -328,14 +328,14 @@ class InventoryView(stage: Stage,
     }
 
     private inner class SlotElement(inventoryView: InventoryView, index: Int) {
-        val slotImage = VisImage()
+        val itemImage = VisImage()
         val slotTable = VisTable()
         val itemName = VisLabel()
 
         init {
             with(slotTable) {
                 touchable = Touchable.enabled
-                add(slotImage)
+                add(itemImage)
                 addListener(SlotInputListener(inventoryView, index))
                 background("default-pane")
 

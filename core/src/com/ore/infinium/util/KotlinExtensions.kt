@@ -25,6 +25,7 @@ SOFTWARE.
 package com.ore.infinium.util
 
 import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.utils.TimeUtils
 
 /**
  * Returns a new mutable list of @param n items,
@@ -57,6 +58,31 @@ inline fun <T, R : Any> Iterable<T>.firstNotNull(selector: (T) -> R?): R? {
 fun Int.isNegative(): Boolean {
     return Math.abs(this) != this
 }
+
+fun profilerStart(name: String = ""): Long {
+    return TimeUtils.nanoTime()
+}
+
+fun profilerStopAndPrintMs(prevTimeNs: Long) {
+    val ns = TimeUtils.timeSinceNanos(prevTimeNs)
+    val ms = TimeUtils.nanosToMillis(ns)
+    println("PROFILER measured time: $ms ms")
+}
+
+
+/**
+ * profile time taken, execute a function, print result in ms
+ * and return result of function call
+ */
+fun <T> printMeasureTimeMs(block: () -> T): T {
+    val start = System.currentTimeMillis()
+    val result = block()
+    val time = System.currentTimeMillis() - start
+
+    println("PROFILER measured time: $time ms")
+    return result
+}
+
 
 /**
  * format to 2 decimals by default, or whatever you specify.

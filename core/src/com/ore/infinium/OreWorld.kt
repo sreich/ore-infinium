@@ -830,7 +830,6 @@ class OreWorld
 
         val genC = powerGeneratorMapper.create(power).apply {
             powerSupplyRate = 100
-            fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
         }
 
         return power
@@ -1021,6 +1020,7 @@ class OreWorld
     fun cloneEntity(sourceEntity: Int): Int {
         val clonedEntity = m_artemisWorld.create()
 
+
         //sorted alphabetically for your pleasure
         if (airMapper.has(sourceEntity)) {
             val sourceComponent = airMapper.get(sourceEntity)
@@ -1033,6 +1033,7 @@ class OreWorld
             val component = blockMapper.create(clonedEntity)
             component.copyFrom(sourceComponent)
         }
+
 
         if (controlMapper.has(sourceEntity)) {
             val sourceComponent = controlMapper.get(sourceEntity)
@@ -1051,10 +1052,12 @@ class OreWorld
             val component = healthMapper.create(clonedEntity)
             component.copyFrom(sourceComponent)
         }
-
         if (itemMapper.has(sourceEntity)) {
+
             val sourceComponent = itemMapper.get(sourceEntity)
             val component = itemMapper.create(clonedEntity)
+            //fixme for first execution of this, it takes ~400ms which is crazy
+            //it is literally ONLY this one, for a generator. not sure why yet.
             component.copyFrom(sourceComponent)
         }
 

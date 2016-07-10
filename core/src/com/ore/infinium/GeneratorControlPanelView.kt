@@ -54,6 +54,7 @@ class GeneratorControlPanelView(stage: Stage,
                                 private val generatorControlPanelInventory: Inventory,
         //the model for this view
                                 private val inventory: Inventory,
+                                private val hotbarInventory: HotbarInventory,
                                 dragAndDrop: DragAndDrop,
                                 private val world: OreWorld) : Inventory.SlotListener {
 
@@ -107,32 +108,19 @@ class GeneratorControlPanelView(stage: Stage,
         var i = 0
 
         while (i < Inventory.maxSlots) {
-            var slot = 0
-            while (slot < slotsPerRow && i < Inventory.maxSlots) {
-                val slotImage = VisImage()
+            var slotIndex = 0
+            while (slotIndex < slotsPerRow && i < Inventory.maxSlots) {
+                val element = SlotElement(this, slotIndex)
+                slots.add(slotIndex, element)
 
-                val slotTable = VisTable()
-                slotTable.touchable = Touchable.enabled
-
-                slotTable.add(slotImage)
-                slotTable.addListener(SlotInputListener(this, i))
-                slotTable.background("default-pane")
-
-                slotTable.row()
-
-                val itemName = VisLabel()
-                slotTable.add(itemName).bottom().fill()
-
-                val element = SlotElement(itemImage = slotImage, table = slotTable, itemCountLabel = itemName)
-                slots.add(i, element)
-
-                container.add(slotTable).size(50f, 50f)
+                container.add(element.slotTable).size(50f, 50f)
                 //            window.add(slotTable).fill().size(50, 50);
 
-                dragAndDrop.addSource(InventoryDragSource(slotTable, i, dragImage, this))
+                dragAndDrop.addSource(InventoryDragSource(element.slotTable, slotIndex, dragImage, this))
 
-                dragAndDrop.addTarget(InventoryDragTarget(slotTable, i, this))
-                ++slot
+                dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, slotIndex, this))
+
+                ++slotIndex
                 ++i
             }
 
@@ -155,14 +143,14 @@ class GeneratorControlPanelView(stage: Stage,
     }
 
     private fun setSlotVisible(index: Int, visible: Boolean) {
-        slots[index].itemCountLabel.isVisible = visible
-        slots[index].itemImage.isVisible = visible
+        slots[index].itemName.isVisible = visible
+        slots[index].itemName.isVisible = visible
     }
 
     override fun countChanged(index: Int, inventory: Inventory) {
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        slots[index].itemName.setText(itemComponent.stackSize.toString())
     }
 
     override operator fun set(index: Int, inventory: Inventory) {
@@ -170,7 +158,7 @@ class GeneratorControlPanelView(stage: Stage,
 
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
-        slots[index].itemCountLabel.setText(itemComponent.stackSize.toString())
+        slots[index].itemName.setText(itemComponent.stackSize.toString())
 
         val spriteComponent = spriteMapper.get(itemEntity)
 
@@ -204,7 +192,7 @@ class GeneratorControlPanelView(stage: Stage,
     override fun removed(index: Int, inventory: Inventory) {
         val slot = slots[index]
         slot.itemImage.drawable = null
-        slot.itemCountLabel.setText(null)
+        slot.itemName.setText(null)
     }
 
     private class SlotInputListener internal constructor(private val inventory: GeneratorControlPanelView, private val index: Int) : InputListener() {
@@ -313,9 +301,9 @@ class GeneratorControlPanelView(stage: Stage,
             //ensure the dest is empty before attempting any drag & drop!
             if (inventory.inventory.itemEntity(this.index) == null) {
                 if (dragWrapper.type == Inventory.InventoryType.Inventory) {
-                    val itemEntity = inventory.inventory.itemEntity(dragWrapper.dragSourceIndex)
+                    val itemEntity = inventory.inventory.itemEntity(dragWrapper.dragSourceIndex)!!
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.inventory.setSlot(this.index, itemEntity!!)
+                    inventory.inventory.setSlot(this.index, itemEntity)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
                                                                     dragWrapper.dragSourceIndex,
@@ -326,12 +314,12 @@ class GeneratorControlPanelView(stage: Stage,
                     inventory.inventory.takeItem(dragWrapper.dragSourceIndex)
                 } else {
                     //hotbar inventory
-                    val hotbarInventory = inventory.generatorControlPanelInventory
+                    val hotbarInventory = inventory.hotbarInventory
 
-                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
+                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)!!
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
 
-                    inventory.inventory.setSlot(this.index, itemEntity!!)
+                    inventory.inventory.setSlot(this.index, itemEntity)
 
                     inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
                                                                     dragWrapper.dragSourceIndex,
@@ -345,7 +333,23 @@ class GeneratorControlPanelView(stage: Stage,
         }
     }
 
-    private inner class SlotElement(var itemImage: VisImage, var itemCountLabel: VisLabel, var table: VisTable) {
+    private inner class SlotElement(inventoryView: GeneratorControlPanelView, index: Int) {
+        val itemImage = VisImage()
+        val slotTable = VisTable()
+        val itemName = VisLabel()
+
+        init {
+            with(slotTable) {
+                touchable = Touchable.enabled
+                add(itemImage)
+                addListener(SlotInputListener(inventoryView, index))
+                background("default-pane")
+
+                row()
+
+                add(itemName).bottom().fill()
+            }
+        }
     }
 
     override fun selected(index: Int, inventory: Inventory) {

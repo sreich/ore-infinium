@@ -378,7 +378,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
                 }
                 else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
-                    assert(false) { "unhandled network receiving class, received from client (on server)" }
+                    assert(false) {
+                        """Server network system, object was received but there's no
+                        method calls to handle it, please add them.
+                        Object: ${receivedObject.toString()}"""
+                    }
                 }
             }
         }

@@ -220,12 +220,18 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 is Network.Server.EntityMoved -> receiveEntityMoved(receivedObject)
 
                 is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
+                is Network.Server.SpawnGeneratorInventoryItems ->
+                    receiveSpawnGeneratorInventoryItems(receivedObject)
 
                 is FrameworkMessage.Ping -> {
                 }
 
                 else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
-                    assert(false) { "unhandled network receiving class in network client ${receivedObject.toString()}" }
+                    assert(false) {
+                        """Client network system, object was received but there's no
+                        method calls to handle it, please add them.
+                        Object: ${receivedObject.toString()}"""
+                    }
                 }
             }
         }
@@ -233,6 +239,10 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         if (OreSettings.debugPacketTypeStatistics) {
             OreWorld.log("client", "--- packet type stats ${debugPacketFrequencyByType.toString()}")
         }
+    }
+
+    private fun receiveSpawnGeneratorInventoryItems(receivedObject: Network.Server.SpawnGeneratorInventoryItems) {
+
     }
 
     private fun receiveEntityKilled(receivedObject: Network.Server.EntityKilled) {

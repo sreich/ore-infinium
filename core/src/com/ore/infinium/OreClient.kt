@@ -111,7 +111,6 @@ class OreClient : ApplicationListener, InputProcessor {
     internal lateinit var m_fontGenerator: FreeTypeFontGenerator
 
     init {
-
     }
 
     override fun create() {
@@ -138,7 +137,6 @@ class OreClient : ApplicationListener, InputProcessor {
             hideAll()
         }
 
-
         //todo custom skin
         //VisUI.load(Gdx.files.internal("ui/ui.json"))
 
@@ -148,7 +146,6 @@ class OreClient : ApplicationListener, InputProcessor {
         m_stage.addActor(m_rootTable)
 
         m_multiplexer = InputMultiplexer(m_stage, this)
-
 
         Gdx.input.inputProcessor = m_multiplexer
 
@@ -215,12 +212,19 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     fun handleSecondaryAttack() {
-        //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
-        //or do we want a separate key for that?
-        val mouse = m_world!!.mousePositionWorldCoords()
-        val entity = m_world!!.entityAtPosition(mouse) ?: return
+        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val playerComp = playerMapper.get(player)
 
-        attemptActivateDeviceControlPanel(entity)
+        if (playerComp.secondaryActionTimer.milliseconds() > PlayerComponent.secondaryActionnDelay) {
+            playerComp.secondaryActionTimer.reset()
+
+            //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
+            //or do we want a separate key for that?
+            val mouse = m_world!!.mousePositionWorldCoords()
+            val entity = m_world!!.entityAtPosition(mouse) ?: return
+
+            attemptActivateDeviceControlPanel(entity)
+        }
     }
 
     /**
@@ -230,7 +234,7 @@ class OreClient : ApplicationListener, InputProcessor {
         //todo request from server populating control panel (with items within it)
         val deviceComp = deviceMapper.get(entity) ?: return false
 
-        m_generatorControlPanelView!!.visible = true
+        m_generatorControlPanelView!!.visible = !m_generatorControlPanelView!!.visible
         m_clientNetworkSystem.sendOpenControlPanel(entityId = entity)
 
         return true
@@ -687,8 +691,12 @@ class OreClient : ApplicationListener, InputProcessor {
         m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
         m_generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
-        m_generatorControlPanelView = GeneratorControlPanelView(m_stage, m_generatorInventory!!,
-                                                                m_inventory!!, m_dragAndDrop!!, m_world!!)
+        m_generatorControlPanelView = GeneratorControlPanelView(stage = m_stage,
+                                                                generatorControlPanelInventory = m_generatorInventory!!,
+                                                                inventory = m_inventory!!,
+                                                                hotbarInventory = m_hotbarInventory!!,
+                                                                dragAndDrop = m_dragAndDrop!!,
+                                                                world = m_world!!)
 
         m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)
 
