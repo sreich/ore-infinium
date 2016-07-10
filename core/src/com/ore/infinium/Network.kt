@@ -266,7 +266,7 @@ object Network {
             var size = Shared.SizePacket()
             var pos = Shared.PositionPacket()
 
-            var textureName: String? = null
+            var textureName: String = ""
 
             var id: Int = 0
 

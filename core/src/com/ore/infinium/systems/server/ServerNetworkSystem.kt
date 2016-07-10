@@ -239,7 +239,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
                 pos.pos.set(sprite.sprite.x, sprite.sprite.y)
                 size.size.set(sprite.sprite.width, sprite.sprite.height)
-                textureName = sprite.textureName
+                textureName = sprite.textureName!!
             }
 
 
@@ -313,19 +313,27 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         spawn.typeOfInventory = inventoryType
 
         for (entityId in entityIdsToSpawn) {
-            val entitySpawn = Network.Server.EntitySpawn()
-            entitySpawn.components = serializeComponents(entityId)
-
-            //we don't normally serialize the sprite component, but in this case we bring over a few
-            //fields we definitely require
-            val spriteComponent = mSprite.get(entityId)
-            entitySpawn.size.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
-            entitySpawn.textureName = spriteComponent.textureName
+            val entitySpawn = serializeInventoryEntitySpawn(entityId)
 
             spawn.entitiesToSpawn.add(entitySpawn)
         }
 
         serverKryo.sendToTCP(mPlayer.get(owningPlayerEntityId).connectionPlayerId, spawn)
+    }
+
+    //todo not sure if this can be consolidated with regular entity spawns?
+    fun serializeInventoryEntitySpawn(entityId: Int): Network.Server.EntitySpawn {
+        val entitySpawn = Network.Server.EntitySpawn()
+
+        entitySpawn.components = serializeComponents(entityId)
+
+        //we don't normally serialize the sprite component, but in this case we bring over a few
+        //fields we definitely require
+        val spriteComponent = mSprite.get(entityId)
+        entitySpawn.size.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
+        entitySpawn.textureName = spriteComponent.textureName!!
+
+        return entitySpawn
     }
 
     fun sendEntityKilled(entityToKill: Int) {
@@ -394,11 +402,14 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     private fun receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob,
                                               receivedObject: Network.Client.OpenDeviceControlPanel) {
-        val entityId = receivedObject.entityId
+        val deviceEntityId = receivedObject.entityId
 
-        //todo fetch list of inventory items, send to client
-        if (mGenerator.has(entityId)) {
-            sendGeneratorInventory(generatorEntityId = entityId, playerConnectionId = job.connection.id)
+        val cPlayer = mPlayer.get(job.connection.playerEntityId)
+
+        if (mGenerator.has(deviceEntityId)) {
+            cPlayer.openedControlPanelEntity = deviceEntityId
+            sendGeneratorInventory(generatorEntityId = deviceEntityId, playerConnectionId = job.connection.id)
+            //todo send initial fuel consumption update, and then send periodic ones according to subscribing id
         }
     }
 
@@ -406,16 +417,14 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val spawn = Network.Server.SpawnGeneratorInventoryItems()
         spawn.generatorEntityId = generatorEntityId
 
+        val cGen = mGenerator.get(generatorEntityId)
 
-        val genC = mGenerator.get(generatorEntityId)
+        spawn.fuelSourceEntity = cGen.fuelSources.fuelSource?.let { serializeInventoryEntitySpawn(it) }
 
-        genC.fuelSources.slots().filterNotNull().forEach { itemEntityId ->
-            val spriteC = mSprite.get(itemEntityId)
+        cGen.fuelSources.slots().filterNotNull().forEach { itemEntityId ->
+            val cSprite = mSprite.get(itemEntityId)
 
-            val entitySpawn = Network.Server.EntitySpawn()
-            entitySpawn.id = itemEntityId
-            entitySpawn.components = serializeComponents(itemEntityId)
-            entitySpawn.textureName = spriteC.textureName
+            val entitySpawn = serializeInventoryEntitySpawn(itemEntityId)
 
             spawn.entitiesToSpawn.add(entitySpawn)
         }

@@ -44,6 +44,15 @@ class PlayerComponent : Component() {
      */
     var connectionPlayerId = -1
     var killed: Boolean = false
+
+    /**
+     * if the player notified us and has a control panel opened, we will
+     * periodically send it info updates for it. (like fuel consumption).
+     *
+     * they will notify us when they close it, too, so we can stop
+     */
+    @DoNotCopy @DoNotPrint @Transient var openedControlPanelEntity = -1
+
     @DoNotCopy @DoNotPrint @Transient var placeableItemTimer = OreTimer()
     @DoNotCopy @DoNotPrint @Transient var secondaryActionTimer = OreTimer()
 
