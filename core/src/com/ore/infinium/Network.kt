@@ -32,6 +32,7 @@ import com.badlogic.gdx.utils.IntArray
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryonet.EndPoint
 import com.ore.infinium.components.*
+import com.ore.infinium.util.INVALID_ENTITY_ID
 import java.util.*
 
 object Network {
@@ -92,7 +93,7 @@ object Network {
         kryo.register(OreBlock.BlockType::class.java)
 
         kryo.register(Chat.ChatSender::class.java)
-        kryo.register(Inventory.InventoryType::class.java)
+        kryo.register(Shared.InventoryType::class.java)
 
         // primitives/builtin
         //        kryo.register(String[]::class.java)
@@ -128,7 +129,7 @@ object Network {
 
         kryo.register(Client.ChatMessage::class.java)
 
-        kryo.register(Client.PlayerMoveInventoryItem::class.java)
+        kryo.register(Client.MoveInventoryItem::class.java)
 
         kryo.register(Client.PlayerMove::class.java)
         kryo.register(Client.BlockDigBegin::class.java)
@@ -138,6 +139,7 @@ object Network {
         kryo.register(Client.PlayerEquipHotbarIndex::class.java)
         kryo.register(Client.HotbarDropItem::class.java)
         kryo.register(Client.OpenDeviceControlPanel::class.java)
+        kryo.register(Client.CloseDeviceControlPanel::class.java)
 
         kryo.register(Client.PlayerEquippedItemAttack::class.java)
         kryo.register(Client.PlayerEquippedItemAttack.ItemAttackType::class.java)
@@ -176,6 +178,9 @@ object Network {
             //we don't need a size packet for player. we know how big one will be, always.
         }
 
+        /**
+         * sends to the client a list of inventory items to spawn
+         */
         class SpawnInventoryItems {
             /**
              * we know which index it gets spawned in due to @see ItemComponent.inventoryIndex
@@ -183,7 +188,7 @@ object Network {
              */
             var entitiesToSpawn = mutableListOf<EntitySpawn>()
 
-            var typeOfInventory = Inventory.InventoryType.Hotbar
+            var typeOfInventory = Shared.InventoryType.Hotbar
 
             /**
              * true if this was spawn because a user picked up an item.
@@ -192,6 +197,11 @@ object Network {
              * so the client may play a pickup sound.
              */
             var causedByPickedUpItem = false
+
+            /**
+             * applies only to generator inventory and only if one is in that slot
+             */
+            var fuelSourceEntity: EntitySpawn? = null
         }
 
         /**
@@ -201,7 +211,7 @@ object Network {
          * used for when the generator's device control panel is opened.
          */
         class SpawnGeneratorInventoryItems() {
-            var generatorEntityId = -1
+            var generatorEntityId = INVALID_ENTITY_ID
 
             /**
              * we know which index it gets spawned in due to @see ItemComponent.inventoryIndex
@@ -358,9 +368,9 @@ object Network {
             var index: Byte = 0
         }
 
-        class PlayerMoveInventoryItem {
-            var sourceType: Inventory.InventoryType? = null
-            var destType: Inventory.InventoryType? = null
+        class MoveInventoryItem {
+            var sourceType: Shared.InventoryType? = null
+            var destType: Shared.InventoryType? = null
             var sourceIndex: Byte = 0
             var destIndex: Byte = 0
         }
@@ -374,11 +384,11 @@ object Network {
          * we close it
          */
         class OpenDeviceControlPanel {
-            var entityId: Int = -1
+            var entityId: Int = INVALID_ENTITY_ID
         }
 
         class CloseDeviceControlPanel {
-            var entityId: Int = -1
+            var entityId: Int = INVALID_ENTITY_ID
         }
 
         /**
@@ -500,14 +510,19 @@ object Network {
             }
         }
 
+        ///
+        enum class InventoryType {
+            Hotbar,
+            Inventory, //standard inventory
+            Generator
+        }
+
     }
     //is that needed????
     //    static public class PlayerHotbarInventoryItemCountChanged {
     //        int dragSourceIndex;
     //        int newCount;
     //    }
-
-    ///
 
 }
 

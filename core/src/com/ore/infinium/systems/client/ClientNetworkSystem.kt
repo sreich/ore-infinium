@@ -498,9 +498,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
 
-    fun sendInventoryMove(sourceInventoryType: Inventory.InventoryType, sourceIndex: Int,
-                          destInventoryType: Inventory.InventoryType, destIndex: Int) {
-        val inventoryItemFromClient = Network.Client.PlayerMoveInventoryItem()
+    fun sendInventoryMove(sourceInventoryType: Network.Shared.InventoryType, sourceIndex: Int,
+                          destInventoryType: Network.Shared.InventoryType, destIndex: Int) {
+        val inventoryItemFromClient = Network.Client.MoveInventoryItem()
         inventoryItemFromClient.sourceType = sourceInventoryType
         inventoryItemFromClient.sourceIndex = sourceIndex.toByte()
         inventoryItemFromClient.destType = destInventoryType
@@ -655,5 +655,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             assert(entityForNetworkId.size == networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
         }
+    }
+
+    fun sendCloseControlPanel() {
+
     }
 }

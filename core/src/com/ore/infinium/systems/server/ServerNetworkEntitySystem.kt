@@ -32,10 +32,7 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.SpatialSystem
-import com.ore.infinium.util.indices
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.require
-import com.ore.infinium.util.system
+import com.ore.infinium.util.*
 
 @Wire(failOnNull = false)
 /**
@@ -88,7 +85,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
              * entity id of the player whose viewport/list of spawned
              * entities it knows about
              */
-            var playerEntityId: Int = -1) {
+            var playerEntityId: Int = INVALID_ENTITY_ID) {
 
         /**
          * we must know which entities the client has spawned, so we don't end up

@@ -68,7 +68,7 @@ open class Inventory
         if (item != null) {
             itemMapper.get(item).stackSize = newCount
 
-            m_listeners.forEach { it.countChanged(index, this) }
+            m_listeners.forEach { it.slotItemCountChanged(index, this) }
         }
     }
 
@@ -225,7 +225,7 @@ open class Inventory
     fun setSlot(index: Int, entity: Int) {
         m_slots[index] = entity
 
-        m_listeners.forEach { it.set(index, this) }
+        m_listeners.forEach { it.slotItemChanged(index, this) }
     }
 
     /**
@@ -240,7 +240,7 @@ open class Inventory
         if (tmpItem != null) {
             m_slots[index] = null
 
-            m_listeners.forEach { it.removed(index, this) }
+            m_listeners.forEach { it.slotItemRemoved(index, this) }
         }
 
         return tmpItem
@@ -256,22 +256,17 @@ open class Inventory
         return m_slots[index]
     }
 
-    enum class InventoryType {
-        Hotbar,
-        Inventory //standard inventory
-    }
-
     interface SlotListener {
-        open fun countChanged(index: Int, inventory: Inventory) {
+        open fun slotItemCountChanged(index: Int, inventory: Inventory) {
         }
 
-        open fun set(index: Int, inventory: Inventory) {
+        open fun slotItemChanged(index: Int, inventory: Inventory) {
         }
 
-        open fun removed(index: Int, inventory: Inventory) {
+        open fun slotItemRemoved(index: Int, inventory: Inventory) {
         }
 
-        open fun selected(index: Int, inventory: Inventory) {
+        open fun slotItemSelected(index: Int, inventory: Inventory) {
         }
     }
 

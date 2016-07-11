@@ -30,7 +30,7 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.utils.TimeUtils
-import com.ore.infinium.Inventory
+import com.ore.infinium.Network
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.PlayerComponent
@@ -111,7 +111,7 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
 
         serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = mutableListOf(itemToPickupId),
                                                     owningPlayerEntityId = playerEntityId,
-                                                    inventoryType = Inventory.InventoryType.Hotbar,
+                                                    inventoryType = Network.Shared.InventoryType.Hotbar,
                                                     causedByPickedUpItem = true)
         oreWorld.destroyEntity(itemToPickupId)
     }

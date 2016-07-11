@@ -34,6 +34,11 @@ import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 
 /**
+ * indicates an invalid/unset entity id
+ */
+const val INVALID_ENTITY_ID = -1
+
+/**
  * Denotes that a component property should not be copied
  */
 @Retention
@@ -107,7 +112,7 @@ inline fun <T> Array<out T>.forEachIndexed(action: (Int, T) -> Unit): Unit {
 */
 
 private class MapperProperty<T : Component>(val type: Class<T>) : ReadOnlyProperty<BaseSystem, ComponentMapper<T>> {
-    private var cachedMapper : ComponentMapper<T>? = null
+    private var cachedMapper: ComponentMapper<T>? = null
 
     override fun getValue(thisRef: BaseSystem, property: KProperty<*>): ComponentMapper<T> {
         if (cachedMapper == null) {
@@ -122,7 +127,7 @@ private class MapperProperty<T : Component>(val type: Class<T>) : ReadOnlyProper
 }
 
 private class SystemProperty<T : BaseSystem>(val type: Class<T>) : ReadOnlyProperty<BaseSystem, T> {
-    private var cachedSystem : T? = null
+    private var cachedSystem: T? = null
 
     override fun getValue(thisRef: BaseSystem, property: KProperty<*>): T {
         if (cachedSystem == null) {
@@ -141,7 +146,8 @@ private class SystemProperty<T : BaseSystem>(val type: Class<T>) : ReadOnlyPrope
  *
  * @param T the component type.
  */
-inline fun <reified T : Component> BaseSystem.mapper(): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = mapper(T::class)
+inline fun <reified T : Component> BaseSystem.mapper(): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = mapper(
+        T::class)
 
 /**
  * Gets a delegate that returns the `ComponentMapper` for the given component type.
@@ -149,7 +155,8 @@ inline fun <reified T : Component> BaseSystem.mapper(): ReadOnlyProperty<BaseSys
  * @param T the component type.
  * @param type the component class.
  */
-fun <T : Component> BaseSystem.mapper(type: KClass<T>): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = MapperProperty<T>(type.java)
+fun <T : Component> BaseSystem.mapper(type: KClass<T>): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = MapperProperty<T>(
+        type.java)
 
 /**
  * Gets a delegate that returns the `ComponentMapper` for the given component type, and adds the component type
@@ -157,7 +164,8 @@ fun <T : Component> BaseSystem.mapper(type: KClass<T>): ReadOnlyProperty<BaseSys
  *
  * @param T the component type.
  */
-inline fun <reified T : Component> BaseEntitySystem.require(): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = require(T::class)
+inline fun <reified T : Component> BaseEntitySystem.require(): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> = require(
+        T::class)
 
 /**
  * Gets a delegate that returns the `ComponentMapper` for the given component type, and adds the component type
@@ -193,7 +201,7 @@ fun <T : BaseSystem> BaseSystem.system(type: KClass<T>): ReadOnlyProperty<BaseSy
 private val cacheByType = hashMapOf<Class<*>, PropertyCache>()
 
 private fun getCache(clazz: Class<*>): PropertyCache =
-            cacheByType.getOrPut(clazz, { PropertyCache(clazz.kotlin) })
+        cacheByType.getOrPut(clazz, { PropertyCache(clazz.kotlin) })
 
 
 /**
@@ -203,8 +211,10 @@ private class PropertyCache(clazz: KClass<*>) {
     val copyProperties = clazz.members.mapNotNull { it as? KMutableProperty }
             .filter { !it.annotations.any { it.annotationClass == DoNotCopy::class } }.toTypedArray()
     val printProperties = clazz.members.mapNotNull { it as? KProperty }
-            .filter { !it.annotations.any { it.annotationClass == DoNotPrint::class } &&
-                    !it.getter.annotations.any { it.annotationClass == DoNotPrint::class }}.toTypedArray()
+            .filter {
+                !it.annotations.any { it.annotationClass == DoNotPrint::class } &&
+                        !it.getter.annotations.any { it.annotationClass == DoNotPrint::class }
+            }.toTypedArray()
 }
 
 /**
@@ -250,6 +260,6 @@ fun <T : Component> T.printString(): String {
 
 fun <T : Component> T.defaultPrintString(): String =
         getCache(javaClass).printProperties.map { "${javaClass.simpleName}.${it.name} = ${it.getter.call(this)}" }
-        .joinToString(separator = "\n", postfix = "\n")
+                .joinToString(separator = "\n", postfix = "\n")
 
 //}

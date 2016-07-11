@@ -16,7 +16,7 @@ Written in **[Kotlin](https://kotlinlang.org/)** (Java/JVM language)
 
 Libraries used:
 * [LibGDX](https://libgdx.badlogicgames.com/)(base cross platform game framework)
-* [artemis-odb](https://github.com/junkdog/artemis-odb) (entity component systems library)
+* [artemis-odb](https://github.com/junkdog/artemis-odb) (entityId component systems library)
 * [KryoNet](https://github.com/EsotericSoftware/kryonet)(networking library)
 * Scene2D.ui(GUI)**, part of libgdx
 * [Joise](https://github.com/SudoPlayGames/Joise)(noise module chaining framework, for generating the game world in complex ways)

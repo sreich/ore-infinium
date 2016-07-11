@@ -32,6 +32,7 @@ import com.ore.infinium.OreTimer
 import com.ore.infinium.systems.MovementSystem
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
+import com.ore.infinium.util.INVALID_ENTITY_ID
 
 class PlayerComponent : Component() {
 
@@ -51,7 +52,7 @@ class PlayerComponent : Component() {
      *
      * they will notify us when they close it, too, so we can stop
      */
-    @DoNotCopy @DoNotPrint @Transient var openedControlPanelEntity = -1
+    @DoNotCopy @DoNotPrint @Transient var openedControlPanelEntity = INVALID_ENTITY_ID
 
     @DoNotCopy @DoNotPrint @Transient var placeableItemTimer = OreTimer()
     @DoNotCopy @DoNotPrint @Transient var secondaryActionTimer = OreTimer()

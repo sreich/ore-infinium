@@ -363,7 +363,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
         val entities = entitySubscription.entities
 
-        var entityUnderMouse = -1
+        var entityUnderMouse = INVALID_ENTITY_ID
 
         val airComponent: AirComponent?
         val blockComponent: BlockComponent?

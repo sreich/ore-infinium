@@ -37,10 +37,7 @@ import com.esotericsoftware.kryonet.Listener
 import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.util.indices
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.opt
-import com.ore.infinium.util.system
+import com.ore.infinium.util.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -302,11 +299,12 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      * @param causedByPickedUpItem true if this was spawned because the player picked
      * up an item that was dropped on the ground
      *
-     * the index is handled client side, with the ItemComponent.inventoryIndex
+     * the index is handled client side, with the ItemComponent.inventoryIndex,
+     * so it will know which item in the list goes to which index
      */
     fun sendSpawnInventoryItems(entityIdsToSpawn: List<Int>,
                                 owningPlayerEntityId: Int,
-                                inventoryType: Inventory.InventoryType,
+                                inventoryType: Network.Shared.InventoryType,
                                 causedByPickedUpItem: Boolean) {
         val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
@@ -369,8 +367,10 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 is Network.Client.InitialClientData -> receiveInitialClientData(job, receivedObject)
                 is Network.Client.PlayerMove -> receivePlayerMove(job, receivedObject)
                 is Network.Client.ChatMessage -> receiveChatMessage(job, receivedObject)
-                is Network.Client.PlayerMoveInventoryItem -> receivePlayerMoveInventoryItem(job, receivedObject)
+                is Network.Client.MoveInventoryItem -> receiveMoveInventoryItem(job, receivedObject)
+
                 is Network.Client.OpenDeviceControlPanel -> receiveOpenDeviceControlPanel(job, receivedObject)
+                is Network.Client.CloseDeviceControlPanel -> receiveCloseDeviceControlPanel(job, receivedObject)
 
                 is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
                 is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
@@ -398,6 +398,13 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         if (OreSettings.debugPacketTypeStatistics) {
             OreWorld.log("server", "--- packet type stats ${debugPacketFrequencyByType.toString()}")
         }
+    }
+
+    private fun receiveCloseDeviceControlPanel(job: NetworkJob,
+                                               receivedObject: Network.Client.CloseDeviceControlPanel) {
+        val cPlayer = mPlayer.get(job.connection.playerEntityId)
+        cPlayer.openedControlPanelEntity = INVALID_ENTITY_ID
+        throw NotImplementedError("function not yet implemented")
     }
 
     private fun receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob,
@@ -623,30 +630,30 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         serverBlockDiggingSystem.blockDiggingBegin(dig.x, dig.y, job.connection.playerEntityId)
     }
 
-    private fun receivePlayerMoveInventoryItem(job: NetworkJob,
-                                               playerMoveItem: Network.Client.PlayerMoveInventoryItem) {
+    private fun receiveMoveInventoryItem(job: NetworkJob,
+                                         moveItem: Network.Client.MoveInventoryItem) {
         val playerComponent = mPlayer.get(job.connection.playerEntityId)
 
         //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
-        if (playerMoveItem.sourceType == playerMoveItem.destType && playerMoveItem.sourceIndex == playerMoveItem.destIndex) {
+        if (moveItem.sourceType == moveItem.destType && moveItem.sourceIndex == moveItem.destIndex) {
             //todo kick client, cheating
         }
 
         val sourceInventory: Inventory
         when {
-            playerMoveItem.sourceType == Inventory.InventoryType.Hotbar -> sourceInventory = playerComponent.hotbarInventory!!
+            moveItem.sourceType == Network.Shared.InventoryType.Hotbar -> sourceInventory = playerComponent.hotbarInventory!!
             else -> sourceInventory = playerComponent.inventory!!
         }
 
         val destInventory: Inventory
 
         when {
-            playerMoveItem.destType == Inventory.InventoryType.Hotbar -> destInventory = playerComponent.hotbarInventory!!
+            moveItem.destType == Network.Shared.InventoryType.Hotbar -> destInventory = playerComponent.hotbarInventory!!
             else -> destInventory = playerComponent.inventory!!
         }
 
-        destInventory.setSlot(playerMoveItem.destIndex.toInt(),
-                              sourceInventory.takeItem(playerMoveItem.sourceIndex.toInt())!!)
+        destInventory.setSlot(moveItem.destIndex.toInt(),
+                              sourceInventory.takeItem(moveItem.sourceIndex.toInt())!!)
     }
 
     /**

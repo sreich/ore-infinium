@@ -219,7 +219,7 @@ class OreServer : Runnable {
 
         m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonNullSlots,
                                                       owningPlayerEntityId = playerEntity,
-                                                      inventoryType = Inventory.InventoryType.Hotbar,
+                                                      inventoryType = Network.Shared.InventoryType.Hotbar,
                                                       causedByPickedUpItem = false)
     }
 
@@ -262,7 +262,7 @@ class OreServer : Runnable {
      * listen for events on hotbar inventory changed, added or removed
      */
     private inner class HotbarInventorySlotListener : Inventory.SlotListener {
-        override operator fun set(index: Int, inventory: Inventory) {
+        override fun slotItemChanged(index: Int, inventory: Inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
             //or an overloaded method for dragging
             //            PlayerComponent playerComponent = playerMapper.get(inventory.owningPlayer);
@@ -272,15 +272,15 @@ class OreServer : Runnable {
             //            }
         }
 
-        override fun countChanged(index: Int, inventory: Inventory) {
+        override fun slotItemCountChanged(index: Int, inventory: Inventory) {
 
         }
 
-        override fun removed(index: Int, inventory: Inventory) {
+        override fun slotItemRemoved(index: Int, inventory: Inventory) {
 
         }
 
-        override fun selected(index: Int, inventory: Inventory) {
+        override fun slotItemSelected(index: Int, inventory: Inventory) {
 
         }
     }

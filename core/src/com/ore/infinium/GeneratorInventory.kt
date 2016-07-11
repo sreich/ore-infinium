@@ -30,6 +30,13 @@ class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
      */
     var fuelSource: Int? = null
 
+    /**
+     * the generator that this generator applies to.
+     * while this instance will always exist, this
+     * field will be set/cleared when the window is shown/closed
+     */
+    var owningGeneratorEntityId: Int? = null
+
     companion object {
         val MAX_SLOTS = 32
     }

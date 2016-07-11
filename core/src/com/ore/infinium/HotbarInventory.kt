@@ -32,7 +32,7 @@ class HotbarInventory(slotCount:Int) : Inventory(slotCount) {
         previousSelectedSlot = selectedSlot
         selectedSlot = index
 
-        m_listeners.forEach { it.selected(index, this) }
+        m_listeners.forEach { it.slotItemSelected(index, this) }
     }
 }
 

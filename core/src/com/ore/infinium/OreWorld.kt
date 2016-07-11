@@ -236,11 +236,6 @@ class OreWorld
         val WORLD_SIZE_Y = WORLD_SIZE.height
         val WORLD_SEA_LEVEL = 50
 
-        /**
-         * indicates an invalid entity id
-         */
-        //        val ENTITY_INVALID = -1
-
         const val s_itemPlacementOverlay = "itemPlacementOverlay"
         const val s_crosshair = "crosshair"
         const val s_mainPlayer = "mainPlayer"

@@ -230,12 +230,15 @@ class OreClient : ApplicationListener, InputProcessor {
     /**
      * attempts to open a device's control panel, if this even is a device
      */
-    private fun attemptActivateDeviceControlPanel(entity: Int): Boolean {
+    private fun attemptActivateDeviceControlPanel(entityId: Int): Boolean {
         //todo request from server populating control panel (with items within it)
-        val deviceComp = deviceMapper.get(entity) ?: return false
+        val deviceComp = deviceMapper.get(entityId) ?: return false
 
-        m_generatorControlPanelView!!.visible = !m_generatorControlPanelView!!.visible
-        m_clientNetworkSystem.sendOpenControlPanel(entityId = entity)
+        if (m_generatorControlPanelView!!.visible) {
+            m_generatorControlPanelView!!.closePanel()
+        } else {
+            m_generatorControlPanelView!!.openPanel(entityId)
+        }
 
         return true
     }
@@ -246,7 +249,7 @@ class OreClient : ApplicationListener, InputProcessor {
 
         val currentMillis = TimeUtils.millis()
         if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickIntervalMs) {
-            //fixme obviously, iterating over every entity to find the one under position is beyond dumb, use a spatial hash/quadtree etc
+            //fixme obviously, iterating over every entityId to find the one under position is beyond dumb, use a spatial hash/quadtree etc
 
             playerComp.attackLastTick = currentMillis
 
@@ -287,7 +290,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     /**
-     * @return true if the entity is able to be attacked.
+     * @return true if the entityId is able to be attacked.
      *
      * e.g. items dropped in the world are not attackable
      */
@@ -543,7 +546,7 @@ class OreClient : ApplicationListener, InputProcessor {
         dropItemRequestFromClient.index = currentEquippedIndex.toByte()
 
         // decrement count, we assume it'll get spawned shortly when the server tells us to.
-        // delete in-inventory entity if necessary server assumes we already do so
+        // delete in-inventory entityId if necessary server assumes we already do so
         val itemComponent = itemMapper.get(itemEntity!!)
         if (itemComponent.stackSize > 1) {
             //decrement count, server has already done so. we assume here that it went through properly.
@@ -721,7 +724,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     private inner class HotbarSlotListener : Inventory.SlotListener {
-        override fun selected(index: Int, inventory: Inventory) {
+        override fun slotItemSelected(index: Int, inventory: Inventory) {
             assert(m_world != null)
 
             val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
@@ -731,15 +734,15 @@ class OreClient : ApplicationListener, InputProcessor {
             val playerComponent = playerMapper.get(player)
         }
 
-        override fun countChanged(index: Int, inventory: Inventory) {
+        override fun slotItemCountChanged(index: Int, inventory: Inventory) {
 
         }
 
-        override operator fun set(index: Int, inventory: Inventory) {
+        override fun slotItemChanged(index: Int, inventory: Inventory) {
 
         }
 
-        override fun removed(index: Int, inventory: Inventory) {
+        override fun slotItemRemoved(index: Int, inventory: Inventory) {
 
         }
     }

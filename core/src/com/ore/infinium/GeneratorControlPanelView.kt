@@ -51,7 +51,7 @@ import com.ore.infinium.util.opt
 @Wire
 class GeneratorControlPanelView(stage: Stage,
         //the hotbar inventory, for drag and drop
-                                private val generatorControlPanelInventory: Inventory,
+                                private val generatorControlPanelInventory: GeneratorInventory,
         //the model for this view
                                 private val inventory: Inventory,
                                 private val hotbarInventory: HotbarInventory,
@@ -60,9 +60,26 @@ class GeneratorControlPanelView(stage: Stage,
 
     var visible: Boolean
         get() = window.isVisible
-        set(value) {
+        private set(value) {
             window.isVisible = value
         }
+
+    /**
+     * opens control panel and informs server that it has done so,
+     * and registers for control panel data updates for this entity
+     */
+    fun openPanel(entityId: Int) {
+        clientNetworkSystem.sendOpenControlPanel(entityId)
+    }
+
+    fun closePanel() {
+        //inform that we're going to be hiding this,
+        //and no longer are interested in fuel source updates
+        clientNetworkSystem.sendCloseControlPanel()
+        generatorControlPanelInventory.owningGeneratorEntityId = null
+
+        visible = false
+    }
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tileRenderSystem: TileRenderSystem
@@ -141,13 +158,13 @@ class GeneratorControlPanelView(stage: Stage,
         slots[index].itemName.isVisible = visible
     }
 
-    override fun countChanged(index: Int, inventory: Inventory) {
+    override fun slotItemCountChanged(index: Int, inventory: Inventory) {
         val itemEntity = inventory.itemEntity(index)!!
         val itemComponent = itemMapper.get(itemEntity)
         slots[index].itemName.setText(itemComponent.stackSize.toString())
     }
 
-    override operator fun set(index: Int, inventory: Inventory) {
+    override fun slotItemChanged(index: Int, inventory: Inventory) {
         val slot = slots[index]
 
         val itemEntity = inventory.itemEntity(index)!!
@@ -183,7 +200,7 @@ class GeneratorControlPanelView(stage: Stage,
     }
 
 
-    override fun removed(index: Int, inventory: Inventory) {
+    override fun slotItemRemoved(index: Int, inventory: Inventory) {
         val slot = slots[index]
         slot.itemImage.drawable = null
         slot.itemName.setText(null)
@@ -231,7 +248,7 @@ class GeneratorControlPanelView(stage: Stage,
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(type = Inventory.InventoryType.Inventory,
+            val dragWrapper = InventorySlotDragWrapper(type = Network.Shared.InventoryType.Inventory,
                                                        dragSourceIndex = index)
             payload.`object` = dragWrapper
 
@@ -294,15 +311,16 @@ class GeneratorControlPanelView(stage: Stage,
 
             //ensure the dest is empty before attempting any drag & drop!
             if (inventory.inventory.itemEntity(this.index) == null) {
-                if (dragWrapper.type == Inventory.InventoryType.Inventory) {
+                if (dragWrapper.type == Network.Shared.InventoryType.Inventory) {
                     val itemEntity = inventory.inventory.itemEntity(dragWrapper.dragSourceIndex)!!
                     //move the item from the source to the dest (from main inventory to main inventory)
                     inventory.inventory.setSlot(this.index, itemEntity)
 
-                    inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Inventory,
-                                                                    dragWrapper.dragSourceIndex,
-                                                                    Inventory.InventoryType.Inventory,
-                                                                    index)
+                    inventory.clientNetworkSystem.sendInventoryMove(
+                            Network.Shared.InventoryType.Inventory,
+                            dragWrapper.dragSourceIndex,
+                            Network.Shared.InventoryType.Inventory,
+                            index)
 
                     //remove the source item
                     inventory.inventory.takeItem(dragWrapper.dragSourceIndex)
@@ -315,9 +333,10 @@ class GeneratorControlPanelView(stage: Stage,
 
                     inventory.inventory.setSlot(this.index, itemEntity)
 
-                    inventory.clientNetworkSystem.sendInventoryMove(Inventory.InventoryType.Hotbar,
-                                                                    dragWrapper.dragSourceIndex,
-                                                                    Inventory.InventoryType.Inventory, index)
+                    inventory.clientNetworkSystem.sendInventoryMove(
+                            Network.Shared.InventoryType.Hotbar,
+                            dragWrapper.dragSourceIndex,
+                            Network.Shared.InventoryType.Inventory, index)
 
                     //remove the source item
                     hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
@@ -346,7 +365,7 @@ class GeneratorControlPanelView(stage: Stage,
         }
     }
 
-    override fun selected(index: Int, inventory: Inventory) {
+    override fun slotItemSelected(index: Int, inventory: Inventory) {
 
     }
 }
