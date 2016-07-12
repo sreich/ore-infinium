@@ -17,7 +17,7 @@ buildscript {
         jcommanderVersion = "1.48"
         tweenEngineVersion = "6.3.3"
 
-        kotlinVersion = '1.0.3'
+        kotlinVersion = '1.0.3+'
 
         junitVersion = '4.12'
 
@@ -37,6 +37,7 @@ buildscript {
 
         maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
+        maven { url "https://dl.bintray.com/heri/frostcode" }
     }
 
     dependencies {
@@ -62,7 +63,6 @@ plugins {
     //run :dependencyUpdates to get a list of updates needed
     id "com.github.ben-manes.versions" version "0.12.0"
 }
-
 
 task wrapper(type: Wrapper) {
     gradleVersion = "2.13"
@@ -97,7 +97,7 @@ subprojects {
         maven { url "http://clojars.org/repo" }
 
         //for universal tween engine
-        maven { url "http://dl.bintray.com/heri/frostcode" }
+        maven { url "https://dl.bintray.com/heri/frostcode/" }
 
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap/" }
     }
