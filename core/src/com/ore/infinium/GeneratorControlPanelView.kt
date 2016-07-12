@@ -53,7 +53,7 @@ class GeneratorControlPanelView(stage: Stage,
         //the hotbar inventory, for drag and drop
                                 private val generatorControlPanelInventory: GeneratorInventory,
         //the model for this view
-                                private val inventory: Inventory,
+                                private val playerInventory: Inventory,
                                 private val hotbarInventory: HotbarInventory,
                                 dragAndDrop: DragAndDrop,
                                 private val world: OreWorld) : Inventory.SlotListener {
@@ -207,32 +207,32 @@ class GeneratorControlPanelView(stage: Stage,
         slot.itemName.setText(null)
     }
 
-    private class SlotInputListener internal constructor(private val inventory: GeneratorControlPanelView, private val index: Int) : InputListener() {
+    private class SlotInputListener internal constructor(private val inventoryView: GeneratorControlPanelView, private val index: Int) : InputListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-            val itemEntity = inventory.inventory.itemEntity(index)
+            val itemEntity = inventoryView.generatorControlPanelInventory.itemEntity(index)
             if (itemEntity != null) {
-                inventory.tooltip.enter(event, x, y, pointer, fromActor)
+                inventoryView.tooltip.enter(event, x, y, pointer, fromActor)
             }
 
             super.enter(event, x, y, pointer, fromActor)
         }
 
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
-            inventory.tooltip.mouseMoved(event, x, y)
+            inventoryView.tooltip.mouseMoved(event, x, y)
 
-            val itemEntity = inventory.inventory.itemEntity(index)
+            val itemEntity = inventoryView.generatorControlPanelInventory.itemEntity(index)
 
             if (itemEntity != null) {
-                val itemComponent = inventory.itemMapper.get(itemEntity)
-                val spriteComponent = inventory.spriteMapper.get(itemEntity)
-                inventory.tooltipLabel.setText(itemComponent.name)
+                val itemComponent = inventoryView.itemMapper.get(itemEntity)
+                val spriteComponent = inventoryView.spriteMapper.get(itemEntity)
+                inventoryView.tooltipLabel.setText(itemComponent.name)
             }
 
             return super.mouseMoved(event, x, y)
         }
 
         override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-            inventory.tooltip.exit(event, x, y, pointer, toActor)
+            inventoryView.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)
         }
@@ -243,7 +243,7 @@ class GeneratorControlPanelView(stage: Stage,
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            if (inventoryView.inventory.itemEntity(index) == null) {
+            if (inventoryView.generatorControlPanelInventory.itemEntity(index) == null) {
                 return null
             }
 
@@ -261,7 +261,7 @@ class GeneratorControlPanelView(stage: Stage,
         }
     }
 
-    private class InventoryDragTarget(slotTable: Table, private val index: Int, private val inventory: GeneratorControlPanelView) : DragAndDrop.Target(
+    private class InventoryDragTarget(slotTable: Table, private val index: Int, private val inventoryView: GeneratorControlPanelView) : DragAndDrop.Target(
             slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
@@ -293,7 +293,7 @@ class GeneratorControlPanelView(stage: Stage,
                 //maybe make it green? the source/dest is not the same
 
                 //only make it green if the slot is empty
-                inventory.inventory.itemEntity(index) ?: return true
+                inventoryView.generatorControlPanelInventory.itemEntity(index) ?: return true
             }
 
             return false
@@ -311,32 +311,32 @@ class GeneratorControlPanelView(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.inventory.itemEntity(this.index) == null) {
+            if (inventoryView.generatorControlPanelInventory.itemEntity(this.index) == null) {
                 when (dragWrapper.sourceInventoryType) {
                     Network.Shared.InventoryType.Inventory -> {
-                        val itemEntity = inventory.inventory.itemEntity(dragWrapper.dragSourceIndex)!!
+                        val itemEntity = inventoryView.playerInventory.itemEntity(dragWrapper.dragSourceIndex)!!
                         //move the item from the source to the dest (from main inventory to main inventory)
-                        inventory.inventory.setSlot(this.index, itemEntity)
+                        inventoryView.generatorControlPanelInventory.setSlot(this.index, itemEntity)
 
-                        inventory.clientNetworkSystem.sendInventoryMove(
+                        inventoryView.clientNetworkSystem.sendInventoryMove(
                                 sourceInventoryType = Network.Shared.InventoryType.Inventory,
                                 sourceIndex = dragWrapper.dragSourceIndex,
                                 destInventoryType = Network.Shared.InventoryType.Inventory,
                                 destIndex = index)
 
                         //remove the source item
-                        inventory.inventory.takeItem(dragWrapper.dragSourceIndex)
+                        inventoryView.playerInventory.takeItem(dragWrapper.dragSourceIndex)
                     }
 
                     Network.Shared.InventoryType.Generator -> {
-                        val playerInventory = inventory.inventory
+                        val playerInventory = inventoryView.playerInventory
 
                         val itemEntity = playerInventory.itemEntity(dragWrapper.dragSourceIndex)!!
                         //move the item from the source to the dest (from player main inventory to this generator inventory)
 
-                        inventory.generatorControlPanelInventory.setSlot(this.index, itemEntity)
+                        inventoryView.generatorControlPanelInventory.setSlot(this.index, itemEntity)
 
-                        inventory.clientNetworkSystem.sendInventoryMove(
+                        inventoryView.clientNetworkSystem.sendInventoryMove(
                                 sourceInventoryType = Network.Shared.InventoryType.Inventory,
                                 sourceIndex = dragWrapper.dragSourceIndex,
                                 destInventoryType = Network.Shared.InventoryType.Generator,

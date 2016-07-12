@@ -698,7 +698,7 @@ class OreClient : ApplicationListener, InputProcessor {
         m_generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
         m_generatorControlPanelView = GeneratorControlPanelView(stage = m_stage,
                                                                 generatorControlPanelInventory = m_generatorInventory!!,
-                                                                inventory = m_inventory!!,
+                                                                playerInventory = m_inventory!!,
                                                                 hotbarInventory = m_hotbarInventory!!,
                                                                 dragAndDrop = m_dragAndDrop!!,
                                                                 world = m_world!!)
