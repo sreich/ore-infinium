@@ -248,8 +248,8 @@ class GeneratorControlPanelView(stage: Stage,
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(type = Network.Shared.InventoryType.Inventory,
-                                                       dragSourceIndex = index)
+            val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Inventory,
+                    dragSourceIndex = index)
             payload.`object` = dragWrapper
 
             payload.dragActor = dragImage
@@ -311,38 +311,42 @@ class GeneratorControlPanelView(stage: Stage,
 
             //ensure the dest is empty before attempting any drag & drop!
             if (inventory.inventory.itemEntity(this.index) == null) {
-                if (dragWrapper.type == Network.Shared.InventoryType.Inventory) {
-                    val itemEntity = inventory.inventory.itemEntity(dragWrapper.dragSourceIndex)!!
-                    //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.inventory.setSlot(this.index, itemEntity)
+                when (dragWrapper.sourceInventoryType) {
+                    Network.Shared.InventoryType.Inventory -> {
+                        val itemEntity = inventory.inventory.itemEntity(dragWrapper.dragSourceIndex)!!
+                        //move the item from the source to the dest (from main inventory to main inventory)
+                        inventory.inventory.setSlot(this.index, itemEntity)
 
-                    inventory.clientNetworkSystem.sendInventoryMove(
-                            Network.Shared.InventoryType.Inventory,
-                            dragWrapper.dragSourceIndex,
-                            Network.Shared.InventoryType.Inventory,
-                            index)
+                        inventory.clientNetworkSystem.sendInventoryMove(
+                                sourceInventoryType = Network.Shared.InventoryType.Inventory,
+                                sourceIndex = dragWrapper.dragSourceIndex,
+                                destInventoryType = Network.Shared.InventoryType.Inventory,
+                                destIndex = index)
 
-                    //remove the source item
-                    inventory.inventory.takeItem(dragWrapper.dragSourceIndex)
-                } else {
-                    //hotbar inventory
-                    val hotbarInventory = inventory.hotbarInventory
+                        //remove the source item
+                        inventory.inventory.takeItem(dragWrapper.dragSourceIndex)
+                    }
 
-                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)!!
-                    //move the item from the source to the dest (from hotbar inventory to this main inventory)
+                    Network.Shared.InventoryType.Generator -> {
+                        val playerInventory = inventory.inventory
 
-                    inventory.inventory.setSlot(this.index, itemEntity)
+                        val itemEntity = playerInventory.itemEntity(dragWrapper.dragSourceIndex)!!
+                        //move the item from the source to the dest (from player main inventory to this generator inventory)
 
-                    inventory.clientNetworkSystem.sendInventoryMove(
-                            Network.Shared.InventoryType.Hotbar,
-                            dragWrapper.dragSourceIndex,
-                            Network.Shared.InventoryType.Inventory, index)
+                        inventory.generatorControlPanelInventory.setSlot(this.index, itemEntity)
 
-                    //remove the source item
-                    hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
+                        inventory.clientNetworkSystem.sendInventoryMove(
+                                sourceInventoryType = Network.Shared.InventoryType.Inventory,
+                                sourceIndex = dragWrapper.dragSourceIndex,
+                                destInventoryType = Network.Shared.InventoryType.Generator,
+                                destIndex = index)
+
+                        //remove the source item
+                        playerInventory.takeItem(dragWrapper.dragSourceIndex)
+                    }
                 }
-            }
 
+            }
         }
     }
 
@@ -363,9 +367,5 @@ class GeneratorControlPanelView(stage: Stage,
                 add(itemName).bottom().fill()
             }
         }
-    }
-
-    override fun slotItemSelected(index: Int, inventory: Inventory) {
-
     }
 }

@@ -497,14 +497,13 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //fixme should re transition tiles in this area
     }
 
-
     fun sendInventoryMove(sourceInventoryType: Network.Shared.InventoryType, sourceIndex: Int,
                           destInventoryType: Network.Shared.InventoryType, destIndex: Int) {
-        val inventoryItemFromClient = Network.Client.MoveInventoryItem()
-        inventoryItemFromClient.sourceType = sourceInventoryType
-        inventoryItemFromClient.sourceIndex = sourceIndex.toByte()
-        inventoryItemFromClient.destType = destInventoryType
-        inventoryItemFromClient.destIndex = destIndex.toByte()
+        val inventoryItemFromClient = Network.Client.MoveInventoryItem(
+                sourceType = sourceInventoryType,
+                sourceIndex = sourceIndex.toByte(),
+                destType = destInventoryType,
+                destIndex = destIndex.toByte())
 
         clientKryo.sendTCP(inventoryItemFromClient)
     }

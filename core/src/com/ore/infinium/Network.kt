@@ -137,7 +137,7 @@ object Network {
         kryo.register(Client.BlockPlace::class.java)
         kryo.register(Client.ItemPlace::class.java)
         kryo.register(Client.PlayerEquipHotbarIndex::class.java)
-        kryo.register(Client.HotbarDropItem::class.java)
+        kryo.register(Client.InventoryDropItem::class.java)
         kryo.register(Client.OpenDeviceControlPanel::class.java)
         kryo.register(Client.CloseDeviceControlPanel::class.java)
 
@@ -362,18 +362,27 @@ object Network {
         }
 
         /**
-         * request to drop an item from the hotbar/equipped
+         * request to drop an item from the specified
+         * inventory
+         *
+         * usually used for dropping the current equipped
+         * item, but it can be used for dropping from an
+         * inventory window as well.
+         *
+         * we do not need to send the entity id for a generator
+         * inventory, because we(server) already knows which control panel
+         * the player has opened. For the generator, fuel sources cannot
+         * be moved, since they're already getting burnt
          */
-        class HotbarDropItem {
-            var index: Byte = 0
-        }
+        class InventoryDropItem(var index: Byte = -1,
+                                var inventoryType: Shared.InventoryType = Shared.InventoryType.Hotbar)
 
-        class MoveInventoryItem {
-            var sourceType: Shared.InventoryType? = null
-            var destType: Shared.InventoryType? = null
-            var sourceIndex: Byte = 0
-            var destIndex: Byte = 0
-        }
+        class MoveInventoryItem(
+                var sourceType: Shared.InventoryType? = null,
+                var destType: Shared.InventoryType? = null,
+                var sourceIndex: Byte = -1,
+                var destIndex: Byte = -1
+        )
 
         /**
          * notify request, to tell server we need info

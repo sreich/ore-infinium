@@ -225,7 +225,7 @@ class InventoryView(stage: Stage,
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(type = Network.Shared.InventoryType.Inventory,
+            val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Inventory,
                                                        dragSourceIndex = index)
             payload.`object` = dragWrapper
 
@@ -288,16 +288,16 @@ class InventoryView(stage: Stage,
 
             //ensure the dest is empty before attempting any drag & drop!
             if (inventory.m_inventory.itemEntity(this.index) == null) {
-                if (dragWrapper.type == Network.Shared.InventoryType.Inventory) {
+                if (dragWrapper.sourceInventoryType == Network.Shared.InventoryType.Inventory) {
                     val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from main inventory to main inventory)
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(
-                            Network.Shared.InventoryType.Inventory,
-                            dragWrapper.dragSourceIndex,
-                            Network.Shared.InventoryType.Inventory,
-                            index)
+                            sourceInventoryType = Network.Shared.InventoryType.Inventory,
+                            sourceIndex = dragWrapper.dragSourceIndex,
+                            destInventoryType = Network.Shared.InventoryType.Inventory,
+                            destIndex = index)
 
                     //remove the source item
                     inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
@@ -311,9 +311,10 @@ class InventoryView(stage: Stage,
                     inventory.m_inventory.setSlot(this.index, itemEntity!!)
 
                     inventory.clientNetworkSystem.sendInventoryMove(
-                            Network.Shared.InventoryType.Hotbar,
-                            dragWrapper.dragSourceIndex,
-                            Network.Shared.InventoryType.Inventory, index)
+                            sourceInventoryType = Network.Shared.InventoryType.Hotbar,
+                            sourceIndex = dragWrapper.dragSourceIndex,
+                            destInventoryType = Network.Shared.InventoryType.Inventory,
+                            destIndex = index)
 
                     //remove the source item
                     hotbarInventory.takeItem(dragWrapper.dragSourceIndex)

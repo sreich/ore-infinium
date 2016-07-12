@@ -188,7 +188,7 @@ class HotbarInventoryView(private val m_stage: Stage,
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(type = Network.Shared.InventoryType.Hotbar,
+            val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Hotbar,
                                                        dragSourceIndex = index)
             payload.`object` = dragWrapper
 
@@ -258,7 +258,7 @@ class HotbarInventoryView(private val m_stage: Stage,
 
             val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
 
-            if (dragWrapper.type == Network.Shared.InventoryType.Hotbar) {
+            if (dragWrapper.sourceInventoryType == Network.Shared.InventoryType.Hotbar) {
                 //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
                 val itemEntity = inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
 

@@ -24,7 +24,7 @@ SOFTWARE.
 
 package com.ore.infinium
 
-class InventorySlotDragWrapper(var type: Network.Shared.InventoryType,
+class InventorySlotDragWrapper(var sourceInventoryType: Network.Shared.InventoryType,
                                /**
                                 * dragSourceIndex of where it's coming from
                                 */

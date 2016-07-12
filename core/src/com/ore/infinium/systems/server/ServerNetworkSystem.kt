@@ -377,7 +377,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 is Network.Client.BlockPlace -> receiveBlockPlace(job, receivedObject)
 
                 is Network.Client.PlayerEquipHotbarIndex -> receivePlayerEquipHotbarIndex(job, receivedObject)
-                is Network.Client.HotbarDropItem -> receiveHotbarDropItem(job, receivedObject)
+                is Network.Client.InventoryDropItem -> receiveInventoryDropItem(job, receivedObject)
                 is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
                 is Network.Client.PlayerEquippedItemAttack -> receivePlayerEquippedItemAttack(job, receivedObject)
                 is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
@@ -557,25 +557,27 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
      * @param job
      */
-    private fun receiveHotbarDropItem(job: NetworkJob, itemDrop: Network.Client.HotbarDropItem) {
-        val playerComponent = mPlayer.get(job.connection.playerEntityId)
+    private fun receiveInventoryDropItem(job: NetworkJob, itemDrop: Network.Client.InventoryDropItem) {
+        val cPlayer = mPlayer.get(job.connection.playerEntityId)
 
-        val itemToDrop = playerComponent.hotbarInventory!!.itemEntity(itemDrop.index.toInt())!!
-        val itemToDropComponent = mItem.opt(itemToDrop)
+        val itemToDrop = dropInventoryItem(itemToDropIndex = itemDrop.index.toInt(), cPlayer = cPlayer,inventoryType=itemDrop.inventoryType)
 
-        if (itemToDropComponent == null) {
+        if (itemToDrop == INVALID_ENTITY_ID) {
             //safety first. malicious/buggy client.
             return
         }
 
-        //decrease count of equipped item
-        if (itemToDropComponent.stackSize > 1) {
-            itemToDropComponent.stackSize = itemToDropComponent.stackSize - 1
-        } else {
-            //remove item from inventory, client has already done so, because the count will be 0 after this drop
-            getWorld().delete(playerComponent.hotbarInventory!!.takeItem(itemDrop.index.toInt())!!)
-        }
+        cloneAndDropItem(itemToDrop, job, cPlayer)
+        //we do not send anything, because later on the network system will figure out it needs to spawn that entity
+        //also, the client already knows to delete the in-inventory thing, so we're good on that as well!
+    }
 
+    /**
+     * clones the item and drops it.
+     *
+     * does not decrement the count of the original item
+     */
+    private fun cloneAndDropItem(itemToDrop: Int, job: NetworkJob, cPlayer: PlayerComponent) {
         val droppedItem = oreWorld.cloneEntity(itemToDrop)
 
         val playerSprite = mSprite.get(job.connection.playerEntityId)
@@ -588,14 +590,46 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val itemDroppedComponent = mItem.get(droppedItem).apply {
             state = ItemComponent.State.DroppedInWorld
             justDropped = true
-            playerIdWhoDropped = playerComponent.connectionPlayerId
+            playerIdWhoDropped = cPlayer.connectionPlayerId
             sizeBeforeDrop = Vector2(droppedItemSprite.sprite.width, droppedItemSprite.sprite.height)
 
             //indicate when we dropped it, so pickup system knows not to pick it up for a while after
             timeOfDropMs = TimeUtils.millis()
         }
+    }
 
-        //note we do not send anything, because later on the network system will figure out it needs to spawn that entity
+
+    /**
+     * drops the item from an inventory if possible and decreases its count
+     */
+    private fun dropInventoryItem(itemToDropIndex: Int, cPlayer: PlayerComponent, inventoryType: Network.Shared.InventoryType): Int {
+        val inventory: Inventory = when (inventoryType) {
+            Network.Shared.InventoryType.Hotbar -> cPlayer.hotbarInventory!!
+            Network.Shared.InventoryType.Inventory -> cPlayer.inventory!!
+            Network.Shared.InventoryType.Generator -> {
+                val gen = mGenerator.get(cPlayer.openedControlPanelEntity)
+                gen.fuelSources
+            }
+        }
+
+        val itemToDrop = inventory.itemEntity(itemToDropIndex)!!
+        val itemToDropComponent = mItem.opt(itemToDrop)
+
+        if (itemToDropComponent == null) {
+            //safety first. malicious/buggy client.
+            return INVALID_ENTITY_ID
+        }
+
+        //decrease count of equipped item
+        if (itemToDropComponent.stackSize > 1) {
+            itemToDropComponent.stackSize = itemToDropComponent.stackSize - 1
+        } else {
+            val takeItem = inventory.takeItem(itemToDropIndex)!!
+            //remove item from inventory, client has already done so, because the count will be 0 after this drop
+            getWorld().delete(takeItem)
+        }
+
+        return itemToDrop
     }
 
     private fun receivePlayerEquipHotbarIndex(job: NetworkJob, playerEquip: Network.Client.PlayerEquipHotbarIndex) {
@@ -632,28 +666,26 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     private fun receiveMoveInventoryItem(job: NetworkJob,
                                          moveItem: Network.Client.MoveInventoryItem) {
-        val playerComponent = mPlayer.get(job.connection.playerEntityId)
+        val cPlayer = mPlayer.get(job.connection.playerEntityId)
 
         //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
         if (moveItem.sourceType == moveItem.destType && moveItem.sourceIndex == moveItem.destIndex) {
             //todo kick client, cheating
         }
 
-        val sourceInventory: Inventory
-        when {
-            moveItem.sourceType == Network.Shared.InventoryType.Hotbar -> sourceInventory = playerComponent.hotbarInventory!!
-            else -> sourceInventory = playerComponent.inventory!!
+        val sourceInventory: Inventory = when (moveItem.sourceType) {
+            Network.Shared.InventoryType.Hotbar -> cPlayer.hotbarInventory!!
+            else -> cPlayer.inventory!!
         }
 
-        val destInventory: Inventory
-
-        when {
-            moveItem.destType == Network.Shared.InventoryType.Hotbar -> destInventory = playerComponent.hotbarInventory!!
-            else -> destInventory = playerComponent.inventory!!
+        val destInventory: Inventory = when (moveItem.destType) {
+            Network.Shared.InventoryType.Hotbar -> cPlayer.hotbarInventory!!
+            else -> cPlayer.inventory!!
         }
 
-        destInventory.setSlot(moveItem.destIndex.toInt(),
-                              sourceInventory.takeItem(moveItem.sourceIndex.toInt())!!)
+        val sourceItem = sourceInventory.takeItem(moveItem.sourceIndex.toInt())
+
+        destInventory.setSlot(moveItem.destIndex.toInt(), sourceItem!!)
     }
 
     /**

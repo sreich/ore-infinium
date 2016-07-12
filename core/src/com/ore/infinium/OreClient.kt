@@ -541,9 +541,10 @@ class OreClient : ApplicationListener, InputProcessor {
         val playerComponent = playerMapper.get(player)
 
         val itemEntity = playerComponent.equippedPrimaryItem
-        val dropItemRequestFromClient = Network.Client.HotbarDropItem()
         val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
-        dropItemRequestFromClient.index = currentEquippedIndex.toByte()
+
+        val dropItemRequestFromClient = Network.Client.InventoryDropItem(index = currentEquippedIndex.toByte(),
+                inventoryType = Network.Shared.InventoryType.Hotbar)
 
         // decrement count, we assume it'll get spawned shortly when the server tells us to.
         // delete in-inventory entityId if necessary server assumes we already do so
@@ -553,7 +554,8 @@ class OreClient : ApplicationListener, InputProcessor {
             itemComponent.stackSize -= 1
             m_hotbarInventory!!.setCount(currentEquippedIndex, itemComponent.stackSize)
         } else {
-            //delete it, server knows/assumes we already did, since there are no more left
+            //delete it, server knows/assumes we already did, since there are no more left. so server doesn't have to
+            //send another useless packet back to the our client
             val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())!!
             m_world!!.m_artemisWorld.delete(item)
         }
