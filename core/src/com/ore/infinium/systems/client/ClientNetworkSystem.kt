@@ -43,7 +43,6 @@ import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.indices
 import com.ore.infinium.util.mapper
-import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
 import java.io.IOException
 import java.util.*
@@ -245,12 +244,20 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun receiveSpawnGeneratorInventoryItems(inventorySpawn: Network.Server.SpawnGeneratorInventoryItems) {
+        val generatorInventory = oreWorld.m_client!!.m_generatorInventory!!
+        //generatorInventory.itemEntity()
+        //destroy all the old ones, they'll get replaced by everything
+        //new in this inventory (yes, they may get replaced by identical
+        //things but that's inconsequential)
+        oreWorld.destroyEntity(it)
+    }
+
         for (e in inventorySpawn.entitiesToSpawn) {
             spawnGeneratorInventoryItem(entitySpawn = e, spawn = inventorySpawn)
         }
 
         if (inventorySpawn.fuelSourceEntity != null) {
-            //spawn it...but again, we would need to duplicate horribleness down
+        //todo spawn it...but again, we would need to duplicate horribleness down
             //there until we refactor/clean this up a ton
         }
     }
@@ -280,15 +287,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val itemComponent = mItem.get(spawnedItemEntityId)
 
+        //todo check generator inventory id, assign to that?
         val generatorInventory = oreWorld.m_client!!.m_generatorInventory!!
-        generatorInventory.takeItem(itemComponent.inventoryIndex)?.let {
-            //destroy all the old ones, they'll get replaced by everything
-            //new in this inventory (yes, they may get replaced by identical
-            //things but that's inconsequential)
-            oreWorld.destroyEntity(it)
-        }
-
-        //fixme this indirection isn't so hot...
         generatorInventory.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
     }
 
