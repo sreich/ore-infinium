@@ -172,14 +172,14 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
 
             if (entitiesToDestroy.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                             "sending DestroyMultipleEntities: " + entitiesToDestroy.toString())
+                             "sending DestroyMultipleEntities (contents): " + entitiesToDestroy.toString())
                 serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
                                                                 playerComponent.connectionPlayerId)
             }
 
             if (entitiesToSpawn.size > 0) {
                 OreWorld.log("servernetworkentitysystem",
-                             "sending SpawnMultipleEntities: " + entitiesToSpawn.toString())
+                             "sending SpawnMultipleEntities (contents): " + entitiesToSpawn.toString())
                 //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
                 serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
                                                               playerComponent.connectionPlayerId)

@@ -70,6 +70,7 @@ class GeneratorControlPanelView(stage: Stage,
      */
     fun openPanel(entityId: Int) {
         clientNetworkSystem.sendOpenControlPanel(entityId)
+        visible = true
     }
 
     fun closePanel() {
@@ -101,7 +102,7 @@ class GeneratorControlPanelView(stage: Stage,
 
     init {
         //attach to the inventory model
-        inventory.addListener(this)
+        generatorControlPanelInventory.addListener(this)
 
         val container = VisTable()
         container.setFillParent(true)
@@ -109,7 +110,7 @@ class GeneratorControlPanelView(stage: Stage,
         container.defaults().space(4f)
         container.padLeft(10f).padTop(10f)
 
-        window = VisWindow("Inventory")
+        window = VisWindow("Generator Control Panel")
         //fixme;not centering or anythign, all hardcoded :(
         window.setPosition(900f, 100f)
         window.top().right().setSize(400f, 500f)
