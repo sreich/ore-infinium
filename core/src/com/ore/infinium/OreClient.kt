@@ -99,7 +99,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private var m_inventory: Inventory? = null
 
     private var m_generatorControlPanelView: GeneratorControlPanelView? = null
-    private var m_generatorInventory: GeneratorInventory? = null
+    var m_generatorInventory: GeneratorInventory? = null
 
     var m_server: OreServer? = null
     private var m_serverThread: Thread? = null
@@ -716,7 +716,8 @@ class OreClient : ApplicationListener, InputProcessor {
             m_tagManager.register(OreWorld.s_mainPlayer, player)
         }
 
-        //select the first slot, so the inventory view highlights something.
+        //fixme push into the model and have view pull. or just in view init
+        //select the first slot, so the inventory view highlights something
         playerComponent.hotbarInventory!!.selectSlot(0)
 
         //          SpriteComponent spriteComponent = spriteMapper.get(player);

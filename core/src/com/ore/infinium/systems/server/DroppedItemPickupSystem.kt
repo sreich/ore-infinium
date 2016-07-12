@@ -113,7 +113,7 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
                                                     owningPlayerEntityId = playerEntityId,
                                                     inventoryType = Network.Shared.InventoryType.Hotbar,
                                                     causedByPickedUpItem = true)
-        oreWorld.destroyEntity(itemToPickupId)
+        oreWorld.serverDestroyEntity(itemToPickupId)
     }
 
 }

@@ -1208,15 +1208,23 @@ class OreWorld
     }
 
     /**
-     * server side
+     * server side ONLY
      * Destroys an entity in the world, "silently". This is used for example,
      * when items get picked up or disappear. In these cases they are not getting
      * killed.
      */
-    fun destroyEntity(entityToDestroy: Int) {
+    fun serverDestroyEntity(entityToDestroy: Int) {
         m_artemisWorld.delete(entityToDestroy)
 
         m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToDestroy)
+    }
+
+    /**
+     * usable by either client/server. destroys entity in the world
+     * silently; no sound, no server -> client informing
+     */
+    fun destroyEntity(entityToDestroy: Int) {
+        m_artemisWorld.delete(entityToDestroy)
     }
 
     private fun killTree(floraComp: FloraComponent, entityToKill: Int, entityKiller: Int?) {

@@ -110,10 +110,10 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
      */
     val debugPacketFrequencyByType = mutableMapOf<String, Int>()
 
-    private val listeners = Array<NetworkClientListener>(5)
+    private val networkStatusListeners = Array<NetworkClientListener>(5)
 
     fun addListener(listener: NetworkClientListener) {
-        listeners.add(listener)
+        networkStatusListeners.add(listener)
     }
 
     interface NetworkClientListener {
@@ -198,42 +198,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private fun processNetworkQueue() {
         while (netQueue.peek() != null) {
             val receivedObject = netQueue.poll()
-
+            receiveNetworkObject(receivedObject)
             NetworkHelper.debugPacketFrequencies(receivedObject, debugPacketFrequencyByType)
-
-            when (receivedObject) {
-                is Network.Shared.DisconnectReason -> receiveDisconnectReason(receivedObject)
-
-                is Network.Shared.BlockRegion -> receiveBlockRegion(receivedObject)
-                is Network.Shared.SparseBlockUpdate -> receiveSparseBlockUpdate(receivedObject)
-
-                is Network.Server.LoadedViewportMoved -> receiveLoadedViewportMoved(receivedObject)
-                is Network.Server.SpawnInventoryItems -> receivePlayerSpawnInventoryItems(
-                        receivedObject)
-
-                is Network.Server.PlayerSpawned -> receivePlayerSpawn(receivedObject)
-            //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
-
-                is Network.Server.EntitySpawnMultiple -> receiveMultipleEntitySpawn(receivedObject)
-                is Network.Server.EntityDestroyMultiple -> receiveMultipleEntityDestroy(receivedObject)
-                is Network.Server.EntityKilled -> receiveEntityKilled(receivedObject)
-                is Network.Server.EntityMoved -> receiveEntityMoved(receivedObject)
-
-                is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
-                is Network.Server.SpawnGeneratorInventoryItems ->
-                    receiveSpawnGeneratorInventoryItems(receivedObject)
-
-                is FrameworkMessage.Ping -> {
-                }
-
-                else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
-                    assert(false) {
-                        """Client network system, object was received but there's no
-                        method calls to handle it, please add them.
-                        Object: ${receivedObject.toString()}"""
-                    }
-                }
-            }
         }
 
         if (OreSettings.debugPacketTypeStatistics) {
@@ -241,8 +207,89 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun receiveSpawnGeneratorInventoryItems(receivedObject: Network.Server.SpawnGeneratorInventoryItems) {
+    private fun receiveNetworkObject(receivedObject: Any) {
+        when (receivedObject) {
+            is Network.Shared.DisconnectReason -> receiveDisconnectReason(receivedObject)
 
+            is Network.Shared.BlockRegion -> receiveBlockRegion(receivedObject)
+            is Network.Shared.SparseBlockUpdate -> receiveSparseBlockUpdate(receivedObject)
+
+            is Network.Server.LoadedViewportMoved -> receiveLoadedViewportMoved(receivedObject)
+            is Network.Server.SpawnInventoryItems -> receivePlayerSpawnInventoryItems(
+                    receivedObject)
+
+            is Network.Server.PlayerSpawned -> receivePlayerSpawn(receivedObject)
+        //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
+
+            is Network.Server.EntitySpawnMultiple -> receiveMultipleEntitySpawn(receivedObject)
+            is Network.Server.EntityDestroyMultiple -> receiveMultipleEntityDestroy(receivedObject)
+            is Network.Server.EntityKilled -> receiveEntityKilled(receivedObject)
+            is Network.Server.EntityMoved -> receiveEntityMoved(receivedObject)
+
+            is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
+
+            is Network.Server.SpawnGeneratorInventoryItems ->
+                receiveSpawnGeneratorInventoryItems(receivedObject)
+
+            is FrameworkMessage.Ping -> {
+            }
+
+            else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
+                assert(false) {
+                    """Client network system, object was received but there's no
+                        method calls to handle it, please add them.
+                        Object: ${receivedObject.toString()}"""
+                }
+            }
+        }
+    }
+
+    private fun receiveSpawnGeneratorInventoryItems(inventorySpawn: Network.Server.SpawnGeneratorInventoryItems) {
+        for (e in inventorySpawn.entitiesToSpawn) {
+            spawnGeneratorInventoryItem(entitySpawn = e, spawn = inventorySpawn)
+        }
+
+        if (inventorySpawn.fuelSourceEntity != null) {
+            //spawn it...but again, we would need to duplicate horribleness down
+            //there until we refactor/clean this up a ton
+        }
+    }
+
+    //HACK!!!! get rid of this duplicated code b/w inventory and generator inventory spawning (below)
+    private fun spawnGeneratorInventoryItem(entitySpawn: Network.Server.EntitySpawn,
+                                            spawn: Network.Server.SpawnGeneratorInventoryItems) {
+        val spawnedItemEntityId = getWorld().create()
+        for (c in entitySpawn.components) {
+            val entityEdit = getWorld().edit(spawnedItemEntityId)
+            entityEdit.add(c)
+        }
+
+        val spriteComponent = mSprite.create(spawnedItemEntityId)
+        spriteComponent.textureName = entitySpawn.textureName
+        spriteComponent.sprite.setSize(entitySpawn.size.size.x, entitySpawn.size.size.y)
+
+        //fixme uhhhhh this isn't used at all??
+        val textureRegion: TextureRegion
+        if (!mBlock.has(spawnedItemEntityId)) {
+            textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName)
+        } else {
+            textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
+        }
+
+        val toolComponent = mTool.opt(spawnedItemEntityId)
+
+        val itemComponent = mItem.get(spawnedItemEntityId)
+
+        val generatorInventory = oreWorld.m_client!!.m_generatorInventory!!
+        generatorInventory.takeItem(itemComponent.inventoryIndex)?.let {
+            //destroy all the old ones, they'll get replaced by everything
+            //new in this inventory (yes, they may get replaced by identical
+            //things but that's inconsequential)
+            oreWorld.destroyEntity(it)
+        }
+
+        //fixme this indirection isn't so hot...
+        generatorInventory.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
     }
 
     private fun receiveEntityKilled(receivedObject: Network.Server.EntityKilled) {
@@ -256,15 +303,15 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
         //fixme spawn.id, sprite!!
         for (e in inventorySpawn.entitiesToSpawn) {
-            spawnInventoryItem(inventorySpawn = inventorySpawn, entitySpawn = e)
-        }
+            spawnInventoryItem(entitySpawn = e)
 
-        //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
-        // entity/component pool. look into kryo itself, you can override creation (easily i hope), per class
+            if (inventorySpawn.causedByPickedUpItem) {
+                soundSystem.playItemPickup()
+            }
+        }
     }
 
-    private fun spawnInventoryItem(entitySpawn: Network.Server.EntitySpawn,
-                                   inventorySpawn: Network.Server.SpawnInventoryItems) {
+    private fun spawnInventoryItem(entitySpawn: Network.Server.EntitySpawn) {
         val spawnedItemEntityId = getWorld().create()
         for (c in entitySpawn.components) {
             val entityEdit = getWorld().edit(spawnedItemEntityId)
@@ -289,10 +336,6 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         //fixme this indirection isn't so hot...
         oreWorld.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
-
-        if (inventorySpawn.causedByPickedUpItem) {
-            soundSystem.playItemPickup()
-        }
     }
 
     private fun receiveChatMessage(chat: Network.Server.ChatMessage) {
@@ -440,7 +483,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun receiveDisconnectReason(disconnectReason: Network.Shared.DisconnectReason) {
-        for (listener in listeners) {
+        for (listener in networkStatusListeners) {
             listener.disconnected(disconnectReason)
         }
     }
@@ -463,7 +506,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             connected = true
 
-            for (listener in listeners) {
+            for (listener in networkStatusListeners) {
                 listener.connected()
             }
         } else {

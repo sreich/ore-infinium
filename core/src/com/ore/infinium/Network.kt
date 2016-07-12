@@ -51,6 +51,10 @@ object Network {
         registerComponents(kryo)
     }
 
+    //TODO i wonder if i can implement my own serializer (trivially!) and make it use the
+    // entity/component pool for entity spawning.
+    // look into kryo itself, you can override creation (easily i hope), per class
+    // premature optimization right now though
     private fun registerComponents(kryo: Kryo) {
         //components
         kryo.register(Component::class.java)
