@@ -96,7 +96,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private var m_debugProfilerView: DebugProfilerView? = null
 
     var m_hotbarInventory: HotbarInventory? = null
-    private var m_inventory: Inventory? = null
+    var m_inventory: Inventory? = null
 
     private var m_generatorControlPanelView: GeneratorControlPanelView? = null
     var m_generatorInventory: GeneratorInventory? = null

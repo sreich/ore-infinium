@@ -121,7 +121,6 @@ object Network {
         kryo.register(Server.EntityMoved::class.java)
 
         kryo.register(Server.SpawnInventoryItems::class.java)
-        kryo.register(Server.SpawnGeneratorInventoryItems::class.java)
 
         kryo.register(Server.LoadedViewportMoved::class.java)
         kryo.register(Server.PlayerSpawned::class.java)
@@ -206,25 +205,11 @@ object Network {
              * applies only to generator inventory and only if one is in that slot
              */
             var fuelSourceEntity: EntitySpawn? = null
-        }
-
-        /**
-         * for loading list of items which are (probably) fuel sources
-         * that will be burned in the generator.
-         *
-         * used for when the generator's device control panel is opened.
-         */
-        class SpawnGeneratorInventoryItems() {
-            var generatorEntityId = INVALID_ENTITY_ID
 
             /**
-             * we know which index it gets spawned in due to @see ItemComponent.inventoryIndex
-             * this is a list of only non-empty inventory slots. empty ones are not sent
+             * applies only to generator inventory, if this is that type
              */
-            var entitiesToSpawn = mutableListOf<EntitySpawn>()
-
-            //entity in the currently-being-burned fuel source, if any
-            var fuelSourceEntity: EntitySpawn? = null
+            var generatorEntityId = INVALID_ENTITY_ID
         }
 
         /**

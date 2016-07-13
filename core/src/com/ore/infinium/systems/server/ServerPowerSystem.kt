@@ -103,6 +103,8 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             }
 
             //lets move it from the gen inventory to the fuel source slot, to burn it
+            cGen.fuelSources!!.fuelSource = fuelSourceEntityId
+            serverNetworkSystem.send
         }
 
         //todo check if burning currently, if not...move a new one over and start burning it, etc

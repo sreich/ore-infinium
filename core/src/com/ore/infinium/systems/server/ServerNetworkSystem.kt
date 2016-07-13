@@ -557,7 +557,6 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     /**
      * request to drop an item from the hotbar inventory
-
      * @param job
      */
     private fun receiveInventoryDropItem(job: NetworkJob, itemDrop: Network.Client.InventoryDropItem) {

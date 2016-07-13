@@ -229,9 +229,6 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
 
-            is Network.Server.SpawnGeneratorInventoryItems ->
-                receiveSpawnGeneratorInventoryItems(receivedObject)
-
             is FrameworkMessage.Ping -> {
             }
 
@@ -245,9 +242,18 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun receiveSpawnGeneratorInventoryItems(inventorySpawn: Network.Server.SpawnGeneratorInventoryItems) {
-        val generatorInventory = oreWorld.m_client!!.m_generatorInventory!!
-        generatorInventory.m_slots.filterNotNull().forEach {
+    private fun receiveEntityKilled(receivedObject: Network.Server.EntityKilled) {
+        //todo play a death sound and such for this entity? and possibly some effects
+        //depending on what it does.
+        //actual destruction should happen Real Soon Now i would think.
+        //or we could decide to delete entity now, and assume server will tell us to delete it anyways
+        //but possible for some hard to find desync bugs if i do that
+    }
+
+    private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
+        val inventory = inventoryForType(inventorySpawn.typeOfInventory)
+
+        inventory.m_slots.filterNotNull().forEach {
             //destroy all the old ones, they'll get replaced by everything
             //new in this inventory (yes, they may get replaced by identical
             //things but that's inconsequential).
@@ -258,57 +264,13 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         //now we respawn in some new ones, if any
         for (e in inventorySpawn.entitiesToSpawn) {
-            spawnGeneratorInventoryItem(entitySpawn = e, spawn = inventorySpawn)
-        }
+            spawnInventoryItem(entitySpawn = e, inventory=inventory)
 
-        if (inventorySpawn.fuelSourceEntity != null) {
-            //todo spawn it...but again, we would need to duplicate horribleness down
-            //there until we refactor/clean this up a ton
-        }
-    }
-
-    //HACK!!!! get rid of this duplicated code b/w inventory and generator inventory spawning (below)
-    private fun spawnGeneratorInventoryItem(entitySpawn: Network.Server.EntitySpawn,
-                                            spawn: Network.Server.SpawnGeneratorInventoryItems) {
-        val spawnedItemEntityId = getWorld().create()
-        for (c in entitySpawn.components) {
-            val entityEdit = getWorld().edit(spawnedItemEntityId)
-            entityEdit.add(c)
-        }
-
-        val spriteComponent = mSprite.create(spawnedItemEntityId)
-        spriteComponent.textureName = entitySpawn.textureName
-        spriteComponent.sprite.setSize(entitySpawn.size.size.x, entitySpawn.size.size.y)
-
-        //fixme uhhhhh this isn't used at all??
-        val textureRegion: TextureRegion
-        if (!mBlock.has(spawnedItemEntityId)) {
-            textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName)
-        } else {
-            textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
-        }
-
-        val toolComponent = mTool.opt(spawnedItemEntityId)
-
-        val itemComponent = mItem.get(spawnedItemEntityId)
-
-        //todo check generator inventory id, assign to that?
-        val generatorInventory = oreWorld.m_client!!.m_generatorInventory!!
-        generatorInventory.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
-    }
-
-    private fun receiveEntityKilled(receivedObject: Network.Server.EntityKilled) {
-        //todo play a death sound and such for this entity? and possibly some effects
-        //depending on what it does.
-        //actual destruction should happen Real Soon Now i would think.
-        //or we could decide to delete entity now, and assume server will tell us to delete it anyways
-        //but possible for some hard to find desync bugs if i do that
-    }
-
-    private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
-        //fixme spawn.id, sprite!!
-        for (e in inventorySpawn.entitiesToSpawn) {
-            spawnInventoryItem(entitySpawn = e)
+            if (inventorySpawn.fuelSourceEntity != null) {
+                //todo spawn it...but again, we would need to duplicate horribleness down
+                //there until we refactor/clean this up a ton
+            }
+            //fixme spawn.id, sprite!!
 
             if (inventorySpawn.causedByPickedUpItem) {
                 soundSystem.playItemPickup()
@@ -316,7 +278,13 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
-    private fun spawnInventoryItem(entitySpawn: Network.Server.EntitySpawn) {
+    private fun inventoryForType(typeOfInventory: Network.Shared.InventoryType) = when (typeOfInventory) {
+        Network.Shared.InventoryType.Hotbar -> oreWorld.m_client!!.m_hotbarInventory!!
+        Network.Shared.InventoryType.Generator -> oreWorld.m_client!!.m_generatorInventory!!
+        Network.Shared.InventoryType.Inventory -> oreWorld.m_client!!.m_inventory!!
+    }
+
+    private fun spawnInventoryItem(entitySpawn: Network.Server.EntitySpawn, inventory: Inventory) {
         val spawnedItemEntityId = getWorld().create()
         for (c in entitySpawn.components) {
             val entityEdit = getWorld().edit(spawnedItemEntityId)
@@ -340,7 +308,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val itemComponent = mItem.get(spawnedItemEntityId)
 
         //fixme this indirection isn't so hot...
-        oreWorld.m_client!!.m_hotbarInventory!!.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
+        inventory.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
     }
 
     private fun receiveChatMessage(chat: Network.Server.ChatMessage) {
