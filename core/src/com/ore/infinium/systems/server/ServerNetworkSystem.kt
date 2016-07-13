@@ -269,12 +269,12 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      * *
      * @return
      */
-    private fun serializeComponents(entityId: Int): Array<Component> {
+    private fun serializeComponents(entityId: Int): List<Component> {
         val components = Bag<Component>()
 
         getWorld().getEntity(entityId).getComponents(components)
 
-        val copyComponents = Array<Component>()
+        val copyComponents = mutableListOf<Component>()
         for (component in components) {
             when (component) {
                 is PlayerComponent -> {

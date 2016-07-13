@@ -27,14 +27,12 @@ package com.ore.infinium
 import com.artemis.Component
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.IntArray
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryonet.EndPoint
 import com.ore.infinium.components.*
 import com.ore.infinium.util.INVALID_ENTITY_ID
 import java.util.*
-import kotlin.reflect.KClass
 
 object Network {
     const val PORT = 54553
@@ -58,98 +56,98 @@ object Network {
     // premature optimization right now though
     private fun registerComponents(kryo: Kryo) {
         //components
-        kryo.register(Component::class.java)
-        kryo.register(PowerDeviceComponent::class.java)
-        kryo.register(ItemComponent.State::class.java)
-        kryo.register(AirComponent::class.java)
-        kryo.register(PowerGeneratorComponent::class.java)
-        kryo.register(PowerGeneratorComponent.GeneratorType::class.java)
-        kryo.register(PowerConsumerComponent::class.java)
-        kryo.register(PowerDeviceComponent::class.java)
-        kryo.register(BlockComponent::class.java)
-        kryo.register(FloraComponent::class.java)
-        kryo.register(HealthComponent::class.java)
-        kryo.register(ItemComponent::class.java)
-        kryo.register(JumpComponent::class.java)
+        kryo.registerClass<Component>()
+        kryo.registerClass<PowerDeviceComponent>()
+        kryo.registerClass<ItemComponent.State>()
+        kryo.registerClass<AirComponent>()
+        kryo.registerClass<PowerGeneratorComponent>()
+        kryo.registerClass<PowerGeneratorComponent.GeneratorType>()
+        kryo.registerClass<PowerConsumerComponent>()
+        kryo.registerClass<PowerDeviceComponent>()
+        kryo.registerClass<BlockComponent>()
+        kryo.registerClass  <FloraComponent>()
+        kryo.registerClass <HealthComponent>()
+        kryo.registerClass<ItemComponent>()
+        kryo.registerClass<JumpComponent>()
         //playercomponent is not sent. big and pointless.
         //spritecomponent is not sent. big..replaced  by module ones
         //controllablecomponent not sent
-        kryo.register(ToolComponent::class.java)
-        kryo.register(ToolComponent.ToolMaterial::class.java)
-        kryo.register(ToolComponent.ToolType::class.java)
+        kryo.registerClass<ToolComponent>()
+        kryo.registerClass<ToolComponent.ToolMaterial>()
+        kryo.registerClass<ToolComponent.ToolType>()
 
-        kryo.register(LightComponent::class.java)
-        kryo.register(VelocityComponent::class.java)
+        kryo.registerClass<LightComponent>()
+        kryo.registerClass<VelocityComponent>()
         //////////
     }
 
     private fun registerShared(kryo: Kryo) {
-        kryo.register(Shared.DisconnectReason::class.java)
-        kryo.register(Shared.DisconnectReason.Reason::class.java)
+        kryo.registerClass<Shared.DisconnectReason>()
+        kryo.registerClass<Shared.DisconnectReason.Reason>()
         //modular components. some components are too fucking huge and stupid to serialize automatically (like Sprite),
         //so we split up only what we need.
-        kryo.register(Shared.PositionPacket::class.java)
-        kryo.register(Shared.SizePacket::class.java)
+        kryo.registerClass<Shared.PositionPacket>()
+        kryo.registerClass<Shared.SizePacket>()
 
-        kryo.register(Shared.BlockRegion::class.java)
-        kryo.register(Shared.SparseBlockUpdate::class.java)
-        kryo.register(Shared.SingleSparseBlock::class.java)
-        kryo.register(Shared.SingleBlock::class.java)
+        kryo.registerClass<Shared.BlockRegion>()
+        kryo.registerClass<Shared.SparseBlockUpdate>()
+        kryo.registerClass<Shared.SingleSparseBlock>()
+        kryo.registerClass<Shared.SingleBlock>()
 
-        kryo.register(OreBlock.BlockType::class.java)
+        kryo.registerClass<OreBlock.BlockType>()
 
-        kryo.register(Chat.ChatSender::class.java)
-        kryo.register(Shared.InventoryType::class.java)
+        kryo.registerClass<Chat.ChatSender>()
+        kryo.registerClass<Shared.InventoryType>()
 
         // primitives/builtin
-        //        kryo.register(String[]::class.java)
-        kryo.register(ByteArray::class.java)
-        kryo.register(IntArray::class.java)
-        kryo.register(Array::class.java)
-        kryo.register(ArrayList::class.java)
+        kryo.registerClass <ByteArray>()
+        kryo.registerClass <IntArray>()
 
-        kryo.register(kotlin.Array<Any>::class.java)
-        kryo.register(Vector2::class.java)
-        kryo.register(IntArray::class.java)
-        //       kryo.register(Array<Any>::class.java)
-        kryo.register(Rectangle::class.java)
+//        kryo.register(ArrayList::class.java)
+        kryo.registerClass<ArrayList<Any>>()
+
+        kryo.registerClass         <kotlin    .    Array       <Any>>()
+        kryo.registerClass <kotlin.Array<Any>>()
+        kryo.registerClass <Vector2>()
+        kryo.registerClass <IntArray>()
+        kryo.registerClass <Rectangle>()
     }
 
     private fun registerServer(kryo: Kryo) {
-        kryo.register(Server.EntitySpawn::class.java)
-        kryo.register(Server.EntitySpawnMultiple::class.java)
-        kryo.register(Server.EntityDestroyMultiple::class.java)
-        kryo.register(Server.EntityKilled::class.java)
-        kryo.register(Server.EntityMoved::class.java)
+        kryo.registerClass<Server.EntitySpawn>()
+        kryo.registerClass<Server.EntitySpawnMultiple>()
+        kryo.registerClass<Server.EntityDestroyMultiple>()
+        kryo.registerClass<Server.EntityKilled>()
+        kryo.registerClass<Server.EntityMoved>()
 
-        kryo.register(Server.SpawnInventoryItems::class.java)
+        kryo.registerClass<Server.SpawnInventoryItems>()
 
-        kryo.register(Server.LoadedViewportMoved::class.java)
-        kryo.register(Server.PlayerSpawned::class.java)
-        kryo.register(Server.ChatMessage::class.java)
+        kryo.registerClass<Server.LoadedViewportMoved>()
+        kryo.registerClass<Server.PlayerSpawned>()
+        kryo.registerClass<Server.ChatMessage>()
     }
 
     private fun registerClient(kryo: Kryo) {
-        kryo.register(Client.InitialClientData::class.java)
+        kryo.registerClass<Client.InitialClientData>()
 
-        kryo.register(Client.ChatMessage::class.java)
+        kryo.registerClass<Client.ChatMessage>()
 
-        kryo.register(Client.MoveInventoryItem::class.java)
+        kryo.registerClass<Client.MoveInventoryItem>()
 
-        kryo.register(Client.PlayerMove::class.java)
-        kryo.register(Client.BlockDigBegin::class.java)
-        kryo.register(Client.BlockDigFinish::class.java)
-        kryo.register(Client.BlockPlace::class.java)
-        kryo.register(Client.ItemPlace::class.java)
-        kryo.register(Client.PlayerEquipHotbarIndex::class.java)
-        kryo.register(Client.InventoryDropItem::class.java)
-        kryo.register(Client.OpenDeviceControlPanel::class.java)
-        kryo.register(Client.CloseDeviceControlPanel::class.java)
+        kryo.registerClass<Client.PlayerMove>()
+        kryo.registerClass<Client.BlockDigBegin>()
+        kryo.registerClass<Client.BlockDigFinish>()
+        kryo.registerClass<Client.BlockPlace>()
+        kryo.registerClass<Client.ItemPlace>()
+        kryo.registerClass<Client.PlayerEquipHotbarIndex>()
+        kryo.registerClass<Client.InventoryDropItem>()
+        kryo.registerClass<Client.OpenDeviceControlPanel>()
+        kryo.registerClass<Client.CloseDeviceControlPanel>()
 
-        kryo.register(Client.PlayerEquippedItemAttack::class.java)
-        kryo.register(Client.PlayerEquippedItemAttack.ItemAttackType::class.java)
+        kryo.registerClass<Client.PlayerEquippedItemAttack>()
+        kryo.registerClass<Client.PlayerEquippedItemAttack.ItemAttackType>()
 
-        kryo.register(Client.EntityAttack::class.java)
+        kryo.registerClass<Client.EntityAttack>()
     }
 
     object Server {
@@ -273,7 +271,7 @@ object Network {
 
             var id: Int = 0
 
-            lateinit var components: Array<Component>
+            var components = listOf<Component>()
         }
 
         class PlayerDisconnected {
@@ -375,7 +373,7 @@ object Network {
                 var destType: Shared.InventoryType? = null,
                 var sourceIndex: Byte = -1,
                 var destIndex: Byte = -1
-        )
+                               )
 
         /**
          * notify request, to tell server we need info
@@ -473,7 +471,7 @@ object Network {
          * so there is not one packet per tiny block update.
          */
         class SparseBlockUpdate() {
-            var blocks = Array<SingleSparseBlock>()
+            var blocks = mutableListOf<SingleSparseBlock>()
         }
 
         class BlockRegion {
@@ -522,9 +520,13 @@ object Network {
     }
 }
 
-fun Kryo.register(kClass: KClass<Component>) {
-    this.register(kClass.java)
+inline fun <reified T : Any> Kryo.registerClass() {
+    this.register(T::class.java)
 }
+
+//fun Kryo.registerClass(kClass: KClass<Any>) {
+//}
+
 
 object NetworkHelper {
     fun debugPacketFrequencies(receivedObject: Any,

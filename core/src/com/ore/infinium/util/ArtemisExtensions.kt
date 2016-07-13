@@ -118,6 +118,7 @@ private class MapperProperty<T : Component>(val type: Class<T>) : ReadOnlyProper
         if (cachedMapper == null) {
             val worldField = BaseSystem::class.java.getDeclaredField("world")
             worldField.isAccessible = true
+
             val world = worldField.get(thisRef) as World?
             world ?: throw IllegalStateException("world is not initialized yet")
             cachedMapper = world.getMapper(type)
@@ -133,8 +134,10 @@ private class SystemProperty<T : BaseSystem>(val type: Class<T>) : ReadOnlyPrope
         if (cachedSystem == null) {
             val worldField = BaseSystem::class.java.getDeclaredField("world")
             worldField.isAccessible = true
+
             val world = worldField.get(thisRef) as World?
             world ?: throw IllegalStateException("world is not initialized yet")
+
             cachedSystem = world.getSystem(type)
         }
         return cachedSystem!!
@@ -177,8 +180,10 @@ inline fun <reified T : Component> BaseEntitySystem.require(): ReadOnlyProperty<
 fun <T : Component> BaseEntitySystem.require(type: KClass<T>): ReadOnlyProperty<BaseSystem, ComponentMapper<T>> {
     val aspectConfigurationField = BaseEntitySystem::class.java.getDeclaredField("aspectConfiguration")
     aspectConfigurationField.isAccessible = true
+
     val aspectConfiguration = aspectConfigurationField.get(this) as Aspect.Builder
     aspectConfiguration.all(type.java)
+
     return MapperProperty<T>(type.java)
 }
 
@@ -210,6 +215,7 @@ private fun getCache(clazz: Class<*>): PropertyCache =
 private class PropertyCache(clazz: KClass<*>) {
     val copyProperties = clazz.members.mapNotNull { it as? KMutableProperty }
             .filter { !it.annotations.any { it.annotationClass == DoNotCopy::class } }.toTypedArray()
+
     val printProperties = clazz.members.mapNotNull { it as? KProperty }
             .filter {
                 !it.annotations.any { it.annotationClass == DoNotPrint::class } &&
