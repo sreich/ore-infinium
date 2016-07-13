@@ -26,13 +26,15 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.ore.infinium.GeneratorInventory
+import com.ore.infinium.util.CopyableComponent
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
+import com.ore.infinium.util.defaultCopyFrom
 
 /**
  * Any device that can generate some amount of power on a circuit
  */
-class PowerGeneratorComponent : Component() {
+class PowerGeneratorComponent : Component(), CopyableComponent<PowerGeneratorComponent> {
     var powerSupplyRate: Int = 0
 
     enum class GeneratorType {
@@ -58,7 +60,7 @@ class PowerGeneratorComponent : Component() {
              *
              * only valid for certain types of generators
              */
-    var fuelSources:GeneratorInventory ?= null
+    var fuelSources: GeneratorInventory ? = null
 
     /**
      * determines if the item component is the same, in other words,
@@ -67,4 +69,17 @@ class PowerGeneratorComponent : Component() {
     fun canCombineWith(otherComp: PowerGeneratorComponent): Boolean {
         return this.powerSupplyRate == otherComp.powerSupplyRate
     }
+
+    /**
+     * copy a component (similar to copy constructor)
+     *
+     * @param component
+     *         component to copy from, into this instance
+     */
+    override fun copyFrom(component: PowerGeneratorComponent) {
+        this.defaultCopyFrom(component)
+
+        fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+    }
+
 }

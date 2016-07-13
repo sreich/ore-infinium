@@ -1016,7 +1016,6 @@ class OreWorld
     fun cloneEntity(sourceEntity: Int): Int {
         val clonedEntity = m_artemisWorld.create()
 
-
         //sorted alphabetically for your pleasure
         if (airMapper.has(sourceEntity)) {
             val sourceComponent = airMapper.get(sourceEntity)
@@ -1029,7 +1028,6 @@ class OreWorld
             val component = blockMapper.create(clonedEntity)
             component.copyFrom(sourceComponent)
         }
-
 
         if (controlMapper.has(sourceEntity)) {
             val sourceComponent = controlMapper.get(sourceEntity)
@@ -1048,6 +1046,7 @@ class OreWorld
             val component = healthMapper.create(clonedEntity)
             component.copyFrom(sourceComponent)
         }
+
         if (itemMapper.has(sourceEntity)) {
 
             val sourceComponent = itemMapper.get(sourceEntity)
@@ -1155,7 +1154,8 @@ class OreWorld
         return false
     }
 
-    /**
+    @Suppress("unused")
+            /**
      * gets a list of components this entity has. Mostly for debug
 
      * @param entity
@@ -1170,6 +1170,7 @@ class OreWorld
         return bag
     }
 
+    @Suppress("unused")
     inline fun <reified T : Component> getEntitiesWithComponent(): IntBag? {
         val aspectSubscriptionManager = m_artemisWorld.aspectSubscriptionManager
         val entitySubscription = aspectSubscriptionManager.get(Aspect.all(T::class.java))
