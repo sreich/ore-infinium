@@ -310,7 +310,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                                 inventoryType: Network.Shared.InventoryType,
                                 causedByPickedUpItem: Boolean = false,
                                 fuelSourceEntityId: Int? = null
-    ) {
+                               ) {
         val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
         spawn.typeOfInventory = inventoryType
@@ -422,33 +422,20 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private fun receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob,
                                               receivedObject: Network.Client.OpenDeviceControlPanel) {
         val deviceEntityId = receivedObject.entityId
+        val playerEntityId = job.connection.playerEntityId
+        val cPlayer = mPlayer.get(playerEntityId)
 
-        val cPlayer = mPlayer.get(job.connection.playerEntityId)
-
-        if (mGenerator.has(deviceEntityId)) {
+        mGenerator.get(deviceEntityId)?.let { cGen ->
             cPlayer.openedControlPanelEntity = deviceEntityId
-            sendGeneratorInventory(generatorEntityId = deviceEntityId, playerConnectionId = job.connection.id)
             //todo send initial fuel consumption update, and then send periodic ones according to subscribing id
+
+            val fuelSources = cGen.fuelSources!!.slots().filterNotNull()
+            sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
+                                    inventoryType = Network.Shared.InventoryType.Generator,
+                                    owningPlayerEntityId = playerEntityId,
+                                    fuelSourceEntityId = cGen.fuelSources!!.fuelSource
+                                   )
         }
-    }
-
-    private fun sendGeneratorInventory(generatorEntityId: Int, playerConnectionId: Int) {
-        val spawn = Network.Server.SpawnGeneratorInventoryItems()
-        //spawn.generatorEntityId = generatorEntityId
-
-        val cGen = mGenerator.get(generatorEntityId)
-
-        spawn.fuelSourceEntity = cGen.fuelSources!!.fuelSource?.let { serializeInventoryEntitySpawn(it) }
-
-        cGen.fuelSources!!.slots().filterNotNull().forEach { itemEntityId ->
-            val cSprite = mSprite.get(itemEntityId)
-
-            val entitySpawn = serializeInventoryEntitySpawn(itemEntityId)
-
-            spawn.entitiesToSpawn.add(entitySpawn)
-        }
-
-        serverKryo.sendToTCP(playerConnectionId, spawn)
     }
 
     private fun receivePlayerEquippedItemAttack(job: NetworkJob,
@@ -571,7 +558,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private fun receiveInventoryDropItem(job: NetworkJob, itemDrop: Network.Client.InventoryDropItem) {
         val cPlayer = mPlayer.get(job.connection.playerEntityId)
 
-        val itemToDrop = dropInventoryItem(itemToDropIndex = itemDrop.index.toInt(), cPlayer = cPlayer,inventoryType=itemDrop.inventoryType)
+        val itemToDrop = dropInventoryItem(itemToDropIndex = itemDrop.index.toInt(), cPlayer = cPlayer,
+                                           inventoryType = itemDrop.inventoryType)
 
         if (itemToDrop == INVALID_ENTITY_ID) {
             //safety first. malicious/buggy client.
@@ -613,7 +601,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     /**
      * drops the item from an inventory if possible and decreases its count
      */
-    private fun dropInventoryItem(itemToDropIndex: Int, cPlayer: PlayerComponent, inventoryType: Network.Shared.InventoryType): Int {
+    private fun dropInventoryItem(itemToDropIndex: Int,
+                                  cPlayer: PlayerComponent,
+                                  inventoryType: Network.Shared.InventoryType): Int {
         val inventory: Inventory = when (inventoryType) {
             Network.Shared.InventoryType.Hotbar -> cPlayer.hotbarInventory!!
             Network.Shared.InventoryType.Inventory -> cPlayer.inventory!!

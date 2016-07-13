@@ -63,6 +63,7 @@ object Network {
         kryo.register(ItemComponent.State::class.java)
         kryo.register(AirComponent::class.java)
         kryo.register(PowerGeneratorComponent::class.java)
+        kryo.register(PowerGeneratorComponent.GeneratorType::class.java)
         kryo.register(PowerConsumerComponent::class.java)
         kryo.register(PowerDeviceComponent::class.java)
         kryo.register(BlockComponent::class.java)
