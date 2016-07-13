@@ -360,43 +360,46 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         while (netQueue.peek() != null) {
             val job: NetworkJob = netQueue.poll()
 
-            val receivedObject = job.receivedObject
-            NetworkHelper.debugPacketFrequencies(receivedObject, debugPacketFrequencyByType)
+            NetworkHelper.debugPacketFrequencies(job.receivedObject, debugPacketFrequencyByType)
 
-            when (receivedObject) {
-                is Network.Client.InitialClientData -> receiveInitialClientData(job, receivedObject)
-                is Network.Client.PlayerMove -> receivePlayerMove(job, receivedObject)
-                is Network.Client.ChatMessage -> receiveChatMessage(job, receivedObject)
-                is Network.Client.MoveInventoryItem -> receiveMoveInventoryItem(job, receivedObject)
-
-                is Network.Client.OpenDeviceControlPanel -> receiveOpenDeviceControlPanel(job, receivedObject)
-                is Network.Client.CloseDeviceControlPanel -> receiveCloseDeviceControlPanel(job, receivedObject)
-
-                is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
-                is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
-                is Network.Client.BlockPlace -> receiveBlockPlace(job, receivedObject)
-
-                is Network.Client.PlayerEquipHotbarIndex -> receivePlayerEquipHotbarIndex(job, receivedObject)
-                is Network.Client.InventoryDropItem -> receiveInventoryDropItem(job, receivedObject)
-                is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
-                is Network.Client.PlayerEquippedItemAttack -> receivePlayerEquippedItemAttack(job, receivedObject)
-                is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
-
-                is FrameworkMessage.Ping -> if (receivedObject.isReply) {
-
-                }
-                else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
-                    assert(false) {
-                        """Server network system, object was received but there's no
-                        method calls to handle it, please add them.
-                        Object: ${receivedObject.toString()}"""
-                    }
-                }
-            }
+            receiveNetworkObject(job, job.receivedObject)
         }
 
         if (OreSettings.debugPacketTypeStatistics) {
             OreWorld.log("server", "--- packet type stats ${debugPacketFrequencyByType.toString()}")
+        }
+    }
+
+    private fun receiveNetworkObject(job: NetworkJob, receivedObject: Any) {
+        when (receivedObject) {
+            is Network.Client.InitialClientData -> receiveInitialClientData(job, receivedObject)
+            is Network.Client.PlayerMove -> receivePlayerMove(job, receivedObject)
+            is Network.Client.ChatMessage -> receiveChatMessage(job, receivedObject)
+            is Network.Client.MoveInventoryItem -> receiveMoveInventoryItem(job, receivedObject)
+
+            is Network.Client.OpenDeviceControlPanel -> receiveOpenDeviceControlPanel(job, receivedObject)
+            is Network.Client.CloseDeviceControlPanel -> receiveCloseDeviceControlPanel(job, receivedObject)
+
+            is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
+            is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
+            is Network.Client.BlockPlace -> receiveBlockPlace(job, receivedObject)
+
+            is Network.Client.PlayerEquipHotbarIndex -> receivePlayerEquipHotbarIndex(job, receivedObject)
+            is Network.Client.InventoryDropItem -> receiveInventoryDropItem(job, receivedObject)
+            is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
+            is Network.Client.PlayerEquippedItemAttack -> receivePlayerEquippedItemAttack(job, receivedObject)
+            is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
+
+            is FrameworkMessage.Ping -> if (receivedObject.isReply) {
+
+            }
+            else -> if (receivedObject !is FrameworkMessage.KeepAlive) {
+                assert(false) {
+                    """Server network system, object was received but there's no
+                        method calls to handle it, please add them.
+                        Object: ${receivedObject.toString()}"""
+                }
+            }
         }
     }
 
@@ -426,9 +429,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val cGen = mGenerator.get(generatorEntityId)
 
-        spawn.fuelSourceEntity = cGen.fuelSources.fuelSource?.let { serializeInventoryEntitySpawn(it) }
+        spawn.fuelSourceEntity = cGen.fuelSources!!.fuelSource?.let { serializeInventoryEntitySpawn(it) }
 
-        cGen.fuelSources.slots().filterNotNull().forEach { itemEntityId ->
+        cGen.fuelSources!!.slots().filterNotNull().forEach { itemEntityId ->
             val cSprite = mSprite.get(itemEntityId)
 
             val entitySpawn = serializeInventoryEntitySpawn(itemEntityId)
@@ -492,9 +495,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             return
         }
 
+        //don't allow " " playername
         name = name.trim { it <= ' ' }
 
-        //don't allow " " playername
         if (name.length == 0) {
             //we don't bother sending a disconnection event. they'd know if something was a bad name or not (hacked client)
             job.connection.close()
@@ -608,7 +611,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             Network.Shared.InventoryType.Inventory -> cPlayer.inventory!!
             Network.Shared.InventoryType.Generator -> {
                 val gen = mGenerator.get(cPlayer.openedControlPanelEntity)
-                gen.fuelSources
+                gen.fuelSources!!
             }
         }
 

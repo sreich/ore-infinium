@@ -46,7 +46,7 @@ open class Inventory
     private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
-    private val m_slots: MutableList<Int?>
+    val m_slots: MutableList<Int?>
 
     init {
         m_slots = mutableListOfNulls(slotCount)

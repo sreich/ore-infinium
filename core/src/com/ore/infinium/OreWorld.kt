@@ -825,6 +825,7 @@ class OreWorld
 
         val genC = powerGeneratorMapper.create(power).apply {
             powerSupplyRate = 100
+            fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
         }
 
         return power

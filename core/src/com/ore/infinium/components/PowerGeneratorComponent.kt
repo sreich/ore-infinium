@@ -35,6 +35,16 @@ import com.ore.infinium.util.DoNotPrint
 class PowerGeneratorComponent : Component() {
     var powerSupplyRate: Int = 0
 
+    enum class GeneratorType {
+        Solar,
+        Wind,
+        Combustion,
+        Geothermal,
+        Nuclear
+    }
+
+    var type = GeneratorType.Combustion
+
     @Transient
     @DoNotCopy
     @DoNotPrint
@@ -45,8 +55,10 @@ class PowerGeneratorComponent : Component() {
              * fuel source (the one being burnt right now).
              *
              * the others are the reserves
+             *
+             * only valid for certain types of generators
              */
-    val fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+    var fuelSources:GeneratorInventory ?= null
 
     /**
      * determines if the item component is the same, in other words,

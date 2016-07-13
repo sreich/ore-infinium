@@ -43,6 +43,7 @@ import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.indices
 import com.ore.infinium.util.mapper
+import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
 import java.io.IOException
 import java.util.*
@@ -71,6 +72,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private val mItem by mapper<ItemComponent>()
     private val mBlock by mapper<BlockComponent>()
     private val mTool by mapper<ToolComponent>()
+    private val mGenerator by mapper<PowerGeneratorComponent>()
 
     private val tagManager by system<TagManager>()
     private val tileRenderer by system<TileRenderSystem>()
@@ -214,13 +216,13 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             is Network.Shared.SparseBlockUpdate -> receiveSparseBlockUpdate(receivedObject)
 
             is Network.Server.LoadedViewportMoved -> receiveLoadedViewportMoved(receivedObject)
-            is Network.Server.SpawnInventoryItems -> receivePlayerSpawnInventoryItems(
-                    receivedObject)
+            is Network.Server.SpawnInventoryItems ->
+                receivePlayerSpawnInventoryItems( receivedObject)
 
             is Network.Server.PlayerSpawned -> receivePlayerSpawn(receivedObject)
         //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
 
-            is Network.Server.EntitySpawnMultiple -> receiveMultipleEntitySpawn(receivedObject)
+            is Network.Server.EntitySpawnMultiple -> receiveEntitySpawnMultiple(receivedObject)
             is Network.Server.EntityDestroyMultiple -> receiveMultipleEntityDestroy(receivedObject)
             is Network.Server.EntityKilled -> receiveEntityKilled(receivedObject)
             is Network.Server.EntityMoved -> receiveEntityMoved(receivedObject)
@@ -245,19 +247,22 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private fun receiveSpawnGeneratorInventoryItems(inventorySpawn: Network.Server.SpawnGeneratorInventoryItems) {
         val generatorInventory = oreWorld.m_client!!.m_generatorInventory!!
-        //generatorInventory.itemEntity()
-        //destroy all the old ones, they'll get replaced by everything
-        //new in this inventory (yes, they may get replaced by identical
-        //things but that's inconsequential)
-        oreWorld.destroyEntity(it)
-    }
+        generatorInventory.m_slots.filterNotNull().forEach {
+            //destroy all the old ones, they'll get replaced by everything
+            //new in this inventory (yes, they may get replaced by identical
+            //things but that's inconsequential).
+            //we do this because an item's inventory is different per each item in the world(e.g. open chest1, chest2).
+            //whereas player inventory, it is always the same and is always synced
+            oreWorld.destroyEntity(it)
+        }
 
+        //now we respawn in some new ones, if any
         for (e in inventorySpawn.entitiesToSpawn) {
             spawnGeneratorInventoryItem(entitySpawn = e, spawn = inventorySpawn)
         }
 
         if (inventorySpawn.fuelSourceEntity != null) {
-        //todo spawn it...but again, we would need to duplicate horribleness down
+            //todo spawn it...but again, we would need to duplicate horribleness down
             //there until we refactor/clean this up a ton
         }
     }
@@ -416,7 +421,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //OreWorld.log("networkclientsystem", debug)
     }
 
-    private fun receiveMultipleEntitySpawn(entitySpawn: Network.Server.EntitySpawnMultiple) {
+    private fun receiveEntitySpawnMultiple(entitySpawn: Network.Server.EntitySpawnMultiple) {
         //fixme this and hotbar code needs consolidation
         //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
@@ -438,6 +443,11 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 sprite.setSize(spawn.size.size.x, spawn.size.size.y)
                 sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
             }
+
+           val cGenerator = mGenerator.get(localEntityId)?.let {
+               //recreate this on our end. since it is transient
+               it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+           }
 
             assert(spriteComponent.textureName != null)
 

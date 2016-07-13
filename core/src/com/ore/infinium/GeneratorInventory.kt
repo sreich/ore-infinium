@@ -26,9 +26,16 @@ SOFTWARE.
 
 class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
     /**
-     * fuel source currently being burnt
+     * fuel source currently being burnt.
+     * once a fuel source is started burning, it cannot
+     * be recovered
      */
     var fuelSource: Int? = null
+
+    //when a fuel source is initially burned, it is set to 100
+    //over time it will decrease until 0, at which point the fuel
+    //source is consumed
+    var fuelSourceHealth = 0
 
     /**
      * the generator that this generator applies to.

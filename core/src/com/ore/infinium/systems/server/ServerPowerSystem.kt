@@ -75,12 +75,85 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     }
 
     private fun updateDevice(entityId: Int) {
-        val genC = mPowerGenerator.get(entityId)
+        val cGen = mPowerGenerator.get(entityId)
 
-        if (genC != null) {
-            //todo check if burning currently, if not...move a new oone over and start burning it, etc
-            //genC.fuelSources.fuelSource
+        cGen?.let {
+            when (cGen.type) {
+                PowerGeneratorComponent.GeneratorType.Combustion -> updateCombustionGenerator(entityId, cGen)
+
+                else -> throw NotImplementedError("alternative gen types not yet implemented")
+            }
         }
+    }
+
+    private fun updateCombustionGenerator(genEntityId: Int, cGen: PowerGeneratorComponent) {
+        val cDevice = mPowerDevice.get(genEntityId)
+        if (!cDevice.running) {
+            //gen not running, don't bother with anything
+            return
+        }
+
+        if (cGen.fuelSources!!.fuelSource == null) {
+            //because we have nothing to burn right now,
+            //grab fuel from other parts of our inventory, if any
+            var fuelSourceBurnableResult: FuelSourceBurnableResult
+            val fuelSourceEntityId = cGen.fuelSources!!.m_slots.filterNotNull().first { fuelEntityId ->
+                fuelSourceBurnableResult = fuelSourceBurnableInGenerator(fuelEntityId = fuelEntityId, generatorEntityId = genEntityId)
+                fuelSourceBurnableResult.burnableEnergyOutput != 0
+            }
+
+            //lets move it from the gen inventory to the fuel source slot, to burn it
+        }
+
+        //todo check if burning currently, if not...move a new one over and start burning it, etc
+        //genC.fuelSources.fuelSource
+    }
+
+    private fun isBurnableFuelSource(fuelEntityId: Int, generatorEntityId: Int): Int {
+        val fuel = fuelSourceBurnableInGenerator(fuelEntityId = fuelEntityId, generatorEntityId = generatorEntityId)
+
+        if (fuel.burnableEnergyOutput != 0) {
+            burnFuelSource(fuelEntityId = fuelEntityId)
+
+            val cItem = mItem.get(fuelEntityId)
+            cItem.stackSize -= 1
+            if (cItem.stackSize == 0) {
+                //destroy item
+            }
+        } else {
+            //not a fuel source
+        }
+
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+
+    }
+
+    private fun burnFuelSource(fuelEntityId: Int) {
+    }
+
+    /**
+     *
+     * @return the total amount of energy will be output
+     * from burning one of these fuel sources. gets distributed over
+     * time taken to burn it. 0 implies it is not a valid fuel source
+     *
+     * also keep in mind, each fuel source could have many items in
+     * its stack, we are only interested in 1 'count' of those getting burnt
+     * before going to the next in the stack (if any)
+     * */
+    class FuelSourceBurnableResult(val burnableEnergyOutput: Int, val burnableTime: Int)
+
+    /**
+     * determines if a given entity is a fuel source and is burnable inside this generator(type)
+
+     */
+    private fun fuelSourceBurnableInGenerator(fuelEntityId: Int, generatorEntityId: Int): FuelSourceBurnableResult {
+        val burnedEnergyOutput = FuelSourceBurnableResult(burnableEnergyOutput = 200, burnableTime = 200)
+
+        //todo determine if something is burnable? or are those kinds of things simply
+        //not allowed in here to begin with?
+
+        return burnedEnergyOutput
     }
 
     private fun calculateSupplyAndDemandRate(entityId: Int) {
@@ -96,3 +169,4 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         }
     }
 }
+
