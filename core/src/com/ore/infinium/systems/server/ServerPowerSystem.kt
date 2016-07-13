@@ -26,6 +26,7 @@ package com.ore.infinium.systems.server
 
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
+import com.ore.infinium.Network
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.anyOf
@@ -104,7 +105,13 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
 
             //lets move it from the gen inventory to the fuel source slot, to burn it
             cGen.fuelSources!!.fuelSource = fuelSourceEntityId
-            serverNetworkSystem.send
+
+            //send finalized generator inventory after our changes
+            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = cGen.fuelSources!!.slots().filterNotNull(),
+                    owningPlayerEntityId = 2,
+                    inventoryType = Network.Shared.InventoryType.Generator,
+                    fuelSourceEntityId = fuelSourceEntityId
+            )
         }
 
         //todo check if burning currently, if not...move a new one over and start burning it, etc

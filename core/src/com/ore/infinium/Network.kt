@@ -34,6 +34,7 @@ import com.esotericsoftware.kryonet.EndPoint
 import com.ore.infinium.components.*
 import com.ore.infinium.util.INVALID_ENTITY_ID
 import java.util.*
+import kotlin.reflect.KClass
 
 object Network {
     const val PORT = 54553
@@ -208,8 +209,10 @@ object Network {
 
             /**
              * applies only to generator inventory, if this is that type
+             * we never spawn this, but this is just so we know which generator
+             * we're talking about, and that this packet applies to that
              */
-            var generatorEntityId = INVALID_ENTITY_ID
+            //var generatorEntityId = INVALID_ENTITY_ID
         }
 
         /**
@@ -516,12 +519,10 @@ object Network {
         }
 
     }
-    //is that needed????
-    //    static public class PlayerHotbarInventoryItemCountChanged {
-    //        int dragSourceIndex;
-    //        int newCount;
-    //    }
+}
 
+fun Kryo.register(kClass: KClass<Component>) {
+    this.register(kClass.java)
 }
 
 object NetworkHelper {

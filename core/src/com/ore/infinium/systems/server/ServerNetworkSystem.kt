@@ -276,14 +276,17 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val copyComponents = Array<Component>()
         for (component in components) {
-            if (component is PlayerComponent) {
-                //skip
-            } else if (component is SpriteComponent) {
-                //skip
-            } else if (component is ControllableComponent) {
-                //skip
-            } else {
-                copyComponents.add(component)
+            when (component) {
+                is PlayerComponent -> {
+                    //skip
+                }
+                is SpriteComponent -> {
+                    //skip
+                }
+                is ControllableComponent -> {
+                    //skip
+                }
+                else -> copyComponents.add(component)
             }
         }
 
@@ -305,10 +308,16 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     fun sendSpawnInventoryItems(entityIdsToSpawn: List<Int>,
                                 owningPlayerEntityId: Int,
                                 inventoryType: Network.Shared.InventoryType,
-                                causedByPickedUpItem: Boolean) {
+                                causedByPickedUpItem: Boolean = false,
+                                fuelSourceEntityId: Int? = null
+    ) {
         val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
         spawn.typeOfInventory = inventoryType
+
+        fuelSourceEntityId?.let {
+            spawn.fuelSourceEntity = serializeInventoryEntitySpawn(it)
+        }
 
         for (entityId in entityIdsToSpawn) {
             val entitySpawn = serializeInventoryEntitySpawn(entityId)
@@ -425,7 +434,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     private fun sendGeneratorInventory(generatorEntityId: Int, playerConnectionId: Int) {
         val spawn = Network.Server.SpawnGeneratorInventoryItems()
-        spawn.generatorEntityId = generatorEntityId
+        //spawn.generatorEntityId = generatorEntityId
 
         val cGen = mGenerator.get(generatorEntityId)
 
