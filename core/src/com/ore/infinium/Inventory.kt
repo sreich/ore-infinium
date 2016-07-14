@@ -60,7 +60,7 @@ open class Inventory
         }
 
     init {
-        repeat(maxSlots) {
+        repeat(slotCount) {
             m_slots.add(INVALID_ENTITY_ID)
         }
     }
