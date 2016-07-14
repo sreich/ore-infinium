@@ -121,6 +121,7 @@ class HotbarInventoryView(private val m_stage: Stage,
 
         val itemEntity = inventory.itemEntity(index)
         if (isInvalidEntity(itemEntity)) {
+            setHotbarSlotVisible(index, false)
             return
         }
 
@@ -160,9 +161,6 @@ class HotbarInventoryView(private val m_stage: Stage,
     }
 
     override fun slotItemRemoved(index: Int, inventory: Inventory) {
-        val slot = m_slots[index]
-        //       slot.itemImage.setDrawable(null);
-        //        slot.itemCountLabel.setText(null);
         setHotbarSlotVisible(index, false)
     }
 

@@ -148,6 +148,7 @@ class InventoryView(stage: Stage,
 
         val itemEntity = inventory.itemEntity(index)
         if (isInvalidEntity(itemEntity)) {
+            clearSlot(slot)
             return
         }
 
@@ -185,6 +186,10 @@ class InventoryView(stage: Stage,
 
     override fun slotItemRemoved(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
+        clearSlot(slot)
+    }
+
+    private fun clearSlot(slot: SlotElement) {
         slot.itemImage.drawable = null
         slot.itemName.setText(null)
     }

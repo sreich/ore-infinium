@@ -172,6 +172,7 @@ class GeneratorControlPanelView(stage: Stage,
 
         val itemEntity = inventory.itemEntity(index)
         if (isInvalidEntity(itemEntity)) {
+            clearSlot(slot)
             return
         }
 
@@ -208,6 +209,10 @@ class GeneratorControlPanelView(stage: Stage,
 
     override fun slotItemRemoved(index: Int, inventory: Inventory) {
         val slot = slots[index]
+        clearSlot(slot)
+    }
+
+    private fun clearSlot(slot: SlotElement) {
         slot.itemImage.drawable = null
         slot.itemName.setText(null)
     }
