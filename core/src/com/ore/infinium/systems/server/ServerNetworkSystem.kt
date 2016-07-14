@@ -311,6 +311,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                                 causedByPickedUpItem: Boolean = false,
                                 fuelSourceEntityId: Int? = null
                                ) {
+        assert(entityIdsToSpawn.size > 0) { "entities to spawn in inventory should be non 0" }
+
         val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
         spawn.typeOfInventory = inventoryType
