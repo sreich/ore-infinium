@@ -432,11 +432,13 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             //todo send initial fuel consumption update, and then send periodic ones according to subscribing id
 
             val fuelSources = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
-            sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
-                                    inventoryType = Network.Shared.InventoryType.Generator,
-                                    owningPlayerEntityId = playerEntityId,
-                                    fuelSourceEntityId = cGen.fuelSources!!.fuelSource
-                                   )
+            if (fuelSources.count() > 0) {
+                sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
+                                        inventoryType = Network.Shared.InventoryType.Generator,
+                                        owningPlayerEntityId = playerEntityId,
+                                        fuelSourceEntityId = cGen.fuelSources!!.fuelSource
+                                       )
+            }
         }
     }
 

@@ -107,12 +107,14 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
 
             val nonEmptySlots = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
 
-            //send finalized generator inventory after our changes
-            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                                                        owningPlayerEntityId = 2,
-                                                        inventoryType = Network.Shared.InventoryType.Generator,
-                                                        fuelSourceEntityId = fuelSourceEntityId
-                                                       )
+            if (nonEmptySlots.count() > 0) {
+                //send finalized generator inventory after our changes
+                serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
+                                                            owningPlayerEntityId = 2,
+                                                            inventoryType = Network.Shared.InventoryType.Generator,
+                                                            fuelSourceEntityId = fuelSourceEntityId
+                                                           )
+            }
         }
 
         //todo check if burning currently, if not...move a new one over and start burning it, etc

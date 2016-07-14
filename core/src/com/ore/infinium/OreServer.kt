@@ -215,13 +215,14 @@ class OreServer : Runnable {
         val liquidGun = m_world.createLiquidGun()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
-
         val nonEmptySlots = playerComponent.hotbarInventory!!.slots().filter { isValidEntity(it) }
 
-        m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                                                      owningPlayerEntityId = playerEntity,
-                                                      inventoryType = Network.Shared.InventoryType.Hotbar,
-                                                      causedByPickedUpItem = false)
+        if (nonEmptySlots.count() > 0) {
+            m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
+                                                          owningPlayerEntityId = playerEntity,
+                                                          inventoryType = Network.Shared.InventoryType.Hotbar,
+                                                          causedByPickedUpItem = false)
+        }
     }
 
     private fun sendServerMessage(message: String) {
