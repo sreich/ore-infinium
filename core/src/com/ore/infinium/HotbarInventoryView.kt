@@ -45,6 +45,8 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
+import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
 import com.ore.infinium.util.opt
 
 class HotbarInventoryView(private val m_stage: Stage,
@@ -110,14 +112,18 @@ class HotbarInventoryView(private val m_stage: Stage,
     }
 
     override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-        val itemComponent = itemMapper.get(inventory.itemEntity(index)!!)
+        val itemComponent = itemMapper.get(inventory.itemEntity(index))
         m_slots[index].itemCount.setText(itemComponent.stackSize.toString())
     }
 
     override fun slotItemChanged(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
 
-        val itemEntity = inventory.itemEntity(index)!!
+        val itemEntity = inventory.itemEntity(index)
+        if (isInvalidEntity(itemEntity)) {
+            return
+        }
+
         val itemComponent = itemMapper.get(itemEntity)
         m_slots[index].itemCount.setText(itemComponent.stackSize.toString())
 
@@ -184,7 +190,9 @@ class HotbarInventoryView(private val m_stage: Stage,
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            hotbarInventoryView.m_hotbarInventory.itemEntity(index) ?: return null
+            if (isInvalidEntity(hotbarInventoryView.m_hotbarInventory.itemEntity(index))) {
+                return null
+            }
 
             val payload = DragAndDrop.Payload()
 
@@ -228,7 +236,7 @@ class HotbarInventoryView(private val m_stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
             if (dragWrapper.dragSourceIndex != index) {
                 //maybe make it green? the source/dest is not the same
-                if (inventory.m_hotbarInventory.itemEntity(index) == null) {
+                if (isInvalidEntity(inventory.m_hotbarInventory.itemEntity(index))) {
                     //only make it green if the slot is empty
                     return true
                 }
@@ -252,7 +260,7 @@ class HotbarInventoryView(private val m_stage: Stage,
             val hotbarInventory = inventory.m_hotbarInventory
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (hotbarInventory.itemEntity(this.index) != null) {
+            if (isValidEntity(hotbarInventory.itemEntity(this.index))) {
                 return
             }
 
@@ -262,7 +270,7 @@ class HotbarInventoryView(private val m_stage: Stage,
                 //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
                 val itemEntity = inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
 
-                hotbarInventory.setSlot(this.index, itemEntity!!)
+                hotbarInventory.setSlot(this.index, itemEntity)
 
                 clientNetworkSystem.sendInventoryMove(Network.Shared.InventoryType.Hotbar, dragWrapper.dragSourceIndex,
                                                       Network.Shared.InventoryType.Hotbar, index)
@@ -274,7 +282,7 @@ class HotbarInventoryView(private val m_stage: Stage,
                 val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
 
                 //move the item from the source to the dest (from main inventory, to this hotbar inventory)
-                hotbarInventory.setSlot(this.index, itemEntity!!)
+                hotbarInventory.setSlot(this.index, itemEntity)
 
                 //fixme?                    inventory.m_previousSelectedSlot = index;
 
@@ -294,7 +302,7 @@ class HotbarInventoryView(private val m_stage: Stage,
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView, private val index: Int) : InputListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventory.m_hotbarInventory.itemEntity(index)
-            if (itemEntity != null) {
+            if (isValidEntity(itemEntity)) {
                 inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
             }
 
@@ -306,7 +314,7 @@ class HotbarInventoryView(private val m_stage: Stage,
 
             val itemEntity = inventory.m_hotbarInventory.itemEntity(index)
 
-            if (itemEntity != null) {
+            if (isValidEntity(itemEntity)) {
                 val itemComponent = inventory.itemMapper.get(itemEntity)
                 val spriteComponent = inventory.spriteMapper.get(itemEntity)
                 inventory.m_tooltipLabel.setText(itemComponent.name)

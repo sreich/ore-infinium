@@ -46,6 +46,8 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
+import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
 import com.ore.infinium.util.opt
 
 @Wire
@@ -160,7 +162,7 @@ class GeneratorControlPanelView(stage: Stage,
     }
 
     override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-        val itemEntity = inventory.itemEntity(index)!!
+        val itemEntity = inventory.itemEntity(index)
         val itemComponent = itemMapper.get(itemEntity)
         slots[index].itemName.setText(itemComponent.stackSize.toString())
     }
@@ -168,7 +170,11 @@ class GeneratorControlPanelView(stage: Stage,
     override fun slotItemChanged(index: Int, inventory: Inventory) {
         val slot = slots[index]
 
-        val itemEntity = inventory.itemEntity(index)!!
+        val itemEntity = inventory.itemEntity(index)
+        if (isInvalidEntity(itemEntity)) {
+            return
+        }
+
         val itemComponent = itemMapper.get(itemEntity)
         slots[index].itemName.setText(itemComponent.stackSize.toString())
 
@@ -200,7 +206,6 @@ class GeneratorControlPanelView(stage: Stage,
         return region!!
     }
 
-
     override fun slotItemRemoved(index: Int, inventory: Inventory) {
         val slot = slots[index]
         slot.itemImage.drawable = null
@@ -210,7 +215,7 @@ class GeneratorControlPanelView(stage: Stage,
     private class SlotInputListener internal constructor(private val inventoryView: GeneratorControlPanelView, private val index: Int) : InputListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventoryView.generatorControlPanelInventory.itemEntity(index)
-            if (itemEntity != null) {
+            if (isValidEntity(itemEntity)) {
                 inventoryView.tooltip.enter(event, x, y, pointer, fromActor)
             }
 
@@ -222,7 +227,7 @@ class GeneratorControlPanelView(stage: Stage,
 
             val itemEntity = inventoryView.generatorControlPanelInventory.itemEntity(index)
 
-            if (itemEntity != null) {
+            if (isValidEntity(itemEntity)) {
                 val itemComponent = inventoryView.itemMapper.get(itemEntity)
                 val spriteComponent = inventoryView.spriteMapper.get(itemEntity)
                 inventoryView.tooltipLabel.setText(itemComponent.name)
@@ -243,14 +248,14 @@ class GeneratorControlPanelView(stage: Stage,
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            if (inventoryView.generatorControlPanelInventory.itemEntity(index) == null) {
+            if (isInvalidEntity(inventoryView.generatorControlPanelInventory.itemEntity(index))) {
                 return null
             }
 
             val payload = DragAndDrop.Payload()
 
             val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Inventory,
-                    dragSourceIndex = index)
+                                                       dragSourceIndex = index)
             payload.`object` = dragWrapper
 
             payload.dragActor = dragImage
@@ -293,7 +298,9 @@ class GeneratorControlPanelView(stage: Stage,
                 //maybe make it green? the source/dest is not the same
 
                 //only make it green if the slot is empty
-                inventoryView.generatorControlPanelInventory.itemEntity(index) ?: return true
+                if (isInvalidEntity(inventoryView.generatorControlPanelInventory.itemEntity(index))) {
+                    return true
+                }
             }
 
             return false
@@ -311,10 +318,10 @@ class GeneratorControlPanelView(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventoryView.generatorControlPanelInventory.itemEntity(this.index) == null) {
+            if (isInvalidEntity(inventoryView.generatorControlPanelInventory.itemEntity(this.index))) {
                 when (dragWrapper.sourceInventoryType) {
                     Network.Shared.InventoryType.Inventory -> {
-                        val itemEntity = inventoryView.playerInventory.itemEntity(dragWrapper.dragSourceIndex)!!
+                        val itemEntity = inventoryView.playerInventory.itemEntity(dragWrapper.dragSourceIndex)
                         //move the item from the source to the dest (from main inventory to main inventory)
                         inventoryView.generatorControlPanelInventory.setSlot(this.index, itemEntity)
 
@@ -331,7 +338,7 @@ class GeneratorControlPanelView(stage: Stage,
                     Network.Shared.InventoryType.Generator -> {
                         val playerInventory = inventoryView.playerInventory
 
-                        val itemEntity = playerInventory.itemEntity(dragWrapper.dragSourceIndex)!!
+                        val itemEntity = playerInventory.itemEntity(dragWrapper.dragSourceIndex)
                         //move the item from the source to the dest (from player main inventory to this generator inventory)
 
                         inventoryView.generatorControlPanelInventory.setSlot(this.index, itemEntity)

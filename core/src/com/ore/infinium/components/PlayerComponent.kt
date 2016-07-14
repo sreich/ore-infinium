@@ -77,7 +77,7 @@ class PlayerComponent : Component() {
     /**
      * @return entity id that is equipped as primary
      */
-    val equippedPrimaryItem: Int?
+    val equippedPrimaryItem: Int
         get() = hotbarInventory!!.itemEntity(hotbarInventory!!.selectedSlot)
 
     companion object {

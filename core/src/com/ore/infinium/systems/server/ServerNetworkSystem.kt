@@ -429,7 +429,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             cPlayer.openedControlPanelEntity = deviceEntityId
             //todo send initial fuel consumption update, and then send periodic ones according to subscribing id
 
-            val fuelSources = cGen.fuelSources!!.slots().filterNotNull()
+            val fuelSources = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
             sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
                                     inventoryType = Network.Shared.InventoryType.Generator,
                                     owningPlayerEntityId = playerEntityId,
@@ -464,7 +464,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             val playerComp = mPlayer.get(job.connection.playerEntityId)
             val playerEntity = oreWorld.playerEntityForPlayerConnectionID(playerComp.connectionPlayerId)
 
-            val equippedWeapon = playerComp.equippedPrimaryItem!!
+            val equippedWeapon = playerComp.equippedPrimaryItem
             val itemComp = mItem.get(equippedWeapon)
             val toolComp = mTool.get(equippedWeapon)
 
@@ -542,7 +542,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {
         val playerComponent = mPlayer.get(job.connection.playerEntityId)
 
-        val placedItem = oreWorld.cloneEntity(playerComponent.equippedPrimaryItem!!)
+        val placedItem = oreWorld.cloneEntity(playerComponent.equippedPrimaryItem)
 
         val itemComponent = mItem.get(placedItem)
         itemComponent.state = ItemComponent.State.InWorldState
@@ -613,7 +613,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             }
         }
 
-        val itemToDrop = inventory.itemEntity(itemToDropIndex)!!
+        val itemToDrop = inventory.itemEntity(itemToDropIndex)
         val itemToDropComponent = mItem.opt(itemToDrop)
 
         if (itemToDropComponent == null) {
@@ -625,7 +625,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         if (itemToDropComponent.stackSize > 1) {
             itemToDropComponent.stackSize = itemToDropComponent.stackSize - 1
         } else {
-            val takeItem = inventory.takeItem(itemToDropIndex)!!
+            val takeItem = inventory.takeItem(itemToDropIndex)
             //remove item from inventory, client has already done so, because the count will be 0 after this drop
             getWorld().delete(takeItem)
         }
@@ -642,7 +642,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private fun receiveBlockPlace(job: NetworkJob, blockPlace: Network.Client.BlockPlace) {
         val playerComponent = mPlayer.get(job.connection.playerEntityId)
 
-        val item = playerComponent.equippedPrimaryItem!!
+        val item = playerComponent.equippedPrimaryItem
         val blockComponent = mBlock.get(item)
 
         oreWorld.attemptBlockPlacement(blockPlace.x, blockPlace.y, blockComponent.blockType)
@@ -672,21 +672,32 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         //todo...more validation checks, not just here but everywhere..don't assume packet order or anything.
         if (moveItem.sourceType == moveItem.destType && moveItem.sourceIndex == moveItem.destIndex) {
             //todo kick client, cheating
+            assert(false) { "client cheating? or desync. inventory move weirdness" }
         }
 
         val sourceInventory: Inventory = when (moveItem.sourceType) {
             Network.Shared.InventoryType.Hotbar -> cPlayer.hotbarInventory!!
-            else -> cPlayer.inventory!!
+            Network.Shared.InventoryType.Generator -> {
+                val cGen = mGenerator.get(cPlayer.openedControlPanelEntity)
+                cGen.fuelSources!!
+            }
+
+            Network.Shared.InventoryType.Inventory -> cPlayer.inventory!!
         }
 
         val destInventory: Inventory = when (moveItem.destType) {
             Network.Shared.InventoryType.Hotbar -> cPlayer.hotbarInventory!!
-            else -> cPlayer.inventory!!
+            Network.Shared.InventoryType.Generator -> {
+                val cGen = mGenerator.get(cPlayer.openedControlPanelEntity)
+                cGen.fuelSources!!
+            }
+
+            Network.Shared.InventoryType.Inventory -> cPlayer.inventory!!
         }
 
         val sourceItem = sourceInventory.takeItem(moveItem.sourceIndex.toInt())
 
-        destInventory.setSlot(moveItem.destIndex.toInt(), sourceItem!!)
+        destInventory.setSlot(moveItem.destIndex.toInt(), sourceItem)
     }
 
     /**

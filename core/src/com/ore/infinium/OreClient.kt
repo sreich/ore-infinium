@@ -44,6 +44,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.forEach
+import com.ore.infinium.util.isInvalidEntity
 import com.ore.infinium.util.opt
 import com.ore.infinium.util.rect
 import java.io.IOException
@@ -176,7 +177,11 @@ class OreClient : ApplicationListener, InputProcessor {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
 
         val playerComp = playerMapper.get(player)
-        val equippedItem = playerComp.equippedPrimaryItem ?: return
+        val equippedItem = playerComp.equippedPrimaryItem
+
+        if (isInvalidEntity(equippedItem)) {
+            return
+        }
 
         val blockComp = blockMapper.opt(equippedItem)
 
@@ -544,11 +549,11 @@ class OreClient : ApplicationListener, InputProcessor {
         val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
 
         val dropItemRequestFromClient = Network.Client.InventoryDropItem(index = currentEquippedIndex.toByte(),
-                inventoryType = Network.Shared.InventoryType.Hotbar)
+                                                                         inventoryType = Network.Shared.InventoryType.Hotbar)
 
         // decrement count, we assume it'll get spawned shortly when the server tells us to.
         // delete in-inventory entityId if necessary server assumes we already do so
-        val itemComponent = itemMapper.get(itemEntity!!)
+        val itemComponent = itemMapper.get(itemEntity)
         if (itemComponent.stackSize > 1) {
             //decrement count, server has already done so. we assume here that it went through properly.
             itemComponent.stackSize -= 1
@@ -556,7 +561,7 @@ class OreClient : ApplicationListener, InputProcessor {
         } else {
             //delete it, server knows/assumes we already did, since there are no more left. so server doesn't have to
             //send another useless packet back to the our client
-            val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())!!
+            val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())
             m_world!!.m_artemisWorld.delete(item)
         }
 

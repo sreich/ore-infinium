@@ -28,6 +28,7 @@ import com.artemis.ComponentMapper
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.indices
+import com.ore.infinium.util.isValidEntity
 import java.util.concurrent.CountDownLatch
 
 class OreServer : Runnable {
@@ -215,9 +216,9 @@ class OreServer : Runnable {
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
 
-        val nonNullSlots = playerComponent.hotbarInventory!!.slots().filterNotNull()
+        val nonEmptySlots = playerComponent.hotbarInventory!!.slots().filter { isValidEntity(it) }
 
-        m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonNullSlots,
+        m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
                                                       owningPlayerEntityId = playerEntity,
                                                       inventoryType = Network.Shared.InventoryType.Hotbar,
                                                       causedByPickedUpItem = false)

@@ -128,7 +128,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     }
 
     override fun processSystem() {
-        if (oreWorld == null || !clientNetworkSystem.connected) {
+        if (!clientNetworkSystem.connected) {
             return
         }
 

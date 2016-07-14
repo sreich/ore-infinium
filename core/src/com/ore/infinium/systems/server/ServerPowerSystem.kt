@@ -29,10 +29,7 @@ import com.artemis.systems.IteratingSystem
 import com.ore.infinium.Network
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
-import com.ore.infinium.util.anyOf
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.require
-import com.ore.infinium.util.system
+import com.ore.infinium.util.*
 
 @Wire
 class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(PowerDeviceComponent::class)) {
@@ -98,20 +95,24 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             //because we have nothing to burn right now,
             //grab fuel from other parts of our inventory, if any
             var fuelSourceBurnableResult: FuelSourceBurnableResult
-            val fuelSourceEntityId = cGen.fuelSources!!.m_slots.filterNotNull().first { fuelEntityId ->
-                fuelSourceBurnableResult = fuelSourceBurnableInGenerator(fuelEntityId = fuelEntityId, generatorEntityId = genEntityId)
-                fuelSourceBurnableResult.burnableEnergyOutput != 0
-            }
+            val fuelSourceEntityId = cGen.fuelSources!!.m_slots.filter { isValidEntity(it) }
+                    .first { fuelEntityId ->
+                        fuelSourceBurnableResult = fuelSourceBurnableInGenerator(fuelEntityId = fuelEntityId,
+                                                                                 generatorEntityId = genEntityId)
+                        fuelSourceBurnableResult.burnableEnergyOutput != 0
+                    }
 
             //lets move it from the gen inventory to the fuel source slot, to burn it
             cGen.fuelSources!!.fuelSource = fuelSourceEntityId
 
+            val nonEmptySlots = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
+
             //send finalized generator inventory after our changes
-            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = cGen.fuelSources!!.slots().filterNotNull(),
-                    owningPlayerEntityId = 2,
-                    inventoryType = Network.Shared.InventoryType.Generator,
-                    fuelSourceEntityId = fuelSourceEntityId
-            )
+            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
+                                                        owningPlayerEntityId = 2,
+                                                        inventoryType = Network.Shared.InventoryType.Generator,
+                                                        fuelSourceEntityId = fuelSourceEntityId
+                                                       )
         }
 
         //todo check if burning currently, if not...move a new one over and start burning it, etc
@@ -133,7 +134,8 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             //not a fuel source
         }
 
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+        throw UnsupportedOperationException(
+                "not implemented") //To change body of created functions use File | Settings | File Templates.
 
     }
 

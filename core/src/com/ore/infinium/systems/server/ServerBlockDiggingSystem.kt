@@ -30,11 +30,14 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.components.ToolComponent
 import com.ore.infinium.systems.GameTickSystem
 import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
 import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
 class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
@@ -92,7 +95,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val playerEntityId = oreWorld.playerEntityForPlayerConnectionID(blockToDig.playerId)
         val playerComponent = mPlayer.get(playerEntityId)
-        val equippedItemEntityId = playerComponent.equippedPrimaryItem!!
+        val equippedItemEntityId = playerComponent.equippedPrimaryItem
 
         //player no longer even has an item that can break stuff, equipped.
         //this queued request will now be canceled.

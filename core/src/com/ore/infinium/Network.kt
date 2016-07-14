@@ -278,8 +278,9 @@ object Network {
             var playerId: Int = 0
         }
 
+
         class EntityMoved {
-            var id: Int = 0
+            var id: Int = -1
             var position = Vector2()
         }
     }
@@ -369,8 +370,8 @@ object Network {
                                 var inventoryType: Shared.InventoryType = Shared.InventoryType.Hotbar)
 
         class MoveInventoryItem(
-                var sourceType: Shared.InventoryType? = null,
-                var destType: Shared.InventoryType? = null,
+                var sourceType: Shared.InventoryType = Shared.InventoryType.Hotbar,
+                var destType: Shared.InventoryType = Shared.InventoryType.Hotbar,
                 var sourceIndex: Byte = -1,
                 var destIndex: Byte = -1
                                )

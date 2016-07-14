@@ -31,6 +31,7 @@ import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.Inventory
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.util.isInvalidEntity
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
@@ -78,7 +79,9 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         deletePlacementOverlay()
 
         //inventory is empty, we don't show crosshair or item overlay
-        equippedPrimaryItem ?: return
+        if (isInvalidEntity(equippedPrimaryItem)) {
+            return
+        }
 
         if (tryShowCrosshair(equippedPrimaryItem)) {
             return

@@ -27,7 +27,9 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.ore.infinium.components.*
-import com.ore.infinium.util.mutableListOfNulls
+import com.ore.infinium.util.INVALID_ENTITY_ID
+import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
 
 /**
  * @param slotCount max number of slots to have
@@ -46,16 +48,27 @@ open class Inventory
     private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
-    val m_slots: MutableList<Int?>
+    var m_slots = mutableListOf<Int>()
+        set(value) {
+            //reassigns of list, be sure to notify everyone
+            assert(value.size == m_slots.size) { "inventory slot list set, but it should be a fixed size!. it was not" }
+            m_listeners.forEach { listener ->
+                m_slots.forEachIndexed { i, slot ->
+                    listener.slotItemChanged(i, this)
+                }
+            }
+        }
 
     init {
-        m_slots = mutableListOfNulls(slotCount)
+        repeat(maxSlots) {
+            m_slots.add(INVALID_ENTITY_ID)
+        }
     }
 
     /**
      * return read only list of inventory slots
      */
-    fun slots() :List<Int?> {
+    fun slots(): List<Int> {
         return m_slots.toList()
     }
 
@@ -65,7 +78,7 @@ open class Inventory
 
     fun setCount(index: Int, newCount: Int) {
         val item = m_slots[index]
-        if (item != null) {
+        if (isValidEntity(item)) {
             itemMapper.get(item).stackSize = newCount
 
             m_listeners.forEach { it.slotItemCountChanged(index, this) }
@@ -89,7 +102,7 @@ open class Inventory
      * (which inventory it is in, which index) and which type
      */
     fun placeItemInNextFreeSlot(itemEntityId: Int): ItemAddResult {
-        val slotIndexToMerge = m_slots.filterNotNull().indexOfFirst { itemInSlotId ->
+        val slotIndexToMerge = m_slots.filter { isValidEntity(it) }.indexOfFirst { itemInSlotId ->
             canCombineItems(itemEntityId, itemInSlotId)
         }
 
@@ -97,7 +110,7 @@ open class Inventory
         if (slotIndexToMerge == -1) {
             //merge not possible/failed. no like items. place it in a different slot
 
-            val slotIndexToInsert = m_slots.indexOfFirst { it -> it == null }
+            val slotIndexToInsert = m_slots.indexOfFirst { it -> isInvalidEntity(it) }
             if (slotIndexToInsert == -1) {
                 //no free places at all! placement failed.
                 result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Failed)
@@ -108,7 +121,7 @@ open class Inventory
             }
 
         } else {
-            val mergedItemId = m_slots[slotIndexToMerge]!!
+            val mergedItemId = m_slots[slotIndexToMerge]
             //merge us into this one
             result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Merged)//, mergedEntityId = mergedItemId)
             mergeItemIntoSecond(itemIdToObsolete = itemEntityId, itemIdToMerge = mergedItemId)
@@ -234,11 +247,11 @@ open class Inventory
      * *
      * @return entity id of the item taken
      */
-    fun takeItem(index: Int): Int? {
+    fun takeItem(index: Int): Int {
         val tmpItem = m_slots[index]
 
-        if (tmpItem != null) {
-            m_slots[index] = null
+        if (isValidEntity(tmpItem)) {
+            m_slots[index] = INVALID_ENTITY_ID
 
             m_listeners.forEach { it.slotItemRemoved(index, this) }
         }
@@ -252,7 +265,7 @@ open class Inventory
      * *
      * @return entity id at index
      */
-    fun itemEntity(index: Int): Int? {
+    fun itemEntity(index: Int): Int {
         return m_slots[index]
     }
 
@@ -260,6 +273,10 @@ open class Inventory
         open fun slotItemCountChanged(index: Int, inventory: Inventory) {
         }
 
+        /**
+         * indicates when a slot gets changed to a different entity id.
+         * the entity id could also be invalid (removal, possibly bulk)
+         */
         open fun slotItemChanged(index: Int, inventory: Inventory) {
         }
 

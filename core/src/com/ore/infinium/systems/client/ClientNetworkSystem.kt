@@ -41,10 +41,7 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.util.indices
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.opt
-import com.ore.infinium.util.system
+import com.ore.infinium.util.*
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -217,7 +214,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             is Network.Server.LoadedViewportMoved -> receiveLoadedViewportMoved(receivedObject)
             is Network.Server.SpawnInventoryItems ->
-                receivePlayerSpawnInventoryItems( receivedObject)
+                receivePlayerSpawnInventoryItems(receivedObject)
 
             is Network.Server.PlayerSpawned -> receivePlayerSpawn(receivedObject)
         //} else if (receivedObject instanceof Network.EntitySpawnFromServer) {
@@ -253,18 +250,21 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
         val inventory = inventoryForType(inventorySpawn.typeOfInventory)
 
-        inventory.m_slots.filterNotNull().forEach {
-            //destroy all the old ones, they'll get replaced by everything
-            //new in this inventory (yes, they may get replaced by identical
-            //things but that's inconsequential).
-            //we do this because an item's inventory is different per each item in the world(e.g. open chest1, chest2).
-            //whereas player inventory, it is always the same and is always synced
+        //destroy all the old ones, they'll get replaced by everything
+        //new in this inventory (yes, they may get replaced by identical
+        //things but that's inconsequential).
+        //we do this because an item's inventory is different per each item in the world(e.g. open chest1, chest2).
+        //whereas player inventory, it is always the same and is always synced
+        inventory.m_slots.filter { isValidEntity(it) }.forEach {
             oreWorld.destroyEntity(it)
         }
 
+        //reset them all to invalid entity, now that they're all destroyed
+        inventory.m_slots = inventory.m_slots.map { INVALID_ENTITY_ID }.toMutableList()
+
         //now we respawn in some new ones, if any
         for (e in inventorySpawn.entitiesToSpawn) {
-            spawnInventoryItem(entitySpawn = e, inventory=inventory)
+            spawnInventoryItem(entitySpawn = e, inventory = inventory)
 
             if (inventorySpawn.fuelSourceEntity != null) {
                 //todo spawn it...but again, we would need to duplicate horribleness down
@@ -412,10 +412,10 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
             }
 
-           val cGenerator = mGenerator.get(localEntityId)?.let {
-               //recreate this on our end. since it is transient
-               it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
-           }
+            val cGenerator = mGenerator.get(localEntityId)?.let {
+                //recreate this on our end. since it is transient
+                it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+            }
 
             assert(spriteComponent.textureName != null)
 

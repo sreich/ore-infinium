@@ -33,6 +33,7 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.components.ToolComponent
 import com.ore.infinium.systems.GameTickSystem
+import com.ore.infinium.util.isInvalidEntity
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
@@ -110,7 +111,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
         val playerComponent = mPlayer.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem!!
+        val itemEntity = playerComponent.equippedPrimaryItem
 
         val toolComponent = mTool.opt(itemEntity)
 
@@ -163,7 +164,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
         val playerComponent = mPlayer.get(player)
         val itemEntity = playerComponent.equippedPrimaryItem
-        if (itemEntity == null) {
+        if (isInvalidEntity(itemEntity)) {
             return false
         }
 
@@ -190,7 +191,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
         val playerComponent = mPlayer.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem!!
+        val itemEntity = playerComponent.equippedPrimaryItem
 
         val mouse = m_world.mousePositionWorldCoords()
 

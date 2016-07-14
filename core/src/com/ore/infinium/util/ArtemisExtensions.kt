@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package com.ore.infinium.util
 
 import com.artemis.*
@@ -37,6 +39,11 @@ import kotlin.reflect.KProperty
  * indicates an invalid/unset entity id
  */
 const val INVALID_ENTITY_ID = -1
+
+inline fun isValidEntity(entityId: Int) = entityId != INVALID_ENTITY_ID
+inline fun isInvalidEntity(entityId: Int) = entityId == INVALID_ENTITY_ID
+
+typealias OreEntityId = Int
 
 /**
  * Denotes that a component property should not be copied

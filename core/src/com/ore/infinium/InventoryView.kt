@@ -46,6 +46,8 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
+import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
 import com.ore.infinium.util.opt
 
 @Wire
@@ -136,7 +138,7 @@ class InventoryView(stage: Stage,
     }
 
     override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-        val itemEntity = inventory.itemEntity(index)!!
+        val itemEntity = inventory.itemEntity(index)
         val itemComponent = itemMapper.get(itemEntity)
         m_slots[index].itemName.setText(itemComponent.stackSize.toString())
     }
@@ -144,7 +146,11 @@ class InventoryView(stage: Stage,
     override fun slotItemChanged(index: Int, inventory: Inventory) {
         val slot = m_slots[index]
 
-        val itemEntity = inventory.itemEntity(index)!!
+        val itemEntity = inventory.itemEntity(index)
+        if (isInvalidEntity(itemEntity)) {
+            return
+        }
+
         val itemComponent = itemMapper.get(itemEntity)
         m_slots[index].itemName.setText(itemComponent.stackSize.toString())
 
@@ -186,7 +192,7 @@ class InventoryView(stage: Stage,
     private class SlotInputListener internal constructor(private val inventory: InventoryView, private val index: Int) : InputListener() {
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventory.m_inventory.itemEntity(index)
-            if (itemEntity != null) {
+            if (isValidEntity(itemEntity)) {
                 inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
             }
 
@@ -198,7 +204,7 @@ class InventoryView(stage: Stage,
 
             val itemEntity = inventory.m_inventory.itemEntity(index)
 
-            if (itemEntity != null) {
+            if (isValidEntity(itemEntity)) {
                 val itemComponent = inventory.itemMapper.get(itemEntity)
                 val spriteComponent = inventory.spriteMapper.get(itemEntity)
                 inventory.m_tooltipLabel.setText(itemComponent.name)
@@ -219,7 +225,7 @@ class InventoryView(stage: Stage,
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            if (inventoryView.m_inventory.itemEntity(index) == null) {
+            if (isInvalidEntity(inventoryView.m_inventory.itemEntity(index))) {
                 return null
             }
 
@@ -269,7 +275,9 @@ class InventoryView(stage: Stage,
                 //maybe make it green? the source/dest is not the same
 
                 //only make it green if the slot is empty
-                inventory.m_inventory.itemEntity(index) ?: return true
+                if (isInvalidEntity(inventory.m_inventory.itemEntity(index))) {
+                    return true
+                }
             }
 
             return false
@@ -287,11 +295,11 @@ class InventoryView(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (inventory.m_inventory.itemEntity(this.index) == null) {
+            if (isInvalidEntity(inventory.m_inventory.itemEntity(this.index))) {
                 if (dragWrapper.sourceInventoryType == Network.Shared.InventoryType.Inventory) {
                     val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.m_inventory.setSlot(this.index, itemEntity!!)
+                    inventory.m_inventory.setSlot(this.index, itemEntity)
 
                     inventory.clientNetworkSystem.sendInventoryMove(
                             sourceInventoryType = Network.Shared.InventoryType.Inventory,
@@ -308,7 +316,7 @@ class InventoryView(stage: Stage,
                     val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
 
-                    inventory.m_inventory.setSlot(this.index, itemEntity!!)
+                    inventory.m_inventory.setSlot(this.index, itemEntity)
 
                     inventory.clientNetworkSystem.sendInventoryMove(
                             sourceInventoryType = Network.Shared.InventoryType.Hotbar,
