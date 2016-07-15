@@ -61,7 +61,7 @@ class PlayerComponent : Component() {
      * the tick that an attack last took place at.
      * see ToolComponent.attackTickInterval
      */
-    @DoNotCopy @DoNotPrint @Transient var attackLastTick = 0L;
+    @DoNotCopy @DoNotPrint @Transient var attackLastMs = 0L;
 
     //    public Vector2 mousePositionWorldCoords;
     //    public boolean mouseLeftButtonHeld;

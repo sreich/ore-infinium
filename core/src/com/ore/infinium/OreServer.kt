@@ -80,12 +80,12 @@ class OreServer : Runnable {
         m_chat = Chat()
         m_chat.addListener(object : Chat.ChatListener {
             override fun lineAdded(line: Chat.ChatLine) {
-                val message = Network.Server.ChatMessage().apply {
-                    message = line.chatText
-                    playerName = line.playerName
-                    sender = line.chatSender
-                    timestamp = line.timestamp
-                }
+                val message = Network.Server.ChatMessage(
+                        message = line.chatText,
+                        playerName = line.playerName,
+                        sender = line.chatSender,
+                        timestamp = line.timestamp
+                )
 
                 m_serverNetworkSystem.serverKryo.sendToAllTCP(message)
             }
@@ -219,9 +219,9 @@ class OreServer : Runnable {
 
         if (nonEmptySlots.count() > 0) {
             m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                                                          owningPlayerEntityId = playerEntity,
-                                                          inventoryType = Network.Shared.InventoryType.Hotbar,
-                                                          causedByPickedUpItem = false)
+                    owningPlayerEntityId = playerEntity,
+                    inventoryType = Network.Shared.InventoryType.Hotbar,
+                    causedByPickedUpItem = false)
         }
     }
 

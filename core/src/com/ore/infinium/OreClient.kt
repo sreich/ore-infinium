@@ -43,10 +43,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
-import com.ore.infinium.util.forEach
-import com.ore.infinium.util.isInvalidEntity
-import com.ore.infinium.util.opt
-import com.ore.infinium.util.rect
+import com.ore.infinium.util.*
 import java.io.IOException
 
 class OreClient : ApplicationListener, InputProcessor {
@@ -240,7 +237,13 @@ class OreClient : ApplicationListener, InputProcessor {
         val deviceComp = deviceMapper.get(entityId) ?: return false
 
         if (m_generatorControlPanelView!!.visible) {
-            m_generatorControlPanelView!!.closePanel()
+            if (m_generatorInventory!!.owningGeneratorEntityId == entityId) {
+                //close it, he clicked on the same device
+                m_generatorControlPanelView!!.closePanel()
+            } else {
+                //open on this entity instead, it's different
+                m_generatorControlPanelView!!.openPanel(entityId)
+            }
         } else {
             m_generatorControlPanelView!!.openPanel(entityId)
         }
@@ -253,10 +256,10 @@ class OreClient : ApplicationListener, InputProcessor {
                                   mouseWorldCoords: Vector2) {
 
         val currentMillis = TimeUtils.millis()
-        if (currentMillis - playerComp.attackLastTick > equippedToolComp.attackTickIntervalMs) {
+        if (timeMsSurpassed(currentMillis, playerComp.attackLastMs, equippedToolComp.attackIntervalMs)) {
             //fixme obviously, iterating over every entityId to find the one under position is beyond dumb, use a spatial hash/quadtree etc
 
-            playerComp.attackLastTick = currentMillis
+            playerComp.attackLastMs = currentMillis
 
             when (equippedToolComp.type) {
                 ToolComponent.ToolType.Bucket -> liquidGunAttackAndSend(mouseWorldCoords)
@@ -300,11 +303,12 @@ class OreClient : ApplicationListener, InputProcessor {
      * e.g. items dropped in the world are not attackable
      */
     private fun canAttackEntity(entityId: Int): Boolean {
-        val itemComp = itemMapper.opt(entityId) ?: return false
-        //don't let them attack dropped items, makes no sense
-        if (itemComp.state == ItemComponent.State.DroppedInWorld) {
-            return false
+        itemMapper.ifPresent(entityId) { cItem ->
+            if (cItem.state == ItemComponent.State.DroppedInWorld) {
+                return false
+            }
         }
+        //don't let them attack dropped items, makes no sense
 
         return true
     }
@@ -549,7 +553,7 @@ class OreClient : ApplicationListener, InputProcessor {
         val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
 
         val dropItemRequestFromClient = Network.Client.InventoryDropItem(index = currentEquippedIndex.toByte(),
-                                                                         inventoryType = Network.Shared.InventoryType.Hotbar)
+                inventoryType = Network.Shared.InventoryType.Hotbar)
 
         // decrement count, we assume it'll get spawned shortly when the server tells us to.
         // delete in-inventory entityId if necessary server assumes we already do so
@@ -697,16 +701,16 @@ class OreClient : ApplicationListener, InputProcessor {
         playerComponent.inventory = m_inventory
 
         m_hotbarView = HotbarInventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
-                                           m_world!!)
+                m_world!!)
         m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
 
         m_generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
         m_generatorControlPanelView = GeneratorControlPanelView(stage = m_stage,
-                                                                generatorControlPanelInventory = m_generatorInventory!!,
-                                                                playerInventory = m_inventory!!,
-                                                                hotbarInventory = m_hotbarInventory!!,
-                                                                dragAndDrop = m_dragAndDrop!!,
-                                                                world = m_world!!)
+                generatorControlPanelInventory = m_generatorInventory!!,
+                playerInventory = m_inventory!!,
+                hotbarInventory = m_hotbarInventory!!,
+                dragAndDrop = m_dragAndDrop!!,
+                world = m_world!!)
 
         m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)
 

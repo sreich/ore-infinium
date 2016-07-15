@@ -71,6 +71,7 @@ class GeneratorControlPanelView(stage: Stage,
      * and registers for control panel data updates for this entity
      */
     fun openPanel(entityId: Int) {
+        generatorControlPanelInventory.owningGeneratorEntityId = entityId
         clientNetworkSystem.sendOpenControlPanel(entityId)
         visible = true
     }

@@ -293,7 +293,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val spriteComponent = mSprite.create(spawnedItemEntityId)
         spriteComponent.textureName = entitySpawn.textureName
-        spriteComponent.sprite.setSize(entitySpawn.size.size.x, entitySpawn.size.size.y)
+        spriteComponent.sprite.setSize(entitySpawn.size.x, entitySpawn.size.y)
 
         //fixme uhhhhh this isn't used at all??
         val textureRegion: TextureRegion
@@ -408,8 +408,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //fixme id..see above.
             val spriteComponent = mSprite.create(localEntityId).apply {
                 textureName = spawn.textureName
-                sprite.setSize(spawn.size.size.x, spawn.size.size.y)
-                sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
+                sprite.setSize(spawn.size.x, spawn.size.y)
+                sprite.setPosition(spawn.pos.x, spawn.pos.y)
             }
 
             val cGenerator = mGenerator.get(localEntityId)?.let {
@@ -470,10 +470,10 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //it is our main player (the client's player, aka us)
         if (!connected) {
             //fixme not ideal, calling into the client to do this????
-            val player = oreWorld.m_client!!.createPlayer(spawn.playerName!!, clientKryo.id, true)
+            val player = oreWorld.m_client!!.createPlayer(spawn.playerName, clientKryo.id, true)
             val spriteComp = mSprite.get(player)
 
-            spriteComp.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y)
+            spriteComp.sprite.setPosition(spawn.pos.x, spawn.pos.y)
 
             val playerSprite = mSprite.get(player)
             playerSprite.sprite.setRegion(oreWorld.m_atlas.findRegion("player-32x64"))
@@ -547,10 +547,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     fun sendEntityAttack(currentEntity: Int) {
-        val attack = Network.Client.EntityAttack()
-
         val networkId = networkIdForEntityId[currentEntity]!!
-        attack.id = networkId
+        val attack = Network.Client.EntityAttack(networkId)
 
         clientKryo.sendTCP(attack)
     }
@@ -569,8 +567,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     fun sendChatMessage(message: String) {
-        val chatMessageFromClient = Network.Client.ChatMessage()
-        chatMessageFromClient.message = message
+        val chatMessageFromClient = Network.Client.ChatMessage(message)
 
         clientKryo.sendTCP(chatMessageFromClient)
     }

@@ -51,33 +51,33 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private val tileLightingSystem by system<TileLightingSystem>()
     private val gameTickSystem by system<GameTickSystem>()
 
-    class BlockToDig {
-        internal var x: Int = 0
-        internal var y: Int = 0
-        /**
-         * the tick when the dig request for this block was started
-         */
-        internal var digStartTick: Long = 0
+    class BlockToDig(
+            val x: Int,
+            val y: Int,
+            /**
+             * the tick when the dig request for this block was started
+             */
+            val digStartTick: Long,
 
-        /**
-         * player id (connection id) associated with this dig request
-         * NOT entity id.
-         * so we can e.g. know if a connection is no longer alive for a player,
-         * and remove all such pending requests
-         */
-        internal var playerId: Int = 0
+            /**
+             * player id (connection id) associated with this dig request
+             * NOT entity id.
+             * so we can e.g. know if a connection is no longer alive for a player,
+             * and remove all such pending requests
+             */
+            val playerId: Int,
 
-        /**
-         * whether or not we've received from client as this block
-         * being finished digging. if this gets sent to soon, it's disregarded
-         * and will eventually timeout. if it sent too late, that too, will time out.
-         * The client might lie too, so be sure to double check.
-         */
-        internal var clientSaysItFinished: Boolean = false
+            /**
+             * whether or not we've received from client as this block
+             * being finished digging. if this gets sent to soon, it's disregarded
+             * and will eventually timeout. if it sent too late, that too, will time out.
+             * The client might lie too, so be sure to double check.
+             */
+            var clientSaysItFinished: Boolean = false
+    )
 
-        //todo verify that there aren't too many blocks all at once from the same player
-        //she could in theory send 500 block updates..requiring only the time for 1 block dig
-    }
+    //todo verify that there aren't too many blocks all at once from the same player
+    //she could in theory send 500 block updates..requiring only the time for 1 block dig
 
     private val m_blocksToDig = mutableListOf<BlockToDig>()
 
@@ -157,7 +157,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         if (gameTickSystem.ticks > expectedTickEnd + 10) {
 
             OreWorld.log("server, block digging system",
-                         "processSystem block digging request timed out. this could be normal.")
+                    "processSystem block digging request timed out. this could be normal.")
             return true
         }
 
@@ -183,7 +183,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 //this is our block, mark it as the client thinking/saying(or lying) it finished
                 blockToDig.clientSaysItFinished = true
                 OreWorld.log("server, block digging system",
-                             "blockDiggingFinished - client said so it finished")
+                        "blockDiggingFinished - client said so it finished")
 
                 return
             }
@@ -191,9 +191,9 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         //if it was never found, forget about it.
         OreWorld.log("server, block digging system",
-                     "blockDiggingFinished message received from a client, but this block dig queued " +
-                             "request " +
-                             "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)")
+                "blockDiggingFinished message received from a client, but this block dig queued " +
+                        "request " +
+                        "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)")
     }
 
     fun blockDiggingBegin(x: Int, y: Int, playerEntity: Int) {
@@ -201,17 +201,16 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
             OreWorld.log("server, block digging system",
-                         "blockDiggingBegin we got the request to dig a block that is already null/dug. " +
-                                 "this is " +
-                                 "likely just a latency issue ")
+                    "blockDiggingBegin we got the request to dig a block that is already null/dug. " +
+                            "this is " +
+                            "likely just a latency issue ")
             return
         }
 
-        val blockToDig = BlockToDig()
-        blockToDig.playerId = mPlayer.get(playerEntity).connectionPlayerId
-        blockToDig.x = x
-        blockToDig.y = y
-        blockToDig.digStartTick = gameTickSystem.ticks
+        val blockToDig = BlockToDig(x = x, y = y,
+                playerId = mPlayer.get(playerEntity).connectionPlayerId,
+                digStartTick = gameTickSystem.ticks)
+
         m_blocksToDig.add(blockToDig)
     }
 }

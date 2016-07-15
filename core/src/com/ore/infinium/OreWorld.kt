@@ -763,7 +763,7 @@ class OreWorld
 
         toolMapper.create(liquidGun).apply {
             type = ToolComponent.ToolType.Bucket
-            attackTickIntervalMs = 0
+            attackIntervalMs = 0
         }
 
         spriteMapper.create(liquidGun).apply {
@@ -934,11 +934,6 @@ class OreWorld
                 continue
             }
 
-            //ignore players, aka don't count them as colliding when placing static objects.
-            //        if (e.has_component<PlayerComponent>()) {
-            //            continue;
-            //        }
-
             val itemComponent = itemMapper.opt(entities.get(i))
             if (itemComponent != null) {
                 // items that are dropped in the world are considered non colliding
@@ -946,9 +941,6 @@ class OreWorld
                     continue
                 }
             }
-
-            //            if ( m_artemisWorld.getSystem(TagManager.class).getTagNullable(entities.get(i)) != null) {
-            //           }
 
             val entitySpriteComponent = spriteMapper.get(entities.get(i))
             // possible colliding object is not meant to be collided with. skip it/don't count it
@@ -1130,7 +1122,9 @@ class OreWorld
         var playerComponent: PlayerComponent
         for (iPlayer in players.indices) {
             val playerEntityId = players[iPlayer]
+
             playerComponent = playerMapper.get(playerEntityId)
+
             if (playerComponent.connectionPlayerId == playerId) {
                 return playerEntityId
             }
@@ -1198,10 +1192,9 @@ class OreWorld
      */
     fun killEntity(entityToKill: Int, entityKiller: Int) {
         val itemComp = itemMapper.opt(entityToKill)
-        val floraComp = floraMapper.opt(entityToKill)
 
-        if (floraComp != null) {
-            killTree(floraComp, entityToKill, entityKiller)
+        floraMapper.ifPresent(entityToKill) { cFlora ->
+            killTree(cFlora, entityToKill, entityKiller)
         }
 
         m_artemisWorld.delete(entityToKill)

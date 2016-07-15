@@ -152,12 +152,12 @@ object Network {
 
     object Server {
         class InitialClientData
-        class ChatMessage {
-            lateinit var timestamp: String
-            lateinit var playerName: String
-            lateinit var message: String
-            lateinit var sender: Chat.ChatSender
-        }
+        class ChatMessage(
+                var timestamp: String = "",
+                var playerName: String = "",
+                var message: String = "",
+                var sender: Chat.ChatSender = Chat.ChatSender.Local
+        )
 
         //fixme: unneeded??
         class LoadedViewportMoved {
@@ -174,12 +174,13 @@ object Network {
             var second: Int = 0
         }
 
-        class PlayerSpawned {
-            var connectionId: Int = 0 // session local id, to be displayed
-            var playerName: String? = null
-            var pos = Shared.PositionPacket()
-            //we don't need a size packet for player. we know how big one will be, always.
-        }
+        class PlayerSpawned(
+                // session local id, to be displayed
+                var connectionId: Int = 0,
+                var playerName: String = "",
+                var pos: Vector2 = Vector2()
+                //we don't need a size packet for player. we know how big one will be, always.
+        )
 
         /**
          * sends to the client a list of inventory items to spawn
@@ -243,9 +244,9 @@ object Network {
          * (attacked by something, and health hit 0)
          *
          */
-        class EntityKilled {
-            var entityToKill: Int? = null
-        }
+        class EntityKilled(
+                val entityToKill: Int = INVALID_ENTITY_ID
+        )
 
         class EntitySpawnMultiple {
             var entitySpawn = mutableListOf<EntitySpawn>()
@@ -264,8 +265,8 @@ object Network {
         }
 
         class EntitySpawn {
-            var size = Shared.SizePacket()
-            var pos = Shared.PositionPacket()
+            var size: Vector2 = Vector2()
+            var pos: Vector2 = Vector2()
 
             var textureName: String = ""
 
@@ -304,9 +305,7 @@ object Network {
             var versionRevision: Int = 0
         }
 
-        class ChatMessage {
-            var message: String? = null
-        }
+        class ChatMessage(var message: String = "")
 
         //todo reduce data type sizes for lots of this stuff...
         class PlayerEquipHotbarIndex {
@@ -349,9 +348,7 @@ object Network {
          * an attack on the given entity.
          * server will do some sanity checking
          */
-        class EntityAttack {
-            var id: Int = 0
-        }
+        class EntityAttack(var entityId: Int = 0)
 
         /**
          * request to drop an item from the specified
@@ -374,7 +371,7 @@ object Network {
                 var destType: Shared.InventoryType = Shared.InventoryType.Hotbar,
                 var sourceIndex: Byte = -1,
                 var destIndex: Byte = -1
-                               )
+        )
 
         /**
          * notify request, to tell server we need info

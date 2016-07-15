@@ -67,9 +67,9 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         * wire and consumed by the clientside system system
         */
 
-        updateDevice(entityId)
+        //updateDevice(entityId)
 
-        calculateSupplyAndDemandRate(entityId)
+        //calculateSupplyAndDemandRate(entityId)
     }
 
     private fun updateDevice(entityId: Int) {
@@ -98,7 +98,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             val fuelSourceEntityId = cGen.fuelSources!!.m_slots.filter { isValidEntity(it) }
                     .first { fuelEntityId ->
                         fuelSourceBurnableResult = fuelSourceBurnableInGenerator(fuelEntityId = fuelEntityId,
-                                                                                 generatorEntityId = genEntityId)
+                                generatorEntityId = genEntityId)
                         fuelSourceBurnableResult.burnableEnergyOutput != 0
                     }
 
@@ -110,10 +110,10 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             if (nonEmptySlots.count() > 0) {
                 //send finalized generator inventory after our changes
                 serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                                                            owningPlayerEntityId = 2,
-                                                            inventoryType = Network.Shared.InventoryType.Generator,
-                                                            fuelSourceEntityId = fuelSourceEntityId
-                                                           )
+                        owningPlayerEntityId = 2,
+                        inventoryType = Network.Shared.InventoryType.Generator,
+                        fuelSourceEntityId = fuelSourceEntityId
+                )
             }
         }
 
@@ -170,15 +170,12 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     }
 
     private fun calculateSupplyAndDemandRate(entityId: Int) {
-        val genC = mPowerGenerator.get(entityId)
-        val consumerC = mPowerConsumer.get(entityId)
-
-        if (genC != null) {
-            totalSupply += genC.powerSupplyRate
+        val genC = mPowerGenerator.ifPresent(entityId) {
+            totalSupply += it.powerSupplyRate
         }
 
-        if (consumerC != null) {
-            totalDemand += consumerC.powerDemandRate
+        val consumerC = mPowerConsumer.ifPresent(entityId) {
+            totalDemand += it.powerDemandRate
         }
     }
 }

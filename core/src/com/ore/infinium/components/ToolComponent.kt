@@ -39,7 +39,7 @@ class ToolComponent : Component() {
      * number of ticks that can pass since last attack
      * before another attack is allowed
      */
-    @DoNotCopy @DoNotPrint var attackTickIntervalMs = 400
+    @DoNotCopy @DoNotPrint var attackIntervalMs = 400
 
     //damage tool does to blocks
     var blockDamage: Float = 0f
@@ -63,7 +63,7 @@ class ToolComponent : Component() {
      */
     fun canCombineWith(otherComp: ToolComponent): Boolean {
         return this.attackRadius == otherComp.attackRadius &&
-                this.attackTickIntervalMs == otherComp.attackTickIntervalMs &&
+                this.attackIntervalMs == otherComp.attackIntervalMs &&
                 this.blockDamage == otherComp.blockDamage &&
                 this.material == otherComp.material &&
                 this.type == otherComp.type

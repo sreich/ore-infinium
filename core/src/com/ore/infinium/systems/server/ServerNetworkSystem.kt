@@ -139,11 +139,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val playerComp = mPlayer.get(entityId)
         val spriteComp = mSprite.get(entityId)
 
-        val spawn = Network.Server.PlayerSpawned().apply {
-            connectionId = playerComp.connectionPlayerId
-            playerName = playerComp.playerName
-            pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-        }
+        val spawn = Network.Server.PlayerSpawned(
+                connectionId = playerComp.connectionPlayerId,
+                playerName = playerComp.playerName,
+                pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
+        )
 
         serverKryo.sendToAllTCP(spawn)
     }
@@ -160,11 +160,13 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val spriteComp = mSprite.get(entityId)
 
         OreWorld.log("server", "sending spawn player command")
-        val spawn = Network.Server.PlayerSpawned().apply {
-            this.connectionId = playerComp.connectionPlayerId
-            playerName = playerComp.playerName
-            pos.pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-        }
+
+        val spawn = Network.Server.PlayerSpawned(
+                connectionId = playerComp.connectionPlayerId,
+                playerName = playerComp.playerName,
+                pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
+        )
+
         serverKryo.sendToTCP(connectionId, spawn)
     }
 
@@ -310,7 +312,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                                 inventoryType: Network.Shared.InventoryType,
                                 causedByPickedUpItem: Boolean = false,
                                 fuelSourceEntityId: Int? = null
-                               ) {
+    ) {
         assert(entityIdsToSpawn.size > 0) { "entities to spawn in inventory should be non 0" }
 
         val spawn = Network.Server.SpawnInventoryItems()
@@ -434,10 +436,10 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             val fuelSources = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
             if (fuelSources.count() > 0) {
                 sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
-                                        inventoryType = Network.Shared.InventoryType.Generator,
-                                        owningPlayerEntityId = playerEntityId,
-                                        fuelSourceEntityId = cGen.fuelSources!!.fuelSource
-                                       )
+                        inventoryType = Network.Shared.InventoryType.Generator,
+                        owningPlayerEntityId = playerEntityId,
+                        fuelSourceEntityId = cGen.fuelSources!!.fuelSource
+                )
             }
         }
     }
@@ -540,7 +542,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val date = SimpleDateFormat("HH:mm:ss")
         oreServer.m_chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
-                                     Chat.ChatSender.Player)
+                Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {
@@ -563,7 +565,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cPlayer = mPlayer.get(job.connection.playerEntityId)
 
         val itemToDrop = dropInventoryItem(itemToDropIndex = itemDrop.index.toInt(), cPlayer = cPlayer,
-                                           inventoryType = itemDrop.inventoryType)
+                inventoryType = itemDrop.inventoryType)
 
         if (itemToDrop == INVALID_ENTITY_ID) {
             //safety first. malicious/buggy client.
@@ -864,10 +866,10 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             val connection = c as PlayerConnection?
             connection?.let {
                 // Announce to everyone that someone (with a registered playerName) has left.
-                val chatMessage = Network.Server.ChatMessage().apply {
-                    message = connection.playerName + " disconnected."
-                    sender = Chat.ChatSender.Server
-                }
+                val chatMessage = Network.Server.ChatMessage(
+                        message = connection.playerName + " disconnected.",
+                        sender = Chat.ChatSender.Server
+                )
 
                 serverKryo.sendToAllTCP(chatMessage)
             }
