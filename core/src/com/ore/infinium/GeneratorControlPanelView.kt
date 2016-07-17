@@ -27,16 +27,11 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
-import com.kotcrab.vis.ui.widget.VisImage
-import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
@@ -55,6 +50,40 @@ class GeneratorControlPanelView(stage: Stage,
                                 dragAndDrop: DragAndDrop,
                                 private val world: OreWorld) :
         BaseInventoryView(stage = stage, inventory = generatorControlPanelInventory, oreWorld = world) {
+
+    private lateinit var clientNetworkSystem: ClientNetworkSystem
+    private lateinit var tileRenderSystem: TileRenderSystem
+
+    private lateinit var blockMapper: ComponentMapper<BlockComponent>
+    private lateinit var itemMapper: ComponentMapper<ItemComponent>
+    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+
+    /**
+     * current fuel source being burned
+     */
+    private val fuelSource = SlotElement(this, type = SlotElementType.FuelSource)
+
+    init {
+        //attach to the inventory model
+        generatorControlPanelInventory.addListener(this)
+
+        val slotsPerRow = 5
+        repeat(Inventory.maxSlots) {
+            if (it != 0 && it % slotsPerRow == 0) {
+                container.row()
+            }
+
+            val element = SlotElement(this, it)
+            slots.add(it, element)
+
+            container.add(element.slotTable).size(50f, 50f)
+            //            window.add(slotTable).fill().size(50, 50);
+
+            dragAndDrop.addSource(InventoryDragSource(element.slotTable, it, dragImage, this))
+
+            dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, it, this))
+        }
+    }
 
     /**
      * destroy all the old entities in slots, if any. they'll get replaced by everything
@@ -93,42 +122,6 @@ class GeneratorControlPanelView(stage: Stage,
         generatorControlPanelInventory.owningGeneratorEntityId = null
 
         visible = false
-    }
-
-    private lateinit var clientNetworkSystem: ClientNetworkSystem
-    private lateinit var tileRenderSystem: TileRenderSystem
-
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-
-    /**
-     * current fuel source being burned
-     */
-    //private val fuelSource: SlotElement
-
-    private val fuelSource = SlotElement(this, type = SlotElementType.FuelSource)
-
-    init {
-        //attach to the inventory model
-        generatorControlPanelInventory.addListener(this)
-
-        val slotsPerRow = 5
-        repeat(Inventory.maxSlots) {
-            if (it != 0 && it % slotsPerRow == 0) {
-                container.row()
-            }
-
-            val element = SlotElement(this, it)
-            slots.add(it, element)
-
-            container.add(element.slotTable).size(50f, 50f)
-            //            window.add(slotTable).fill().size(50, 50);
-
-            dragAndDrop.addSource(InventoryDragSource(element.slotTable, it, dragImage, this))
-
-            dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, it, this))
-        }
     }
 
     class InventoryDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val inventoryView: GeneratorControlPanelView) : DragAndDrop.Source(
@@ -174,13 +167,6 @@ class GeneratorControlPanelView(stage: Stage,
             return false
         }
 
-        private fun setSlotColor(payload: DragAndDrop.Payload,
-                                 actor: Actor,
-                                 color: Color) {
-            actor.color = color
-            payload.dragActor.color = color
-        }
-
         private fun isValidDrop(payload: DragAndDrop.Payload): Boolean {
 
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
@@ -199,8 +185,7 @@ class GeneratorControlPanelView(stage: Stage,
         override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {
             payload ?: error("error, payload invalid")
 
-            payload.dragActor.setColor(1f, 1f, 1f, 1f)
-            actor.color = Color.WHITE
+            setSlotColor(payload, actor, Color.WHITE)
         }
 
         override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int) {
@@ -251,27 +236,6 @@ class GeneratorControlPanelView(stage: Stage,
 
     enum class SlotElementType {
         FuelSource
-    }
-
-    class SlotElement(inventoryView: GeneratorControlPanelView,
-                      index: Int = -1,
-                      type: SlotElementType = SlotElementType.FuelSource) {
-        val itemImage = VisImage()
-        val slotTable = VisTable()
-        val itemName = VisLabel()
-
-        init {
-            with(slotTable) {
-                touchable = Touchable.enabled
-                add(itemImage)
-                addListener(SlotInputListener(inventoryView, index))
-                background("default-pane")
-
-                row()
-
-                add(itemName).bottom().fill()
-            }
-        }
     }
 }
 

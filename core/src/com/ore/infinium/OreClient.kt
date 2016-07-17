@@ -341,7 +341,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     fun toggleInventoryVisible() {
-        m_inventoryView!!.inventoryVisible = !m_inventoryView!!.inventoryVisible
+        m_inventoryView!!.visible = !m_inventoryView!!.visible
     }
 
     /**

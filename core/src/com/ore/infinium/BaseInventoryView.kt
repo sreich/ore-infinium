@@ -1,12 +1,11 @@
 package com.ore.infinium
 
 import com.artemis.ComponentMapper
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
-import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.*
 import com.badlogic.gdx.scenes.scene2d.ui.Tooltip
+import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Scaling
 import com.kotcrab.vis.ui.VisUI
@@ -27,7 +26,7 @@ open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val ore
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
-    protected val slots = mutableListOf<GeneratorControlPanelView.SlotElement>()
+    protected val slots = mutableListOf<SlotElement>()
 
     protected val container = VisTable()
 
@@ -40,7 +39,7 @@ open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val ore
 
     var visible: Boolean
         get() = window.isVisible
-        protected set(value) {
+        set(value) {
             window.isVisible = value
         }
 
@@ -77,7 +76,7 @@ open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val ore
         visible = false
     }
 
-    protected fun clearSlot(slot: GeneratorControlPanelView.SlotElement) {
+    protected fun clearSlot(slot: SlotElement) {
         slot.itemImage.drawable = null
         slot.itemName.setText(null)
     }
@@ -134,6 +133,27 @@ open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val ore
         return region!!
     }
 
+    class SlotElement(inventoryView: BaseInventoryView,
+                      index: Int = -1,
+                      type: GeneratorControlPanelView.SlotElementType = GeneratorControlPanelView.SlotElementType.FuelSource) {
+        val itemImage = VisImage()
+        val slotTable = VisTable()
+        val itemName = VisLabel()
+
+        init {
+            with(slotTable) {
+                touchable = Touchable.enabled
+                add(itemImage)
+                addListener(SlotInputListener(inventoryView, index))
+                background("default-pane")
+
+                row()
+
+                add(itemName).bottom().fill()
+            }
+        }
+    }
+
     class SlotInputListener internal constructor(
             private val inventoryView: BaseInventoryView,
             private val index: Int = -1,
@@ -168,6 +188,15 @@ open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val ore
             inventoryView.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)
+        }
+    }
+
+    companion object {
+        fun setSlotColor(payload: DragAndDrop.Payload,
+                         actor: Actor,
+                         color: Color) {
+            actor.color = color
+            payload.dragActor.color = color
         }
     }
 }

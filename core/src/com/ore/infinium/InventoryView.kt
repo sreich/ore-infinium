@@ -27,43 +27,27 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
-import com.badlogic.gdx.scenes.scene2d.ui.Tooltip
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
-import com.badlogic.gdx.utils.Scaling
-import com.kotcrab.vis.ui.VisUI
-import com.kotcrab.vis.ui.widget.Tooltip.TooltipStyle
-import com.kotcrab.vis.ui.widget.VisImage
-import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.VisWindow
 import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.isInvalidEntity
-import com.ore.infinium.util.isValidEntity
-import com.ore.infinium.util.opt
 
-@Wire
+@Wire(injectInherited = true)
 class InventoryView(stage: Stage,
         //the hotbar inventory, for drag and drop
                     private val m_hotbarInventory: Inventory,
         //the model for this view
                     private val m_inventory: Inventory,
                     dragAndDrop: DragAndDrop,
-                    private val m_world: OreWorld) : Inventory.SlotListener {
-
-    var inventoryVisible: Boolean
-        get() = m_window.isVisible
-        set(value) {
-            m_window.isVisible = value
-        }
+                    private val m_world: OreWorld) : BaseInventoryView(stage = stage, inventory = m_inventory,
+                                                                       oreWorld = m_world) {
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tileRenderSystem: TileRenderSystem
@@ -72,33 +56,9 @@ class InventoryView(stage: Stage,
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
-    private val m_slots = mutableListOf<SlotElement>()
-    private val m_window: VisWindow
-
-    private val m_tooltip: Tooltip<VisTable>
-    private val m_tooltipLabel: VisLabel
-
     init {
         //attach to the inventory model
         m_inventory.addListener(this)
-
-        val container = VisTable()
-        container.setFillParent(true)
-        container.center() //top().right().setSize(800, 100);
-        container.defaults().space(4f)
-        container.padLeft(10f).padTop(10f)
-
-        m_window = VisWindow("Inventory")
-        //fixme;not centering or anythign, all hardcoded :(
-        m_window.setPosition(900f, 100f)
-        m_window.top().right().setSize(400f, 500f)
-        //        window.defaults().space(4);
-        //window.pack();
-        m_window.add(container).fill().expand()
-
-        val region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion("dirt-00")
-        val dragImage = VisImage(region)
-        dragImage.setSize(32f, 32f)
 
         val slotsPerRow = 5
         repeat(Inventory.maxSlots) {
@@ -107,7 +67,7 @@ class InventoryView(stage: Stage,
             }
 
             val element = SlotElement(this, it)
-            m_slots.add(it, element)
+            slots.add(it, element)
 
             container.add(element.slotTable).size(50f, 50f)
             //            window.add(slotTable).fill().size(50, 50);
@@ -115,113 +75,6 @@ class InventoryView(stage: Stage,
             dragAndDrop.addSource(InventoryDragSource(element.slotTable, it, dragImage, this))
 
             dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, it, this))
-        }
-
-        val style = VisUI.getSkin().get("default", TooltipStyle::class.java)
-
-        m_tooltipLabel = VisLabel()
-        val tooltipTable = VisTable().apply {
-            add(m_tooltipLabel)
-            background = style.background
-        }
-
-        m_tooltip = Tooltip<VisTable>(tooltipTable)
-
-        stage.addActor(m_window)
-
-        inventoryVisible = false
-    }
-
-    private fun setSlotVisible(index: Int, visible: Boolean) {
-        m_slots[index].itemName.isVisible = visible
-        m_slots[index].itemImage.isVisible = visible
-    }
-
-    override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-        val itemEntity = inventory.itemEntity(index)
-        val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemName.setText(itemComponent.stackSize.toString())
-    }
-
-    override fun slotItemChanged(index: Int, inventory: Inventory) {
-        val slot = m_slots[index]
-
-        val itemEntity = inventory.itemEntity(index)
-        if (isInvalidEntity(itemEntity)) {
-            clearSlot(slot)
-            return
-        }
-
-        val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemName.setText(itemComponent.stackSize.toString())
-
-        val spriteComponent = spriteMapper.get(itemEntity)
-
-        val region = textureForInventoryItem(itemEntity, spriteComponent.textureName!!)
-
-        val slotImage = slot.itemImage
-        slotImage.drawable = TextureRegionDrawable(region)
-        slotImage.setSize(region.regionWidth.toFloat(), region.regionHeight.toFloat())
-        slotImage.setScaling(Scaling.fit)
-
-        //do not exceed the max size/resort to horrible upscaling. prefer native size of each inventory sprite.
-        //.maxSize(region.getRegionWidth(), region.getRegionHeight()).expand().center();
-    }
-
-    fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
-        val region: TextureRegion?
-        if (blockMapper.opt(itemEntity) != null) {
-            //fixme this concat is pretty...iffy
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
-                    "$textureName-00")
-        } else {
-            region = m_world.m_atlas.findRegion(textureName)
-        }
-
-        assert(region != null) { "textureregion for inventory item entity id: $itemEntity, was not found!" }
-
-        return region!!
-    }
-
-
-    override fun slotItemRemoved(index: Int, inventory: Inventory) {
-        val slot = m_slots[index]
-        clearSlot(slot)
-    }
-
-    private fun clearSlot(slot: SlotElement) {
-        slot.itemImage.drawable = null
-        slot.itemName.setText(null)
-    }
-
-    private class SlotInputListener internal constructor(private val inventory: InventoryView, private val index: Int) : InputListener() {
-        override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-            val itemEntity = inventory.m_inventory.itemEntity(index)
-            if (isValidEntity(itemEntity)) {
-                inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
-            }
-
-            super.enter(event, x, y, pointer, fromActor)
-        }
-
-        override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
-            inventory.m_tooltip.mouseMoved(event, x, y)
-
-            val itemEntity = inventory.m_inventory.itemEntity(index)
-
-            if (isValidEntity(itemEntity)) {
-                val itemComponent = inventory.itemMapper.get(itemEntity)
-                val spriteComponent = inventory.spriteMapper.get(itemEntity)
-                inventory.m_tooltipLabel.setText(itemComponent.name)
-            }
-
-            return super.mouseMoved(event, x, y)
-        }
-
-        override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-            inventory.m_tooltip.exit(event, x, y, pointer, toActor)
-
-            super.exit(event, x, y, pointer, toActor)
         }
     }
 
@@ -248,7 +101,7 @@ class InventoryView(stage: Stage,
         }
     }
 
-    private class InventoryDragTarget(slotTable: Table, private val index: Int, private val inventory: InventoryView) : DragAndDrop.Target(
+    private class InventoryDragTarget(slotTable: Table, private val index: Int, private val inventoryView: InventoryView) : DragAndDrop.Target(
             slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
@@ -256,18 +109,13 @@ class InventoryView(stage: Stage,
                           x: Float,
                           y: Float,
                           pointer: Int): Boolean {
-            if (payload == null) {
-                return false
-            }
+            payload ?: return false
 
             if (isValidDrop(payload)) {
-                actor.color = Color.GREEN
-                payload.dragActor.setColor(0f, 1f, 0f, 1f)
-
+                setSlotColor(payload, actor, Color.GREEN)
                 return true
             } else {
-                actor.color = Color.RED
-                payload.dragActor.setColor(1f, 0f, 0f, 1f)
+                setSlotColor(payload, actor, Color.RED)
             }
 
             return false
@@ -280,7 +128,7 @@ class InventoryView(stage: Stage,
                 //maybe make it green? the source/dest is not the same
 
                 //only make it green if the slot is empty
-                if (isInvalidEntity(inventory.m_inventory.itemEntity(index))) {
+                if (isInvalidEntity(inventoryView.m_inventory.itemEntity(index))) {
                     return true
                 }
             }
@@ -291,8 +139,7 @@ class InventoryView(stage: Stage,
         override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {
             payload ?: error("error, payload invalid")
 
-            payload.dragActor.setColor(1f, 1f, 1f, 1f)
-            actor.color = Color.WHITE
+            setSlotColor(payload, actor, Color.WHITE)
         }
 
         override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int) {
@@ -300,30 +147,30 @@ class InventoryView(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (isInvalidEntity(inventory.m_inventory.itemEntity(this.index))) {
+            if (isInvalidEntity(inventoryView.m_inventory.itemEntity(this.index))) {
                 if (dragWrapper.sourceInventoryType == Network.Shared.InventoryType.Inventory) {
-                    val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
+                    val itemEntity = inventoryView.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventory.m_inventory.setSlot(this.index, itemEntity)
+                    inventoryView.m_inventory.setSlot(this.index, itemEntity)
 
-                    inventory.clientNetworkSystem.sendInventoryMove(
+                    inventoryView.clientNetworkSystem.sendInventoryMove(
                             sourceInventoryType = Network.Shared.InventoryType.Inventory,
                             sourceIndex = dragWrapper.dragSourceIndex,
                             destInventoryType = Network.Shared.InventoryType.Inventory,
                             destIndex = index)
 
                     //remove the source item
-                    inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
+                    inventoryView.m_inventory.takeItem(dragWrapper.dragSourceIndex)
                 } else {
                     //hotbar inventory
-                    val hotbarInventory = inventory.m_hotbarInventory
+                    val hotbarInventory = inventoryView.m_hotbarInventory
 
                     val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from hotbar inventory to this main inventory)
 
-                    inventory.m_inventory.setSlot(this.index, itemEntity)
+                    inventoryView.m_inventory.setSlot(this.index, itemEntity)
 
-                    inventory.clientNetworkSystem.sendInventoryMove(
+                    inventoryView.clientNetworkSystem.sendInventoryMove(
                             sourceInventoryType = Network.Shared.InventoryType.Hotbar,
                             sourceIndex = dragWrapper.dragSourceIndex,
                             destInventoryType = Network.Shared.InventoryType.Inventory,
@@ -334,25 +181,6 @@ class InventoryView(stage: Stage,
                 }
             }
 
-        }
-    }
-
-    private inner class SlotElement(inventoryView: InventoryView, index: Int) {
-        val itemImage = VisImage()
-        val slotTable = VisTable()
-        val itemName = VisLabel()
-
-        init {
-            with(slotTable) {
-                touchable = Touchable.enabled
-                add(itemImage)
-                addListener(SlotInputListener(inventoryView, index))
-                background("default-pane")
-
-                row()
-
-                add(itemName).bottom().fill()
-            }
         }
     }
 
