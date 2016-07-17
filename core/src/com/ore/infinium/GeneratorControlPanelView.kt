@@ -67,10 +67,30 @@ class GeneratorControlPanelView(stage: Stage,
         }
 
     /**
+     * destroy all the old entities in slots, if any. they'll get replaced by everything
+     * new in this inventory if there is any (yes, they may get replaced by identical
+     * things but that's inconsequential).
+     *
+     * we do this because an item's inventory is different per each item in the
+     * world(e.g. open chest1, chest2). whereas player inventory, it is always
+     * the same and is always synced
+     */
+    fun clearAll() {
+        generatorControlPanelInventory.m_slots.filter { isValidEntity(it) }.forEach {
+            world.destroyEntity(it)
+        }
+
+        //reset them all to invalid entity, now that they're all destroyed
+        generatorControlPanelInventory.clearAll()
+    }
+
+    /**
      * opens control panel and informs server that it has done so,
      * and registers for control panel data updates for this entity
      */
     fun openPanel(entityId: Int) {
+        clearAll()
+
         generatorControlPanelInventory.owningGeneratorEntityId = entityId
         clientNetworkSystem.sendOpenControlPanel(entityId)
         visible = true
@@ -178,6 +198,7 @@ class GeneratorControlPanelView(stage: Stage,
         }
 
         val itemComponent = itemMapper.get(itemEntity)
+        //HACK BELOW IS THE CRASH, itemcomponent null!!
         slots[index].itemName.setText(itemComponent.stackSize.toString())
 
         val spriteComponent = spriteMapper.get(itemEntity)
@@ -260,7 +281,7 @@ class GeneratorControlPanelView(stage: Stage,
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Inventory,
+            val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Generator,
                                                        dragSourceIndex = index)
             payload.`object` = dragWrapper
 
@@ -334,7 +355,7 @@ class GeneratorControlPanelView(stage: Stage,
                         inventoryView.clientNetworkSystem.sendInventoryMove(
                                 sourceInventoryType = Network.Shared.InventoryType.Inventory,
                                 sourceIndex = dragWrapper.dragSourceIndex,
-                                destInventoryType = Network.Shared.InventoryType.Inventory,
+                                destInventoryType = Network.Shared.InventoryType.Generator,
                                 destIndex = index)
 
                         //remove the source item

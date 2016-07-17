@@ -49,15 +49,17 @@ open class Inventory
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
     var m_slots = mutableListOf<Int>()
-        set(value) {
-            //reassigns of list, be sure to notify everyone
-            assert(value.size == m_slots.size) { "inventory slot list set, but it should be a fixed size!. it was not" }
-            m_listeners.forEach { listener ->
-                m_slots.forEachIndexed { i, slot ->
-                    listener.slotItemChanged(i, this)
-                }
+        private set
+
+    fun clearAll() {
+        m_slots = m_slots.map { INVALID_ENTITY_ID }.toMutableList()
+
+        m_listeners.forEach { listener ->
+            m_slots.forEachIndexed { i, slot ->
+                listener.slotItemChanged(i, this)
             }
         }
+    }
 
     init {
         repeat(slotCount) {

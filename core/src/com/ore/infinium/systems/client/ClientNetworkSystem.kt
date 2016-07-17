@@ -41,7 +41,10 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.util.*
+import com.ore.infinium.util.indices
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -247,20 +250,15 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //but possible for some hard to find desync bugs if i do that
     }
 
+    /**
+     * does not get called when a device control panel/inventory gets
+     * opened but it is empty. that is implied. only sent when it's more
+     * than empty.
+     *
+     * we already clear all entities each time it gets opened
+     */
     private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
         val inventory = inventoryForType(inventorySpawn.typeOfInventory)
-
-        //destroy all the old ones, they'll get replaced by everything
-        //new in this inventory (yes, they may get replaced by identical
-        //things but that's inconsequential).
-        //we do this because an item's inventory is different per each item in the world(e.g. open chest1, chest2).
-        //whereas player inventory, it is always the same and is always synced
-        inventory.m_slots.filter { isValidEntity(it) }.forEach {
-            oreWorld.destroyEntity(it)
-        }
-
-        //reset them all to invalid entity, now that they're all destroyed
-        inventory.m_slots = inventory.m_slots.map { INVALID_ENTITY_ID }.toMutableList()
 
         //now we respawn in some new ones, if any
         for (e in inventorySpawn.entitiesToSpawn) {
@@ -276,6 +274,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 soundSystem.playItemPickup()
             }
         }
+        inventory.toString()
     }
 
     private fun inventoryForType(typeOfInventory: Network.Shared.InventoryType) = when (typeOfInventory) {

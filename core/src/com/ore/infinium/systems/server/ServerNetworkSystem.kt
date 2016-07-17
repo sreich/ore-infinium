@@ -143,7 +143,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 connectionId = playerComp.connectionPlayerId,
                 playerName = playerComp.playerName,
                 pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-        )
+                                                )
 
         serverKryo.sendToAllTCP(spawn)
     }
@@ -165,7 +165,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 connectionId = playerComp.connectionPlayerId,
                 playerName = playerComp.playerName,
                 pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-        )
+                                                )
 
         serverKryo.sendToTCP(connectionId, spawn)
     }
@@ -236,8 +236,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
                 components = serializeComponents(entityId)
 
-                pos.pos.set(sprite.sprite.x, sprite.sprite.y)
-                size.size.set(sprite.sprite.width, sprite.sprite.height)
+                pos.set(sprite.sprite.x, sprite.sprite.y)
+                size.set(sprite.sprite.width, sprite.sprite.height)
                 textureName = sprite.textureName!!
             }
 
@@ -312,7 +312,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                                 inventoryType: Network.Shared.InventoryType,
                                 causedByPickedUpItem: Boolean = false,
                                 fuelSourceEntityId: Int? = null
-    ) {
+                               ) {
         assert(entityIdsToSpawn.size > 0) { "entities to spawn in inventory should be non 0" }
 
         val spawn = Network.Server.SpawnInventoryItems()
@@ -341,15 +341,14 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         //we don't normally serialize the sprite component, but in this case we bring over a few
         //fields we definitely require
         val spriteComponent = mSprite.get(entityId)
-        entitySpawn.size.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
+        entitySpawn.size.set(spriteComponent.sprite.width, spriteComponent.sprite.height)
         entitySpawn.textureName = spriteComponent.textureName!!
 
         return entitySpawn
     }
 
     fun sendEntityKilled(entityToKill: Int) {
-        val kill = Network.Server.EntityKilled()
-        kill.entityToKill = entityToKill
+        val kill = Network.Server.EntityKilled(entityToKill)
 
         //todo only send to all players who have this in their viewport!
         serverKryo.sendToAllTCP(kill)
@@ -429,17 +428,17 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val playerEntityId = job.connection.playerEntityId
         val cPlayer = mPlayer.get(playerEntityId)
 
-        mGenerator.get(deviceEntityId)?.let { cGen ->
+        mGenerator.ifPresent(deviceEntityId) { cGen ->
             cPlayer.openedControlPanelEntity = deviceEntityId
             //todo send initial fuel consumption update, and then send periodic ones according to subscribing id
 
             val fuelSources = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
             if (fuelSources.count() > 0) {
                 sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
-                        inventoryType = Network.Shared.InventoryType.Generator,
-                        owningPlayerEntityId = playerEntityId,
-                        fuelSourceEntityId = cGen.fuelSources!!.fuelSource
-                )
+                                        inventoryType = Network.Shared.InventoryType.Generator,
+                                        owningPlayerEntityId = playerEntityId,
+                                        fuelSourceEntityId = cGen.fuelSources!!.fuelSource
+                                       )
             }
         }
     }
@@ -463,7 +462,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     }
 
     private fun receiveEntityAttack(job: NetworkJob, attack: Network.Client.EntityAttack) {
-        val entityToAttack = getWorld().getEntity(attack.id)
+        val entityToAttack = getWorld().getEntity(attack.entityId)
         if (entityToAttack.isActive) {
             val healthComponent = mHealth.get(entityToAttack.id)
 
@@ -542,7 +541,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val date = SimpleDateFormat("HH:mm:ss")
         oreServer.m_chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
-                Chat.ChatSender.Player)
+                                     Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {
@@ -565,7 +564,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cPlayer = mPlayer.get(job.connection.playerEntityId)
 
         val itemToDrop = dropInventoryItem(itemToDropIndex = itemDrop.index.toInt(), cPlayer = cPlayer,
-                inventoryType = itemDrop.inventoryType)
+                                           inventoryType = itemDrop.inventoryType)
 
         if (itemToDrop == INVALID_ENTITY_ID) {
             //safety first. malicious/buggy client.
@@ -869,7 +868,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 val chatMessage = Network.Server.ChatMessage(
                         message = connection.playerName + " disconnected.",
                         sender = Chat.ChatSender.Server
-                )
+                                                            )
 
                 serverKryo.sendToAllTCP(chatMessage)
             }
