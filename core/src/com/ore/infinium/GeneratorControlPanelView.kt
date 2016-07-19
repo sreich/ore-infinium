@@ -158,7 +158,7 @@ class GeneratorControlPanelView(stage: Stage,
             payload ?: return false
 
             if (isValidDrop(payload)) {
-                setSlotColor(payload, actor, Color.RED)
+                setSlotColor(payload, actor, Color.GREEN)
                 return true
             } else {
                 setSlotColor(payload, actor, Color.RED)
