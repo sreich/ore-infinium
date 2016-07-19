@@ -148,39 +148,42 @@ class InventoryView(stage: Stage,
 
             //ensure the dest is empty before attempting any drag & drop!
             if (isInvalidEntity(inventoryView.m_inventory.itemEntity(this.index))) {
-                if (dragWrapper.sourceInventoryType == Network.Shared.InventoryType.Inventory) {
-                    val itemEntity = inventoryView.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
-                    //move the item from the source to the dest (from main inventory to main inventory)
-                    inventoryView.m_inventory.setSlot(this.index, itemEntity)
+                when (dragWrapper.sourceInventoryType) {
+                    Network.Shared.InventoryType.Inventory -> {
+                        val itemEntity = inventoryView.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
+                        //move the item from the source to the dest (from main inventory to main inventory)
+                        inventoryView.m_inventory.setSlot(this.index, itemEntity)
 
-                    inventoryView.clientNetworkSystem.sendInventoryMove(
-                            sourceInventoryType = Network.Shared.InventoryType.Inventory,
-                            sourceIndex = dragWrapper.dragSourceIndex,
-                            destInventoryType = Network.Shared.InventoryType.Inventory,
-                            destIndex = index)
+                        inventoryView.clientNetworkSystem.sendInventoryMove(
+                                sourceInventoryType = Network.Shared.InventoryType.Inventory,
+                                sourceIndex = dragWrapper.dragSourceIndex,
+                                destInventoryType = Network.Shared.InventoryType.Inventory,
+                                destIndex = index)
 
-                    //remove the source item
-                    inventoryView.m_inventory.takeItem(dragWrapper.dragSourceIndex)
-                } else {
-                    //hotbar inventory
-                    val hotbarInventory = inventoryView.m_hotbarInventory
+                        //remove the source item
+                        inventoryView.m_inventory.takeItem(dragWrapper.dragSourceIndex)
+                    }
 
-                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
-                    //move the item from the source to the dest (from hotbar inventory to this main inventory)
+                    Network.Shared.InventoryType.Hotbar -> {
+                        //hotbar inventory
+                        val hotbarInventory = inventoryView.m_hotbarInventory
 
-                    inventoryView.m_inventory.setSlot(this.index, itemEntity)
+                        val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
+                        //move the item from the source to the dest (from hotbar inventory to this main inventory)
 
-                    inventoryView.clientNetworkSystem.sendInventoryMove(
-                            sourceInventoryType = Network.Shared.InventoryType.Hotbar,
-                            sourceIndex = dragWrapper.dragSourceIndex,
-                            destInventoryType = Network.Shared.InventoryType.Inventory,
-                            destIndex = index)
+                        inventoryView.m_inventory.setSlot(this.index, itemEntity)
 
-                    //remove the source item
-                    hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
+                        inventoryView.clientNetworkSystem.sendInventoryMove(
+                                sourceInventoryType = Network.Shared.InventoryType.Hotbar,
+                                sourceIndex = dragWrapper.dragSourceIndex,
+                                destInventoryType = Network.Shared.InventoryType.Inventory,
+                                destIndex = index)
+
+                        //remove the source item
+                        hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
+                    }
                 }
             }
-
         }
     }
 
