@@ -45,8 +45,6 @@ class GeneratorControlPanelView(stage: Stage,
         //the hotbar inventory, for drag and drop
                                 private val generatorControlPanelInventory: GeneratorInventory,
         //the model for this view
-                                private val playerInventory: Inventory,
-                                private val hotbarInventory: HotbarInventory,
                                 dragAndDrop: DragAndDrop,
                                 private val world: OreWorld) :
         BaseInventoryView(stage = stage, inventory = generatorControlPanelInventory, oreWorld = world) {
@@ -135,7 +133,7 @@ class GeneratorControlPanelView(stage: Stage,
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Generator,
+            val dragWrapper = InventorySlotDragWrapper(sourceInventory = inventoryView.generatorControlPanelInventory,
                                                        dragSourceIndex = index)
             payload.`object` = dragWrapper
 

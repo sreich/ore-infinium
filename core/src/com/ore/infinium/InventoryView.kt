@@ -38,13 +38,13 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
 
 @Wire(injectInherited = true)
 class InventoryView(stage: Stage,
         //the hotbar inventory, for drag and drop
-                    private val m_hotbarInventory: Inventory,
-        //the model for this view
                     private val m_inventory: Inventory,
+        //the model for this view
                     dragAndDrop: DragAndDrop,
                     private val m_world: OreWorld) : BaseInventoryView(stage = stage, inventory = m_inventory,
                                                                        oreWorld = m_world) {
@@ -89,7 +89,7 @@ class InventoryView(stage: Stage,
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(sourceInventoryType = Network.Shared.InventoryType.Inventory,
+            val dragWrapper = InventorySlotDragWrapper(sourceInventory = inventoryView.m_inventory,
                                                        dragSourceIndex = index)
             payload.`object` = dragWrapper
 
@@ -147,41 +147,43 @@ class InventoryView(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (isInvalidEntity(inventoryView.m_inventory.itemEntity(this.index))) {
-                when (dragWrapper.sourceInventoryType) {
-                    Network.Shared.InventoryType.Inventory -> {
-                        val itemEntity = inventoryView.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
-                        //move the item from the source to the dest (from main inventory to main inventory)
-                        inventoryView.m_inventory.setSlot(this.index, itemEntity)
+            if (isValidEntity(inventoryView.m_inventory.itemEntity(this.index))) {
+                return
+            }
 
-                        inventoryView.clientNetworkSystem.sendInventoryMove(
-                                sourceInventoryType = Network.Shared.InventoryType.Inventory,
-                                sourceIndex = dragWrapper.dragSourceIndex,
-                                destInventoryType = Network.Shared.InventoryType.Inventory,
-                                destIndex = index)
+            when (dragWrapper.sourceInventoryType) {
+                Network.Shared.InventoryType.Inventory -> {
+                    val itemEntity = inventoryView.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
+                    //move the item from the source to the dest (from main inventory to main inventory)
+                    inventoryView.m_inventory.setSlot(this.index, itemEntity)
 
-                        //remove the source item
-                        inventoryView.m_inventory.takeItem(dragWrapper.dragSourceIndex)
-                    }
+                    inventoryView.clientNetworkSystem.sendInventoryMove(
+                            sourceInventoryType = Network.Shared.InventoryType.Inventory,
+                            sourceIndex = dragWrapper.dragSourceIndex,
+                            destInventoryType = Network.Shared.InventoryType.Inventory,
+                            destIndex = index)
 
-                    Network.Shared.InventoryType.Hotbar -> {
-                        //hotbar inventory
-                        val hotbarInventory = inventoryView.m_hotbarInventory
+                    //remove the source item
+                    inventoryView.m_inventory.takeItem(dragWrapper.dragSourceIndex)
+                }
 
-                        val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
-                        //move the item from the source to the dest (from hotbar inventory to this main inventory)
+                Network.Shared.InventoryType.Hotbar -> {
+                    //hotbar inventory
+                    val hotbarInventory = inventoryView.m_hotbarInventory
 
-                        inventoryView.m_inventory.setSlot(this.index, itemEntity)
+                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
+                    //move the item from the source to the dest (from hotbar inventory to this main inventory)
 
-                        inventoryView.clientNetworkSystem.sendInventoryMove(
-                                sourceInventoryType = Network.Shared.InventoryType.Hotbar,
-                                sourceIndex = dragWrapper.dragSourceIndex,
-                                destInventoryType = Network.Shared.InventoryType.Inventory,
-                                destIndex = index)
+                    inventoryView.m_inventory.setSlot(this.index, itemEntity)
 
-                        //remove the source item
-                        hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
-                    }
+                    inventoryView.clientNetworkSystem.sendInventoryMove(
+                            sourceInventoryType = Network.Shared.InventoryType.Hotbar,
+                            sourceIndex = dragWrapper.dragSourceIndex,
+                            destInventoryType = Network.Shared.InventoryType.Inventory,
+                            destIndex = index)
+
+                    //remove the source item
+                    hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
                 }
             }
         }

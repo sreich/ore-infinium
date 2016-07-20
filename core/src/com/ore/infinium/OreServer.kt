@@ -219,9 +219,9 @@ class OreServer : Runnable {
 
         if (nonEmptySlots.count() > 0) {
             m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                    owningPlayerEntityId = playerEntity,
-                    inventoryType = Network.Shared.InventoryType.Hotbar,
-                    causedByPickedUpItem = false)
+                                                          owningPlayerEntityId = playerEntity,
+                                                          inventoryType = Network.Shared.InventoryType.Hotbar,
+                                                          causedByPickedUpItem = false)
         }
     }
 

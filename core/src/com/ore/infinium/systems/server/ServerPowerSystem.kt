@@ -110,9 +110,9 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             if (nonEmptySlots.count() > 0) {
                 //send finalized generator inventory after our changes
                 serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                        owningPlayerEntityId = 2,
-                        inventoryType = Network.Shared.InventoryType.Generator,
-                        fuelSourceEntityId = fuelSourceEntityId
+                                                            owningPlayerEntityId = 2,
+                                                            inventoryType = Network.Shared.InventoryType.Generator,
+                                                            fuelSourceEntityId = fuelSourceEntityId
                 )
             }
         }

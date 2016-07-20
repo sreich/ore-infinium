@@ -37,7 +37,6 @@ import com.ore.infinium.util.isValidEntity
 @Wire
 open class Inventory
 (val slotCount: Int) {
-
     internal var m_listeners = mutableListOf<SlotListener>()
 
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
@@ -294,6 +293,7 @@ open class Inventory
         val maxSlots: Int = 32
         val maxFuelSlots: Int = 32
     }
+
 }
 
 class ItemAddResult(val resultType: ItemAddResult.TypeOfAdd

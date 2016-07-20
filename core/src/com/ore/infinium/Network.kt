@@ -508,7 +508,6 @@ object Network {
             }
         }
 
-        ///
         enum class InventoryType {
             Hotbar,
             Inventory, //standard inventory

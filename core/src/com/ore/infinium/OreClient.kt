@@ -553,7 +553,7 @@ class OreClient : ApplicationListener, InputProcessor {
         val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
 
         val dropItemRequestFromClient = Network.Client.InventoryDropItem(index = currentEquippedIndex.toByte(),
-                inventoryType = Network.Shared.InventoryType.Hotbar)
+                                                                         inventoryType = Network.Shared.InventoryType.Hotbar)
 
         // decrement count, we assume it'll get spawned shortly when the server tells us to.
         // delete in-inventory entityId if necessary server assumes we already do so
@@ -692,25 +692,25 @@ class OreClient : ApplicationListener, InputProcessor {
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
         val playerComponent = playerMapper.get(player)
 
-        m_hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
+        m_hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots)
         playerComponent.hotbarInventory = m_hotbarInventory
 
         m_hotbarInventory!!.addListener(HotbarSlotListener())
 
-        m_inventory = Inventory(Inventory.maxSlots)
+        m_inventory = Inventory(slotCount = Inventory.maxSlots)
         playerComponent.inventory = m_inventory
 
-        m_hotbarView = HotbarInventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!,
-                m_world!!)
-        m_inventoryView = InventoryView(m_stage, m_hotbarInventory!!, m_inventory!!, m_dragAndDrop!!, m_world!!)
+        m_hotbarView = HotbarInventoryView(stage = m_stage, m_hotbarInventory = m_hotbarInventory!!,
+                                           dragAndDrop = m_dragAndDrop!!, m_world = m_world!!)
+
+        m_inventoryView = InventoryView(stage = m_stage, m_inventory = m_inventory!!,
+                                        dragAndDrop = m_dragAndDrop!!, m_world = m_world!!)
 
         m_generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
         m_generatorControlPanelView = GeneratorControlPanelView(stage = m_stage,
-                generatorControlPanelInventory = m_generatorInventory!!,
-                playerInventory = m_inventory!!,
-                hotbarInventory = m_hotbarInventory!!,
-                dragAndDrop = m_dragAndDrop!!,
-                world = m_world!!)
+                                                                generatorControlPanelInventory = m_generatorInventory!!,
+                                                                dragAndDrop = m_dragAndDrop!!,
+                                                                world = m_world!!)
 
         m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)
 
