@@ -28,6 +28,10 @@ class HotbarInventory(slotCount:Int) : Inventory(slotCount) {
     var selectedSlot: Int = 0
     var previousSelectedSlot: Int = 0
 
+    init {
+        inventoryType = Network.Shared.InventoryType.Hotbar
+    }
+
     fun selectSlot(index: Int) {
         previousSelectedSlot = selectedSlot
         selectedSlot = index

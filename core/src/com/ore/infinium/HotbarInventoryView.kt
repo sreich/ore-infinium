@@ -264,43 +264,56 @@ class HotbarInventoryView(private val stage: Stage,
 
             val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
 
-            when (dragWrapper.sourceInventory) {
-                is HotbarInventory -> {
-                    dragWrapper.sourceInventory
-                    error this is all broken
-
+            when (dragWrapper.sourceInventory.inventoryType) {
+                Network.Shared.InventoryType.Hotbar -> {
                     //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
-                    val itemEntity = inventory.m_hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
+                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
 
                     hotbarInventory.setSlot(this.index, itemEntity)
 
-                    clientNetworkSystem.sendInventoryMove(Network.Shared.InventoryType.Hotbar,
-                                                          dragWrapper.dragSourceIndex,
-                                                          Network.Shared.InventoryType.Hotbar, index)
+                    clientNetworkSystem.sendInventoryMove(sourceInventoryType = Network.Shared.InventoryType.Hotbar,
+                                                          sourceIndex = dragWrapper.dragSourceIndex,
+                                                          destInventoryType = Network.Shared.InventoryType.Hotbar,
+                                                          destIndex = index)
 
                     //remove the source item
                     hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
                 }
 
-                is Inventory -> {
+                Network.Shared.InventoryType.Inventory -> {
                     //main inventory
-                    val itemEntity = inventory.m_inventory.itemEntity(dragWrapper.dragSourceIndex)
+                    val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
 
                     //move the item from the source to the dest (from main inventory, to this hotbar inventory)
                     hotbarInventory.setSlot(this.index, itemEntity)
 
                     //fixme?                    inventory.m_previousSelectedSlot = index;
 
-                    clientNetworkSystem.sendInventoryMove(Network.Shared.InventoryType.Inventory,
-                                                          dragWrapper.dragSourceIndex,
-                                                          Network.Shared.InventoryType.Hotbar, index)
+                    clientNetworkSystem.sendInventoryMove(sourceInventoryType = Network.Shared.InventoryType.Inventory,
+                                                          sourceIndex = dragWrapper.dragSourceIndex,
+                                                          destInventoryType = Network.Shared.InventoryType.Hotbar,
+                                                          destIndex = index)
 
                     //remove the source item
-                    inventory.m_inventory.takeItem(dragWrapper.dragSourceIndex)
+                    dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
                 }
 
-                is GeneratorInventory -> {
+                Network.Shared.InventoryType.Generator -> {
+                    //main inventory
+                    val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
 
+                    //move the item from the source to the dest (from main inventory, to this hotbar inventory)
+                    hotbarInventory.setSlot(this.index, itemEntity)
+
+                    //fixme?                    inventory.m_previousSelectedSlot = index;
+
+                    clientNetworkSystem.sendInventoryMove(sourceInventoryType = Network.Shared.InventoryType.Generator,
+                                                          sourceIndex = dragWrapper.dragSourceIndex,
+                                                          destInventoryType = Network.Shared.InventoryType.Hotbar,
+                                                          destIndex = index)
+
+                    //remove the source item
+                    dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
                 }
             }
 

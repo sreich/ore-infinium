@@ -39,6 +39,9 @@ open class Inventory
 (val slotCount: Int) {
     internal var m_listeners = mutableListOf<SlotListener>()
 
+    var inventoryType: Network.Shared.InventoryType
+        protected set
+
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
@@ -61,6 +64,8 @@ open class Inventory
     }
 
     init {
+        inventoryType = Network.Shared.InventoryType.Inventory
+
         repeat(slotCount) {
             m_slots.add(INVALID_ENTITY_ID)
         }

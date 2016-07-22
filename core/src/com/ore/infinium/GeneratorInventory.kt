@@ -44,6 +44,10 @@ class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
      */
     var owningGeneratorEntityId: Int? = null
 
+    init {
+        inventoryType = Network.Shared.InventoryType.Generator
+    }
+
     companion object {
         val MAX_SLOTS = 32
     }
