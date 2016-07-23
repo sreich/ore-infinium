@@ -700,11 +700,11 @@ class OreClient : ApplicationListener, InputProcessor {
         m_inventory = Inventory(slotCount = Inventory.maxSlots)
         playerComponent.inventory = m_inventory
 
-        m_hotbarView = HotbarInventoryView(stage = m_stage, m_hotbarInventory = m_hotbarInventory!!,
+        m_hotbarView = HotbarInventoryView(stage = m_stage, inventory = m_hotbarInventory!!,
                                            dragAndDrop = m_dragAndDrop!!, m_world = m_world!!)
 
-        m_inventoryView = InventoryView(stage = m_stage, m_inventory = m_inventory!!,
-                                        dragAndDrop = m_dragAndDrop!!, m_world = m_world!!)
+        m_inventoryView = InventoryView(stage = m_stage, inventory = m_inventory!!,
+                                        dragAndDrop = m_dragAndDrop!!, world = m_world!!)
 
         m_generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
         m_generatorControlPanelView = GeneratorControlPanelView(stage = m_stage,

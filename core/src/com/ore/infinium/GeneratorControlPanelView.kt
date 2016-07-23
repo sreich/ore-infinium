@@ -42,9 +42,7 @@ import com.ore.infinium.util.isValidEntity
 
 @Wire(injectInherited = true)
 class GeneratorControlPanelView(stage: Stage,
-        //the hotbar inventory, for drag and drop
                                 private val generatorControlPanelInventory: GeneratorInventory,
-        //the model for this view
                                 dragAndDrop: DragAndDrop,
                                 private val world: OreWorld)
 : BaseInventoryView(stage = stage,
@@ -66,7 +64,7 @@ class GeneratorControlPanelView(stage: Stage,
 
     init {
         //attach to the inventory model
-        generatorControlPanelInventory.addListener(this)
+        inventory.addListener(this)
 
         val slotsPerRow = 5
         repeat(Inventory.maxSlots) {
@@ -96,12 +94,12 @@ class GeneratorControlPanelView(stage: Stage,
      * the same and is always synced
      */
     fun clearAll() {
-        generatorControlPanelInventory.m_slots.filter { isValidEntity(it) }.forEach {
+        inventory.m_slots.filter { isValidEntity(it) }.forEach {
             world.destroyEntity(it)
         }
 
         //reset them all to invalid entity, now that they're all destroyed
-        generatorControlPanelInventory.clearAll()
+        inventory.clearAll()
     }
 
     /**
@@ -130,13 +128,13 @@ class GeneratorControlPanelView(stage: Stage,
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
             //invalid drag start, ignore.
-            if (isInvalidEntity(inventoryView.generatorControlPanelInventory.itemEntity(index))) {
+            if (isInvalidEntity(inventoryView.inventory.itemEntity(index))) {
                 return null
             }
 
             val payload = DragAndDrop.Payload()
 
-            val dragWrapper = InventorySlotDragWrapper(sourceInventory = inventoryView.generatorControlPanelInventory,
+            val dragWrapper = InventorySlotDragWrapper(sourceInventory = inventoryView.inventory,
                                                        dragSourceIndex = index)
             payload.`object` = dragWrapper
 
@@ -177,7 +175,7 @@ class GeneratorControlPanelView(stage: Stage,
             }
 
             //only make it green if the slot is empty
-            if (isInvalidEntity(inventoryView.generatorControlPanelInventory.itemEntity(index))) {
+            if (isInvalidEntity(inventoryView.inventory.itemEntity(index))) {
                 return true
             }
 
@@ -203,7 +201,7 @@ class GeneratorControlPanelView(stage: Stage,
                 Network.Shared.InventoryType.Inventory -> {
                     val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
                     //move the item from the source to the dest (from main inventory to main inventory)
-                    inventoryView.generatorControlPanelInventory.setSlot(this.index, itemEntity)
+                    inventoryView.inventory.setSlot(this.index, itemEntity)
 
                     inventoryView.clientNetworkSystem.sendInventoryMove(
                             sourceInventoryType = Network.Shared.InventoryType.Inventory,
@@ -219,7 +217,7 @@ class GeneratorControlPanelView(stage: Stage,
                 Network.Shared.InventoryType.Generator -> {
                     val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
 
-                    inventoryView.generatorControlPanelInventory.setSlot(this.index, itemEntity)
+                    inventoryView.inventory.setSlot(this.index, itemEntity)
 
                     inventoryView.clientNetworkSystem.sendInventoryMove(
                             sourceInventoryType = Network.Shared.InventoryType.Generator,
@@ -234,7 +232,7 @@ class GeneratorControlPanelView(stage: Stage,
                 Network.Shared.InventoryType.Hotbar -> {
                     val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
 
-                    inventoryView.generatorControlPanelInventory.setSlot(this.index, itemEntity)
+                    inventoryView.inventory.setSlot(this.index, itemEntity)
 
                     inventoryView.clientNetworkSystem.sendInventoryMove(
                             sourceInventoryType = Network.Shared.InventoryType.Hotbar,
