@@ -37,6 +37,7 @@ import com.kotcrab.vis.ui.widget.VisProgressBar
 import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.PowerDeviceComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
@@ -59,6 +60,7 @@ class GeneratorControlPanelView(stage: Stage,
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var mPowerDevice: ComponentMapper<PowerDeviceComponent>
 
     /**
      * current fuel source being burned
@@ -119,6 +121,15 @@ class GeneratorControlPanelView(stage: Stage,
                                                       index = i,
                                                       inventoryView = this))
         }
+    }
+
+    /**
+     * should be called when conditions for the underlying generator have changed.
+     * such as fuel source percentage
+     */
+    fun updateStatus() {
+        // generatorControlPanelInventory.fuelSourceHealth
+        val cGen = mPowerDevice.get(generatorControlPanelInventory.owningGeneratorEntityId!!)
     }
 
     /**

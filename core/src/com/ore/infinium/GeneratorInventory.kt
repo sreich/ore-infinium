@@ -55,6 +55,8 @@ class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
         }
     }
 
+    val changedListeners = listOf<Unit>()
+
     companion object {
         val MAX_SLOTS = 32
     }

@@ -106,13 +106,23 @@ fun String.toSingleLine(): String {
  * based on true/false
  * @author sreich
  */
-fun Boolean.enabledString(): String {
-    return if (this) {
-        "enabled"
-    } else {
-        "disabled"
-    }
+fun Boolean.enabledString() = if (this) {
+    "enabled"
+} else {
+    "disabled"
 }
+
+/**
+ * @return string indicating "On" or "Off,
+ * based on true/false
+ * @author sreich
+ */
+fun Boolean.onOffString() = if (this) {
+    "On"
+} else {
+    "Off"
+}
+
 
 /**
  * @return true if negative
