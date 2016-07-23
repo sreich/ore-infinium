@@ -206,7 +206,7 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class HotbarDragTarget(slotTable: VisTable, private val index: Int, private val inventory: HotbarInventoryView) : DragAndDrop.Target(
+    private class HotbarDragTarget(slotTable: VisTable, private val index: Int, private val inventoryView: HotbarInventoryView) : DragAndDrop.Target(
             slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
@@ -229,12 +229,12 @@ class HotbarInventoryView(private val stage: Stage,
         private fun isValidDrop(payload: DragAndDrop.Payload): Boolean {
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
             if (dragWrapper.dragSourceIndex == index &&
-                    dragWrapper.sourceInventory.inventoryType == inventory.inventory.inventoryType) {
+                    dragWrapper.sourceInventory.inventoryType == inventoryView.inventory.inventoryType) {
                 //trying to drop on the same slot, on the same inventory
                 return false
             }
 
-            if (isInvalidEntity(inventory.inventory.itemEntity(index))) {
+            if (isInvalidEntity(inventoryView.inventory.itemEntity(index))) {
                 //only make it green if the slot is empty
                 return true
             }
@@ -248,72 +248,35 @@ class HotbarInventoryView(private val stage: Stage,
             BaseInventoryView.setSlotColor(payload, actor, Color.WHITE)
 
             //restore selection, it was just dropped..
-            inventory.slotItemSelected(inventory.inventory.selectedSlot, inventory.inventory)
+            inventoryView.slotItemSelected(inventoryView.inventory.selectedSlot, inventoryView.inventory)
         }
 
         override fun drop(source: DragAndDrop.Source, payload: DragAndDrop.Payload, x: Float, y: Float, pointer: Int) {
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
-            val hotbarInventory = inventory.inventory
+            val hotbarInventory = inventoryView.inventory
 
             //ensure the dest is empty before attempting any drag & drop!
             if (!isValidDrop(payload)) {
                 return
             }
 
-            val clientNetworkSystem = inventory.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
 
-            when (dragWrapper.sourceInventory.inventoryType) {
-                Network.Shared.InventoryType.Hotbar -> {
-                    //move the item from the source to the dest (from hotbarinventory to hotbarinventory)
-                    val itemEntity = hotbarInventory.itemEntity(dragWrapper.dragSourceIndex)
+            val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
 
-                    hotbarInventory.setSlot(this.index, itemEntity)
+            //grab item from source, copy it into dest
+            hotbarInventory.setSlot(this.index, itemEntity)
 
-                    clientNetworkSystem.sendInventoryMove(sourceInventoryType = Network.Shared.InventoryType.Hotbar,
-                                                          sourceIndex = dragWrapper.dragSourceIndex,
-                                                          destInventoryType = Network.Shared.InventoryType.Hotbar,
-                                                          destIndex = index)
+            //fixme?                    inventory.m_previousSelectedSlot = index;
 
-                    //remove the source item
-                    hotbarInventory.takeItem(dragWrapper.dragSourceIndex)
-                }
+            val clientNetworkSystem = inventoryView.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
+            clientNetworkSystem.sendInventoryMove(sourceInventoryType = dragWrapper.sourceInventory.inventoryType,
+                                                  sourceIndex = dragWrapper.dragSourceIndex,
+                                                  destInventoryType = inventoryView.inventory.inventoryType,
+                                                  destIndex = index)
 
-                Network.Shared.InventoryType.Inventory -> {
-                    //main inventory
-                    val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
+            //remove the source item now that the move is complete
+            dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
 
-                    //move the item from the source to the dest (from main inventory, to this hotbar inventory)
-                    hotbarInventory.setSlot(this.index, itemEntity)
-
-                    //fixme?                    inventory.m_previousSelectedSlot = index;
-
-                    clientNetworkSystem.sendInventoryMove(sourceInventoryType = Network.Shared.InventoryType.Inventory,
-                                                          sourceIndex = dragWrapper.dragSourceIndex,
-                                                          destInventoryType = Network.Shared.InventoryType.Hotbar,
-                                                          destIndex = index)
-
-                    //remove the source item
-                    dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
-                }
-
-                Network.Shared.InventoryType.Generator -> {
-                    //main inventory
-                    val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
-
-                    //move the item from the source to the dest (from main inventory, to this hotbar inventory)
-                    hotbarInventory.setSlot(this.index, itemEntity)
-
-                    //fixme?                    inventory.m_previousSelectedSlot = index;
-
-                    clientNetworkSystem.sendInventoryMove(sourceInventoryType = Network.Shared.InventoryType.Generator,
-                                                          sourceIndex = dragWrapper.dragSourceIndex,
-                                                          destInventoryType = Network.Shared.InventoryType.Hotbar,
-                                                          destIndex = index)
-
-                    //remove the source item
-                    dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
-                }
-            }
 
             //select new index
             hotbarInventory.selectSlot(index)

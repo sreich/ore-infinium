@@ -197,53 +197,18 @@ class GeneratorControlPanelView(stage: Stage,
                 return
             }
 
-            when (dragWrapper.sourceInventory.inventoryType) {
-                Network.Shared.InventoryType.Inventory -> {
-                    val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
-                    //move the item from the source to the dest (from main inventory to main inventory)
-                    inventoryView.inventory.setSlot(this.index, itemEntity)
+            val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
 
-                    inventoryView.clientNetworkSystem.sendInventoryMove(
-                            sourceInventoryType = Network.Shared.InventoryType.Inventory,
-                            sourceIndex = dragWrapper.dragSourceIndex,
-                            destInventoryType = Network.Shared.InventoryType.Generator,
-                            destIndex = index)
+            inventoryView.inventory.setSlot(this.index, itemEntity)
 
-                    //remove the source item
-                    dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
-                }
+            inventoryView.clientNetworkSystem.sendInventoryMove(
+                    sourceInventoryType = dragWrapper.sourceInventory.inventoryType,
+                    sourceIndex = dragWrapper.dragSourceIndex,
+                    destInventoryType = inventoryView.inventory.inventoryType,
+                    destIndex = index)
 
-
-                Network.Shared.InventoryType.Generator -> {
-                    val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
-
-                    inventoryView.inventory.setSlot(this.index, itemEntity)
-
-                    inventoryView.clientNetworkSystem.sendInventoryMove(
-                            sourceInventoryType = Network.Shared.InventoryType.Generator,
-                            sourceIndex = dragWrapper.dragSourceIndex,
-                            destInventoryType = Network.Shared.InventoryType.Generator,
-                            destIndex = index)
-
-                    //remove the source item
-                    dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
-                }
-
-                Network.Shared.InventoryType.Hotbar -> {
-                    val itemEntity = dragWrapper.sourceInventory.itemEntity(dragWrapper.dragSourceIndex)
-
-                    inventoryView.inventory.setSlot(this.index, itemEntity)
-
-                    inventoryView.clientNetworkSystem.sendInventoryMove(
-                            sourceInventoryType = Network.Shared.InventoryType.Hotbar,
-                            sourceIndex = dragWrapper.dragSourceIndex,
-                            destInventoryType = Network.Shared.InventoryType.Generator,
-                            destIndex = index)
-
-                    //remove the source item
-                    dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
-                }
-            }
+            //remove the source item
+            dragWrapper.sourceInventory.takeItem(dragWrapper.dragSourceIndex)
         }
     }
 
