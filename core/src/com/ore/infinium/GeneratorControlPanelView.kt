@@ -33,6 +33,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.kotcrab.vis.ui.widget.VisLabel
+import com.kotcrab.vis.ui.widget.VisProgressBar
+import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
@@ -64,6 +66,8 @@ class GeneratorControlPanelView(stage: Stage,
     private val fuelSource: SlotElement
 
     init {
+        val slotsPerRow = 5
+
         //attach to the inventory model
         inventory.addListener(this)
 
@@ -71,17 +75,27 @@ class GeneratorControlPanelView(stage: Stage,
         //don't forget to add it to our list of slot gui components
         slots.add(fuelSource)
 
-        container.add(fuelSource.slotTable).size(50f, 50f)
+        val fuelSourceTable = VisTable(true)
+        fuelSourceTable.add(fuelSource.slotTable).size(50f, 50f)
         dragAndDrop.addTarget(
                 InventoryDragTarget(slotTable = fuelSource.slotTable,
                                     index = 0,
                                     slotType = SlotElementType.FuelSource,
                                     inventoryView = this))
-        container.row()
-        container.add(VisLabel("Fuel Burning"))
-        container.row().spaceBottom(5f)
 
-        val slotsPerRow = 5
+        val progressBar = VisProgressBar(0f, 100f, 1f, false)
+        progressBar.value = 50f
+        fuelSourceTable.add(progressBar)
+        //fuelSourceTable.row()
+
+        fuelSourceTable.add(VisLabel("Fuel remaining"))
+
+        fuelSourceTable.row()
+        fuelSourceTable.add(VisLabel("Fuel"))
+
+        container.add(fuelSourceTable).colspan(5)
+        container.row()
+
         //-1 because fuel source already added (above)
         //and we start at 1 for the same reason
         for (i in 1..(Inventory.maxSlots - 1)) {
