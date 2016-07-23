@@ -45,7 +45,9 @@ class InventoryView(stage: Stage,
                     private val m_inventory: Inventory,
         //the model for this view
                     dragAndDrop: DragAndDrop,
-                    private val m_world: OreWorld) : BaseInventoryView(stage = stage, inventory = m_inventory,
+                    private val m_world: OreWorld) : BaseInventoryView(stage = stage,
+                                                                       title = "Inventory",
+                                                                       inventory = m_inventory,
                                                                        oreWorld = m_world) {
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
@@ -65,15 +67,17 @@ class InventoryView(stage: Stage,
                 container.row()
             }
 
-            val element = SlotElement(this, it)
+            val element = SlotElement(inventoryView = this, index = it)
             slots.add(it, element)
 
             container.add(element.slotTable).size(50f, 50f)
             //            window.add(slotTable).fill().size(50, 50);
 
-            dragAndDrop.addSource(InventoryDragSource(element.slotTable, it, dragImage, this))
+            dragAndDrop.addSource(
+                    InventoryDragSource(slotTable = element.slotTable, index = it, dragImage = dragImage,
+                                        inventoryView = this))
 
-            dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, it, this))
+            dragAndDrop.addTarget(InventoryDragTarget(slotTable = element.slotTable, index = it, inventoryView = this))
         }
     }
 

@@ -21,7 +21,10 @@ import com.ore.infinium.util.isInvalidEntity
 import com.ore.infinium.util.isValidEntity
 import com.ore.infinium.util.opt
 
-open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val oreWorld: OreWorld) : Inventory.SlotListener {
+open class BaseInventoryView(val title: String,
+                             val stage: Stage,
+                             val inventory: Inventory,
+                             val oreWorld: OreWorld) : Inventory.SlotListener {
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
@@ -30,7 +33,7 @@ open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val ore
 
     protected val container = VisTable()
 
-    protected val window = VisWindow("Generator Control Panel")
+    protected val window = VisWindow(title)
 
     protected val dragImage: VisImage
 
@@ -41,6 +44,10 @@ open class BaseInventoryView(val stage: Stage, val inventory: Inventory, val ore
         get() = window.isVisible
         set(value) {
             window.isVisible = value
+
+            if (value) {
+                window.toFront()
+            }
         }
 
     init {

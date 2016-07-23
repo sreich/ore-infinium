@@ -46,8 +46,11 @@ class GeneratorControlPanelView(stage: Stage,
                                 private val generatorControlPanelInventory: GeneratorInventory,
         //the model for this view
                                 dragAndDrop: DragAndDrop,
-                                private val world: OreWorld) :
-        BaseInventoryView(stage = stage, inventory = generatorControlPanelInventory, oreWorld = world) {
+                                private val world: OreWorld)
+: BaseInventoryView(stage = stage,
+                    title = "Generator Control Panel",
+                    inventory = generatorControlPanelInventory,
+                    oreWorld = world) {
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tileRenderSystem: TileRenderSystem
@@ -59,7 +62,7 @@ class GeneratorControlPanelView(stage: Stage,
     /**
      * current fuel source being burned
      */
-    private val fuelSource = SlotElement(this, type = SlotElementType.FuelSource)
+    private val fuelSource = SlotElement(inventoryView = this, type = SlotElementType.FuelSource)
 
     init {
         //attach to the inventory model
