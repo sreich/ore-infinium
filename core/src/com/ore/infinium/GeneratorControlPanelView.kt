@@ -32,6 +32,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
@@ -60,27 +61,49 @@ class GeneratorControlPanelView(stage: Stage,
     /**
      * current fuel source being burned
      */
-    private val fuelSource = SlotElement(inventoryView = this, type = SlotElementType.FuelSource)
+    private val fuelSource: SlotElement
 
     init {
         //attach to the inventory model
         inventory.addListener(this)
 
+        fuelSource = SlotElement(inventoryView = this, type = SlotElementType.FuelSource, index = 0)
+        //don't forget to add it to our list of slot gui components
+        slots.add(fuelSource)
+
+        container.add(fuelSource.slotTable).size(50f, 50f)
+        dragAndDrop.addTarget(
+                InventoryDragTarget(slotTable = fuelSource.slotTable,
+                                    index = 0,
+                                    slotType = SlotElementType.FuelSource,
+                                    inventoryView = this))
+        container.row()
+        container.add(VisLabel("Fuel Burning"))
+        container.row().spaceBottom(5f)
+
         val slotsPerRow = 5
-        repeat(Inventory.maxSlots) {
-            if (it != 0 && it % slotsPerRow == 0) {
+        //-1 because fuel source already added (above)
+        //and we start at 1 for the same reason
+        for (i in 1..(Inventory.maxSlots - 1)) {
+            if (i != 0 && i % slotsPerRow == 0) {
                 container.row()
             }
 
-            val element = SlotElement(this, it)
-            slots.add(it, element)
+            val element = SlotElement(inventoryView = this, index = i)
+            slots.add(i, element)
 
             container.add(element.slotTable).size(50f, 50f)
             //            window.add(slotTable).fill().size(50, 50);
 
-            dragAndDrop.addSource(InventoryDragSource(element.slotTable, it, dragImage, this))
+            dragAndDrop.addSource(
+                    InventoryDragSource(slotTable = element.slotTable,
+                                        index = i,
+                                        dragImage = dragImage,
+                                        inventoryView = this))
 
-            dragAndDrop.addTarget(InventoryDragTarget(element.slotTable, it, this))
+            dragAndDrop.addTarget(InventoryDragTarget(slotTable = element.slotTable,
+                                                      index = i,
+                                                      inventoryView = this))
         }
     }
 
@@ -94,8 +117,8 @@ class GeneratorControlPanelView(stage: Stage,
      * the same and is always synced
      */
     fun clearAll() {
-        inventory.m_slots.filter { isValidEntity(it) }.forEach {
-            world.destroyEntity(it)
+        inventory.slots.filter { isValidEntity(it.entityId) }.forEach {
+            world.destroyEntity(it.entityId)
         }
 
         //reset them all to invalid entity, now that they're all destroyed
@@ -146,8 +169,11 @@ class GeneratorControlPanelView(stage: Stage,
         }
     }
 
-    private class InventoryDragTarget(slotTable: Table, private val index: Int, private val inventoryView: GeneratorControlPanelView) : DragAndDrop.Target(
-            slotTable) {
+    private class InventoryDragTarget(slotTable: Table,
+                                      private val index: Int,
+                                      private val slotType: SlotElementType = SlotElementType.FuelSource,
+                                      private val inventoryView: GeneratorControlPanelView)
+    : DragAndDrop.Target(slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
                           payload: DragAndDrop.Payload?,

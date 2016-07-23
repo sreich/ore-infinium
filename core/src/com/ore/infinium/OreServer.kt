@@ -215,7 +215,9 @@ class OreServer : Runnable {
         val liquidGun = m_world.createLiquidGun()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
-        val nonEmptySlots = playerComponent.hotbarInventory!!.slots().filter { isValidEntity(it) }
+        val nonEmptySlots = playerComponent.hotbarInventory!!.slots.filter {
+            isValidEntity(it.entityId)
+        }.map { it.entityId }
 
         if (nonEmptySlots.count() > 0) {
             m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,

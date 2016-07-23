@@ -26,6 +26,7 @@ package com.ore.infinium.systems.server
 
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
+import com.ore.infinium.Inventory
 import com.ore.infinium.Network
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
@@ -91,29 +92,42 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             return
         }
 
-        if (cGen.fuelSources!!.fuelSource == null) {
+        val fuelSourceSlotIndex = cGen.fuelSources!!.slots.indexOfFirst { it.slotType == Inventory.InventorySlotType.FuelSource }
+        val fuelSourceSlot = cGen.fuelSources!!.slots[fuelSourceSlotIndex]
+
+        if (isInvalidEntity(fuelSourceSlot.entityId)) {
+            var fuelSourceBurnableResult: FuelSourceBurnableResult
+
             //because we have nothing to burn right now,
             //grab fuel from other parts of our inventory, if any
-            var fuelSourceBurnableResult: FuelSourceBurnableResult
-            val fuelSourceEntityId = cGen.fuelSources!!.m_slots.filter { isValidEntity(it) }
-                    .first { fuelEntityId ->
-                        fuelSourceBurnableResult = fuelSourceBurnableInGenerator(fuelEntityId = fuelEntityId,
+            val newFuelSourceIndex = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
+                    .filter { it.slotType == Inventory.InventorySlotType.Slot }
+                    .indexOfFirst { fuelEntity ->
+                        fuelSourceBurnableResult = fuelSourceBurnableInGenerator(
+                                fuelEntityId = fuelEntity.entityId,
                                 generatorEntityId = genEntityId)
                         fuelSourceBurnableResult.burnableEnergyOutput != 0
                     }
 
-            //lets move it from the gen inventory to the fuel source slot, to burn it
-            cGen.fuelSources!!.fuelSource = fuelSourceEntityId
+            if (newFuelSourceIndex == -1) {
+                //can't do anything, no more fuel in this inventory at all!
+                return
+            }
 
-            val nonEmptySlots = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
+            //we want to burn this one, as it is possible. so remove it from its source slot
+            val newFuelSourceEntityId = cGen.fuelSources!!.takeItem(newFuelSourceIndex)
+
+            //move it to the fuel-burned slot, it will now get burned
+            cGen.fuelSources!!.setSlot(index = newFuelSourceIndex,
+                                       entity = newFuelSourceEntityId)
+
+            val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
 
             if (nonEmptySlots.count() > 0) {
                 //send finalized generator inventory after our changes
                 serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
                                                             owningPlayerEntityId = 2,
-                                                            inventoryType = Network.Shared.InventoryType.Generator,
-                                                            fuelSourceEntityId = fuelSourceEntityId
-                )
+                                                            inventoryType = Network.Shared.InventoryType.Generator)
             }
         }
 

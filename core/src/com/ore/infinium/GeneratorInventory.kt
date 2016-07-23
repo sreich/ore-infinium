@@ -1,5 +1,7 @@
 package com.ore.infinium
 
+import com.ore.infinium.util.INVALID_ENTITY_ID
+
 /**
 MIT License
 
@@ -25,13 +27,6 @@ SOFTWARE.
  */
 
 class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
-    /**
-     * fuel source currently being burnt.
-     * once a fuel source is started burning, it cannot
-     * be recovered
-     */
-    var fuelSource: Int? = null
-
     //when a fuel source is initially burned, it is set to 100
     //over time it will decrease until 0, at which point the fuel
     //source is consumed
@@ -46,6 +41,18 @@ class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
 
     init {
         inventoryType = Network.Shared.InventoryType.Generator
+
+        //hack clearing them because base class already populates
+        //but we need fuel sources in here too
+        slots.clear()
+
+        //add first as fuel source
+        slots.add(InventorySlot(INVALID_ENTITY_ID, InventorySlotType.FuelSource))
+
+        //start at 1 because fuel source already added(and is counted), and subtract from slotCount
+        for (i in 1..slotCount - 1) {
+            slots.add(InventorySlot(INVALID_ENTITY_ID, InventorySlotType.Slot))
+        }
     }
 
     companion object {

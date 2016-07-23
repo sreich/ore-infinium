@@ -203,11 +203,6 @@ object Network {
             var causedByPickedUpItem = false
 
             /**
-             * applies only to generator inventory and only if one is in that slot
-             */
-            var fuelSourceEntity: EntitySpawn? = null
-
-            /**
              * applies only to generator inventory, if this is that type
              * we never spawn this, but this is just so we know which generator
              * we're talking about, and that this packet applies to that

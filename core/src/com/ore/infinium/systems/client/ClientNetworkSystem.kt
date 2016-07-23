@@ -263,11 +263,6 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //now we respawn in some new ones, if any
         for (e in inventorySpawn.entitiesToSpawn) {
             spawnInventoryItem(entitySpawn = e, inventory = inventory)
-
-            if (inventorySpawn.fuelSourceEntity != null) {
-                //todo spawn it...but again, we would need to duplicate horribleness down
-                //there until we refactor/clean this up a ton
-            }
             //fixme spawn.id, sprite!!
 
             if (inventorySpawn.causedByPickedUpItem) {

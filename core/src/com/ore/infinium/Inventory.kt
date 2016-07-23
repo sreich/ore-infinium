@@ -50,14 +50,29 @@ open class Inventory
     private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
     private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
 
-    var m_slots = mutableListOf<Int>()
+    enum class InventorySlotType {
+        Slot,
+
+        /**
+         * fuel source being burned currently.
+         * fuel sources once burning has begun, cannot
+         * be taken out/removed
+         */
+        FuelSource,
+        Output
+    }
+
+    class InventorySlot(var entityId: Int,
+                        val slotType: InventorySlotType)
+
+    var slots = mutableListOf<InventorySlot>()
         private set
 
     fun clearAll() {
-        m_slots = m_slots.map { INVALID_ENTITY_ID }.toMutableList()
+        slots.forEach { it.entityId = INVALID_ENTITY_ID }
 
         m_listeners.forEach { listener ->
-            m_slots.forEachIndexed { i, slot ->
+            slots.forEachIndexed { i, slot ->
                 listener.slotItemChanged(i, this)
             }
         }
@@ -67,15 +82,8 @@ open class Inventory
         inventoryType = Network.Shared.InventoryType.Inventory
 
         repeat(slotCount) {
-            m_slots.add(INVALID_ENTITY_ID)
+            slots.add(InventorySlot(INVALID_ENTITY_ID, InventorySlotType.Slot))
         }
-    }
-
-    /**
-     * return read only list of inventory slots
-     */
-    fun slots(): List<Int> {
-        return m_slots.toList()
     }
 
     fun addListener(listener: SlotListener) {
@@ -83,7 +91,7 @@ open class Inventory
     }
 
     fun setCount(index: Int, newCount: Int) {
-        val item = m_slots[index]
+        val item = slots[index].entityId
         if (isValidEntity(item)) {
             itemMapper.get(item).stackSize = newCount
 
@@ -108,15 +116,15 @@ open class Inventory
      * (which inventory it is in, which index) and which type
      */
     fun placeItemInNextFreeSlot(itemEntityId: Int): ItemAddResult {
-        val slotIndexToMerge = m_slots.filter { isValidEntity(it) }.indexOfFirst { itemInSlotId ->
-            canCombineItems(itemEntityId, itemInSlotId)
+        val slotIndexToMerge = slots.filter { isValidEntity(it.entityId) }.indexOfFirst { itemInSlotId ->
+            canCombineItems(itemEntityId, itemInSlotId.entityId)
         }
 
         val result: ItemAddResult
         if (slotIndexToMerge == -1) {
             //merge not possible/failed. no like items. place it in a different slot
 
-            val slotIndexToInsert = m_slots.indexOfFirst { it -> isInvalidEntity(it) }
+            val slotIndexToInsert = slots.indexOfFirst { it -> isInvalidEntity(it.entityId) }
             if (slotIndexToInsert == -1) {
                 //no free places at all! placement failed.
                 result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Failed)
@@ -127,15 +135,18 @@ open class Inventory
             }
 
         } else {
-            val mergedItemId = m_slots[slotIndexToMerge]
+            val mergedItemId = slots[slotIndexToMerge]
             //merge us into this one
             result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Merged)//, mergedEntityId = mergedItemId)
-            mergeItemIntoSecond(itemIdToObsolete = itemEntityId, itemIdToMerge = mergedItemId)
+            mergeItemIntoSecond(itemIdToObsolete = itemEntityId, itemIdToMerge = mergedItemId.entityId)
         }
 
         return result
     }
 
+    /**
+     * helper function which takes care of setting inventory state on the item component
+     */
     private fun assignItemIdToInventorySlot(itemEntityId: Int, slotIndexToInsert: Int) {
         itemMapper.get(itemEntityId).apply {
             state = ItemComponent.State.InInventoryState
@@ -242,7 +253,7 @@ open class Inventory
      * @param entity
      */
     fun setSlot(index: Int, entity: Int) {
-        m_slots[index] = entity
+        slots[index].entityId = entity
 
         m_listeners.forEach { it.slotItemChanged(index, this) }
     }
@@ -254,15 +265,15 @@ open class Inventory
      * @return entity id of the item taken
      */
     fun takeItem(index: Int): Int {
-        val tmpItem = m_slots[index]
+        val tmpItem = slots[index]
 
-        if (isValidEntity(tmpItem)) {
-            m_slots[index] = INVALID_ENTITY_ID
+        if (isValidEntity(tmpItem.entityId)) {
+            slots[index].entityId = INVALID_ENTITY_ID
 
             m_listeners.forEach { it.slotItemRemoved(index, this) }
         }
 
-        return tmpItem
+        return tmpItem.entityId
     }
 
     /**
@@ -272,7 +283,7 @@ open class Inventory
      * @return entity id at index
      */
     fun itemEntity(index: Int): Int {
-        return m_slots[index]
+        return slots[index].entityId
     }
 
     interface SlotListener {

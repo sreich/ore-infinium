@@ -58,7 +58,8 @@ class PowerGeneratorComponent : Component(), CopyableComponent<PowerGeneratorCom
              *
              * the others are the reserves
              *
-             * only valid for certain types of generators
+             * only valid for certain types of generators.
+             * e.g. solar doesn't have anything in it
              */
     var fuelSources: GeneratorInventory ? = null
 

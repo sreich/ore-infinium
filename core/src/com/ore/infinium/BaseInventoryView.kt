@@ -141,7 +141,7 @@ open class BaseInventoryView(val title: String,
     }
 
     class SlotElement(inventoryView: BaseInventoryView,
-                      index: Int = -1,
+                      index: Int,
                       type: GeneratorControlPanelView.SlotElementType = GeneratorControlPanelView.SlotElementType.FuelSource) {
         val itemImage = VisImage()
         val slotTable = VisTable()
@@ -163,13 +163,16 @@ open class BaseInventoryView(val title: String,
 
     class SlotInputListener internal constructor(
             private val inventoryView: BaseInventoryView,
-            private val index: Int = -1,
+            private val index: Int,
             private val slotType: GeneratorControlPanelView.SlotElementType =
             GeneratorControlPanelView.SlotElementType.FuelSource)
     : InputListener() {
 
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
-            val itemEntity = inventoryView.inventory.itemEntity(index)
+            val itemEntity: Int
+
+            itemEntity = inventoryView.inventory.itemEntity(index)
+
             if (isValidEntity(itemEntity)) {
                 inventoryView.tooltip.enter(event, x, y, pointer, fromActor)
             }
@@ -180,7 +183,8 @@ open class BaseInventoryView(val title: String,
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
             inventoryView.tooltip.mouseMoved(event, x, y)
 
-            val itemEntity = inventoryView.inventory.itemEntity(index)
+            val itemEntity: Int
+            itemEntity = inventoryView.inventory.itemEntity(index)
 
             if (isValidEntity(itemEntity)) {
                 val itemComponent = inventoryView.itemMapper.get(itemEntity)

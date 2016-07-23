@@ -310,18 +310,12 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     fun sendSpawnInventoryItems(entityIdsToSpawn: List<Int>,
                                 owningPlayerEntityId: Int,
                                 inventoryType: Network.Shared.InventoryType,
-                                causedByPickedUpItem: Boolean = false,
-                                fuelSourceEntityId: Int? = null
-                               ) {
+                                causedByPickedUpItem: Boolean = false) {
         assert(entityIdsToSpawn.size > 0) { "entities to spawn in inventory should be non 0" }
 
         val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
         spawn.typeOfInventory = inventoryType
-
-        fuelSourceEntityId?.let {
-            spawn.fuelSourceEntity = serializeInventoryEntitySpawn(it)
-        }
 
         for (entityId in entityIdsToSpawn) {
             val entitySpawn = serializeInventoryEntitySpawn(entityId)
@@ -432,12 +426,13 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             cPlayer.openedControlPanelEntity = deviceEntityId
             //todo send initial fuel consumption update, and then send periodic ones according to subscribing id
 
-            val fuelSources = cGen.fuelSources!!.slots().filter { isValidEntity(it) }
+            val fuelSources = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
+                    .map { it.entityId }
+
             if (fuelSources.count() > 0) {
                 sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
                                         inventoryType = Network.Shared.InventoryType.Generator,
-                                        owningPlayerEntityId = playerEntityId,
-                                        fuelSourceEntityId = cGen.fuelSources!!.fuelSource
+                                        owningPlayerEntityId = playerEntityId
                                        )
             }
         }
