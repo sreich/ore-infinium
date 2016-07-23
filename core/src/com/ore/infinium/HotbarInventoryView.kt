@@ -217,27 +217,26 @@ class HotbarInventoryView(private val stage: Stage,
             payload ?: return false
 
             if (isValidDrop(payload)) {
-                actor.color = Color.GREEN
-                payload.dragActor.setColor(0f, 1f, 0f, 1f)
-
+                BaseInventoryView.setSlotColor(payload, actor, Color.GREEN)
                 return true
             } else {
-                actor.color = Color.RED
-                payload.dragActor.setColor(1f, 0f, 0f, 1f)
+                BaseInventoryView.setSlotColor(payload, actor, Color.RED)
+                //reject
+                return false
             }
-
-            return false
         }
 
         private fun isValidDrop(payload: DragAndDrop.Payload): Boolean {
-
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
-            if (dragWrapper.dragSourceIndex != index) {
-                //maybe make it green? the source/dest is not the same
-                if (isInvalidEntity(inventory.m_hotbarInventory.itemEntity(index))) {
-                    //only make it green if the slot is empty
-                    return true
-                }
+            if (dragWrapper.dragSourceIndex == index &&
+                    dragWrapper.sourceInventory.inventoryType == inventory.m_hotbarInventory.inventoryType) {
+                //trying to drop on the same slot, on the same inventory
+                return false
+            }
+
+            if (isInvalidEntity(inventory.m_hotbarInventory.itemEntity(index))) {
+                //only make it green if the slot is empty
+                return true
             }
 
             return false
@@ -246,9 +245,8 @@ class HotbarInventoryView(private val stage: Stage,
         override fun reset(source: DragAndDrop.Source?, payload: DragAndDrop.Payload?) {
             payload ?: error("payload is null. bad state")
 
-            payload.dragActor.setColor(1f, 1f, 1f, 1f)
+            BaseInventoryView.setSlotColor(payload, actor, Color.WHITE)
 
-            actor.color = Color.WHITE
             //restore selection, it was just dropped..
             inventory.slotItemSelected(inventory.m_hotbarInventory.selectedSlot, inventory.m_hotbarInventory)
         }
@@ -258,7 +256,7 @@ class HotbarInventoryView(private val stage: Stage,
             val hotbarInventory = inventory.m_hotbarInventory
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (isValidEntity(hotbarInventory.itemEntity(this.index))) {
+            if (!isValidDrop(payload)) {
                 return
             }
 

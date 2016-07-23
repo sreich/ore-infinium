@@ -166,15 +166,16 @@ class GeneratorControlPanelView(stage: Stage,
         }
 
         private fun isValidDrop(payload: DragAndDrop.Payload): Boolean {
-
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
-            if (dragWrapper.dragSourceIndex != index) {
-                //maybe make it green? the source/dest is not the same
+            if (dragWrapper.dragSourceIndex == index &&
+                    dragWrapper.sourceInventory.inventoryType == inventoryView.inventory.inventoryType) {
+                //trying to drop on the same slot, on the same inventory
+                return false
+            }
 
-                //only make it green if the slot is empty
-                if (isInvalidEntity(inventoryView.generatorControlPanelInventory.itemEntity(index))) {
-                    return true
-                }
+            //only make it green if the slot is empty
+            if (isInvalidEntity(inventoryView.generatorControlPanelInventory.itemEntity(index))) {
+                return true
             }
 
             return false
@@ -191,7 +192,7 @@ class GeneratorControlPanelView(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (isValidEntity(inventoryView.generatorControlPanelInventory.itemEntity(this.index))) {
+            if (!isValidDrop(payload)) {
                 return
             }
 

@@ -38,7 +38,6 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.isInvalidEntity
-import com.ore.infinium.util.isValidEntity
 
 @Wire(injectInherited = true)
 class InventoryView(stage: Stage,
@@ -122,15 +121,16 @@ class InventoryView(stage: Stage,
         }
 
         private fun isValidDrop(payload: DragAndDrop.Payload): Boolean {
-
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
-            if (dragWrapper.dragSourceIndex != index) {
-                //maybe make it green? the source/dest is not the same
+            if (dragWrapper.dragSourceIndex == index &&
+                    dragWrapper.sourceInventory.inventoryType == inventoryView.inventory.inventoryType) {
+                //trying to drop on the same slot, on the same inventory
+                return false
+            }
 
+            if (isInvalidEntity(inventoryView.m_inventory.itemEntity(index))) {
                 //only make it green if the slot is empty
-                if (isInvalidEntity(inventoryView.m_inventory.itemEntity(index))) {
-                    return true
-                }
+                return true
             }
 
             return false
@@ -147,7 +147,7 @@ class InventoryView(stage: Stage,
             val dragWrapper = payload.`object` as InventorySlotDragWrapper
 
             //ensure the dest is empty before attempting any drag & drop!
-            if (isValidEntity(inventoryView.m_inventory.itemEntity(this.index))) {
+            if (!isValidDrop(payload)) {
                 return
             }
 
