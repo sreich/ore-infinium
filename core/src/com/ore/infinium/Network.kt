@@ -125,6 +125,7 @@ object Network {
         kryo.registerClass<Server.LoadedViewportMoved>()
         kryo.registerClass<Server.PlayerSpawned>()
         kryo.registerClass<Server.ChatMessage>()
+        kryo.registerClass<Server.UpdateGeneratorControlPanelStats>()
     }
 
     private fun registerClient(kryo: Kryo) {
@@ -157,7 +158,7 @@ object Network {
                 var playerName: String = "",
                 var message: String = "",
                 var sender: Chat.ChatSender = Chat.ChatSender.Local
-        )
+                         )
 
         //fixme: unneeded??
         class LoadedViewportMoved {
@@ -180,7 +181,7 @@ object Network {
                 var playerName: String = "",
                 var pos: Vector2 = Vector2()
                 //we don't need a size packet for player. we know how big one will be, always.
-        )
+                           )
 
         /**
          * sends to the client a list of inventory items to spawn
@@ -214,16 +215,17 @@ object Network {
          * updates the current output stats for the generator,
          * visible only when the control panel is open
          */
-        class UpdateGeneratorControlPanelStats() {
-            var entityId = -1
-            var supply = -1
+        class UpdateGeneratorControlPanelStats(
+                //fixme, not sure if entity id is necessary even
+                var generatorEntityId: Int = -1,
+                var supply: Int = -1,
 
-            /**
-             * remaining health of the fuel (percent)
-             * 0 means that fuel source would be expired/removed.
-             */
-            var fuelHealth = 0
-        }
+                /**
+                 * remaining health of the fuel (percent)
+                 * 0 means that fuel source would be expired/removed.
+                 */
+                var fuelHealth: Int = 0
+                                              )
 
         /**
          * sent when the stats of a global power supply/demand gets changed,
@@ -241,7 +243,7 @@ object Network {
          */
         class EntityKilled(
                 val entityToKill: Int = INVALID_ENTITY_ID
-        )
+                          )
 
         class EntitySpawnMultiple {
             var entitySpawn = mutableListOf<EntitySpawn>()
@@ -366,7 +368,7 @@ object Network {
                 var destType: Shared.InventoryType = Shared.InventoryType.Hotbar,
                 var sourceIndex: Byte = -1,
                 var destIndex: Byte = -1
-        )
+                               )
 
         /**
          * notify request, to tell server we need info

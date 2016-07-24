@@ -227,6 +227,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             is Network.Server.EntityKilled -> receiveEntityKilled(receivedObject)
             is Network.Server.EntityMoved -> receiveEntityMoved(receivedObject)
 
+            is Network.Server.UpdateGeneratorControlPanelStats -> receiveUpdateGeneratorControlPanelStats(
+                    receivedObject)
+
             is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
 
             is FrameworkMessage.Ping -> {
@@ -240,6 +243,11 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 }
             }
         }
+    }
+
+    private fun receiveUpdateGeneratorControlPanelStats(stats: Network.Server.UpdateGeneratorControlPanelStats) {
+        oreWorld.m_client!!.m_generatorControlPanelView!!.updateStatus(fuelHealth = stats.fuelHealth,
+                                                                       supply = stats.supply)
     }
 
     private fun receiveEntityKilled(receivedObject: Network.Server.EntityKilled) {
@@ -611,6 +619,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         clientKryo.sendTCP(itemPlace)
     }
 
+    /**
+     * @param entityId local entity id
+     */
     fun sendOpenControlPanel(entityId: Int) {
         val open = Network.Client.OpenDeviceControlPanel()
         open.entityId = networkIdForEntityId[entityId]!!
@@ -669,6 +680,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     fun sendCloseControlPanel() {
+        val close = Network.Client.CloseDeviceControlPanel()
 
+        clientKryo.sendTCP(close)
     }
 }

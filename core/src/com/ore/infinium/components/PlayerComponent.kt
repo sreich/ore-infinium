@@ -51,6 +51,8 @@ class PlayerComponent : Component() {
      * periodically send it info updates for it. (like fuel consumption).
      *
      * they will notify us when they close it, too, so we can stop
+     *
+     * this is a network id, of course
      */
     @DoNotCopy @DoNotPrint @Transient var openedControlPanelEntity = INVALID_ENTITY_ID
 

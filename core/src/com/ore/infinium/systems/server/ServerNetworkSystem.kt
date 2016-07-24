@@ -413,7 +413,6 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                                                receivedObject: Network.Client.CloseDeviceControlPanel) {
         val cPlayer = mPlayer.get(job.connection.playerEntityId)
         cPlayer.openedControlPanelEntity = INVALID_ENTITY_ID
-        throw NotImplementedError("function not yet implemented")
     }
 
     private fun receiveOpenDeviceControlPanel(job: ServerNetworkSystem.NetworkJob,
@@ -824,6 +823,18 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     }
 
+    fun sendPlayerGeneratorStats(playerEntityId: Int, generatorEntityId: Int) {
+        val cPlayer = mPlayer.get(playerEntityId)
+
+        val cGen = mGenerator.get(generatorEntityId)
+
+        val stats = Network.Server.UpdateGeneratorControlPanelStats(generatorEntityId = generatorEntityId,
+                                                                    fuelHealth = cGen.fuelSources!!.fuelSourceHealth,
+                                                                    supply = -1)
+
+        serverKryo.sendToTCP(cPlayer.connectionPlayerId, stats)
+    }
+
     internal class PlayerConnection : Connection() {
         /**
          * entityid of the player
@@ -870,6 +881,5 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         }
 
     }
-
 }
 

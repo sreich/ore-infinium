@@ -67,6 +67,8 @@ class GeneratorControlPanelView(stage: Stage,
      */
     private val fuelSource: SlotElement
 
+    private val fuelRemainingProgressBar: VisProgressBar
+
     init {
         val slotsPerRow = 5
 
@@ -85,9 +87,9 @@ class GeneratorControlPanelView(stage: Stage,
                                     slotType = SlotElementType.FuelSource,
                                     inventoryView = this))
 
-        val progressBar = VisProgressBar(0f, 100f, 1f, false)
-        progressBar.value = 50f
-        fuelSourceTable.add(progressBar)
+        fuelRemainingProgressBar = VisProgressBar(0f, 100f, 1f, false)
+        fuelRemainingProgressBar.value = 50f
+        fuelSourceTable.add(fuelRemainingProgressBar)
         //fuelSourceTable.row()
 
         fuelSourceTable.add(VisLabel("Fuel remaining"))
@@ -127,9 +129,16 @@ class GeneratorControlPanelView(stage: Stage,
      * should be called when conditions for the underlying generator have changed.
      * such as fuel source percentage
      */
-    fun updateStatus() {
+    fun updateStatus(fuelHealth: Int, supply: Int) {
         // generatorControlPanelInventory.fuelSourceHealth
-        val cGen = mPowerDevice.get(generatorControlPanelInventory.owningGeneratorEntityId!!)
+
+        // may have some pending update packets, but those are invalid now
+        // if there's no generator id
+        val generatorEntity = generatorControlPanelInventory.owningGeneratorEntityId ?: return
+
+        val cGen = mPowerDevice.get(generatorEntity)
+
+        fuelRemainingProgressBar.value = fuelHealth.toFloat()
     }
 
     /**

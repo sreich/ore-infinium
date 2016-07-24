@@ -96,7 +96,7 @@ class OreClient : ApplicationListener, InputProcessor {
     var m_hotbarInventory: HotbarInventory? = null
     var m_inventory: Inventory? = null
 
-    private var m_generatorControlPanelView: GeneratorControlPanelView? = null
+    var m_generatorControlPanelView: GeneratorControlPanelView? = null
     var m_generatorInventory: GeneratorInventory? = null
 
     var m_server: OreServer? = null

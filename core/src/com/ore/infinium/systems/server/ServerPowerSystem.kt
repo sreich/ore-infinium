@@ -54,6 +54,9 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     override fun begin() {
         totalSupply = 0
         totalDemand = 0
+
+        //todo rate limit! simple global timer for all should suffice
+        updateClientControlPanels()
     }
 
     override fun end() {
@@ -71,6 +74,18 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         //updateDevice(entityId)
 
         //calculateSupplyAndDemandRate(entityId)
+
+    }
+
+    private fun updateClientControlPanels() {
+        oreWorld.players().forEach { player ->
+            val cPlayer = mPlayer.get(player)
+            val generatorId = cPlayer.openedControlPanelEntity
+
+            if (isValidEntity(generatorId)) {
+                serverNetworkSystem.sendPlayerGeneratorStats(playerEntityId = player, generatorEntityId = generatorId)
+            }
+        }
     }
 
     private fun updateDevice(entityId: Int) {
