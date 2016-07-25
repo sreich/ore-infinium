@@ -63,7 +63,7 @@ class PlayerComponent : Component() {
      * the tick that an attack last took place at.
      * see ToolComponent.attackTickInterval
      */
-    @DoNotCopy @DoNotPrint @Transient var attackLastMs = 0L;
+    @DoNotCopy @DoNotPrint @Transient var primaryAttackTimer = OreTimer()
 
     //    public Vector2 mousePositionWorldCoords;
     //    public boolean mouseLeftButtonHeld;
@@ -97,6 +97,6 @@ class PlayerComponent : Component() {
         /**
          * for interacting with things like doors and control panels
          */
-        val secondaryActionnDelay = 300
+        val secondaryActionDelay = 300
     }
 }

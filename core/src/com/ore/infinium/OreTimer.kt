@@ -28,13 +28,31 @@ import com.badlogic.gdx.utils.TimeUtils
 
 class OreTimer {
 
-    private var lastFiring: Long = 0
+    private var lastMs: Long = 0
 
     fun reset() {
-        lastFiring = TimeUtils.millis()
+        lastMs = TimeUtils.millis()
+    }
+
+    /**
+     * @param intervalMs the rate/interval to check
+     * if the current time is past the previous time
+     * by this much.
+     *
+     * If it is, true is returned and the timer is reset
+     * to the current time. False otherwise.
+     */
+    fun resetIfSurpassed(intervalMs: Long): Boolean {
+        val currentMs = TimeUtils.millis()
+        if (currentMs - lastMs > intervalMs) {
+            lastMs = TimeUtils.millis()
+            return true
+        }
+
+        return false
     }
 
     fun milliseconds(): Long {
-        return TimeUtils.timeSinceMillis(lastFiring)
+        return TimeUtils.timeSinceMillis(lastMs)
     }
 }

@@ -39,7 +39,7 @@ class ToolComponent : Component() {
      * number of ticks that can pass since last attack
      * before another attack is allowed
      */
-    @DoNotCopy @DoNotPrint var attackIntervalMs = 400
+    @DoNotCopy @DoNotPrint var attackIntervalMs = 400L
 
     //damage tool does to blocks
     var blockDamage: Float = 0f

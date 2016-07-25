@@ -217,7 +217,7 @@ class OreClient : ApplicationListener, InputProcessor {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
         val playerComp = playerMapper.get(player)
 
-        if (playerComp.secondaryActionTimer.milliseconds() > PlayerComponent.secondaryActionnDelay) {
+        if (playerComp.secondaryActionTimer.milliseconds() > PlayerComponent.secondaryActionDelay) {
             playerComp.secondaryActionTimer.reset()
 
             //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
@@ -256,10 +256,8 @@ class OreClient : ApplicationListener, InputProcessor {
                                   mouseWorldCoords: Vector2) {
 
         val currentMillis = TimeUtils.millis()
-        if (timeMsSurpassed(currentMillis, playerComp.attackLastMs, equippedToolComp.attackIntervalMs)) {
+        if (playerComp.primaryAttackTimer.resetIfSurpassed(equippedToolComp.attackIntervalMs)) {
             //fixme obviously, iterating over every entityId to find the one under position is beyond dumb, use a spatial hash/quadtree etc
-
-            playerComp.attackLastMs = currentMillis
 
             when (equippedToolComp.type) {
                 ToolComponent.ToolType.Bucket -> liquidGunAttackAndSend(mouseWorldCoords)

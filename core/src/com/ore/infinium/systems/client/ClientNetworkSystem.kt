@@ -34,7 +34,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.TimeUtils
 import com.esotericsoftware.kryonet.Client
 import com.esotericsoftware.kryonet.Connection
 import com.esotericsoftware.kryonet.FrameworkMessage
@@ -184,13 +183,12 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         clientKryo.sendTCP(initialClientData)
     }
 
-    var lastPingUpdate: Long = 0
+    var pingTimer = OreTimer()
 
     override fun processSystem() {
         processNetworkQueue()
 
-        if (TimeUtils.timeSinceMillis(lastPingUpdate) > 1000) {
-            lastPingUpdate = System.currentTimeMillis()
+        if (pingTimer.resetIfSurpassed(1000)) {
             clientKryo.updateReturnTripTime()
             val time = clientKryo.returnTripTime
         }
