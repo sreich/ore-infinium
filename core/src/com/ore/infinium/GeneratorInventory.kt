@@ -59,6 +59,7 @@ class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
 
     companion object {
         val MAX_SLOTS = 32
+        val FUEL_SOURCE_HEALTH_MAX = 100
     }
 }
 

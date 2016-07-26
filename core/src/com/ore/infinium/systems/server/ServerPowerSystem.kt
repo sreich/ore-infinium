@@ -26,10 +26,7 @@ package com.ore.infinium.systems.server
 
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
-import com.ore.infinium.Inventory
-import com.ore.infinium.Network
-import com.ore.infinium.OreTimer
-import com.ore.infinium.OreWorld
+import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.*
 
@@ -122,51 +119,76 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         val fuelSourceSlot = cGen.fuelSources!!.slots[fuelSourceSlotIndex]
 
         if (isInvalidEntity(fuelSourceSlot.entityId)) {
-            var fuelSourceBurnableResult: FuelSourceBurnableResult
 
-            //because we have nothing to burn right now,
-            //grab fuel from other parts of our inventory, if any
-            val newFuelSourceIndex = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
-                    .filter { it.slotType == Inventory.InventorySlotType.Slot }
-                    .indexOfFirst { fuelEntity ->
-                        fuelSourceBurnableResult = fuelSourceBurnableInGenerator(
-                                fuelEntityId = fuelEntity.entityId,
-                                generatorEntityId = genEntityId)
-                        fuelSourceBurnableResult.burnableEnergyOutput != 0
-                    }
-
-            if (newFuelSourceIndex == -1) {
-                //can't do anything, no more fuel in this inventory at all!
-                return
-            }
-
-            //we want to burn this one, as it is possible. so remove it from its source slot
-            val newFuelSourceEntityId = cGen.fuelSources!!.takeItem(newFuelSourceIndex)
-
-            //move it to the fuel-burned slot, it will now get burned
-            cGen.fuelSources!!.setSlot(index = newFuelSourceIndex,
-                                       entity = newFuelSourceEntityId)
-
-            //unnecessary?
-            //val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
-
-            //hack find the player(only one's allowed) that has this one opened so we can notify him, if any
-            oreWorld.players().firstOrNull { playerEntity ->
-                val cPlayer = mPlayer.get(playerEntity)
-                cPlayer.openedControlPanelEntity == genEntityId
-            }?.let { owningPlayer ->
-                //send finalized generator inventory after our changes
-                serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = listOf(),
-                                                            owningPlayerEntityId = owningPlayer,
-                                                            inventoryType = Network.Shared.InventoryType.Generator)
-            }
+            //check if we have anything to burn (in the fuel source slot) right now.
+            //if not we need to move something there, if possible
+            val found = attemptMoveFuelForBurning(genEntityId, cGen)
+        } else {
+            //fuel is able to be burned, lets do it
+            burnFuelSource(fuelSourceSlot.entityId, cGen)
         }
 
-        //todo check if burning currently, if not...move a new one over and start burning it, etc
-        //genC.fuelSources.fuelSource
+        //fixme see if we need to do this, maybe check if update needed first. this would happen if
+        //we completely burned through a fuel source. or if we had to move one from the fuel store to the fuel source
+        oreWorld.players().firstOrNull { playerEntity ->
+            val cPlayer = mPlayer.get(playerEntity)
+            cPlayer.openedControlPanelEntity == genEntityId
+        }?.let { owningPlayer ->
+            //send finalized generator inventory after our changes
+            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = listOf(),
+                                                        owningPlayerEntityId = owningPlayer,
+                                                        inventoryType = Network.Shared.InventoryType.Generator)
+        }
     }
 
-    private fun burnFuelSource(fuelEntityId: Int) {
+    private fun attemptMoveFuelForBurning(genEntityId: Int, cGen: PowerGeneratorComponent): Boolean {
+        var fuelSourceBurnableResult: FuelSourceBurnableResult
+
+        //because we have nothing to burn right now,
+        //grab fuel from other parts of our inventory, if any
+        val newFuelSourceIndex = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
+                .filter { it.slotType == Inventory.InventorySlotType.Slot }
+                .indexOfFirst { fuelEntity ->
+                    fuelSourceBurnableResult = fuelSourceBurnableInGenerator(
+                            fuelEntityId = fuelEntity.entityId,
+                            generatorEntityId = genEntityId)
+                    fuelSourceBurnableResult.burnableEnergyOutput != 0
+                }
+
+        if (newFuelSourceIndex == -1) {
+            //can't do anything, no more fuel in this inventory at all!
+            return false
+        }
+
+        //we want to burn this one, as it is possible. so remove it from its source slot
+        val newFuelSourceEntityId = cGen.fuelSources!!.takeItem(newFuelSourceIndex)
+
+        //move it to the fuel-burned slot, it is ready to get burned next tick
+        cGen.fuelSources!!.setSlot(index = newFuelSourceIndex,
+                                   entity = newFuelSourceEntityId)
+
+        //unnecessary?
+        //val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
+
+        //hack find the player(only one's allowed) that has this one opened so we can notify him, if any
+        cGen.fuelSources!!.fuelSourceHealth = GeneratorInventory.FUEL_SOURCE_HEALTH_MAX
+
+        return true
+    }
+
+    private fun burnFuelSource(fuelEntityId: Int, cGen: PowerGeneratorComponent) {
+        val cFuelItem = mItem.get(fuelEntityId)
+        if (cGen.fuelSources!!.fuelSourceHealth <= 0) {
+            if (cFuelItem.stackSize > 1) {
+                //destroy 1 stack size in the fuel source, we've got more where that came from
+                cFuelItem.stackSize -= 1
+            } else {
+                //no more stacks in it after we just burnt this one, destroy fuel source
+                cGen.fuelSources!!.fuelSourceHealth = 0
+
+                //todo notify slot destroyed
+            }
+        }
     }
 
     /**
