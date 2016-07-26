@@ -25,7 +25,9 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.artemis.ComponentMapper
-import com.ore.infinium.components.*
+import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.indices
 import com.ore.infinium.util.isValidEntity
@@ -41,31 +43,23 @@ class OreServer : Runnable {
      * if it is a dedicated server, this is invalid.
      * so, only valid for local client-hosting servers
      */
-    private var m_hostingPlayer: Int? = null
+    private var hostingPlayer: Int? = null
 
     internal var sharedFrameTime: Double = 0.0
 
-    private val m_running = true
+    private val running = true
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
-    private lateinit var airMapper: ComponentMapper<AirComponent>
-    private lateinit var healthMapper: ComponentMapper<HealthComponent>
-    private lateinit var lightMapper: ComponentMapper<LightComponent>
+    private lateinit var mPlayer: ComponentMapper<PlayerComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
 
-    lateinit var m_world: OreWorld
+    lateinit var oreWorld: OreWorld
 
-    lateinit var m_chat: Chat
+    lateinit var chat: Chat
 
     private val SERVER_FIXED_TIMESTEP = 1.0 / 60.0 * 1000
 
-    private lateinit var m_serverNetworkSystem: ServerNetworkSystem
+    private lateinit var serverNetworkSystem: ServerNetworkSystem
 
     /**
      * Used to initiate the server as well as to initiate it from a calling client thread
@@ -73,21 +67,21 @@ class OreServer : Runnable {
     override fun run() {
         Thread.currentThread().name = "server thread (main)"
 
-        m_world = OreWorld(m_client = null, m_server = this, worldInstanceType = OreWorld.WorldInstanceType.Server)
-        m_world.init()
-        m_world.m_artemisWorld.inject(this, true)
+        oreWorld = OreWorld(m_client = null, m_server = this, worldInstanceType = OreWorld.WorldInstanceType.Server)
+        oreWorld.init()
+        oreWorld.m_artemisWorld.inject(this, true)
 
-        m_chat = Chat()
-        m_chat.addListener(object : Chat.ChatListener {
+        chat = Chat()
+        chat.addListener(object : Chat.ChatListener {
             override fun lineAdded(line: Chat.ChatLine) {
                 val message = Network.Server.ChatMessage(
                         message = line.chatText,
                         playerName = line.playerName,
                         sender = line.chatSender,
                         timestamp = line.timestamp
-                )
+                                                        )
 
-                m_serverNetworkSystem.serverKryo.sendToAllTCP(message)
+                serverNetworkSystem.serverKryo.sendToAllTCP(message)
             }
 
             override fun cleared() {
@@ -98,11 +92,11 @@ class OreServer : Runnable {
         //exit the server thread when the client notifies us to,
         //by setting the latch to 0,
         //the client notifies us to exit it ASAP
-        while (m_world.m_server!!.shutdownLatch.count != 0L) {
-            m_world.process()
+        while (oreWorld.m_server!!.shutdownLatch.count != 0L) {
+            oreWorld.process()
         }
 
-        m_world.shutdown()
+        oreWorld.shutdown()
     }
 
     /**
@@ -114,11 +108,11 @@ class OreServer : Runnable {
      * @return entity id
      */
     fun createPlayer(playerName: String, connectionId: Int): Int {
-        val player = m_world.createPlayer(playerName, connectionId)
+        val player = oreWorld.createPlayer(playerName, connectionId)
 
         //the first player in the world, if server is hosted by the client (same machine & process)
-        if (m_hostingPlayer == null) {
-            m_hostingPlayer = player
+        if (hostingPlayer == null) {
+            hostingPlayer = player
         }
 
         //TODO:make better server player first-spawning code(in new world), find a nice spot to spawn in
@@ -130,49 +124,49 @@ class OreServer : Runnable {
 
         posY = 20f
 
-        val seaLevel = m_world.seaLevel()
+        val seaLevel = oreWorld.seaLevel()
 
         //collision test
         //left
         for (y in 0 until seaLevel) {
-            //m_world.blockAt(tilex - 24, tiley + y).type = Block.BlockType.Stone;
+            //oreWorld.blockAt(tilex - 24, tiley + y).type = Block.BlockType.Stone;
         }
 
         //right
         for (y in 0 until seaLevel) {
-            //        m_world->blockAt(tilex + 24, tiley + y).primitiveType = Block::Stone;
+            //        oreWorld->blockAt(tilex + 24, tiley + y).primitiveType = Block::Stone;
         }
         //top
         for (x in tilex - 54 until tilex + 50) {
-            //m_world.blockAt(x, tiley).type = Block.BlockType.Stone;
+            //oreWorld.blockAt(x, tiley).type = Block.BlockType.Stone;
         }
 
-        val playerSprite = spriteMapper.get(player).apply {
+        val playerSprite = mSprite.get(player).apply {
             sprite.setPosition(posX, posY)
         }
 
-        val playerComponent = playerMapper.get(player).apply {
+        val playerComponent = mPlayer.get(player).apply {
             hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
             hotbarInventory!!.addListener(HotbarInventorySlotListener())
 
-            m_world.m_artemisWorld.inject(hotbarInventory!!)
+            oreWorld.m_artemisWorld.inject(hotbarInventory!!)
         }
 
         playerComponent.inventory = Inventory(Inventory.maxSlots)
-        m_world.m_artemisWorld.inject(playerComponent.inventory!!)
+        oreWorld.m_artemisWorld.inject(playerComponent.inventory!!)
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
         //tell all players including himself, that he joined
-        m_serverNetworkSystem.sendSpawnPlayerBroadcast(player)
+        serverNetworkSystem.sendSpawnPlayerBroadcast(player)
 
-        val players = m_world.players()
+        val players = oreWorld.players()
         //tell this player all the current players that are on the server right now
         for (i in players.indices) {
             //exclude himself, though. he already knows.
             val entity = players[i]
             if (entity != player) {
-                m_serverNetworkSystem.sendSpawnPlayer(entity, connectionId)
+                serverNetworkSystem.sendSpawnPlayer(entity, connectionId)
             }
         }
 
@@ -189,30 +183,30 @@ class OreServer : Runnable {
     private fun loadHotbarInventory(playerEntity: Int) {
         //TODO: load the player's inventory and hotbarinventory from file..for now, initialize *the whole thing* with
         // bullshit
-        val playerComponent = playerMapper.get(playerEntity)
+        val playerComponent = mPlayer.get(playerEntity)
 
-        val drill = m_world.createDrill()
+        val drill = oreWorld.createDrill()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(drill)
 
-        val dirtBlock = m_world.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
+        val dirtBlock = oreWorld.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(dirtBlock)
 
-        val stoneBlock = m_world.createBlockItem(OreBlock.BlockType.Stone.oreValue)
+        val stoneBlock = oreWorld.createBlockItem(OreBlock.BlockType.Stone.oreValue)
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(stoneBlock)
 
-        val powerGen = m_world.createPowerGenerator()
+        val powerGen = oreWorld.createPowerGenerator()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(powerGen)
 
-        val light = m_world.createLight()
+        val light = oreWorld.createLight()
 
-        itemMapper.get(light).apply {
+        mItem.get(light).apply {
             maxStackSize = 64000
             stackSize = maxStackSize
         }
 
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(light)
 
-        val liquidGun = m_world.createLiquidGun()
+        val liquidGun = oreWorld.createLiquidGun()
         playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
 
         val nonEmptySlots = playerComponent.hotbarInventory!!.slots.filter {
@@ -220,15 +214,15 @@ class OreServer : Runnable {
         }.map { it.entityId }
 
         if (nonEmptySlots.count() > 0) {
-            m_serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                                                          owningPlayerEntityId = playerEntity,
-                                                          inventoryType = Network.Shared.InventoryType.Hotbar,
-                                                          causedByPickedUpItem = false)
+            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
+                                                        owningPlayerEntityId = playerEntity,
+                                                        inventoryType = Network.Shared.InventoryType.Hotbar,
+                                                        causedByPickedUpItem = false)
         }
     }
 
     private fun sendServerMessage(message: String) {
-        m_chat.addChatLine(Chat.timestamp(), "", message, Chat.ChatSender.Server)
+        chat.addChatLine(Chat.timestamp(), "", message, Chat.ChatSender.Server)
     }
 
     /**
@@ -237,29 +231,22 @@ class OreServer : Runnable {
      * @param player
      * *         entity id
      */
-    private fun loadInventory(player: Int) {
-        /*
-        Entity tool = m_world.engine.createEntity();
-        tool.add(m_world.engine.createComponent(VelocityComponent.class));
+    private fun loadInventory(playerEntity: Int) {
+        val cPlayer = mPlayer.get(playerEntity)
 
-        ToolComponent toolComponent = m_world.engine.createComponent(ToolComponent.class);
-        tool.add(toolComponent);
-        toolComponent.type = ToolComponent.ToolType.Drill;
+        val stoneBlock = oreWorld.createBlockItem(OreBlock.BlockType.Stone.oreValue)
+        cPlayer.inventory!!.placeItemInNextFreeSlot(stoneBlock)
 
-        SpriteComponent spriteComponent = m_world.engine.createComponent(SpriteComponent.class);
-        spriteComponent.sprite.setSize(2, 2);
-        spriteComponent.textureName = "pickaxeWooden1";
-        tool.add(spriteComponent);
+        val nonEmptySlots = cPlayer.inventory!!.slots.filter { slot ->
+            isValidEntity(slot.entityId)
+        }.map { slot -> slot.entityId }
 
-        ItemComponent toolItemComponent = m_world.engine.createComponent(ItemComponent.class);
-        toolItemComponent.stackSize = 62132;
-        toolItemComponent.maxStackSize = 62132;
-        toolItemComponent.inventoryIndex = 0;
-        toolItemComponent.state = ItemComponent.State.InInventoryState;
-
-        PlayerComponent playerComponent = playerMapper.get(player);
-        playerComponent.inventory.setSlot(0, tool);
-        */
+        if (nonEmptySlots.count() > 0) {
+            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
+                                                        owningPlayerEntityId = playerEntity,
+                                                        inventoryType = Network.Shared.InventoryType.Inventory,
+                                                        causedByPickedUpItem = false)
+        }
     }
 
     /**
@@ -269,7 +256,7 @@ class OreServer : Runnable {
         override fun slotItemChanged(index: Int, inventory: Inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
             //or an overloaded method for dragging
-            //            PlayerComponent playerComponent = playerMapper.get(inventory.owningPlayer);
+            //            PlayerComponent playerComponent = mPlayer.get(inventory.owningPlayer);
             //
             //            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
             //                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);

@@ -534,8 +534,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         //FIXME: do some verification stuff, make sure strings are safe
 
         val date = SimpleDateFormat("HH:mm:ss")
-        oreServer.m_chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
-                                     Chat.ChatSender.Player)
+        oreServer.chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
+                                   Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {

@@ -117,7 +117,7 @@ class DebugProfilerView(stage: Stage,
         val combinedProfilers = strategy.clientPerfCounter.values.toMutableList()
 
         if (m_world.worldInstanceType == OreWorld.WorldInstanceType.ClientHostingServer || m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
-            val serverWorld = m_world.m_server!!.m_world
+            val serverWorld = m_world.m_server!!.oreWorld
             val serverStrategy = serverWorld.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
 
             // synchronized because we're crossing threads (local hosted server is on diff thread)
