@@ -28,6 +28,7 @@ import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.Inventory
 import com.ore.infinium.Network
+import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.*
@@ -48,6 +49,11 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     private var totalSupply = 0
     private var totalDemand = 0
 
+    private var fuelBurnDelayTimer = OreTimer()
+
+    //arbitrary global rate delay so fuel isn't burned through instantly
+    val globalFuelBurnRateDelay = 100L
+
     override fun initialize() {
     }
 
@@ -60,6 +66,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     }
 
     override fun end() {
+        fuelBurnDelayTimer.resetIfSurpassed(globalFuelBurnRateDelay)
     }
 
     override fun process(entityId: Int) {
@@ -71,7 +78,11 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         * wire and consumed by the clientside system system
         */
 
-        //updateDevice(entityId)
+
+        if (fuelBurnDelayTimer.surpassed(globalFuelBurnRateDelay)) {
+            //hack
+            //updateDevice(entityId)
+        }
 
         //calculateSupplyAndDemandRate(entityId)
 
@@ -136,38 +147,23 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             cGen.fuelSources!!.setSlot(index = newFuelSourceIndex,
                                        entity = newFuelSourceEntityId)
 
-            val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
+            //unnecessary?
+            //val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
 
-            if (nonEmptySlots.count() > 0) {
+            //hack find the player(only one's allowed) that has this one opened so we can notify him, if any
+            oreWorld.players().firstOrNull { playerEntity ->
+                val cPlayer = mPlayer.get(playerEntity)
+                cPlayer.openedControlPanelEntity == genEntityId
+            }?.let { owningPlayer ->
                 //send finalized generator inventory after our changes
-                serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = nonEmptySlots,
-                                                            owningPlayerEntityId = 2,
+                serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = listOf(),
+                                                            owningPlayerEntityId = owningPlayer,
                                                             inventoryType = Network.Shared.InventoryType.Generator)
             }
         }
 
         //todo check if burning currently, if not...move a new one over and start burning it, etc
         //genC.fuelSources.fuelSource
-    }
-
-    private fun isBurnableFuelSource(fuelEntityId: Int, generatorEntityId: Int): Int {
-        val fuel = fuelSourceBurnableInGenerator(fuelEntityId = fuelEntityId, generatorEntityId = generatorEntityId)
-
-        if (fuel.burnableEnergyOutput != 0) {
-            burnFuelSource(fuelEntityId = fuelEntityId)
-
-            val cItem = mItem.get(fuelEntityId)
-            cItem.stackSize -= 1
-            if (cItem.stackSize == 0) {
-                //destroy item
-            }
-        } else {
-            //not a fuel source
-        }
-
-        throw UnsupportedOperationException(
-                "not implemented") //To change body of created functions use File | Settings | File Templates.
-
     }
 
     private fun burnFuelSource(fuelEntityId: Int) {
@@ -200,7 +196,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
 
     private fun calculateSupplyAndDemandRate(entityId: Int) {
         val genC = mPowerGenerator.ifPresent(entityId) {
-            totalSupply += it.powerSupplyRate
+            totalSupply += it.supplyRateEU
         }
 
         val consumerC = mPowerConsumer.ifPresent(entityId) {

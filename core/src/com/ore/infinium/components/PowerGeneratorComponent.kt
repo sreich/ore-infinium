@@ -26,6 +26,7 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.ore.infinium.GeneratorInventory
+import com.ore.infinium.OreTimer
 import com.ore.infinium.util.CopyableComponent
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
@@ -35,7 +36,11 @@ import com.ore.infinium.util.defaultCopyFrom
  * Any device that can generate some amount of power on a circuit
  */
 class PowerGeneratorComponent : Component(), CopyableComponent<PowerGeneratorComponent> {
-    var powerSupplyRate: Int = 0
+    /**
+     * current EU supply rate, adjusted according to
+     * conditions or fuel changes.
+     */
+    var supplyRateEU: Int = 0
 
     enum class GeneratorType {
         Solar,
@@ -68,7 +73,7 @@ class PowerGeneratorComponent : Component(), CopyableComponent<PowerGeneratorCom
      * if it is the same kind of item. to determine if it can merge/combine
      */
     fun canCombineWith(otherComp: PowerGeneratorComponent): Boolean {
-        return this.powerSupplyRate == otherComp.powerSupplyRate
+        return this.supplyRateEU == otherComp.supplyRateEU
     }
 
     /**

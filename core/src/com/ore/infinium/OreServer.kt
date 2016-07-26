@@ -29,7 +29,6 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.ServerNetworkSystem
-import com.ore.infinium.util.indices
 import com.ore.infinium.util.isValidEntity
 import java.util.concurrent.CountDownLatch
 
@@ -160,14 +159,10 @@ class OreServer : Runnable {
         //tell all players including himself, that he joined
         serverNetworkSystem.sendSpawnPlayerBroadcast(player)
 
-        val players = oreWorld.players()
         //tell this player all the current players that are on the server right now
-        for (i in players.indices) {
+        oreWorld.players().filter { playerEntity -> playerEntity != player }.forEach { playerEntity ->
             //exclude himself, though. he already knows.
-            val entity = players[i]
-            if (entity != player) {
-                serverNetworkSystem.sendSpawnPlayer(entity, connectionId)
-            }
+            serverNetworkSystem.sendSpawnPlayer(playerEntity, connectionId)
         }
 
         //load players main inventory and hotbar, but be sure to do it after he's been told

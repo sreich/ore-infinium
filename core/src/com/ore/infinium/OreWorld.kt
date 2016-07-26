@@ -824,7 +824,7 @@ class OreWorld
         }
 
         val genC = powerGeneratorMapper.create(power).apply {
-            powerSupplyRate = 100
+            supplyRateEU = 100
             fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
         }
 
@@ -1133,9 +1133,13 @@ class OreWorld
         throw IllegalStateException("player id attempted to be obtained from world, but this player does not exist")
     }
 
-    fun players(): IntBag {
+    fun players(): List<Int> {
         val entitySubscription = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
-        return entitySubscription.entities
+        
+        val transformedList = mutableListOf<Int>()
+        entitySubscription.entities.forEach { transformedList.add(it) }
+
+        return transformedList
     }
 
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,

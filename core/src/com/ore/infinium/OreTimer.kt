@@ -34,6 +34,9 @@ class OreTimer {
         lastMs = TimeUtils.millis()
     }
 
+    val currentMs: Long
+        get() = TimeUtils.millis()
+
     /**
      * @param intervalMs the rate/interval to check
      * if the current time is past the previous time
@@ -43,14 +46,15 @@ class OreTimer {
      * to the current time. False otherwise.
      */
     fun resetIfSurpassed(intervalMs: Long): Boolean {
-        val currentMs = TimeUtils.millis()
         if (currentMs - lastMs > intervalMs) {
-            lastMs = TimeUtils.millis()
+            lastMs = currentMs
             return true
         }
 
         return false
     }
+
+    fun surpassed(intervalMs: Long) = (currentMs - lastMs > intervalMs)
 
     fun milliseconds(): Long {
         return TimeUtils.timeSinceMillis(lastMs)

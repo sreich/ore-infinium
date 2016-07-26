@@ -29,10 +29,7 @@ import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.Rectangle
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.PlayerComponent
-import com.ore.infinium.util.require
 import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
-import com.ore.infinium.util.indices
 
 @Wire
 class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
@@ -53,9 +50,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     override fun processSystem() {
         val players = oreWorld.players()
 
-        for (i in players.indices) {
-            val player = players[i]
-
+        for (player in players) {
             val playerComp = mPlayer.get(player)
             val rect = playerComp.loadedViewport.rect
 
