@@ -77,8 +77,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
 
 
         if (fuelBurnDelayTimer.surpassed(globalFuelBurnRateDelay)) {
-            //hack
-            //updateDevice(entityId)
+            updateDevice(entityId)
         }
 
         //calculateSupplyAndDemandRate(entityId)
@@ -115,8 +114,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             return
         }
 
-        val fuelSourceSlotIndex = cGen.fuelSources!!.slots.indexOfFirst { it.slotType == Inventory.InventorySlotType.FuelSource }
-        val fuelSourceSlot = cGen.fuelSources!!.slots[fuelSourceSlotIndex]
+        val fuelSourceSlot = cGen.fuelSources!!.slots.first { it.slotType == Inventory.InventorySlotType.FuelSource }
 
         if (isInvalidEntity(fuelSourceSlot.entityId)) {
 
@@ -128,6 +126,9 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             burnFuelSource(fuelSourceSlot.entityId, cGen)
         }
 
+        val spawnSlotList = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
+                .map { it.entityId }
+
         //fixme see if we need to do this, maybe check if update needed first. this would happen if
         //we completely burned through a fuel source. or if we had to move one from the fuel store to the fuel source
         oreWorld.players().firstOrNull { playerEntity ->
@@ -135,7 +136,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             cPlayer.openedControlPanelEntity == genEntityId
         }?.let { owningPlayer ->
             //send finalized generator inventory after our changes
-            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = listOf(),
+            serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = spawnSlotList,
                                                         owningPlayerEntityId = owningPlayer,
                                                         inventoryType = Network.Shared.InventoryType.Generator)
         }
@@ -146,26 +147,25 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
 
         //because we have nothing to burn right now,
         //grab fuel from other parts of our inventory, if any
-        val newFuelSourceIndex = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
+        val newFuelSource = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
                 .filter { it.slotType == Inventory.InventorySlotType.Slot }
-                .indexOfFirst { fuelEntity ->
+                .firstOrNull { fuelEntity ->
                     fuelSourceBurnableResult = fuelSourceBurnableInGenerator(
                             fuelEntityId = fuelEntity.entityId,
                             generatorEntityId = genEntityId)
                     fuelSourceBurnableResult.burnableEnergyOutput != 0
                 }
 
-        if (newFuelSourceIndex == -1) {
-            //can't do anything, no more fuel in this inventory at all!
-            return false
-        }
+        //can't do anything, no more fuel in this inventory at all!
+        newFuelSource ?: return false
 
-        //we want to burn this one, as it is possible. so remove it from its source slot
-        val newFuelSourceEntityId = cGen.fuelSources!!.takeItem(newFuelSourceIndex)
+        val fuelSlot = cGen.fuelSources!!.slots.first { it.slotType == Inventory.InventorySlotType.FuelSource }
 
         //move it to the fuel-burned slot, it is ready to get burned next tick
-        cGen.fuelSources!!.setSlot(index = newFuelSourceIndex,
-                                   entity = newFuelSourceEntityId)
+        cGen.fuelSources!!.setSlot(fuelSlot, newFuelSource.entityId)
+
+        //we want to burn this (source) one, as it is possible. so remove it from its source slot
+        cGen.fuelSources!!.removeSlot(newFuelSource)
 
         //unnecessary?
         //val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
@@ -176,18 +176,25 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         return true
     }
 
+    /**
+     * burns a fuel source, returns true ifit
+     */
     private fun burnFuelSource(fuelEntityId: Int, cGen: PowerGeneratorComponent) {
         val cFuelItem = mItem.get(fuelEntityId)
         if (cGen.fuelSources!!.fuelSourceHealth <= 0) {
             if (cFuelItem.stackSize > 1) {
-                //destroy 1 stack size in the fuel source, we've got more where that came from
+                //destroy 1 stack count in the fuel source, we've got more where that came from
                 cFuelItem.stackSize -= 1
+                //return true
             } else {
                 //no more stacks in it after we just burnt this one, destroy fuel source
                 cGen.fuelSources!!.fuelSourceHealth = 0
+                //return true
 
                 //todo notify slot destroyed
             }
+        } else {
+            cGen.fuelSources!!.fuelSourceHealth -= 1
         }
     }
 

@@ -33,7 +33,7 @@ import com.ore.infinium.util.DoNotCopy
  */
 class PowerDeviceComponent : Component() {
     //todo..or do we want an enum that has a couple states (on/off, disabled/broken?)
-    @DoNotCopy var running = false
+    @DoNotCopy var running = true
 
     /**
      * determines if the item component is the same, in other words,

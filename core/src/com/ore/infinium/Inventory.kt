@@ -63,7 +63,8 @@ open class Inventory
     }
 
     class InventorySlot(var entityId: Int,
-                        val slotType: InventorySlotType)
+                        val slotType: InventorySlotType) {
+    }
 
     var slots = mutableListOf<InventorySlot>()
         private set
@@ -258,6 +259,22 @@ open class Inventory
         m_listeners.forEach { it.slotItemChanged(index, this) }
     }
 
+    fun setSlot(slotToSet: Inventory.InventorySlot, entity: Int) {
+        val index = slots.indexOfFirst { it === slotToSet }
+
+        slotToSet.entityId = entity
+
+        m_listeners.forEach { it.slotItemChanged(index, this) }
+    }
+
+    fun removeSlot(slotToRemove: Inventory.InventorySlot) {
+        val index = slots.indexOfFirst { it === slotToRemove }
+
+        slotToRemove.entityId = INVALID_ENTITY_ID
+
+        m_listeners.forEach { it.slotItemRemoved(index, this) }
+    }
+
     /**
      * @param index
      * *
@@ -265,15 +282,15 @@ open class Inventory
      * @return entity id of the item taken
      */
     fun takeItem(index: Int): Int {
-        val tmpItem = slots[index]
+        val tmpItem = slots[index].entityId
 
-        if (isValidEntity(tmpItem.entityId)) {
-            slots[index].entityId = INVALID_ENTITY_ID
+        assert(isValidEntity(tmpItem))
 
-            m_listeners.forEach { it.slotItemRemoved(index, this) }
-        }
+        slots[index].entityId = INVALID_ENTITY_ID
 
-        return tmpItem.entityId
+        m_listeners.forEach { it.slotItemRemoved(index, this) }
+
+        return tmpItem
     }
 
     /**

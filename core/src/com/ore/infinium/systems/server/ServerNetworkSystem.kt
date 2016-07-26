@@ -296,7 +296,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     }
 
     /**
-     * @param itemEntityId
+     * @param entityIdsToSpawn if empty, sent anyways and taken as a
+     * clear command (inventory got emptied)
+     *
      * *
      * @param owningPlayerEntityId
      * *         entity id
@@ -311,7 +313,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                                 owningPlayerEntityId: Int,
                                 inventoryType: Network.Shared.InventoryType,
                                 causedByPickedUpItem: Boolean = false) {
-        assert(entityIdsToSpawn.size > 0) { "entities to spawn in inventory should be non 0" }
+        //assert(entityIdsToSpawn.size > 0) { "entities to spawn in inventory should be non 0" }
 
         val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
