@@ -264,13 +264,20 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     /**
      * does not get called when a device control panel/inventory gets
-     * opened but it is empty. that is implied. only sent when it's more
-     * than empty.
+     * opened but is empty. that is implied. in that case when it is
+     * opened it will get sent if it is non-empty.
      *
-     * we already clear all entities each time it gets opened
+     * it does however get sent with an empty list if it wants us
+     * to clear the list explicitly (like moving stuff around)
+     *
+     * upon receiving it will clear and then spawn them into the
+     * appropriate inventory
      */
     private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
         val inventory = inventoryForType(inventorySpawn.typeOfInventory)
+
+        //clear the inventory first (mostly applies to entity inventories)
+        inventory.clearAll()
 
         //now we respawn in some new ones, if any
         for (e in inventorySpawn.entitiesToSpawn) {
@@ -281,7 +288,6 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 soundSystem.playItemPickup()
             }
         }
-        inventory.toString()
     }
 
     private fun inventoryForType(typeOfInventory: Network.Shared.InventoryType) = when (typeOfInventory) {
