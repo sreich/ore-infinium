@@ -166,6 +166,7 @@ class OreWorld
                                            .with(ServerNetworkEntitySystem(this))
                                            .with(ServerBlockDiggingSystem(this))
                                            .with(PlayerSystem(this))
+                                           .with(AirSystem(this))
                                            .with(ServerNetworkSystem(this, m_server!!))
                                            .with(TileLightingSystem(this))
                                            .with(LiquidSimulationSystem(this))

@@ -229,6 +229,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                     receivedObject)
 
             is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
+            is Network.Server.PlayerAirChanged -> receiveAirChanged(receivedObject)
 
             is FrameworkMessage.Ping -> {
             }
@@ -241,6 +242,11 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 }
             }
         }
+    }
+
+    private fun receiveAirChanged(airChanged: Network.Server.PlayerAirChanged) {
+        throw UnsupportedOperationException(
+                "not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun receiveUpdateGeneratorControlPanelStats(stats: Network.Server.UpdateGeneratorControlPanelStats) {
