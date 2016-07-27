@@ -79,12 +79,11 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
                 val blockType = oreWorld.blockType(x, y)
 
                 if (blockType == OreBlock.BlockType.Water.oreValue) {
-
-                } else {
-                    return false
+                    return true
                 }
             }
         }
 
+        return false
     }
 }
