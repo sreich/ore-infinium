@@ -73,9 +73,15 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
 
     private fun isEntitySubmerged(entityId: Int): Boolean {
         val cSprite = mSprite.get(entityId)
+        val rect = cSprite.sprite.rect
 
-        for (x in cSprite.sprite.rect.x.toInt()..cSprite.sprite.rect.width.toInt()) {
-            for (y in cSprite.sprite.rect.y.toInt()..cSprite.sprite.rect.height.toInt()) {
+        val left = rect.x.toInt()
+        val right = left + rect.width.toInt()
+        val top = rect.y.toInt()
+        val bottom = top + 1
+
+        for (y in top..bottom) {
+            for (x in left..right) {
                 val blockType = oreWorld.blockType(x, y)
 
                 if (blockType == OreBlock.BlockType.Water.oreValue) {

@@ -450,8 +450,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             oreWorld.setBlockType(tileX, tileY, OreBlock.BlockType.Water.oreValue)
             oreWorld.setLiquidLevel(tileX, tileY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
 
-            val players = oreWorld.players()
-            for (player in players) {
+            for (player in oreWorld.players()) {
                 this.sendPlayerSingleBlock(player, tileX, tileY)
             }
         }

@@ -48,9 +48,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     override fun processSystem() {
-        val players = oreWorld.players()
-
-        for (player in players) {
+        for (player in oreWorld.players()) {
             val playerComp = mPlayer.get(player)
             val rect = playerComp.loadedViewport.rect
 

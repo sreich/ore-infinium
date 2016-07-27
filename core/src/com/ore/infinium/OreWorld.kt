@@ -272,21 +272,25 @@ class OreWorld
                                             LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
             loadedViewport.centerOn(Vector2(playerSprite.sprite.x, playerSprite.sprite.y))
         }
+
         playerComponent.playerName = playerName
 
-        playerSprite.sprite.setSize(2f, 3f)
-
-        playerSprite.textureName = "player1Standing1"
-        playerSprite.category = SpriteComponent.EntityCategory.Character
+        playerSprite.apply {
+            sprite.setSize(2f, 3f)
+            textureName = "player1Standing1"
+            category = SpriteComponent.EntityCategory.Character
+        }
 
         controlMapper.create(playerEntity)
         jumpMapper.create(playerEntity)
 
-        val healthComponent = healthMapper.create(playerEntity)
-        healthComponent.health = healthComponent.maxHealth
+        val healthComponent = healthMapper.create(playerEntity).apply {
+            health = maxHealth
+        }
 
-        val airComponent = airMapper.create(playerEntity)
-        airComponent.air = airComponent.maxAir
+        val airComponent = airMapper.create(playerEntity).apply {
+            air = maxAir
+        }
 
         return playerEntity
     }
@@ -1118,16 +1122,12 @@ class OreWorld
      * @return the player entity
      */
     fun playerEntityForPlayerConnectionID(playerId: Int): Int {
-        val players = players()
-
         var playerComponent: PlayerComponent
-        for (iPlayer in players.indices) {
-            val playerEntityId = players[iPlayer]
-
-            playerComponent = playerMapper.get(playerEntityId)
+        for (player in players()) {
+            playerComponent = playerMapper.get(player)
 
             if (playerComponent.connectionPlayerId == playerId) {
-                return playerEntityId
+                return player
             }
         }
 

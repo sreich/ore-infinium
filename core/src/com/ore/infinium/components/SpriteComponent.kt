@@ -56,8 +56,7 @@ class SpriteComponent : Component(), CopyableComponent<SpriteComponent> {
 
     override fun copyFrom(component: SpriteComponent) {
         this.defaultCopyFrom(component)
-        sprite = Sprite(component.sprite)
-        sprite.apply {
+        sprite = Sprite(component.sprite).apply {
             setPosition(component.sprite.x, component.sprite.y)
         }
     }

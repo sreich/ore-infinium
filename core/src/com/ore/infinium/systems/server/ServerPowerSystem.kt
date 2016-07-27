@@ -123,7 +123,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             val found = attemptMoveFuelForBurning(genEntityId, cGen)
         } else {
             //fuel is able to be burned, lets do it
-            burnFuelSource(fuelSourceSlot.entityId, cGen)
+            //   burnFuelSource(fuelSourceSlot.entityId, cGen)
         }
 
         val spawnSlotList = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
