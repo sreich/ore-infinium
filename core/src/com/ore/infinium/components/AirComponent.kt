@@ -27,13 +27,13 @@ package com.ore.infinium.components
 import com.artemis.Component
 
 class AirComponent : Component() {
+    companion object {
+        const val decreaseIntervalMs = 50L
+    }
 
-    //air amount that is decreased per each interval
-    var decreaseRate = 10
-    var decreaseInterval = 500
     var maxAir = 25000
+
     //current air level
     var air = maxAir
-    //amount to decrease health per interval, when run without air
-    var healthDecreaseRate = 10
 }
+

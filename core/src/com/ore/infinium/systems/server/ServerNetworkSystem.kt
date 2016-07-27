@@ -56,6 +56,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val mBlock by mapper<BlockComponent>()
     private val mHealth by mapper<HealthComponent>()
     private val mTool by mapper<ToolComponent>()
+    private val mAir by mapper<AirComponent>()
 
     private val serverBlockDiggingSystem by system<ServerBlockDiggingSystem>()
     private val serverNetworkEntitySystem by system<ServerNetworkEntitySystem>()
@@ -793,6 +794,15 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val playerComponent = mPlayer.get(playerEntityId)
         serverKryo.sendToTCP(playerComponent.connectionPlayerId, blockRegion)
+    }
+
+    fun  sendPlayerAirChanged(playerEntity: Int) {
+        val cAir = mAir.get(playerEntity)
+
+        val airChanged = Network.Server.PlayerAirChanged(cAir.air)
+
+        val cPlayer = mPlayer.get(playerEntity)
+        serverKryo.sendToTCP(cPlayer.connectionPlayerId, airChanged)
     }
 
     /**

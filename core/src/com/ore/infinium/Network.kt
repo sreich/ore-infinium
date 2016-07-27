@@ -124,6 +124,7 @@ object Network {
 
         kryo.registerClass<Server.LoadedViewportMoved>()
         kryo.registerClass<Server.PlayerSpawned>()
+        kryo.registerClass<Server.PlayerAirChanged>()
         kryo.registerClass<Server.ChatMessage>()
         kryo.registerClass<Server.UpdateGeneratorControlPanelStats>()
     }
@@ -281,6 +282,8 @@ object Network {
             var id: Int = -1
             var position = Vector2()
         }
+
+        class PlayerAirChanged(air: Int)
     }
 
     object Client {
