@@ -755,7 +755,7 @@ class OreWorld
 
         itemMapper.create(block).apply {
             stackSize = 800
-            maxStackSize = 900
+            maxStackSize = 800
             name = OreBlock.nameOfBlockType(blockType)!!
         }
 

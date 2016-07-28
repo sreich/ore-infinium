@@ -232,6 +232,13 @@ class OreServer : Runnable {
         val stoneBlock = oreWorld.createBlockItem(OreBlock.BlockType.Stone.oreValue)
         cPlayer.inventory!!.placeItemInNextFreeSlot(stoneBlock)
 
+        val dirtBlock = oreWorld.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
+        mItem.get(dirtBlock).apply {
+            stackSize = 2
+        }
+
+        cPlayer.inventory!!.placeItemInNextFreeSlot(dirtBlock)
+
         val nonEmptySlots = cPlayer.inventory!!.slots.filter { slot ->
             isValidEntity(slot.entityId)
         }.map { slot -> slot.entityId }

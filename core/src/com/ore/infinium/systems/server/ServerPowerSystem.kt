@@ -126,7 +126,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             val found = attemptMoveFuelForBurning(genEntityId, cGen)
         } else {
             //fuel is able to be burned, lets do it
-            // hack  burnFuelSource(fuelSourceSlot.entityId, cGen)
+            burnFuelSource(fuelSourceSlot.entityId, cGen)
         }
 
         val spawnSlotList = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
@@ -175,7 +175,6 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         //unnecessary?
         //val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
 
-        //hack find the player(only one's allowed) that has this one opened so we can notify him, if any
         cGen.fuelSources!!.fuelSourceHealth = GeneratorInventory.FUEL_SOURCE_HEALTH_MAX
 
         return true
@@ -190,13 +189,21 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             if (cFuelItem.stackSize > 1) {
                 //destroy 1 stack count in the fuel source, we've got more where that came from
                 cFuelItem.stackSize -= 1
-                //return true
+                //reset health back to full
+                cGen.fuelSources!!.fuelSourceHealth = GeneratorInventory.FUEL_SOURCE_HEALTH_MAX
             } else {
-                //no more stacks in it after we just burnt this one, destroy fuel source
-                cGen.fuelSources!!.fuelSourceHealth = 0
-                //return true
 
-                //todo notify slot destroyed
+                //no more stacks in it after we just burnt this one, destroy fuel source
+                val fuelIndex = cGen.fuelSources!!.slots.filter {
+                    isValidEntity(it.entityId)
+                }.indexOfFirst { it.slotType == Inventory.InventorySlotType.FuelSource }
+
+                val fuelItem = cGen.fuelSources!!.takeItem(fuelIndex)
+                oreWorld.destroyEntity(fuelItem)
+
+                //reset health for next time, so we don't have to think when we put a thing in
+                //the fuel slot
+                cGen.fuelSources!!.fuelSourceHealth = GeneratorInventory.FUEL_SOURCE_HEALTH_MAX
             }
         } else {
             cGen.fuelSources!!.fuelSourceHealth -= 1
