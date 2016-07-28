@@ -40,10 +40,7 @@ import com.esotericsoftware.kryonet.FrameworkMessage
 import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
-import com.ore.infinium.util.indices
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.opt
-import com.ore.infinium.util.system
+import com.ore.infinium.util.*
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -275,6 +272,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
      */
     private fun receivePlayerSpawnInventoryItems(inventorySpawn: Network.Server.SpawnInventoryItems) {
         val inventory = inventoryForType(inventorySpawn.typeOfInventory)
+
+        oreWorld.destroyEntities(inventory.slots.filter { isValidEntity(it.entityId) }
+                                         .map { it.entityId })
 
         //clear the inventory first (mostly applies to entity inventories)
         inventory.clearAll()

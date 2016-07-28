@@ -831,6 +831,7 @@ class OreWorld
         val genC = powerGeneratorMapper.create(power).apply {
             supplyRateEU = 100
             fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+            m_artemisWorld.inject(fuelSources, true)
         }
 
         return power
@@ -1107,6 +1108,10 @@ class OreWorld
             val sourceComponent = powerGeneratorMapper.get(sourceEntity)
             val component = powerGeneratorMapper.create(clonedEntity)
             component.copyFrom(sourceComponent)
+
+            //hack until we come up with a better way, possibly pass world in
+            //as copy param, to get these injected well
+            m_artemisWorld.inject(component.fuelSources, true)
         }
 
         return clonedEntity
@@ -1136,7 +1141,7 @@ class OreWorld
 
     fun players(): List<Int> {
         val entitySubscription = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
-        
+
         val transformedList = mutableListOf<Int>()
         entitySubscription.entities.forEach { transformedList.add(it) }
 
@@ -1155,13 +1160,13 @@ class OreWorld
 
     @Suppress("unused")
             /**
-     * gets a list of components this entity has. Mostly for debug
+             * gets a list of components this entity has. Mostly for debug
 
-     * @param entity
-     * *
-     * *
-     * @return
-     */
+             * @param entity
+             * *
+             * *
+             * @return
+             */
     fun getComponentsForEntity(entity: Int): Bag<Component> {
         val bag = Bag<Component>()
         m_artemisWorld.getEntity(entity).getComponents(bag)
@@ -1225,6 +1230,12 @@ class OreWorld
      */
     fun destroyEntity(entityToDestroy: Int) {
         m_artemisWorld.delete(entityToDestroy)
+    }
+
+    fun destroyEntities(entityIds: List<Int>) {
+        for (entityToDestroy in entityIds) {
+            m_artemisWorld.delete(entityToDestroy)
+        }
     }
 
     private fun killTree(floraComp: FloraComponent, entityToKill: Int, entityKiller: Int?) {

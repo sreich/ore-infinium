@@ -151,9 +151,8 @@ class GeneratorControlPanelView(stage: Stage,
      * the same and is always synced
      */
     fun clearAll() {
-        inventory.slots.filter { isValidEntity(it.entityId) }.forEach {
-            world.destroyEntity(it.entityId)
-        }
+        oreWorld.destroyEntities(inventory.slots.filter { isValidEntity(it.entityId) }
+                                         .map { it.entityId })
 
         //reset them all to invalid entity, now that they're all destroyed
         inventory.clearAll()

@@ -69,6 +69,10 @@ open class Inventory
     var slots = mutableListOf<InventorySlot>()
         private set
 
+    /**
+     * clears, but does NOT delete the entities from the world
+     * (resets all slots to invalid entity)
+     */
     fun clearAll() {
         slots.forEach { it.entityId = INVALID_ENTITY_ID }
 
@@ -109,7 +113,11 @@ open class Inventory
      * themselves.
      *
      * If no merge can happen, it will find a free slot to place it in.
-     * (return TypeOfAdd.Inserted)
+     * (return TypeOfAdd.Inserted).
+     *
+     * WARNING: if a merge happens, you then gain ownership of the entity
+     * that got passed in(and * merged). It will not be deleted from
+     * the world for you.
      *
      * If there is no free slots, it will fail (return TypeOfAdd.Failed)
      *
@@ -132,7 +140,7 @@ open class Inventory
             } else {
                 //found a free spot, use this one!
                 result = ItemAddResult(resultType = ItemAddResult.TypeOfAdd.Inserted)
-                assignItemIdToInventorySlot(itemEntityId, slotIndexToInsert)
+                setSlot(slotIndexToInsert, itemEntityId)
             }
 
         } else {
@@ -148,13 +156,11 @@ open class Inventory
     /**
      * helper function which takes care of setting inventory state on the item component
      */
-    private fun assignItemIdToInventorySlot(itemEntityId: Int, slotIndexToInsert: Int) {
+    private fun updateItemInventoryStatus(slotIndexToInsert: Int, itemEntityId: Int) {
         itemMapper.get(itemEntityId).apply {
             state = ItemComponent.State.InInventoryState
             inventoryIndex = slotIndexToInsert
         }
-
-        setSlot(index = slotIndexToInsert, entity = itemEntityId)
     }
 
     /**
@@ -255,24 +261,18 @@ open class Inventory
      */
     fun setSlot(index: Int, entity: Int) {
         slots[index].entityId = entity
+        updateItemInventoryStatus(index, entity)
 
         m_listeners.forEach { it.slotItemChanged(index, this) }
     }
 
     fun setSlot(slotToSet: Inventory.InventorySlot, entity: Int) {
-        val index = slots.indexOfFirst { it === slotToSet }
-
         slotToSet.entityId = entity
 
+        val index = slots.indexOfFirst { it === slotToSet }
+        updateItemInventoryStatus(index, entity)
+
         m_listeners.forEach { it.slotItemChanged(index, this) }
-    }
-
-    fun removeSlot(slotToRemove: Inventory.InventorySlot) {
-        val index = slots.indexOfFirst { it === slotToRemove }
-
-        slotToRemove.entityId = INVALID_ENTITY_ID
-
-        m_listeners.forEach { it.slotItemRemoved(index, this) }
     }
 
     /**
@@ -280,6 +280,7 @@ open class Inventory
      * *
      * *
      * @return entity id of the item taken
+     * ownership over entity is passed to you.
      */
     fun takeItem(index: Int): Int {
         val tmpItem = slots[index].entityId

@@ -75,6 +75,9 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
         * wire and consumed by the clientside system system
         */
 
+        if (mItem.get(entityId).state != ItemComponent.State.InWorldState) {
+            return
+        }
 
         if (fuelBurnDelayTimer.surpassed(globalFuelBurnRateDelay)) {
             updateDevice(entityId)
@@ -147,7 +150,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
 
         //because we have nothing to burn right now,
         //grab fuel from other parts of our inventory, if any
-        val newFuelSource = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
+        val chosenNewFuelSource = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }
                 .filter { it.slotType == Inventory.InventorySlotType.Slot }
                 .firstOrNull { fuelEntity ->
                     fuelSourceBurnableResult = fuelSourceBurnableInGenerator(
@@ -157,15 +160,17 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
                 }
 
         //can't do anything, no more fuel in this inventory at all!
-        newFuelSource ?: return false
+        chosenNewFuelSource ?: return false
 
         val fuelSlot = cGen.fuelSources!!.slots.first { it.slotType == Inventory.InventorySlotType.FuelSource }
 
+        //swap these out...
         //move it to the fuel-burned slot, it is ready to get burned next tick
-        cGen.fuelSources!!.setSlot(fuelSlot, newFuelSource.entityId)
+        cGen.fuelSources!!.setSlot(fuelSlot, chosenNewFuelSource.entityId)
 
-        //we want to burn this (source) one, as it is possible. so remove it from its source slot
-        cGen.fuelSources!!.removeSlot(newFuelSource)
+        val chosenFuelSourceIndex = cGen.fuelSources!!.slots.indexOf(chosenNewFuelSource)
+        //remove from source slot, since we moved it over to burning slot
+        cGen.fuelSources!!.takeItem(chosenFuelSourceIndex)
 
         //unnecessary?
         //val nonEmptySlots = cGen.fuelSources!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
