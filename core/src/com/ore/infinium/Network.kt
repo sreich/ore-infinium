@@ -283,7 +283,7 @@ object Network {
             var position = Vector2()
         }
 
-        class PlayerAirChanged(air: Int)
+        class PlayerAirChanged(air: Int = -1)
     }
 
     object Client {

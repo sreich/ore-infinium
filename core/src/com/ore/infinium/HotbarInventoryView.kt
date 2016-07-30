@@ -59,6 +59,8 @@ class HotbarInventoryView(private val stage: Stage,
     private val container: VisTable
     private val m_slots = mutableListOf<SlotElement>()
 
+    private lateinit var tileRenderSystem: TileRenderSystem
+
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
@@ -146,11 +148,15 @@ class HotbarInventoryView(private val stage: Stage,
 
     //fixme this is also duped in the InventoryView, but not sure where else to put it...the current way is a hack anyway
     fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
-        val region: TextureRegion?
+        var region: TextureRegion?
         if (blockMapper.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = m_world.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
-                    "$textureName-00")
+            region = tileRenderSystem.tilesAtlas.findRegion("$textureName-00")
+
+            if (region == null) {
+                //try again but without -00
+                region = tileRenderSystem.tilesAtlas.findRegion(textureName)
+            }
         } else {
             region = m_world.m_atlas.findRegion(textureName)
         }
@@ -343,5 +349,4 @@ class HotbarInventoryView(private val stage: Stage,
             }
         }
     }
-
 }

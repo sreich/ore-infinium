@@ -115,6 +115,11 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
         val toolComponent = mTool.opt(itemEntity)
 
+        if (toolComponent == null) {
+            //switched tools, expire it.
+            return true
+        }
+
         //final short totalBlockHealth = OreWorld.blockAttributes.get(block.type).blockTotalHealth;
 
         if (!ableToDigAtIndex(blockToDig.x, blockToDig.y)) {
@@ -123,7 +128,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             return true
         }
 
-        val damagePerTick = toolComponent!!.blockDamage * getWorld().getDelta()
+        val damagePerTick = toolComponent.blockDamage * getWorld().getDelta()
 
         //this many ticks after start tick, it should have already been destroyed
         val expectedTickEnd = blockToDig.digStartTick + (blockToDig.totalBlockHealth / damagePerTick).toInt()
