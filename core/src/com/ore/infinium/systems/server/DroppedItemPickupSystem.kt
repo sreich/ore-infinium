@@ -109,12 +109,12 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
         //full). also probably consider existing stacks and stuff
         playerComponent.hotbarInventory!!.setSlot(7, itemToPickupId)
 
-        serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = mutableListOf(itemToPickupId),
+        val slots = playerComponent.hotbarInventory!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
+        serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = slots,
                                                     owningPlayerEntityId = playerEntityId,
                                                     inventoryType = Network.Shared.InventoryType.Hotbar,
                                                     causedByPickedUpItem = true)
         oreWorld.serverDestroyEntity(itemToPickupId)
     }
-
 }
 
