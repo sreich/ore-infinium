@@ -30,7 +30,8 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.utils.TimeUtils
-import com.ore.infinium.Network
+import com.ore.infinium.Inventory
+import com.ore.infinium.ItemAddResult
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.PlayerComponent
@@ -97,22 +98,27 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
      * @param itemToPickupId entity id
      */
     private fun pickupItem(itemComponentToPickup: ItemComponent, itemToPickupId: Int, playerEntityId: Int) {
-        with(itemComponentToPickup) {
-            state = ItemComponent.State.InInventoryState
-            inventoryIndex = 7
-        }
-
         val playerComponent = mPlayer.get(playerEntityId)
 
-        //todo, create logic which will decide what happens when an item gets added
-        //to the inventory (add to hotbar, add to main inventory, probably in that order if not
-        //full). also probably consider existing stacks and stuff
-        playerComponent.hotbarInventory!!.setSlot(7, itemToPickupId)
+        var inventoryToAttempt: Inventory
 
-        val slots = playerComponent.hotbarInventory!!.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
+        inventoryToAttempt = playerComponent.hotbarInventory!!
+        val hotbarResult = inventoryToAttempt.placeItemInNextFreeSlot(itemToPickupId)
+
+        if (hotbarResult.resultType == ItemAddResult.TypeOfAdd.Failed) {
+            //try for inventory instead, since hotbar is filled
+            inventoryToAttempt = playerComponent.inventory!!
+            val inventoryResult = inventoryToAttempt.placeItemInNextFreeSlot(itemToPickupId)
+            if (inventoryResult.resultType == ItemAddResult.TypeOfAdd.Failed) {
+                //abort, do not destroy. do not pickup, he has no room
+                return
+            }
+        }
+
+        val slots = inventoryToAttempt.slots.filter { isValidEntity(it.entityId) }.map { it.entityId }
         serverNetworkSystem.sendSpawnInventoryItems(entityIdsToSpawn = slots,
                                                     owningPlayerEntityId = playerEntityId,
-                                                    inventoryType = Network.Shared.InventoryType.Hotbar,
+                                                    inventoryType = inventoryToAttempt.inventoryType,
                                                     causedByPickedUpItem = true)
         oreWorld.serverDestroyEntity(itemToPickupId)
     }
