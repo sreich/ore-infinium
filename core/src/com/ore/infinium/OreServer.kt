@@ -236,8 +236,10 @@ class OreServer : Runnable {
         mItem.get(dirtBlock).apply {
             stackSize = 2
         }
-
         cPlayer.inventory!!.placeItemInNextFreeSlot(dirtBlock)
+
+        val door = oreWorld.createDoor()
+        cPlayer.inventory!!.placeItemInNextFreeSlot(door)
 
         val nonEmptySlots = cPlayer.inventory!!.slots.filter { slot ->
             isValidEntity(slot.entityId)

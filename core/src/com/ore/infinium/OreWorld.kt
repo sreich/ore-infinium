@@ -68,6 +68,7 @@ class OreWorld
     private lateinit var m_tagManager: TagManager
 
     private lateinit var playerMapper: ComponentMapper<PlayerComponent>
+    private lateinit var doorMapper: ComponentMapper<DoorComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
     private lateinit var controlMapper: ComponentMapper<ControllableComponent>
     private lateinit var itemMapper: ComponentMapper<ItemComponent>
@@ -808,6 +809,27 @@ class OreWorld
         powerConsumerComponent.powerDemandRate = 100
 
         return light
+    }
+
+    fun createDoor(): Int {
+        val door = m_artemisWorld.create()
+
+        velocityMapper.create(door)
+
+        doorMapper.create(door)
+
+        itemMapper.create(door).apply {
+            stackSize = 50
+            maxStackSize = 60
+            name = "Door"
+        }
+
+        spriteMapper.create(door).apply {
+            textureName = "door-closed-16x36"
+            sprite.setSize(1f, 3f)
+        }
+
+        return door
     }
 
     fun createPowerGenerator(): Int {

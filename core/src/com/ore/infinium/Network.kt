@@ -76,6 +76,9 @@ object Network {
         kryo.registerClass<ToolComponent.ToolMaterial>()
         kryo.registerClass<ToolComponent.ToolType>()
 
+        kryo.registerClass<DoorComponent>()
+        kryo.registerClass<DoorComponent.DoorState>()
+
         kryo.registerClass<LightComponent>()
         kryo.registerClass<VelocityComponent>()
         //////////
