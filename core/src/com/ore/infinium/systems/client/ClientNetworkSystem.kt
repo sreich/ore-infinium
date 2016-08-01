@@ -69,6 +69,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private val mBlock by mapper<BlockComponent>()
     private val mTool by mapper<ToolComponent>()
     private val mGenerator by mapper<PowerGeneratorComponent>()
+    private val mAir by mapper<AirComponent>()
 
     private val tagManager by system<TagManager>()
     private val tileRenderer by system<TileRenderSystem>()
@@ -242,8 +243,13 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun receiveAirChanged(airChanged: Network.Server.PlayerAirChanged) {
-        throw UnsupportedOperationException(
-                "not implemented") //To change body of created functions use File | Settings | File Templates.
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
+
+        val cAir = mAir.get(player).apply {
+            air = airChanged.air
+        }
+
+        oreWorld.m_client!!.hud.airChanged(air = cAir.air)
     }
 
     private fun receiveUpdateGeneratorControlPanelStats(stats: Network.Server.UpdateGeneratorControlPanelStats) {
@@ -550,10 +556,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
      */
     fun sendEquippedItemAttack(_attackType: Network.Client.PlayerEquippedItemAttack.ItemAttackType,
                                _attackPositionWorldCoords: Vector2) {
-        val attack = Network.Client.PlayerEquippedItemAttack().apply {
-            itemAttackType = _attackType
-            attackPositionWorldCoords = _attackPositionWorldCoords
-        }
+        val attack = Network.Client.PlayerEquippedItemAttack(itemAttackType = _attackType,
+                                                             attackPositionWorldCoords = _attackPositionWorldCoords)
 
         clientKryo.sendTCP(attack)
     }
@@ -572,8 +576,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val mainPlayer = tagManager.getEntity("mainPlayer").id
         val sprite = mSprite.get(mainPlayer)
 
-        val move = Network.Client.PlayerMove()
-        move.position = Vector2(sprite.sprite.x, sprite.sprite.y)
+        val move = Network.Client.PlayerMove(Vector2(sprite.sprite.x, sprite.sprite.y))
 
         clientKryo.sendTCP(move)
     }
@@ -585,8 +588,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     fun sendHotbarEquipped(index: Byte) {
-        val playerEquipHotbarIndexFromClient = Network.Client.PlayerEquipHotbarIndex()
-        playerEquipHotbarIndexFromClient.index = index
+        val playerEquipHotbarIndexFromClient = Network.Client.PlayerEquipHotbarIndex(index)
 
         clientKryo.sendTCP(playerEquipHotbarIndexFromClient)
     }
@@ -601,30 +603,22 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
      * @param y
      */
     fun sendBlockDigBegin(x: Int, y: Int) {
-        val blockDigFromClient = Network.Client.BlockDigBegin()
-        blockDigFromClient.x = x
-        blockDigFromClient.y = y
+        val blockDigFromClient = Network.Client.BlockDigBegin(x, y)
         clientKryo.sendTCP(blockDigFromClient)
     }
 
-    fun sendBlockDigFinish(blockX: Int, blockY: Int) {
-        val blockDigFromClient = Network.Client.BlockDigFinish()
-        blockDigFromClient.x = blockX
-        blockDigFromClient.y = blockY
+    fun sendBlockDigFinish(x: Int, y: Int) {
+        val blockDigFromClient = Network.Client.BlockDigFinish(x, y)
         clientKryo.sendTCP(blockDigFromClient)
     }
 
     fun sendBlockPlace(x: Int, y: Int) {
-        val blockPlaceFromClient = Network.Client.BlockPlace()
-        blockPlaceFromClient.x = x
-        blockPlaceFromClient.y = y
+        val blockPlaceFromClient = Network.Client.BlockPlace(x, y)
         clientKryo.sendTCP(blockPlaceFromClient)
     }
 
     fun sendItemPlace(x: Float, y: Float) {
-        val itemPlace = Network.Client.ItemPlace()
-        itemPlace.x = x
-        itemPlace.y = y
+        val itemPlace = Network.Client.ItemPlace(x, y)
 
         clientKryo.sendTCP(itemPlace)
     }
@@ -633,10 +627,15 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
      * @param entityId local entity id
      */
     fun sendOpenControlPanel(entityId: Int) {
-        val open = Network.Client.OpenDeviceControlPanel()
-        open.entityId = networkIdForEntityId[entityId]!!
+        val open = Network.Client.OpenDeviceControlPanel(networkIdForEntityId[entityId]!!)
 
         clientKryo.sendTCP(open)
+    }
+
+    fun sendCloseControlPanel() {
+        val close = Network.Client.CloseDeviceControlPanel()
+
+        clientKryo.sendTCP(close)
     }
 
     internal inner class ClientListener : Listener() {
@@ -689,9 +688,4 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
-    fun sendCloseControlPanel() {
-        val close = Network.Client.CloseDeviceControlPanel()
-
-        clientKryo.sendTCP(close)
-    }
 }

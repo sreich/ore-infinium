@@ -711,8 +711,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val playerComponent = mPlayer.get(player)
 
-        val v = Network.Server.LoadedViewportMoved()
-        v.rect = playerComponent.loadedViewport.rect
+        val v = Network.Server.LoadedViewportMoved( playerComponent.loadedViewport.rect)
 
         serverKryo.sendToTCP(playerComponent.connectionPlayerId, v)
     }
@@ -824,10 +823,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val playerComponent = mPlayer.get(player)
         val spriteComponent = mSprite.get(entity)
 
-        val move = Network.Server.EntityMoved()
-        move.id = entity
-
-        move.position = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
+        val move = Network.Server.EntityMoved(entity, Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y))
 
         serverKryo.sendToTCP(playerComponent.connectionPlayerId, move)
 

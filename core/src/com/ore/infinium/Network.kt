@@ -165,9 +165,7 @@ object Network {
                          )
 
         //fixme: unneeded??
-        class LoadedViewportMoved {
-            lateinit var rect: Rectangle
-        }
+        class LoadedViewportMoved ( var rect: Rectangle = Rectangle())
 
         class DestroyEntities {
             var entityId: IntArray? = null
@@ -281,12 +279,9 @@ object Network {
         }
 
 
-        class EntityMoved {
-            var id: Int = -1
-            var position = Vector2()
-        }
+        class EntityMoved(var id: Int = -1, var position: Vector2 = Vector2())
 
-        class PlayerAirChanged(air: Int = -1)
+        class PlayerAirChanged(var air: Int = -1)
     }
 
     object Client {
@@ -311,14 +306,9 @@ object Network {
         class ChatMessage(var message: String = "")
 
         //todo reduce data type sizes for lots of this stuff...
-        class PlayerEquipHotbarIndex {
-            var index: Byte = 0
-        }
+        class PlayerEquipHotbarIndex(var index: Byte = 0)
 
-        class BlockDigBegin {
-            var x: Int = 0
-            var y: Int = 0
-        }
+        class BlockDigBegin(var x: Int = 0, var y: Int = 0)
 
         /**
          * sent when client knows it finished digging a block
@@ -327,24 +317,14 @@ object Network {
          * if this packet is not sent, the server will eventually time out
          * the dig(cancel it), for that block.
          */
-        class BlockDigFinish {
-            var x: Int = 0
-            var y: Int = 0
-        }
+        class BlockDigFinish(var x: Int = 0, var y: Int = 0)
 
-        class BlockPlace {
-            var x: Int = 0
-            var y: Int = 0
-        }
+        class BlockPlace(var x: Int = 0, var y: Int = 0)
 
-        class ItemPlace {
-            var x: Float = 0.0f
-            var y: Float = 0.0f
-        }
+        class ItemPlace(var x: Float = 0f,
+                        var y: Float = 0f)
 
-        class PlayerMove {
-            var position: Vector2? = null
-        }
+        class PlayerMove(var position: Vector2? = null)
 
         /**
          * request for the player to perform
@@ -384,22 +364,16 @@ object Network {
          * server will keep track of it but we must notify when
          * we close it
          */
-        class OpenDeviceControlPanel {
-            var entityId: Int = INVALID_ENTITY_ID
-        }
+        class OpenDeviceControlPanel(var entityId: Int = INVALID_ENTITY_ID)
 
-        class CloseDeviceControlPanel {
-            var entityId: Int = INVALID_ENTITY_ID
-        }
+        class CloseDeviceControlPanel(var entityId: Int = INVALID_ENTITY_ID)
 
         /**
          * indicate that we are trying to attack whatever item is equipped,
          * at the given vector in world coordinates.
          */
-        class PlayerEquippedItemAttack {
-
-            var itemAttackType = ItemAttackType.Primary
-            var attackPositionWorldCoords = Vector2()
+        class PlayerEquippedItemAttack(var itemAttackType: ItemAttackType = ItemAttackType.Primary,
+                                       var attackPositionWorldCoords: Vector2 = Vector2()) {
 
             enum class ItemAttackType {
                 Primary,

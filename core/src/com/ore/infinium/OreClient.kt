@@ -83,6 +83,7 @@ class OreClient : ApplicationListener, InputProcessor {
     lateinit var m_rootTable: VisTable
     lateinit var m_chat: Chat
     private var m_sidebar: Sidebar? = null
+    lateinit var hud: Hud
 
     private var m_dragAndDrop: DragAndDrop? = null
 
@@ -162,6 +163,8 @@ class OreClient : ApplicationListener, InputProcessor {
 
         m_chat = Chat()
         m_chat.addListener(m_chatDialog)
+
+        hud = Hud(this, m_stage, m_rootTable)
 
         m_sidebar = Sidebar(m_stage, this)
 
@@ -774,5 +777,4 @@ class OreClient : ApplicationListener, InputProcessor {
         val ORE_VERSION_MINOR = 1
         val ORE_VERSION_REVISION = 1
     }
-
 }
