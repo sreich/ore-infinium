@@ -945,11 +945,13 @@ class OreWorld
         }
 
         //check collision against blocks first
-        for (x in startX until endX) {
-            for (y in startY until endY) {
-                if (blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
-                    return false
-                }
+        if (!isBlockRangeSolid(startX, endX, startY, endY)) {
+            return false
+        }
+
+        itemMapper.ifPresent(entity) { cItem ->
+            if (!blockAdjacencyHintsSatisfied(cItem)) {
+                return false
             }
         }
 
@@ -967,7 +969,7 @@ class OreWorld
                 // items that are dropped in the world are considered non colliding
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
                     continue
-                }
+            }
             }
 
             val entitySpriteComponent = spriteMapper.get(entities.get(i))
@@ -978,6 +980,22 @@ class OreWorld
 
             if (entityCollides(entities.get(i), entity)) {
                 return false
+            }
+        }
+
+        return true
+    }
+
+    fun blockAdjacencyHintsSatisfied(cItem: ItemComponent): Boolean {
+
+    }
+
+    fun isBlockRangeSolid(startX: Int, endX: Int, startY: Int, endY: Int): Boolean {
+        for (x in startX until endX) {
+            for (y in startY until endY) {
+                if (blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
+                    return false
+                }
             }
         }
 
@@ -1021,7 +1039,7 @@ class OreWorld
             setBlockType(x, y, sparseBlock.block.type)
             setBlockWallType(x, y, sparseBlock.block.wallType)
             setBlockFlags(x, y, sparseBlock.block.flags)
-        }
+    }
     }
 
     /**
@@ -1093,7 +1111,7 @@ class OreWorld
             if (worldInstanceType != WorldInstanceType.Server) {
                 System.out.println(component.textureName);
                 component.sprite.setRegion(m_atlas.findRegion(component.textureName))
-            }
+        }
         }
 
         if (toolMapper.has(sourceEntity)) {
@@ -1171,7 +1189,7 @@ class OreWorld
     }
 
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
-    //and they can process that in there. or maybe this should be in the client..after all, a server has no key events
+//and they can process that in there. or maybe this should be in the client..after all, a server has no key events
     fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         return false
     }

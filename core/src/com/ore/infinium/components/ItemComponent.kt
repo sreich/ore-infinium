@@ -117,6 +117,20 @@ class ItemComponent : Component(), CopyableComponent<ItemComponent> {
     }
 
     /**
+     * determines what is required to satisfy placement attempts
+     * for this item. if blocks must be solid on certain sides.
+     */
+    var placementAdjacencyHints = PlacementAdjacencyHints.None.value
+
+    enum class PlacementAdjacencyHints(val value: Int) {
+        None(1 shl 0),
+        TopSolid(1 shl 1),
+        BottomSolid(1 shl 2),
+        LeftSolid(1 shl 3),
+        RightSolid(1 shl 4)
+    }
+
+    /**
      * determines if the item component is the same, in other words,
      * if it is the same kind of item. to determine if it can merge/combine
      */
