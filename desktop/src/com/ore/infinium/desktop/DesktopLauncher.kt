@@ -1,9 +1,8 @@
 package com.ore.infinium.desktop
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
-import com.badlogic.gdx.backends.lwjgl.LwjglInput
-import com.badlogic.gdx.tools.texturepacker.TexturePacker
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
+import com.ore.infinium.desktop.texturepacker.TexturePacker
 import com.beust.jcommander.JCommander
 import com.ore.infinium.*
 import kotlin.system.measureTimeMillis
@@ -31,8 +30,8 @@ class DesktopLauncher {
             return
         }
 
-        LwjglInput.keyRepeatTime = 0.08f
-        LwjglInput.keyRepeatInitialTime = 0.15f
+        //LwjglInput.keyRepeatTime = 0.08f
+        //LwjglInput.keyRepeatInitialTime = 0.15f
 
         if (OreSettings.help) {
             printHelp(jCommander)
@@ -44,31 +43,19 @@ class DesktopLauncher {
             OreWorld.log("startup texture packing", "texture packing took $ms ms")
         }
 
-        LwjglApplication(OreClient(), createLwjglConfig())
+        Lwjgl3Application(OreClient(), createLwjglConfig())
     }
 
-    private fun createLwjglConfig(): LwjglApplicationConfiguration {
-        val config = LwjglApplicationConfiguration().apply {
-
-            useGL30 = true
-            title = "Ore Infinium"
-            //addIcon()
-
-            //borderless window mode
-            //System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-            //width = LwjglApplicationConfiguration.getDesktopDisplayMode().width;
-            //height = LwjglApplicationConfiguration.getDesktopDisplayMode().height;
-
-            width = OreSettings.width
-            height = OreSettings.height
-            resizable = OreSettings.resizable
-            vSyncEnabled = OreSettings.vsyncEnabled
-            foregroundFPS = OreSettings.framerate
-            backgroundFPS = OreSettings.framerate
+    private fun createLwjglConfig() =
+        Lwjgl3ApplicationConfiguration().apply {
+            //useOpenGL3(true, 3, 2)
+            setTitle("Ore Infinium")
+            setWindowedMode(OreSettings.width, OreSettings.height)
+            setResizable(OreSettings.resizable)
+            useVsync(OreSettings.vsyncEnabled)
+            //foregroundFPS = OreSettings.framerate
+            //backgroundFPS = OreSettings.framerate
         }
-
-        return config
-    }
 
     private fun generateWorld() {
         OreWorld.log("DesktopLauncher generateWorld", "creating server and world to generate the world and exit.")
@@ -83,12 +70,6 @@ class DesktopLauncher {
     }
 
     private fun packTextures() {
-        //TexturePacker.Settings settings = new TexturePacker.Settings();
-        //settings.maxWidth = 512;
-        //settings.maxHeight = 512;
-        //            settings.pot = true;
-        //settings.fast = true; //fixme just to speed up debugging, overrides local settings(probably??)
-        //lwjglfiles().internal("blah")
         TexturePacker.process("blocks", "../assets/packed", "blocks")
         TexturePacker.process("tiles", "../assets/packed", "tiles")
         TexturePacker.process("ui", "../assets/packed", "ui")
