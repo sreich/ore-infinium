@@ -950,7 +950,7 @@ class OreWorld
         }
 
         itemMapper.ifPresent(entity) { cItem ->
-            if (!blockAdjacencyHintsSatisfied(cItem)) {
+            if (!placementAdjacencyHintsBlocksSatisfied(entity, cItem)) {
                 return false
             }
         }
@@ -969,7 +969,7 @@ class OreWorld
                 // items that are dropped in the world are considered non colliding
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
                     continue
-            }
+                }
             }
 
             val entitySpriteComponent = spriteMapper.get(entities.get(i))
@@ -986,13 +986,34 @@ class OreWorld
         return true
     }
 
-    fun blockAdjacencyHintsSatisfied(cItem: ItemComponent): Boolean {
+    fun placementAdjacencyHintsBlocksSatisfied(entityId: Int, cItem: ItemComponent): Boolean {
+        val cSprite = spriteMapper.get(entityId)
+        val left = cSprite.sprite.rect.left.toInt()
+        val right = cSprite.sprite.rect.right.toInt()
+        val top = cSprite.sprite.rect.top.toInt()
+        val bottom = cSprite.sprite.rect.bottom.toInt()
 
+        //for each (if any) placement requirement, ensure it was satisfied
+        if (ItemComponent.PlacementAdjacencyHints.TopSolid in cItem.placementAdjacencyHints) {
+            isBlockRangeSolid(left, right, top, top)
+
+            return false
+        }
+
+        if (ItemComponent.PlacementAdjacencyHints.BottomSolid in cItem.placementAdjacencyHints) {
+            isBlockRangeSolid(left, right, bottom, bottom)
+            return false
+        }
+
+        return true
     }
 
+    /**
+     * checks all blocks in given range for solidity.
+     */
     fun isBlockRangeSolid(startX: Int, endX: Int, startY: Int, endY: Int): Boolean {
-        for (x in startX until endX) {
-            for (y in startY until endY) {
+        for (x in startX..endX) {
+            for (y in startY..endY) {
                 if (blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
                     return false
                 }
@@ -1039,7 +1060,7 @@ class OreWorld
             setBlockType(x, y, sparseBlock.block.type)
             setBlockWallType(x, y, sparseBlock.block.wallType)
             setBlockFlags(x, y, sparseBlock.block.flags)
-    }
+        }
     }
 
     /**
@@ -1111,7 +1132,7 @@ class OreWorld
             if (worldInstanceType != WorldInstanceType.Server) {
                 System.out.println(component.textureName);
                 component.sprite.setRegion(m_atlas.findRegion(component.textureName))
-        }
+            }
         }
 
         if (toolMapper.has(sourceEntity)) {

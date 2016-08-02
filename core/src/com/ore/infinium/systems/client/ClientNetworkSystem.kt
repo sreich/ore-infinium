@@ -624,6 +624,14 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     /**
+     * used for example, for toggling a door from open/closed
+     */
+    fun sendActivateEntity(entityId: Int) {
+        val send = Network.Client.ActivateEntity(networkIdForEntityId[entityId]!!)
+        clientKryo.sendTCP(send)
+    }
+
+    /**
      * @param entityId local entity id
      */
     fun sendOpenControlPanel(entityId: Int) {
@@ -687,5 +695,4 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             assert(entityForNetworkId.size == networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
         }
     }
-
 }

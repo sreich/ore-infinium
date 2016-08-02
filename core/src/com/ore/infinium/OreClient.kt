@@ -34,7 +34,6 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.TooltipManager
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
-import com.badlogic.gdx.utils.TimeUtils
 import com.badlogic.gdx.utils.viewport.StretchViewport
 import com.esotericsoftware.minlog.Log
 import com.kotcrab.vis.ui.VisUI
@@ -67,6 +66,7 @@ class OreClient : ApplicationListener, InputProcessor {
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var toolMapper: ComponentMapper<ToolComponent>
     private lateinit var deviceMapper: ComponentMapper<PowerDeviceComponent>
+    private lateinit var doorMapper: ComponentMapper<DoorComponent>
 
     private lateinit var m_clientNetworkSystem: ClientNetworkSystem
     private lateinit var m_tagManager: TagManager
@@ -209,7 +209,7 @@ class OreClient : ApplicationListener, InputProcessor {
             return
         }
 
-        if (playerComp.placeableItemTimer.milliseconds() > PlayerComponent.placeableItemDelay) {
+        if (playerComp.placeableItemTimer.resetIfSurpassed(PlayerComponent.placeableItemDelay)) {
             playerComp.placeableItemTimer.reset()
 
             attemptItemPlace()
@@ -220,16 +220,29 @@ class OreClient : ApplicationListener, InputProcessor {
         val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
         val playerComp = playerMapper.get(player)
 
-        if (playerComp.secondaryActionTimer.milliseconds() > PlayerComponent.secondaryActionDelay) {
-            playerComp.secondaryActionTimer.reset()
-
+        if (playerComp.secondaryActionTimer.resetIfSurpassed(PlayerComponent.secondaryActionDelay)) {
             //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
             //or do we want a separate key for that?
             val mouse = m_world!!.mousePositionWorldCoords()
             val entity = m_world!!.entityAtPosition(mouse) ?: return
 
-            attemptActivateDeviceControlPanel(entity)
+            //is it a device and can we activate it?
+            if (attemptActivateDeviceControlPanel(entity)) {
+                return
+            }
+
+            if (attemptActivateDoor(entity)) {
+                return
+            }
         }
+    }
+
+    private fun attemptActivateDoor(entity: Int): Boolean {
+        val cDoor = doorMapper.get(entity) ?: return false
+
+        m_clientNetworkSystem.sendActivateEntity(entity)
+
+        return true
     }
 
     /**
@@ -257,8 +270,6 @@ class OreClient : ApplicationListener, InputProcessor {
     private fun attemptToolAttack(playerComp: PlayerComponent,
                                   equippedToolComp: ToolComponent,
                                   mouseWorldCoords: Vector2) {
-
-        val currentMillis = TimeUtils.millis()
         if (playerComp.primaryAttackTimer.resetIfSurpassed(equippedToolComp.attackIntervalMs)) {
             //fixme obviously, iterating over every entityId to find the one under position is beyond dumb, use a spatial hash/quadtree etc
 

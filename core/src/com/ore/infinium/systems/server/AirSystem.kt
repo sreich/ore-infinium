@@ -31,10 +31,7 @@ import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.PlayerSystem
-import com.ore.infinium.util.allOf
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.rect
-import com.ore.infinium.util.system
+import com.ore.infinium.util.*
 
 @Wire
 class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirComponent::class)) {
@@ -91,8 +88,8 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
         val rect = cSprite.sprite.rect
 
         val left = rect.x.toInt()
-        val right = left + rect.width.toInt()
-        val top = rect.y.toInt()
+        val right = rect.right.toInt()
+        val top = rect.top.toInt()
         val bottom = top + 1
 
         for (y in top..bottom) {

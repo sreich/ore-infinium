@@ -57,6 +57,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val mHealth by mapper<HealthComponent>()
     private val mTool by mapper<ToolComponent>()
     private val mAir by mapper<AirComponent>()
+    private val mDoor by mapper<DoorComponent>()
 
     private val serverBlockDiggingSystem by system<ServerBlockDiggingSystem>()
     private val serverNetworkEntitySystem by system<ServerNetworkEntitySystem>()
@@ -70,6 +71,53 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val debugPacketFrequencyByType = mutableMapOf<String, Int>()
 
     private val connectionListeners = Array<NetworkServerConnectionListener>()
+
+
+    internal class PlayerConnection : Connection() {
+        /**
+         * entityid of the player
+         */
+        var playerEntityId: Int = 0
+        var playerName: String = ""
+    }
+
+    inner class NetworkJob internal constructor(internal var connection: PlayerConnection, internal var receivedObject: Any)
+
+    internal inner class ServerListener : Listener() {
+        //FIXME: do sanity checking (null etc) on both client, server
+        override fun received(c: Connection?, obj: Any?) {
+            val connection = c as PlayerConnection?
+            netQueue.add(NetworkJob(connection!!, obj!!))
+
+            //fixme, debug
+            c!!.setTimeout(999999999)
+            c.setKeepAliveTCP(9999999)
+        }
+
+        override fun connected(connection: Connection?) {
+            super.connected(connection)
+
+            //for more easily seeing which thread is which.
+            Thread.currentThread().name = "server thread (main)"
+        }
+
+        override fun idle(connection: Connection?) {
+            super.idle(connection)
+        }
+
+        override fun disconnected(c: Connection?) {
+            val connection = c as PlayerConnection?
+            connection?.let {
+                // Announce to everyone that someone (with a registered playerName) has left.
+                val chatMessage = Network.Server.ChatMessage(
+                        message = connection.playerName + " disconnected.",
+                        sender = Chat.ChatSender.Server
+                                                            )
+
+                serverKryo.sendToAllTCP(chatMessage)
+            }
+        }
+    }
 
     /**
      * Listener for notifying when a player has joined/disconnected,
@@ -388,6 +436,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
             is Network.Client.OpenDeviceControlPanel -> receiveOpenDeviceControlPanel(job, receivedObject)
             is Network.Client.CloseDeviceControlPanel -> receiveCloseDeviceControlPanel(job, receivedObject)
+            is Network.Client.ActivateEntity -> receiveActivateEntity(job, receivedObject)
 
             is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
             is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
@@ -409,6 +458,25 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                         Object: ${receivedObject.toString()}"""
                 }
             }
+        }
+    }
+
+    private fun receiveActivateEntity(job: NetworkJob,
+                                      activate: Network.Client.ActivateEntity) {
+        val entity = activate.entityId
+
+        mDoor.ifPresent(entity) { door ->
+            when(door.state) {
+                DoorComponent.DoorState.Open -> {
+                    door.state = DoorComponent.DoorState.Closed
+                }
+
+                DoorComponent.DoorState.Closed -> {
+                    door.state = DoorComponent.DoorState.Open
+                }
+            }
+
+            sendEntityActivated(entity)
         }
     }
 
@@ -711,7 +779,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val playerComponent = mPlayer.get(player)
 
-        val v = Network.Server.LoadedViewportMoved( playerComponent.loadedViewport.rect)
+        val v = Network.Server.LoadedViewportMoved(playerComponent.loadedViewport.rect)
 
         serverKryo.sendToTCP(playerComponent.connectionPlayerId, v)
     }
@@ -796,7 +864,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         serverKryo.sendToTCP(playerComponent.connectionPlayerId, blockRegion)
     }
 
-    fun  sendPlayerAirChanged(playerEntity: Int) {
+    fun sendPlayerAirChanged(playerEntity: Int) {
         val cAir = mAir.get(playerEntity)
 
         val airChanged = Network.Server.PlayerAirChanged(cAir.air)
@@ -841,51 +909,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         serverKryo.sendToTCP(cPlayer.connectionPlayerId, stats)
     }
 
-    internal class PlayerConnection : Connection() {
-        /**
-         * entityid of the player
-         */
-        var playerEntityId: Int = 0
-        var playerName: String = ""
-    }
-
-    inner class NetworkJob internal constructor(internal var connection: PlayerConnection, internal var receivedObject: Any)
-
-    internal inner class ServerListener : Listener() {
-        //FIXME: do sanity checking (null etc) on both client, server
-        override fun received(c: Connection?, obj: Any?) {
-            val connection = c as PlayerConnection?
-            netQueue.add(NetworkJob(connection!!, obj!!))
-
-            //fixme, debug
-            c!!.setTimeout(999999999)
-            c.setKeepAliveTCP(9999999)
-        }
-
-        override fun connected(connection: Connection?) {
-            super.connected(connection)
-
-            //for more easily seeing which thread is which.
-            Thread.currentThread().name = "server thread (main)"
-        }
-
-        override fun idle(connection: Connection?) {
-            super.idle(connection)
-        }
-
-        override fun disconnected(c: Connection?) {
-            val connection = c as PlayerConnection?
-            connection?.let {
-                // Announce to everyone that someone (with a registered playerName) has left.
-                val chatMessage = Network.Server.ChatMessage(
-                        message = connection.playerName + " disconnected.",
-                        sender = Chat.ChatSender.Server
-                                                            )
-
-                serverKryo.sendToAllTCP(chatMessage)
-            }
-        }
-
+    private fun sendEntityActivated(entity: Int) {
+        throw UnsupportedOperationException(
+                "not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
 

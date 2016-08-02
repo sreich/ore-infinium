@@ -148,6 +148,7 @@ object Network {
         kryo.registerClass<Client.InventoryDropItem>()
         kryo.registerClass<Client.OpenDeviceControlPanel>()
         kryo.registerClass<Client.CloseDeviceControlPanel>()
+        kryo.registerClass<Client.ActivateEntity>()
 
         kryo.registerClass<Client.PlayerEquippedItemAttack>()
         kryo.registerClass<Client.PlayerEquippedItemAttack.ItemAttackType>()
@@ -367,6 +368,12 @@ object Network {
         class OpenDeviceControlPanel(var entityId: Int = INVALID_ENTITY_ID)
 
         class CloseDeviceControlPanel(var entityId: Int = INVALID_ENTITY_ID)
+
+        /**
+         * used for example, for toggling the state of doors.
+         * (player activated it/interacted with it)
+         */
+        class ActivateEntity(var entityId: Int = INVALID_ENTITY_ID)
 
         /**
          * indicate that we are trying to attack whatever item is equipped,

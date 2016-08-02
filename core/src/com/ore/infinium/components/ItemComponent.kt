@@ -28,6 +28,7 @@ import com.artemis.Component
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.util.CopyableComponent
 import com.ore.infinium.util.defaultCopyFrom
+import java.util.*
 
 class ItemComponent : Component(), CopyableComponent<ItemComponent> {
     //number of items this item has. e.g. 35 wood..things
@@ -120,14 +121,13 @@ class ItemComponent : Component(), CopyableComponent<ItemComponent> {
      * determines what is required to satisfy placement attempts
      * for this item. if blocks must be solid on certain sides.
      */
-    var placementAdjacencyHints = PlacementAdjacencyHints.None.value
+    var placementAdjacencyHints = EnumSet.noneOf(PlacementAdjacencyHints::class.java)
 
-    enum class PlacementAdjacencyHints(val value: Int) {
-        None(1 shl 0),
-        TopSolid(1 shl 1),
-        BottomSolid(1 shl 2),
-        LeftSolid(1 shl 3),
-        RightSolid(1 shl 4)
+    enum class PlacementAdjacencyHints() {
+        TopSolid,
+        BottomSolid,
+        LeftSolid,
+        RightSolid
     }
 
     /**

@@ -43,7 +43,15 @@ import com.badlogic.gdx.utils.Align
  */
 fun timeMsSurpassed(currentMs: Long, lastMs: Long, intervalMs: Int) = (currentMs - lastMs) > intervalMs
 
+/**
+ * x, y is top left. width, height bottom right
+ */
 val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y - (height * 0.5f), width, height)
+
+val Rectangle.bottom: Float get() = y + height
+val Rectangle.top: Float get() = y
+val Rectangle.left: Float get() = x
+val Rectangle.right: Float get() = y + width
 
 fun RandomXS128.nextInt(start: Int, end: Int): Int {
     return start + nextInt(end - start + 1)

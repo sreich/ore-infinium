@@ -92,11 +92,11 @@ class PlayerComponent : Component() {
         var movementRampUpFactor = NORMAL_MOVEMENT_RAMP_UP_FACTOR
 
         //ms
-        val placeableItemDelay = 300
+        val placeableItemDelay = 300L
 
         /**
          * for interacting with things like doors and control panels
          */
-        val secondaryActionDelay = 300
+        val secondaryActionDelay = 300L
     }
 }
