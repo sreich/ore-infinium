@@ -568,8 +568,12 @@ class OreClient : ApplicationListener, InputProcessor {
         val playerComponent = playerMapper.get(player)
 
         val itemEntity = playerComponent.equippedPrimaryItem
-        val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
 
+        if (itemEntity == INVALID_ENTITY_ID) {
+            return
+        }
+
+        val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
         val dropItemRequestFromClient = Network.Client.InventoryDropItem(index = currentEquippedIndex.toByte(),
                                                                          inventoryType = Network.Shared.InventoryType.Hotbar)
 
