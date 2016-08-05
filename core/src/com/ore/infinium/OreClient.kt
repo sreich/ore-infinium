@@ -240,7 +240,13 @@ class OreClient : ApplicationListener, InputProcessor {
     private fun attemptActivateDoor(entity: Int): Boolean {
         val cDoor = doorMapper.get(entity) ?: return false
 
-        m_clientNetworkSystem.sendActivateEntity(entity)
+        //toggle state right now, tell server.
+        cDoor.state = when (cDoor.state) {
+            DoorComponent.DoorState.Closed -> DoorComponent.DoorState.Open
+            DoorComponent.DoorState.Open -> DoorComponent.DoorState.Closed
+        }
+
+        m_clientNetworkSystem.sendDoorOpen(entity)
 
         return true
     }

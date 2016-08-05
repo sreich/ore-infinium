@@ -70,6 +70,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private val mTool by mapper<ToolComponent>()
     private val mGenerator by mapper<PowerGeneratorComponent>()
     private val mAir by mapper<AirComponent>()
+    private val mHealth by mapper<HealthComponent>()
+    private val mDoor by mapper<DoorComponent>()
 
     private val tagManager by system<TagManager>()
     private val tileRenderer by system<TileRenderSystem>()
@@ -222,12 +224,14 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             is Network.Server.EntityDestroyMultiple -> receiveMultipleEntityDestroy(receivedObject)
             is Network.Server.EntityKilled -> receiveEntityKilled(receivedObject)
             is Network.Server.EntityMoved -> receiveEntityMoved(receivedObject)
+            is Network.Server.EntityHealthChanged -> receiveEntityHealthChanged(receivedObject)
 
             is Network.Server.UpdateGeneratorControlPanelStats -> receiveUpdateGeneratorControlPanelStats(
                     receivedObject)
 
             is Network.Server.ChatMessage -> receiveChatMessage(receivedObject)
             is Network.Server.PlayerAirChanged -> receiveAirChanged(receivedObject)
+            is Network.Server.DoorOpen -> receiveDoorOpen(receivedObject)
 
             is FrameworkMessage.Ping -> {
             }
@@ -239,6 +243,27 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                         Object: ${receivedObject.toString()}"""
                 }
             }
+        }
+    }
+
+    private fun receiveEntityHealthChanged(healthChanged: Network.Server.EntityHealthChanged) {
+        val entity = entityForNetworkId[healthChanged.entityId]!!
+        val cHealth = mHealth.get(entity).apply {
+            health = healthChanged.health
+        }
+
+        if (mPlayer.has(entity)) {
+            oreWorld.m_client!!.hud.healthChanged(cHealth.health)
+        }
+    }
+
+    /**
+     * door was toggled state, open/closed
+     */
+    private fun receiveDoorOpen(activated: Network.Server.DoorOpen) {
+        val localId = entityForNetworkId[activated.entityId]!!
+        mDoor.get(localId).apply {
+            state = activated.state
         }
     }
 
@@ -626,8 +651,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     /**
      * used for example, for toggling a door from open/closed
      */
-    fun sendActivateEntity(entityId: Int) {
-        val send = Network.Client.ActivateEntity(networkIdForEntityId[entityId]!!)
+    fun sendDoorOpen(entityId: Int) {
+        val send = Network.Client.DoorOpen(networkIdForEntityId[entityId]!!)
         clientKryo.sendTCP(send)
     }
 

@@ -25,10 +25,21 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.OreTimer
 
 class HealthComponent : Component() {
 
     var maxHealth = 25000.0f
     //current air level
     var health = maxHealth
+
+    val regenTimer = OreTimer()
+
+    companion object {
+        const val suffocationDecreaseIntervalMs = 1200L
+        const val suffocationDecreaseAmount = 1
+
+        const val regenIntervalMs = 50L
+        const val regenAmount = 1f
+    }
 }

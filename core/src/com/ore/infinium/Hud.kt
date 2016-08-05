@@ -30,11 +30,12 @@ import com.kotcrab.vis.ui.widget.VisProgressBar
 import com.kotcrab.vis.ui.widget.VisTable
 
 class Hud(private val m_client: OreClient,
-                 private val m_stage: Stage,
-                 m_rootTable: VisTable):VisTable() {
+          private val m_stage: Stage,
+          m_rootTable: VisTable) : VisTable() {
 
     val airMeter = VisProgressBar(0f, 100f, 1f, false)
     val healthMeter = VisProgressBar(0f, 100f, 1f, false)
+
     init {
         airMeter.value = 50f
 
@@ -47,7 +48,11 @@ class Hud(private val m_client: OreClient,
     }
 
     fun airChanged(air: Int) {
-        throw UnsupportedOperationException(
-                "not implemented") //To change body of created functions use File | Settings | File Templates.
+        airMeter.value = air.toFloat()
+    }
+
+    fun healthChanged(health: Float) {
+        healthMeter.value = health
     }
 }
+

@@ -48,15 +48,16 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
     val airIntervalTimer = OreTimer()
 
     override fun process(entityId: Int) {
-        //throttling
-        if (airIntervalTimer.resetIfSurpassed(AirComponent.decreaseIntervalMs)) {
-            val cAir = mAir.get(entityId)
+        val cAir = mAir.get(entityId)
 
-            if (isEntitySubmerged(entityId)) {
+        //throttling
+        if (isEntitySubmerged(entityId)) {
+
+            if (airIntervalTimer.resetIfSurpassed(AirComponent.decreaseIntervalMs)) {
                 decreaseAir(entityId, cAir)
-            } else {
-                increaseAirIfLow(entityId, cAir)
             }
+        } else {
+            increaseAirIfLow(entityId, cAir)
         }
     }
 

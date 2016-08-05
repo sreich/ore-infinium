@@ -184,7 +184,6 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
                 serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
                                                               playerComponent.connectionPlayerId)
             }
-
         }
     }
 }

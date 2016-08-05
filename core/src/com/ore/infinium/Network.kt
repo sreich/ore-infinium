@@ -31,6 +31,7 @@ import com.badlogic.gdx.utils.IntArray
 import com.esotericsoftware.kryo.Kryo
 import com.esotericsoftware.kryonet.EndPoint
 import com.ore.infinium.components.*
+import com.ore.infinium.util.EnumSetSerializer
 import com.ore.infinium.util.INVALID_ENTITY_ID
 import java.util.*
 
@@ -59,6 +60,8 @@ object Network {
         kryo.registerClass<Component>()
         kryo.registerClass<PowerDeviceComponent>()
         kryo.registerClass<ItemComponent.State>()
+        kryo.registerClass<ItemComponent.PlacementAdjacencyHints>()
+
         kryo.registerClass<AirComponent>()
         kryo.registerClass<PowerGeneratorComponent>()
         kryo.registerClass<PowerGeneratorComponent.GeneratorType>()
@@ -114,6 +117,7 @@ object Network {
         kryo.registerClass <Vector2>()
         kryo.registerClass <IntArray>()
         kryo.registerClass <Rectangle>()
+        kryo.register(EnumSet::class.java, EnumSetSerializer())
     }
 
     private fun registerServer(kryo: Kryo) {
@@ -122,6 +126,7 @@ object Network {
         kryo.registerClass<Server.EntityDestroyMultiple>()
         kryo.registerClass<Server.EntityKilled>()
         kryo.registerClass<Server.EntityMoved>()
+        kryo.registerClass<Server.EntityHealthChanged>()
 
         kryo.registerClass<Server.SpawnInventoryItems>()
 
@@ -148,7 +153,7 @@ object Network {
         kryo.registerClass<Client.InventoryDropItem>()
         kryo.registerClass<Client.OpenDeviceControlPanel>()
         kryo.registerClass<Client.CloseDeviceControlPanel>()
-        kryo.registerClass<Client.ActivateEntity>()
+        kryo.registerClass<Client.DoorOpen>()
 
         kryo.registerClass<Client.PlayerEquippedItemAttack>()
         kryo.registerClass<Client.PlayerEquippedItemAttack.ItemAttackType>()
@@ -166,7 +171,7 @@ object Network {
                          )
 
         //fixme: unneeded??
-        class LoadedViewportMoved ( var rect: Rectangle = Rectangle())
+        class LoadedViewportMoved(var rect: Rectangle = Rectangle())
 
         class DestroyEntities {
             var entityId: IntArray? = null
@@ -279,10 +284,15 @@ object Network {
             var playerId: Int = 0
         }
 
-
         class EntityMoved(var id: Int = -1, var position: Vector2 = Vector2())
 
+        class EntityHealthChanged(var entityId: Int = INVALID_ENTITY_ID, var health: Float = -1f)
+
         class PlayerAirChanged(var air: Int = -1)
+
+        class DoorOpen(var entityId: Int = INVALID_ENTITY_ID,
+                       var state: DoorComponent.DoorState = DoorComponent.DoorState.Closed)
+
     }
 
     object Client {
@@ -370,10 +380,12 @@ object Network {
         class CloseDeviceControlPanel(var entityId: Int = INVALID_ENTITY_ID)
 
         /**
-         * used for example, for toggling the state of doors.
-         * (player activated it/interacted with it)
+         * client can only toggle the state of a door from
+         * what it is currently. server will send
+         * back the status of the door (for when it gets opened
+         * without our interactions, too)
          */
-        class ActivateEntity(var entityId: Int = INVALID_ENTITY_ID)
+        class DoorOpen(var entityId: Int = INVALID_ENTITY_ID)
 
         /**
          * indicate that we are trying to attack whatever item is equipped,

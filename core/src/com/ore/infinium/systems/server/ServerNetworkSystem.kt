@@ -257,9 +257,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val spawnMultiple = Network.Server.EntitySpawnMultiple()
 
-        for (i in entitiesToSpawn.indices) {
-            val entityId = entitiesToSpawn[i]
-
+        for (entityId in entitiesToSpawn) {
             if (mPlayer.has(entityId)) {
                 //skip players we don't know how to spawn them automatically yet
                 continue
@@ -436,7 +434,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
             is Network.Client.OpenDeviceControlPanel -> receiveOpenDeviceControlPanel(job, receivedObject)
             is Network.Client.CloseDeviceControlPanel -> receiveCloseDeviceControlPanel(job, receivedObject)
-            is Network.Client.ActivateEntity -> receiveActivateEntity(job, receivedObject)
+            is Network.Client.DoorOpen -> receiveDoorOpen(job, receivedObject)
 
             is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
             is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
@@ -461,22 +459,29 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         }
     }
 
-    private fun receiveActivateEntity(job: NetworkJob,
-                                      activate: Network.Client.ActivateEntity) {
+    private fun receiveDoorOpen(job: NetworkJob,
+                                activate: Network.Client.DoorOpen) {
         val entity = activate.entityId
 
         mDoor.ifPresent(entity) { door ->
-            when(door.state) {
+            door.state = when (door.state) {
                 DoorComponent.DoorState.Open -> {
-                    door.state = DoorComponent.DoorState.Closed
+                    DoorComponent.DoorState.Closed
                 }
 
                 DoorComponent.DoorState.Closed -> {
-                    door.state = DoorComponent.DoorState.Open
+                    DoorComponent.DoorState.Open
                 }
             }
 
-            sendEntityActivated(entity)
+            // only send moved if it's spawned in their viewport
+            // if not spawned in view yet, it'll get spawned
+            // and this position update doesn't matter, so don't do it
+            oreWorld.players().filter { player ->
+                serverNetworkEntitySystem.entityExistsInPlayerView(playerEntityId = player, entityId = entity)
+            }.forEach { player ->
+                sendDoorOpen(player, entity, door.state)
+            }
         }
     }
 
@@ -909,9 +914,33 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         serverKryo.sendToTCP(cPlayer.connectionPlayerId, stats)
     }
 
-    private fun sendEntityActivated(entity: Int) {
-        throw UnsupportedOperationException(
-                "not implemented") //To change body of created functions use File | Settings | File Templates.
+    private fun sendDoorOpen(playerEntityId: Int,
+                             entity: Int,
+                             state: DoorComponent.DoorState) {
+        val activated = Network.Server.DoorOpen(entityId = entity, state = state)
+
+        sendToAllPlayersEntityVisible(entity, activated)
+    }
+
+    fun sendEntityHealthChanged(entityId: Int) {
+        val cHealth = mHealth.get(entityId)
+        val healthChange = Network.Server.EntityHealthChanged(entityId = entityId, health = cHealth.health)
+
+        sendToAllPlayersEntityVisible(entityId, healthChange)
+    }
+
+    /**
+     * send an object(packet) to all players that can see a particular entity
+     * (have it spawned in their viewport). entities that are not spawned for
+     * a player, will not have anything sent
+     *
+     * @param entityId the entity that should be spawned/visible for each(any) player
+     */
+    fun sendToAllPlayersEntityVisible(entityId: Int, objectToSend: Any) {
+        oreWorld.players().filter {
+            serverNetworkEntitySystem.entityExistsInPlayerView(it, entityId)
+        }.forEach { player ->
+            serverKryo.sendToTCP(mPlayer.get(player).connectionPlayerId, objectToSend)
+        }
     }
 }
-
