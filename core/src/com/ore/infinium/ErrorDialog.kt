@@ -26,10 +26,13 @@ SOFTWARE.
 
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.Toolkit
 import java.awt.Window
+import java.awt.datatransfer.StringSelection
 import java.io.PrintWriter
 import java.io.StringWriter
 import javax.swing.*
+import javax.swing.text.DefaultEditorKit
 
 // @SuppressWarnings("serial")
 class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thread) : JDialog() {
@@ -37,7 +40,7 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
     //was working before, but kotlin broke this. java just did super((Dialog)null)
 
     private var m_showDetails: Boolean = false
-    private val m_errorMessage: JComponent
+    private val m_errorMessage: JEditorPane
     private val m_mainComponent: JComponent
     private var _details: JScrollPane? = null
     private lateinit var m_stackTracePane: JTextPane
@@ -64,6 +67,9 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
     internal fun createContent(): JComponent {
         val showDetails = JButton("Show Details >>")
 
+        m_stackTracePane = JTextPane()
+        m_stackTracePane.isEditable = false
+
         showDetails.addActionListener {
             if (m_showDetails) {
                 m_mainComponent.remove(_details)
@@ -89,42 +95,54 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
             this@ErrorDialog.pack()
         }
 
-        val messagePanel = JPanel()
-
-        m_errorMessage.background = messagePanel.background
-
         val quit = JButton("Quit")
         quit.addActionListener { System.exit(1) }
 
-        val buttonPanel = JPanel()
-        buttonPanel.add(Box.createHorizontalStrut(20))
-        buttonPanel.add(showDetails)
-        buttonPanel.add(quit)
-        buttonPanel.add(Box.createHorizontalGlue())
+        val copy = JButton(DefaultEditorKit.copyAction)
+        copy.addActionListener {
+            val select = StringSelection(m_stackTracePane.text)
+            val clipboard = Toolkit.getDefaultToolkit().systemClipboard
+            clipboard.setContents(select, null)
+        }
 
-        messagePanel.layout = BorderLayout()
-        messagePanel.border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
-        messagePanel.add(m_errorMessage, BorderLayout.CENTER)
-        messagePanel.add(buttonPanel, BorderLayout.SOUTH)
-        messagePanel.preferredSize = MESSAGE_SIZE
+        val buttonPanel = JPanel().apply {
+            add(Box.createHorizontalStrut(20))
+            add(showDetails)
+            add(Box.createHorizontalStrut(20))
+            add(copy)
+            add(Box.createHorizontalStrut(20))
+            add(quit)
+            add(Box.createHorizontalGlue())
+        }
 
-        val main = JPanel()
-        main.layout = BorderLayout()
-        main.add(messagePanel, BorderLayout.NORTH)
+        val messagePanel = JPanel().apply {
+            m_errorMessage.background = background
+
+            layout = BorderLayout()
+            border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
+            add(m_errorMessage, BorderLayout.CENTER)
+            add(buttonPanel, BorderLayout.SOUTH)
+            preferredSize = MESSAGE_SIZE
+        }
+
+        val main = JPanel().apply {
+            layout = BorderLayout()
+            add(messagePanel, BorderLayout.NORTH)
+        }
         return main
     }
 
     /**
      * Creates a non-editable widget to display the error message.
      */
-    internal fun createErrorMessage(t: Throwable): JComponent {
-        var message = t.message
-        message += "\n Thread name:  " + m_thread.name
+    internal fun createErrorMessage(t: Throwable): JEditorPane {
+        var message = "${t.message} \n Thread name:  ${m_thread.name}"
 
-        val messagePane = JEditorPane()
-        messagePane.contentType = "text/plain"
-        messagePane.isEditable = false
-        messagePane.text = message
+        val messagePane = JEditorPane().apply {
+            contentType = "text/plain"
+            isEditable = false
+            text = message
+        }
         return messagePane
     }
 
@@ -132,8 +150,6 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
      * Creates a non-editable widget to display the detailed stack trace.
      */
     internal fun createDetailedMessage(t: Throwable): JScrollPane {
-        m_stackTracePane = JTextPane()
-        m_stackTracePane.isEditable = false
         val pane = JScrollPane(m_stackTracePane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 
