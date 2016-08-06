@@ -178,19 +178,23 @@ class OreServer : Runnable {
     private fun loadHotbarInventory(playerEntity: Int) {
         //TODO: load the player's inventory and hotbarinventory from file..for now, initialize *the whole thing* with
         // bullshit
-        val playerComponent = mPlayer.get(playerEntity)
+        val cPlayer = mPlayer.get(playerEntity)
+        val hotbarInventory = cPlayer.hotbarInventory!!
 
         val drill = oreWorld.createDrill()
-        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(drill)
+        hotbarInventory.placeItemInNextFreeSlot(drill)
 
         val dirtBlock = oreWorld.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
-        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(dirtBlock)
+        hotbarInventory.placeItemInNextFreeSlot(dirtBlock)
 
         val stoneBlock = oreWorld.createBlockItem(OreBlock.BlockType.Stone.oreValue)
-        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(stoneBlock)
+        hotbarInventory.placeItemInNextFreeSlot(stoneBlock)
 
         val powerGen = oreWorld.createPowerGenerator()
-        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(powerGen)
+        hotbarInventory.placeItemInNextFreeSlot(powerGen)
+
+        val door = oreWorld.createDoor()
+        hotbarInventory.placeItemInNextFreeSlot(door)
 
         val light = oreWorld.createLight()
 
@@ -199,12 +203,12 @@ class OreServer : Runnable {
             stackSize = maxStackSize
         }
 
-        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(light)
+        hotbarInventory.placeItemInNextFreeSlot(light)
 
         val liquidGun = oreWorld.createLiquidGun()
-        playerComponent.hotbarInventory!!.placeItemInNextFreeSlot(liquidGun)
+        hotbarInventory.placeItemInNextFreeSlot(liquidGun)
 
-        val nonEmptySlots = playerComponent.hotbarInventory!!.slots.filter {
+        val nonEmptySlots = hotbarInventory.slots.filter {
             isValidEntity(it.entityId)
         }.map { it.entityId }
 
@@ -237,9 +241,6 @@ class OreServer : Runnable {
             stackSize = 2
         }
         cPlayer.inventory!!.placeItemInNextFreeSlot(dirtBlock)
-
-        val door = oreWorld.createDoor()
-        cPlayer.inventory!!.placeItemInNextFreeSlot(door)
 
         val nonEmptySlots = cPlayer.inventory!!.slots.filter { slot ->
             isValidEntity(slot.entityId)
