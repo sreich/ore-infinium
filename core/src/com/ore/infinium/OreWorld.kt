@@ -1141,6 +1141,12 @@ class OreWorld
             component.copyFrom(sourceComponent)
         }
 
+        if (doorMapper.has(sourceEntity)) {
+            val sourceComponent = doorMapper.get(sourceEntity)
+            val component = doorMapper.create(clonedEntity)
+            component.copyFrom(sourceComponent)
+        }
+
         if (lightMapper.has(sourceEntity)) {
             val sourceComponent = lightMapper.get(sourceEntity)
             val component = lightMapper.create(clonedEntity)

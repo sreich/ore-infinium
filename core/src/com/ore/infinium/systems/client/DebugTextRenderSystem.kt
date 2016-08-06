@@ -37,8 +37,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.profiling.GLProfiler
-import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.StringBuilder
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
@@ -58,6 +56,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     private val mAir by mapper<AirComponent>()
     private val mBlock by mapper<BlockComponent>()
     private val mControl by mapper<ControllableComponent>()
+    private val mDoor by mapper<DoorComponent>()
     private val mFlora by mapper<FloraComponent>()
     private val mHealth by mapper<HealthComponent>()
     private val mItem by mapper<ItemComponent>()
@@ -190,9 +189,9 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
                 val spriteComponent = mSprite.get(entities.get(i))
 
                 debugServerBatch.draw(junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
-                                        spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
-                                        spriteComponent.sprite.width,
-                                        spriteComponent.sprite.height)
+                                      spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
+                                      spriteComponent.sprite.width,
+                                      spriteComponent.sprite.height)
             }
 
             debugServerBatch.end()
@@ -242,7 +241,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         m_textYLeft -= TEXT_Y_SPACING
 
         font.draw(batch, "tiles rendered: ${tileRenderSystem.debugTilesInViewCount}", TEXT_X_LEFT.toFloat(),
-                    m_textYLeft.toFloat())
+                  m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
         font.draw(batch, textureSwitchesString, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
@@ -270,7 +269,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
         font.draw(batch, "blockHealth: $damagedBlockHealth / $totalBlockHealth", TEXT_X_LEFT.toFloat(),
-                    m_textYLeft.toFloat())
+                  m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
         var texture = ""
@@ -321,7 +320,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         }
 
         font.draw(batch, "ping: ${clientNetworkSystem.clientKryo.returnTripTime}", TEXT_X_LEFT.toFloat(),
-                    m_textYLeft.toFloat())
+                  m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
     }
@@ -359,29 +358,13 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     private fun drawDebugInfoForEntityAtMouse(textY: Int) {
         val mousePos = oreWorld.mousePositionWorldCoords()
 
-        val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
-        val entities = entitySubscription.entities
+        val entities = world.entities(Aspect.all(SpriteComponent::class.java))
 
         var entityUnderMouse = INVALID_ENTITY_ID
 
-        val airComponent: AirComponent?
-        val blockComponent: BlockComponent?
-        val controllableComponent: ControllableComponent?
-        val healthComponent: HealthComponent?
-        val floraComponent: FloraComponent?
-        val itemComponent: ItemComponent?
-        val jumpComponent: JumpComponent?
-        val lightComponent: LightComponent?
-        val playerComponent: PlayerComponent?
-        val powerConsumerComponent: PowerConsumerComponent?
-        val powerDeviceComponent: PowerDeviceComponent?
-        val powerGeneratorComponent: PowerGeneratorComponent?
         var spriteComponent: SpriteComponent?
-        val toolComponent: ToolComponent?
-        val velocityComponent: VelocityComponent?
 
-        val components = Array<Component>()
+        var components = listOf<Component>()
         for (i in entities.indices) {
             val currentEntity = entities.get(i)
 
@@ -401,49 +384,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             val rectangle = spriteComponent!!.sprite.rect
 
             if (rectangle.contains(mousePos)) {
-                airComponent = mAir.opt(currentEntity)
-                components.add(airComponent)
-
-                blockComponent = mBlock.opt(currentEntity)
-                components.add(blockComponent)
-
-                controllableComponent = mControl.opt(currentEntity)
-                components.add(controllableComponent)
-
-                floraComponent = mFlora.opt(currentEntity)
-                components.add(floraComponent)
-
-                healthComponent = mHealth.opt(currentEntity)
-                components.add(healthComponent)
-
-                itemComponent = mItem.opt(currentEntity)
-                components.add(itemComponent)
-
-                jumpComponent = mJump.opt(currentEntity)
-                components.add(jumpComponent)
-
-                lightComponent = mLight.opt(currentEntity)
-                components.add(lightComponent)
-
-                playerComponent = mPlayer.opt(currentEntity)
-                components.add(playerComponent)
-
-                powerConsumerComponent = mPowerConsumer.opt(currentEntity)
-                components.add(powerConsumerComponent)
-
-                powerDeviceComponent = mPowerDevice.opt(currentEntity)
-                components.add(powerDeviceComponent)
-
-                powerGeneratorComponent = mPowerGenerator.opt(currentEntity)
-                components.add(powerGeneratorComponent)
-
-                components.add(spriteComponent)
-
-                toolComponent = mTool.opt(currentEntity)
-                components.add(toolComponent)
-
-                velocityComponent = mVelocity.opt(currentEntity)
-                components.add(velocityComponent)
+                components = oreWorld.getComponentsForEntity(currentEntity).toList()
 
                 entityUnderMouse = currentEntity
                 break
@@ -454,15 +395,9 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         m_textYRight -= TEXT_Y_SPACING
 
         val builder = StringBuilder()
-        for (c in components) {
-            if (c == null) {
-                continue
-            }
+        components.forEach { builder.append(it.printString()) }
 
-            builder.append(c.printString())
-        }
         font.draw(batch, builder.toString(), TEXT_X_RIGHT.toFloat(), m_textYRight.toFloat())
-
     }
 
     companion object {
