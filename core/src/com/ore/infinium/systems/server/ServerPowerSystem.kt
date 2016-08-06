@@ -105,7 +105,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
             when (cGen.type) {
                 PowerGeneratorComponent.GeneratorType.Combustion -> updateCombustionGenerator(entityId, cGen)
 
-                else -> throw NotImplementedError("alternative gen types not yet implemented")
+                else -> TODO("alternative gen types not yet implemented")
             }
         }
     }

@@ -69,8 +69,7 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
 
             serverNetworkSystem.sendPlayerAirChanged(playerEntity = entityId)
         } else {
-            throw NotImplementedError(
-                    "don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
+            TODO("don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
         }
     }
 
@@ -79,8 +78,7 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
             cAir.air -= 1
             serverNetworkSystem.sendPlayerAirChanged(playerEntity = entityId)
         } else {
-            throw NotImplementedError(
-                    "don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
+            TODO("don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
         }
     }
 

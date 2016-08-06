@@ -57,7 +57,7 @@ class HealthSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(Healt
     }
 
     fun decreaseHealth(entityId: Int, decreaseAmount: Float) {
-       throw NotImplementedError("")
+        TODO()
     }
 
     fun increaseHealth(entityId: Int, increaseAmount: Float) {

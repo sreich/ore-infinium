@@ -321,10 +321,14 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private fun serializeComponents(entityId: Int): List<Component> {
         val components = Bag<Component>()
 
-        getWorld().getEntity(entityId).getComponents(components)
+        world.getEntity(entityId).getComponents(components)
 
         val copyComponents = mutableListOf<Component>()
         for (component in components) {
+            assert(component != null) {
+                "component in list of components for entity was null somehow. shouldn't be possible"
+            }
+
             when (component) {
                 is PlayerComponent -> {
                     //skip
