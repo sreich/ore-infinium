@@ -44,6 +44,7 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
     private val m_mainComponent: JComponent
     private var _details: JScrollPane? = null
     private lateinit var m_stackTracePane: JTextPane
+    private var stackTrace: String? = null
 
     init {
         m_errorMessage = createErrorMessage(m_exception)
@@ -70,6 +71,10 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
         m_stackTracePane = JTextPane()
         m_stackTracePane.isEditable = false
 
+        val errors = StringWriter()
+        m_exception.printStackTrace(PrintWriter(errors))
+        stackTrace = errors.toString()
+
         showDetails.addActionListener {
             if (m_showDetails) {
                 m_mainComponent.remove(_details)
@@ -77,12 +82,10 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
                 m_mainComponent.preferredSize = MESSAGE_SIZE
             } else {
                 if (_details == null) {
-                    val errors = StringWriter()
-                    m_exception.printStackTrace(PrintWriter(errors))
 
                     _details = createDetailedMessage(m_exception)
 
-                    m_stackTracePane.text = errors.toString()
+                    m_stackTracePane.text = stackTrace
                     m_stackTracePane.background = m_mainComponent.background
                     m_stackTracePane.preferredSize = STACKTRACE_SIZE
                 }
@@ -100,7 +103,7 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
 
         val copy = JButton(DefaultEditorKit.copyAction)
         copy.addActionListener {
-            val select = StringSelection(m_stackTracePane.text)
+            val select = StringSelection(stackTrace)
             val clipboard = Toolkit.getDefaultToolkit().systemClipboard
             clipboard.setContents(select, null)
         }
