@@ -358,7 +358,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     private fun drawDebugInfoForEntityAtMouse(textY: Int) {
         val mousePos = oreWorld.mousePositionWorldCoords()
 
-        val entities = world.entities(Aspect.all(SpriteComponent::class.java))
+        val entities = world.entities(allOf(SpriteComponent::class))
 
         var entityUnderMouse = INVALID_ENTITY_ID
 
@@ -368,18 +368,12 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         for (i in entities.indices) {
             val currentEntity = entities.get(i)
 
-            val entityBoxed = world.getEntity(currentEntity)
-
-            val entityTag = tagManager.getTagNullable(entityBoxed)
-
             //could be placement overlay, but we don't want this. skip over.
-            if (entityTag != null) {
-                if (entityTag == OreWorld.s_itemPlacementOverlay || entityTag == OreWorld.s_crosshair) {
-                    continue
-                }
+            if (oreWorld.shouldIgnoreClientEntityTag(currentEntity)) {
+                continue
             }
 
-            spriteComponent = mSprite.opt(currentEntity)
+            spriteComponent = mSprite.get(currentEntity)
 
             val rectangle = spriteComponent!!.sprite.rect
 
