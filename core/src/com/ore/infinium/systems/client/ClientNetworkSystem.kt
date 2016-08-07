@@ -266,7 +266,11 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         mSprite.get(localId).apply {
-            textureName = "door-open-16x36"
+            textureName = when (activated.state) {
+                DoorComponent.DoorState.Closed -> "door-closed-16x36"
+                DoorComponent.DoorState.Open -> "door-open-16x36"
+            }
+
             //update region
             val textureRegion = oreWorld.m_atlas.findRegion(textureName)
             this.sprite.setRegion(textureRegion)
