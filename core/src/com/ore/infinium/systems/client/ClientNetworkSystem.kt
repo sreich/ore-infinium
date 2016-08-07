@@ -24,7 +24,6 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
-import com.artemis.Aspect
 import com.artemis.BaseSystem
 import com.artemis.EntitySubscription
 import com.artemis.annotations.Wire
@@ -264,6 +263,13 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val localId = entityForNetworkId[activated.entityId]!!
         mDoor.get(localId).apply {
             state = activated.state
+        }
+
+        mSprite.get(localId).apply {
+            textureName = "door-open-16x36"
+            //update region
+            val textureRegion = oreWorld.m_atlas.findRegion(textureName)
+            this.sprite.setRegion(textureRegion)
         }
     }
 
@@ -522,7 +528,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             playerSprite.sprite.setRegion(oreWorld.m_atlas.findRegion("player-32x64"))
 
             val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
-            val subscription = aspectSubscriptionManager.get(Aspect.all())
+            val subscription = aspectSubscriptionManager.get(allOf())
             subscription.addSubscriptionListener(ClientEntitySubscriptionListener())
 
             connected = true

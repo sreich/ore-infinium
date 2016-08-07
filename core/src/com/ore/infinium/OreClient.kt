@@ -24,7 +24,6 @@ SOFTWARE.
 
 package com.ore.infinium
 
-import com.artemis.Aspect
 import com.artemis.ComponentMapper
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.*
@@ -298,12 +297,7 @@ class OreClient : ApplicationListener, InputProcessor {
     }
 
     private fun attemptToolAttackOnAnEntityAndSend(mouse: Vector2) {
-        val clientAspectSubscriptionManager = m_world!!.m_artemisWorld.aspectSubscriptionManager
-        val clientEntities = clientAspectSubscriptionManager.get(Aspect.all()).entities
-
-        //fixme, not ideal..but i don't like non-java collections anyways
-        val entities = mutableListOf<Int>()
-        clientEntities.forEach { entities.add(it) }
+        val entities = m_world!!.m_artemisWorld.entities(allOf()).toMutableList()
 
         val entityToAttack = entities.filter { e ->
             val spriteComp = spriteMapper.get(e)

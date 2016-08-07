@@ -111,6 +111,12 @@ inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
 //    for (element in this) action(element)
 //}
 
+fun IntBag.toMutableList(): MutableList<Int> {
+    val list = mutableListOf<Int>()
+    this.forEach { list.add(it) }
+    return list
+}
+
 val IntBag.indices: IntRange get() = 0..size() - 1
 val <T : Any> Bag<T>.indices: IntRange get() = 0..size() - 1
 

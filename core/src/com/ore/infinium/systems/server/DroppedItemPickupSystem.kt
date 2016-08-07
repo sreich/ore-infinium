@@ -66,9 +66,7 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
 
         //fixme use spatialsystem for this *very expensive* walking
 
-        val aspectSubscriptionManager = world.aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(ItemComponent::class.java))
-        val entities = entitySubscription.entities
+        val entities = world.entities(allOf(ItemComponent::class))
 
         entities.forEach { droppedItemEntityId ->
 

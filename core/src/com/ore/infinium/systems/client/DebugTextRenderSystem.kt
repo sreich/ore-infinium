@@ -24,7 +24,6 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
-import com.artemis.Aspect
 import com.artemis.BaseSystem
 import com.artemis.Component
 import com.artemis.annotations.Wire
@@ -182,8 +181,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             debugServerBatch.begin()
             debugServerBatch.color = Color.MAGENTA
 
-            val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
-            val entities = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java)).entities
+            val entities = getWorld().entities(allOf(SpriteComponent::class))
 
             for (i in entities.indices) {
                 val spriteComponent = mSprite.get(entities.get(i))
@@ -291,9 +289,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         font.draw(batch, s, TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
 
-        val clientAspectSubscriptionManager = getWorld().aspectSubscriptionManager
-        val clientEntitySubscription = clientAspectSubscriptionManager.get(Aspect.all())
-        val clientEntities = clientEntitySubscription.entities
+        val clientEntities = getWorld().entities(allOf())
 
         font.draw(batch, "client entities: ${clientEntities.size()}", TEXT_X_LEFT.toFloat(), m_textYLeft.toFloat())
         m_textYLeft -= TEXT_Y_SPACING
@@ -309,10 +305,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             //or just the count. if we do just the count though, we can't get the 'actual'
             //object positions below. but there may be another way (like making a special system for it,
             //that will avoid interpolation..or something)
-            AspectSubscriptionManager aspectSubscriptionManager =
-                    oreWorld.m_server.oreWorld.m_artemisWorld.getAspectSubscriptionManager();
-            EntitySubscription entitySubscription = aspectSubscriptionManager.get(Aspect.all());
-            IntBag serverEntities = entitySubscription.getEntities();
+            val serverEntities = oreWorld.m_server.oreWorld.m_artemisWorld.entities(allOf());
             font.draw(batch, "server entities: " + serverEntities.size(), TEXT_X_LEFT, m_textYLeft);
             m_textYLeft -= TEXT_Y_SPACING;
             */

@@ -29,7 +29,6 @@ import aurelienribon.tweenengine.Tween
 import aurelienribon.tweenengine.TweenEquations
 import aurelienribon.tweenengine.TweenManager
 import aurelienribon.tweenengine.equations.Sine
-import com.artemis.Aspect
 import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
@@ -92,9 +91,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
     //fixme probably also droppedblocks?
     private fun renderDroppedEntities(delta: Float) {
         //fixme obviously this is very inefficient...but dunno if it'll ever be an issue.
-        val aspectSubscriptionManager = world.aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
-        val entities = entitySubscription.entities
+        val entities = world.entities(allOf(SpriteComponent::class))
 
         var itemComponent: ItemComponent?
         for (i in entities.indices) {
@@ -131,8 +128,8 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
             //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
 
             batch.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
-                    (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
-                    rotation)
+                       (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
+                       rotation)
         }
     }
 
@@ -153,9 +150,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
 
     private fun renderEntities(delta: Float) {
         //todo need to exclude blocks?
-        val aspectSubscriptionManager = world.aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
-        val entities = entitySubscription.entities
+        val entities = world.entities(allOf(SpriteComponent::class))
 
         var itemComponent: ItemComponent?
         var spriteComponent: SpriteComponent

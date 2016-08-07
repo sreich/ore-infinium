@@ -35,12 +35,7 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.server.ServerNetworkSystem
-import com.ore.infinium.util.abs
-import com.ore.infinium.util.indices
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.require
-import com.ore.infinium.util.system
-import com.ore.infinium.util.ifPresent
+import com.ore.infinium.util.*
 
 @Wire(failOnNull = false)
 class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
@@ -430,9 +425,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
     }
 
     private fun maybeSendEntityMoved(entity: Int) {
-        val aspectSubscriptionManager = oreWorld.m_artemisWorld.aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
-        val entities = entitySubscription.entities
+        val entities = oreWorld.m_artemisWorld.entities(allOf(PlayerComponent::class))
 
         for (i in entities.indices) {
             val player = entities.get(i)

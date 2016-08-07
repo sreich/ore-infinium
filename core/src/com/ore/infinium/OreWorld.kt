@@ -24,7 +24,10 @@ SOFTWARE.
 
 package com.ore.infinium
 
-import com.artemis.*
+import com.artemis.Component
+import com.artemis.ComponentMapper
+import com.artemis.World
+import com.artemis.WorldConfigurationBuilder
 import com.artemis.managers.PlayerManager
 import com.artemis.managers.TagManager
 import com.artemis.systems.EntityProcessingSystem
@@ -604,8 +607,7 @@ class OreWorld
     }
 
     fun entityAtPosition(pos: Vector2): Int? {
-        val entitySubscription = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(SpriteComponent::class.java))
-        val entities = entitySubscription.entities
+        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class))
 
         var spriteComponent: SpriteComponent
         for (i in entities.indices) {
@@ -956,15 +958,16 @@ class OreWorld
         }
 
         //check collision against entities
-        val entities = m_artemisWorld.aspectSubscriptionManager.get(
-                Aspect.all(SpriteComponent::class.java)).entities
+        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class))
         for (i in entities.indices) {
+            val currentEntity = entities.get(i)
+
             //it's the item we're trying to place, don't count a collision with ourselves
-            if (entities.get(i) == entity) {
+            if (currentEntity == entity) {
                 continue
             }
 
-            val itemComponent = itemMapper.opt(entities.get(i))
+            val itemComponent = itemMapper.opt(currentEntity)
             if (itemComponent != null) {
                 // items that are dropped in the world are considered non colliding
                 if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
@@ -972,13 +975,13 @@ class OreWorld
                 }
             }
 
-            val entitySpriteComponent = spriteMapper.get(entities.get(i))
+            val entitySpriteComponent = spriteMapper.get(currentEntity)
             // possible colliding object is not meant to be collided with. skip it/don't count it
             if (entitySpriteComponent.noClip) {
                 continue
             }
 
-            if (entityCollides(entities.get(i), entity)) {
+            if (entityCollides(currentEntity, entity)) {
                 return false
             }
         }
@@ -1076,105 +1079,89 @@ class OreWorld
         val clonedEntity = m_artemisWorld.create()
 
         //sorted alphabetically for your pleasure
-        if (airMapper.has(sourceEntity)) {
-            val sourceComponent = airMapper.get(sourceEntity)
+        airMapper.ifPresent(sourceEntity) {
             val component = airMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (blockMapper.has(sourceEntity)) {
-            val sourceComponent = blockMapper.get(sourceEntity)
+        blockMapper.ifPresent(sourceEntity) {
             val component = blockMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (controlMapper.has(sourceEntity)) {
-            val sourceComponent = controlMapper.get(sourceEntity)
+        controlMapper.ifPresent(sourceEntity) {
             val component = controlMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (floraMapper.has(sourceEntity)) {
-            val sourceComponent = floraMapper.get(sourceEntity)
+        floraMapper.ifPresent(sourceEntity) {
             val component = floraMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (healthMapper.has(sourceEntity)) {
-            val sourceComponent = healthMapper.get(sourceEntity)
+        healthMapper.ifPresent(sourceEntity) {
             val component = healthMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (itemMapper.has(sourceEntity)) {
-
-            val sourceComponent = itemMapper.get(sourceEntity)
+        itemMapper.ifPresent(sourceEntity) {
             val component = itemMapper.create(clonedEntity)
             //fixme for first execution of this, it takes ~400ms which is crazy
             //it is literally ONLY this one, for a generator. not sure why yet.
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (jumpMapper.has(sourceEntity)) {
-            val sourceComponent = jumpMapper.get(sourceEntity)
+        jumpMapper.ifPresent(sourceEntity) {
             val component = jumpMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
         //player, unneeded
         assert(playerMapper.opt(sourceEntity) == null)
 
-        if (spriteMapper.has(sourceEntity)) {
-            val sourceComponent = spriteMapper.get(sourceEntity)
+        spriteMapper.ifPresent(sourceEntity) {
             val component = spriteMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
 
             if (worldInstanceType != WorldInstanceType.Server) {
-                System.out.println(component.textureName);
+                log("client entity cloner, sprite", component.textureName.toString())
                 component.sprite.setRegion(m_atlas.findRegion(component.textureName))
             }
         }
 
-        if (toolMapper.has(sourceEntity)) {
-            val sourceComponent = toolMapper.get(sourceEntity)
+        toolMapper.ifPresent(sourceEntity) {
             val component = toolMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (doorMapper.has(sourceEntity)) {
-            val sourceComponent = doorMapper.get(sourceEntity)
+        doorMapper.ifPresent(sourceEntity) {
             val component = doorMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (lightMapper.has(sourceEntity)) {
-            val sourceComponent = lightMapper.get(sourceEntity)
+        lightMapper.ifPresent(sourceEntity) {
             val component = lightMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (velocityMapper.has(sourceEntity)) {
-            val sourceComponent = velocityMapper.get(sourceEntity)
+        velocityMapper.ifPresent(sourceEntity) {
             val component = velocityMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (powerDeviceMapper.has(sourceEntity)) {
-            val sourceComponent = powerDeviceMapper.get(sourceEntity)
+        powerDeviceMapper.ifPresent(sourceEntity) {
             val component = powerDeviceMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (powerConsumerMapper.has(sourceEntity)) {
-            val sourceComponent = powerConsumerMapper.get(sourceEntity)
+        powerConsumerMapper.ifPresent(sourceEntity) {
             val component = powerConsumerMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
         }
 
-        if (powerGeneratorMapper.has(sourceEntity)) {
-            val sourceComponent = powerGeneratorMapper.get(sourceEntity)
+        powerGeneratorMapper.ifPresent(sourceEntity) {
             val component = powerGeneratorMapper.create(clonedEntity)
-            component.copyFrom(sourceComponent)
+            component.copyFrom(it)
 
             //hack until we come up with a better way, possibly pass world in
             //as copy param, to get these injected well
@@ -1207,12 +1194,7 @@ class OreWorld
     }
 
     fun players(): List<Int> {
-        val entitySubscription = m_artemisWorld.aspectSubscriptionManager.get(Aspect.all(PlayerComponent::class.java))
-
-        val transformedList = mutableListOf<Int>()
-        entitySubscription.entities.forEach { transformedList.add(it) }
-
-        return transformedList
+        return m_artemisWorld.entities(allOf(PlayerComponent::class)).toMutableList()
     }
 
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
@@ -1243,11 +1225,7 @@ class OreWorld
 
     @Suppress("unused")
     inline fun <reified T : Component> getEntitiesWithComponent(): IntBag? {
-        val aspectSubscriptionManager = m_artemisWorld.aspectSubscriptionManager
-        val entitySubscription = aspectSubscriptionManager.get(Aspect.all(T::class.java))
-        val entities = entitySubscription.entities
-
-        return entities
+        return m_artemisWorld.entities(allOf(T::class))
     }
 
 
@@ -1350,4 +1328,5 @@ class OreWorld
 
     }
 }
+
 
