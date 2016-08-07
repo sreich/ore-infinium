@@ -135,6 +135,7 @@ object Network {
         kryo.registerClass<Server.PlayerAirChanged>()
         kryo.registerClass<Server.ChatMessage>()
         kryo.registerClass<Server.UpdateGeneratorControlPanelStats>()
+        kryo.registerClass<Server.DoorOpen>()
     }
 
     private fun registerClient(kryo: Kryo) {
