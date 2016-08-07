@@ -48,6 +48,7 @@ import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.*
+import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -198,8 +199,8 @@ class OreWorld
      * this is for artemis-odb optimization, ing annotations. it helps inline some calls
      */
     private
-    val isHotspotOptimizationEnabled: Boolean
-        get() = !ClassReflection.isAssignableFrom(EntityProcessingSystem::class.java, ClientNetworkSystem::class.java)
+    val isHotspotOptimizationEnabled
+            = !ClassReflection.isAssignableFrom(EntityProcessingSystem::class.java, ClientNetworkSystem::class.java)
 
     fun initServer() {
     }
@@ -824,6 +825,8 @@ class OreWorld
             stackSize = 50
             maxStackSize = 60
             name = "Door"
+            placementAdjacencyHints = EnumSet.of(ItemComponent.PlacementAdjacencyHints.BottomSolid,
+                                                 ItemComponent.PlacementAdjacencyHints.TopSolid)
         }
 
         spriteMapper.create(door).apply {
@@ -947,9 +950,10 @@ class OreWorld
         }
 
         //check collision against blocks first
-        if (!isBlockRangeSolid(startX, endX, startY, endY)) {
-            return false
-        }
+        // if (!isBlockRangeSolid(startX, endX, startY, endY)) {
+        //    return false
+        //HACK: !!
+        // }
 
         itemMapper.ifPresent(entity) { cItem ->
             if (!placementAdjacencyHintsBlocksSatisfied(entity, cItem)) {
@@ -993,19 +997,20 @@ class OreWorld
         val cSprite = spriteMapper.get(entityId)
         val left = cSprite.sprite.rect.left.toInt()
         val right = cSprite.sprite.rect.right.toInt()
-        val top = cSprite.sprite.rect.top.toInt()
-        val bottom = cSprite.sprite.rect.bottom.toInt()
+        val top = cSprite.sprite.rect.top.toInt() - 1
+        val bottom = cSprite.sprite.rect.bottom.toInt() + 1
 
         //for each (if any) placement requirement, ensure it was satisfied
         if (ItemComponent.PlacementAdjacencyHints.TopSolid in cItem.placementAdjacencyHints) {
-            isBlockRangeSolid(left, right, top, top)
-
-            return false
+            if (!isBlockRangeSolid(left, right, top, top)) {
+                return false
+            }
         }
 
         if (ItemComponent.PlacementAdjacencyHints.BottomSolid in cItem.placementAdjacencyHints) {
-            isBlockRangeSolid(left, right, bottom, bottom)
-            return false
+            if (!isBlockRangeSolid(left, right, bottom, bottom)) {
+                return false
+            }
         }
 
         return true
@@ -1017,7 +1022,7 @@ class OreWorld
     fun isBlockRangeSolid(startX: Int, endX: Int, startY: Int, endY: Int): Boolean {
         for (x in startX..endX) {
             for (y in startY..endY) {
-                if (blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
+                if (!isBlockSolid(x, y)) {
                     return false
                 }
             }

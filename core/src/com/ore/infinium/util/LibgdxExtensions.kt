@@ -51,7 +51,7 @@ val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y - (height * 0
 val Rectangle.bottom: Float get() = y + height
 val Rectangle.top: Float get() = y
 val Rectangle.left: Float get() = x
-val Rectangle.right: Float get() = y + width
+val Rectangle.right: Float get() = x + width
 
 fun RandomXS128.nextInt(start: Int, end: Int): Int {
     return start + nextInt(end - start + 1)
