@@ -30,16 +30,14 @@ import com.artemis.annotations.Wire
 import com.artemis.utils.IntBag
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.LightComponent
-import com.ore.infinium.components.PlayerComponent
-import com.ore.infinium.components.PowerDeviceComponent
-import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.components.*
 import com.ore.infinium.util.*
 
 @Wire
 class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private val mPlayer by mapper<PlayerComponent>()
     private val mLight by mapper<LightComponent>()
+    private val mItem by mapper<ItemComponent>()
     private val mSprite by mapper<SpriteComponent>()
     private val mDevice by mapper<PowerDeviceComponent>()
 
@@ -225,16 +223,21 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
     }
 
-}
+    inner class LightingEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
+        override fun inserted(entities: IntBag) {
+        }
 
-class LightingEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
-    override fun inserted(entities: IntBag) {
+        override fun removed(entities: IntBag) {
+            entities.forEach { entity ->
+                mItem.ifPresent(entity) {
+                    if (it.state != ItemComponent.State.InWorldState) {
+                        //ignore ones dropped in the world, or in inventory
+                        return
+                    }
+                }
+            }
+
+            TODO("remove lighting in the area of this light/update that area")
+        }
     }
-
-    override fun removed(entities: IntBag) {
-
-        throw UnsupportedOperationException(
-                "not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 }
-
