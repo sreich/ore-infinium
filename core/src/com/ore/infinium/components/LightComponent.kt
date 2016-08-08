@@ -27,6 +27,5 @@ package com.ore.infinium.components
 import com.artemis.Component
 
 class LightComponent : Component() {
-
     var radius = 10.0f
 }

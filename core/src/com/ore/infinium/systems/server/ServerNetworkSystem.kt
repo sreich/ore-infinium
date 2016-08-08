@@ -47,7 +47,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @Wire
 class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer: OreServer) : BaseSystem() {
-
     private val mPlayer by mapper<PlayerComponent>()
     private val mSprite by mapper<SpriteComponent>()
     private val mItem by mapper<ItemComponent>()
@@ -58,9 +57,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val mTool by mapper<ToolComponent>()
     private val mAir by mapper<AirComponent>()
     private val mDoor by mapper<DoorComponent>()
+    private val mLight by mapper<LightComponent>()
 
     private val serverBlockDiggingSystem by system<ServerBlockDiggingSystem>()
     private val serverNetworkEntitySystem by system<ServerNetworkEntitySystem>()
+    private val tileLightingSystem by system<TileLightingSystem>()
 
     val serverKryo: Server
     private val netQueue = ConcurrentLinkedQueue<NetworkJob>()
@@ -71,7 +72,6 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val debugPacketFrequencyByType = mutableMapOf<String, Int>()
 
     private val connectionListeners = Array<NetworkServerConnectionListener>()
-
 
     internal class PlayerConnection : Connection() {
         /**
@@ -626,6 +626,10 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val spriteComponent = mSprite.get(placedItem)
         spriteComponent.sprite.setPosition(itemPlace.x, itemPlace.y)
+
+        mLight.ifPresent(placedItem) {
+            tileLightingSystem.updateLightingForLight(entityId = placedItem)
+        }
     }
 
     /**

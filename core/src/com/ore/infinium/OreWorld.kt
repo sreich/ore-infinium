@@ -903,7 +903,7 @@ class OreWorld
 
         when (type) {
             FloraComponent.TreeSize.Large -> {
-                sprite.textureName = "flora/tree-02";
+                sprite.textureName = "flora/tree-02"
                 sprite.sprite.setSize(5f, 13f)
 
                 flora.numberOfDropsWhenDestroyed = 4
@@ -949,12 +949,14 @@ class OreWorld
             return false
         }
 
-        //check collision against blocks first
-        // if (!isBlockRangeSolid(startX, endX, startY, endY)) {
-        //    return false
-        //HACK: !!
-        // }
+        //check collision against blocks first, make sure where the object is getting placed,
+        //there are no blocks obstructing beneath it
+        if (!isBlockRangeSolid(startX, endX, startY, endY)) {
+            return false
+        }
 
+        //ensure placement meets the adjacency hints (like "must be connected to
+        //a solid block on the top", etc)
         itemMapper.ifPresent(entity) { cItem ->
             if (!placementAdjacencyHintsBlocksSatisfied(entity, cItem)) {
                 return false
@@ -1063,11 +1065,11 @@ class OreWorld
         //log("sparse block update", "loaded, count: " + update.blocks.size);
 
         for (sparseBlock in update.blocks) {
-            val x = sparseBlock.x
-            val y = sparseBlock.y
-            setBlockType(x, y, sparseBlock.block.type)
-            setBlockWallType(x, y, sparseBlock.block.wallType)
-            setBlockFlags(x, y, sparseBlock.block.flags)
+            sparseBlock.apply {
+                setBlockType(x, y, block.type)
+                setBlockWallType(x, y, block.wallType)
+                setBlockFlags(x, y, block.flags)
+            }
         }
     }
 

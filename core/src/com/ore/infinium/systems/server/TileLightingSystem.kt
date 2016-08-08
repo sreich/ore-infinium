@@ -25,16 +25,30 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
+import com.artemis.EntitySubscription
 import com.artemis.annotations.Wire
+import com.artemis.utils.IntBag
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
+import com.ore.infinium.components.LightComponent
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.PowerDeviceComponent
+import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.util.*
 
 @Wire
 class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
+    private val mPlayer by mapper<PlayerComponent>()
+    private val mLight by mapper<LightComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mDevice by mapper<PowerDeviceComponent>()
 
     private var initialized = false
 
     override fun initialize() {
+        val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
+        val subscription = aspectSubscriptionManager.get(allOf())
+        subscription.addSubscriptionListener(LightingEntitySubscriptionListener())
     }
 
     companion object {
@@ -54,6 +68,10 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
      * of each tile according to access to sunlight.
      *
      * doesn't factor in actual lights, just the global light (sunlight)
+     *
+     * sunlight bleeds through empty walls in the background.
+     * this will not happen underground, because walls cannot
+     * be removed underground. they are a permanent part of the world
      */
     private fun computeWorldTileLighting() {
         //TODO incorporate sunlight..this is all theoretical approaches.
@@ -64,20 +82,14 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         for (y in 0 until 200) {
             for (x in 0 until OreWorld.WORLD_SIZE_X) {
                 if (!oreWorld.isBlockSolid(x, y) && oreWorld.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
-                    //including the one that we first find that is solid
-//                    if (oreWorld.blockLightLevel(x, y) == 0.toByte()) {
                     oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
-                    //                   }
-
-                    //ambient/sunlight
-                    //            diamondSunlightFloodFill(x, y, MAX_TILE_LIGHT_LEVEL)
                 }
             }
         }
+
         for (y in 0 until 200) {
             for (x in 0 until OreWorld.WORLD_SIZE_X) {
                 if (!oreWorld.isBlockSolid(x, y) && oreWorld.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
-                    //including the one that we first find that is solid
                     val lightLevel = oreWorld.blockLightLevel(x, y)
 
                     //ambient/sunlight
@@ -90,6 +102,34 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
+    private fun recomputeLighting(startX: Int, endX: Int, startY: Int, endY: Int) {
+        //todo max y should be a reasonable base level, not far below ground
+        for (y in startY..endY) {
+            for (x in startX..endX) {
+                if (!oreWorld.isBlockSolid(x, y) && oreWorld.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
+                    oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
+                }
+            }
+        }
+
+        for (y in startY..endY) {
+            for (x in startX..endX) {
+                if (!oreWorld.isBlockSolid(x, y) && oreWorld.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
+                    val lightLevel = oreWorld.blockLightLevel(x, y)
+
+                    //ambient/sunlight
+                    updateTileLighting(x, y, lightLevel)
+
+//                    diamondSunlightFloodFill(x, y, lightLevel)
+                    //                   diamondSunlightFloodFill(x, y, lightLevel)
+                }
+            }
+        }
+    }
+
+    /**
+     * updates tile lighting for a region
+     */
     fun updateTileLighting(x: Int, y: Int, lightLevel: Byte) {
         diamondSunlightFloodFill(x - 1, y, lightLevel)
         diamondSunlightFloodFill(x + 1, y, lightLevel)
@@ -104,8 +144,12 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     /**
      * @param depth current depth the function is going to (so we blowing out the stack)
      */
-    private fun diamondSunlightFloodFill(x: Int, y: Int, lastLightLevel: Byte, firstRun: Boolean = true, depth: Int = 0) {
-        if (oreWorld.blockXSafe(x) != x || oreWorld.blockXSafe(y) != y) {
+    private fun diamondSunlightFloodFill(x: Int,
+                                         y: Int,
+                                         lastLightLevel: Byte,
+                                         firstRun: Boolean = true,
+                                         depth: Int = 0) {
+        if (oreWorld.blockXSafe(x) != x || oreWorld.blockYSafe(y) != y) {
             //out of world bounds, abort
             return
         }
@@ -139,17 +183,58 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         val newDepth = depth + 1
-        diamondSunlightFloodFill(x - 1, y, newLightLevel, firstRun = false, depth = newDepth)
-        diamondSunlightFloodFill(x + 1, y, newLightLevel, firstRun = false, depth = newDepth)
-        diamondSunlightFloodFill(x, y - 1, newLightLevel, firstRun = false, depth = newDepth)
-        diamondSunlightFloodFill(x, y + 1, newLightLevel, firstRun = false, depth = newDepth)
+        diamondSunlightFloodFill(x - 1, y, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
+        diamondSunlightFloodFill(x + 1, y, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
+        diamondSunlightFloodFill(x, y - 1, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
+        diamondSunlightFloodFill(x, y + 1, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
     }
 
     override fun processSystem() {
         if (!initialized) {
-                computeWorldTileLighting()
-                initialized = true
+            computeWorldTileLighting()
+            initialized = true
+        }
+
+        oreWorld.players().forEach {
+            val cPlayer = mPlayer.get(it)
+            val rect = cPlayer.loadedViewport.rect
+            recomputeLighting(oreWorld.blockXSafe(rect.left.toInt()), oreWorld.blockXSafe(rect.right.toInt()),
+                              oreWorld.blockYSafe(rect.top.toInt()), oreWorld.blockYSafe(rect.bottom.toInt()))
         }
     }
 
+    /**
+     * occurs when the lighting for this light must be reprocessed.
+     * updates all lighting in the area.
+     *
+     * this must be called for if a light turns on/off,
+     * if a light is placed or created.
+     *
+     * the exception being if a light is removed (deleted from the world)
+     * that is the case that will automatically be handled properly.
+     */
+    fun updateLightingForLight(entityId: Int) {
+        //todo
+        val cDevice = mDevice.get(entityId)
+        //if (device.running)
+
+        val cSprite = mSprite.get(entityId)
+        val x = cSprite.sprite.x.toInt()
+        val y = cSprite.sprite.y.toInt()
+
+        oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
+    }
+
 }
+
+class LightingEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
+    override fun inserted(entities: IntBag) {
+    }
+
+    override fun removed(entities: IntBag) {
+
+        throw UnsupportedOperationException(
+                "not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+}
+
