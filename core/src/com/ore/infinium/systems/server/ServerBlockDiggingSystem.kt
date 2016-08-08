@@ -139,10 +139,11 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             oreWorld.destroyBlock(x, y)
 
-            //update lighting in the area
-            val lightLevel = oreWorld.blockLightLevel(x, y)
+            //update lighting in the area, has to be less than the existing block lighting,
+            //or digging anywhere actually lights up that area
+            val lightLevel = (oreWorld.blockLightLevel(x, y) - 1).coerceAtLeast(0)
 
-            tileLightingSystem.updateTileLighting(x, y, lightLevel)
+            tileLightingSystem.updateTileLighting(x, y, lightLevel.toByte())
 
             //hack, this is a big region, and we'd have to calculate actual lights in this, as well i think.
             //but we wouldn't want it to be bigger than the affected region

@@ -57,7 +57,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
          * we might want to use the rest of the byte for something else.
          * haven't decided what for
          */
-        const val MAX_TILE_LIGHT_LEVEL: Byte = 5
+        const val MAX_TILE_LIGHT_LEVEL: Byte = 8
     }
 
     /**
@@ -153,10 +153,13 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         val blockType = oreWorld.blockType(x, y)
+        val wallType = oreWorld.blockWallType(x, y)
 
-        var lightAttenuation = when (blockType) {
-            OreBlock.BlockType.Air.oreValue -> 0
-            else -> 1
+        var lightAttenuation = when {
+            blockType == OreBlock.BlockType.Air.oreValue && wallType == OreBlock.WallType.Air.oreValue -> 0
+        //dug-out underground bleeds off, but not as quickly as a solid block
+            blockType == OreBlock.BlockType.Air.oreValue && wallType != OreBlock.WallType.Air.oreValue -> 1
+            else -> 2
         }
 
         if (firstRun) {
@@ -169,7 +172,6 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val currentLightLevel = oreWorld.blockLightLevel(x, y)
 
         //don't overwrite previous light values that were greater
-//        if (newLightLevel <= currentLightLevel - 1) {
         if (newLightLevel <= currentLightLevel) {
             return
         }
