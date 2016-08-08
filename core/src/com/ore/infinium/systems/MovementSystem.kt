@@ -71,17 +71,21 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         // position so it can broadcast.
         // but nothing else.
         //server will simulate everything else(except players), and broadcast positions
-        simulate(entityId, getWorld().delta)
 
         //fixme maybe make a dropped component?
-        if (oreWorld.worldInstanceType == OreWorld.WorldInstanceType.Server && mItem.has(entityId)) {
-            val item = mItem.get(entityId)
-            if (item.state == ItemComponent.State.DroppedInWorld) {
+        if (oreWorld.isServer()) {
+            if (oreWorld.isItemDroppedInWorldOpt(entityId)) {
                 simulateDroppedItem(entityId, getWorld().delta)
             }
         }
 
-        if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (!oreWorld.isServer()) {
+            //server doesn't process this(physics). client tells us where they are.
+            //fixme, though we do need to eventually at least half-ass verify it, which
+            //means doing it on server as well. and only players and stuff should get simulated
+            //by the client. the rest has to be the server
+            simulate(entityId, getWorld().delta)
+
             val mainPlayer = tagManager.getEntity(OreWorld.s_mainPlayer).id
             val playerSprite = mSprite.get(mainPlayer)
             oreWorld.m_camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
@@ -98,40 +102,21 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
      * http://lolengine.net/blog/2011/12/14/understanding-motion-in-games
      */
     private fun simulate(entity: Int, delta: Float) {
-        if (oreWorld.worldInstanceType == OreWorld.WorldInstanceType.Server) {
-            //server doesn't process past here. client tells us where they are.
-            //fixme, though we do need to eventually at least half-ass verify it, which
-            //means doing it on server as well
-            return
-        }
-
         //it isn't a player or npc or anything that can be controlled
         if (!mControl.has(entity)) {
             return
         }
 
+        val cSprite = mSprite.get(entity)
+        val cVelocity = mVelocity.get(entity)
 
-        //fixme handle noclip
-        val spriteComponent = mSprite.get(entity)
-        val velocityComponent = mVelocity.get(entity)
+        attemptSpeedRunCheat()
 
-        //cheat
-        if (OreSettings.speedRun) {
-            // reset velocity each time, or it'll be too fast for bleed off
-            //velocityComponent.velocity.setZero()
-            PlayerComponent.maxMovementSpeed = PlayerComponent.NORMAL_MOVEMENT_SPEED + 1f
-            PlayerComponent.movementRampUpFactor = PlayerComponent.NORMAL_MOVEMENT_RAMP_UP_FACTOR * 1.5f
-        } else {
-            PlayerComponent.maxMovementSpeed = PlayerComponent.NORMAL_MOVEMENT_SPEED
-            PlayerComponent.movementRampUpFactor = PlayerComponent.NORMAL_MOVEMENT_RAMP_UP_FACTOR
-        }
-
-        val oldVelocity = Vector2(velocityComponent.velocity)
+        val oldVelocity = Vector2(cVelocity.velocity)
         var newVelocity = Vector2(oldVelocity)
 
         //could be a player or something else..but we're only interested if this entity is a player
         //for enabling no clipping on him
-        val noClip = OreSettings.noClip && mPlayer.has(entity)
 
         val desiredDirection = mControl.get(entity).desiredDirection
 
@@ -146,6 +131,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         newVelocity = newVelocity.add(acceleration.x * delta, acceleration.y * delta)
 
+        val noClip = shouldNoClip(entity)
         //cancel out gravity, if in noclip mode
         if (noClip) {
             acceleration.y = 0f
@@ -176,14 +162,12 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         }
 
         //todo  clamp both axes between some max/min values..
-        velocityComponent.velocity.set(newVelocity.x, newVelocity.y)
+        cVelocity.velocity.set(newVelocity.x, newVelocity.y)
 
-        val origPosition = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
+        val origPosition = Vector2(cSprite.sprite.x, cSprite.sprite.y)
 
         // newVelocity is now invalid, note (vector reference modification).
         val desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)))
-
-        //noclip and is a player
 
         val finalPosition = if (noClip) {
             //just set where we expect we should be/want to be (ignore collision)
@@ -192,8 +176,31 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             performCollision(desiredPosition, entity)
         }
 
-        spriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y)
+        cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
+    }
+
+    /**
+     * @return if this entity id should no clip (if it's a player,
+     * and noclip enabled)
+     */
+    private fun shouldNoClip(entityId: Int) =
+            OreSettings.noClip && mPlayer.has(entityId)
+
+    /**
+     * sets player max movement according to if speed run cheat is enabled or not
+     */
+    private fun attemptSpeedRunCheat() {
+        //cheat
+        if (OreSettings.speedRun) {
+            // reset velocity each time, or it'll be too fast for bleed off
+            //velocityComponent.velocity.setZero()
+            PlayerComponent.maxMovementSpeed = PlayerComponent.NORMAL_MOVEMENT_SPEED + 1f
+            PlayerComponent.movementRampUpFactor = PlayerComponent.NORMAL_MOVEMENT_RAMP_UP_FACTOR * 1.5f
+        } else {
+            PlayerComponent.maxMovementSpeed = PlayerComponent.NORMAL_MOVEMENT_SPEED
+            PlayerComponent.movementRampUpFactor = PlayerComponent.NORMAL_MOVEMENT_RAMP_UP_FACTOR
+        }
     }
 
     private fun maybePerformJump(acceleration: Float, playerEntity: Int): Float {
@@ -201,10 +208,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         val jumpComponent = mJump.get(playerEntity)
         if (jumpComponent.canJump && jumpComponent.shouldJump) {
 
-            if (jumpComponent.jumpTimer.milliseconds() >= jumpComponent.jumpInterval) {
+            if (jumpComponent.jumpTimer.resetIfSurpassed(jumpComponent.jumpInterval)) {
                 //good to jump, actually do it now.
-                jumpComponent.jumpTimer.reset()
-
                 newAcceleration = -PlayerComponent.jumpVelocity
             }
         }
@@ -227,24 +232,25 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
     }
 
     private fun simulateDroppedItem(item: Int, delta: Float) {
-        val itemComponent = mItem.get(item)
-        assert(itemComponent.state == ItemComponent.State.DroppedInWorld)
+        val cItem = mItem.get(item)
+        assert(cItem.state == ItemComponent.State.DroppedInWorld)
 
-        val itemSpriteComponent = mSprite.get(item)
-        val itemVelocityComponent = mVelocity.get(item)
+        val cSprite = mSprite.get(item)
+        val cVelocity = mVelocity.get(item)
 
-        val itemPosition = Vector2(itemSpriteComponent.sprite.x, itemSpriteComponent.sprite.y)
+        val cPosition = Vector2(cSprite.sprite.x, cSprite.sprite.y)
 
-        val x = itemPosition.x.toInt()
-        val y = itemPosition.y.toInt()
+        val x = cPosition.x.toInt()
+        val y = cPosition.y.toInt()
 
-        val itemOldVelocity = Vector2(itemVelocityComponent.velocity)
-        val itemNewVelocity = Vector2(itemVelocityComponent.velocity)
+        val itemOldVelocity = Vector2(cVelocity.velocity)
+        val itemNewVelocity = Vector2(cVelocity.velocity)
 
         val acceleration = Vector2(0.0f, GRAVITY_ACCEL)
 
-        if (itemComponent.playerIdWhoDropped != null && itemComponent.justDropped) {
-            val playerEntityWhoDropped = oreWorld.playerEntityForPlayerConnectionID(itemComponent.playerIdWhoDropped!!)
+        if (cItem.justDropped) {
+            //TODO
+            val playerEntityWhoDropped = oreWorld.playerEntityForPlayerConnectionID(cItem.playerIdWhoDropped!!)
             val playerVelocityComponent = mVelocity.get(playerEntityWhoDropped)
             val playerVelocity = Vector2(playerVelocityComponent.velocity)
 
@@ -253,7 +259,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
             //only add player velocity the firstEntity tick, as soon as they drop it.
             //so that we can throw things harder using players current speed
-            itemComponent.justDropped = false
+            cItem.justDropped = false
             acceleration.y += -GRAVITY_ACCEL * 3.0f
             acceleration.x += 0.5f
         }
@@ -279,14 +285,13 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         }
 
         if (!itemNewVelocity.isZero) {
-            itemVelocityComponent.velocity.set(itemNewVelocity)
-            val desiredPosition = itemPosition.add(itemOldVelocity.add(itemNewVelocity.scl(0.5f * delta)))
+            cVelocity.velocity.set(itemNewVelocity)
+            val desiredPosition = cPosition.add(itemOldVelocity.add(itemNewVelocity.scl(0.5f * delta)))
             val finalPosition = performCollision(desiredPosition, item)
 
-            itemSpriteComponent.sprite.setPosition(finalPosition.x, finalPosition.y)
+            cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
             maybeSendEntityMoved(item)
         }
-
     }
 
     /**
@@ -301,10 +306,10 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
     private fun performCollision(desiredPosition: Vector2, entity: Int): Vector2 {
         var canJump = false
 
-        val spriteComponent = mSprite.get(entity)
-        val velocityComponent = mVelocity.get(entity)
-        val velocity = velocityComponent.velocity
-        val sizeMeters = Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height)
+        val cSprite = mSprite.get(entity)
+        val cVelocity = mVelocity.get(entity)
+        val velocity = cVelocity.velocity
+        val sizeMeters = Vector2(cSprite.sprite.width, cSprite.sprite.height)
 
         //FIXME: this whole thing needs a way better solution, it's horrible.
         val epsilon = 1 * 0.01f
@@ -340,7 +345,6 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
                     }
 
                     velocity.x = 0.0f
-
 
                     //fixme: super small threshold to prevent sticking to right side,
                     desiredPosition.x = tileRight - sizeMeters.x * 0.5f - epsilon

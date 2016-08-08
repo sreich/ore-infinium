@@ -109,10 +109,15 @@ class OreWorld
      * world type will never exist
      */
     enum class WorldInstanceType {
+        //strictly a client. join only
         Client,
+        //dedicated server
         Server,
+        //it's a client that also happens to be hosting a game (server)
         ClientHostingServer
     }
+
+    fun isServer() = worldInstanceType == WorldInstanceType.Server
 
     init {
 

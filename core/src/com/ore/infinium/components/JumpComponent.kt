@@ -30,13 +30,15 @@ import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
 
 class JumpComponent : Component() {
-
     //for physics jumping abilities..
     var canJump: Boolean = false
     var shouldJump: Boolean = false
+
     //holds whether or not the user (network) has requested jumping
     var jumpRequested: Boolean = false
+
     //ms, interval between allowed jumps
-    var jumpInterval = 400
+    var jumpInterval = 400L
+
     @DoNotCopy @DoNotPrint @Transient var jumpTimer = OreTimer()
 }
