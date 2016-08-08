@@ -81,9 +81,6 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private val m_blocksToDig = mutableListOf<BlockToDig>()
 
-    override fun dispose() {
-    }
-
     /**
      * @return true if it was processed (and should be removed)
      */
@@ -168,9 +165,6 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     //todo when the equipped item changes, abort all active digs for that player
     override fun processSystem() {
         m_blocksToDig.removeAll { blockToDig -> processAndRemoveDigRequests(blockToDig) }
-    }
-
-    override fun initialize() {
     }
 
     /**

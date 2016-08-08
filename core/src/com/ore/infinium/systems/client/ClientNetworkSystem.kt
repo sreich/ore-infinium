@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
-import com.artemis.EntitySubscription
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.utils.IntBag
@@ -699,23 +698,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     internal inner class ClientStupidListener(lagMillisMin: Int, lagMillisMax: Int, listener: Listener) : Listener.LagListener(
             lagMillisMin, lagMillisMax, listener)
 
-    private inner class ClientEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
-
-        /**
-         * Called after entities have been matched and inserted into an
-         * EntitySubscription.
-
-         * @param entities
-         */
-        override fun inserted(entities: IntBag) {
-
-        }
-
-        /**
-         * Called after entities have been removed from an EntitySubscription.
-
-         * @param entities
-         */
+    private inner class ClientEntitySubscriptionListener : OreEntitySubscriptionListener {
         override fun removed(entities: IntBag) {
             //hack honestly i've no clue why this is here. what was i thinking?
             //does it get removed elsewhere instead?

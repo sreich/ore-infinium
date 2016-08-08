@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
@@ -36,8 +35,9 @@ import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.IntMap
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.TileLightingSystem
+import com.ore.infinium.util.RenderSystemMarker
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.system
 

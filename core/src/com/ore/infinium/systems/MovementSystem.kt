@@ -65,10 +65,6 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         super.setWorld(world)
     }
 
-    override fun initialize() {
-
-    }
-
     override fun process(entityId: Int) {
         //clients, for now, do their own collision stuff. mostly.
         //FIXME: clients should simulate their own player's collision with everything and tell the server its

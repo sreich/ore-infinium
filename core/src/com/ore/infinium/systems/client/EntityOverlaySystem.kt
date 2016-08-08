@@ -165,18 +165,6 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         if (!m_initialized && oreWorld.m_client!!.m_hotbarInventory != null) {
 
             oreWorld.m_client!!.m_hotbarInventory!!.addListener(object : Inventory.SlotListener {
-                override fun slotItemRemoved(index: Int, inventory: Inventory) {
-
-                }
-
-                override fun slotItemChanged(index: Int, inventory: Inventory) {
-
-                }
-
-                override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-
-                }
-
                 override fun slotItemSelected(index: Int, inventory: Inventory) {
                     slotSelected(index, inventory)
                 }

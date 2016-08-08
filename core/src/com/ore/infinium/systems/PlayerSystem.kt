@@ -30,11 +30,12 @@ import com.artemis.systems.IteratingSystem
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
-import com.ore.infinium.util.require
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.ServerNetworkSystem
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.require
+import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
 class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
@@ -57,11 +58,6 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         //initial spawn, send region
         calculateLoadedViewport(entityId)
         sendPlayerBlockRegion(entityId)
-    }
-
-    override fun removed(entityId: Int) {
-        super.removed(entityId)
-
     }
 
     override fun process(entityId: Int) {
@@ -116,5 +112,4 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         serverNetworkSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width,
                                                     region.height)
     }
-
 }

@@ -51,9 +51,6 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     //arbitrary global rate delay so fuel isn't burned through instantly
     val globalFuelBurnRateDelay = 100L
 
-    override fun initialize() {
-    }
-
     override fun begin() {
         totalSupply = 0
         totalDemand = 0

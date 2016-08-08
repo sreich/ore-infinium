@@ -31,7 +31,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreSettings
-import com.ore.infinium.systems.client.RenderSystemMarker
+import com.ore.infinium.util.RenderSystemMarker
 import com.ore.infinium.util.format
 import java.util.*
 
@@ -103,9 +103,6 @@ class GameLoopSystemInvocationStrategy
         hash[system] = perfStat
 
         return SystemAndProfiler(system, profiler)
-    }
-
-    override fun initialize() {
     }
 
     /*

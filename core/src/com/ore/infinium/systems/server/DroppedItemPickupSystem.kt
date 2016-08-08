@@ -54,9 +54,6 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
         super.setWorld(world)
     }
 
-    override fun initialize() {
-    }
-
     override fun process(playerEntityId: Int) {
         if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
             assert(true)

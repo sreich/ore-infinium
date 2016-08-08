@@ -142,9 +142,6 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         return false
     }
 
-    override fun initialize() {
-    }
-
     /**
      *
      *

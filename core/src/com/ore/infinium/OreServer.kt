@@ -267,18 +267,6 @@ class OreServer : Runnable {
             //                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
             //            }
         }
-
-        override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-
-        }
-
-        override fun slotItemRemoved(index: Int, inventory: Inventory) {
-
-        }
-
-        override fun slotItemSelected(index: Int, inventory: Inventory) {
-
-        }
     }
 
 }

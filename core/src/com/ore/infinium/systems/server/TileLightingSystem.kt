@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
-import com.artemis.EntitySubscription
 import com.artemis.annotations.Wire
 import com.artemis.utils.IntBag
 import com.ore.infinium.OreBlock
@@ -225,10 +224,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
     }
 
-    inner class LightingEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
-        override fun inserted(entities: IntBag) {
-        }
-
+    inner class LightingEntitySubscriptionListener : OreEntitySubscriptionListener {
         override fun removed(entities: IntBag) {
             entities.forEach { entity ->
                 mItem.ifPresent(entity) {

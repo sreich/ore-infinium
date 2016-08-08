@@ -45,6 +45,20 @@ inline fun isInvalidEntity(entityId: Int) = entityId == INVALID_ENTITY_ID
 
 typealias OreEntityId = Int
 
+interface OreEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
+    override fun inserted(entities: IntBag) = Unit
+    override fun removed(entities: IntBag) = Unit
+}
+
+/**
+ * A marker interface that indicates that this system should only be
+ * processed by the render portion of the game loop. Separating the logic
+ * and the render ticks, so that we can decide how often to process them (how
+ * many ms per frame, etc)
+ */
+interface RenderSystemMarker
+
+
 /**
  * Denotes that a component property should not be copied
  */
