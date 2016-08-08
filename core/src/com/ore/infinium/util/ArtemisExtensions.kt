@@ -101,7 +101,6 @@ inline fun <T> IntBag.forEachIndexed(action: (Int, T) -> Unit): Unit {
 }
 */
 
-
 inline fun IntBag.forEach(action: (Int) -> Unit): Unit {
     for (i in indices) action(this.get(i))
 }

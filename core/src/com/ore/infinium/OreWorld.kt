@@ -608,25 +608,16 @@ class OreWorld
     }
 
     fun entityAtPosition(pos: Vector2): Int? {
-        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class))
+        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class)).toMutableList()
 
-        var spriteComponent: SpriteComponent
-        for (i in entities.indices) {
-            val currentEntity = entities[i]
-            val entityBoxed = m_artemisWorld.getEntity(currentEntity)
-
-            val entityTag = m_tagManager.getTagNullable(entityBoxed)
-
+        for (currentEntity in entities) {
             //could be placement overlay, but we don't want this. skip over.
             if (shouldIgnoreClientEntityTag(currentEntity)) {
                 continue
             }
 
-            spriteComponent = spriteMapper.get(currentEntity)
-
-            val rectangle = spriteComponent.sprite.rect
-
-            if (rectangle.contains(pos)) {
+            val cSprite = spriteMapper.get(currentEntity)
+            if (cSprite.sprite.rect.contains(pos)) {
                 return currentEntity
             }
         }
@@ -711,7 +702,7 @@ class OreWorld
 
     fun screenToWorldCoords(x: Float, y: Float): Vector2 {
         // we ensure it is within bounds of screen (mouse pos can be negative sometimes, oddly)
-        val input = Vector3((x).coerceAtLeast(0f).toFloat(), (y).coerceAtLeast(0f).toFloat(), 0f)
+        val input = Vector3((x).coerceAtLeast(0f), (y).coerceAtLeast(0f), 0f)
         val worldCoords = m_camera.unproject(input)
 
         return Vector2(worldCoords.x, worldCoords.y)
@@ -722,8 +713,8 @@ class OreWorld
      * @param size of the entity
      */
     fun alignPositionToBlocks(pos: Vector2, size: Vector2) {
-        var x = (pos.x).floor().toFloat()
-        var y = (pos.y).floor().toFloat()
+        var x = (pos.x).floorf()
+        var y = (pos.y).floorf()
 
         //if size is odd,  it won't look aligned properly
         if (size.x % 2 == 1f) {
@@ -942,16 +933,17 @@ class OreWorld
         val endX = (pos.x + size.x * 0.5f).toInt()
         val endY = (pos.y + (size.y * 0.5f - epsilon) + 1).toInt()
 
-        if (!(startX >= 0 && startY >= 0 && endX <= WORLD_SIZE_X && endY <= WORLD_SIZE_Y)) {
+        if (!(startX == blockXSafe(startX) && startY == blockYSafe(startY) && endX == blockXSafe(endX)
+                && endY == blockYSafe(endY))) {
             //fixme
             //not sure why, but this ends up giving me some way way invalid values. likely due to mouse being outside
             //of valid range, *somehow*. sometimes does it on startup etc
             return false
         }
 
-        //check collision against blocks first, make sure where the object is getting placed,
-        //there are no blocks obstructing beneath it
         if (isBlockRangeSolid(startX, endX, startY, endY)) {
+            //check collision against blocks first, make sure where the object is getting placed,
+            //there are no blocks obstructing beneath it. if there are, fail the placement
             return false
         }
 
@@ -964,22 +956,15 @@ class OreWorld
         }
 
         //check collision against entities
-        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class))
-        for (i in entities.indices) {
-            val currentEntity = entities.get(i)
+        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class)).toMutableList()
 
+        for (currentEntity in entities) {
             //it's the item we're trying to place, don't count a collision with ourselves
             if (currentEntity == entity) {
                 continue
             }
 
-            val itemComponent = itemMapper.opt(currentEntity)
-            if (itemComponent != null) {
-                // items that are dropped in the world are considered non colliding
-                if (itemComponent.state == ItemComponent.State.DroppedInWorld) {
-                    continue
-                }
-            }
+            isItemDroppedInWorldOpt(currentEntity)
 
             val entitySpriteComponent = spriteMapper.get(currentEntity)
             // possible colliding object is not meant to be collided with. skip it/don't count it
@@ -993,6 +978,20 @@ class OreWorld
         }
 
         return true
+    }
+
+    /**
+     * returns if this item is dropped in the world,
+     * or if it is not an item at all!
+     */
+    fun isItemDroppedInWorldOpt(entityId: Int): Boolean {
+        itemMapper.ifPresent(entityId) {
+            if (it.state == ItemComponent.State.DroppedInWorld) {
+                return true
+            }
+        }
+
+        return false
     }
 
     fun placementAdjacencyHintsBlocksSatisfied(entityId: Int, cItem: ItemComponent): Boolean {

@@ -33,7 +33,6 @@ import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreSettings
 import com.ore.infinium.systems.client.RenderSystemMarker
 import com.ore.infinium.util.format
-import com.ore.infinium.util.indices
 import java.util.*
 
 class GameLoopSystemInvocationStrategy
@@ -69,8 +68,7 @@ class GameLoopSystemInvocationStrategy
     private fun addSystems(systems: Bag<BaseSystem>) {
         if (!m_systemsSorted) {
             val systemsData = systems.data
-            for (i in systems.indices) {
-                val system = systemsData[i] as BaseSystem
+            for (system in systems) {
                 if (system is RenderSystemMarker) {
                     //m_renderSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
                     m_renderSystems.add(createSystemAndProfiler(system))
@@ -167,8 +165,7 @@ class GameLoopSystemInvocationStrategy
 
         while (m_accumulatorNs >= m_nsPerTick) {
             /** Process all entity systems inheriting from [RenderSystemMarker]  */
-            for (i in m_logicSystems.indices) {
-                val systemAndProfiler = m_logicSystems[i]
+            for (systemAndProfiler in m_logicSystems) {
                 //TODO interpolate before this
                 //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
                 processProfileSystem(systemAndProfiler)
@@ -197,12 +194,11 @@ class GameLoopSystemInvocationStrategy
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         }
 
-        for (i in m_renderSystems.indices) {
+        for (systemAndProfiler in m_renderSystems) {
             //TODO interpolate this rendering with the state from the logic run, above
             //State state = currentState * alpha +
             //previousState * ( 1.0 - alpha );
 
-            val systemAndProfiler = m_renderSystems[i]
             //TODO interpolate before this
             //processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
             processProfileSystem(systemAndProfiler)

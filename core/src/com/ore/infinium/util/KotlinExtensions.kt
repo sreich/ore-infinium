@@ -146,6 +146,10 @@ fun Float.floor(): Int {
     return MathUtils.floor(this)
 }
 
+fun Float.floorf(): Float {
+    return MathUtils.floor(this).toFloat()
+}
+
 fun Float.ceil(): Int {
     return MathUtils.ceil(this)
 }

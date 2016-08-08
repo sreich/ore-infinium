@@ -183,8 +183,8 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
             val entities = getWorld().entities(allOf(SpriteComponent::class))
 
-            for (i in entities.indices) {
-                val spriteComponent = mSprite.get(entities.get(i))
+            entities.forEach {
+                val spriteComponent = mSprite.get(entities.get(it))
 
                 debugServerBatch.draw(junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
                                       spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,

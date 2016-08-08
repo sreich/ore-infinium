@@ -427,8 +427,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
     private fun maybeSendEntityMoved(entity: Int) {
         val entities = oreWorld.m_artemisWorld.entities(allOf(PlayerComponent::class))
 
-        for (i in entities.indices) {
-            val player = entities.get(i)
+        entities.forEach { player ->
             val playerComponent = mPlayer.get(player)
 
             //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(),

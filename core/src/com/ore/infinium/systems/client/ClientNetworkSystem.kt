@@ -408,8 +408,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private fun receiveMultipleEntityDestroy(entityDestroy: Network.Server.EntityDestroyMultiple) {
         var debug = "receiveMultipleEntityDestroy [ "
-        for (i in entityDestroy.entitiesToDestroy.indices) {
-            val networkEntityId = entityDestroy.entitiesToDestroy[i]
+        for (networkEntityId in entityDestroy.entitiesToDestroy) {
 
             //cleanup the maps
             val localId = entityForNetworkId.remove(networkEntityId)
@@ -537,9 +536,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             connected = true
 
-            for (listener in networkStatusListeners) {
-                listener.connected()
-            }
+            //notify we connected
+            networkStatusListeners.forEach { it.connected() }
         } else {
             //FIXME cover other players joining case
             //       throw RuntimeException("fixme, other players joining not yet implemented")
@@ -719,7 +717,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
          * @param entities
          */
         override fun removed(entities: IntBag) {
-            for (entity in entities.indices) {
+            //hack honestly i've no clue why this is here. what was i thinking?
+            //does it get removed elsewhere instead?
+            entities.forEach {
                 val networkId: Int? = null//= networkIdForEntityId.remove(entity);
                 if (networkId != null) {
                     //a local only thing, like crosshair etc
