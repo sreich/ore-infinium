@@ -26,7 +26,9 @@ package com.ore.infinium
 
 import com.artemis.ComponentMapper
 import com.artemis.managers.TagManager
-import com.badlogic.gdx.*
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.math.Vector2
@@ -44,7 +46,7 @@ import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.*
 import java.io.IOException
 
-class OreClient : ApplicationListener, InputProcessor {
+class OreClient : OreApplicationListener, OreInputProcessor {
 
     var m_leftMouseDown: Boolean = false
     var m_rightMouseDown: Boolean = false
@@ -470,12 +472,6 @@ class OreClient : ApplicationListener, InputProcessor {
         m_stage.viewport.update(width, height, true)
     }
 
-    override fun pause() {
-    }
-
-    override fun resume() {
-    }
-
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.ESCAPE -> shutdown()
@@ -620,10 +616,6 @@ class OreClient : ApplicationListener, InputProcessor {
         return false
     }
 
-    override fun keyTyped(character: Char): Boolean {
-        return false
-    }
-
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         if (button == Input.Buttons.LEFT) {
             m_leftMouseDown = true
@@ -655,14 +647,6 @@ class OreClient : ApplicationListener, InputProcessor {
             return m_world!!.touchUp(screenX, screenY, pointer, button)
         }
 
-        return false
-    }
-
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-        return false
-    }
-
-    override fun mouseMoved(screenX: Int, screenY: Int): Boolean {
         return false
     }
 
@@ -760,18 +744,6 @@ class OreClient : ApplicationListener, InputProcessor {
             m_clientNetworkSystem.sendHotbarEquipped(index.toByte())
 
             val playerComponent = playerMapper.get(player)
-        }
-
-        override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-
-        }
-
-        override fun slotItemChanged(index: Int, inventory: Inventory) {
-
-        }
-
-        override fun slotItemRemoved(index: Int, inventory: Inventory) {
-
         }
     }
 

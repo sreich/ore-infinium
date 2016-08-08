@@ -951,7 +951,7 @@ class OreWorld
 
         //check collision against blocks first, make sure where the object is getting placed,
         //there are no blocks obstructing beneath it
-        if (!isBlockRangeSolid(startX, endX, startY, endY)) {
+        if (isBlockRangeSolid(startX, endX, startY, endY)) {
             return false
         }
 

@@ -24,6 +24,8 @@ SOFTWARE.
 
 package com.ore.infinium.util
 
+import com.badlogic.gdx.ApplicationListener
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.RandomXS128
@@ -42,6 +44,30 @@ import com.badlogic.gdx.utils.Align
  * @param lastMs
  */
 fun timeMsSurpassed(currentMs: Long, lastMs: Long, intervalMs: Int) = (currentMs - lastMs) > intervalMs
+
+/**
+ * wrapper class around interface to avoid having to
+ * implement each member
+ */
+interface OreApplicationListener : ApplicationListener {
+    override fun resize(width: Int, height: Int) = Unit
+    override fun create() = Unit
+    override fun render() = Unit
+    override fun resume() = Unit
+    override fun dispose() = Unit
+    override fun pause() = Unit
+}
+
+interface OreInputProcessor : InputProcessor {
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
+    override fun keyDown(keycode: Int) = false
+    override fun keyTyped(character: Char) = false
+    override fun keyUp(keycode: Int) = false
+    override fun mouseMoved(screenX: Int, screenY: Int) = false
+    override fun scrolled(amount: Int) = false
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
+    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
+}
 
 /**
  * x, y is top left. width, height bottom right
