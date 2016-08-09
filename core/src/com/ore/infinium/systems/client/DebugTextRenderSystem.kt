@@ -362,7 +362,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             val currentEntity = entities.get(i)
 
             //could be placement overlay, but we don't want this. skip over.
-            if (oreWorld.shouldIgnoreClientEntityTag(currentEntity)) {
+            if (oreWorld.shouldIgnoreClientEntityTag(currentEntity, ignoreOwnPlayer = false)) {
                 continue
             }
 

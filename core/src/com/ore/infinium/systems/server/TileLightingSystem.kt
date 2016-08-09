@@ -194,12 +194,12 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             initialized = true
         }
 
-        oreWorld.players().forEach {
-            val cPlayer = mPlayer.get(it)
-            val rect = cPlayer.loadedViewport.rect
-            recomputeLighting(oreWorld.blockXSafe(rect.left.toInt()), oreWorld.blockXSafe(rect.right.toInt()),
-                              oreWorld.blockYSafe(rect.top.toInt()), oreWorld.blockYSafe(rect.bottom.toInt()))
-        }
+        //oreWorld.players().forEach {
+        //    val cPlayer = mPlayer.get(it)
+        //    val rect = cPlayer.loadedViewport.rect
+        //    recomputeLighting(oreWorld.blockXSafe(rect.left.toInt()), oreWorld.blockXSafe(rect.right.toInt()),
+        //                      oreWorld.blockYSafe(rect.top.toInt()), oreWorld.blockYSafe(rect.bottom.toInt()))
+        //}
     }
 
     /**
@@ -228,7 +228,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         override fun removed(entities: IntBag) {
             entities.forEach { entity ->
                 mItem.ifPresent(entity) {
-                    if (it.state != ItemComponent.State.InWorldState) {
+                    if (oreWorld.isItemDroppedInWorldOpt(entity)) {
                         //ignore ones dropped in the world, or in inventory
                         return
                     }

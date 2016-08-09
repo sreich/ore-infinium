@@ -634,13 +634,13 @@ class OreWorld
      * @return true if the entity tag should be ignore for attacks and stuff.
      * excludes stuff like main player, item overlays, crosshairs, for the client...
      */
-    fun shouldIgnoreClientEntityTag(entity: Int): Boolean {
+    fun shouldIgnoreClientEntityTag(entity: Int, ignoreOwnPlayer: Boolean = true): Boolean {
         val tag = m_tagManager.getTag(m_artemisWorld.getEntity(entity)) ?: return false
 
-        when (tag) {
-            OreWorld.s_itemPlacementOverlay,
-            OreWorld.s_crosshair,
-            OreWorld.s_mainPlayer -> return true
+        when {
+            tag == OreWorld.s_itemPlacementOverlay -> return true
+            tag == OreWorld.s_crosshair -> return true
+            tag == OreWorld.s_mainPlayer && ignoreOwnPlayer == true -> return true
             else -> return false
         }
     }

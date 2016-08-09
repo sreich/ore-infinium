@@ -173,7 +173,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //just set where we expect we should be/want to be (ignore collision)
             desiredPosition
         } else {
-//            performEntitiesCollision(desiredPosition, entity)
+            performEntitiesCollision(desiredPosition, entity)
             performBlockCollision(desiredPosition, entity)
         }
 
@@ -303,13 +303,41 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
      * block collision is handled seperately.
      */
     private fun performEntitiesCollision(desiredPosition: Vector2, entity: Int) {
+        //check every other entity to collide with
         world.entities(allOf(SpriteComponent::class)).forEach {
             val cSprite = mSprite.get(entity)
             val cSpriteOther = mSprite.get(it)
+
+            if (oreWorld.isItemDroppedInWorldOpt(it) || oreWorld.shouldIgnoreClientEntityTag(it) ||
+                    cSprite.noClip) {
+                //ignore collision with these
+                return@forEach
+            }
+
             if (cSprite.sprite.rect.contains(cSpriteOther.sprite.rect)) {
-                TODO()
+                performEntityCollision(desiredPosition = desiredPosition, entityToMove = entity, collidingEntity = it)
             }
         }
+    }
+
+    /**
+     * @param collidingEntity entity that the other one is colliding against
+     */
+    private fun performEntityCollision(desiredPosition: Vector2, entityToMove: Int, collidingEntity: Int) {
+        val cSprite = mSprite.get(entityToMove)
+        val cSpriteColliding = mSprite.get(collidingEntity)
+
+        val entityToMoveRect = cSprite.sprite.rect
+        val collidingEntityRect = cSpriteColliding.sprite.rect
+
+        val velocity = mVelocity.get(entityToMove).velocity
+
+        if (velocity.x > 0f) {
+            //try moving right
+            val outside = entityToMoveRect.fitOutside(collidingEntityRect)
+            desiredPosition.x = outside.x
+        }
+        //TODO
     }
 
     /**
