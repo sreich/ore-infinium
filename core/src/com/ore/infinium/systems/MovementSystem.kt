@@ -173,7 +173,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //just set where we expect we should be/want to be (ignore collision)
             desiredPosition
         } else {
-            performCollision(desiredPosition, entity)
+//            performEntitiesCollision(desiredPosition, entity)
+            performBlockCollision(desiredPosition, entity)
         }
 
         cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
@@ -287,10 +288,27 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         if (!itemNewVelocity.isZero) {
             cVelocity.velocity.set(itemNewVelocity)
             val desiredPosition = cPosition.add(itemOldVelocity.add(itemNewVelocity.scl(0.5f * delta)))
-            val finalPosition = performCollision(desiredPosition, item)
+            val finalPosition = performBlockCollision(desiredPosition, item)
 
             cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
             maybeSendEntityMoved(item)
+        }
+    }
+
+    /**
+     *@param desiredPosition pos we'd like to be at, given integrated velocity + position
+     * takes the input and if there was a collision against an entity, backs out to the
+     * closest to the entity it can be.
+     *
+     * block collision is handled seperately.
+     */
+    private fun performEntitiesCollision(desiredPosition: Vector2, entity: Int) {
+        world.entities(allOf(SpriteComponent::class)).forEach {
+            val cSprite = mSprite.get(entity)
+            val cSpriteOther = mSprite.get(it)
+            if (cSprite.sprite.rect.contains(cSpriteOther.sprite.rect)) {
+                TODO()
+            }
         }
     }
 
@@ -303,9 +321,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
      * *
      * @return the actual new position, after collision (if any).
      */
-    private fun performCollision(desiredPosition: Vector2, entity: Int): Vector2 {
-        var canJump = false
-
+    private fun performBlockCollision(desiredPosition: Vector2, entity: Int): Vector2 {
         val cSprite = mSprite.get(entity)
         val cVelocity = mVelocity.get(entity)
         val velocity = cVelocity.velocity
