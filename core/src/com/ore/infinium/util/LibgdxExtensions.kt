@@ -30,6 +30,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Align
 
 
@@ -73,6 +74,7 @@ interface OreInputProcessor : InputProcessor {
  * x, y is top left. width, height bottom right
  */
 val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y - (height * 0.5f), width, height)
+val Sprite.size: Vector2 get() = Vector2(x, y)
 
 val Rectangle.bottom: Float get() = y + height
 val Rectangle.top: Float get() = y
