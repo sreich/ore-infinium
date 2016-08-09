@@ -323,9 +323,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
      */
     private fun performBlockCollision(desiredPosition: Vector2, entity: Int): Vector2 {
         val cSprite = mSprite.get(entity)
-        val cVelocity = mVelocity.get(entity)
-        val velocity = cVelocity.velocity
-        val sizeMeters = Vector2(cSprite.sprite.width, cSprite.sprite.height)
+        val velocity = mVelocity.get(entity).velocity
+        val sizeMeters = cSprite.sprite.size
 
         //FIXME: this whole thing needs a way better solution, it's horrible.
         val epsilon = 1 * 0.01f
@@ -365,7 +364,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
                     //fixme: super small threshold to prevent sticking to right side,
                     desiredPosition.x = tileRight - sizeMeters.x * 0.5f - epsilon
                     break
-                } // else noop, move freely
+                } // else no collision
             }
         } else if (velocity.x < 0.0f) {
             //try moving left, only loop over tiles on the left side
@@ -390,7 +389,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
                     desiredPosition.x = tileLeft + sizeMeters.x * 0.5f + epsilon
                     break
-                } // else noop, move freely
+                } // else no collision
             }
         }
 
@@ -399,6 +398,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         // y was not touched, so no need
         leftX = (desiredPosition.x - sizeMeters.x * 0.5f).toInt()
         rightX = (desiredPosition.x + sizeMeters.x * 0.5f).toInt()
+        var canJump = false
 
         if (velocity.y > 0.0f) {
             //try moving down, only loop over tiles on the bottom side(inclusive, remember)

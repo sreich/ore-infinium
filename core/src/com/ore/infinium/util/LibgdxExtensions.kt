@@ -74,7 +74,7 @@ interface OreInputProcessor : InputProcessor {
  * x, y is top left. width, height bottom right
  */
 val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y - (height * 0.5f), width, height)
-val Sprite.size: Vector2 get() = Vector2(x, y)
+val Sprite.size: Vector2 get() = Vector2(width, height)
 
 val Rectangle.bottom: Float get() = y + height
 val Rectangle.top: Float get() = y
