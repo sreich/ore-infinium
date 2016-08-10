@@ -51,7 +51,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         super.inserted(entityId)
 
         //client does nothing as of yet, with this
-        if (oreWorld.isServer()) {
+        if (oreWorld.isClient()) {
             return
         }
 
@@ -61,7 +61,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
     }
 
     override fun process(entityId: Int) {
-        if (oreWorld.isServer()) {
+        if (oreWorld.isClient()) {
             return
         }
 

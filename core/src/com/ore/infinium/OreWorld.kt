@@ -116,6 +116,8 @@ class OreWorld
     }
 
     fun isServer() = worldInstanceType == WorldInstanceType.Server
+    fun isClient() = worldInstanceType == WorldInstanceType.Client ||
+            worldInstanceType == WorldInstanceType.ClientHostingServer
 
     init {
 
@@ -138,22 +140,22 @@ class OreWorld
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
             artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
-                                           .with(TagManager())
-                                           .with(PlayerManager())
-                                           .with(MovementSystem(this))
-                                           .with(SoundSystem(this))
-                                           .with(ClientNetworkSystem(this))
-                                           .with(InputSystem(camera, this))
-                                           .with(EntityOverlaySystem(this))
-                                           .with(PlayerSystem(this))
-                                           .with(GameTickSystem(this))
-                                           .with(ClientBlockDiggingSystem(this, client!!))
-                                           .with(TileRenderSystem(camera, this))
-                                           .with(SpriteRenderSystem(this))
-                                           .with(DebugTextRenderSystem(camera, this))
-                                           .with(PowerOverlayRenderSystem(this, client!!.stage))
-                                           .with(TileTransitionSystem(camera, this))
-                                           .build())
+                                         .with(TagManager())
+                                         .with(PlayerManager())
+                                         .with(MovementSystem(this))
+                                         .with(SoundSystem(this))
+                                         .with(ClientNetworkSystem(this))
+                                         .with(InputSystem(camera, this))
+                                         .with(EntityOverlaySystem(this))
+                                         .with(PlayerSystem(this))
+                                         .with(GameTickSystem(this))
+                                         .with(ClientBlockDiggingSystem(this, client!!))
+                                         .with(TileRenderSystem(camera, this))
+                                         .with(SpriteRenderSystem(this))
+                                         .with(DebugTextRenderSystem(camera, this))
+                                         .with(PowerOverlayRenderSystem(this, client!!.stage))
+                                         .with(TileTransitionSystem(camera, this))
+                                         .build())
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
             //inject the mappers into the world, before we start doing things
@@ -163,23 +165,23 @@ class OreWorld
             val h = Gdx.graphics.height.toFloat()
         } else if (isServer()) {
             artemisWorld = World(WorldConfigurationBuilder()
-                                           .with(TagManager())
-                                           .with(SpatialSystem(this))
-                                           .with(PlayerManager())
-                                           .with(MovementSystem(this))
-                                           .with(ServerPowerSystem(this))
-                                           .with(GameTickSystem(this))
-                                           .with(DroppedItemPickupSystem(this))
-                                           .with(GrassBlockSystem(this))
-                                           .with(ServerNetworkEntitySystem(this))
-                                           .with(ServerBlockDiggingSystem(this))
-                                           .with(PlayerSystem(this))
-                                           .with(AirSystem(this))
-                                           .with(ServerNetworkSystem(this, server!!))
-                                           .with(TileLightingSystem(this))
-                                           .with(LiquidSimulationSystem(this))
-                                           .register(GameLoopSystemInvocationStrategy(25, true))
-                                           .build())
+                                         .with(TagManager())
+                                         .with(SpatialSystem(this))
+                                         .with(PlayerManager())
+                                         .with(MovementSystem(this))
+                                         .with(ServerPowerSystem(this))
+                                         .with(GameTickSystem(this))
+                                         .with(DroppedItemPickupSystem(this))
+                                         .with(GrassBlockSystem(this))
+                                         .with(ServerNetworkEntitySystem(this))
+                                         .with(ServerBlockDiggingSystem(this))
+                                         .with(PlayerSystem(this))
+                                         .with(AirSystem(this))
+                                         .with(ServerNetworkSystem(this, server!!))
+                                         .with(TileLightingSystem(this))
+                                         .with(LiquidSimulationSystem(this))
+                                         .register(GameLoopSystemInvocationStrategy(25, true))
+                                         .build())
             //inject the mappers into the world, before we start doing things
             artemisWorld.inject(this, true)
 
