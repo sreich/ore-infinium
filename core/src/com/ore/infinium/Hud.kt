@@ -29,8 +29,8 @@ import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisProgressBar
 import com.kotcrab.vis.ui.widget.VisTable
 
-class Hud(private val m_client: OreClient,
-          private val m_stage: Stage,
+class Hud(private val client: OreClient,
+          private val ownStage: Stage,
           m_rootTable: VisTable) : VisTable() {
 
     val airMeter = VisProgressBar(0f, 100f, 1f, false)

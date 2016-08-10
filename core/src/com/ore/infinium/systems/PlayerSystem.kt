@@ -51,7 +51,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         super.inserted(entityId)
 
         //client does nothing as of yet, with this
-        if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (oreWorld.isServer()) {
             return
         }
 
@@ -61,7 +61,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
     }
 
     override fun process(entityId: Int) {
-        if (oreWorld.worldInstanceType != OreWorld.WorldInstanceType.Server) {
+        if (oreWorld.isServer()) {
             return
         }
 
@@ -82,9 +82,8 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         val y = spriteComponent.sprite.y
 
         //fixme fixme, we'll fix this when we get to chunking and come up with a proper solution
-        if (chunkTimer.milliseconds() > 600) {
+        if (chunkTimer.resetIfSurpassed(600L)) {
             calculateLoadedViewport(entityId)
-            chunkTimer.reset()
         }
     }
 

@@ -16,15 +16,15 @@
 
 package com.ore.infinium.desktop.texturepacker;
 
-import java.util.Comparator;
-
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Sort;
 import com.ore.infinium.desktop.texturepacker.TexturePacker.Packer;
 import com.ore.infinium.desktop.texturepacker.TexturePacker.Page;
 import com.ore.infinium.desktop.texturepacker.TexturePacker.Rect;
 import com.ore.infinium.desktop.texturepacker.TexturePacker.Settings;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Sort;
+
+import java.util.Comparator;
 
 /** Packs pages of images using the maximal rectangles bin packing algorithm by Jukka Jylänki. A brute force binary search is
  * used to pack into the smallest bin possible.
@@ -723,7 +723,7 @@ public class MaxRectsPacker implements Packer {
 		}
 	}
 
-	static public enum FreeRectChoiceHeuristic {
+	public enum FreeRectChoiceHeuristic {
 		// BSSF: Positions the rectangle against the short side of a free rectangle into which it fits the best.
 		BestShortSideFit,
 		// BLSF: Positions the rectangle against the long side of a free rectangle into which it fits the best.
@@ -734,9 +734,9 @@ public class MaxRectsPacker implements Packer {
 		BottomLeftRule,
 		// CP: Choosest the placement where the rectangle touches other rects as much as possible.
 		ContactPointRule
-	};
+	}
 
-	class RectComparator implements Comparator<Rect> {
+    class RectComparator implements Comparator<Rect> {
 		public int compare (Rect o1, Rect o2) {
 			return Rect.getAtlasName(o1.name, settings.flattenPaths).compareTo(Rect.getAtlasName(o2.name, settings.flattenPaths));
 		}

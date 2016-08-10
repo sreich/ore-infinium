@@ -42,7 +42,7 @@ import javax.imageio.ImageIO
 import kotlin.concurrent.thread
 
 @Wire
-class WorldGenerator(private val m_world: OreWorld) {
+class WorldGenerator(private val world: OreWorld) {
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
     fun generateWorld() {
@@ -100,7 +100,7 @@ class WorldGenerator(private val m_world: OreWorld) {
             //or if their placement is even valid!!
             if (treePlanted) {
                 //todo randomize tree sizes
-                tree = m_world.createWoodenTree(FloraComponent.TreeSize.Large)
+                tree = world.createWoodenTree(FloraComponent.TreeSize.Large)
             }
 
             val spriteComponent = spriteMapper.get(tree!!)
@@ -110,9 +110,9 @@ class WorldGenerator(private val m_world: OreWorld) {
                 val treeX = x.toFloat()
                 val treeY = y.toFloat()
 
-                when (m_world.isEntityFullyGrounded(entityX = treeX, entityY = treeY,
-                                                    entityWidth = spriteComponent.sprite.width,
-                                                    entityHeight = spriteComponent.sprite.height)) {
+                when (world.isEntityFullyGrounded(entityX = treeX, entityY = treeY,
+                                                  entityWidth = spriteComponent.sprite.width,
+                                                  entityHeight = spriteComponent.sprite.height)) {
                     OreWorld.EntitySolidGroundStatus.FullyEmpty -> {
                     }
 
@@ -133,7 +133,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         if (!treePlanted) {
             //last tree, couldn't find a spot for it..delete
-            m_world.m_artemisWorld.delete(tree!!)
+            world.artemisWorld.delete(tree!!)
         }
 
     }
@@ -145,15 +145,15 @@ class WorldGenerator(private val m_world: OreWorld) {
         for (x in 0 until OreWorld.WORLD_SIZE_X) {
             var y = 0
             while (y < OreWorld.WORLD_SIZE_Y) {
-                val blockType = m_world.blockType(x, y)
+                val blockType = world.blockType(x, y)
 
                 //fixme check biomes and their ranges
                 //fill the surface/exposed dirt blocks with grass blocks
                 if (blockType == OreBlock.BlockType.Dirt.oreValue) {
-                    val topBlockType = m_world.blockTypeSafely(x, y - 1)
+                    val topBlockType = world.blockTypeSafely(x, y - 1)
 
                     if (topBlockType == OreBlock.BlockType.Air.oreValue) {
-                        m_world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+                        world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
                         y = OreWorld.WORLD_SIZE_Y
                     }
@@ -164,12 +164,12 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         for (x in 0 until OreWorld.WORLD_SIZE_X) {
             for (y in 0 until OreWorld.WORLD_SIZE_Y) {
-                val blockType = m_world.blockType(x, y)
+                val blockType = world.blockType(x, y)
 
-                if (blockType == OreBlock.BlockType.Dirt.oreValue && m_world.blockHasFlag(x, y,
-                                                                                          OreBlock.BlockFlags.GrassBlock)) {
+                if (blockType == OreBlock.BlockType.Dirt.oreValue && world.blockHasFlag(x, y,
+                                                                                        OreBlock.BlockFlags.GrassBlock)) {
 
-                    val topBlockType = m_world.blockTypeSafely(x, y - 1)
+                    val topBlockType = world.blockTypeSafely(x, y - 1)
                     //OreBlock bottomBlock = blockTypeSafely(x, y + 1);
                     //OreBlock bottomLeftBlock = blockTypeSafely(x - 1, y + 1);
                     //OreBlock bottomRightBlock = blockTypeSafely(x + 1, y + 1);
@@ -178,7 +178,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
                     //grows grass here
                     if (topBlockType == OreBlock.BlockType.Air.oreValue) {
-                        m_world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+                        world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
                     }
                 }
             }
@@ -300,8 +300,8 @@ class WorldGenerator(private val m_world: OreWorld) {
         //obviously will need replaced with something less stupid
         for (y in 0 until worldSize.height) {
             for (x in 0 until worldSize.width) {
-                if (m_world.blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
-                    m_world.setBlockWallType(x, y, OreBlock.WallType.DirtUnderground.oreValue)
+                if (world.blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
+                    world.setBlockWallType(x, y, OreBlock.WallType.DirtUnderground.oreValue)
                 }
             }
         }
@@ -320,7 +320,7 @@ class WorldGenerator(private val m_world: OreWorld) {
         val terrainContour = ArrayList <Int>()
         for (x in 0 until worldSize.width) {
             for (y in 0 until worldSize.height) {
-                if (m_world.isBlockSolid(x, y)) {
+                if (world.isBlockSolid(x, y)) {
                     //x is implied via index
                     terrainContour.add(y)
                     break
@@ -337,11 +337,11 @@ class WorldGenerator(private val m_world: OreWorld) {
         //readd it back afterwards. so, minimas would be mountains..where
         //lava is and stuff
         for ((x, y) in peakResult.minima) {
-            m_world.setBlockType(x, y.toInt(), OreBlock.BlockType.Lava.oreValue)
+            world.setBlockType(x, y.toInt(), OreBlock.BlockType.Lava.oreValue)
         }
 
         for ((x, y) in peakResult.maxima) {
-            m_world.setBlockType(x, y.toInt(), OreBlock.BlockType.Water.oreValue)
+            world.setBlockType(x, y.toInt(), OreBlock.BlockType.Water.oreValue)
         }
 
 
@@ -964,7 +964,7 @@ class WorldGenerator(private val m_world: OreWorld) {
      */
     private fun writeWorldImageLegendImprint(bufferedImage: BufferedImage) {
         val graphics = bufferedImage.graphics
-        graphics.font = Font("SansSerif", Font.PLAIN, 9);
+        graphics.font = Font("SansSerif", Font.PLAIN, 9)
 
         val leftX = 5
         val startY = 8
@@ -1023,7 +1023,7 @@ class WorldGenerator(private val m_world: OreWorld) {
                 //         }
 
                 //things like water and stuff are never generated by noise. so it'll just be e.g. air
-                m_world.setBlockType(x, y, value.toByte())
+                world.setBlockType(x, y, value.toByte())
             }
         }
     }
@@ -1042,12 +1042,12 @@ class WorldGenerator(private val m_world: OreWorld) {
 //hack         val xRatio = worldGenInfo.worldSize.width.toDouble() / worldSize.height.toDouble()
 
         val bufferedImage = BufferedImage(worldGenInfo.worldSize.width, worldGenInfo.worldSize.height,
-                                          BufferedImage.TYPE_INT_RGB);
-        val graphics = bufferedImage.graphics;
+                                          BufferedImage.TYPE_INT_RGB)
+        val graphics = bufferedImage.graphics
 
         for (x in 0 until worldGenInfo.worldSize.width) {
             for (y in 0 until worldGenInfo.worldSize.height) {
-                val blockType = m_world.blockType(x, y)
+                val blockType = world.blockType(x, y)
 
                 //if we fail to match a color, we just output its raw value, something's strange here.
                 val colorForOre = OreBlock.OreNoiseColorMap[blockType]!!
@@ -1057,13 +1057,13 @@ class WorldGenerator(private val m_world: OreWorld) {
             }
         }
 
-        graphics.color = Color.magenta;
+        graphics.color = Color.magenta
         graphics.drawLine(0, 200, worldGenInfo.worldSize.width, 200)
 
-        graphics.font = Font("SansSerif", Font.PLAIN, 8);
+        graphics.font = Font("SansSerif", Font.PLAIN, 8)
         graphics.drawString("inputSeed: ${worldGenInfo.seed}", 200, 10)
 
-        graphics.drawString("y=200", 10, 190);
+        graphics.drawString("y=200", 10, 190)
 
         var fileUrl = WORLD_OUTPUT_IMAGE_BASE_PATH
         val dir = File(fileUrl)
@@ -1079,7 +1079,7 @@ class WorldGenerator(private val m_world: OreWorld) {
 
         writeWorldImageLegendImprint(bufferedImage)
 
-        ImageIO.write(bufferedImage, "png", File(fileUrl));
+        ImageIO.write(bufferedImage, "png", File(fileUrl))
     }
 
     class PeakResult() {

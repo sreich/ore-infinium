@@ -88,8 +88,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
             val mainPlayer = tagManager.getEntity(OreWorld.s_mainPlayer).id
             val playerSprite = mSprite.get(mainPlayer)
-            oreWorld.m_camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
-            oreWorld.m_camera.update()
+            oreWorld.camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
+            oreWorld.camera.update()
 
             clientNetworkSystem.sendPlayerMoved()
         }
@@ -481,7 +481,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
     }
 
     private fun maybeSendEntityMoved(entity: Int) {
-        val entities = oreWorld.m_artemisWorld.entities(allOf(PlayerComponent::class))
+        val entities = oreWorld.artemisWorld.entities(allOf(PlayerComponent::class))
 
         entities.forEach { player ->
             val playerComponent = mPlayer.get(player)

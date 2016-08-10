@@ -137,6 +137,8 @@ object OreSettings {
     @JvmField
     var debugPacketTypeStatistics: Boolean = false
 
+    var debugRenderGui: Boolean = true
+
     var profilerEnabled = false
 
     val zoomAmount = 0.004f

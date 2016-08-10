@@ -54,10 +54,10 @@ class HotbarInventoryView(private val stage: Stage,
                           private val inventory: HotbarInventory,
         //the main player inventory, for drag and drop
                           dragAndDrop: DragAndDrop,
-                          private val m_world: OreWorld) : Inventory.SlotListener {
+                          private val world: OreWorld) : Inventory.SlotListener {
 
     private val container: VisTable
-    private val m_slots = mutableListOf<SlotElement>()
+    private val slots = mutableListOf<SlotElement>()
 
     private lateinit var tileRenderSystem: TileRenderSystem
 
@@ -65,11 +65,11 @@ class HotbarInventoryView(private val stage: Stage,
     private lateinit var blockMapper: ComponentMapper<BlockComponent>
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
-    private val m_tooltip: Tooltip<VisTable>
-    private val m_tooltipLabel: VisLabel
+    private val tooltip: Tooltip<VisTable>
+    private val tooltipLabel: VisLabel
 
     init {
-        m_world.m_artemisWorld.inject(this)
+        world.artemisWorld.inject(this)
         //attach to the inventory model
         inventory.addListener(this)
 
@@ -87,7 +87,7 @@ class HotbarInventoryView(private val stage: Stage,
 
         repeat(Inventory.maxHotbarSlots) {
             val element = SlotElement(this, it)
-            m_slots.add(element)
+            slots.add(element)
             container.add(element.slotTable).size(50f, 50f)
 
             setHotbarSlotVisible(it, false)
@@ -100,26 +100,26 @@ class HotbarInventoryView(private val stage: Stage,
 
         val style = VisUI.getSkin().get("default", TooltipStyle::class.java)
 
-        m_tooltipLabel = VisLabel()
+        tooltipLabel = VisLabel()
         val tooltipTable = VisTable().apply {
-            add(m_tooltipLabel)
+            add(tooltipLabel)
             background = style.background
         }
 
-        m_tooltip = Tooltip<VisTable>(tooltipTable)
+        tooltip = Tooltip<VisTable>(tooltipTable)
     }
 
     private fun deselectPreviousSlot() {
-        m_slots[inventory.previousSelectedSlot].slotTable.color = Color.WHITE
+        slots[inventory.previousSelectedSlot].slotTable.color = Color.WHITE
     }
 
     override fun slotItemCountChanged(index: Int, inventory: Inventory) {
         val itemComponent = itemMapper.get(inventory.itemEntity(index))
-        m_slots[index].itemCount.setText(itemComponent.stackSize.toString())
+        slots[index].itemCount.setText(itemComponent.stackSize.toString())
     }
 
     override fun slotItemChanged(index: Int, inventory: Inventory) {
-        val slot = m_slots[index]
+        val slot = slots[index]
 
         val itemEntity = inventory.itemEntity(index)
         if (isInvalidEntity(itemEntity)) {
@@ -128,7 +128,7 @@ class HotbarInventoryView(private val stage: Stage,
         }
 
         val itemComponent = itemMapper.get(itemEntity)
-        m_slots[index].itemCount.setText(itemComponent.stackSize.toString())
+        slots[index].itemCount.setText(itemComponent.stackSize.toString())
 
         val spriteComponent = spriteMapper.get(itemEntity)
 
@@ -158,7 +158,7 @@ class HotbarInventoryView(private val stage: Stage,
                 region = tileRenderSystem.tilesAtlas.findRegion(textureName)
             }
         } else {
-            region = m_world.m_atlas.findRegion(textureName)
+            region = world.atlas.findRegion(textureName)
         }
 
         assert(region != null) { "textureregion for inventory item entity id: $itemEntity, was not found!" }
@@ -172,7 +172,7 @@ class HotbarInventoryView(private val stage: Stage,
 
     override fun slotItemSelected(index: Int, inventory: Inventory) {
         deselectPreviousSlot()
-        m_slots[index].slotTable.setColor(0f, 0f, 1f, 1f)
+        slots[index].slotTable.setColor(0f, 0f, 1f, 1f)
     }
 
     //FIXME: do the same for InventoryView
@@ -182,11 +182,11 @@ class HotbarInventoryView(private val stage: Stage,
      */
     private fun setHotbarSlotVisible(index: Int, visible: Boolean) {
         if (!visible) {
-            m_slots[index].itemImage.drawable = null
-            m_slots[index].itemCount.setText(null)
+            slots[index].itemImage.drawable = null
+            slots[index].itemCount.setText(null)
         }
-        m_slots[index].itemCount.isVisible = visible
-        m_slots[index].itemImage.isVisible = visible
+        slots[index].itemCount.isVisible = visible
+        slots[index].itemImage.isVisible = visible
     }
 
     private class HotbarDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val hotbarInventoryView: HotbarInventoryView) : DragAndDrop.Source(
@@ -274,7 +274,7 @@ class HotbarInventoryView(private val stage: Stage,
 
             //fixme?                    inventory.m_previousSelectedSlot = index;
 
-            val clientNetworkSystem = inventoryView.m_world.m_artemisWorld.getSystem(ClientNetworkSystem::class.java)
+            val clientNetworkSystem = inventoryView.world.artemisWorld.getSystem(ClientNetworkSystem::class.java)
             clientNetworkSystem.sendInventoryMove(sourceInventoryType = dragWrapper.sourceInventory.inventoryType,
                                                   sourceIndex = dragWrapper.dragSourceIndex,
                                                   destInventoryType = inventoryView.inventory.inventoryType,
@@ -293,28 +293,28 @@ class HotbarInventoryView(private val stage: Stage,
         override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventory.inventory.itemEntity(index)
             if (isValidEntity(itemEntity)) {
-                inventory.m_tooltip.enter(event, x, y, pointer, fromActor)
+                inventory.tooltip.enter(event, x, y, pointer, fromActor)
             }
 
             super.enter(event, x, y, pointer, fromActor)
         }
 
         override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
-            inventory.m_tooltip.mouseMoved(event, x, y)
+            inventory.tooltip.mouseMoved(event, x, y)
 
             val itemEntity = inventory.inventory.itemEntity(index)
 
             if (isValidEntity(itemEntity)) {
                 val itemComponent = inventory.itemMapper.get(itemEntity)
                 val spriteComponent = inventory.spriteMapper.get(itemEntity)
-                inventory.m_tooltipLabel.setText(itemComponent.name)
+                inventory.tooltipLabel.setText(itemComponent.name)
             }
 
             return super.mouseMoved(event, x, y)
         }
 
         override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
-            inventory.m_tooltip.exit(event, x, y, pointer, toActor)
+            inventory.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)
         }

@@ -251,7 +251,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         if (mPlayer.has(entity)) {
-            oreWorld.m_client!!.hud.healthChanged(cHealth.health)
+            oreWorld.client!!.hud.healthChanged(cHealth.health)
         }
     }
 
@@ -271,7 +271,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             }
 
             //update region
-            val textureRegion = oreWorld.m_atlas.findRegion(textureName)
+            val textureRegion = oreWorld.atlas.findRegion(textureName)
             this.sprite.setRegion(textureRegion)
         }
     }
@@ -283,12 +283,12 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             air = airChanged.air
         }
 
-        oreWorld.m_client!!.hud.airChanged(air = cAir.air)
+        oreWorld.client!!.hud.airChanged(air = cAir.air)
     }
 
     private fun receiveUpdateGeneratorControlPanelStats(stats: Network.Server.UpdateGeneratorControlPanelStats) {
-        oreWorld.m_client!!.m_generatorControlPanelView!!.updateStatus(fuelHealth = stats.fuelHealth,
-                                                                       supply = stats.supply)
+        oreWorld.client!!.generatorControlPanelView!!.updateStatus(fuelHealth = stats.fuelHealth,
+                                                                   supply = stats.supply)
     }
 
     private fun receiveEntityKilled(receivedObject: Network.Server.EntityKilled) {
@@ -331,9 +331,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun inventoryForType(typeOfInventory: Network.Shared.InventoryType) = when (typeOfInventory) {
-        Network.Shared.InventoryType.Hotbar -> oreWorld.m_client!!.m_hotbarInventory!!
-        Network.Shared.InventoryType.Generator -> oreWorld.m_client!!.m_generatorInventory!!
-        Network.Shared.InventoryType.Inventory -> oreWorld.m_client!!.m_inventory!!
+        Network.Shared.InventoryType.Hotbar -> oreWorld.client!!.hotbarInventory!!
+        Network.Shared.InventoryType.Generator -> oreWorld.client!!.generatorInventory!!
+        Network.Shared.InventoryType.Inventory -> oreWorld.client!!.inventory!!
     }
 
     private fun spawnInventoryItem(entitySpawn: Network.Server.EntitySpawn, inventory: Inventory) {
@@ -350,7 +350,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //fixme uhhhhh this isn't used at all??
         val textureRegion: TextureRegion
         if (!mBlock.has(spawnedItemEntityId)) {
-            textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName)
+            textureRegion = oreWorld.atlas.findRegion(spriteComponent.textureName)
         } else {
             textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
         }
@@ -364,7 +364,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun receiveChatMessage(chat: Network.Server.ChatMessage) {
-        oreWorld.m_client!!.m_chat.addChatLine(chat.timestamp, chat.playerName, chat.message, chat.sender)
+        oreWorld.client!!.chat.addChatLine(chat.timestamp, chat.playerName, chat.message, chat.sender)
     }
 
     private fun receiveEntityMoved(entityMove: Network.Server.EntityMoved) {
@@ -425,9 +425,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             }
 
-            assert(oreWorld.m_artemisWorld.getEntity(
+            assert(oreWorld.artemisWorld.getEntity(
                     localId!!) != null) { "entity doesn't exist locally, but we tried to delete it from the map" }
-            oreWorld.m_artemisWorld.delete(localId)
+            oreWorld.artemisWorld.delete(localId)
         }
 
         assert(entityForNetworkId.size == networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
@@ -457,7 +457,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             }
 
             //fixme id..see above.
-            val spriteComponent = mSprite.create(localEntityId).apply {
+            val cSprite = mSprite.create(localEntityId).apply {
                 textureName = spawn.textureName
                 sprite.setSize(spawn.size.x, spawn.size.y)
                 sprite.setPosition(spawn.pos.x, spawn.pos.y)
@@ -468,18 +468,18 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
             }
 
-            assert(spriteComponent.textureName != null)
+            assert(cSprite.textureName != null)
 
             val textureRegion: TextureRegion?
             if (!mBlock.has(localEntityId)) {
-                textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName)
+                textureRegion = oreWorld.atlas.findRegion(cSprite.textureName)
             } else {
-                textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
+                textureRegion = tileRenderer.blockAtlas.findRegion(cSprite.textureName)
             }
 
             assert(textureRegion != null) { "texture region is null on receiving entity spawn and reverse lookup of texture for this entity" }
 
-            spriteComponent.sprite.setRegion(textureRegion)
+            cSprite.sprite.setRegion(textureRegion)
 
             //keep our networkid -> localid mappings up to date
             //since the client and server can never agree on which id to make an
@@ -521,13 +521,13 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //it is our main player (the client's player, aka us)
         if (!connected) {
             //fixme not ideal, calling into the client to do this????
-            val player = oreWorld.m_client!!.createPlayer(spawn.playerName, clientKryo.id, true)
+            val player = oreWorld.client!!.createPlayer(spawn.playerName, clientKryo.id, true)
             val spriteComp = mSprite.get(player)
 
             spriteComp.sprite.setPosition(spawn.pos.x, spawn.pos.y)
 
             val playerSprite = mSprite.get(player)
-            playerSprite.sprite.setRegion(oreWorld.m_atlas.findRegion("player-32x64"))
+            playerSprite.sprite.setRegion(oreWorld.atlas.findRegion("player-32x64"))
 
             val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
             val subscription = aspectSubscriptionManager.get(allOf())

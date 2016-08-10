@@ -681,8 +681,8 @@ public class TexturePacker {
 		}
 	}
 
-	static public interface Packer {
-		public Array<Page> pack(Array<Rect> inputRects);
+	public interface Packer {
+		Array<Page> pack(Array<Rect> inputRects);
 	}
 
 	static final class InputImage {

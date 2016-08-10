@@ -27,10 +27,10 @@ package com.ore.infinium
 import java.time.LocalTime
 
 class WorldTime {
-    private var m_time: LocalTime? = null
+    private var time: LocalTime? = null
 
     fun setTime(hour: Int, minute: Int, second: Int) {
-        m_time = LocalTime.of(hour, minute, second)
+        time = LocalTime.of(hour, minute, second)
     }
 
     fun tick(elapsedTime: Double) {
@@ -53,21 +53,16 @@ class WorldTime {
         m_hour -= 24;
     }
 
-    Q_ASSERT(m_minute <= 59 && m_second <= 59);
-    Q_ASSERT(m_hour <= 23);
+    assert(m_minute <= 59 && m_second <= 59)
+    assert(m_hour <= 23)
 }
 
-QString Time::toString() const
-{
-    QTime time(m_hour, m_minute, m_second);
-
-    return time.toString("hh:mm:ss");
-}
          */
 
     }
 
     fun timeString(): String {
-        return m_time!!.toString()
+        return time!!.toString()
     }
 }
+

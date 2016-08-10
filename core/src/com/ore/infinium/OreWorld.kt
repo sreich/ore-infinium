@@ -66,42 +66,40 @@ import java.util.*
  *          this is a local hosted server, (aka singleplayer, or self-hosting)
  */
 class OreWorld
-(var m_client: OreClient?, //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
+(var client: OreClient?, //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
         // them alone.
- var m_server: OreServer?, var worldInstanceType: OreWorld.WorldInstanceType) {
-    private lateinit var m_tagManager: TagManager
+ var server: OreServer?, var worldInstanceType: OreWorld.WorldInstanceType) {
+    private lateinit var tagManager: TagManager
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var doorMapper: ComponentMapper<DoorComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
-    private lateinit var airMapper: ComponentMapper<AirComponent>
-    private lateinit var healthMapper: ComponentMapper<HealthComponent>
-    private lateinit var lightMapper: ComponentMapper<LightComponent>
-    private lateinit var floraMapper: ComponentMapper<FloraComponent>
-    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
-    private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
-    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+    private lateinit var mPlayer: ComponentMapper<PlayerComponent>
+    private lateinit var mDoor: ComponentMapper<DoorComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
+    private lateinit var mControl: ComponentMapper<ControllableComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private lateinit var mVelocity: ComponentMapper<VelocityComponent>
+    private lateinit var mJump: ComponentMapper<JumpComponent>
+    private lateinit var mBlock: ComponentMapper<BlockComponent>
+    private lateinit var mTool: ComponentMapper<ToolComponent>
+    private lateinit var mAir: ComponentMapper<AirComponent>
+    private lateinit var mHealth: ComponentMapper<HealthComponent>
+    private lateinit var mLight: ComponentMapper<LightComponent>
+    private lateinit var mFlora: ComponentMapper<FloraComponent>
+    private lateinit var mPowerDevice: ComponentMapper<PowerDeviceComponent>
+    private lateinit var mPowerConsumer: ComponentMapper<PowerConsumerComponent>
+    private lateinit var mPowerGenerator: ComponentMapper<PowerGeneratorComponent>
 
     //each unit is 1 block(16x16 px), in the game world
     //public OreBlock[] blocks;
     var blocks: ByteArray
     lateinit var assetManager: AssetManager
-    lateinit var m_camera: OrthographicCamera
+    lateinit var camera: OrthographicCamera
 
     //fixme remove in favor of the render system
-    lateinit var m_atlas: TextureAtlas
+    lateinit var atlas: TextureAtlas
 
-    private var m_worldGenerator: WorldGenerator? = null
+    private var worldGenerator: WorldGenerator? = null
 
-    private val m_noClipEnabled: Boolean = false
-
-    lateinit var m_artemisWorld: World
+    lateinit var artemisWorld: World
 
     /**
      * who owns/is running this exact world instance. If it is the server, or a client.
@@ -132,39 +130,39 @@ class OreWorld
         if (worldInstanceType == WorldInstanceType.Client || worldInstanceType == WorldInstanceType.ClientHostingServer) {
             val width = OreSettings.width / BLOCK_SIZE_PIXELS
             val height = OreSettings.height / BLOCK_SIZE_PIXELS
-            m_camera = OrthographicCamera(width, height)//30, 30 * (h / w));
-            m_camera.setToOrtho(true, width, height)
+            camera = OrthographicCamera(width, height)//30, 30 * (h / w));
+            camera.setToOrtho(true, width, height)
 
-            m_atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
+            atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
 
             //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
             // class dictates this.
-            m_artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
+            artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
                                            .with(TagManager())
                                            .with(PlayerManager())
                                            .with(MovementSystem(this))
                                            .with(SoundSystem(this))
                                            .with(ClientNetworkSystem(this))
-                                           .with(InputSystem(m_camera, this))
+                                           .with(InputSystem(camera, this))
                                            .with(EntityOverlaySystem(this))
                                            .with(PlayerSystem(this))
                                            .with(GameTickSystem(this))
-                                           .with(ClientBlockDiggingSystem(this, m_client!!))
-                                           .with(TileRenderSystem(m_camera, this))
+                                           .with(ClientBlockDiggingSystem(this, client!!))
+                                           .with(TileRenderSystem(camera, this))
                                            .with(SpriteRenderSystem(this))
-                                           .with(DebugTextRenderSystem(m_camera, this))
-                                           .with(PowerOverlayRenderSystem(this, m_client!!.m_stage))
-                                           .with(TileTransitionSystem(m_camera, this))
+                                           .with(DebugTextRenderSystem(camera, this))
+                                           .with(PowerOverlayRenderSystem(this, client!!.stage))
+                                           .with(TileTransitionSystem(camera, this))
                                            .build())
             //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
             //inject the mappers into the world, before we start doing things
-            m_artemisWorld.inject(this, true)
+            artemisWorld.inject(this, true)
 
             val w = Gdx.graphics.width.toFloat()
             val h = Gdx.graphics.height.toFloat()
-        } else if (worldInstanceType == WorldInstanceType.Server) {
-            m_artemisWorld = World(WorldConfigurationBuilder()
+        } else if (isServer()) {
+            artemisWorld = World(WorldConfigurationBuilder()
                                            .with(TagManager())
                                            .with(SpatialSystem(this))
                                            .with(PlayerManager())
@@ -177,16 +175,16 @@ class OreWorld
                                            .with(ServerBlockDiggingSystem(this))
                                            .with(PlayerSystem(this))
                                            .with(AirSystem(this))
-                                           .with(ServerNetworkSystem(this, m_server!!))
+                                           .with(ServerNetworkSystem(this, server!!))
                                            .with(TileLightingSystem(this))
                                            .with(LiquidSimulationSystem(this))
                                            .register(GameLoopSystemInvocationStrategy(25, true))
                                            .build())
             //inject the mappers into the world, before we start doing things
-            m_artemisWorld.inject(this, true)
+            artemisWorld.inject(this, true)
 
-            m_worldGenerator = WorldGenerator(this)
-            m_artemisWorld.inject(m_worldGenerator, true)
+            worldGenerator = WorldGenerator(this)
+            artemisWorld.inject(worldGenerator, true)
 
             generateWorld()
         }
@@ -268,45 +266,41 @@ class OreWorld
      * @return
      */
     fun createPlayer(playerName: String, connectionId: Int): Int {
-        val playerEntity = m_artemisWorld.create()
-        val playerSprite = spriteMapper.create(playerEntity)
-        velocityMapper.create(playerEntity)
+        val entity = artemisWorld.create()
+        val cSprite = mSprite.create(entity)
+        mVelocity.create(entity)
 
-        val playerComponent = playerMapper.create(playerEntity).apply {
+        val cPlayer = mPlayer.create(entity).apply {
             connectionPlayerId = connectionId
-            //fixme fixme, should be consolidated w/ sprite's noclip...or should it?? make mention, is sprite present on
-            // the server?? at least the component, maybe not inner sprite
-            noClip = m_noClipEnabled
-
             loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
                                             LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
-            loadedViewport.centerOn(Vector2(playerSprite.sprite.x, playerSprite.sprite.y))
+            loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y))
         }
 
-        playerComponent.playerName = playerName
+        cPlayer.playerName = playerName
 
-        playerSprite.apply {
+        cSprite.apply {
             sprite.setSize(2f, 3f)
             textureName = "player1Standing1"
             category = SpriteComponent.EntityCategory.Character
         }
 
-        controlMapper.create(playerEntity)
-        jumpMapper.create(playerEntity)
+        mControl.create(entity)
+        mJump.create(entity)
 
-        val healthComponent = healthMapper.create(playerEntity).apply {
+        mHealth.create(entity).apply {
             health = maxHealth
         }
 
-        val airComponent = airMapper.create(playerEntity).apply {
+        mAir.create(entity).apply {
             air = maxAir
         }
 
-        return playerEntity
+        return entity
     }
 
     private fun generateWorld() {
-        m_worldGenerator!!.generateWorld(WORLD_SIZE)
+        worldGenerator!!.generateWorld(WORLD_SIZE)
     }
 
     /**
@@ -613,7 +607,7 @@ class OreWorld
     }
 
     fun entityAtPosition(pos: Vector2): Int? {
-        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class)).toMutableList()
+        val entities = artemisWorld.entities(allOf(SpriteComponent::class)).toMutableList()
 
         for (currentEntity in entities) {
             //could be placement overlay, but we don't want this. skip over.
@@ -621,7 +615,7 @@ class OreWorld
                 continue
             }
 
-            val cSprite = spriteMapper.get(currentEntity)
+            val cSprite = mSprite.get(currentEntity)
             if (cSprite.sprite.rect.contains(pos)) {
                 return currentEntity
             }
@@ -635,7 +629,7 @@ class OreWorld
      * excludes stuff like main player, item overlays, crosshairs, for the client...
      */
     fun shouldIgnoreClientEntityTag(entity: Int, ignoreOwnPlayer: Boolean = true): Boolean {
-        val tag = m_tagManager.getTag(m_artemisWorld.getEntity(entity)) ?: return false
+        val tag = tagManager.getTag(artemisWorld.getEntity(entity)) ?: return false
 
         when {
             tag == OreWorld.s_itemPlacementOverlay -> return true
@@ -651,7 +645,7 @@ class OreWorld
      * having to interface with other systems. Though some exceptions may apply
      */
     fun shutdown() {
-        m_artemisWorld.dispose()
+        artemisWorld.dispose()
     }
 
     /**
@@ -661,7 +655,7 @@ class OreWorld
      * ordering and so on.
      */
     fun process() {
-        m_artemisWorld.process()
+        artemisWorld.process()
     }
 
     /**
@@ -708,7 +702,7 @@ class OreWorld
     fun screenToWorldCoords(x: Float, y: Float): Vector2 {
         // we ensure it is within bounds of screen (mouse pos can be negative sometimes, oddly)
         val input = Vector3((x).coerceAtLeast(0f), (y).coerceAtLeast(0f), 0f)
-        val worldCoords = m_camera.unproject(input)
+        val worldCoords = camera.unproject(input)
 
         return Vector2(worldCoords.x, worldCoords.y)
     }
@@ -742,84 +736,85 @@ class OreWorld
      * @param blockType
      */
     fun createBlockItem(blockType: Byte): Int {
-        val block = m_artemisWorld.create()
-        velocityMapper.create(block)
+        val entity = artemisWorld.create()
+        mVelocity.create(entity)
 
-        val blockComponent = blockMapper.create(block)
-        blockComponent.blockType = blockType
+        val cBlock = mBlock.create(entity)
+        cBlock.blockType = blockType
 
-        val blockSprite = spriteMapper.create(block).apply {
-            textureName = OreBlock.blockAttributes[blockComponent.blockType]!!.textureName
+        mSprite.create(entity).apply {
+            textureName = OreBlock.blockAttributes[cBlock.blockType]!!.textureName
             sprite.setSize(1f, 1f)
         }
 
-        itemMapper.create(block).apply {
+        mItem.create(entity).apply {
             stackSize = 800
             maxStackSize = 800
             name = OreBlock.nameOfBlockType(blockType)!!
         }
 
-        return block
+        return entity
     }
 
     fun createLiquidGun(): Int {
-        val liquidGun = m_artemisWorld.create()
-        velocityMapper.create(liquidGun)
+        val entity = artemisWorld.create()
+        mVelocity.create(entity)
 
-        toolMapper.create(liquidGun).apply {
+        mTool.create(entity).apply {
             type = ToolComponent.ToolType.Bucket
             attackIntervalMs = 0
         }
 
-        spriteMapper.create(liquidGun).apply {
+        mSprite.create(entity).apply {
             textureName = "drill"
             sprite.setSize(2f, 2f)
         }
 
         val newStackSize = 1
-        itemMapper.create(liquidGun).apply {
+        mItem.create(entity).apply {
             stackSize = newStackSize
             maxStackSize = newStackSize
             name = "Liquid Gun"
         }
 
-        return liquidGun
+        return entity
     }
 
     fun createLight(): Int {
-        val light = m_artemisWorld.create()
+        val entity = artemisWorld.create()
 
-        velocityMapper.create(light)
+        mVelocity.create(entity)
 
-        itemMapper.create(light).apply {
+        mItem.create(entity).apply {
             stackSize = 800
             maxStackSize = 900
             name = "Light"
         }
 
-        lightMapper.create(light)
+        mLight.create(entity)
 
-        powerDeviceMapper.create(light)
+        mPowerDevice.create(entity)
 
-        val sprite = spriteMapper.create(light).apply {
+        mSprite.create(entity).apply {
             textureName = "light-yellow"
             sprite.setSize(1f, 1f)
         }
 
-        val powerConsumerComponent = powerConsumerMapper.create(light)
-        powerConsumerComponent.powerDemandRate = 100
+        mPowerConsumer.create(entity).apply {
+            powerDemandRate = 100
+        }
 
-        return light
+        return entity
     }
 
     fun createDoor(): Int {
-        val door = m_artemisWorld.create()
+        val entity = artemisWorld.create()
 
-        velocityMapper.create(door)
+        mVelocity.create(entity)
 
-        doorMapper.create(door)
+        mDoor.create(entity)
 
-        itemMapper.create(door).apply {
+        mItem.create(entity).apply {
             stackSize = 50
             maxStackSize = 60
             name = "Door"
@@ -827,73 +822,73 @@ class OreWorld
                                                  ItemComponent.PlacementAdjacencyHints.TopSolid)
         }
 
-        spriteMapper.create(door).apply {
+        mSprite.create(entity).apply {
             textureName = "door-closed-16x36"
             sprite.setSize(1f, 3f)
         }
 
-        return door
+        return entity
     }
 
     fun createPowerGenerator(): Int {
-        val power = m_artemisWorld.create()
+        val entity = artemisWorld.create()
 
-        velocityMapper.create(power)
+        mVelocity.create(entity)
 
-        itemMapper.create(power).apply {
+        mItem.create(entity).apply {
             stackSize = 800
             maxStackSize = 900
             name = "Power Generator"
         }
 
-        powerDeviceMapper.create(power)
+        mPowerDevice.create(entity)
 
-        spriteMapper.create(power).apply {
+        mSprite.create(entity).apply {
             textureName = "air-generator-64x64"
             sprite.setSize(4f, 4f)
         }
 
-        val genC = powerGeneratorMapper.create(power).apply {
+        mPowerGenerator.create(entity).apply {
             supplyRateEU = 100
             fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
-            m_artemisWorld.inject(fuelSources, true)
+            artemisWorld.inject(fuelSources, true)
         }
 
-        return power
+        return entity
     }
 
     fun createDrill(): Int {
-        val drill = m_artemisWorld.create()
-        velocityMapper.create(drill)
+        val entity = artemisWorld.create()
+        mVelocity.create(entity)
 
-        toolMapper.create(drill).apply {
+        mTool.create(entity).apply {
             type = ToolComponent.ToolType.Drill
             blockDamage = 400f
         }
 
-        val toolSprite = spriteMapper.create(drill).apply {
+        mSprite.create(entity).apply {
             textureName = "drill"
             sprite.setSize(2f, 2f)
         }
 
         val newStackSize = 64000
-        itemMapper.create(drill).apply {
+        mItem.create(entity).apply {
             stackSize = newStackSize
             maxStackSize = newStackSize
             name = "Drill"
         }
 
-        return drill
+        return entity
     }
 
     fun createWoodenTree(type: FloraComponent.TreeSize): Int {
-        val tree = m_artemisWorld.create()
+        val entity = artemisWorld.create()
 
-        val sprite = spriteMapper.create(tree)
-        val flora = floraMapper.create(tree)
-        val velocity = velocityMapper.create(tree)
+        val sprite = mSprite.create(entity)
+        val flora = mFlora.create(entity)
+        mVelocity.create(entity)
 
-        itemMapper.create(tree).apply {
+        mItem.create(entity).apply {
             state = ItemComponent.State.InWorldState
             maxStackSize = 64
             name = "Tree"
@@ -913,12 +908,12 @@ class OreWorld
             }
         }
 
-        healthMapper.create(tree).apply {
+        mHealth.create(entity).apply {
             maxHealth = 2000f
             health = maxHealth
         }
 
-        return tree
+        return entity
     }
 
     /**
@@ -930,7 +925,7 @@ class OreWorld
      */
     fun isPlacementValid(entity: Int): Boolean {
         return true
-        val spriteComponent = spriteMapper.get(entity)
+        val spriteComponent = mSprite.get(entity)
         val pos = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
         val size = Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height)
 
@@ -957,14 +952,14 @@ class OreWorld
 
         //ensure placement meets the adjacency hints (like "must be connected to
         //a solid block on the top", etc)
-        itemMapper.ifPresent(entity) { cItem ->
+        mItem.ifPresent(entity) { cItem ->
             if (!placementAdjacencyHintsBlocksSatisfied(entity, cItem)) {
                 return false
             }
         }
 
         //check collision against entities
-        val entities = m_artemisWorld.entities(allOf(SpriteComponent::class)).toMutableList()
+        val entities = artemisWorld.entities(allOf(SpriteComponent::class)).toMutableList()
 
         for (currentEntity in entities) {
             //it's the item we're trying to place, don't count a collision with ourselves
@@ -974,7 +969,7 @@ class OreWorld
 
             isItemDroppedInWorldOpt(currentEntity)
 
-            val entitySpriteComponent = spriteMapper.get(currentEntity)
+            val entitySpriteComponent = mSprite.get(currentEntity)
             // possible colliding object is not meant to be collided with. skip it/don't count it
             if (entitySpriteComponent.noClip) {
                 continue
@@ -993,7 +988,7 @@ class OreWorld
      * or if it is not an item at all!
      */
     fun isItemDroppedInWorldOpt(entityId: Int): Boolean {
-        itemMapper.ifPresent(entityId) {
+        mItem.ifPresent(entityId) {
             if (it.state == ItemComponent.State.DroppedInWorld) {
                 return true
             }
@@ -1007,7 +1002,7 @@ class OreWorld
      * or false otherwise. or false if it's not an item
      */
     fun isItemPlacedInWorldOpt(entityId: Int): Boolean {
-        itemMapper.ifPresent(entityId) {
+        mItem.ifPresent(entityId) {
             if (it.state == ItemComponent.State.InWorldState) {
                 return true
             }
@@ -1018,7 +1013,7 @@ class OreWorld
 
 
     fun placementAdjacencyHintsBlocksSatisfied(entityId: Int, cItem: ItemComponent): Boolean {
-        val cSprite = spriteMapper.get(entityId)
+        val cSprite = mSprite.get(entityId)
         val left = cSprite.sprite.rect.left.toInt()
         val right = cSprite.sprite.rect.right.toInt()
         val top = cSprite.sprite.rect.top.toInt() - 1
@@ -1056,8 +1051,8 @@ class OreWorld
     }
 
     private fun entityCollides(first: Int, second: Int): Boolean {
-        val spriteComponent1 = spriteMapper.get(first)
-        val spriteComponent2 = spriteMapper.get(second)
+        val spriteComponent1 = mSprite.get(first)
+        val spriteComponent2 = mSprite.get(second)
 
         val pos1 = Vector2(spriteComponent1.sprite.x, spriteComponent1.sprite.y)
         val pos2 = Vector2(spriteComponent2.sprite.x, spriteComponent2.sprite.y)
@@ -1105,96 +1100,96 @@ class OreWorld
      * @return the cloned entity
      */
     fun cloneEntity(sourceEntity: Int): Int {
-        val clonedEntity = m_artemisWorld.create()
+        val clonedEntity = artemisWorld.create()
 
         //sorted alphabetically for your pleasure
-        airMapper.ifPresent(sourceEntity) {
-            val component = airMapper.create(clonedEntity)
+        mAir.ifPresent(sourceEntity) {
+            val component = mAir.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        blockMapper.ifPresent(sourceEntity) {
-            val component = blockMapper.create(clonedEntity)
+        mBlock.ifPresent(sourceEntity) {
+            val component = mBlock.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        controlMapper.ifPresent(sourceEntity) {
-            val component = controlMapper.create(clonedEntity)
+        mControl.ifPresent(sourceEntity) {
+            val component = mControl.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        floraMapper.ifPresent(sourceEntity) {
-            val component = floraMapper.create(clonedEntity)
+        mFlora.ifPresent(sourceEntity) {
+            val component = mFlora.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        healthMapper.ifPresent(sourceEntity) {
-            val component = healthMapper.create(clonedEntity)
+        mHealth.ifPresent(sourceEntity) {
+            val component = mHealth.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        itemMapper.ifPresent(sourceEntity) {
-            val component = itemMapper.create(clonedEntity)
+        mItem.ifPresent(sourceEntity) {
+            val component = mItem.create(clonedEntity)
             //fixme for first execution of this, it takes ~400ms which is crazy
             //it is literally ONLY this one, for a generator. not sure why yet.
             component.copyFrom(it)
         }
 
-        jumpMapper.ifPresent(sourceEntity) {
-            val component = jumpMapper.create(clonedEntity)
+        mJump.ifPresent(sourceEntity) {
+            val component = mJump.create(clonedEntity)
             component.copyFrom(it)
         }
 
         //player, unneeded
-        assert(playerMapper.opt(sourceEntity) == null)
+        assert(mPlayer.opt(sourceEntity) == null)
 
-        spriteMapper.ifPresent(sourceEntity) {
-            val component = spriteMapper.create(clonedEntity)
+        mSprite.ifPresent(sourceEntity) {
+            val component = mSprite.create(clonedEntity)
             component.copyFrom(it)
 
             if (worldInstanceType != WorldInstanceType.Server) {
                 log("client entity cloner, sprite", component.textureName.toString())
-                component.sprite.setRegion(m_atlas.findRegion(component.textureName))
+                component.sprite.setRegion(atlas.findRegion(component.textureName))
             }
         }
 
-        toolMapper.ifPresent(sourceEntity) {
-            val component = toolMapper.create(clonedEntity)
+        mTool.ifPresent(sourceEntity) {
+            val component = mTool.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        doorMapper.ifPresent(sourceEntity) {
-            val component = doorMapper.create(clonedEntity)
+        mDoor.ifPresent(sourceEntity) {
+            val component = mDoor.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        lightMapper.ifPresent(sourceEntity) {
-            val component = lightMapper.create(clonedEntity)
+        mLight.ifPresent(sourceEntity) {
+            val component = mLight.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        velocityMapper.ifPresent(sourceEntity) {
-            val component = velocityMapper.create(clonedEntity)
+        mVelocity.ifPresent(sourceEntity) {
+            val component = mVelocity.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        powerDeviceMapper.ifPresent(sourceEntity) {
-            val component = powerDeviceMapper.create(clonedEntity)
+        mPowerDevice.ifPresent(sourceEntity) {
+            val component = mPowerDevice.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        powerConsumerMapper.ifPresent(sourceEntity) {
-            val component = powerConsumerMapper.create(clonedEntity)
+        mPowerConsumer.ifPresent(sourceEntity) {
+            val component = mPowerConsumer.create(clonedEntity)
             component.copyFrom(it)
         }
 
-        powerGeneratorMapper.ifPresent(sourceEntity) {
-            val component = powerGeneratorMapper.create(clonedEntity)
+        mPowerGenerator.ifPresent(sourceEntity) {
+            val component = mPowerGenerator.create(clonedEntity)
             component.copyFrom(it)
 
             //hack until we come up with a better way, possibly pass world in
             //as copy param, to get these injected well
-            m_artemisWorld.inject(component.fuelSources, true)
+            artemisWorld.inject(component.fuelSources, true)
         }
 
         return clonedEntity
@@ -1212,7 +1207,7 @@ class OreWorld
     fun playerEntityForPlayerConnectionID(playerId: Int): Int {
         var playerComponent: PlayerComponent
         for (player in players()) {
-            playerComponent = playerMapper.get(player)
+            playerComponent = mPlayer.get(player)
 
             if (playerComponent.connectionPlayerId == playerId) {
                 return player
@@ -1223,7 +1218,7 @@ class OreWorld
     }
 
     fun players(): List<Int> {
-        return m_artemisWorld.entities(allOf(PlayerComponent::class)).toMutableList()
+        return artemisWorld.entities(allOf(PlayerComponent::class)).toMutableList()
     }
 
     //fixme better way to do key and mouse events. i'd like to just have systems be able to sign up,
@@ -1247,14 +1242,14 @@ class OreWorld
              */
     fun getComponentsForEntity(entity: Int): Bag<Component> {
         val bag = Bag<Component>()
-        m_artemisWorld.getEntity(entity).getComponents(bag)
+        artemisWorld.getEntity(entity).getComponents(bag)
 
         return bag
     }
 
     @Suppress("unused")
     inline fun <reified T : Component> getEntitiesWithComponent(): IntBag? {
-        return m_artemisWorld.entities(allOf(T::class))
+        return artemisWorld.entities(allOf(T::class))
     }
 
 
@@ -1275,15 +1270,15 @@ class OreWorld
      * or nothing (e.g. if something just died by itself)
      */
     fun killEntity(entityToKill: Int, entityKiller: Int) {
-        val itemComp = itemMapper.opt(entityToKill)
+        val itemComp = mItem.opt(entityToKill)
 
-        floraMapper.ifPresent(entityToKill) { cFlora ->
+        mFlora.ifPresent(entityToKill) { cFlora ->
             killTree(cFlora, entityToKill, entityKiller)
         }
 
-        m_artemisWorld.delete(entityToKill)
+        artemisWorld.delete(entityToKill)
 
-        m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToKill)
+        artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToKill)
     }
 
     /**
@@ -1293,9 +1288,9 @@ class OreWorld
      * killed.
      */
     fun serverDestroyEntity(entityToDestroy: Int) {
-        m_artemisWorld.delete(entityToDestroy)
+        artemisWorld.delete(entityToDestroy)
 
-        m_artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToDestroy)
+        artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToDestroy)
     }
 
     /**
@@ -1303,12 +1298,12 @@ class OreWorld
      * silently; no sound, no server -> client informing
      */
     fun destroyEntity(entityToDestroy: Int) {
-        m_artemisWorld.delete(entityToDestroy)
+        artemisWorld.delete(entityToDestroy)
     }
 
     fun destroyEntities(entityIds: List<Int>) {
         for (entityToDestroy in entityIds) {
-            m_artemisWorld.delete(entityToDestroy)
+            artemisWorld.delete(entityToDestroy)
         }
     }
 
@@ -1320,14 +1315,14 @@ class OreWorld
             //todo actually what we want is not to clone, but to drop wood.
             //same for rubber trees. but they may also drop a sapling
             val cloned = cloneEntity(entityToKill)
-            val clonedSpriteComp = spriteMapper.get(cloned)
+            val clonedSpriteComp = mSprite.get(cloned)
             val random = RandomXS128()
             clonedSpriteComp.sprite.apply {
                 x += random.nextInt(0, 5)
                 y += random.nextInt(0, 5)
             }
 
-            val clonedItemComp = itemMapper.get(cloned).apply {
+            val clonedItemComp = mItem.get(cloned).apply {
                 stackSize = floraComp.stackSizePerDrop
                 state = ItemComponent.State.DroppedInWorld
                 //half the size, it's a dropped tree
@@ -1346,10 +1341,10 @@ class OreWorld
 
             //                    sizeBeforeDrop
 
-            spriteMapper.get(cloned).apply {
+            mSprite.get(cloned).apply {
             }
 
-            //                spriteMapper.get(cloned).apply {
+            //                mSprite.get(cloned).apply {
             //                   sprite.setPosition()
             //              }
             //todo give it some explody velocity

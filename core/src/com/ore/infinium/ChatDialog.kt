@@ -33,65 +33,65 @@ import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.enabledString
 
-class ChatDialog(private val m_client: OreClient,
-                 private val m_stage: Stage,
-                 m_rootTable: VisTable) : Chat.ChatListener {
+class ChatDialog(private val client: OreClient,
+                 private val stage: Stage,
+                 rootTable: VisTable) : Chat.ChatListener {
 
     private val container: VisTable
 
-    private val m_elements = Array<ChatElement>()
+    private val elements = Array<ChatElement>()
 
-    private val m_scroll: VisScrollPane
-    private val m_scrollPaneTable: VisTable
-    private val m_messageField: VisTextField
-    private val m_send: VisTextButton
+    private val scrollPane: VisScrollPane
+    private val scrollPaneTable: VisTable
+    private val messageField: VisTextField
+    private val sendButton: VisTextButton
 
     var chatVisibilityState = ChatVisibility.Normal
 
-    internal var m_notificationTimer: Timer
+    internal var notificationTimer: Timer
 
     private inner class ChatElement(internal var timestampLabel: VisLabel,
                                     internal var playerNameLabel: VisLabel,
                                     internal var chatTextLabel: VisLabel)
 
     init {
-        m_notificationTimer = Timer()
+        notificationTimer = Timer()
 
         container = VisTable()
 
-        m_scrollPaneTable = VisTable()
+        scrollPaneTable = VisTable()
 
-        m_scroll = VisScrollPane(m_scrollPaneTable)
+        scrollPane = VisScrollPane(scrollPaneTable)
 
 //        m_stage.addActor(container)
         //       container.bottom().left().padBottom(5f).setSize(600f, 300f)
 
-        container.add(m_scroll).expand().fill().colspan(4)
+        container.add(scrollPane).expand().fill().colspan(4)
         container.row().space(2f)
 
-        m_messageField = VisTextField()
-        container.add(m_messageField).expandX().fill()
+        messageField = VisTextField()
+        container.add(messageField).expandX().fill()
 
-        m_send = VisTextButton("send")
+        sendButton = VisTextButton("send")
 
-        m_send.addListener(object : ChangeListener() {
+        sendButton.addListener(object : ChangeListener() {
             override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
                 sendChat()
             }
         })
 
-        container.add(m_send).right()
+        container.add(sendButton).right()
 
-        m_stage.keyboardFocus = m_send
+        stage.keyboardFocus = sendButton
         //        container.background("default-window");
-        m_rootTable.add(container).expand().bottom().left().padBottom(5f).size(500f, 200f)
+        rootTable.add(container).expand().bottom().left().padBottom(5f).size(500f, 200f)
 
         container.layout()
-        m_scrollPaneTable.layout()
-        m_scroll.layout()
-        m_scroll.scrollPercentY = 100f
+        scrollPaneTable.layout()
+        scrollPane.layout()
+        scrollPane.scrollPercentY = 100f
 
-        m_stage.addListener(ChatInputListener(this))
+        stage.addListener(ChatInputListener(this))
 
         closeChatDialog()
         closeChatDialog()
@@ -125,9 +125,9 @@ class ChatDialog(private val m_client: OreClient,
                         chatDialog.openChatDialog()
 
                         //add in helper command sequence
-                        chatDialog.m_messageField.text = "/"
+                        chatDialog.messageField.text = "/"
                         //focus the end of it, otherwise it'd be at the beginning
-                        chatDialog.m_messageField.cursorPosition = chatDialog.m_messageField.text!!.length
+                        chatDialog.messageField.cursorPosition = chatDialog.messageField.text!!.length
 
                         return true
                     }
@@ -149,15 +149,15 @@ class ChatDialog(private val m_client: OreClient,
 
         switchInteractionMode(ChatVisibility.Notification)
 
-        m_notificationTimer.scheduleTask(object : Timer.Task() {
+        notificationTimer.scheduleTask(object : Timer.Task() {
             override fun run() {
                 //hide after a timeout of it being shown in notification mode
                 closeChatDialog()
             }
         }, 3f)
 
-        m_notificationTimer.start()
-        m_scroll.setScrollingDisabled(true, true)
+        notificationTimer.start()
+        scrollPane.setScrollingDisabled(true, true)
     }
 
     enum class ChatVisibility {
@@ -172,8 +172,8 @@ class ChatDialog(private val m_client: OreClient,
         val notification = chatVisibility == ChatVisibility.Notification
 
         //        m_messageField.setVisible(!notification);
-        m_messageField.isDisabled = notification
-        m_send.isVisible = !notification
+        messageField.isDisabled = notification
+        sendButton.isVisible = !notification
         //        m_scroll.setScrollingDisabled(notification, notification);
 
         scrollToBottom()
@@ -184,13 +184,13 @@ class ChatDialog(private val m_client: OreClient,
     }
 
     private fun sendChat() {
-        if (m_messageField.text.length > 0) {
+        if (messageField.text.length > 0) {
             if (!processLocalChatCommands()) {
-                m_client.m_world!!.m_artemisWorld.getSystem(ClientNetworkSystem::class.java).sendChatMessage(
-                        m_messageField.text)
+                client.world!!.artemisWorld.getSystem(ClientNetworkSystem::class.java).sendChatMessage(
+                        messageField.text)
             }
 
-            m_messageField.text = ""
+            messageField.text = ""
         }
     }
 
@@ -203,7 +203,7 @@ class ChatDialog(private val m_client: OreClient,
      * @return true if it was a command, false if not
      */
     private fun processLocalChatCommands(): Boolean {
-        val chat = m_messageField.text.toLowerCase()
+        val chat = messageField.text.toLowerCase()
         when (chat) {
             "/noclip" -> {
                 OreSettings.noClip = !OreSettings.noClip
@@ -245,25 +245,25 @@ class ChatDialog(private val m_client: OreClient,
     }
 
     private fun sendLocalChat(message: String) {
-        m_client.m_chat.addLocalChatLine(Chat.timestamp(), message)
+        client.chat.addLocalChatLine(Chat.timestamp(), message)
     }
 
     private fun scrollToBottom() {
-        m_scroll.layout()
-        m_scroll.scrollPercentY = 100f
+        scrollPane.layout()
+        scrollPane.scrollPercentY = 100f
     }
 
     fun openChatDialog() {
         container.isVisible = true
-        m_messageField.isDisabled = false
-        m_stage.keyboardFocus = m_messageField
-        m_notificationTimer.clear()
-        m_notificationTimer.stop()
+        messageField.isDisabled = false
+        stage.keyboardFocus = messageField
+        notificationTimer.clear()
+        notificationTimer.stop()
         //note: here be dragons. here and there and over there.
         //scroll pane seems to not want to scroll until it gets layout() called and some other voodoo stuff
         //after scrolling has been disabled and re-enabled..very odd indeed.
         scrollToBottom()
-        m_scroll.setScrollingDisabled(false, false)
+        scrollPane.setScrollingDisabled(false, false)
         switchInteractionMode(ChatVisibility.Normal)
     }
 
@@ -271,29 +271,29 @@ class ChatDialog(private val m_client: OreClient,
         switchInteractionMode(ChatVisibility.Hidden)
         scrollToBottom()
         container.isVisible = false
-        m_messageField.isDisabled = true
+        messageField.isDisabled = true
     }
 
     override fun lineAdded(line: Chat.ChatLine) {
-        m_scrollPaneTable.row().left()
+        scrollPaneTable.row().left()
 
 
         val timeStampLabel = VisLabel(line.timestamp)
-        m_scrollPaneTable.add(timeStampLabel).top().left().fill().padRight(4f)//.expandX();
+        scrollPaneTable.add(timeStampLabel).top().left().fill().padRight(4f)//.expandX();
 
         val playerNameLabel = VisLabel(line.playerName)
-        m_scrollPaneTable.add(playerNameLabel).top().left().fill().padRight(4f)
+        scrollPaneTable.add(playerNameLabel).top().left().fill().padRight(4f)
 
         val messageLabel = VisLabel(line.chatText)
         messageLabel.setWrap(true)
-        m_scrollPaneTable.add(messageLabel).expandX().fill()
+        scrollPaneTable.add(messageLabel).expandX().fill()
 
         val element = ChatElement(timestampLabel = timeStampLabel, playerNameLabel = playerNameLabel,
                                   chatTextLabel = messageLabel)
-        m_elements.add(element)
+        elements.add(element)
 
         container.layout()
-        m_scrollPaneTable.layout()
+        scrollPaneTable.layout()
         scrollToBottom()
 
         showForNotification()

@@ -49,10 +49,10 @@ class InputSystem(private val camera: OrthographicCamera, private val oreWorld: 
             return
         }
 
-        if (oreWorld.m_client!!.m_leftMouseDown) {
-            oreWorld.m_client!!.handlePrimaryAttack()
-        } else if (oreWorld.m_client!!.m_rightMouseDown) {
-            oreWorld.m_client!!.handleSecondaryAttack()
+        if (oreWorld.client!!.leftMouseDown) {
+            oreWorld.client!!.handlePrimaryAttack()
+        } else if (oreWorld.client!!.rightMouseDown) {
+            oreWorld.client!!.handleSecondaryAttack()
         }
     }
 }

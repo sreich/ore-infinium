@@ -35,27 +35,27 @@ import javax.swing.*
 import javax.swing.text.DefaultEditorKit
 
 // @SuppressWarnings("serial")
-class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thread) : JDialog() {
+class ErrorDialog(private val exception: Throwable, private val thread: Thread) : JDialog() {
     //    JDialog(null as Dialog)
     //was working before, but kotlin broke this. java just did super((Dialog)null)
 
-    private var m_showDetails: Boolean = false
-    private val m_errorMessage: JEditorPane
-    private val m_mainComponent: JComponent
-    private var _details: JScrollPane? = null
-    private lateinit var m_stackTracePane: JTextPane
+    private var showDetails: Boolean = false
+    private val errorMessageField: JEditorPane
+    private val mainComponent: JComponent
+    private var detailsScrollPane: JScrollPane? = null
+    private lateinit var stackTracePane: JTextPane
     private var stackTrace: String? = null
 
     init {
-        m_errorMessage = createErrorMessage(m_exception)
-        m_mainComponent = createContent()
+        errorMessageField = createErrorMessage(exception)
+        mainComponent = createContent()
 
-        title = m_exception.javaClass.name
+        title = exception.javaClass.name
         //        setModal(true);
         type = Window.Type.NORMAL
         defaultCloseOperation = JDialog.DISPOSE_ON_CLOSE
 
-        contentPane.add(m_mainComponent)
+        contentPane.add(mainComponent)
 
         pack()
         //        SwingHelper.position(this, owner);
@@ -68,33 +68,33 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
     internal fun createContent(): JComponent {
         val showDetails = JButton("Show Details >>")
 
-        m_stackTracePane = JTextPane()
-        m_stackTracePane.isEditable = false
+        stackTracePane = JTextPane()
+        stackTracePane.isEditable = false
 
         val errors = StringWriter()
-        m_exception.printStackTrace(PrintWriter(errors))
+        exception.printStackTrace(PrintWriter(errors))
         stackTrace = errors.toString()
 
         showDetails.addActionListener {
-            if (m_showDetails) {
-                m_mainComponent.remove(_details)
-                m_mainComponent.validate()
-                m_mainComponent.preferredSize = MESSAGE_SIZE
+            if (this.showDetails) {
+                mainComponent.remove(detailsScrollPane)
+                mainComponent.validate()
+                mainComponent.preferredSize = MESSAGE_SIZE
             } else {
-                if (_details == null) {
+                if (detailsScrollPane == null) {
 
-                    _details = createDetailedMessage(m_exception)
+                    detailsScrollPane = createDetailedMessage(exception)
 
-                    m_stackTracePane.text = stackTrace
-                    m_stackTracePane.background = m_mainComponent.background
-                    m_stackTracePane.preferredSize = STACKTRACE_SIZE
+                    stackTracePane.text = stackTrace
+                    stackTracePane.background = mainComponent.background
+                    stackTracePane.preferredSize = STACKTRACE_SIZE
                 }
-                m_mainComponent.add(_details, BorderLayout.CENTER)
-                m_mainComponent.validate()
-                m_mainComponent.preferredSize = TOTAL_SIZE
+                mainComponent.add(detailsScrollPane, BorderLayout.CENTER)
+                mainComponent.validate()
+                mainComponent.preferredSize = TOTAL_SIZE
             }
-            m_showDetails = !m_showDetails
-            showDetails.text = if (m_showDetails) "<< Hide Details" else "Show Details >>"
+            this.showDetails = !this.showDetails
+            showDetails.text = if (this.showDetails) "<< Hide Details" else "Show Details >>"
             this@ErrorDialog.pack()
         }
 
@@ -119,11 +119,11 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
         }
 
         val messagePanel = JPanel().apply {
-            m_errorMessage.background = background
+            errorMessageField.background = background
 
             layout = BorderLayout()
             border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
-            add(m_errorMessage, BorderLayout.CENTER)
+            add(errorMessageField, BorderLayout.CENTER)
             add(buttonPanel, BorderLayout.SOUTH)
             preferredSize = MESSAGE_SIZE
         }
@@ -139,7 +139,7 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
      * Creates a non-editable widget to display the error message.
      */
     internal fun createErrorMessage(t: Throwable): JEditorPane {
-        var message = "${t.message} \n Thread name:  ${m_thread.name}"
+        var message = "${t.message} \n Thread name:  ${thread.name}"
 
         val messagePane = JEditorPane().apply {
             contentType = "text/plain"
@@ -153,7 +153,7 @@ class ErrorDialog(private val m_exception: Throwable, private val m_thread: Thre
      * Creates a non-editable widget to display the detailed stack trace.
      */
     internal fun createDetailedMessage(t: Throwable): JScrollPane {
-        val pane = JScrollPane(m_stackTracePane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+        val pane = JScrollPane(stackTracePane, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 
         return pane

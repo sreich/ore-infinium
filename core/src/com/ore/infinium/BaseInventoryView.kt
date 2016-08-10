@@ -51,7 +51,7 @@ open class BaseInventoryView(val title: String,
         }
 
     init {
-        val region = oreWorld.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion("dirt-00")
+        val region = oreWorld.artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion("dirt-00")
 
         dragImage = VisImage(region)
         dragImage.setSize(32f, 32f)
@@ -129,10 +129,10 @@ open class BaseInventoryView(val title: String,
         val region: TextureRegion?
         if (blockMapper.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = oreWorld.m_artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
+            region = oreWorld.artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
                     "$textureName-00")
         } else {
-            region = oreWorld.m_atlas.findRegion(textureName)
+            region = oreWorld.atlas.findRegion(textureName)
         }
 
         assert(region != null) { "textureregion for inventory item entity id: $itemEntity, was not found!" }

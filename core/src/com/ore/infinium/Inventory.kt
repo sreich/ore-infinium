@@ -37,7 +37,7 @@ import com.ore.infinium.util.isValidEntity
 @Wire
 open class Inventory
 (val slotCount: Int) {
-    internal var m_listeners = mutableListOf<SlotListener>()
+    internal var listeners = mutableListOf<SlotListener>()
 
     var inventoryType: Network.Shared.InventoryType
         protected set
@@ -76,7 +76,7 @@ open class Inventory
     fun clearAll() {
         slots.forEach { it.entityId = INVALID_ENTITY_ID }
 
-        m_listeners.forEach { listener ->
+        listeners.forEach { listener ->
             slots.forEachIndexed { i, slot ->
                 listener.slotItemChanged(i, this)
             }
@@ -92,7 +92,7 @@ open class Inventory
     }
 
     fun addListener(listener: SlotListener) {
-        m_listeners.add(listener)
+        listeners.add(listener)
     }
 
     fun setCount(index: Int, newCount: Int) {
@@ -100,7 +100,7 @@ open class Inventory
         if (isValidEntity(item)) {
             itemMapper.get(item).stackSize = newCount
 
-            m_listeners.forEach { it.slotItemCountChanged(index, this) }
+            listeners.forEach { it.slotItemCountChanged(index, this) }
         }
     }
 
@@ -263,7 +263,7 @@ open class Inventory
         slots[index].entityId = entity
         updateItemInventoryStatus(index, entity)
 
-        m_listeners.forEach { it.slotItemChanged(index, this) }
+        listeners.forEach { it.slotItemChanged(index, this) }
     }
 
     fun setSlot(slotToSet: Inventory.InventorySlot, entity: Int) {
@@ -272,7 +272,7 @@ open class Inventory
         val index = slots.indexOfFirst { it === slotToSet }
         updateItemInventoryStatus(index, entity)
 
-        m_listeners.forEach { it.slotItemChanged(index, this) }
+        listeners.forEach { it.slotItemChanged(index, this) }
     }
 
     /**
@@ -289,7 +289,7 @@ open class Inventory
 
         slots[index].entityId = INVALID_ENTITY_ID
 
-        m_listeners.forEach { it.slotItemRemoved(index, this) }
+        listeners.forEach { it.slotItemRemoved(index, this) }
 
         return tmpItem
     }
@@ -305,20 +305,20 @@ open class Inventory
     }
 
     interface SlotListener {
-        open fun slotItemCountChanged(index: Int, inventory: Inventory) {
+        fun slotItemCountChanged(index: Int, inventory: Inventory) {
         }
 
         /**
          * indicates when a slot gets changed to a different entity id.
          * the entity id could also be invalid (removal, possibly bulk)
          */
-        open fun slotItemChanged(index: Int, inventory: Inventory) {
+        fun slotItemChanged(index: Int, inventory: Inventory) {
         }
 
-        open fun slotItemRemoved(index: Int, inventory: Inventory) {
+        fun slotItemRemoved(index: Int, inventory: Inventory) {
         }
 
-        open fun slotItemSelected(index: Int, inventory: Inventory) {
+        fun slotItemSelected(index: Int, inventory: Inventory) {
         }
     }
 

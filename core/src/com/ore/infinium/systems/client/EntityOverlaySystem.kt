@@ -58,7 +58,7 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val spriteComponent = mSprite.create(crosshair).apply {
             sprite.setSize(1f, 1f)
-            sprite.setRegion(oreWorld.m_atlas.findRegion("crosshair-blockpicking"))
+            sprite.setRegion(oreWorld.atlas.findRegion("crosshair-blockpicking"))
             noClip = true
         }
     }
@@ -162,9 +162,9 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     override fun processSystem() {
         //        m_batch.setProjectionMatrix(oreWorld.m_camera.combined);
-        if (!m_initialized && oreWorld.m_client!!.m_hotbarInventory != null) {
+        if (!m_initialized && oreWorld.client!!.hotbarInventory != null) {
 
-            oreWorld.m_client!!.m_hotbarInventory!!.addListener(object : Inventory.SlotListener {
+            oreWorld.client!!.hotbarInventory!!.addListener(object : Inventory.SlotListener {
                 override fun slotItemSelected(index: Int, inventory: Inventory) {
                     slotSelected(index, inventory)
                 }

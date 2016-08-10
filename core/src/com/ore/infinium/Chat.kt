@@ -28,8 +28,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class Chat {
-    internal var m_chatLines = mutableListOf<ChatLine>()
-    internal var m_listeners = mutableListOf<ChatListener>()
+    internal var chatLines = mutableListOf<ChatLine>()
+    internal var listeners = mutableListOf<ChatListener>()
 
     enum class ChatSender {
         Player,
@@ -43,31 +43,31 @@ class Chat {
         Local
     }
 
-    class ChatLine(var chatSender: ChatSender, var timestamp: String, var playerName: String, var chatText: String) {};
+    class ChatLine(var chatSender: ChatSender, var timestamp: String, var playerName: String, var chatText: String) {}
 
     fun addLocalChatLine(timestamp: String, line: String) {
         val chatLine = ChatLine(chatSender = ChatSender.Local, timestamp = timestamp, chatText = line, playerName = "")
 
-        m_chatLines.add(chatLine)
+        chatLines.add(chatLine)
 
-        m_listeners.forEach { it.lineAdded(chatLine) }
+        listeners.forEach { it.lineAdded(chatLine) }
     }
 
     fun addChatLine(timestamp: String, playerName: String, line: String, sender: ChatSender) {
         val chatLine = ChatLine(chatSender = sender, timestamp = timestamp, chatText = line, playerName = playerName)
 
-        m_chatLines.add(chatLine)
+        chatLines.add(chatLine)
 
-        m_listeners.forEach { it.lineAdded(chatLine) }
+        listeners.forEach { it.lineAdded(chatLine) }
     }
 
     fun addListener(listener: ChatListener) =
-            m_listeners.add(listener)
+            listeners.add(listener)
 
     interface ChatListener {
-        fun lineAdded(line: ChatLine)
+        fun lineAdded(line: ChatLine) = Unit
 
-        fun cleared()
+        fun cleared() = Unit
     }
 
     companion object {

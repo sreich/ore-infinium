@@ -48,67 +48,63 @@ import java.io.IOException
 
 class OreClient : OreApplicationListener, OreInputProcessor {
 
-    var m_leftMouseDown: Boolean = false
-    var m_rightMouseDown: Boolean = false
+    var leftMouseDown: Boolean = false
+    var rightMouseDown: Boolean = false
 
     lateinit var viewport: StretchViewport
-    var m_world: OreWorld? = null
+    var world: OreWorld? = null
 
     // zoom every n ms, while zoom key is held down
-    private val zoomInterval = 30
-    private val m_zoomTimer = OreTimer()
+    private val zoomInterval = 30L
+    private val zoomTimer = OreTimer()
 
-    private lateinit var playerMapper: ComponentMapper<PlayerComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
-    private lateinit var controlMapper: ComponentMapper<ControllableComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var velocityMapper: ComponentMapper<VelocityComponent>
-    private lateinit var jumpMapper: ComponentMapper<JumpComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
-    private lateinit var deviceMapper: ComponentMapper<PowerDeviceComponent>
-    private lateinit var doorMapper: ComponentMapper<DoorComponent>
+    private lateinit var mPlayer: ComponentMapper<PlayerComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
+    private lateinit var mControl: ComponentMapper<ControllableComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private lateinit var mJump: ComponentMapper<JumpComponent>
+    private lateinit var mBlock: ComponentMapper<BlockComponent>
+    private lateinit var mTool: ComponentMapper<ToolComponent>
+    private lateinit var mDevice: ComponentMapper<PowerDeviceComponent>
+    private lateinit var mDoor: ComponentMapper<DoorComponent>
 
-    private lateinit var m_clientNetworkSystem: ClientNetworkSystem
-    private lateinit var m_tagManager: TagManager
-    private lateinit var m_debugTextRenderSystem: DebugTextRenderSystem
-    private lateinit var m_powerOverlayRenderSystem: PowerOverlayRenderSystem
-    private lateinit var m_tileRenderSystem: TileRenderSystem
-    private lateinit var m_clientBlockDiggingSystem: ClientBlockDiggingSystem
-    private lateinit var m_soundSystem: SoundSystem
+    private lateinit var clientNetworkSystem: ClientNetworkSystem
+    private lateinit var tagManager: TagManager
+    private lateinit var debugTextRenderSystem: DebugTextRenderSystem
+    private lateinit var powerOverlayRenderSystem: PowerOverlayRenderSystem
+    private lateinit var tileRenderSystem: TileRenderSystem
+    private lateinit var soundSystem: SoundSystem
 
-    lateinit private var m_multiplexer: InputMultiplexer
+    lateinit private var multiplexer: InputMultiplexer
 
-    lateinit var m_stage: Stage
+    lateinit var stage: Stage
 
-    lateinit var m_rootTable: VisTable
-    lateinit var m_chat: Chat
-    private var m_sidebar: Sidebar? = null
+    lateinit var rootTable: VisTable
+    lateinit var chat: Chat
+    private var sidebar: Sidebar? = null
     lateinit var hud: Hud
 
-    private var m_dragAndDrop: DragAndDrop? = null
+    private var dragAndDrop: DragAndDrop? = null
 
-    private var m_dialog: VisDialog? = null
-    private lateinit var m_chatDialog: ChatDialog
+    private var dialog: VisDialog? = null
+    private lateinit var chatDialog: ChatDialog
 
-    private var m_hotbarView: HotbarInventoryView? = null
-    private var m_inventoryView: InventoryView? = null
-    private var m_debugProfilerView: DebugProfilerView? = null
+    private var hotbarView: HotbarInventoryView? = null
+    private var inventoryView: InventoryView? = null
+    private var debugProfilerView: DebugProfilerView? = null
 
-    var m_hotbarInventory: HotbarInventory? = null
-    var m_inventory: Inventory? = null
+    var hotbarInventory: HotbarInventory? = null
+    var inventory: Inventory? = null
 
-    var m_generatorControlPanelView: GeneratorControlPanelView? = null
-    var m_generatorInventory: GeneratorInventory? = null
+    var generatorControlPanelView: GeneratorControlPanelView? = null
+    var generatorInventory: GeneratorInventory? = null
 
-    var m_server: OreServer? = null
-    private var m_serverThread: Thread? = null
-
-    var m_renderGui = true
+    var server: OreServer? = null
+    private var serverThread: Thread? = null
 
     lateinit var bitmapFont_8pt: BitmapFont
 
-    internal lateinit var m_fontGenerator: FreeTypeFontGenerator
+    internal lateinit var fontGenerator: FreeTypeFontGenerator
 
     init {
     }
@@ -126,7 +122,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         Thread.currentThread().name = "client render thread (GL)"
 
-        m_dragAndDrop = DragAndDrop()
+        dragAndDrop = DragAndDrop()
 
         viewport = StretchViewport(OreSettings.width.toFloat(), OreSettings.height.toFloat())
 
@@ -140,69 +136,69 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         //todo custom skin
         //VisUI.load(Gdx.files.internal("ui/ui.json"))
 
-        m_stage = Stage(viewport)
-        m_rootTable = VisTable()
-        m_rootTable.setFillParent(true)
-        m_stage.addActor(m_rootTable)
+        stage = Stage(viewport)
+        rootTable = VisTable()
+        rootTable.setFillParent(true)
+        stage.addActor(rootTable)
 
-        m_multiplexer = InputMultiplexer(m_stage, this)
+        multiplexer = InputMultiplexer(stage, this)
 
-        Gdx.input.inputProcessor = m_multiplexer
+        Gdx.input.inputProcessor = multiplexer
 
         //fixme: this really needs to be stripped out of the client, put in a proper
         //system or something
-        m_fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
+        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.size = 13
-        bitmapFont_8pt = m_fontGenerator.generateFont(parameter)
+        bitmapFont_8pt = fontGenerator.generateFont(parameter)
 
         parameter.size = 9
 
-        m_fontGenerator.dispose()
+        fontGenerator.dispose()
 
-        m_chatDialog = ChatDialog(this, m_stage, m_rootTable)
+        chatDialog = ChatDialog(this, stage, rootTable)
 
-        m_chat = Chat()
-        m_chat.addListener(m_chatDialog)
+        chat = Chat()
+        chat.addListener(chatDialog)
 
-        hud = Hud(this, m_stage, m_rootTable)
+        hud = Hud(this, stage, rootTable)
 
-        m_sidebar = Sidebar(m_stage, this)
+        sidebar = Sidebar(stage, this)
 
         hostAndJoin()
     }
 
     fun handlePrimaryAttack() {
-        val mouseWorldCoords = m_world!!.mousePositionWorldCoords()
+        val mouseWorldCoords = world!!.mousePositionWorldCoords()
 
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val playerComp = playerMapper.get(player)
+        val playerComp = mPlayer.get(player)
         val equippedItem = playerComp.equippedPrimaryItem
 
         if (isInvalidEntity(equippedItem)) {
             return
         }
 
-        val blockComp = blockMapper.opt(equippedItem)
+        val blockComp = mBlock.opt(equippedItem)
 
         if (blockComp != null) {
 
             val x = mouseWorldCoords.x.toInt()
             val y = mouseWorldCoords.y.toInt()
 
-            val blockPlaced = m_world!!.attemptBlockPlacement(x, y, blockComp.blockType)
+            val blockPlaced = world!!.attemptBlockPlacement(x, y, blockComp.blockType)
             if (blockPlaced) {
-                m_clientNetworkSystem.sendBlockPlace(x, y)
-                m_soundSystem.playDirtPlace()
+                clientNetworkSystem.sendBlockPlace(x, y)
+                soundSystem.playDirtPlace()
             }
 
             return
         }
 
-        val equippedItemComp = itemMapper.opt(equippedItem) ?: return
+        val equippedItemComp = mItem.opt(equippedItem) ?: return
 
-        val equippedToolComp = toolMapper.opt(equippedItem)
+        val equippedToolComp = mTool.opt(equippedItem)
         if (equippedToolComp != null) {
 
             //note, digging is handled by its own system, not anywhere near here.
@@ -218,14 +214,14 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     fun handleSecondaryAttack() {
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComp = playerMapper.get(player)
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val playerComp = mPlayer.get(player)
 
         if (playerComp.secondaryActionTimer.resetIfSurpassed(PlayerComponent.secondaryActionDelay)) {
             //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
             //or do we want a separate key for that?
-            val mouse = m_world!!.mousePositionWorldCoords()
-            val entity = m_world!!.entityAtPosition(mouse) ?: return
+            val mouse = world!!.mousePositionWorldCoords()
+            val entity = world!!.entityAtPosition(mouse) ?: return
 
             //is it a device and can we activate it?
             if (attemptActivateDeviceControlPanel(entity)) {
@@ -239,7 +235,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     private fun attemptActivateDoor(entity: Int): Boolean {
-        val cDoor = doorMapper.get(entity) ?: return false
+        val cDoor = mDoor.get(entity) ?: return false
 
         //toggle state right now, tell server.
         cDoor.state = when (cDoor.state) {
@@ -247,7 +243,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             DoorComponent.DoorState.Open -> DoorComponent.DoorState.Closed
         }
 
-        m_clientNetworkSystem.sendDoorOpen(entity)
+        clientNetworkSystem.sendDoorOpen(entity)
 
         return true
     }
@@ -257,18 +253,18 @@ class OreClient : OreApplicationListener, OreInputProcessor {
      */
     private fun attemptActivateDeviceControlPanel(entityId: Int): Boolean {
         //todo request from server populating control panel (with items within it)
-        val deviceComp = deviceMapper.get(entityId) ?: return false
+        val deviceComp = mDevice.get(entityId) ?: return false
 
-        if (m_generatorControlPanelView!!.visible) {
-            if (m_generatorInventory!!.owningGeneratorEntityId == entityId) {
+        if (generatorControlPanelView!!.visible) {
+            if (generatorInventory!!.owningGeneratorEntityId == entityId) {
                 //close it, he clicked on the same device
-                m_generatorControlPanelView!!.closePanel()
+                generatorControlPanelView!!.closePanel()
             } else {
                 //open on this entity instead, it's different
-                m_generatorControlPanelView!!.openPanel(entityId)
+                generatorControlPanelView!!.openPanel(entityId)
             }
         } else {
-            m_generatorControlPanelView!!.openPanel(entityId)
+            generatorControlPanelView!!.openPanel(entityId)
         }
 
         return true
@@ -293,21 +289,21 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     private fun liquidGunAttackAndSend(mouseWorldCoords: Vector2) {
         //todo play sound immediately, then send attack command
 
-        m_clientNetworkSystem.sendEquippedItemAttack(
+        clientNetworkSystem.sendEquippedItemAttack(
                 _attackType = Network.Client.PlayerEquippedItemAttack.ItemAttackType.Primary,
                 _attackPositionWorldCoords = mouseWorldCoords)
     }
 
     private fun attemptToolAttackOnAnEntityAndSend(mouse: Vector2) {
-        val entities = m_world!!.m_artemisWorld.entities(allOf()).toMutableList()
+        val entities = world!!.artemisWorld.entities(allOf()).toMutableList()
 
         val entityToAttack = entities.filter { e ->
-            val spriteComp = spriteMapper.get(e)
+            val spriteComp = mSprite.get(e)
             //ignore players, we don't attack them
-            !playerMapper.has(e) && !m_world!!.shouldIgnoreClientEntityTag(e) &&
+            !mPlayer.has(e) && !world!!.shouldIgnoreClientEntityTag(e) &&
                     spriteComp.sprite.rect.contains(mouse) && canAttackEntity(e)
         }.forEach { e ->
-            m_clientNetworkSystem.sendEntityAttack(e)
+            clientNetworkSystem.sendEntityAttack(e)
         }
     }
 
@@ -317,7 +313,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
      * e.g. items dropped in the world are not attackable
      */
     private fun canAttackEntity(entityId: Int): Boolean {
-        itemMapper.ifPresent(entityId) { cItem ->
+        mItem.ifPresent(entityId) { cItem ->
             if (cItem.state == ItemComponent.State.DroppedInWorld) {
                 return false
             }
@@ -334,55 +330,55 @@ class OreClient : OreApplicationListener, OreInputProcessor {
      * we provided
      */
     private fun attemptItemPlace() {
-        val placementOverlay = m_tagManager.getEntity(OreWorld.s_itemPlacementOverlay).id
-        val placementOverlaySprite = spriteMapper.get(placementOverlay)
+        val placementOverlay = tagManager.getEntity(OreWorld.s_itemPlacementOverlay).id
+        val placementOverlaySprite = mSprite.get(placementOverlay)
 
         val placeX = placementOverlaySprite.sprite.x
         val placeY = placementOverlaySprite.sprite.y
 
-        if (m_world!!.isPlacementValid(placementOverlay)) {
-            m_clientNetworkSystem.sendItemPlace(placeX, placeY)
-            m_soundSystem.playItemPlace()
+        if (world!!.isPlacementValid(placementOverlay)) {
+            clientNetworkSystem.sendItemPlace(placeX, placeY)
+            soundSystem.playItemPlace()
         }
     }
 
     fun toggleChatVisible() {
-        if (m_chatDialog.chatVisibilityState == ChatDialog.ChatVisibility.Normal) {
-            m_chatDialog.closeChatDialog()
+        if (chatDialog.chatVisibilityState == ChatDialog.ChatVisibility.Normal) {
+            chatDialog.closeChatDialog()
         } else {
-            m_chatDialog.openChatDialog()
+            chatDialog.openChatDialog()
         }
     }
 
     fun toggleInventoryVisible() {
-        m_inventoryView!!.visible = !m_inventoryView!!.visible
+        inventoryView!!.visible = !inventoryView!!.visible
     }
 
     /**
      * immediately hops into hosting and joining its own local server
      */
     private fun hostAndJoin() {
-        m_server = OreServer()
-        m_serverThread = Thread(m_server, "main server thread")
-        m_serverThread!!.start()
+        server = OreServer()
+        serverThread = Thread(server, "main server thread")
+        serverThread!!.start()
 
         try {
             //wait for the local server thread to report that it is live and running, before we attempt
             // a connection to it
-            m_server!!.connectHostLatch.await()
+            server!!.connectHostLatch.await()
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
 
         //call system, if returns false, fail and show:
-        m_world = OreWorld(this, m_server, OreWorld.WorldInstanceType.ClientHostingServer)
-        m_world!!.init()
-        m_world!!.m_artemisWorld.inject(this)
+        world = OreWorld(this, server, OreWorld.WorldInstanceType.ClientHostingServer)
+        world!!.init()
+        world!!.artemisWorld.inject(this)
 
-        m_clientNetworkSystem.addListener(NetworkConnectListener(this))
+        clientNetworkSystem.addListener(NetworkConnectListener(this))
 
         try {
-            m_clientNetworkSystem.connect("127.0.0.1", Network.PORT)
+            clientNetworkSystem.connect("127.0.0.1", Network.PORT)
         } catch (e: IOException) {
             e.printStackTrace()
             //fuck. gonna have to show the fail to connect dialog.
@@ -394,37 +390,35 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     override fun dispose() {
-        m_world?.shutdown()
+        world?.shutdown()
     }
 
     override fun render() {
-        if (m_world != null) {
-            m_world!!.process()
+        if (world != null) {
+            world!!.process()
         }
 
-        if (m_renderGui) {
-            m_stage.act(Gdx.graphics.deltaTime.coerceAtLeast(1f / 30f))
-            m_stage.draw()
+        if (OreSettings.debugRenderGui) {
+            stage.act(Gdx.graphics.deltaTime.coerceAtLeast(1f / 30f))
+            stage.draw()
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
-            if (m_zoomTimer.milliseconds() >= zoomInterval) {
+            if (zoomTimer.resetIfSurpassed(zoomInterval)) {
                 //zoom out
                 zoom(1.0f + OreSettings.zoomAmount)
-                m_zoomTimer.reset()
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
-            if (m_zoomTimer.milliseconds() >= zoomInterval) {
+            if (zoomTimer.resetIfSurpassed(zoomInterval)) {
                 zoom(1.0f - OreSettings.zoomAmount)
-                m_zoomTimer.reset()
             }
         }
     }
 
     private fun showFailToConnectDialog() {
-        m_dialog = object : VisDialog("", "dialog") {
+        dialog = object : VisDialog("", "dialog") {
             override fun result(obj: Any?) {
                 println("Chosen: " + obj!!)
             }
@@ -432,27 +426,27 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         }
 
         var dbutton = VisTextButton("Yes")
-        m_dialog!!.button(dbutton, true)
+        dialog!!.button(dbutton, true)
 
         dbutton = VisTextButton("No")
-        m_dialog!!.button(dbutton, false)
-        m_dialog!!.key(Input.Keys.ENTER, true).key(Input.Keys.ESCAPE, false)
-        m_dialog!!.invalidateHierarchy()
-        m_dialog!!.invalidate()
-        m_dialog!!.layout()
+        dialog!!.button(dbutton, false)
+        dialog!!.key(Input.Keys.ENTER, true).key(Input.Keys.ESCAPE, false)
+        dialog!!.invalidateHierarchy()
+        dialog!!.invalidate()
+        dialog!!.layout()
         //m_stage.addActor(dialog);
-        m_dialog!!.show(m_stage)
+        dialog!!.show(stage)
 
     }
 
     private fun shutdown() {
         //only have to shutdown the server if it's a client-hosted server
-        if (m_server != null) {
-            m_server!!.shutdownLatch.countDown()
+        if (server != null) {
+            server!!.shutdownLatch.countDown()
             try {
                 //merge the server thread over, it should already have
                 //gotten the shutdown signal
-                m_serverThread!!.join()
+                serverThread!!.join()
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
@@ -463,70 +457,70 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     fun zoom(factor: Float) {
-        if (m_world != null) {
-            m_world!!.m_camera.zoom *= factor
+        if (world != null) {
+            world!!.camera.zoom *= factor
         }
     }
 
     override fun resize(width: Int, height: Int) {
-        m_stage.viewport.update(width, height, true)
+        stage.viewport.update(width, height, true)
     }
 
     override fun keyDown(keycode: Int): Boolean {
         when (keycode) {
             Input.Keys.ESCAPE -> shutdown()
             Input.Keys.F6 -> {
-                if (m_clientNetworkSystem.connected) {
+                if (clientNetworkSystem.connected) {
                     OreSettings.profilerEnabled = !OreSettings.profilerEnabled
-                    m_debugProfilerView!!.profilerVisible = !m_debugProfilerView!!.profilerVisible
+                    debugProfilerView!!.profilerVisible = !debugProfilerView!!.profilerVisible
                 }
             }
             Input.Keys.F7 -> {
-                m_tileRenderSystem.debugRenderTileLighting = !m_tileRenderSystem.debugRenderTileLighting
+                tileRenderSystem.debugRenderTileLighting = !tileRenderSystem.debugRenderTileLighting
             }
             Input.Keys.F8 -> //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
                 // could derive from. so we could just call this, and await the return...all of the debug things could be
                 // handled
                 //directly in there. but the question is, what to do for everything else.
-                m_debugTextRenderSystem.renderDebugClient = !m_debugTextRenderSystem.renderDebugClient
-            Input.Keys.F9 -> m_debugTextRenderSystem.renderDebugServer = !m_debugTextRenderSystem.renderDebugServer
+                debugTextRenderSystem.renderDebugClient = !debugTextRenderSystem.renderDebugClient
+            Input.Keys.F9 -> debugTextRenderSystem.renderDebugServer = !debugTextRenderSystem.renderDebugServer
             Input.Keys.F10 -> {
-                m_tileRenderSystem.debugRenderTiles = !m_tileRenderSystem.debugRenderTiles
+                tileRenderSystem.debugRenderTiles = !tileRenderSystem.debugRenderTiles
             }
-            Input.Keys.F11 -> m_renderGui = !m_renderGui
+            Input.Keys.F11 -> OreSettings.debugRenderGui = !OreSettings.debugRenderGui
             Input.Keys.F12 -> {
-                m_debugTextRenderSystem.guiDebug = !m_debugTextRenderSystem.guiDebug
-                m_stage.setDebugAll(m_debugTextRenderSystem.guiDebug)
+                debugTextRenderSystem.guiDebug = !debugTextRenderSystem.guiDebug
+                stage.setDebugAll(debugTextRenderSystem.guiDebug)
             }
-            Input.Keys.I -> if (m_inventoryView != null) {
+            Input.Keys.I -> if (inventoryView != null) {
                 toggleInventoryVisible()
             }
         }
 
         //everything below here requires a world. it's terrible, i know...fixme
-        if (m_world == null) {
+        if (world == null) {
             return false
         }
 
-        if (!m_clientNetworkSystem.connected) {
+        if (!clientNetworkSystem.connected) {
             return false
         }
 
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val controllableComponent = controlMapper.get(player)
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val controllableComponent = mControl.get(player)
 
         when (keycode) {
             Input.Keys.Q -> attemptItemDrop()
             Input.Keys.E -> //power overlay
-                m_powerOverlayRenderSystem.toggleOverlay()
-            Input.Keys.NUM_1 -> m_hotbarInventory!!.selectSlot(0)
-            Input.Keys.NUM_2 -> m_hotbarInventory!!.selectSlot(1)
-            Input.Keys.NUM_3 -> m_hotbarInventory!!.selectSlot(2)
-            Input.Keys.NUM_4 -> m_hotbarInventory!!.selectSlot(3)
-            Input.Keys.NUM_5 -> m_hotbarInventory!!.selectSlot(4)
-            Input.Keys.NUM_6 -> m_hotbarInventory!!.selectSlot(5)
-            Input.Keys.NUM_7 -> m_hotbarInventory!!.selectSlot(6)
-            Input.Keys.NUM_8 -> m_hotbarInventory!!.selectSlot(7)
+                powerOverlayRenderSystem.toggleOverlay()
+            Input.Keys.NUM_1 -> hotbarInventory!!.selectSlot(0)
+            Input.Keys.NUM_2 -> hotbarInventory!!.selectSlot(1)
+            Input.Keys.NUM_3 -> hotbarInventory!!.selectSlot(2)
+            Input.Keys.NUM_4 -> hotbarInventory!!.selectSlot(3)
+            Input.Keys.NUM_5 -> hotbarInventory!!.selectSlot(4)
+            Input.Keys.NUM_6 -> hotbarInventory!!.selectSlot(5)
+            Input.Keys.NUM_7 -> hotbarInventory!!.selectSlot(6)
+            Input.Keys.NUM_8 -> hotbarInventory!!.selectSlot(7)
         }
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
@@ -546,7 +540,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         }
 
         if (keycode == Input.Keys.SPACE) {
-            val jumpComponent = jumpMapper.get(player)
+            val jumpComponent = mJump.get(player)
             jumpComponent.shouldJump = true
         }
 
@@ -554,8 +548,8 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     private fun attemptItemDrop() {
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComponent = playerMapper.get(player)
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val playerComponent = mPlayer.get(player)
 
         val itemEntity = playerComponent.equippedPrimaryItem
 
@@ -569,33 +563,33 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         // decrement count, we assume it'll get spawned shortly when the server tells us to.
         // delete in-inventory entityId if necessary server assumes we already do so
-        val itemComponent = itemMapper.get(itemEntity)
+        val itemComponent = mItem.get(itemEntity)
         if (itemComponent.stackSize > 1) {
             //decrement count, server has already done so. we assume here that it went through properly.
             itemComponent.stackSize -= 1
-            m_hotbarInventory!!.setCount(currentEquippedIndex, itemComponent.stackSize)
+            hotbarInventory!!.setCount(currentEquippedIndex, itemComponent.stackSize)
         } else {
             //delete it, server knows/assumes we already did, since there are no more left. so server doesn't have to
             //send another useless packet back to the our client
             val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())
-            m_world!!.m_artemisWorld.delete(item)
+            world!!.artemisWorld.delete(item)
         }
 
-        m_clientNetworkSystem.clientKryo.sendTCP(dropItemRequestFromClient)
+        clientNetworkSystem.clientKryo.sendTCP(dropItemRequestFromClient)
     }
 
     override fun keyUp(keycode: Int): Boolean {
         when {
-            m_world == null ->
+            world == null ->
                 return false
 
-            !m_clientNetworkSystem.connected ->
+            !clientNetworkSystem.connected ->
                 return false
         }
 
-        val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val controllableComponent = controlMapper.get(player)
+        val controllableComponent = mControl.get(player)
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
             controllableComponent.desiredDirection.x = 0f
@@ -618,15 +612,15 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         if (button == Input.Buttons.LEFT) {
-            m_leftMouseDown = true
+            leftMouseDown = true
         }
 
         if (button == Input.Buttons.RIGHT) {
-            m_rightMouseDown = true
+            rightMouseDown = true
         }
 
-        if (m_world != null) {
-            return m_world!!.touchDown(screenX, screenY, pointer, button)
+        if (world != null) {
+            return world!!.touchDown(screenX, screenY, pointer, button)
             //fixme
 
         }
@@ -636,15 +630,15 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         if (button == Input.Buttons.LEFT) {
-            m_leftMouseDown = false
+            leftMouseDown = false
         }
 
         if (button == Input.Buttons.RIGHT) {
-            m_rightMouseDown = false
+            rightMouseDown = false
         }
 
-        if (m_world != null) {
-            return m_world!!.touchUp(screenX, screenY, pointer, button)
+        if (world != null) {
+            return world!!.touchUp(screenX, screenY, pointer, button)
         }
 
         return false
@@ -652,23 +646,23 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun scrolled(amount: Int): Boolean {
         when {
-            m_world == null ->
+            world == null ->
                 return false
 
-            !m_clientNetworkSystem.connected ->
+            !clientNetworkSystem.connected ->
                 return false
-            m_powerOverlayRenderSystem.overlayVisible ->
+            powerOverlayRenderSystem.overlayVisible ->
                 //don't allow item/inventory selection during this
                 return false
         }
 
-        val index = m_hotbarInventory!!.selectedSlot
+        val index = hotbarInventory!!.selectedSlot
         if (amount > 0) {
             //right, inventory selection scrolling does not wrap around.
-            m_hotbarInventory!!.selectSlot((index + 1).coerceAtMost(Inventory.maxHotbarSlots - 1))
+            hotbarInventory!!.selectSlot((index + 1).coerceAtMost(Inventory.maxHotbarSlots - 1))
         } else {
             //left
-            m_hotbarInventory!!.selectSlot((index - 1).coerceAtLeast(0))
+            hotbarInventory!!.selectSlot((index - 1).coerceAtLeast(0))
         }
 
         return true
@@ -686,43 +680,43 @@ class OreClient : OreApplicationListener, OreInputProcessor {
      * @return
      */
     fun createPlayer(playerName: String, connectionId: Int, mainPlayer: Boolean): Int {
-        val player = m_world!!.createPlayer(playerName, connectionId)
-        val controllableComponent = controlMapper.create(player)
+        val player = world!!.createPlayer(playerName, connectionId)
+        val controllableComponent = mControl.create(player)
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
-        val playerComponent = playerMapper.get(player)
+        val playerComponent = mPlayer.get(player)
 
-        m_hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots)
-        playerComponent.hotbarInventory = m_hotbarInventory
+        hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots)
+        playerComponent.hotbarInventory = hotbarInventory
 
-        m_hotbarInventory!!.addListener(HotbarSlotListener())
+        hotbarInventory!!.addListener(HotbarSlotListener())
 
-        m_inventory = Inventory(slotCount = Inventory.maxSlots)
-        playerComponent.inventory = m_inventory
+        inventory = Inventory(slotCount = Inventory.maxSlots)
+        playerComponent.inventory = inventory
 
-        m_hotbarView = HotbarInventoryView(stage = m_stage, inventory = m_hotbarInventory!!,
-                                           dragAndDrop = m_dragAndDrop!!, m_world = m_world!!)
+        hotbarView = HotbarInventoryView(stage = stage, inventory = hotbarInventory!!,
+                                         dragAndDrop = dragAndDrop!!, world = world!!)
 
-        m_inventoryView = InventoryView(stage = m_stage, inventory = m_inventory!!,
-                                        dragAndDrop = m_dragAndDrop!!, world = m_world!!)
+        inventoryView = InventoryView(stage = stage, inventory = inventory!!,
+                                      dragAndDrop = dragAndDrop!!, world = world!!)
 
-        m_generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
-        m_generatorControlPanelView = GeneratorControlPanelView(stage = m_stage,
-                                                                generatorControlPanelInventory = m_generatorInventory!!,
-                                                                dragAndDrop = m_dragAndDrop!!,
-                                                                world = m_world!!)
+        generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+        generatorControlPanelView = GeneratorControlPanelView(stage = stage,
+                                                              generatorControlPanelInventory = generatorInventory!!,
+                                                              dragAndDrop = dragAndDrop!!,
+                                                              world = world!!)
 
-        m_debugProfilerView = DebugProfilerView(stage = m_stage, m_world = m_world!!)
+        debugProfilerView = DebugProfilerView(stage = stage, world = world!!)
 
-        m_world!!.m_artemisWorld.inject(m_hotbarInventory, true)
-        m_world!!.m_artemisWorld.inject(m_inventory, true)
-        m_world!!.m_artemisWorld.inject(m_inventoryView, true)
-        m_world!!.m_artemisWorld.inject(m_hotbarView, true)
-        m_world!!.m_artemisWorld.inject(m_generatorControlPanelView, true)
-        m_world!!.m_artemisWorld.inject(m_generatorInventory, true)
+        world!!.artemisWorld.inject(hotbarInventory, true)
+        world!!.artemisWorld.inject(inventory, true)
+        world!!.artemisWorld.inject(inventoryView, true)
+        world!!.artemisWorld.inject(hotbarView, true)
+        world!!.artemisWorld.inject(generatorControlPanelView, true)
+        world!!.artemisWorld.inject(generatorInventory, true)
 
         if (mainPlayer) {
-            m_tagManager.register(OreWorld.s_mainPlayer, player)
+            tagManager.register(OreWorld.s_mainPlayer, player)
         }
 
         //fixme push into the model and have view pull. or just in view init
@@ -737,13 +731,13 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     private inner class HotbarSlotListener : Inventory.SlotListener {
         override fun slotItemSelected(index: Int, inventory: Inventory) {
-            assert(m_world != null)
+            assert(world != null)
 
-            val player = m_tagManager.getEntity(OreWorld.s_mainPlayer).id
+            val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-            m_clientNetworkSystem.sendHotbarEquipped(index.toByte())
+            clientNetworkSystem.sendHotbarEquipped(index.toByte())
 
-            val playerComponent = playerMapper.get(player)
+            val playerComponent = mPlayer.get(player)
         }
     }
 

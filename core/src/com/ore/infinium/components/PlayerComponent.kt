@@ -69,7 +69,6 @@ class PlayerComponent : Component() {
     //    public boolean mouseLeftButtonHeld;
     //    public boolean mouseRightButtonHeld;
     @DoNotCopy @DoNotPrint @Transient var ping: Int = 0
-    @DoNotCopy @DoNotPrint @Transient var noClip: Boolean = false
 
     @DoNotCopy @DoNotPrint @Transient var loadedViewport = LoadedViewport()
     @DoNotCopy @DoNotPrint @Transient var hotbarInventory: HotbarInventory? = null

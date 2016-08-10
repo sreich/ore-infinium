@@ -64,7 +64,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
     }
 
     override fun begin() {
-        batch.projectionMatrix = oreWorld.m_camera.combined
+        batch.projectionMatrix = oreWorld.camera.combined
         //       batch.begin();
     }
 

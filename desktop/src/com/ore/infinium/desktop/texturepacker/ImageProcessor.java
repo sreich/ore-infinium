@@ -301,10 +301,10 @@ public class ImageProcessor {
 		}
 
 		if (scale != 1) {
-			startX = (int)Math.round(startX * scale);
-			endX = (int)Math.round(endX * scale);
-			startY = (int)Math.round(startY * scale);
-			endY = (int)Math.round(endY * scale);
+			startX = Math.round(startX * scale);
+			endX = Math.round(endX * scale);
+			startY = Math.round(startY * scale);
+			endY = Math.round(endY * scale);
 		}
 
 		return new int[] {startX, endX, startY, endY};
@@ -363,10 +363,10 @@ public class ImageProcessor {
 		}
 
 		if (scale != 1) {
-			startX = (int)Math.round(startX * scale);
-			endX = (int)Math.round(endX * scale);
-			startY = (int)Math.round(startY * scale);
-			endY = (int)Math.round(endY * scale);
+			startX = Math.round(startX * scale);
+			endX = Math.round(endX * scale);
+			startY = Math.round(startY * scale);
+			endY = Math.round(endY * scale);
 		}
 
 		int[] pads = new int[] {startX, endX, startY, endY};

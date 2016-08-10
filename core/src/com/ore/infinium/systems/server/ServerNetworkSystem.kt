@@ -159,7 +159,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
 
         //notify the local client we've started hosting our server, so he can connect now.
-        oreWorld.m_server!!.connectHostLatch.countDown()
+        oreWorld.server!!.connectHostLatch.countDown()
 
     }
 
@@ -612,7 +612,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         //FIXME: do some verification stuff, make sure strings are safe
 
         val date = SimpleDateFormat("HH:mm:ss")
-        oreServer.chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message!!,
+        oreServer.chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message,
                                    Chat.ChatSender.Player)
     }
 

@@ -35,7 +35,7 @@ import com.ore.infinium.systems.GameLoopSystemInvocationStrategy
 import com.ore.infinium.util.format
 
 class DebugProfilerView(stage: Stage,
-                        private val m_world: OreWorld) : VisWindow("profiler window") {
+                        private val world: OreWorld) : VisWindow("profiler window") {
 
     var profilerVisible: Boolean
         get() = isVisible
@@ -43,41 +43,41 @@ class DebugProfilerView(stage: Stage,
             isVisible = value
         }
 
-    private lateinit var m_profilerHeader: Table
-    private lateinit var m_profilerRowsTable: VisTable
+    private lateinit var profilerHeader: Table
+    private lateinit var profilerRowsTable: VisTable
 
     companion object {
         internal val COLUMNS_WIDTH = 80f
         internal val COLUMNS_NAME_WIDTH = 250f
     }
 
-    private val m_profilerRows = mutableListOf<ProfilerRow>()
-    private val m_scrollPane: VisScrollPane
+    private val profilerRows = mutableListOf<ProfilerRow>()
+    private val scrollPane: VisScrollPane
     private val container: VisTable
 
     init {
-        m_profilerHeader = Table()
-        m_profilerHeader.add(VisLabel("System Name")).minWidth(COLUMNS_NAME_WIDTH)
-        m_profilerHeader.add().expandX().fillX()
-        m_profilerHeader.add(VisLabel("min(ms)")).minWidth(COLUMNS_WIDTH)
-        m_profilerHeader.add(VisLabel("max(ms)")).minWidth(COLUMNS_WIDTH)
-        m_profilerHeader.add(VisLabel("average(ms)")).minWidth(COLUMNS_WIDTH)
-        m_profilerHeader.add(VisLabel("current(ms)")).minWidth(COLUMNS_WIDTH)
+        profilerHeader = Table()
+        profilerHeader.add(VisLabel("System Name")).minWidth(COLUMNS_NAME_WIDTH)
+        profilerHeader.add().expandX().fillX()
+        profilerHeader.add(VisLabel("min(ms)")).minWidth(COLUMNS_WIDTH)
+        profilerHeader.add(VisLabel("max(ms)")).minWidth(COLUMNS_WIDTH)
+        profilerHeader.add(VisLabel("average(ms)")).minWidth(COLUMNS_WIDTH)
+        profilerHeader.add(VisLabel("current(ms)")).minWidth(COLUMNS_WIDTH)
 
         container = VisTable()
         container.defaults().space(4f)
-        container.add(m_profilerHeader).row()
+        container.add(profilerHeader).row()
 
-        m_profilerRowsTable = VisTable(true)
+        profilerRowsTable = VisTable(true)
 
-        m_scrollPane = VisScrollPane(m_profilerRowsTable)
-        m_scrollPane.setFadeScrollBars(false)
+        scrollPane = VisScrollPane(profilerRowsTable)
+        scrollPane.setFadeScrollBars(false)
 
-        container.add(m_scrollPane).fill().expand().pad(10f)
+        container.add(scrollPane).fill().expand().pad(10f)
 
         container.layout()
-        m_profilerRowsTable.layout()
-        m_scrollPane.layout()
+        profilerRowsTable.layout()
+        scrollPane.layout()
 
         this.add(container).fill().expand()//.size(200f, 500f)
 
@@ -96,29 +96,29 @@ class DebugProfilerView(stage: Stage,
                 nameLabel.setText(perfStat.systemName)
             }
 
-            m_profilerRowsTable.add(profilerRow).expandX().fillX().spaceTop(8f)
-            m_profilerRowsTable.row()
+            profilerRowsTable.add(profilerRow).expandX().fillX().spaceTop(8f)
+            profilerRowsTable.row()
 
-            m_profilerRows.add(profilerRow)
+            profilerRows.add(profilerRow)
         }
 
-        m_profilerRowsTable.layout()
-        m_scrollPane.layout()
+        profilerRowsTable.layout()
+        scrollPane.layout()
         this.layout()
-        m_scrollPane.layout()
+        scrollPane.layout()
     }
 
     override fun act(delta: Float) {
         super.act(delta)
 //hack m_scrollPane.scrollPercentY = 100f
 
-        val strategy = m_world.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
+        val strategy = world.artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
 
         val combinedProfilers = strategy.clientPerfCounter.values.toMutableList()
 
-        if (m_world.worldInstanceType == OreWorld.WorldInstanceType.ClientHostingServer || m_world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
-            val serverWorld = m_world.m_server!!.oreWorld
-            val serverStrategy = serverWorld.m_artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
+        if (world.worldInstanceType == OreWorld.WorldInstanceType.ClientHostingServer || world.worldInstanceType == OreWorld.WorldInstanceType.Server) {
+            val serverWorld = world.server!!.oreWorld
+            val serverStrategy = serverWorld.artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
 
             // synchronized because we're crossing threads (local hosted server is on diff thread)
             synchronized(serverStrategy.serverPerfCounter) {
@@ -126,12 +126,12 @@ class DebugProfilerView(stage: Stage,
             }
         }
 
-        if (m_profilerRows.size != combinedProfilers.size) {
+        if (profilerRows.size != combinedProfilers.size) {
             setupProfilerLayout(combinedProfilers.toList())
         }
 
         combinedProfilers.forEachIndexed { i, perfStat ->
-            val row = m_profilerRows[i]
+            val row = profilerRows[i]
             row.minLabel.setText(perfStat.timeMin.format())
             row.maxLabel.setText(perfStat.timeMax.format())
             row.averageLabel.setText(perfStat.timeAverage.format())

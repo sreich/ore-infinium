@@ -524,14 +524,14 @@ inline fun <reified T : Any> Kryo.registerClass() {
 
 object NetworkHelper {
     fun debugPacketFrequencies(receivedObject: Any,
-                               m_debugPacketFrequencyByType: MutableMap<String, Int>) {
+                               debugPacketFrequencyByType: MutableMap<String, Int>) {
         val debugPacketTypeName = receivedObject.javaClass.toString()
-        val current = m_debugPacketFrequencyByType[debugPacketTypeName]
+        val current = debugPacketFrequencyByType[debugPacketTypeName]
 
         if (current != null) {
-            m_debugPacketFrequencyByType.put(debugPacketTypeName, current + 1)
+            debugPacketFrequencyByType.put(debugPacketTypeName, current + 1)
         } else {
-            m_debugPacketFrequencyByType.put(debugPacketTypeName, 1)
+            debugPacketFrequencyByType.put(debugPacketTypeName, 1)
         }
     }
 }

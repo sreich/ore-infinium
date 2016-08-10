@@ -70,7 +70,7 @@ class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage
         val tooltipSprite = mSprite.create(powerCircuitTooltipEntity)
         tooltipSprite.sprite.setSize(1f, 1f)
         tooltipSprite.textureName = "debug"
-        tooltipSprite.sprite.setRegion(oreWorld.m_atlas.findRegion(tooltipSprite.textureName))
+        tooltipSprite.sprite.setRegion(oreWorld.atlas.findRegion(tooltipSprite.textureName))
         tooltipSprite.noClip = true
 
         container = VisTable()
@@ -124,7 +124,7 @@ class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage
         }
 
         //        batch.setProjectionMatrix(oreWorld.m_camera.combined);
-        batch.projectionMatrix = oreWorld.m_camera.combined
+        batch.projectionMatrix = oreWorld.camera.combined
         batch.begin()
 
        // renderEntities(this.getWorld().delta)
@@ -132,24 +132,24 @@ class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage
         batch.end()
 
         //screen space rendering
-        batch.projectionMatrix = oreWorld.m_client!!.viewport.camera.combined
+        batch.projectionMatrix = oreWorld.client!!.viewport.camera.combined
         batch.begin()
 
         //fixme replace this crap w/ scene2d stuff?
-        oreWorld.m_client!!.bitmapFont_8pt.setColor(1f, 0f, 0f, 1f)
+        oreWorld.client!!.bitmapFont_8pt.setColor(1f, 0f, 0f, 1f)
 
         var fontY = 150f
-        val fontX = (oreWorld.m_client!!.viewport.rightGutterX - 220).toFloat()
+        val fontX = (oreWorld.client!!.viewport.rightGutterX - 220).toFloat()
 
-        batch.draw(oreWorld.m_atlas.findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100,
-                     fontY - 300)
+        batch.draw(oreWorld.atlas.findRegion("backgroundRect"), fontX - 10, fontY + 10, fontX + 100,
+                   fontY - 300)
 
-        oreWorld.m_client!!.bitmapFont_8pt.draw(batch, "Energy overlay visible (press E)", fontX, fontY)
+        oreWorld.client!!.bitmapFont_8pt.draw(batch, "Energy overlay visible (press E)", fontX, fontY)
         fontY -= 15f
 
-        oreWorld.m_client!!.bitmapFont_8pt.draw(batch, "Input: N/A Output: N/A", fontX, fontY)
+        oreWorld.client!!.bitmapFont_8pt.draw(batch, "Input: N/A Output: N/A", fontX, fontY)
 
-        oreWorld.m_client!!.bitmapFont_8pt.setColor(1f, 1f, 1f, 1f)
+        oreWorld.client!!.bitmapFont_8pt.setColor(1f, 1f, 1f, 1f)
 
         batch.end()
 

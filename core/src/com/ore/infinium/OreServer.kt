@@ -66,9 +66,9 @@ class OreServer : Runnable {
     override fun run() {
         Thread.currentThread().name = "server thread (main)"
 
-        oreWorld = OreWorld(m_client = null, m_server = this, worldInstanceType = OreWorld.WorldInstanceType.Server)
+        oreWorld = OreWorld(client = null, server = this, worldInstanceType = OreWorld.WorldInstanceType.Server)
         oreWorld.init()
-        oreWorld.m_artemisWorld.inject(this, true)
+        oreWorld.artemisWorld.inject(this, true)
 
         chat = Chat()
         chat.addListener(object : Chat.ChatListener {
@@ -77,21 +77,16 @@ class OreServer : Runnable {
                         message = line.chatText,
                         playerName = line.playerName,
                         sender = line.chatSender,
-                        timestamp = line.timestamp
-                                                        )
+                        timestamp = line.timestamp)
 
                 serverNetworkSystem.serverKryo.sendToAllTCP(message)
-            }
-
-            override fun cleared() {
-
             }
         })
 
         //exit the server thread when the client notifies us to,
         //by setting the latch to 0,
         //the client notifies us to exit it ASAP
-        while (oreWorld.m_server!!.shutdownLatch.count != 0L) {
+        while (oreWorld.server!!.shutdownLatch.count != 0L) {
             oreWorld.process()
         }
 
@@ -148,11 +143,11 @@ class OreServer : Runnable {
             hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
             hotbarInventory!!.addListener(HotbarInventorySlotListener())
 
-            oreWorld.m_artemisWorld.inject(hotbarInventory!!)
+            oreWorld.artemisWorld.inject(hotbarInventory!!)
         }
 
         playerComponent.inventory = Inventory(Inventory.maxSlots)
-        oreWorld.m_artemisWorld.inject(playerComponent.inventory!!)
+        oreWorld.artemisWorld.inject(playerComponent.inventory!!)
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
