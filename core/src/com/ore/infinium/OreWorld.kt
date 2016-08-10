@@ -797,6 +797,8 @@ class OreWorld
             name = "Light"
         }
 
+        lightMapper.create(light)
+
         powerDeviceMapper.create(light)
 
         val sprite = spriteMapper.create(light).apply {
@@ -927,6 +929,7 @@ class OreWorld
      * @return true if the item can be placed where it currently resides, without any obstructions
      */
     fun isPlacementValid(entity: Int): Boolean {
+        return true
         val spriteComponent = spriteMapper.get(entity)
         val pos = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
         val size = Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height)
@@ -998,6 +1001,21 @@ class OreWorld
 
         return false
     }
+
+    /**
+     * @returns true if this item is placed in the world
+     * or false otherwise. or false if it's not an item
+     */
+    fun isItemPlacedInWorldOpt(entityId: Int): Boolean {
+        itemMapper.ifPresent(entityId) {
+            if (it.state == ItemComponent.State.InWorldState) {
+                return true
+            }
+        }
+
+        return false
+    }
+
 
     fun placementAdjacencyHintsBlocksSatisfied(entityId: Int, cItem: ItemComponent): Boolean {
         val cSprite = spriteMapper.get(entityId)

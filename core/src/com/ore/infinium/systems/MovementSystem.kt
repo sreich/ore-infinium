@@ -173,8 +173,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //just set where we expect we should be/want to be (ignore collision)
             desiredPosition
         } else {
-            performEntitiesCollision(desiredPosition, entity)
-            performBlockCollision(desiredPosition, entity)
+            val entityCollisionPosition = performEntitiesCollision(desiredPosition, entity)
+            performBlockCollision(entityCollisionPosition, entity)
         }
 
         cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
@@ -302,7 +302,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
      *
      * block collision is handled seperately.
      */
-    private fun performEntitiesCollision(desiredPosition: Vector2, entity: Int) {
+    private fun performEntitiesCollision(desiredPosition: Vector2, entity: Int): Vector2 {
         //check every other entity to collide with
         world.entities(allOf(SpriteComponent::class)).forEach {
             val cSprite = mSprite.get(entity)
@@ -315,15 +315,18 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             }
 
             if (cSprite.sprite.rect.contains(cSpriteOther.sprite.rect)) {
-                performEntityCollision(desiredPosition = desiredPosition, entityToMove = entity, collidingEntity = it)
+                return performEntityCollision(desiredPosition = desiredPosition, entityToMove = entity,
+                                              collidingEntity = it)
             }
         }
+
+        return desiredPosition
     }
 
     /**
      * @param collidingEntity entity that the other one is colliding against
      */
-    private fun performEntityCollision(desiredPosition: Vector2, entityToMove: Int, collidingEntity: Int) {
+    private fun performEntityCollision(desiredPosition: Vector2, entityToMove: Int, collidingEntity: Int): Vector2 {
         val cSprite = mSprite.get(entityToMove)
         val cSpriteColliding = mSprite.get(collidingEntity)
 
@@ -334,10 +337,19 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         if (velocity.x > 0f) {
             //try moving right
-            val outside = entityToMoveRect.fitOutside(collidingEntityRect)
-            desiredPosition.x = outside.x
+            if (entityToMoveRect.right > collidingEntityRect.left) {
+                desiredPosition.x -= desiredPosition.x - collidingEntityRect.left
+                velocity.x = 0f
+            }
+        } else if (velocity.x < 0f) {
+            //try moving left
+            if (entityToMoveRect.left > collidingEntityRect.right) {
+                desiredPosition.x -= desiredPosition.x - collidingEntityRect.right
+                velocity.x = 0f
+            }
         }
-        //TODO
+
+        return desiredPosition
     }
 
     /**

@@ -40,6 +40,8 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private val mSprite by mapper<SpriteComponent>()
     private val mDevice by mapper<PowerDeviceComponent>()
 
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+
     private var initialized = false
 
     override fun initialize() {
@@ -222,13 +224,15 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val y = cSprite.sprite.y.toInt()
 
         oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
+        updateTileLighting(x, y, MAX_TILE_LIGHT_LEVEL)
+        serverNetworkSystem.sendBlockRegionInterestedPlayers(x - 20, y - 20, x + 20, y + 20)
     }
 
     inner class LightingEntitySubscriptionListener : OreEntitySubscriptionListener {
         override fun removed(entities: IntBag) {
             entities.forEach { entity ->
                 mItem.ifPresent(entity) {
-                    if (oreWorld.isItemDroppedInWorldOpt(entity)) {
+                    if (!oreWorld.isItemPlacedInWorldOpt(entity)) {
                         //ignore ones dropped in the world, or in inventory
                         return
                     }

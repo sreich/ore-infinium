@@ -65,7 +65,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
              * so we can e.g. know if a connection is no longer alive for a player,
              * and remove all such pending requests
              */
-            val playerId: Int,
+            val playerConnectionId: Int,
 
             /**
              * whether or not we've received from client as this block
@@ -74,7 +74,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
              * The client might lie too, so be sure to double check.
              */
             var clientSaysItFinished: Boolean = false
-    )
+                    )
 
     //todo verify that there aren't too many blocks all at once from the same player
     //she could in theory send 500 block updates..requiring only the time for 1 block dig
@@ -90,61 +90,24 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             return true
         }
 
-        val playerEntityId = oreWorld.playerEntityForPlayerConnectionID(blockToDig.playerId)
-        val playerComponent = mPlayer.get(playerEntityId)
-        val equippedItemEntityId = playerComponent.equippedPrimaryItem
+        val playerEntityId = oreWorld.playerEntityForPlayerConnectionID(blockToDig.playerConnectionId)
+        val cPlayer = mPlayer.get(playerEntityId)
+        val equippedItemEntityId = cPlayer.equippedPrimaryItem
 
         //player no longer even has an item that can break stuff, equipped.
         //this queued request will now be canceled.
-        val toolComponent = mTool.opt(equippedItemEntityId) ?: return true
+        val cTool = mTool.opt(equippedItemEntityId) ?: return true
 
         val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
-        val damagePerTick = toolComponent.blockDamage * getWorld().getDelta()
+        val damagePerTick = cTool.blockDamage * getWorld().getDelta()
 
         //this many ticks after start tick, it should have already been destroyed
         val expectedTickEnd = blockToDig.digStartTick + (totalBlockHealth / damagePerTick).toInt()
 
         if (blockToDig.clientSaysItFinished && gameTickSystem.ticks >= expectedTickEnd) {
-            //todo tell all clients that it was officially dug--but first we want to implement chunking
-            // though!!
-
-            OreWorld.log("server, block digging system", "processSystem block succeeded. sending")
-
-            val x = blockToDig.x
-            val y = blockToDig.y
-
-            serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, x, y)
-
-            val droppedBlock = oreWorld.createBlockItem(blockType)
-            mSprite.get(droppedBlock).apply {
-                sprite.setPosition(x + 0.5f, y + 0.5f)
-                sprite.setSize(0.5f, 0.5f)
-            }
-
-            mItem.get(droppedBlock).apply {
-                sizeBeforeDrop = Vector2(1f, 1f)
-                stackSize = 1
-                state = ItemComponent.State.DroppedInWorld
-                playerIdWhoDropped = playerComponent.connectionPlayerId
-                timeOfDropMs = TimeUtils.millis()
-            }
-
-            //hack this isnt 'needed i don't think because the server network entity system
-            //auto finds and spawns it
-            // m_networkServerSystem.sendSpawnEntity(droppedBlock, playerComponent.connectionPlayerId);
-
-            oreWorld.destroyBlock(x, y)
-
-            //update lighting in the area, has to be less than the existing block lighting,
-            //or digging anywhere actually lights up that area
-            val lightLevel = (oreWorld.blockLightLevel(x, y) - 1).coerceAtLeast(0)
-
-            tileLightingSystem.updateTileLighting(x, y, lightLevel.toByte())
-
-            //hack, this is a big region, and we'd have to calculate actual lights in this, as well i think.
-            //but we wouldn't want it to be bigger than the affected region
-            serverNetworkSystem.sendPlayerBlockRegion(playerEntityId, x - 20, y - 20, x + 20, y + 20)
+            //dig finished, send out result
+            blockDiggingFinished(blockToDig = blockToDig, blockType = blockType, playerEntityId = playerEntityId)
 
             //remove fulfilled request from our queue.
             return true
@@ -155,11 +118,46 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         if (gameTickSystem.ticks > expectedTickEnd + 10) {
 
             OreWorld.log("server, block digging system",
-                    "processSystem block digging request timed out. this could be normal.")
+                         "processSystem block digging request timed out. this could be normal.")
             return true
         }
 
         return false
+    }
+
+    private fun blockDiggingFinished(blockToDig: BlockToDig, blockType: Byte,
+                                     playerEntityId: Int) {
+        OreWorld.log("server, block digging system", "processSystem block succeeded. sending")
+        val x = blockToDig.x
+        val y = blockToDig.y
+
+        serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, x, y)
+
+        val droppedBlock = oreWorld.createBlockItem(blockType)
+        mSprite.get(droppedBlock).apply {
+            sprite.setPosition(x + 0.5f, y + 0.5f)
+            sprite.setSize(0.5f, 0.5f)
+        }
+
+        mItem.get(droppedBlock).apply {
+            sizeBeforeDrop = Vector2(1f, 1f)
+            stackSize = 1
+            state = ItemComponent.State.DroppedInWorld
+            playerIdWhoDropped = blockToDig.playerConnectionId
+            timeOfDropMs = TimeUtils.millis()
+        }
+
+        oreWorld.destroyBlock(x, y)
+
+        //update lighting in the area, has to be less than the existing block lighting,
+        //or digging anywhere actually lights up that area
+        val lightLevel = (oreWorld.blockLightLevel(x, y) - 1).coerceAtLeast(0)
+
+        tileLightingSystem.updateTileLighting(x, y, lightLevel.toByte())
+
+        //hack, this is a big region, and we'd have to calculate actual lights in this, as well i think.
+        //but we wouldn't want it to be bigger than the affected region
+        serverNetworkSystem.sendPlayerBlockRegion(playerEntityId, x - 20, y - 20, x + 20, y + 20)
     }
 
     //todo when the equipped item changes, abort all active digs for that player
@@ -168,17 +166,18 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     /**
+     * network end, from client
      * @param x
      * *
      * @param y
      */
-    fun blockDiggingFinished(x: Int, y: Int) {
+    fun receiveBlockDiggingFinished(x: Int, y: Int) {
         for (blockToDig in m_blocksToDig) {
             if (blockToDig.x == x && blockToDig.y == y) {
                 //this is our block, mark it as the client thinking/saying(or lying) it finished
                 blockToDig.clientSaysItFinished = true
                 OreWorld.log("server, block digging system",
-                        "blockDiggingFinished - client said so it finished")
+                             "blockDiggingFinished - client said so it finished")
 
                 return
             }
@@ -186,25 +185,28 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         //if it was never found, forget about it.
         OreWorld.log("server, block digging system",
-                "blockDiggingFinished message received from a client, but this block dig queued " +
-                        "request " +
-                        "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)")
+                     "blockDiggingFinished message received from a client, but this block dig queued " +
+                             "request " +
+                             "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)")
     }
 
-    fun blockDiggingBegin(x: Int, y: Int, playerEntity: Int) {
+    /**
+     * network end, from client
+     */
+    fun receiveBlockDiggingBegin(x: Int, y: Int, playerEntity: Int) {
         if (oreWorld.blockType(x, y) == OreBlock.BlockType.Air.oreValue) {
             //odd. they sent us a block pick request, but it is already null on our end.
             //perhaps just a harmless latency thing. ignore.
             OreWorld.log("server, block digging system",
-                    "blockDiggingBegin we got the request to dig a block that is already null/dug. " +
-                            "this is " +
-                            "likely just a latency issue ")
+                         "blockDiggingBegin we got the request to dig a block that is already null/dug. " +
+                                 "this is " +
+                                 "likely just a latency issue ")
             return
         }
 
         val blockToDig = BlockToDig(x = x, y = y,
-                playerId = mPlayer.get(playerEntity).connectionPlayerId,
-                digStartTick = gameTickSystem.ticks)
+                                    playerConnectionId = mPlayer.get(playerEntity).connectionPlayerId,
+                                    digStartTick = gameTickSystem.ticks)
 
         m_blocksToDig.add(blockToDig)
     }

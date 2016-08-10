@@ -40,7 +40,6 @@ import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
 class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_client: OreClient) : BaseSystem() {
-
     private val mPlayer by mapper<PlayerComponent>()
     private val mTool by mapper<ToolComponent>()
 
@@ -49,7 +48,6 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
     private val soundSystem by system<SoundSystem>()
 
     private val tagManager by system<TagManager>()
-
 
     /**
      * the client only uses this to ensure it doesn't send a dig
@@ -83,9 +81,6 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
 
     private val blocksToDig = mutableListOf<BlockToDig>()
 
-    override fun dispose() {
-    }
-
     override fun processSystem() {
         if (!clientNetworkSystem.connected) {
             return
@@ -110,12 +105,12 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
     private fun expireOldDigRequests(blockToDig: BlockToDig): Boolean {
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val playerComponent = mPlayer.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem
+        val cPlayer = mPlayer.get(player)
+        val itemEntity = cPlayer.equippedPrimaryItem
 
-        val toolComponent = mTool.opt(itemEntity)
+        val cTool = mTool.opt(itemEntity)
 
-        if (toolComponent == null) {
+        if (cTool == null) {
             //switched tools, expire it.
             return true
         }
@@ -128,7 +123,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             return true
         }
 
-        val damagePerTick = toolComponent.blockDamage * getWorld().getDelta()
+        val damagePerTick = cTool.blockDamage * getWorld().getDelta()
 
         //this many ticks after start tick, it should have already been destroyed
         val expectedTickEnd = blockToDig.digStartTick + (blockToDig.totalBlockHealth / damagePerTick).toInt()
@@ -164,15 +159,15 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         //FIXME make this receive a vector, look at block at position,
         //see if he has the right drill type etc to even ATTEMPT a block dig
 
-        val playerComponent = mPlayer.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem
+        val cPlayer = mPlayer.get(player)
+        val itemEntity = cPlayer.equippedPrimaryItem
         if (isInvalidEntity(itemEntity)) {
             return false
         }
 
-        val toolComponent = mTool.opt(itemEntity) ?: return false
+        val cTool = mTool.opt(itemEntity) ?: return false
 
-        if (toolComponent.type != ToolComponent.ToolType.Drill) {
+        if (cTool.type != ToolComponent.ToolType.Drill) {
             return false
         }
 
@@ -192,13 +187,13 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
     fun dig() {
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val playerComponent = mPlayer.get(player)
-        val itemEntity = playerComponent.equippedPrimaryItem
+        val cPlayer = mPlayer.get(player)
+        val itemEntity = cPlayer.equippedPrimaryItem
 
         val mouse = m_world.mousePositionWorldCoords()
 
         //guaranteed to have a tool, we already check that in the method call before this
-        val toolComponent = mTool.get(itemEntity)
+        val cTool = mTool.get(itemEntity)
 
         val blockX = mouse.x.toInt()
         val blockY = mouse.y.toInt()
@@ -217,7 +212,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             var attacked = false
             //only decrement block health if it has some
             if (blockToDig.damagedBlockHealth > 0) {
-                blockToDig.damagedBlockHealth -= getWorld().getDelta() * toolComponent.blockDamage
+                blockToDig.damagedBlockHealth -= getWorld().getDelta() * cTool.blockDamage
                 blockToDig.ticksTook += 1
 
                 attacked = true
@@ -230,14 +225,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
                 //we killed the block
                 clientNetworkSystem.sendBlockDigFinish(blockX, blockY)
 
-                when (blockType) {
-                    OreBlock.BlockType.Dirt.oreValue ->
-                        soundSystem.playDirtAttackFinish()
-
-                    OreBlock.BlockType.Stone.oreValue ->
-                        soundSystem.playStoneAttackFinish()
-
-                }
+                playBlockDugSound(blockType)
 
                 OreWorld.log("client, block digging system",
                              "processSystem finish! tick taken:  " + blockToDig.ticksTook)
@@ -245,10 +233,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             }
 
             if (attacked) {
-                when (blockType) {
-                    OreBlock.BlockType.Dirt.oreValue -> soundSystem.playDirtAttack()
-                    OreBlock.BlockType.Stone.oreValue -> soundSystem.playDrillAttack()
-                }
+                playBlockAttackSound(blockType)
             }
         }
 
@@ -269,6 +254,23 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             }
 
             blocksToDig.add(blockToDig)
+        }
+    }
+
+    private fun playBlockDugSound(blockType: Byte) {
+        when (blockType) {
+            OreBlock.BlockType.Dirt.oreValue ->
+                soundSystem.playDirtAttackFinish()
+
+            OreBlock.BlockType.Stone.oreValue ->
+                soundSystem.playStoneAttackFinish()
+        }
+    }
+
+    private fun playBlockAttackSound(blockType: Byte) {
+        when (blockType) {
+            OreBlock.BlockType.Dirt.oreValue -> soundSystem.playDirtAttack()
+            OreBlock.BlockType.Stone.oreValue -> soundSystem.playDrillAttack()
         }
     }
 

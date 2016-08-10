@@ -557,7 +557,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     }
 
     private fun receiveBlockDigFinish(job: NetworkJob, dig: Network.Client.BlockDigFinish) {
-        serverBlockDiggingSystem.blockDiggingFinished(dig.x, dig.y)
+        serverBlockDiggingSystem.receiveBlockDiggingFinished(dig.x, dig.y)
     }
 
     private fun receiveInitialClientData(job: NetworkJob, initialClientData: Network.Client.InitialClientData) {
@@ -743,7 +743,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      * @param job
      */
     private fun receiveBlockDigBegin(job: NetworkJob, dig: Network.Client.BlockDigBegin) {
-        serverBlockDiggingSystem.blockDiggingBegin(dig.x, dig.y, job.connection.playerEntityId)
+        serverBlockDiggingSystem.receiveBlockDiggingBegin(dig.x, dig.y, job.connection.playerEntityId)
     }
 
     private fun receiveMoveInventoryItem(job: NetworkJob,
@@ -832,6 +832,13 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         // so put it in a queue, etc so we can deliver it when we need to..
         val playerComponent = mPlayer.get(playerEntityId)
         serverKryo.sendToTCP(playerComponent.connectionPlayerId, sparseBlockUpdate)
+    }
+
+    fun sendBlockRegionInterestedPlayers(x1: Int, y1: Int, x2: Int, y2: Int) {
+        oreWorld.players().forEach { player ->
+            //todo check if they're interested
+            sendPlayerBlockRegion(player, x1, y1, x2, y2)
+        }
     }
 
     /**
