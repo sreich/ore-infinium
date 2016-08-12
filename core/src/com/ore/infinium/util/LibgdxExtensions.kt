@@ -80,7 +80,11 @@ val Rectangle.bottom: Float get() = y + height
 val Rectangle.top: Float get() = y
 val Rectangle.left: Float get() = x
 val Rectangle.right: Float get() = x + width
+val Rectangle.halfWidth: Float get() = width * 0.5f
 
+/**
+ * get next random int, in the range
+ */
 fun RandomXS128.nextInt(start: Int, end: Int): Int {
     return start + nextInt(end - start + 1)
 }

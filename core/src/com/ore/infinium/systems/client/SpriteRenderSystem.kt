@@ -32,6 +32,7 @@ import aurelienribon.tweenengine.equations.Sine
 import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
+import com.artemis.utils.IntBag
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -57,6 +58,9 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
         Tween.registerAccessor(Sprite::class.java, SpriteTween())
         //default is 3, but color requires 4 (rgba)
         Tween.setCombinedAttributesLimit(4)
+
+        world.aspectSubscriptionManager.get(allOf(SpriteComponent::class)).addSubscriptionListener(
+                SpriteEntityListener())
     }
 
     override fun dispose() {
@@ -152,27 +156,26 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
         //todo need to exclude blocks?
         val entities = world.entities(allOf(SpriteComponent::class))
 
-        var itemComponent: ItemComponent?
-        var spriteComponent: SpriteComponent
+        var cSprite: SpriteComponent
 
         for (i in entities.indices) {
             val entity = entities.get(i)
 
-            itemComponent = mItem.opt(entity)
+            val cItem = mItem.opt(entity)
             //don't draw in-inventory or dropped items
-            if (itemComponent != null && itemComponent.state != ItemComponent.State.InWorldState) {
+            if (cItem != null && cItem.state != ItemComponent.State.InWorldState) {
                 //hack
                 continue
             }
 
-            spriteComponent = mSprite.get(entity)
+            cSprite = mSprite.get(entity)
 
-            if (!spriteComponent.visible) {
+            if (!cSprite.visible) {
                 continue
             }
 
             //assert(spriteComponent.sprite != null) { "sprite is null" }
-            assert(spriteComponent.sprite.texture != null) { "sprite has null texture" }
+            assert(cSprite.sprite.texture != null) { "sprite has null texture" }
 
             var placementGhost = false
 
@@ -181,22 +184,22 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
 
                 placementGhost = true
 
-                if (spriteComponent.placementValid) {
+                if (cSprite.placementValid) {
                     batch.setColor(0f, 1f, 0f, 0.6f)
                 } else {
                     batch.setColor(1f, 0f, 0f, 0.6f)
                 }
             }
 
-            val x = spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f
-            val y = spriteComponent.sprite.y + spriteComponent.sprite.height * 0.5f
+            val x = cSprite.sprite.rect.x
+            val y = cSprite.sprite.y + cSprite.sprite.height * 0.5f
 
             //flip the sprite when drawn, by using negative height
             val scaleX = 1f
             val scaleY = 1f
 
-            val width = spriteComponent.sprite.width
-            val height = -spriteComponent.sprite.height
+            val width = cSprite.sprite.width
+            val height = -cSprite.sprite.height
 
             val originX = width * 0.5f
             val originY = height * 0.5f
@@ -208,11 +211,26 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
             // 16.0f,
             //            originX, originY, width, height, scaleX, scaleY, rotation);
 
-            batch.draw(spriteComponent.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
+            batch.draw(cSprite.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
 
             //reset color for next run
             if (placementGhost) {
                 batch.setColor(1f, 1f, 1f, 1f)
+            }
+        }
+    }
+
+    inner class SpriteEntityListener : OreEntitySubscriptionListener {
+        override fun inserted(entities: IntBag) {
+            super.inserted(entities)
+
+            entities.toMutableList().forEach {
+                mSprite.get(it).sprite.apply {
+//                    color = Color.WHITE
+                    //fixme for some reason seems sprites get an alpha of like 0.9967 or so...
+                    //which is weird, because i'm not aware of changing that *anywhere*
+                }
+
             }
         }
     }
@@ -222,5 +240,6 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
 
         internal var rotation: Float = 0f
     }
-
 }
+
+

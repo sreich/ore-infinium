@@ -179,17 +179,18 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         if (renderDebugClient) {
             debugServerBatch.projectionMatrix = oreWorld.camera.combined
             debugServerBatch.begin()
-            debugServerBatch.color = Color.MAGENTA
 
             val entities = getWorld().entities(allOf(SpriteComponent::class))
 
             entities.forEach {
-                val spriteComponent = mSprite.get(entities.get(it))
+                val cSprite = mSprite.get(it)
 
-                debugServerBatch.draw(junkTexture, spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f,
-                                      spriteComponent.sprite.y - spriteComponent.sprite.height * 0.5f,
-                                      spriteComponent.sprite.width,
-                                      spriteComponent.sprite.height)
+                debugServerBatch.color = Color.BLUE
+
+                debugServerBatch.draw(junkTexture, cSprite.sprite.rect.x,
+                                      cSprite.sprite.rect.y,
+                                      cSprite.sprite.width,
+                                      cSprite.sprite.height)
             }
 
             debugServerBatch.end()
@@ -198,7 +199,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         GLProfiler.reset()
 
     }
-
 
     private fun drawStandardDebugInfo() {
         font.draw(batch, fpsString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())

@@ -1000,7 +1000,7 @@ class OreWorld
     }
 
     /**
-     * @returns true if this item is placed in the world
+     * @returns true if this item is placed or moving in the world
      * or false otherwise. or false if it's not an item
      */
     fun isItemPlacedInWorldOpt(entityId: Int): Boolean {
@@ -1012,7 +1012,6 @@ class OreWorld
 
         return false
     }
-
 
     fun placementAdjacencyHintsBlocksSatisfied(entityId: Int, cItem: ItemComponent): Boolean {
         val cSprite = mSprite.get(entityId)

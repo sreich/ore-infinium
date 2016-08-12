@@ -314,7 +314,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
                 return@forEach
             }
 
-            if (cSprite.sprite.rect.contains(cSpriteOther.sprite.rect)) {
+            if (cSprite.sprite.rect.overlaps(cSpriteOther.sprite.rect)) {
+                OreWorld.log("movement system", "overlaps!!")
                 return performEntityCollision(desiredPosition = desiredPosition, entityToMove = entity,
                                               collidingEntity = it)
             }
@@ -335,16 +336,17 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         val velocity = mVelocity.get(entityToMove).velocity
 
+        val epsilon = 0.1f
         if (velocity.x > 0f) {
             //try moving right
             if (entityToMoveRect.right > collidingEntityRect.left) {
-                desiredPosition.x -= desiredPosition.x - collidingEntityRect.left
+                desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth)
                 velocity.x = 0f
             }
         } else if (velocity.x < 0f) {
             //try moving left
-            if (entityToMoveRect.left > collidingEntityRect.right) {
-                desiredPosition.x -= desiredPosition.x - collidingEntityRect.right
+            if (entityToMoveRect.left < collidingEntityRect.right) {
+                desiredPosition.x += (collidingEntityRect.right - entityToMoveRect.left) - epsilon
                 velocity.x = 0f
             }
         }
