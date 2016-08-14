@@ -325,7 +325,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         return desiredPosition
     }
 
-    val entityPadding = 1f
+    val entityPadding = 0.5f
 
     /**
      * @param collidingEntity entity that the other one is colliding against
@@ -344,18 +344,16 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         if (velocity.x > 0f) {
             //try moving right
+            //fixme should instead want to detect early (inside) and move outside, if possible?
             if (entityToMoveRect.right <= collidingEntityRect.left + entityPadding) {
                 desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
-                val q = 2
             }
         } else if (velocity.x < 0f) {
             //try moving left
             //ensure entity to collide with is up against our left side
-            if (entityToMoveRect.left >= collidingEntityRect.right - entityPadding
-//                    && entityToMoveRect.right > collidingEntityRect.right - entityPadding) {
-            ) {
-                desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth)// + entityPadding
+            if (entityToMoveRect.left >= collidingEntityRect.right - entityPadding) {
+                desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
                 velocity.x = 0f
             }
         }
