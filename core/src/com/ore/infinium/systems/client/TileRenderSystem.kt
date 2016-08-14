@@ -212,7 +212,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         batch.end()
     }
 
-    private fun findTextureNameForBlock(x: Int, y: Int): String {
+    fun findTextureNameForBlock(x: Int, y: Int): String {
         val blockType = m_world.blockType(x, y)
         val blockMeshType = m_world.blockMeshType(x, y)
         val blockWallType = m_world.blockWallType(x, y)

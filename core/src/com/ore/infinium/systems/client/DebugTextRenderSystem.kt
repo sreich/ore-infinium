@@ -248,46 +248,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         font.draw(batch, drawCallsString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
         textYLeft -= TEXT_Y_SPACING
 
-        val mousePos = oreWorld.mousePositionWorldCoords()
-        val x = oreWorld.blockXSafe(mousePos.x.toInt())
-        val y = oreWorld.blockYSafe(mousePos.y.toInt())
-
-        //fixme check x, y against world size, out of bounds errors
-        val blockType = oreWorld.blockType(x, y)
-
-        //so we can get the enum/name of it
-        val blockTypeName = OreBlock.nameOfBlockType(blockType)!!
-
-        val blockMeshType = oreWorld.blockMeshType(x, y)
-        val blockWallType = oreWorld.blockWallType(x, y)
-
-        val hasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
-
-        val damagedBlockHealth = clientBlockDiggingSystem.blockHealthAtIndex(x, y)
-        val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
-
-        font.draw(batch, "blockHealth: $damagedBlockHealth / $totalBlockHealth", TEXT_X_LEFT.toFloat(),
-                  textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-
-        var texture = ""
-
-        when (blockType) {
-            OreBlock.BlockType.Dirt.oreValue -> if (hasGrass) {
-                texture = tileRenderSystem.grassBlockMeshes.get(blockMeshType.toInt())
-            } else {
-                texture = tileRenderSystem.dirtBlockMeshes.get(blockMeshType.toInt())
-            }
-
-            OreBlock.BlockType.Stone.oreValue -> texture = tileRenderSystem.stoneBlockMeshes.get(
-                    blockMeshType.toInt())
-        }
-
-        val lightLevel = oreWorld.blockLightLevel(x, y)
-        val s = "tile($x, $y), block type: ${blockTypeName}, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
-
-        font.draw(batch, s, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        printBlockDebugInfo()
 
         val clientEntities = getWorld().entities(allOf())
 
@@ -316,6 +277,38 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
                   textYLeft.toFloat())
         textYLeft -= TEXT_Y_SPACING
 
+    }
+
+    private fun printBlockDebugInfo() {
+        val mousePos = oreWorld.mousePositionWorldCoords()
+        val x = oreWorld.blockXSafe(mousePos.x.toInt())
+        val y = oreWorld.blockYSafe(mousePos.y.toInt())
+
+        //fixme check x, y against world size, out of bounds errors
+        val blockType = oreWorld.blockType(x, y)
+
+        //so we can get the enum/name of it
+        val blockTypeName = OreBlock.nameOfBlockType(blockType)!!
+
+        val blockMeshType = oreWorld.blockMeshType(x, y)
+        val blockWallType = oreWorld.blockWallType(x, y)
+
+        val hasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+
+        val damagedBlockHealth = clientBlockDiggingSystem.blockHealthAtIndex(x, y)
+        val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
+
+        font.draw(batch, "blockHealth: $damagedBlockHealth / $totalBlockHealth", TEXT_X_LEFT.toFloat(),
+                  textYLeft.toFloat())
+        textYLeft -= TEXT_Y_SPACING
+
+        val texture = tileRenderSystem.findTextureNameForBlock(x, y)
+
+        val lightLevel = oreWorld.blockLightLevel(x, y)
+        val s = "tile($x, $y), block type: $blockTypeName, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
+
+        font.draw(batch, s, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
+        textYLeft -= TEXT_Y_SPACING
     }
 
     private fun updateStandardDebugInfo() {

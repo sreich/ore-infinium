@@ -76,11 +76,36 @@ interface OreInputProcessor : InputProcessor {
 val Sprite.rect: Rectangle get() = Rectangle(x - (width * 0.5f), y - (height * 0.5f), width, height)
 val Sprite.size: Vector2 get() = Vector2(width, height)
 
+/**
+ * construct an appropriately offset rect from
+ * size and vector position
+ */
+fun Vector2.rectFromSize(width: Float, height: Float): Rectangle {
+    return Rectangle(x - (width * 0.5f), y - (height * 0.5f), width, height)
+}
+
 val Rectangle.bottom: Float get() = y + height
 val Rectangle.top: Float get() = y
 val Rectangle.left: Float get() = x
 val Rectangle.right: Float get() = x + width
 val Rectangle.halfWidth: Float get() = width * 0.5f
+
+/**
+ * @returns true if the this rectangle overlaps the other,
+ * plus some padding
+ * i.e. the overlap will get triggered that much sooner
+ * (rect + padding).
+ *
+ * useful for when you want objects to stay away from each other
+ * for that amount of padding/buffer area.
+ */
+fun Rectangle.overlapsPadded(rect: Rectangle, padding: Float): Boolean {
+    return x < (rect.x + rect.width + padding) &&
+            (x + width + padding) > rect.x &&
+            y < (rect.y + rect.height + padding) &&
+            (y + height + padding) > rect.y
+//    return this.overlaps(rect)
+}
 
 /**
  * get next random int, in the range

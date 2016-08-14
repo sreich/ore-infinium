@@ -29,6 +29,7 @@ import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
@@ -314,8 +315,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
                 return@forEach
             }
 
-            if (cSprite.sprite.rect.overlaps(cSpriteOther.sprite.rect)) {
-                OreWorld.log("movement system", "overlaps!!")
+            if (cSprite.sprite.rect.overlapsPadded(cSpriteOther.sprite.rect, entityPadding)) {
+                OreWorld.log("movement system", "overlaps!! entityId: $it")
                 return performEntityCollision(desiredPosition = desiredPosition, entityToMove = entity,
                                               collidingEntity = it)
             }
@@ -324,6 +325,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         return desiredPosition
     }
 
+    val entityPadding = 1f
+
     /**
      * @param collidingEntity entity that the other one is colliding against
      */
@@ -331,27 +334,37 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         val cSprite = mSprite.get(entityToMove)
         val cSpriteColliding = mSprite.get(collidingEntity)
 
-        val entityToMoveRect = cSprite.sprite.rect
+//        val entityToMoveRect = cSprite.sprite.rect
         val collidingEntityRect = cSpriteColliding.sprite.rect
 
         val velocity = mVelocity.get(entityToMove).velocity
+        val entityToMoveRect = desiredPosition.rectFromSize(cSprite.sprite.size.x, cSprite.sprite.size.y)
 
-        val epsilon = 0.1f
+        val rightSide = rightSideTouches(collidingEntityRect, entityToMoveRect)
+
         if (velocity.x > 0f) {
             //try moving right
-            if (entityToMoveRect.right > collidingEntityRect.left) {
-                desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth)
+            if (entityToMoveRect.right >= collidingEntityRect.left - entityPadding) {
+                desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
+                val q = 2
             }
         } else if (velocity.x < 0f) {
             //try moving left
-            if (entityToMoveRect.left < collidingEntityRect.right) {
-                desiredPosition.x += (collidingEntityRect.right - entityToMoveRect.left) - epsilon
+            //ensure entity to collide with is up against our left side
+            if (entityToMoveRect.left >= collidingEntityRect.right - entityPadding
+//                    && entityToMoveRect.right > collidingEntityRect.right - entityPadding) {
+            ) {
+                desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth)// + entityPadding
                 velocity.x = 0f
             }
         }
 
         return desiredPosition
+    }
+
+    fun rightSideTouches(collidingEntityRect: Rectangle, entityToMoveRect: Rectangle): Boolean {
+        return entityToMoveRect.right > collidingEntityRect.left - entityPadding
     }
 
     /**
@@ -498,4 +511,5 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
     }
 
 }
+
 
