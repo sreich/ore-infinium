@@ -124,8 +124,6 @@ class ChatDialog(private val client: OreClient,
                     if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
                         chatDialog.openChatDialog()
 
-                        //add in helper command sequence
-                        chatDialog.messageField.text = "/"
                         //focus the end of it, otherwise it'd be at the beginning
                         chatDialog.messageField.cursorPosition = chatDialog.messageField.text!!.length
 
