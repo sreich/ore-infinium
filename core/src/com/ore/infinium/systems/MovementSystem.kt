@@ -346,6 +346,9 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         val rightSide = rightSideTouches(collidingEntityRect, entityToMoveRect)
 
+        //true if past bottom of moving entity
+        val pastBottom = entityToMoveRect.bottom >= collidingEntityRect.top - entityPadding
+
         if (velocity.x > 0f) {
             //trying to move right
             if (entityToMoveRect.right >= collidingEntityRect.left - entityPadding
@@ -361,6 +364,23 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
                 desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
                 velocity.x = 0f
             }
+        }
+
+        if (velocity.y > 0f) {
+            //trying to move down
+            if (pastBottom
+                    && entityToMoveRect.top <= collidingEntityRect.bottom) {
+                desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
+                velocity.y = 0f
+            }
+        } else if (velocity.y < 0f) {
+            //trying to move up
+            /*
+            if (entityToMoveRect.top <= collidingEntityRect.bottom + entityPadding
+                    && entityToMoveRect.bottom >= collidingEntityRect.top) {
+                desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
+                velocity.y = 0f
+                */
         }
 
         return desiredPosition
