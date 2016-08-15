@@ -87,13 +87,17 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //by the client. the rest has to be the server
             simulate(entityId, getWorld().delta)
 
-            val mainPlayer = tagManager.getEntity(OreWorld.s_mainPlayer).id
-            val playerSprite = mSprite.get(mainPlayer)
-            oreWorld.camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
-            oreWorld.camera.update()
+            recenterCameraOnPlayer()
 
             clientNetworkSystem.sendPlayerMoved()
         }
+    }
+
+    private fun recenterCameraOnPlayer() {
+        val mainPlayer = tagManager.getEntity(OreWorld.s_mainPlayer).id
+        val playerSprite = mSprite.get(mainPlayer)
+        oreWorld.camera.position.set(playerSprite.sprite.x, playerSprite.sprite.y, 0f)
+        oreWorld.camera.update()
     }
 
     /**
@@ -343,16 +347,17 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         val rightSide = rightSideTouches(collidingEntityRect, entityToMoveRect)
 
         if (velocity.x > 0f) {
-            //try moving right
-            //fixme should instead want to detect early (inside) and move outside, if possible?
-            if (entityToMoveRect.right <= collidingEntityRect.left + entityPadding) {
+            //trying to move right
+            if (entityToMoveRect.right >= collidingEntityRect.left - entityPadding
+                    && entityToMoveRect.left <= collidingEntityRect.left) {
                 desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
             }
         } else if (velocity.x < 0f) {
-            //try moving left
+            //trying to move left
             //ensure entity to collide with is up against our left side
-            if (entityToMoveRect.left >= collidingEntityRect.right - entityPadding) {
+            if (entityToMoveRect.left <= collidingEntityRect.right + entityPadding
+                    && entityToMoveRect.right >= collidingEntityRect.right) {
                 desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
                 velocity.x = 0f
             }

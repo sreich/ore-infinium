@@ -89,6 +89,7 @@ val Rectangle.top: Float get() = y
 val Rectangle.left: Float get() = x
 val Rectangle.right: Float get() = x + width
 val Rectangle.halfWidth: Float get() = width * 0.5f
+val Rectangle.halfHeight: Float get() = height * 0.5f
 
 /**
  * @returns true if the this rectangle overlaps the other,
