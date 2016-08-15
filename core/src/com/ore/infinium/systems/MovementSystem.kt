@@ -348,19 +348,24 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         //true if past bottom of moving entity
         val pastBottom = entityToMoveRect.bottom >= collidingEntityRect.top - entityPadding
+        val pastLeft = entityToMoveRect.left <= collidingEntityRect.right + entityPadding
+        val pastRight = entityToMoveRect.right >= collidingEntityRect.left - entityPadding
+
+        //true if bottom collision is fully satisfied and velocity should be halted
+        val stopBottomCollision = pastLeft && entityToMoveRect.right >= collidingEntityRect.right
 
         if (velocity.x > 0f) {
             //trying to move right
-            if (entityToMoveRect.right >= collidingEntityRect.left - entityPadding
-                    && entityToMoveRect.left <= collidingEntityRect.left) {
+            if (pastRight && entityToMoveRect.left <= collidingEntityRect.left && !stopBottomCollision) {
                 desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
             }
         } else if (velocity.x < 0f) {
             //trying to move left
             //ensure entity to collide with is up against our left side
-            if (entityToMoveRect.left <= collidingEntityRect.right + entityPadding
-                    && entityToMoveRect.right >= collidingEntityRect.right) {
+            //and our other side is facing away from the colliding side
+            // (or switching directions will teleport to the wrong side)
+            if (stopBottomCollision && !stopBottomCollision) {
                 desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
                 velocity.x = 0f
             }
@@ -368,9 +373,9 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         if (velocity.y > 0f) {
             //trying to move down
-            if (pastBottom
-                    && entityToMoveRect.top <= collidingEntityRect.bottom) {
-                desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
+            if (pastBottom && true//entityToMoveRect.top <= collidingEntityRect.bottom
+            ) {
+                desiredPosition.y = (collidingEntityRect.top - entityToMoveRect.halfWidth) - entityPadding
                 velocity.y = 0f
             }
         } else if (velocity.y < 0f) {

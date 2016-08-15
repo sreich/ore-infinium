@@ -202,8 +202,17 @@ class ChatDialog(private val client: OreClient,
      */
     private fun processLocalChatCommands(): Boolean {
         val chat = messageField.text.toLowerCase()
-        when (chat) {
-            "/noclip" -> {
+        when {
+            chat.startsWith("/teleport") -> {
+                chat.removePrefix("/teleport")
+                val args = chat.split(',')
+//                args[0].tost0
+                println("teleport at: $chat")
+//                client.world.teleportPlayer(x, y)
+                return true
+            }
+
+            chat == "/noclip" -> {
                 OreSettings.noClip = !OreSettings.noClip
 
                 val response = "noclip is now ${OreSettings.noClip.enabledString()}"
@@ -211,7 +220,7 @@ class ChatDialog(private val client: OreClient,
                 return true
             }
 
-            "/speedrun" -> {
+            chat == "/speedrun" -> {
                 OreSettings.speedRun = !OreSettings.speedRun
 
                 val response = "speedrun is now ${OreSettings.speedRun.enabledString()}"
@@ -219,7 +228,7 @@ class ChatDialog(private val client: OreClient,
                 return true
             }
 
-            "/lockright" -> {
+            chat == "/lockright" -> {
                 OreSettings.lockRight = !OreSettings.lockRight
 
                 val response = "lockRight is ${OreSettings.lockRight.enabledString()}"
@@ -227,7 +236,7 @@ class ChatDialog(private val client: OreClient,
                 return true
             }
 
-            "/help" -> {
+            chat == "/help" -> {
                 val response = """
                 |type /help for this message. (commands case insensitive)
                 |/noclip if authorized, ignores collisions for your player
