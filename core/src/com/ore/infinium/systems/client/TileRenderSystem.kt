@@ -240,7 +240,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
             OreBlock.BlockType.Air.oreValue -> {
                 //not drawn/handled by this function at all
-                textureName = "air NOT USED"
+                textureName = "(air) no texture"
             }
 
             OreBlock.BlockType.Coal.oreValue -> {

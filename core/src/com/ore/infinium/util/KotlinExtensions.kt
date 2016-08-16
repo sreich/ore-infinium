@@ -74,12 +74,12 @@ fun profilerStopAndPrintMs(prevTimeNs: Long) {
  * profile time taken, execute a function, print result in ms
  * and return result of function call
  */
-fun <T> printMeasureTimeMs(block: () -> T): T {
+fun <T> printMeasureTimeMs(block: () -> T, customString: String = ""): T {
     val start = System.currentTimeMillis()
     val result = block()
     val time = System.currentTimeMillis() - start
 
-    println("PROFILER measured time: $time ms")
+    println("PROFILER measured time: $time ms $customString")
     return result
 }
 

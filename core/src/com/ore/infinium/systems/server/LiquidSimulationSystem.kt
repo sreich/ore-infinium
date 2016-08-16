@@ -55,7 +55,6 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         for (player in oreWorld.players()) {
             val playerComp = mPlayer.get(player)
             val rect = playerComp.loadedViewport.rect
-
             simulateFluidsInRegion(rect, player)
         }
     }
@@ -80,10 +79,10 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         if (dirty) {
             playerSystem.sendPlayerBlockRegion(player)
-            //serverNetworkSystem.sendBlockRegionInterestedPlayers(oreWorld.blockXSafe(dirtyRegion.lefti),
-            //                                                    oreWorld.blockYSafe(dirtyRegion.topi),
-            //                                                  oreWorld.blockXSafe(dirtyRegion.righti - 1),
-            //                                                   oreWorld.blockYSafe(dirtyRegion.bottomi - 1))
+//            serverNetworkSystem.sendBlockRegionInterestedPlayers(oreWorld.blockXSafe(dirtyRegion.lefti),
+            //                                                                oreWorld.blockYSafe(dirtyRegion.topi),
+            //                                                               oreWorld.blockXSafe(dirtyRegion.righti - 1),
+            //                                                              oreWorld.blockYSafe(dirtyRegion.bottomi - 1))
 
             dirty = false
         }
@@ -93,7 +92,6 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private fun processLiquidTile(x: Int, y: Int) {
         val currentLiquid = oreWorld.liquidLevel(x, y)
-
 
         val bottomSafeY = oreWorld.blockYSafe(y + 1)
         val isBottomWater = oreWorld.isWater(x, bottomSafeY)
@@ -114,7 +112,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
             oreWorld.setLiquidLevel(x, bottomSafeY, (amountToMove + bottomLiquid).toByte())
             oreWorld.setBlockType(x, bottomSafeY, OreBlock.BlockType.Water)
 
-            // updateDirtyRegion(x, y)
+            updateDirtyRegion(x, y)
         }
     }
 
@@ -126,7 +124,6 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun updateDirtyRegion(x: Int, y: Int) {
-        return
         //hack
         if (!dirty) {
             dirtyRegion = Rectangle(oreWorld.posXSafe(x - 1).toFloat(),
