@@ -522,7 +522,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val tileX = receivedObject.attackPositionWorldCoords.x.toInt()
         val tileY = receivedObject.attackPositionWorldCoords.y.toInt()
 
-        if (oreWorld.blockType(tileX, tileY) != OreBlock.BlockType.Water.oreValue) {
+        attackLiquidGun(tileX, tileY)
+    }
+
+    private fun attackLiquidGun(tileX: Int, tileY: Int) {
+        if (oreWorld.isWater(tileX, tileY)) {
             //fill with water
             oreWorld.setBlockType(tileX, tileY, OreBlock.BlockType.Water.oreValue)
             oreWorld.setLiquidLevel(tileX, tileY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)

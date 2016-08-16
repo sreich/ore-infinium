@@ -394,6 +394,18 @@ class OreWorld
         return y.coerceIn(0, WORLD_SIZE_Y - 1)
     }
 
+    inline fun posXSafe(x: Int): Float {
+        return x.coerceIn(0, WORLD_SIZE_X - 1).toFloat()
+    }
+
+    inline fun posYSafe(y: Int): Float {
+        return y.coerceIn(0, WORLD_SIZE_Y - 1).toFloat()
+    }
+
+    inline fun isWater(x: Int, y: Int): Boolean {
+        return blockType(x, y) == OreBlock.BlockType.Water.oreValue
+    }
+
     //blocks[(x * 2400 + y) * 4 + i] where i = 0, 1, 2 or 3
     inline fun blockType(x: Int, y: Int): Byte {
         /*
@@ -439,24 +451,26 @@ class OreWorld
     }
 
     /**
-     * would return range from 0 to 15. 0 would be the first water level (it is
-     * not empty, because otherwise it wouldn't be a liquid block anyways)
+     * would return range from 1 to 16.
+     * in-data it is actually represented as 0-15, but we offset by 1 to make calculations
+     * more sane (wouldn't make sense to move over 0 water from one cell to another)
      */
     inline fun liquidLevel(x: Int, y: Int): Byte {
         //hack
         //val level = OreBlock.MAX_LIQUID_LEVEL.toInt().and(0b00001111)
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
+
     }
 
     //fixme we can mess with using adding bit flags and stuff to them. right now i just have
     inline fun setLiquidLevel(x: Int, y: Int, level: Byte) {
         //val level = OreBlock.MAX_LIQUID_LEVEL.toInt().and(0b00001111)
-        val current = blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt()
+        //val current = blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt()
 
         //the flags to not wipe
         //val upper4Bits = current
         //hack
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = level.toByte()
+        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = level
     }
 
     inline fun blockFlags(x: Int, y: Int): Byte {
@@ -482,6 +496,10 @@ class OreWorld
 
         return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().and(
                 flag.toInt()) != 0
+    }
+
+    inline fun setBlockType(x: Int, y: Int, type: OreBlock.BlockType) {
+        setBlockType(x, y, type.oreValue)
     }
 
     inline fun setBlockType(x: Int, y: Int, type: Byte) {

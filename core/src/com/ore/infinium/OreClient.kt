@@ -403,7 +403,8 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             stage.draw()
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
+        //fixme: minus isn't working?? but plus(equals) is
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
             if (zoomTimer.resetIfSurpassed(zoomInterval)) {
                 //zoom out
                 zoom(1.0f + OreSettings.zoomAmount)

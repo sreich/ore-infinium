@@ -30,12 +30,15 @@ import com.badlogic.gdx.math.Rectangle
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.PlayerComponent
-import com.ore.infinium.util.mapper
+import com.ore.infinium.systems.PlayerSystem
+import com.ore.infinium.util.*
 
 @Wire
 class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
-
     private val mPlayer by mapper<PlayerComponent>()
+
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+    private val playerSystem by system<PlayerSystem>()
 
     override fun initialize() {
     }
@@ -43,10 +46,9 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     companion object {
 
         /**
-         * values 0 through 15. 0 still means there's water there,
-         * otherwise the block type would not be of the water type
+         * values 1 through 16.
          */
-        const val MAX_LIQUID_LEVEL: Byte = 15
+        const val MAX_LIQUID_LEVEL: Byte = 16
     }
 
     override fun processSystem() {
@@ -54,22 +56,87 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
             val playerComp = mPlayer.get(player)
             val rect = playerComp.loadedViewport.rect
 
-            simulateFluidsInRegion(rect)
+            simulateFluidsInRegion(rect, player)
         }
     }
 
-    private fun simulateFluidsInRegion(rect: Rectangle) {
-        val startX = rect.x.toInt()
-        val startY = rect.y.toInt()
-        val endX = (rect.x + rect.width).toInt()
-        val endY = (rect.y + rect.height).toInt()
+    //probably want something better. like a region that self expands
+    //when modifications are done outside of it.
+    var dirty = false
+    var dirtyRegion = Rectangle()
+    private fun simulateFluidsInRegion(rect: Rectangle, player: Int) {
+        val startX = rect.lefti
+        val startY = rect.topi
+        val endX = (rect.righti) - 1
+        val endY = (rect.bottomi) - 1
 
         for (x in startX..endX) {
             for (y in startY..endY) {
                 if (oreWorld.blockType(x, y) == OreBlock.BlockType.Water.oreValue) {
-//                    processLiquid(
+                    processLiquidTile(x, y)
                 }
             }
+        }
+
+        if (dirty) {
+            playerSystem.sendPlayerBlockRegion(player)
+            //serverNetworkSystem.sendBlockRegionInterestedPlayers(oreWorld.blockXSafe(dirtyRegion.lefti),
+            //                                                    oreWorld.blockYSafe(dirtyRegion.topi),
+            //                                                  oreWorld.blockXSafe(dirtyRegion.righti - 1),
+            //                                                   oreWorld.blockYSafe(dirtyRegion.bottomi - 1))
+
+            dirty = false
+        }
+    }
+
+    private fun isLiquidFull(level: Byte) = level == MAX_LIQUID_LEVEL
+
+    private fun processLiquidTile(x: Int, y: Int) {
+        val currentLiquid = oreWorld.liquidLevel(x, y)
+
+
+        val bottomSafeY = oreWorld.blockYSafe(y + 1)
+        val isBottomWater = oreWorld.isWater(x, bottomSafeY)
+        val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
+        val bottomSolid = oreWorld.isBlockSolid(x, bottomSafeY)
+
+        if (!bottomSolid && !isLiquidFull(bottomLiquid)) {
+            val amountToMove = currentLiquid - bottomLiquid
+
+            val newSourceAmount = (currentLiquid - amountToMove)
+
+            //empty current
+            oreWorld.setLiquidLevel(x, y, newSourceAmount.toByte())
+
+            removeWaterIfEmpty(x, y, newSourceAmount)
+
+            //fill bottom
+            oreWorld.setLiquidLevel(x, bottomSafeY, (amountToMove + bottomLiquid).toByte())
+            oreWorld.setBlockType(x, bottomSafeY, OreBlock.BlockType.Water)
+
+            // updateDirtyRegion(x, y)
+        }
+    }
+
+    private fun removeWaterIfEmpty(x: Int, y: Int, newSourceAmount: Int) {
+        if (newSourceAmount == 0) {
+            //reset the block type to air if it is empty
+            oreWorld.setBlockType(x, y, OreBlock.BlockType.Air)
+        }
+    }
+
+    private fun updateDirtyRegion(x: Int, y: Int) {
+        return
+        //hack
+        if (!dirty) {
+            dirtyRegion = Rectangle(oreWorld.posXSafe(x - 1).toFloat(),
+                                    oreWorld.posYSafe(y - 1).toFloat(),
+                                    1f,
+                                    1f)
+            dirty = true
+        } else {
+            dirtyRegion.merge(oreWorld.posXSafe(x), oreWorld.posYSafe(y))
+            val a = 2
         }
     }
 }

@@ -102,7 +102,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         sendPlayerBlockRegion(playerEntity)
     }
 
-    private fun sendPlayerBlockRegion(playerEntity: Int) {
+    fun sendPlayerBlockRegion(playerEntity: Int) {
         val playerComponent = mPlayer.get(playerEntity)
         val loadedViewport = playerComponent.loadedViewport
 

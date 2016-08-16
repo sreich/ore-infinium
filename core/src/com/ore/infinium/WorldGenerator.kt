@@ -31,6 +31,7 @@ import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.systems.server.LiquidSimulationSystem
 import com.sudoplay.joise.module.*
 import java.awt.Color
 import java.awt.Font
@@ -336,12 +337,15 @@ class WorldGenerator(private val world: OreWorld) {
         //but it'd be more confusing to subtract the world height, and then
         //readd it back afterwards. so, minimas would be mountains..where
         //lava is and stuff
+        return//hack
         for ((x, y) in peakResult.minima) {
-            world.setBlockType(x, y.toInt(), OreBlock.BlockType.Lava.oreValue)
+            world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
+            world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
         }
 
         for ((x, y) in peakResult.maxima) {
-            world.setBlockType(x, y.toInt(), OreBlock.BlockType.Water.oreValue)
+            world.setBlockType(x, y, OreBlock.BlockType.Water.oreValue)
+            world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
         }
 
 

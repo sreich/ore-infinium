@@ -85,9 +85,17 @@ fun Vector2.rectFromSize(width: Float, height: Float): Rectangle {
 }
 
 val Rectangle.bottom: Float get() = y + height
+val Rectangle.bottomi: Int get() = bottom.toInt()
+
 val Rectangle.top: Float get() = y
+val Rectangle.topi: Int get() = top.toInt()
+
 val Rectangle.left: Float get() = x
+val Rectangle.lefti: Int get() = left.toInt()
+
 val Rectangle.right: Float get() = x + width
+val Rectangle.righti: Int get() = right.toInt()
+
 val Rectangle.halfWidth: Float get() = width * 0.5f
 val Rectangle.halfHeight: Float get() = height * 0.5f
 
