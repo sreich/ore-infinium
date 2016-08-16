@@ -27,6 +27,7 @@ package com.ore.infinium.systems.server
 import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.Rectangle
+import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.util.mapper
@@ -42,7 +43,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     companion object {
 
         /**
-         * values 0 through 15
+         * values 0 through 15. 0 still means there's water there,
+         * otherwise the block type would not be of the water type
          */
         const val MAX_LIQUID_LEVEL: Byte = 15
     }
@@ -64,7 +66,9 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         for (x in startX..endX) {
             for (y in startY..endY) {
-
+                if (oreWorld.blockType(x, y) == OreBlock.BlockType.Water.oreValue) {
+//                    processLiquid(
+                }
             }
         }
     }
