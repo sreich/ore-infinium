@@ -462,6 +462,28 @@ class OreWorld
 
     }
 
+    /**
+     * sets the liquid level but also clears the block type back to Air
+     * if it is empty.
+     * call this if you are decreasing water, but suspect it will hit 0
+     */
+    inline fun setLiquidLevelClearIfEmpty(x: Int, y: Int, level: Byte) {
+        if (level == 0.toByte()) {
+            setBlockType(x, y, OreBlock.BlockType.Air)
+        }
+
+        setLiquidLevel(x, y, level)
+    }
+
+    /**
+     * sets liquid level to @param level and the block type to water.
+     * should ONLY BE CALLED WHEN LEVEL IS NOT 0
+     */
+    inline fun setLiquidLevelWaterNotEmpty(x: Int, y: Int, level: Byte) {
+        setBlockType(x, y, OreBlock.BlockType.Water)
+        setLiquidLevel(x, y, level)
+    }
+
     //fixme we can mess with using adding bit flags and stuff to them. right now i just have
     inline fun setLiquidLevel(x: Int, y: Int, level: Byte) {
         //val level = OreBlock.MAX_LIQUID_LEVEL.toInt().and(0b00001111)

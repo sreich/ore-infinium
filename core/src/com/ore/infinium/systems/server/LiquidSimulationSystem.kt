@@ -26,6 +26,7 @@ package com.ore.infinium.systems.server
 
 import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
+import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
@@ -90,37 +91,157 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private fun isLiquidFull(level: Byte) = level == MAX_LIQUID_LEVEL
 
+    enum class LeftRight {
+        Left,
+        Right
+    }
+
     private fun processLiquidTile(x: Int, y: Int) {
-        val currentLiquid = oreWorld.liquidLevel(x, y)
+        val sourceAmount = oreWorld.liquidLevel(x, y)
 
         val bottomSafeY = oreWorld.blockYSafe(y + 1)
-        val isBottomWater = oreWorld.isWater(x, bottomSafeY)
-        val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
         val bottomSolid = oreWorld.isBlockSolid(x, bottomSafeY)
 
-        if (!bottomSolid && !isLiquidFull(bottomLiquid)) {
-            val amountToMove = currentLiquid - bottomLiquid
+        var newSourceAmount = sourceAmount.toInt()
+        if (!bottomSolid) {
+            val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
+            if (!isLiquidFull(bottomLiquid)) {
+                newSourceAmount = moveLiquidToBottom(sourceX = x, sourceY = y,
+                                                     sourceAmount = sourceAmount,
+                                                     bottomLiquid = bottomLiquid)
+            }
+        }
 
-            val newSourceAmount = (currentLiquid - amountToMove)
+        //none left to disperse
+        if (newSourceAmount == 0) {
+            return
+        }
 
-            //empty current
-            oreWorld.setLiquidLevel(x, y, newSourceAmount.toByte())
+        //now try other 2 sides (left/right, or both)
 
-            removeWaterIfEmpty(x, y, newSourceAmount)
+        val leftSafeX = oreWorld.blockXSafe(x - 1)
+        val leftSolid = oreWorld.isBlockSolid(leftSafeX, y)
+        val leftLiquid = oreWorld.liquidLevel(leftSafeX, y)
 
-            //fill bottom
-            oreWorld.setLiquidLevel(x, bottomSafeY, (amountToMove + bottomLiquid).toByte())
-            oreWorld.setBlockType(x, bottomSafeY, OreBlock.BlockType.Water)
+        val rightSafeX = oreWorld.blockXSafe(x + 1)
+        val rightSolid = oreWorld.isBlockSolid(rightSafeX, y)
+        val rightLiquid = oreWorld.liquidLevel(rightSafeX, y)
 
-            updateDirtyRegion(x, y)
+        val moveLeft = !leftSolid && !isLiquidFull(leftLiquid)
+        val moveRight = !rightSolid && !isLiquidFull(rightLiquid)
+        when {
+            moveLeft && moveRight -> {
+                moveLiquidLeftRight(sourceX = x, sourceY = y,
+                                    sourceAmount = sourceAmount,
+                                    leftLiquid = leftLiquid,
+                                    rightLiquid = rightLiquid)
+            }
+
+            moveLeft -> {
+                moveLiquidLeft(sourceX = x, sourceY = y,
+                               sourceAmount = sourceAmount,
+                               leftLiquid = leftLiquid)
+            }
+
+            moveRight -> {
+                moveLiquidRight(sourceX = x, sourceY = y,
+                                sourceAmount = sourceAmount,
+                                rightLiquid = rightLiquid)
+            }
         }
     }
 
-    private fun removeWaterIfEmpty(x: Int, y: Int, newSourceAmount: Int) {
-        if (newSourceAmount == 0) {
-            //reset the block type to air if it is empty
-            oreWorld.setBlockType(x, y, OreBlock.BlockType.Air)
+    private fun moveLiquidRight(sourceX: Int, sourceY: Int, sourceAmount: Byte, rightLiquid: Byte) {
+        val rightSafeX = oreWorld.blockXSafe(sourceX + 1)
+
+        val amountToSplit = (sourceAmount + rightLiquid) / 2
+        val remainder = (sourceAmount + rightLiquid) % 2
+
+        //empty current as much as possible (there still may be some left here, the source)
+        oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, amountToSplit.toByte())
+
+        //fill right
+        oreWorld.setLiquidLevelWaterNotEmpty(rightSafeX, sourceY, (amountToSplit + remainder).toByte())
+
+        updateDirtyRegion(sourceX, sourceY)
+    }
+
+    private fun moveLiquidLeft(sourceX: Int, sourceY: Int, sourceAmount: Byte, leftLiquid: Byte) {
+        val leftSafeX = oreWorld.blockXSafe(sourceX - 1)
+
+        val amountToSpread = (sourceAmount + leftLiquid) / 2
+        val remainder = (sourceAmount + leftLiquid) % 2
+
+        //empty current as much as possible (there still may be some left here, the source)
+        oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, amountToSpread.toByte())
+
+        //fill left
+        oreWorld.setLiquidLevelWaterNotEmpty(leftSafeX, sourceY, (amountToSpread + remainder).toByte())
+
+        updateDirtyRegion(sourceX, sourceY)
+    }
+
+    val rand = RandomXS128()
+    private fun moveLiquidLeftRight(sourceX: Int,
+                                    sourceY: Int,
+                                    sourceAmount: Byte,
+                                    leftLiquid: Byte,
+                                    rightLiquid: Byte) {
+        val leftSafeX = oreWorld.blockXSafe(sourceX - 1)
+        val rightSafeX = oreWorld.blockXSafe(sourceX + 1)
+
+        val amountToSpread = (sourceAmount + leftLiquid + rightLiquid) / 3
+        val remainder = (sourceAmount + leftLiquid + rightLiquid) % 3
+
+        if (remainder > 0) {
+            //pick one or the other randomly??
+            val randomDirection = rand.nextInt(0, 1)
+            when (randomDirection) {
+                0 -> {
+                    //give more to the left
+                    oreWorld.setLiquidLevelWaterNotEmpty(leftSafeX, sourceY, (amountToSpread + remainder).toByte())
+                    oreWorld.setLiquidLevelWaterNotEmpty(rightSafeX, sourceY, (amountToSpread).toByte())
+                }
+                1 -> {
+                    //give more to the right
+                    oreWorld.setLiquidLevelWaterNotEmpty(rightSafeX, sourceY, (amountToSpread + remainder).toByte())
+                    oreWorld.setLiquidLevelWaterNotEmpty(leftSafeX, sourceY, amountToSpread.toByte())
+                }
+            }
+        } else {
+            //it's spread evenly
+            //fill left, right
+            oreWorld.setLiquidLevelWaterNotEmpty(leftSafeX, sourceY, amountToSpread.toByte())
+            oreWorld.setLiquidLevelWaterNotEmpty(rightSafeX, sourceY, amountToSpread.toByte())
         }
+
+        //empty current as much as possible (there still may be some left here, the source)
+        oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, amountToSpread.toByte())
+
+        updateDirtyRegion(sourceX, sourceY)
+    }
+
+    /**
+     * @return the new source amount.
+     */
+    private fun moveLiquidToBottom(sourceX: Int,
+                                   sourceY: Int,
+                                   sourceAmount: Byte,
+                                   bottomLiquid: Byte): Int {
+        val bottomSafeY = oreWorld.blockYSafe(sourceY + 1)
+        val amountToMove = sourceAmount - bottomLiquid
+
+        val newSourceAmount = (sourceAmount - amountToMove)
+
+        //empty current as much as possible (there still may be some left here, the source)
+        oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, newSourceAmount.toByte())
+
+        //fill bottom
+        oreWorld.setLiquidLevelWaterNotEmpty(sourceX, bottomSafeY, (amountToMove + bottomLiquid).toByte())
+
+        updateDirtyRegion(sourceX, sourceX)
+
+        return newSourceAmount
     }
 
     private fun updateDirtyRegion(x: Int, y: Int) {
