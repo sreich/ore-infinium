@@ -60,6 +60,16 @@ class WorldGenerator(private val world: OreWorld) {
         Gdx.app.log("", s)
     }
 
+    fun flatWorld(worldSize: OreWorld.WorldSize) {
+        for (y in 0 until worldSize.height) {
+            for (x in 0 until worldSize.width) {
+                if (y > 60) {
+                    world.setBlockType(x, y, OreBlock.BlockType.Dirt)
+                }
+            }
+        }
+    }
+
     private fun generateTrees() {
         /*
         var bottomY = (pos.y + (size.y * 0.5f)).toInt()

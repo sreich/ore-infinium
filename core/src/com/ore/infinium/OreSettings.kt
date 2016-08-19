@@ -142,6 +142,11 @@ object OreSettings {
     @JvmField
     var saveLoadWorld: Boolean = false
 
+    @Parameter(names = arrayOf("--flatWorld"),
+               description = "create a flat simple world at startup, because it's fast (debug)")
+    @JvmField
+    var flatWorld: Boolean = false
+
     var debugRenderGui: Boolean = true
 
     var profilerEnabled = false

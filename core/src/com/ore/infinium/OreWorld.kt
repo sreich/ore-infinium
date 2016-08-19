@@ -192,7 +192,11 @@ class OreWorld
             if (OreSettings.saveLoadWorld) {
                 worldIO.loadWorld()
             } else {
-                generateWorld()
+                if (OreSettings.flatWorld) {
+                    worldGenerator!!.flatWorld(WORLD_SIZE)
+                } else {
+                    generateWorld()
+                }
             }
         }
 
