@@ -147,10 +147,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 val blockMeshType = m_world.blockMeshType(x, y)
                 val blockWallType = m_world.blockWallType(x, y)
 
-                val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
-                var shouldDrawForegroundTile = true
-
-                textureName = findTextureNameForBlock(x, y)
+                textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
                 //String textureName = World.blockAttributes.get(block.type).textureName;
 
                 val blockLightLevel = debugLightLevel(x, y)
@@ -160,6 +157,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
                 val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
 
+                var shouldDrawForegroundTile = true
                 if (blockType == OreBlock.BlockType.Air.oreValue) {
                     shouldDrawForegroundTile = false
                     if (blockWallType == OreBlock.WallType.Air.oreValue) {
@@ -171,7 +169,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 drawWall(lightValue, tileX, tileY, blockMeshType)
 
                 if (shouldDrawForegroundTile) {
-                    drawForegroundTile(textureName, lightValue, tileX, tileY)
+                    drawForegroundTile(textureName, lightValue, tileX, tileY, blockType, x, y)
                 }
 
                 ++debugTilesInViewCount
@@ -197,7 +195,12 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         batch.setColor(1f, 1f, 1f, 1f)
     }
 
-    private fun drawForegroundTile(textureName: String, lightValue: Float, tileX: Float, tileY: Float) {
+    private fun drawForegroundTile(textureName: String,
+                                   lightValue: Float,
+                                   tileX: Float,
+                                   tileY: Float,
+                                   blockType: Byte,
+                                   x: Int, y: Int) {
         val foregroundTileRegion = tilesAtlas.findRegion(textureName)
 
         assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
@@ -208,8 +211,24 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         //                      m_batch.setColor(1f, 1f, 1f, 1f)
         //                 }
 
+        var resetColor = false
+
+        if (blockType == OreBlock.BlockType.Water.oreValue) {
+            val liquidLevel = m_world.liquidLevel(x, y)
+
+            if (liquidLevel == 0.toByte()) {
+                //debug to show water blocks that didn't get unset
+                batch.setColor(.1f, 1f, 0f, 1f)
+                resetColor = true
+            }
+        }
+
         //offset y to flip orientation around to normal
         batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
+
+        if (resetColor) {
+//            batch.setColor(1f, 1f, 1f, 1f)
+        }
     }
 
     private fun debugLightLevel(x: Int, y: Int): Byte {
@@ -220,9 +239,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         }
     }
 
-    fun findTextureNameForBlock(x: Int, y: Int): String {
-        val blockType = m_world.blockType(x, y)
-        val blockMeshType = m_world.blockMeshType(x, y)
+    fun findTextureNameForBlock(x: Int, y: Int, blockType: Byte, blockMeshType: Byte): String {
         val blockWallType = m_world.blockWallType(x, y)
 
         val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)

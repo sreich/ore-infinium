@@ -302,7 +302,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
                   textYLeft.toFloat())
         textYLeft -= TEXT_Y_SPACING
 
-        val texture = tileRenderSystem.findTextureNameForBlock(x, y)
+        val texture = tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
 
         val lightLevel = oreWorld.blockLightLevel(x, y)
         val s = "tile($x, $y), block type: $blockTypeName, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
