@@ -100,6 +100,7 @@ class OreWorld
     private var worldGenerator: WorldGenerator? = null
 
     lateinit var artemisWorld: World
+    val worldIO = WorldIO(this)
 
     /**
      * who owns/is running this exact world instance. If it is the server, or a client.
@@ -188,7 +189,11 @@ class OreWorld
             worldGenerator = WorldGenerator(this)
             artemisWorld.inject(worldGenerator, true)
 
-            generateWorld()
+            if (OreSettings.saveLoadWorld) {
+                worldIO.loadWorld()
+            } else {
+                generateWorld()
+            }
         }
 
         //        assetManager = new AssetManager();

@@ -118,7 +118,7 @@ object OreSettings {
     var noClip: Boolean = false
 
     @Parameter(names = arrayOf("--generateWorld"),
-           description = "Generates the world with default params, outputs to image and immediately exits. For testing.")
+               description = "Generates the world with default params, outputs to image and immediately exits. For testing.")
     @JvmField
     var generateWorld: Boolean = false
 
@@ -136,6 +136,11 @@ object OreSettings {
                description = "enable network debug to stdout for displaying frequencies of each packet received, for both client and server.")
     @JvmField
     var debugPacketTypeStatistics: Boolean = false
+
+    @Parameter(names = arrayOf("--saveLoadWorld"),
+               description = "automatically load the world at startup and save it at exit (debug).")
+    @JvmField
+    var saveLoadWorld: Boolean = false
 
     var debugRenderGui: Boolean = true
 

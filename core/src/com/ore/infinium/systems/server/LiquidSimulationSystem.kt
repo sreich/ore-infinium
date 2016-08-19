@@ -99,6 +99,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private fun processLiquidTile(x: Int, y: Int) {
         val sourceAmount = oreWorld.liquidLevel(x, y)
 
+        assert(sourceAmount > 0)
+
         val bottomSafeY = oreWorld.blockYSafe(y + 1)
         val bottomSolid = oreWorld.isBlockSolid(x, bottomSafeY)
 
@@ -195,7 +197,9 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         if (remainder > 0) {
             //pick one or the other randomly??
-            val randomDirection = rand.nextInt(0, 1)
+            //hack
+            val randomDirection = 1//rand.nextInt(0, 1)
+            assert(amountToSpread > 0) { "amount to spread impossibly 0. sourceAmount: $sourceAmount, left: $leftLiquid, right: $rightLiquid" } //FIXME error, HIT
             when (randomDirection) {
                 0 -> {
                     //give more to the left
@@ -211,6 +215,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         } else {
             //it's spread evenly
             //fill left, right
+            assert(amountToSpread > 0)
             oreWorld.setLiquidLevelWaterNotEmpty(leftSafeX, sourceY, amountToSpread.toByte())
             oreWorld.setLiquidLevelWaterNotEmpty(rightSafeX, sourceY, amountToSpread.toByte())
         }
@@ -232,9 +237,13 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val amountToMove = sourceAmount - bottomLiquid
 
         val newSourceAmount = (sourceAmount - amountToMove)
+        //println("amounttospread: $amountToSpread, remainder: $remainder")
+        println("amounttomove: $amountToMove, remainder: $newSourceAmount")
 
         //empty current as much as possible (there still may be some left here, the source)
         oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, newSourceAmount.toByte())
+
+        assert(amountToMove + bottomLiquid > 0)
 
         //fill bottom
         oreWorld.setLiquidLevelWaterNotEmpty(sourceX, bottomSafeY, (amountToMove + bottomLiquid).toByte())

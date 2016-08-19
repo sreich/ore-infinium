@@ -90,6 +90,10 @@ class OreServer : Runnable {
             oreWorld.process()
         }
 
+        if (OreSettings.saveLoadWorld) {
+            oreWorld.worldIO.saveWorld()
+        }
+
         oreWorld.shutdown()
     }
 
