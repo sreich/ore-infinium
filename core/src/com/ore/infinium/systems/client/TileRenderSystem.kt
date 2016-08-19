@@ -100,11 +100,6 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
     }
 
     override fun processSystem() {
-        render(world.getDelta())
-    }
-
-    fun render(elapsed: Float) {
-        //fixme the system should be disabled and enabled when this happens
         if (!clientNetworkSystem.connected) {
             return
         }
@@ -112,6 +107,12 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         if (!debugRenderTiles) {
             return
         }
+
+        render(world.getDelta())
+    }
+
+    fun render(elapsed: Float) {
+        //fixme the system should be disabled and enabled when this happens
 
         batch.projectionMatrix = m_camera.combined
         val sprite = mSprite.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
@@ -147,16 +148,12 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 val blockWallType = m_world.blockWallType(x, y)
 
                 val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
-                var drawForegroundTile = true
+                var shouldDrawForegroundTile = true
 
                 textureName = findTextureNameForBlock(x, y)
                 //String textureName = World.blockAttributes.get(block.type).textureName;
 
-                val blockLightLevel = if (debugRenderTileLighting) {
-                    m_world.blockLightLevel(x, y)
-                } else {
-                    TileLightingSystem.MAX_TILE_LIGHT_LEVEL
-                }
+                val blockLightLevel = debugLightLevel(x, y)
 
                 val tileX = x.toFloat()
                 val tileY = y.toFloat()
@@ -164,45 +161,17 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
 
                 if (blockType == OreBlock.BlockType.Air.oreValue) {
-                    drawForegroundTile = false
+                    shouldDrawForegroundTile = false
                     if (blockWallType == OreBlock.WallType.Air.oreValue) {
                         //can skip over entirely empty blocks
                         continue@loop
                     }
                 }
 
-                ///////////////////////////////// draw walls
-                val wallTextureName = dirtBlockMeshes.get(0)
-                assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
+                drawWall(lightValue, tileX, tileY, blockMeshType)
 
-                //fixme of course, for wall drawing, walls should have their own textures
-                //m_batch.setColor(0.5f, 0.5f, 0.5f, 1f)
-                //m_batch.setColor(1.0f, 0f, 0f, 1f)
-                batch.setColor(lightValue, lightValue, lightValue, 1f)
-
-                //offset y to flip orientation around to normal
-                val regionWall = tilesAtlas.findRegion(wallTextureName)
-                batch.draw(regionWall, tileX, tileY + 1, 1f, -1f)
-
-                batch.setColor(1f, 1f, 1f, 1f)
-                //////////////////////////////////////
-
-                ///////////////////////////////////// draw foreground tile
-
-                if (drawForegroundTile) {
-                    val foregroundTileRegion = tilesAtlas.findRegion(textureName)
-                    assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName!!}" }
-
-//                    if (blockLightLevel != 0.toByte()) {
-                    batch.setColor(lightValue, lightValue, lightValue, 1f)
-                    //                   } else {
-                    //                      m_batch.setColor(1f, 1f, 1f, 1f)
-                    //                 }
-
-                    //offset y to flip orientation around to normal
-                    batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
-
-                    //////////////////////////////////////////////////////////
+                if (shouldDrawForegroundTile) {
+                    drawForegroundTile(textureName, lightValue, tileX, tileY)
                 }
 
                 ++debugTilesInViewCount
@@ -210,6 +179,45 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         }
 
         batch.end()
+    }
+
+    private fun drawWall(lightValue: Float, tileX: Float, tileY: Float, blockMeshType: Byte) {
+        val wallTextureName = dirtBlockMeshes.get(0)
+        assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
+
+        //fixme of course, for wall drawing, walls should have their own textures
+        //m_batch.setColor(0.5f, 0.5f, 0.5f, 1f)
+        //m_batch.setColor(1.0f, 0f, 0f, 1f)
+        batch.setColor(lightValue, lightValue, lightValue, 1f)
+
+        //offset y to flip orientation around to normal
+        val regionWall = tilesAtlas.findRegion(wallTextureName)
+        batch.draw(regionWall, tileX, tileY + 1, 1f, -1f)
+
+        batch.setColor(1f, 1f, 1f, 1f)
+    }
+
+    private fun drawForegroundTile(textureName: String, lightValue: Float, tileX: Float, tileY: Float) {
+        val foregroundTileRegion = tilesAtlas.findRegion(textureName)
+
+        assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
+
+        //if (blockLightLevel != 0.toByte()) {
+        batch.setColor(lightValue, lightValue, lightValue, 1f)
+        //                   } else {
+        //                      m_batch.setColor(1f, 1f, 1f, 1f)
+        //                 }
+
+        //offset y to flip orientation around to normal
+        batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
+    }
+
+    private fun debugLightLevel(x: Int, y: Int): Byte {
+        if (debugRenderTileLighting) {
+            return m_world.blockLightLevel(x, y)
+        } else {
+            return TileLightingSystem.MAX_TILE_LIGHT_LEVEL
+        }
     }
 
     fun findTextureNameForBlock(x: Int, y: Int): String {

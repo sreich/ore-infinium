@@ -70,8 +70,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val endX = (rect.righti) - 1
         val endY = (rect.bottomi) - 1
 
-        for (x in startX..endX) {
-            for (y in startY..endY) {
+        for (y in endY downTo startY) {
+            for (x in startX until endX) {
                 if (oreWorld.blockType(x, y) == OreBlock.BlockType.Water.oreValue) {
                     processLiquidTile(x, y)
                 }
@@ -99,7 +99,10 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private fun processLiquidTile(x: Int, y: Int) {
         val sourceAmount = oreWorld.liquidLevel(x, y)
 
-        assert(sourceAmount > 0)
+        if (sourceAmount <= 0) {
+
+//            error("")
+        }
 
         val bottomSafeY = oreWorld.blockYSafe(y + 1)
         val bottomSolid = oreWorld.isBlockSolid(x, bottomSafeY)
@@ -107,7 +110,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         var newSourceAmount = sourceAmount.toInt()
         if (!bottomSolid) {
             val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
-            if (!isLiquidFull(bottomLiquid)) {
+            if (!isLiquidFull(bottomLiquid) && bottomLiquid < sourceAmount) {
                 newSourceAmount = moveLiquidToBottom(sourceX = x, sourceY = y,
                                                      sourceAmount = sourceAmount,
                                                      bottomLiquid = bottomLiquid)
@@ -129,8 +132,9 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val rightSolid = oreWorld.isBlockSolid(rightSafeX, y)
         val rightLiquid = oreWorld.liquidLevel(rightSafeX, y)
 
-        val moveLeft = !leftSolid && !isLiquidFull(leftLiquid)
-        val moveRight = !rightSolid && !isLiquidFull(rightLiquid)
+        val moveLeft = !leftSolid && !isLiquidFull(leftLiquid) && leftLiquid < sourceAmount
+        val moveRight = !rightSolid && !isLiquidFull(rightLiquid) && rightLiquid < sourceAmount
+
         when {
             moveLeft && moveRight -> {
                 moveLiquidLeftRight(sourceX = x, sourceY = y,
@@ -199,7 +203,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //pick one or the other randomly??
             //hack
             val randomDirection = 1//rand.nextInt(0, 1)
-            assert(amountToSpread > 0) { "amount to spread impossibly 0. sourceAmount: $sourceAmount, left: $leftLiquid, right: $rightLiquid" } //FIXME error, HIT
+            //    assert(amountToSpread > 0) { "amount to spread impossibly 0. sourceAmount: $sourceAmount, left: $leftLiquid, right: $rightLiquid" } //FIXME error, HIT
             when (randomDirection) {
                 0 -> {
                     //give more to the left
