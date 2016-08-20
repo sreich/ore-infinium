@@ -138,7 +138,7 @@ project(":core") {
     sourceSets {
         // run the annotation processor compile time.
         main {
-            compileClasspath += [configurations.provided]
+            compileClasspath = files(configurations.provided)
         }
     }
 

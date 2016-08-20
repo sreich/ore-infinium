@@ -813,7 +813,7 @@ class OreWorld
 
         mTool.create(entity).apply {
             type = ToolComponent.ToolType.Bucket
-            attackIntervalMs = 1
+            attackIntervalMs = 1000
         }
 
         mSprite.create(entity).apply {
