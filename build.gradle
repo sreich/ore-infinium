@@ -104,15 +104,15 @@ subprojects {
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1/" }
     }
 
-    apply plugin: "idea"
+    //apply plugin: "idea"
 
-    idea {
-        project {
+    //idea {
+        //project {
   //          jdkName = '1.8'
 //            downloadSources = true
-        }
+        //}
  //           downloadJavadoc = true
-    }
+    //}
 
 }
 
