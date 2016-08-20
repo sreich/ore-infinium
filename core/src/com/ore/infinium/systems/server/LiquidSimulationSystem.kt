@@ -132,8 +132,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val rightSolid = oreWorld.isBlockSolid(rightSafeX, y)
         val rightLiquid = oreWorld.liquidLevel(rightSafeX, y)
 
-        val moveLeft = !leftSolid && !isLiquidFull(leftLiquid) && leftLiquid < sourceAmount
-        val moveRight = !rightSolid && !isLiquidFull(rightLiquid) && rightLiquid < sourceAmount
+        val moveLeft = !leftSolid && !isLiquidFull(leftLiquid) && leftLiquid < sourceAmount && sourceAmount > 1
+        val moveRight = !rightSolid && !isLiquidFull(rightLiquid) && rightLiquid < sourceAmount && sourceAmount > 1
 
         when {
             moveLeft && moveRight -> {
@@ -204,6 +204,9 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //hack
             val randomDirection = 1//rand.nextInt(0, 1)
             //    assert(amountToSpread > 0) { "amount to spread impossibly 0. sourceAmount: $sourceAmount, left: $leftLiquid, right: $rightLiquid" } //FIXME error, HIT
+            if (amountToSpread <= 0) {
+                error("")
+            }
             when (randomDirection) {
                 0 -> {
                     //give more to the left
@@ -214,6 +217,9 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
                     //give more to the right
                     oreWorld.setLiquidLevelWaterNotEmpty(rightSafeX, sourceY, (amountToSpread + remainder).toByte())
                     oreWorld.setLiquidLevelWaterNotEmpty(leftSafeX, sourceY, amountToSpread.toByte())
+                }
+                2 -> {
+                    error("")
                 }
             }
         } else {
