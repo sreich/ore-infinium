@@ -100,8 +100,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     private var textYRight: Int = 0
     private var textYLeft: Int = 0
 
-    private var debugStrings = mutableListOf("E - power overlay. Q - drop item",
-                                             "1-8 or mouse wheel for inventory selection")
+    private var debugStrings = mutableListOf<String>()
 
     init {
         batch = SpriteBatch()
@@ -201,60 +200,46 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
     }
 
+    private fun drawNextLeftString(string: String) {
+        font.draw(batch, string, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
+        textYLeft -= TEXT_Y_SPACING
+    }
+
     private fun drawStandardDebugInfo() {
-        font.draw(batch, fpsString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-        font.draw(batch, frameTimeString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        drawNextLeftString(fpsString)
+        drawNextLeftString(frameTimeString)
 
         //fixme
         //        if (m_server != null) {
-        font.draw(batch, frameTimeServerString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        drawNextLeftString(frameTimeServerString)
 
         //       }
 
-        font.draw(batch, guiDebugString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-
-        font.draw(batch, guiRenderToggleString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-
-        font.draw(batch, tileRenderDebugString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-
-        font.draw(batch, networkSyncDebugString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-
-        font.draw(batch, spriteRenderDebugString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-
-        font.draw(batch, "F7 - system profiler toggle", TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        drawNextLeftString(guiDebugString)
+        drawNextLeftString(guiRenderToggleString)
+        drawNextLeftString(tileRenderDebugString)
+        drawNextLeftString(networkSyncDebugString)
+        drawNextLeftString(spriteRenderDebugString)
+        drawNextLeftString("F7 - system profiler toggle")
 
         for (s in debugStrings) {
-            font.draw(batch, s, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-            textYLeft -= TEXT_Y_SPACING
+            drawNextLeftString(s)
         }
+
         //extra spacing
         textYLeft -= TEXT_Y_SPACING
 
-        font.draw(batch, "tiles rendered: ${tileRenderSystem.debugTilesInViewCount}", TEXT_X_LEFT.toFloat(),
-                  textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-        font.draw(batch, textureSwitchesString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-        font.draw(batch, shaderSwitchesString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-        font.draw(batch, drawCallsString, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        drawNextLeftString("tiles rendered: ${tileRenderSystem.debugTilesInViewCount}")
+
+        drawNextLeftString(textureSwitchesString)
+        drawNextLeftString(shaderSwitchesString)
+        drawNextLeftString(drawCallsString)
 
         printBlockDebugInfo()
 
         val clientEntities = getWorld().entities(allOf())
 
-        font.draw(batch, "client entities: ${clientEntities.size()}", TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        drawNextLeftString("client entities: ${clientEntities.size()}")
 
         assert(oreWorld.server != null)
         //debug text only gets run on client. but this block can only be run when we have direct
@@ -274,10 +259,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
         }
 
-        font.draw(batch, "ping: ${clientNetworkSystem.clientKryo.returnTripTime}", TEXT_X_LEFT.toFloat(),
-                  textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
-
+        drawNextLeftString("ping: ${clientNetworkSystem.clientKryo.returnTripTime}")
     }
 
     private fun printBlockDebugInfo() {
@@ -299,30 +281,26 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         val damagedBlockHealth = clientBlockDiggingSystem.blockHealthAtIndex(x, y)
         val totalBlockHealth = OreBlock.blockAttributes[blockType]!!.blockTotalHealth
 
-        font.draw(batch, "blockHealth: $damagedBlockHealth / $totalBlockHealth", TEXT_X_LEFT.toFloat(),
-                  textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        drawNextLeftString("blockHealth: $damagedBlockHealth / $totalBlockHealth")
 
         val texture = tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
 
         val lightLevel = oreWorld.blockLightLevel(x, y)
         val s = "tile($x, $y), block type: $blockTypeName, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
 
-        font.draw(batch, s, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
-        textYLeft -= TEXT_Y_SPACING
+        drawNextLeftString(s)
 
-        if (blockType == OreBlock.BlockType.Water.oreValue || blockType == OreBlock.BlockType.Lava.oreValue) {
+        if (oreWorld.isBlockLiquid(x, y)) {
             val liquidLevel = oreWorld.liquidLevel(x, y)
             val maxLiquid = LiquidSimulationSystem.MAX_LIQUID_LEVEL
-            font.draw(batch, "liquid level: ($liquidLevel/$maxLiquid)",
-                      TEXT_X_LEFT.toFloat(),
-                      textYLeft.toFloat())
-            textYLeft -= TEXT_Y_SPACING
+            drawNextLeftString("liquid level: ($liquidLevel/$maxLiquid)")
         }
     }
 
     private fun updateStandardDebugInfo() {
         if (frameTimer.milliseconds() > 300) {
+            //           debugStrings.clear()
+//            debugStrings.add("")
             frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
             fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
             textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
@@ -346,6 +324,9 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
             spriteRenderDebugString = "F8 - client sprite debug render (${renderDebugClient.enabledString()})"
             lightingRendererDebugString = "F7 - tile lighting renderer debug (${tileRenderSystem.debugRenderTileLighting.enabledString()})"
+
+//            ("E - power overlay. Q - drop item",
+            //hack           "1-8 or mouse wheel for inventory selection")
 
             frameTimer.reset()
         }
