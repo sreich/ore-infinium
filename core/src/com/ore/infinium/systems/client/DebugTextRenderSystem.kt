@@ -41,6 +41,7 @@ import com.ore.infinium.OreSettings
 import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.server.LiquidSimulationSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
 import java.text.DecimalFormat
@@ -309,6 +310,15 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
         font.draw(batch, s, TEXT_X_LEFT.toFloat(), textYLeft.toFloat())
         textYLeft -= TEXT_Y_SPACING
+
+        if (blockType == OreBlock.BlockType.Water.oreValue || blockType == OreBlock.BlockType.Lava.oreValue) {
+            val liquidLevel = oreWorld.liquidLevel(x, y)
+            val maxLiquid = LiquidSimulationSystem.MAX_LIQUID_LEVEL
+            font.draw(batch, "liquid level: ($liquidLevel/$maxLiquid)",
+                      TEXT_X_LEFT.toFloat(),
+                      textYLeft.toFloat())
+            textYLeft -= TEXT_Y_SPACING
+        }
     }
 
     private fun updateStandardDebugInfo() {
