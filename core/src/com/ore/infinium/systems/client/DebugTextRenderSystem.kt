@@ -206,21 +206,11 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     }
 
     private fun drawStandardDebugInfo() {
-        drawNextLeftString(fpsString)
-        drawNextLeftString(frameTimeString)
-
         //fixme
         //        if (m_server != null) {
-        drawNextLeftString(frameTimeServerString)
 
         //       }
 
-        drawNextLeftString(guiDebugString)
-        drawNextLeftString(guiRenderToggleString)
-        drawNextLeftString(tileRenderDebugString)
-        drawNextLeftString(networkSyncDebugString)
-        drawNextLeftString(spriteRenderDebugString)
-        drawNextLeftString("F7 - system profiler toggle")
 
         for (s in debugStrings) {
             drawNextLeftString(s)
@@ -230,10 +220,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         textYLeft -= TEXT_Y_SPACING
 
         drawNextLeftString("tiles rendered: ${tileRenderSystem.debugTilesInViewCount}")
-
-        drawNextLeftString(textureSwitchesString)
-        drawNextLeftString(shaderSwitchesString)
-        drawNextLeftString(drawCallsString)
 
         printBlockDebugInfo()
 
@@ -286,9 +272,14 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         val texture = tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
 
         val lightLevel = oreWorld.blockLightLevel(x, y)
-        val s = "tile($x, $y), block type: $blockTypeName, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , Grass: $hasGrass LightLevel: $lightLevel/${TileLightingSystem.MAX_TILE_LIGHT_LEVEL}"
+        val maxLight = TileLightingSystem.MAX_TILE_LIGHT_LEVEL
+        val s = "tile($x, $y), block type: $blockTypeName, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , LightLevel: $lightLevel/$maxLight"
 
         drawNextLeftString(s)
+
+        if (hasGrass) {
+            drawNextLeftString("hasGrass: true")
+        }
 
         if (oreWorld.isBlockLiquid(x, y)) {
             val liquidLevel = oreWorld.liquidLevel(x, y)
@@ -298,37 +289,32 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     }
 
     private fun updateStandardDebugInfo() {
-        if (frameTimer.milliseconds() > 300) {
-            //           debugStrings.clear()
-//            debugStrings.add("")
-            frameTimeString = "Client frame time: "//fixme + decimalFormat.format(frameTime);
-            fpsString = "FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)"
-            textureSwitchesString = "Texture switches: ${GLProfiler.textureBindings}"
-            shaderSwitchesString = "Shader switches: ${GLProfiler.shaderSwitches}"
-            drawCallsString = "Draw calls: ${GLProfiler.drawCalls}"
+        if (frameTimer.resetIfSurpassed(300)) {
+            debugStrings.clear()
+            debugStrings.add("Client frame time: ") //fixme + decimalFormat.format(frameTime);
+            debugStrings.add("FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)")
+            debugStrings.add("Texture switches: ${GLProfiler.textureBindings}")
+            debugStrings.add("Shader switches: ${GLProfiler.shaderSwitches}")
+            debugStrings.add("Draw calls: ${GLProfiler.drawCalls}")
+            debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(m_server.sharedFrameTime);
+            debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
+            debugStrings.add("F11 - gui render (${OreSettings.debugRenderGui.enabledString()})")
+            debugStrings.add("F10 - tile render (${tileRenderSystem.debugRenderTiles})")
 
-            //fixme
-            //            if (m_server != null) {
-            frameTimeServerString = "Server frame time: n/a" //+ decimalFormat.format(m_server.sharedFrameTime);
-            //           }
-
-            guiDebugString = "F12 - gui debug (${guiDebug.enabledString()})"
-            guiRenderToggleString = "F11 - gui render (${OreSettings.debugRenderGui.enabledString()})"
-            tileRenderDebugString = "F10 - tile render (${tileRenderSystem.debugRenderTiles})"
-
-            networkSyncDebugString = """
+            debugStrings.add("""
             |F9 - server sprite debug render.
             |Client (${renderDebugClient.enabledString()})
             |Server: (${renderDebugServer.enabledString()})
-            """.toSingleLine()
+            """.toSingleLine())
 
-            spriteRenderDebugString = "F8 - client sprite debug render (${renderDebugClient.enabledString()})"
-            lightingRendererDebugString = "F7 - tile lighting renderer debug (${tileRenderSystem.debugRenderTileLighting.enabledString()})"
+            debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabledString()})")
+            debugStrings.add(
+                    "F7 - tile lighting renderer debug (${tileRenderSystem.debugRenderTileLighting.enabledString()})")
 
-//            ("E - power overlay. Q - drop item",
-            //hack           "1-8 or mouse wheel for inventory selection")
+            debugStrings.add("F6 - system profiler toggle")
 
-            frameTimer.reset()
+            debugStrings.add("E - power overlay. Q - drop item")
+            debugStrings.add("1-8 or mouse wheel for inventory selection")
         }
     }
 
@@ -373,20 +359,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
     companion object {
         internal var frameTimer = OreTimer()
-
-        internal var frameTimeString = ""
-        internal var frameTimeServerString = ""
-        internal var fpsString = ""
-        internal var textureSwitchesString = ""
-        internal var shaderSwitchesString = ""
-        internal var drawCallsString = ""
-        internal var guiDebugString = ""
-        internal var tileRenderDebugString = ""
-        internal var lightingRendererDebugString = ""
-        internal var networkSyncDebugString = ""
-        internal var spriteRenderDebugString = ""
-        internal var guiRenderToggleString = ""
-
         internal var decimalFormat = DecimalFormat("#.")
     }
 
