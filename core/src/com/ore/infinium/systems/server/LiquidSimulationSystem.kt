@@ -132,8 +132,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val rightSolid = oreWorld.isBlockSolid(rightSafeX, y)
         val rightLiquid = oreWorld.liquidLevel(rightSafeX, y)
 
-        val moveLeft = !leftSolid && !isLiquidFull(leftLiquid) && leftLiquid < sourceAmount && sourceAmount > 1
-        val moveRight = !rightSolid && !isLiquidFull(rightLiquid) && rightLiquid < sourceAmount && sourceAmount > 1
+        val moveLeft = !leftSolid && leftLiquid < sourceAmount && sourceAmount > 1
+        val moveRight = !rightSolid && rightLiquid < sourceAmount && sourceAmount > 1
 
         when {
             moveLeft && moveRight -> {
