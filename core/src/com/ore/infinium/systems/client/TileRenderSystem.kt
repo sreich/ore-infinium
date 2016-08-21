@@ -165,7 +165,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                     }
                 }
 
-                drawWall(lightValue, tileX, tileY, blockMeshType)
+                drawWall(lightValue, tileX, tileY, blockType, blockMeshType)
 
                 if (shouldDrawForegroundTile) {
                     drawForegroundTile(lightValue, tileX, tileY, blockType, x, y, blockMeshType)
@@ -178,7 +178,15 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         batch.end()
     }
 
-    private fun drawWall(lightValue: Float, tileX: Float, tileY: Float, blockMeshType: Byte) {
+    private fun drawWall(lightValue: Float,
+                         tileX: Float,
+                         tileY: Float,
+                         blockType: Byte,
+                         blockMeshType: Byte) {
+        if (m_world.isBlockTypeLiquid(blockType)) {
+            return
+        }
+
         val wallTextureName = dirtBlockMeshes.get(0)
         assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
@@ -208,7 +216,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         var resetColor = false
 
         val textureName: String
-        if (blockType == OreBlock.BlockType.Water.oreValue) {
+        if (m_world.isBlockTypeLiquid(blockType)) {
             val liquidLevel = m_world.liquidLevel(x, y)
 
             textureName = findTextureNameForLiquidBlock(x, y, blockType, blockMeshType, liquidLevel)

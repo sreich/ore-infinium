@@ -651,6 +651,10 @@ class OreWorld
         setBlockFlags(x, y, 0)
     }
 
+    inline fun isBlockTypeLiquid(type: Byte): Boolean {
+        return OreBlock.blockAttributes[type]!!.category == OreBlock.BlockAttributes.BlockCategory.Liquid
+    }
+
     inline fun isBlockLiquid(x: Int, y: Int): Boolean {
         val type = blockType(x, y)
         return OreBlock.blockAttributes[type]!!.category == OreBlock.BlockAttributes.BlockCategory.Liquid

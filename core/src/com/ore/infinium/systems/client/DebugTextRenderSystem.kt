@@ -269,7 +269,11 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
         drawNextLeftString("blockHealth: $damagedBlockHealth / $totalBlockHealth")
 
-        val texture = tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
+        val texture = if (!oreWorld.isBlockTypeLiquid(blockType)) {
+            tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
+        } else {
+            ""
+        }
 
         val lightLevel = oreWorld.blockLightLevel(x, y)
         val maxLight = TileLightingSystem.MAX_TILE_LIGHT_LEVEL
