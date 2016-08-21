@@ -110,7 +110,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         var newSourceAmount = sourceAmount.toInt()
         if (!bottomSolid) {
             val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
-            if (!isLiquidFull(bottomLiquid) && bottomLiquid < sourceAmount) {
+            if (bottomLiquid < sourceAmount) {
                 newSourceAmount = moveLiquidToBottom(sourceX = x, sourceY = y,
                                                      sourceAmount = sourceAmount,
                                                      bottomLiquid = bottomLiquid)
