@@ -147,7 +147,6 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 val blockMeshType = m_world.blockMeshType(x, y)
                 val blockWallType = m_world.blockWallType(x, y)
 
-                textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
                 //String textureName = World.blockAttributes.get(block.type).textureName;
 
                 val blockLightLevel = debugLightLevel(x, y)
@@ -169,7 +168,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 drawWall(lightValue, tileX, tileY, blockMeshType)
 
                 if (shouldDrawForegroundTile) {
-                    drawForegroundTile(textureName, lightValue, tileX, tileY, blockType, x, y)
+                    drawForegroundTile(lightValue, tileX, tileY, blockType, x, y, blockMeshType)
                 }
 
                 ++debugTilesInViewCount
@@ -195,16 +194,11 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         batch.setColor(1f, 1f, 1f, 1f)
     }
 
-    private fun drawForegroundTile(textureName: String,
-                                   lightValue: Float,
+    private fun drawForegroundTile(lightValue: Float,
                                    tileX: Float,
                                    tileY: Float,
                                    blockType: Byte,
-                                   x: Int, y: Int) {
-        val foregroundTileRegion = tilesAtlas.findRegion(textureName)
-
-        assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
-
+                                   x: Int, y: Int, blockMeshType: Byte) {
         //if (blockLightLevel != 0.toByte()) {
         batch.setColor(lightValue, lightValue, lightValue, 1f)
         //                   } else {
@@ -213,15 +207,24 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         var resetColor = false
 
+        val textureName: String
         if (blockType == OreBlock.BlockType.Water.oreValue) {
             val liquidLevel = m_world.liquidLevel(x, y)
+
+            textureName = findTextureNameForLiquidBlock(x, y, blockType, blockMeshType, liquidLevel)
 
             if (liquidLevel == 0.toByte()) {
                 //debug to show water blocks that didn't get unset
                 batch.setColor(.1f, 1f, 0f, 1f)
                 resetColor = true
             }
+        } else {
+            textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
         }
+
+        val foregroundTileRegion = tilesAtlas.findRegion(textureName)
+        assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
+
 
         //offset y to flip orientation around to normal
         batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
@@ -237,6 +240,36 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         } else {
             return TileLightingSystem.MAX_TILE_LIGHT_LEVEL
         }
+    }
+
+    fun findTextureNameForLiquidBlock(x: Int,
+                                      y: Int,
+                                      blockType: Byte,
+                                      blockMeshType: Byte,
+                                      liquidLevel: Byte): String {
+        var textureName: String ? = null
+        when (blockType) {
+            OreBlock.BlockType.Water.oreValue -> {
+                if (liquidLevel.toInt() == 0) {
+                    //for debug, for water blocks that are being bad
+                    textureName = "lava"
+                } else {
+                    textureName = "water-$liquidLevel"
+                }
+            }
+
+            OreBlock.BlockType.Lava.oreValue -> {
+                textureName = "lava"
+            }
+        }
+
+        if (textureName == null) {
+            error("tile renderer LIQUID block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
+                    blockType)}, liquidLevel: $liquidLevel")
+        }
+
+
+        return textureName
     }
 
     fun findTextureNameForBlock(x: Int, y: Int, blockType: Byte, blockMeshType: Byte): String {
@@ -304,13 +337,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                 textureName = "gold"
             }
 
-            OreBlock.BlockType.Water.oreValue -> {
-                textureName = "water"
-            }
+        //liquids not handled here, but other function
 
-            OreBlock.BlockType.Lava.oreValue -> {
-                textureName = "lava"
-            }
             else
             -> {
                 assert(false) { "unhandled block blockType: $blockType" }
@@ -324,6 +352,4 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         return textureName
     }
-
-
 }
