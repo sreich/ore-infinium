@@ -1,6 +1,6 @@
 package com.ore.infinium
 
-class WorldIO(oreWorld: OreWorld) {
+class WorldIO(val oreWorld: OreWorld) {
     fun loadWorld() {
     }
 

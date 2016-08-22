@@ -189,14 +189,17 @@ class OreWorld
             worldGenerator = WorldGenerator(this)
             artemisWorld.inject(worldGenerator, true)
 
-            if (OreSettings.saveLoadWorld) {
-                worldIO.loadWorld()
-            } else {
+
+            //else {
                 if (OreSettings.flatWorld) {
                     worldGenerator!!.flatWorld(WORLD_SIZE)
                 } else {
                     generateWorld()
                 }
+//            }
+
+            if (OreSettings.saveLoadWorld) {
+                worldIO.saveWorld()
             }
         }
 

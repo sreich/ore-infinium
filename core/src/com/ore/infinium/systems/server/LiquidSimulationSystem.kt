@@ -110,7 +110,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         var newSourceAmount = sourceAmount.toInt()
         if (!bottomSolid) {
             val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
-            if (bottomLiquid < sourceAmount) {
+            if (bottomLiquid <= sourceAmount && !isLiquidFull(bottomLiquid)) {
                 newSourceAmount = moveLiquidToBottom(sourceX = x, sourceY = y,
                                                      sourceAmount = sourceAmount,
                                                      bottomLiquid = bottomLiquid)
@@ -244,7 +244,13 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
                                    sourceAmount: Byte,
                                    bottomLiquid: Byte): Int {
         val bottomSafeY = oreWorld.blockYSafe(sourceY + 1)
-        val amountToMove = sourceAmount - bottomLiquid
+        val freeSpace = MAX_LIQUID_LEVEL - bottomLiquid
+        //hack
+        val amountToMove = 2
+
+        //if (sourceAmount == 1.toByte()) {
+        //   println()
+        // }
 
         val newSourceAmount = (sourceAmount - amountToMove)
         //println("amounttospread: $amountToSpread, remainder: $remainder")
