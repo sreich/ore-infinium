@@ -107,16 +107,16 @@ subprojects {
 
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1/" }
     }
-    //apply plugin: "idea"
-
-    //idea {
-    //project {
-    //          jdkName = '1.8'
-    //            downloadSources = true
-    //}
-    //           downloadJavadoc = true
-    //}
-
+    /*
+    apply plugin: "idea"
+    idea {
+    project {
+              jdkName = '1.8'
+                downloadSources = true
+    }
+               downloadJavadoc = true
+    }
+    */
 }
 
 project(":desktop") {
@@ -142,16 +142,6 @@ project(":desktop") {
     //     }
     //        }
     //   }
-
-    //protobuf {
-    // protoc {
-    // download the artifact spec for the Protobuf Compiler
-    //      artifact = 'com.google.protobuf:protoc:3.0.0'
-    //   }
-
-    //    generatedFilesBaseDir = "$buildDir/generated/source/proto"
-    //}
-
 }
 
 project(":core") {
@@ -172,12 +162,9 @@ project(":core") {
     sourceSets {
         // run the annotation processor compile time.
         main {
-            //            compileClasspath = files(configurations.provided)
+            //compileClasspath = files(configurations.provided)
             proto {
                 srcDir 'src/com/ore/infinium/proto'
-                //srcDir 'core/src/com/ore/infinium/proto/sample.proto'
-                //include '**/*.proto'
-                //srcDir 'proto/'
             }
         }
     }
@@ -229,15 +216,13 @@ project(":core") {
 
         compile "com.sudoplay.joise:joise:$joiseVersion"
 
-        compile 'com.google.protobuf:protobuf-java:3.0.0'
-
-        //protobuf fileTree("core/src/com/ore/infinium/proto/")
+        compile "com.google.protobuf:protobuf-java:3.0.0"
     }
 
     protobuf {
         protoc {
             // download the artifact spec for the Protobuf Compiler
-            artifact = 'com.google.protobuf:protoc:3.0.0'
+            artifact = "com.google.protobuf:protoc:3.0.0"
         }
 
         //generatedFilesBaseDir = "$buildDir/generated/source/proto"
