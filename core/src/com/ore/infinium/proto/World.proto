@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+option java_package = "com.ore.infinium";
+//option java_outer_classname = "WorldPB";
+option java_multiple_files = true;
+
+message PbEntity {
+    int32 entityId = 1;
+    repeated PbEntityComponents components = 2;
+}
+
+message PbEntityComponents {
+    message PbEntityComponent {
+        int32 componentType = 1;
+    }
+
+    repeated PbEntityComponent components = 1;
+}
+
+message PbBlocks {
+    repeated int32 blockTypes = 1;
+    repeated int32 blockWallTypes = 2;
+    repeated int32 blockFlags = 3;
+    repeated int32 blockLightLevel = 4;
+}
+
+message PbWorldHeader {
+    int32 sizeX = 1;
+    int32 sizeY = 2;
+    string worldName = 3;
+    int64 worldSeed = 4;
+}
+
+message PbWorldSave {
+    PbWorldHeader header = 1;
+    PbBlocks blocks = 2;
+}
+
