@@ -24,6 +24,7 @@ buildscript {
         joiseVersion = '1.0.1'
 
         visUiVersion = '1.1.1'
+
         protobufGradlePlugin = '0.8.0'
     }
 
@@ -35,6 +36,8 @@ buildscript {
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 
         jcenter()
+
+        //maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
 
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1/" }
 
@@ -53,6 +56,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufGradlePlugin"
+
     }
 }
 
@@ -64,8 +68,6 @@ plugins {
 
     //run :dependencyUpdates to get a list of updates needed
     id "com.github.ben-manes.versions" version "0.12.0"
-
-    id "com.google.protobuf" version "0.8.0"
 }
 
 task wrapper(type: Wrapper) {
@@ -109,11 +111,11 @@ subprojects {
     //apply plugin: "idea"
 
     //idea {
-    //project {
-    //          jdkName = '1.8'
-    //            downloadSources = true
-    //}
-    //           downloadJavadoc = true
+        //project {
+  //          jdkName = '1.8'
+//            downloadSources = true
+        //}
+ //           downloadJavadoc = true
     //}
 
 }
@@ -140,8 +142,7 @@ project(":core") {
     sourceSets {
         // run the annotation processor compile time.
         main {
-            compileClasspath = files(configurations.provided)
-//            srcDir '**/*.proto'
+//            compileClasspath = files(configurations.provided)
         }
     }
 
@@ -162,10 +163,9 @@ project(":core") {
 
         compile "com.kotcrab.vis:vis-ui:$visUiVersion"
 
-        ////////// testing ///////////// junit
+        //junit
         testCompile "junit:junit:$junitVersion"
         testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        /////////////////////////////
 
         // kryonet
         compile "com.esotericsoftware:kryonet:$kryonetVersion"
@@ -184,6 +184,9 @@ project(":core") {
 
         // jcommander for command line parsing
         compile "com.beust:jcommander:$jcommanderVersion"
+
+        //junit
+        testCompile "junit:junit:$junitVersion"
 
         //universal tween engine
         compile "com.aurelienribon:tween-engine-api:$tweenEngineVersion"
@@ -211,12 +214,13 @@ project(":matrix") {
 }
 
 /*
-protobuf {
-    protoc {
-        // download the artifact spec for the Protobuf Compiler
-        artifact = 'com.google.protobuf:protoc:3.0.0'
-    }
+-protobuf {
+-    protoc {
+-        // download the artifact spec for the Protobuf Compiler
+-        artifact = 'com.google.protobuf:protoc:3.0.0'
+-    }
+-
+-    generatedFilesBaseDir = "$buildDir/generated/source/proto"
+-}
+-*/
 
-    generatedFilesBaseDir = "$buildDir/generated/source/proto"
-}
-*/
