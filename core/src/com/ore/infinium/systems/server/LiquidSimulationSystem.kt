@@ -62,8 +62,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     //probably want something better. like a region that self expands
     //when modifications are done outside of it.
-    var dirty = false
-    var dirtyRegion = Rectangle()
+    private var dirty = false
+    private var dirtyRegion = Rectangle()
     private fun simulateFluidsInRegion(rect: Rectangle, player: Int) {
         val startX = rect.lefti
         val startY = rect.topi
@@ -96,7 +96,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         Right
     }
 
-    private fun processLiquidTile(x: Int, y: Int) {
+    fun processLiquidTile(x: Int, y: Int) {
         val sourceAmount = oreWorld.liquidLevel(x, y)
 
         if (sourceAmount <= 0) {
@@ -110,7 +110,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         var newSourceAmount = sourceAmount.toInt()
         if (!bottomSolid) {
             val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
-            if (bottomLiquid <= sourceAmount && !isLiquidFull(bottomLiquid)) {
+            if (bottomLiquid < sourceAmount && !isLiquidFull(bottomLiquid)) {
                 newSourceAmount = moveLiquidToBottom(sourceX = x, sourceY = y,
                                                      sourceAmount = sourceAmount,
                                                      bottomLiquid = bottomLiquid)
@@ -132,6 +132,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val rightSolid = oreWorld.isBlockSolid(rightSafeX, y)
         val rightLiquid = oreWorld.liquidLevel(rightSafeX, y)
 
+        // ensure sourceAmount > 1 so we don't move around a single block of water forever
         val moveLeft = !leftSolid && leftLiquid < sourceAmount && sourceAmount > 1
         val moveRight = !rightSolid && rightLiquid < sourceAmount && sourceAmount > 1
 
@@ -164,6 +165,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val amountToSplit = (sourceAmount + rightLiquid) / 2
         val remainder = (sourceAmount + rightLiquid) % 2
+        println("moveLiquidRight amountToSplit: $amountToSplit, remainder: $remainder, sourceAmount: $sourceAmount rightliquid: $rightLiquid, newRight: ${amountToSplit+remainder}")
 
         //empty current as much as possible (there still may be some left here, the source)
         oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, amountToSplit.toByte())
@@ -189,7 +191,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         updateDirtyRegion(sourceX, sourceY)
     }
 
-    val rand = RandomXS128()
+    private val rand = RandomXS128()
     private fun moveLiquidLeftRight(sourceX: Int,
                                     sourceY: Int,
                                     sourceAmount: Byte,
@@ -256,7 +258,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val newSourceAmount = (sourceAmount - amountToMove)
         //println("amounttospread: $amountToSpread, remainder: $remainder")
-        println("amounttomove: $amountToMove, remainder: $newSourceAmount")
+        println("amounttomove: $amountToMove, remainder: $newSourceAmount, newSourceAmount: $newSourceAmount new bottom: ${amountToMove + bottomLiquid}")
 
         //empty current as much as possible (there still may be some left here, the source)
         oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, newSourceAmount.toByte())

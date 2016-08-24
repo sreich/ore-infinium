@@ -88,6 +88,15 @@ class OreWorld
     private lateinit var mPowerConsumer: ComponentMapper<PowerConsumerComponent>
     private lateinit var mPowerGenerator: ComponentMapper<PowerGeneratorComponent>
 
+    /**
+     * hotspot optimization replaces (amongst other steps) references to entityprocessingsystem with entitysystem.
+     * so we can determine this optimization by EntityProcessingSystem missing from our system's hierarchy.
+     * this is for artemis-odb optimization, ing annotations. it helps inline some calls
+     */
+    private
+    val isHotspotOptimizationEnabled
+            = !ClassReflection.isAssignableFrom(EntityProcessingSystem::class.java, ClientNetworkSystem::class.java)
+
     //each unit is 1 block(16x16 px), in the game world
     //public OreBlock[] blocks;
     var blocks: ByteArray
@@ -131,10 +140,8 @@ class OreWorld
         assert(isHotspotOptimizationEnabled) { "error, hotspot optimization (artemis-odb weaving) is not enabled" }
 
         if (worldInstanceType == WorldInstanceType.Client || worldInstanceType == WorldInstanceType.ClientHostingServer) {
-            val width = OreSettings.width / BLOCK_SIZE_PIXELS
-            val height = OreSettings.height / BLOCK_SIZE_PIXELS
-            camera = OrthographicCamera(width, height)//30, 30 * (h / w));
-            camera.setToOrtho(true, width, height)
+
+            initCamera()
 
             atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
 
@@ -161,46 +168,8 @@ class OreWorld
 
             //inject the mappers into the world, before we start doing things
             artemisWorld.inject(this, true)
-
-            val w = Gdx.graphics.width.toFloat()
-            val h = Gdx.graphics.height.toFloat()
         } else if (isServer()) {
-            artemisWorld = World(WorldConfigurationBuilder()
-                                         .with(TagManager())
-                                         .with(SpatialSystem(this))
-                                         .with(PlayerManager())
-                                         .with(MovementSystem(this))
-                                         .with(ServerPowerSystem(this))
-                                         .with(GameTickSystem(this))
-                                         .with(DroppedItemPickupSystem(this))
-                                         .with(GrassBlockSystem(this))
-                                         .with(ServerNetworkEntitySystem(this))
-                                         .with(ServerBlockDiggingSystem(this))
-                                         .with(PlayerSystem(this))
-                                         .with(AirSystem(this))
-                                         .with(ServerNetworkSystem(this, server!!))
-                                         .with(TileLightingSystem(this))
-                                         .with(LiquidSimulationSystem(this))
-                                         .register(GameLoopSystemInvocationStrategy(25, true))
-                                         .build())
-            //inject the mappers into the world, before we start doing things
-            artemisWorld.inject(this, true)
-
-            worldGenerator = WorldGenerator(this)
-            artemisWorld.inject(worldGenerator, true)
-
-
-            //else {
-                if (OreSettings.flatWorld) {
-                    worldGenerator!!.flatWorld(WORLD_SIZE)
-                } else {
-                    generateWorld()
-                }
-//            }
-
-            if (OreSettings.saveLoadWorld) {
-                worldIO.saveWorld()
-            }
+            initServer()
         }
 
         //        assetManager = new AssetManager();
@@ -210,16 +179,51 @@ class OreWorld
         //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
     }
 
-    /**
-     * hotspot optimization replaces (amongst other steps) references to entityprocessingsystem with entitysystem.
-     * so we can determine this optimization by EntityProcessingSystem missing from our system's hierarchy.
-     * this is for artemis-odb optimization, ing annotations. it helps inline some calls
-     */
-    private
-    val isHotspotOptimizationEnabled
-            = !ClassReflection.isAssignableFrom(EntityProcessingSystem::class.java, ClientNetworkSystem::class.java)
-
     fun initServer() {
+        artemisWorld = World(WorldConfigurationBuilder()
+                                     .with(TagManager())
+                                     .with(SpatialSystem(this))
+                                     .with(PlayerManager())
+                                     .with(MovementSystem(this))
+                                     .with(ServerPowerSystem(this))
+                                     .with(GameTickSystem(this))
+                                     .with(DroppedItemPickupSystem(this))
+                                     .with(GrassBlockSystem(this))
+                                     .with(ServerNetworkEntitySystem(this))
+                                     .with(ServerBlockDiggingSystem(this))
+                                     .with(PlayerSystem(this))
+                                     .with(AirSystem(this))
+                                     .with(ServerNetworkSystem(this, server!!))
+                                     .with(TileLightingSystem(this))
+                                     .with(LiquidSimulationSystem(this))
+                                     .register(GameLoopSystemInvocationStrategy(25, true))
+                                     .build())
+        //inject the mappers into the world, before we start doing things
+        artemisWorld.inject(this, true)
+
+        worldGenerator = WorldGenerator(this)
+        artemisWorld.inject(worldGenerator, true)
+
+        //else {
+        if (OreSettings.flatWorld) {
+            worldGenerator!!.flatWorld(WORLD_SIZE)
+        } else {
+            generateWorld()
+        }
+//            }
+
+        if (OreSettings.saveLoadWorld) {
+            worldIO.saveWorld()
+        }
+    }
+
+    private fun initCamera() {
+        //val w = Gdx.graphics.width.toFloat()
+        //val h = Gdx.graphics.height.toFloat()
+        val width = OreSettings.width / BLOCK_SIZE_PIXELS
+        val height = OreSettings.height / BLOCK_SIZE_PIXELS
+        camera = OrthographicCamera(width, height)//30, 30 * (h / w));
+        camera.setToOrtho(true, width, height)
     }
 
     /**
