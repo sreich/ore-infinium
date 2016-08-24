@@ -137,6 +137,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         when {
             moveLeft && moveRight -> {
+                return
                 moveLiquidLeftRight(sourceX = x, sourceY = y,
                                     sourceAmount = sourceAmount,
                                     leftLiquid = leftLiquid,
@@ -144,6 +145,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
             }
 
             moveLeft -> {
+                return
                 moveLiquidLeft(sourceX = x, sourceY = y,
                                sourceAmount = sourceAmount,
                                leftLiquid = leftLiquid)
@@ -246,11 +248,11 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val bottomSafeY = oreWorld.blockYSafe(sourceY + 1)
         val freeSpace = MAX_LIQUID_LEVEL - bottomLiquid
         //hack
-        val amountToMove = 2
+        val amountToMove = freeSpace.coerceAtMost(sourceAmount.toInt())
 
-        //if (sourceAmount == 1.toByte()) {
-        //   println()
-        // }
+        if (bottomLiquid != 0.toByte()) {
+            println()
+        }
 
         val newSourceAmount = (sourceAmount - amountToMove)
         //println("amounttospread: $amountToSpread, remainder: $remainder")
@@ -264,7 +266,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //fill bottom
         oreWorld.setLiquidLevelWaterNotEmpty(sourceX, bottomSafeY, (amountToMove + bottomLiquid).toByte())
 
-        updateDirtyRegion(sourceX, sourceX)
+        updateDirtyRegion(sourceX, sourceY)
 
         return newSourceAmount
     }
