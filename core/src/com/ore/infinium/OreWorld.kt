@@ -48,7 +48,6 @@ import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.*
-import java.util.*
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -111,6 +110,8 @@ class OreWorld
     lateinit var artemisWorld: World
     val worldIO = WorldIO(this)
 
+    lateinit var entityFactory: OreEntityFactory
+
     /**
      * who owns/is running this exact world instance. If it is the server, or a client.
      * Note that if the connection type is only a client, obviously a server
@@ -168,6 +169,9 @@ class OreWorld
 
             //inject the mappers into the world, before we start doing things
             artemisWorld.inject(this, true)
+
+            entityFactory = OreEntityFactory(this)
+            artemisWorld.inject(entityFactory, true)
         } else if (isServer()) {
             initServer()
         }
@@ -203,6 +207,9 @@ class OreWorld
 
         worldGenerator = WorldGenerator(this)
         artemisWorld.inject(worldGenerator, true)
+
+        entityFactory = OreEntityFactory(this)
+        artemisWorld.inject(entityFactory, true)
 
         //else {
         if (OreSettings.flatWorld) {
@@ -742,9 +749,16 @@ class OreWorld
      */
     fun attemptBlockPlacement(x: Int, y: Int, placedBlockType: Byte): Boolean {
         val blockType = blockTypeSafely(x, y)
+        val blockLiquid = isBlockTypeLiquid(blockType)
 
         //attempt to place one if the area is empty
-        if (blockType == OreBlock.BlockType.Air.oreValue) {
+        if (blockType == OreBlock.BlockType.Air.oreValue || blockLiquid) {
+            if (blockLiquid) {
+                //unset liquid levels! he's placing a block on top of water
+                //so water should now disappear
+                setLiquidLevel(x, y, 0)
+            }
+
             setBlockType(x, y, placedBlockType)
 
             val bottomBlockX = x
@@ -797,190 +811,6 @@ class OreWorld
 
     fun seaLevel(): Int {
         return WORLD_SEA_LEVEL
-    }
-
-    /**
-     * @param blockType
-     */
-    fun createBlockItem(blockType: Byte): Int {
-        val entity = artemisWorld.create()
-        mVelocity.create(entity)
-
-        val cBlock = mBlock.create(entity)
-        cBlock.blockType = blockType
-
-        mSprite.create(entity).apply {
-            textureName = OreBlock.blockAttributes[cBlock.blockType]!!.textureName
-            sprite.setSize(1f, 1f)
-        }
-
-        mItem.create(entity).apply {
-            stackSize = 800
-            maxStackSize = 800
-            name = OreBlock.nameOfBlockType(blockType)!!
-        }
-
-        return entity
-    }
-
-    fun createLiquidGun(): Int {
-        val entity = artemisWorld.create()
-        mVelocity.create(entity)
-
-        mTool.create(entity).apply {
-            type = ToolComponent.ToolType.Bucket
-            attackIntervalMs = 1000
-        }
-
-        mSprite.create(entity).apply {
-            textureName = "drill"
-            sprite.setSize(2f, 2f)
-        }
-
-        val newStackSize = 1
-        mItem.create(entity).apply {
-            stackSize = newStackSize
-            maxStackSize = newStackSize
-            name = "Liquid Gun"
-        }
-
-        return entity
-    }
-
-    fun createLight(): Int {
-        val entity = artemisWorld.create()
-
-        mVelocity.create(entity)
-
-        mItem.create(entity).apply {
-            stackSize = 800
-            maxStackSize = 900
-            name = "Light"
-        }
-
-        mLight.create(entity)
-
-        mPowerDevice.create(entity)
-
-        mSprite.create(entity).apply {
-            textureName = "light-yellow"
-            sprite.setSize(1f, 1f)
-        }
-
-        mPowerConsumer.create(entity).apply {
-            powerDemandRate = 100
-        }
-
-        return entity
-    }
-
-    fun createDoor(): Int {
-        val entity = artemisWorld.create()
-
-        mVelocity.create(entity)
-
-        mDoor.create(entity)
-
-        mItem.create(entity).apply {
-            stackSize = 50
-            maxStackSize = 60
-            name = "Door"
-            placementAdjacencyHints = EnumSet.of(ItemComponent.PlacementAdjacencyHints.BottomSolid,
-                                                 ItemComponent.PlacementAdjacencyHints.TopSolid)
-        }
-
-        mSprite.create(entity).apply {
-            textureName = "door-closed-16x36"
-            sprite.setSize(1f, 3f)
-        }
-
-        return entity
-    }
-
-    fun createPowerGenerator(): Int {
-        val entity = artemisWorld.create()
-
-        mVelocity.create(entity)
-
-        mItem.create(entity).apply {
-            stackSize = 800
-            maxStackSize = 900
-            name = "Power Generator"
-        }
-
-        mPowerDevice.create(entity)
-
-        mSprite.create(entity).apply {
-            textureName = "air-generator-64x64"
-            sprite.setSize(4f, 4f)
-        }
-
-        mPowerGenerator.create(entity).apply {
-            supplyRateEU = 100
-            fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
-            artemisWorld.inject(fuelSources, true)
-        }
-
-        return entity
-    }
-
-    fun createDrill(): Int {
-        val entity = artemisWorld.create()
-        mVelocity.create(entity)
-
-        mTool.create(entity).apply {
-            type = ToolComponent.ToolType.Drill
-            blockDamage = 400f
-        }
-
-        mSprite.create(entity).apply {
-            textureName = "drill"
-            sprite.setSize(2f, 2f)
-        }
-
-        val newStackSize = 64000
-        mItem.create(entity).apply {
-            stackSize = newStackSize
-            maxStackSize = newStackSize
-            name = "Drill"
-        }
-
-        return entity
-    }
-
-    fun createWoodenTree(type: FloraComponent.TreeSize): Int {
-        val entity = artemisWorld.create()
-
-        val sprite = mSprite.create(entity)
-        val flora = mFlora.create(entity)
-        mVelocity.create(entity)
-
-        mItem.create(entity).apply {
-            state = ItemComponent.State.InWorldState
-            maxStackSize = 64
-            name = "Tree"
-        }
-
-        when (type) {
-            FloraComponent.TreeSize.Large -> {
-                sprite.textureName = "flora/tree-02"
-                sprite.sprite.setSize(5f, 13f)
-
-                flora.numberOfDropsWhenDestroyed = 4
-                flora.stackSizePerDrop = 2
-            }
-
-            else -> {
-                //undefined
-            }
-        }
-
-        mHealth.create(entity).apply {
-            maxHealth = 2000f
-            health = maxHealth
-        }
-
-        return entity
     }
 
     /**

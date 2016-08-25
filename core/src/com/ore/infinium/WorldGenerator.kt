@@ -111,7 +111,7 @@ class WorldGenerator(private val world: OreWorld) {
             //or if their placement is even valid!!
             if (treePlanted) {
                 //todo randomize tree sizes
-                tree = world.createWoodenTree(FloraComponent.TreeSize.Large)
+                tree = world.entityFactory.createWoodenTree(FloraComponent.TreeSize.Large)
             }
 
             val spriteComponent = spriteMapper.get(tree!!)

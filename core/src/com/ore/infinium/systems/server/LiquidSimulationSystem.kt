@@ -100,6 +100,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val sourceAmount = oreWorld.liquidLevel(x, y)
 
         if (sourceAmount <= 0) {
+            print("zero")
 
 //            error("")
         }
@@ -114,7 +115,6 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 newSourceAmount = moveLiquidToBottom(sourceX = x, sourceY = y,
                                                      sourceAmount = sourceAmount,
                                                      bottomLiquid = bottomLiquid)
-                return
             }
         }
 
@@ -199,16 +199,24 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val leftSafeX = oreWorld.blockXSafe(sourceX - 1)
         val rightSafeX = oreWorld.blockXSafe(sourceX + 1)
 
-        val amountToSpread = (sourceAmount + leftLiquid + rightLiquid) / 3
-        val remainder = (sourceAmount + leftLiquid + rightLiquid) % 3
+        var amountToSpread = (sourceAmount + leftLiquid + rightLiquid) / 3
+        var remainder = (sourceAmount + leftLiquid + rightLiquid) % 3
 
         if (remainder > 0) {
+            //here we have a sourceAmount == 2, nothing on either side leaves
+            //a remainder of 2, but we should instead only move 1 unit of water
+            //otherwise we're pushing *everything* in this cell to another cell
+            //instead of evenly dispersing
+            if (sourceAmount == 2.toByte() && remainder == 2) {
+                remainder = 1
+                amountToSpread = 1
+            }
             //pick one or the other randomly??
             //hack
             val randomDirection = 1//rand.nextInt(0, 1)
             //    assert(amountToSpread > 0) { "amount to spread impossibly 0. sourceAmount: $sourceAmount, left: $leftLiquid, right: $rightLiquid" } //FIXME error, HIT
-            if (amountToSpread <= 0) {
-                error("")
+            if (amountToSpread == 0) {
+                println("moveliquidleftright amount to spread is zero")
             }
             when (randomDirection) {
                 0 -> {
@@ -221,9 +229,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
                     oreWorld.setLiquidLevelWaterNotEmpty(rightSafeX, sourceY, (amountToSpread + remainder).toByte())
                     oreWorld.setLiquidLevelWaterNotEmpty(leftSafeX, sourceY, amountToSpread.toByte())
                 }
-                2 -> {
-                    error("")
-                }
+                else -> error("invalid random direction")
             }
         } else {
             //it's spread evenly

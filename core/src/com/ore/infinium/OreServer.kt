@@ -180,22 +180,22 @@ class OreServer : Runnable {
         val cPlayer = mPlayer.get(playerEntity)
         val hotbarInventory = cPlayer.hotbarInventory!!
 
-        val drill = oreWorld.createDrill()
+        val drill = oreWorld.entityFactory.createDrill()
         hotbarInventory.placeItemInNextFreeSlot(drill)
 
-        val dirtBlock = oreWorld.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
+        val dirtBlock = oreWorld.entityFactory.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
         hotbarInventory.placeItemInNextFreeSlot(dirtBlock)
 
-        val stoneBlock = oreWorld.createBlockItem(OreBlock.BlockType.Stone.oreValue)
+        val stoneBlock = oreWorld.entityFactory.createBlockItem(OreBlock.BlockType.Stone.oreValue)
         hotbarInventory.placeItemInNextFreeSlot(stoneBlock)
 
-        val powerGen = oreWorld.createPowerGenerator()
+        val powerGen = oreWorld.entityFactory.createPowerGenerator()
         hotbarInventory.placeItemInNextFreeSlot(powerGen)
 
-        val door = oreWorld.createDoor()
+        val door = oreWorld.entityFactory.createDoor()
         hotbarInventory.placeItemInNextFreeSlot(door)
 
-        val light = oreWorld.createLight()
+        val light = oreWorld.entityFactory.createLight()
 
         mItem.get(light).apply {
             maxStackSize = 64000
@@ -204,7 +204,7 @@ class OreServer : Runnable {
 
         hotbarInventory.placeItemInNextFreeSlot(light)
 
-        val liquidGun = oreWorld.createLiquidGun()
+        val liquidGun = oreWorld.entityFactory.createLiquidGun()
         hotbarInventory.placeItemInNextFreeSlot(liquidGun)
 
         val nonEmptySlots = hotbarInventory.slots.filter {
@@ -232,10 +232,10 @@ class OreServer : Runnable {
     private fun loadInventory(playerEntity: Int) {
         val cPlayer = mPlayer.get(playerEntity)
 
-        val stoneBlock = oreWorld.createBlockItem(OreBlock.BlockType.Stone.oreValue)
+        val stoneBlock = oreWorld.entityFactory.createBlockItem(OreBlock.BlockType.Stone.oreValue)
         cPlayer.inventory!!.placeItemInNextFreeSlot(stoneBlock)
 
-        val dirtBlock = oreWorld.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
+        val dirtBlock = oreWorld.entityFactory.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
         mItem.get(dirtBlock).apply {
             stackSize = 2
         }

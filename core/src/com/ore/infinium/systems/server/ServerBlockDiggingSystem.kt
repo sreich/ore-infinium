@@ -133,7 +133,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         serverNetworkSystem.sendPlayerSingleBlock(playerEntityId, x, y)
 
-        val droppedBlock = oreWorld.createBlockItem(blockType)
+        val droppedBlock = oreWorld.entityFactory.createBlockItem(blockType)
         mSprite.get(droppedBlock).apply {
             sprite.setPosition(x + 0.5f, y + 0.5f)
             sprite.setSize(0.5f, 0.5f)
