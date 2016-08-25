@@ -37,63 +37,52 @@ class WorldLiquidSimulationTest {
     @Before
     fun initWorld() {
         //fill in a space
-        for (x in 0 until 20) {
-            for (y in 0 until 20) {
+        for (x in 1 until 20) {
+            for (y in 0 until 19) {
                 world.setBlockType(x, y, OreBlock.BlockType.Dirt.oreValue)
             }
         }
 
         //hollow out the center
-        for (x in 1 until 19) {
-            for (y in 0 until 19) {
+        for (x in 2 until 19) {
+            for (y in 0 until 18) {
                 world.setBlockType(x, y, OreBlock.BlockType.Air.oreValue)
             }
         }
     }
 
+    val startX = 0
+    val endX = 20
+    val startY = 0
+    val endY = 20
     @Test
-    @Ignore
     fun simLiquid() {
         println("--------- Before water ----------")
-        printLiquidLevels()
+        world.printLiquidLevels(startX, startY, endX, endY)
         println("--------- /Before water ----------")
 
-        world.setLiquidLevelWaterNotEmpty(2, 2, 8)
+//        world.setLiquidLevelWaterNotEmpty(3, 3, 10)
+
+        //world.setLiquidLevelWaterNotEmpty(2, 2, 11)
+        world.setLiquidLevelWaterNotEmpty(2, 3, 16)
 
         println("--------- Water Added (unsimulated) ----------")
-        printLiquidLevels()
+        world.printLiquidLevels(startX, startY, endX, endY)
         println("--------- /Water Added (unsimulated) ----------")
+        repeat(500) {
+            processLiquidRange()
+        }
+
+        world.setLiquidLevelWaterNotEmpty(2, 3, 16)
 
         println("--------- Water Simulated ----------")
         //sim it a few times to settle it out
-        repeat(200) {
+        repeat(500) {
             processLiquidRange()
         }
 
         //check our results, ensure it settled out properly
-        printLiquidLevels()
-    }
-
-    private fun printLiquidLevels() {
-        //ascii print of the world liquid levels
-        for (y in 0 until 20) {
-            for (x in 0 until 20) {
-                var s = " | "
-                if (world.isBlockLiquid(x, y)) {
-                    s += world.liquidLevel(x, y).toString()
-                } else {
-                    val blockType = world.blockType(x, y)
-                    s += when(blockType) {
-                        OreBlock.BlockType.Air.oreValue -> "A"
-                        OreBlock.BlockType.Dirt.oreValue -> "D"
-                        else -> "?"
-                    }
-                }
-
-                print(s)
-            }
-
-            println() }
+        world.printLiquidLevels(startX, startY, endX, endY)
     }
 
     fun processLiquidRange() {

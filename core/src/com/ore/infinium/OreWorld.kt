@@ -66,9 +66,9 @@ import java.util.*
  *          this is a local hosted server, (aka singleplayer, or self-hosting)
  */
 class OreWorld
-(var client: OreClient?, //fixme players really should be always handled by the system..and i suspect a lot of logic can be handled by
-        // them alone.
- var server: OreServer?, var worldInstanceType: OreWorld.WorldInstanceType) {
+(var client: OreClient?,
+ var server: OreServer?,
+ var worldInstanceType: OreWorld.WorldInstanceType) {
     private lateinit var tagManager: TagManager
 
     private lateinit var mPlayer: ComponentMapper<PlayerComponent>
@@ -1416,6 +1416,36 @@ class OreWorld
             //todo give it some explody velocity
         }
 
+    }
+
+    /**
+     * debug
+     */
+    fun printLiquidLevels(startX: Int, startY: Int, endX: Int, endY: Int) {
+        //ascii print of the world liquid levels
+        for (y in startY until endY) {
+            for (x in startX until endX) {
+                var s = "  |  "
+                if (isBlockLiquid(x, y)) {
+                    s += liquidLevel(x, y).toString()
+                } else {
+                    val blockType = blockType(x, y)
+                    s += when (blockType) {
+                        OreBlock.BlockType.Air.oreValue -> "A"
+                        OreBlock.BlockType.Dirt.oreValue -> "D"
+                        else -> "?"
+                    }
+                }
+
+                print(s)
+            }
+            println()
+        }
+    }
+
+    fun debugFirstPlayerPosition(): Vector2 {
+        val cSprite = mSprite.get(players().first())
+        return Vector2(cSprite.sprite.x, cSprite.sprite.y)
     }
 }
 

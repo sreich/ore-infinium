@@ -110,10 +110,11 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         var newSourceAmount = sourceAmount.toInt()
         if (!bottomSolid) {
             val bottomLiquid = oreWorld.liquidLevel(x, bottomSafeY)
-            if (bottomLiquid < sourceAmount && !isLiquidFull(bottomLiquid)) {
+            if (/*bottomLiquid < sourceAmount && */!isLiquidFull(bottomLiquid)) {
                 newSourceAmount = moveLiquidToBottom(sourceX = x, sourceY = y,
                                                      sourceAmount = sourceAmount,
                                                      bottomLiquid = bottomLiquid)
+                return
             }
         }
 
@@ -138,7 +139,6 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         when {
             moveLeft && moveRight -> {
-                return
                 moveLiquidLeftRight(sourceX = x, sourceY = y,
                                     sourceAmount = sourceAmount,
                                     leftLiquid = leftLiquid,
@@ -146,7 +146,6 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
             }
 
             moveLeft -> {
-                return
                 moveLiquidLeft(sourceX = x, sourceY = y,
                                sourceAmount = sourceAmount,
                                leftLiquid = leftLiquid)
@@ -258,7 +257,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val newSourceAmount = (sourceAmount - amountToMove)
         //println("amounttospread: $amountToSpread, remainder: $remainder")
-        println("amounttomove: $amountToMove, remainder: $newSourceAmount, newSourceAmount: $newSourceAmount new bottom: ${amountToMove + bottomLiquid}")
+        println("moveLiquidToBottom amounttomove: $amountToMove, remainder: $newSourceAmount, newSourceAmount: $newSourceAmount new bottom: ${amountToMove + bottomLiquid}")
 
         //empty current as much as possible (there still may be some left here, the source)
         oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, newSourceAmount.toByte())

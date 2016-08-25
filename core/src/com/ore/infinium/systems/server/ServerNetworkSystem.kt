@@ -528,8 +528,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private fun attackLiquidGun(tileX: Int, tileY: Int) {
         if (!oreWorld.isWater(tileX, tileY)) {
             //fill with water
-            oreWorld.setBlockType(tileX, tileY, OreBlock.BlockType.Water.oreValue)
-            oreWorld.setLiquidLevel(tileX, tileY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+            oreWorld.setLiquidLevelWaterNotEmpty(tileX, tileY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
 
             for (player in oreWorld.players()) {
                 this.sendPlayerSingleBlock(player, tileX, tileY)
