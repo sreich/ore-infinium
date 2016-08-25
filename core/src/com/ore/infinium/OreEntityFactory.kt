@@ -54,7 +54,7 @@ class OreEntityFactory(val oreWorld: OreWorld) {
 
         mTool.create(entity).apply {
             type = ToolComponent.ToolType.Bucket
-            attackIntervalMs = 1000
+            attackIntervalMs = 100
         }
 
         mSprite.create(entity).apply {

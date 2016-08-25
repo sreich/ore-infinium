@@ -319,6 +319,8 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
             debugStrings.add("E - power overlay. Q - drop item")
             debugStrings.add("1-8 or mouse wheel for inventory selection")
+
+            debugStrings.add("World size: (${OreWorld.WORLD_SIZE_X}, ${OreWorld.WORLD_SIZE_Y})")
         }
     }
 

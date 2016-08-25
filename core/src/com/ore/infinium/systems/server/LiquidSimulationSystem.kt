@@ -28,7 +28,6 @@ import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
-import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.systems.PlayerSystem
@@ -65,14 +64,14 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private var dirty = false
     private var dirtyRegion = Rectangle()
     private fun simulateFluidsInRegion(rect: Rectangle, player: Int) {
-        val startX = rect.lefti
-        val startY = rect.topi
-        val endX = (rect.righti) - 1
-        val endY = (rect.bottomi) - 1
+        val startX = oreWorld.blockXSafe(rect.lefti)
+        val startY = oreWorld.blockYSafe(rect.topi)
+        val endX = oreWorld.blockXSafe(rect.righti)
+        val endY = oreWorld.blockYSafe(rect.bottomi)
 
         for (y in endY downTo startY) {
             for (x in startX until endX) {
-                if (oreWorld.blockType(x, y) == OreBlock.BlockType.Water.oreValue) {
+                if (oreWorld.isWater(x, y)) {
                     processLiquidTile(x, y)
                 }
             }
@@ -164,7 +163,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val amountToSplit = (sourceAmount + rightLiquid) / 2
         val remainder = (sourceAmount + rightLiquid) % 2
-        println("moveLiquidRight amountToSplit: $amountToSplit, remainder: $remainder, sourceAmount: $sourceAmount rightliquid: $rightLiquid, newRight: ${amountToSplit+remainder}")
+        println("moveLiquidRight amountToSplit: $amountToSplit, remainder: $remainder, sourceAmount: $sourceAmount rightliquid: $rightLiquid, newRight: ${amountToSplit + remainder}")
 
         //empty current as much as possible (there still may be some left here, the source)
         oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, amountToSplit.toByte())
