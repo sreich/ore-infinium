@@ -27,7 +27,6 @@ package com.ore.infinium.util
 import com.badlogic.gdx.ApplicationListener
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -123,7 +122,7 @@ fun RandomXS128.nextInt(start: Int, end: Int): Int {
     return start + nextInt(end - start + 1)
 }
 
-val SpriteBatch.MAX_SPRITES_PER_BATCH: Int get() = 5460
+val MAX_SPRITES_PER_BATCH = 5460
 
 /**
  * get some type safety around libgdx's alignments

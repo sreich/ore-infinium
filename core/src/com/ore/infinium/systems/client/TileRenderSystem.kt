@@ -38,6 +38,7 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.TileLightingSystem
+import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
 import com.ore.infinium.util.RenderSystemMarker
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.system
@@ -67,7 +68,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
     val tileAtlasCache = mutableMapOf<String, TextureRegion>()
     init {
-        batch = SpriteBatch(5000)
+        batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
 
         blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
         tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
