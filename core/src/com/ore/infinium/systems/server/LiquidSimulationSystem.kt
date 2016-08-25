@@ -101,7 +101,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         if (sourceAmount <= 0) {
             print("zero")
 
-//            error("")
+            error("zero?")
         }
 
         val bottomSafeY = oreWorld.blockYSafe(y + 1)
@@ -163,7 +163,7 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val amountToSplit = (sourceAmount + rightLiquid) / 2
         val remainder = (sourceAmount + rightLiquid) % 2
-        println("moveLiquidRight amountToSplit: $amountToSplit, remainder: $remainder, sourceAmount: $sourceAmount rightliquid: $rightLiquid, newRight: ${amountToSplit + remainder}")
+        //println("moveLiquidRight amountToSplit: $amountToSplit, remainder: $remainder, sourceAmount: $sourceAmount rightliquid: $rightLiquid, newRight: ${amountToSplit + remainder}")
 
         //empty current as much as possible (there still may be some left here, the source)
         oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, amountToSplit.toByte())
@@ -213,9 +213,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //pick one or the other randomly??
             //hack
             val randomDirection = 1//rand.nextInt(0, 1)
-            //    assert(amountToSpread > 0) { "amount to spread impossibly 0. sourceAmount: $sourceAmount, left: $leftLiquid, right: $rightLiquid" } //FIXME error, HIT
-            if (amountToSpread == 0) {
-                println("moveliquidleftright amount to spread is zero")
+            assert(amountToSpread > 0) {
+                "amount to spread impossibly 0. sourceAmount: $sourceAmount, left: $leftLiquid, right: $rightLiquid"
             }
             when (randomDirection) {
                 0 -> {
@@ -256,13 +255,9 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //hack
         val amountToMove = freeSpace.coerceAtMost(sourceAmount.toInt())
 
-        if (bottomLiquid != 0.toByte()) {
-            println()
-        }
-
         val newSourceAmount = (sourceAmount - amountToMove)
         //println("amounttospread: $amountToSpread, remainder: $remainder")
-        println("moveLiquidToBottom amounttomove: $amountToMove, remainder: $newSourceAmount, newSourceAmount: $newSourceAmount new bottom: ${amountToMove + bottomLiquid}")
+        //println("moveLiquidToBottom amounttomove: $amountToMove, remainder: $newSourceAmount, newSourceAmount: $newSourceAmount new bottom: ${amountToMove + bottomLiquid}")
 
         //empty current as much as possible (there still may be some left here, the source)
         oreWorld.setLiquidLevelClearIfEmpty(sourceX, sourceY, newSourceAmount.toByte())

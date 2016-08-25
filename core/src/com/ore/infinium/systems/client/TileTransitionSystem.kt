@@ -32,7 +32,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.ore.infinium.LoadedViewport
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.system
 import java.util.*
@@ -103,6 +103,7 @@ class TileTransitionSystem(private val camera: OrthographicCamera, private val o
         val blockRegion = playerComponent.loadedViewport.blockRegionInViewport()
 
         transitionTiles(blockRegion)
+        //fixme, disable for now
         transitionGrass(blockRegion)
     }
 

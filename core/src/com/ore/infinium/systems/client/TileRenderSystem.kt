@@ -31,6 +31,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.IntMap
 import com.ore.infinium.OreBlock
@@ -64,11 +65,14 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
     var stoneBlockMeshes: IntMap<String>
     var grassBlockMeshes: IntMap<String>
 
+    val tileAtlasCache = mutableMapOf<String, TextureRegion>()
     init {
         batch = SpriteBatch(5000)
 
         blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
         tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
+
+        tilesAtlas.regions.forEach { tileAtlasCache[it.name] = it }
 
         //todo obviously, we can replace this map and lookup with something cheaper, i bet.
         //it's actually only used to fetch the string which then we will fetch from the texture atlas
@@ -196,7 +200,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         batch.setColor(lightValue, lightValue, lightValue, 1f)
 
         //offset y to flip orientation around to normal
-        val regionWall = tilesAtlas.findRegion(wallTextureName)
+        val regionWall = tileAtlasCache[wallTextureName]
         batch.draw(regionWall, tileX, tileY + 1, 1f, -1f)
 
         batch.setColor(1f, 1f, 1f, 1f)
@@ -230,7 +234,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
             textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
         }
 
-        val foregroundTileRegion = tilesAtlas.findRegion(textureName)
+        val foregroundTileRegion = tileAtlasCache[textureName]
         assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
 
 

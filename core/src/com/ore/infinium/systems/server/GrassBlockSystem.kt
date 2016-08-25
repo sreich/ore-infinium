@@ -31,10 +31,9 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.PlayerSystem
-import com.ore.infinium.util.require
+import com.ore.infinium.util.indices
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.system
-import com.ore.infinium.util.indices
 
 /**
  * Handles the random growing of grass blocks in the world
@@ -58,7 +57,8 @@ class GrassBlockSystem(private val oreWorld: OreWorld) : BaseSystem() {
      * Process the system.
      */
     override fun processSystem() {
-        randomGrowGrass()
+        //hack disable for now, needs some work
+        //randomGrowGrass()
     }
 
     private fun randomGrowGrass() {
