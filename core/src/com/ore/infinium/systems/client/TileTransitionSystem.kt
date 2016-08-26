@@ -39,7 +39,7 @@ import java.util.*
 
 @Wire
 class TileTransitionSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)//every n ms
-        : IntervalSystem(Aspect.all(), 600.0f / 1000.0f) {
+: IntervalSystem(Aspect.all(), 60.0f / 1000.0f) {
 
     private val mPlayer by mapper<PlayerComponent>()
 
@@ -103,7 +103,6 @@ class TileTransitionSystem(private val camera: OrthographicCamera, private val o
         val blockRegion = cPlayer.loadedViewport.blockRegionInViewport()
 
         transitionTiles(blockRegion)
-        //fixme, disable for now
         transitionGrass(blockRegion)
     }
 
