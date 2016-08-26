@@ -74,8 +74,21 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
 
     private fun decreaseAir(entityId: Int, cAir: AirComponent) {
         if (mPlayer.has(entityId)) {
-            cAir.air -= 1
-            serverNetworkSystem.sendPlayerAirChanged(playerEntity = entityId)
+            val airDecreaseAmount = 100
+//            val newAir = (cAir.air - airDecreaseAmount).coerceAtLeast(0)
+            //changed
+            //cAir.air < airDecreaseAmount -> {
+
+            val newAir = if (cAir.air >= airDecreaseAmount) {
+                cAir.air - airDecreaseAmount
+            } else {
+                0
+            }
+
+            if (newAir != cAir.air) {
+                cAir.air = newAir
+                serverNetworkSystem.sendPlayerAirChanged(playerEntity = entityId)
+            }
         } else {
             TODO("don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
         }

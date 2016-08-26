@@ -533,6 +533,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             val subscription = aspectSubscriptionManager.get(allOf())
             subscription.addSubscriptionListener(ClientEntitySubscriptionListener())
 
+            val cAir = mAir.get(player)
+            oreWorld.client!!.hud.airChanged(cAir, cAir.air)
+
             connected = true
 
             //notify we connected

@@ -56,7 +56,7 @@ class Hud(private val client: OreClient,
 
         airAmountLabel.setText(airPercent.format("%.2f"))
 
-        airMeter.value = air.toFloat()
+        airMeter.value = airPercent
     }
 
     fun healthChanged(health: Float) {
