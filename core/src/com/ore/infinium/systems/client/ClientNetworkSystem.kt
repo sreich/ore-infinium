@@ -393,9 +393,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         TextureRegion textureRegion;
         if (!mBlock.has(e)) {
-            textureRegion = oreWorld.m_atlas.findRegion(cSprite.textureName);
+            textureRegion = oreWorld.atlas.findRegion(cSprite.textureName);
         } else {
-            textureRegion = tileRenderer.m_blockAtlas.findRegion(cSprite.textureName);
+            textureRegion = tileRenderer.blockAtlas.findRegion(cSprite.textureName);
         }
 
         cSprite.sprite.setRegion(textureRegion);
@@ -692,8 +692,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         override fun disconnected(connection: Connection?) {
         }
-    }//private OreClient m_client;
-    //m_client = client;
+    }
 
     internal inner class ClientStupidListener(lagMillisMin: Int, lagMillisMax: Int, listener: Listener) : Listener.LagListener(
             lagMillisMin, lagMillisMax, listener)

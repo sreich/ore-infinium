@@ -435,7 +435,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         dialog!!.invalidateHierarchy()
         dialog!!.invalidate()
         dialog!!.layout()
-        //m_stage.addActor(dialog);
+        //stage.addActor(dialog);
         dialog!!.show(stage)
 
     }
@@ -739,7 +739,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         }
     }
 
-    private class NetworkConnectListener(private val m_client: OreClient) : ClientNetworkSystem.NetworkClientListener {
+    private class NetworkConnectListener(private val client: OreClient) : ClientNetworkSystem.NetworkClientListener {
 
         override fun connected() {
             //todo surely there's some first-time connection stuff we must do?

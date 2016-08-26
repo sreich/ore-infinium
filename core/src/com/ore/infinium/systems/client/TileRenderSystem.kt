@@ -44,7 +44,7 @@ import com.ore.infinium.util.mapper
 import com.ore.infinium.util.system
 
 @Wire
-class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_world: OreWorld) : BaseSystem(), RenderSystemMarker {
+class TileRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld) : BaseSystem(), RenderSystemMarker {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
@@ -119,7 +119,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
     fun render(elapsed: Float) {
         //fixme the system should be disabled and enabled when this happens
 
-        batch.projectionMatrix = m_camera.combined
+        batch.projectionMatrix = camera.combined
         val sprite = mSprite.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
 
         val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
@@ -129,10 +129,10 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
         // determine what the size of the tiles are but convert that to our zoom level
         val tileSize = Vector3(1f, 1f, 0f)
-        tileSize.mul(m_camera.combined)
+        tileSize.mul(camera.combined)
 
-        val tilesInView = (m_camera.viewportHeight * m_camera.zoom).toInt()
-        //m_camera.project(tileSize);
+        val tilesInView = (camera.viewportHeight * camera.zoom).toInt()
+        //camera.project(tileSize);
         val startX = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
         val startY = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
         val endX = (tilesBeforeX + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_X)
@@ -148,9 +148,9 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         for (y in startY until endY) {
             loop@ for (x in startX until endX) {
 
-                val blockType = m_world.blockType(x, y)
-                val blockMeshType = m_world.blockMeshType(x, y)
-                val blockWallType = m_world.blockWallType(x, y)
+                val blockType = oreWorld.blockType(x, y)
+                val blockMeshType = oreWorld.blockMeshType(x, y)
+                val blockWallType = oreWorld.blockWallType(x, y)
 
                 //String textureName = World.blockAttributes.get(block.type).textureName;
 
@@ -188,7 +188,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
                          tileY: Float,
                          blockType: Byte,
                          blockMeshType: Byte) {
-        if (m_world.isBlockTypeLiquid(blockType)) {
+        if (oreWorld.isBlockTypeLiquid(blockType)) {
             return
         }
 
@@ -196,8 +196,8 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
         //fixme of course, for wall drawing, walls should have their own textures
-        //m_batch.setColor(0.5f, 0.5f, 0.5f, 1f)
-        //m_batch.setColor(1.0f, 0f, 0f, 1f)
+        //batch.setColor(0.5f, 0.5f, 0.5f, 1f)
+        //batch.setColor(1.0f, 0f, 0f, 1f)
         batch.setColor(lightValue, lightValue, lightValue, 1f)
 
         //offset y to flip orientation around to normal
@@ -215,14 +215,14 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
         //if (blockLightLevel != 0.toByte()) {
         batch.setColor(lightValue, lightValue, lightValue, 1f)
         //                   } else {
-        //                      m_batch.setColor(1f, 1f, 1f, 1f)
+        //                      batch.setColor(1f, 1f, 1f, 1f)
         //                 }
 
         var resetColor = false
 
         val textureName: String
-        if (m_world.isBlockTypeLiquid(blockType)) {
-            val liquidLevel = m_world.liquidLevel(x, y)
+        if (oreWorld.isBlockTypeLiquid(blockType)) {
+            val liquidLevel = oreWorld.liquidLevel(x, y)
 
             textureName = findTextureNameForLiquidBlock(x, y, blockType, blockMeshType, liquidLevel)
 
@@ -249,7 +249,7 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
 
     private fun debugLightLevel(x: Int, y: Int): Byte {
         if (debugRenderTileLighting) {
-            return m_world.blockLightLevel(x, y)
+            return oreWorld.blockLightLevel(x, y)
         } else {
             return TileLightingSystem.MAX_TILE_LIGHT_LEVEL
         }
@@ -286,9 +286,9 @@ class TileRenderSystem(private val m_camera: OrthographicCamera, private val m_w
     }
 
     fun findTextureNameForBlock(x: Int, y: Int, blockType: Byte, blockMeshType: Byte): String {
-        val blockWallType = m_world.blockWallType(x, y)
+        val blockWallType = oreWorld.blockWallType(x, y)
 
-        val hasGrass = m_world.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
+        val hasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
         var textureName: String ? = null
         when (blockType) {

@@ -63,11 +63,11 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
-    private var m_crosshairShown: Boolean = false
+    private var crosshairShown: Boolean = false
 
     /// this overlay actually gets deleted/recloned from the inventory item, each switch
-    private var m_itemPlacementOverlayExists: Boolean = false
-    private var m_initialized: Boolean = false
+    private var itemPlacementOverlayExists: Boolean = false
+    private var initialized: Boolean = false
 
     private fun slotSelected(index: Int, inventory: Inventory) {
         val mainPlayer = tagManager.getEntity(OreWorld.s_mainPlayer).id
@@ -109,17 +109,17 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         tagManager.register(OreWorld.s_itemPlacementOverlay, newPlacementOverlay)
-        m_itemPlacementOverlayExists = true
+        itemPlacementOverlayExists = true
     }
 
     private fun deletePlacementOverlay() {
-        if (m_itemPlacementOverlayExists) {
+        if (itemPlacementOverlayExists) {
             assert(tagManager.isRegistered(OreWorld.s_itemPlacementOverlay))
 
             val placementOverlay = tagManager.getEntity(OreWorld.s_itemPlacementOverlay)
             getWorld().delete(placementOverlay.id)
 
-            m_itemPlacementOverlayExists = false
+            itemPlacementOverlayExists = false
         }
     }
 
@@ -129,7 +129,7 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         // if the switched to item is a block, we should show a crosshair overlay
         if (mBlock.has(equippedPrimaryEntity)) {
-            m_crosshairShown = true
+            crosshairShown = true
             crosshairSprite.visible = true
 
             //don't show the placement overlay for blocks, just items and other placeable things
@@ -141,14 +141,14 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         if (entityToolComponent != null) {
             if (entityToolComponent.type == ToolComponent.ToolType.Drill) {
                 //drill, one of the few cases we want to show the block crosshair...
-                m_crosshairShown = true
+                crosshairShown = true
                 crosshairSprite.visible = true
 
                 return true
             }
         }
 
-        m_crosshairShown = false
+        crosshairShown = false
         crosshairSprite.visible = false
 
         return false
@@ -161,8 +161,8 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     override fun processSystem() {
-        //        m_batch.setProjectionMatrix(oreWorld.m_camera.combined);
-        if (!m_initialized && oreWorld.client!!.hotbarInventory != null) {
+        //        batch.setProjectionMatrix(oreWorld.camera.combined);
+        if (!initialized && oreWorld.client!!.hotbarInventory != null) {
 
             oreWorld.client!!.hotbarInventory!!.addListener(object : Inventory.SlotListener {
                 override fun slotItemSelected(index: Int, inventory: Inventory) {
@@ -170,10 +170,10 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
                 }
             })
 
-            m_initialized = true
+            initialized = true
         }
 
-        if (m_initialized) {
+        if (initialized) {
             updateItemOverlay()
             updateCrosshair()
         }
@@ -237,7 +237,7 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     fun setPlacementOverlayVisible(visible: Boolean) {
         //if item placement overlay doesn't exist, no need to hide it
-        if (m_itemPlacementOverlayExists) {
+        if (itemPlacementOverlayExists) {
             val entity = tagManager.getEntity(OreWorld.s_itemPlacementOverlay).id
             mSprite.get(entity).visible = visible
         }

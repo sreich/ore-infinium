@@ -37,24 +37,24 @@ class WorldTime {
 
         /*
             uint8_t interval = 1;
-    m_minute += interval;
+    minute += interval;
 
-    if (m_second >= 60) {
-        ++m_minute;
-        m_second -= 60;
+    if (second >= 60) {
+        ++minute;
+        second -= 60;
     }
 
-    if (m_minute >= 60) {
-        ++m_hour;
-        m_minute -= 60;
+    if (minute >= 60) {
+        ++hour;
+        minute -= 60;
     }
 
-    if (m_hour >= 24) {
-        m_hour -= 24;
+    if (hour >= 24) {
+        hour -= 24;
     }
 
-    assert(m_minute <= 59 && m_second <= 59)
-    assert(m_hour <= 23)
+    assert(minute <= 59 && second <= 59)
+    assert(hour <= 23)
 }
 
          */

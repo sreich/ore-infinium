@@ -158,10 +158,10 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
         if (renderDebugServer && false) {
             /*
-            debugServerBatch.setProjectionMatrix(oreWorld.m_camera.combined);
+            debugServerBatch.setProjectionMatrix(oreWorld.camera.combined);
             debugServerBatch.begin();
             debugServerBatch.setColor(1, 0, 0, 0.5f);
-            ImmutableArray<Entity> entities = m_server.oreWorld.engine.getEntitiesFor(Family.all(SpriteComponent
+            ImmutableArray<Entity> entities = server.oreWorld.engine.getEntitiesFor(Family.all(SpriteComponent
             .class).get());
             for (int i = 0; i < entities.size(); ++i) {
                 SpriteComponent cSprite = mSprite.get(entities.get(i));
@@ -206,12 +206,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     }
 
     private fun drawStandardDebugInfo() {
-        //fixme
-        //        if (m_server != null) {
-
-        //       }
-
-
         for (s in debugStrings) {
             drawNextLeftString(s)
         }
@@ -238,9 +232,9 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             //or just the count. if we do just the count though, we can't get the 'actual'
             //object positions below. but there may be another way (like making a special system for it,
             //that will avoid interpolation..or something)
-            val serverEntities = oreWorld.m_server.oreWorld.m_artemisWorld.entities(allOf());
-            font.draw(batch, "server entities: " + serverEntities.size(), TEXT_X_LEFT, m_textYLeft);
-            m_textYLeft -= TEXT_Y_SPACING;
+            val serverEntities = oreWorld.server.oreWorld.artemisWorld.entities(allOf());
+            font.draw(batch, "server entities: " + serverEntities.size(), TEXT_X_LEFT, textYLeft);
+            textYLeft -= TEXT_Y_SPACING;
             */
 
         }
@@ -300,7 +294,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             debugStrings.add("Texture switches: ${GLProfiler.textureBindings}")
             debugStrings.add("Shader switches: ${GLProfiler.shaderSwitches}")
             debugStrings.add("Draw calls: ${GLProfiler.drawCalls}")
-            debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(m_server.sharedFrameTime);
+            debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(server.sharedFrameTime);
             debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
             debugStrings.add("F11 - gui render (${OreSettings.debugRenderGui.enabledString()})")
             debugStrings.add("F10 - tile render (${tileRenderSystem.debugRenderTiles})")

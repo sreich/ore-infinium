@@ -79,7 +79,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     //todo verify that there aren't too many blocks all at once from the same player
     //she could in theory send 500 block updates..requiring only the time for 1 block dig
 
-    private val m_blocksToDig = mutableListOf<BlockToDig>()
+    private val blocksToDig = mutableListOf<BlockToDig>()
 
     /**
      * @return true if it was processed (and should be removed)
@@ -162,7 +162,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     //todo when the equipped item changes, abort all active digs for that player
     override fun processSystem() {
-        m_blocksToDig.removeAll { blockToDig -> processAndRemoveDigRequests(blockToDig) }
+        blocksToDig.removeAll { blockToDig -> processAndRemoveDigRequests(blockToDig) }
     }
 
     /**
@@ -172,7 +172,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
      * @param y
      */
     fun receiveBlockDiggingFinished(x: Int, y: Int) {
-        for (blockToDig in m_blocksToDig) {
+        for (blockToDig in blocksToDig) {
             if (blockToDig.x == x && blockToDig.y == y) {
                 //this is our block, mark it as the client thinking/saying(or lying) it finished
                 blockToDig.clientSaysItFinished = true
@@ -208,6 +208,6 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                                     playerConnectionId = mPlayer.get(playerEntity).connectionPlayerId,
                                     digStartTick = gameTickSystem.ticks)
 
-        m_blocksToDig.add(blockToDig)
+        blocksToDig.add(blockToDig)
     }
 }

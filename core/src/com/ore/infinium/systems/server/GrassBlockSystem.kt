@@ -139,7 +139,7 @@ class GrassBlockSystem(private val oreWorld: OreWorld) : BaseSystem() {
                                 topLeftBlockType == OreBlock.BlockType.Dirt.oreValue && topBlockType == OreBlock.BlockType.Air.oreValue) {
 
                             oreWorld.setBlockFlag(leftBlockX, leftBlockY, OreBlock.BlockFlags.GrassBlock)
-                            //                            m_server.sendPlayerSparseBlock(player, leftLeftBlock,
+                            //                            server.sendPlayerSparseBlock(player, leftLeftBlock,
                             // leftLeftX, leftLeftY);
 
                             serverNetworkSystem.sendPlayerSingleBlock(playerEntity, leftBlockX, leftBlockY)
@@ -160,8 +160,8 @@ class GrassBlockSystem(private val oreWorld: OreWorld) : BaseSystem() {
                                 topRightBlockType == OreBlock.BlockType.Dirt.oreValue && topBlockType == OreBlock.BlockType.Air.oreValue) {
 
                             oreWorld.setBlockFlag(rightBlockX, rightBlockY, OreBlock.BlockFlags.GrassBlock)
-                            //    m_server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
-                            //                               m_server.sendPlayerSparseBlock(player,
+                            //    server.sendPlayerSparseBlock(player, topRightBlock, topRightX, topRightY);
+                            //                               server.sendPlayerSparseBlock(player,
                             // rightRightBlock, rightRightX, rightRightY);
 
                             serverNetworkSystem.sendPlayerSingleBlock(playerEntity, rightBlockX, rightBlockY)

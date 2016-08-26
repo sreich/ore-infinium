@@ -123,7 +123,7 @@ class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage
             return
         }
 
-        //        batch.setProjectionMatrix(oreWorld.m_camera.combined);
+        //        batch.setProjectionMatrix(oreWorld.camera.combined);
         batch.projectionMatrix = oreWorld.camera.combined
         batch.begin()
 

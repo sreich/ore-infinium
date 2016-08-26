@@ -153,7 +153,7 @@ class OreServer : Runnable {
         cPlayer.inventory = Inventory(Inventory.maxSlots)
         oreWorld.artemisWorld.inject(cPlayer.inventory!!)
 
-        //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
+        //FIXME UNUSED, we use connectionid instead anyways        ++freePlayerId;
 
         //tell all players including himself, that he joined
         serverNetworkSystem.sendSpawnPlayerBroadcast(player)

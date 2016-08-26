@@ -110,7 +110,7 @@ class DebugProfilerView(stage: Stage,
 
     override fun act(delta: Float) {
         super.act(delta)
-//hack m_scrollPane.scrollPercentY = 100f
+//hack scrollPane.scrollPercentY = 100f
 
         val strategy = world.artemisWorld.getInvocationStrategy<GameLoopSystemInvocationStrategy>()
 

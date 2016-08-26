@@ -133,13 +133,13 @@ class WorldBlockTest {
     fun createArtemisWorld() {
         /*
         OreWorld world = new OreWorld(null, null);
-        world.m_artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
+        world.artemisWorld = new World(new WorldConfigurationBuilder().dependsOn(ProfilerPlugin.class)
                                                                         .with(new NetworkClientSystem(this))
                                                                         .with(new PowerCircuitSystem(this))
-                                                                        .with(new DebugTextRenderSystem(m_camera, this))
+                                                                        .with(new DebugTextRenderSystem(camera, this))
                                                                         .build());
         //inject the mappers into the world, before we start doing things
-        world.m_artemisWorld.inject(this, true);
+        world.artemisWorld.inject(this, true);
         */
 
     }

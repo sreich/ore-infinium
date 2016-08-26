@@ -63,7 +63,7 @@ class ChatDialog(private val client: OreClient,
 
         scrollPane = VisScrollPane(scrollPaneTable)
 
-//        m_stage.addActor(container)
+//        stage.addActor(container)
         //       container.bottom().left().padBottom(5f).setSize(600f, 300f)
 
         container.add(scrollPane).expand().fill().colspan(4)
@@ -169,15 +169,15 @@ class ChatDialog(private val client: OreClient,
 
         val notification = chatVisibility == ChatVisibility.Notification
 
-        //        m_messageField.setVisible(!notification);
+        //        messageField.setVisible(!notification);
         messageField.isDisabled = notification
         sendButton.isVisible = !notification
-        //        m_scroll.setScrollingDisabled(notification, notification);
+        //        scroll.setScrollingDisabled(notification, notification);
 
         scrollToBottom()
         val touchable = if (notification) Touchable.disabled else Touchable.enabled
-        //        m_scrollPaneTable.setTouchable(touchable);
-        //        m_scroll.setTouchable(touchable);
+        //        scrollPaneTable.setTouchable(touchable);
+        //        scroll.setTouchable(touchable);
         chatVisibilityState = chatVisibility
     }
 

@@ -147,10 +147,9 @@ class OreWorld
         }
 
         //        assetManager = new AssetManager();
-        //        TextureAtlas m_blockAtlas = assetManager.get("data/", TextureAtlas.class);
+        //        TextureAtlas blockAtlas = assetManager.get("data/", TextureAtlas.class);
         //        assetManager.finishLoading();
-
-        //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
+        //        camera.position.set(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0);
     }
 
     fun initClient() {
@@ -160,7 +159,8 @@ class OreWorld
 
         //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
         // class dictates this.
-        artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
+        artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerTick = 25,
+                                                                                                   isServer = false))
                                      .with(TagManager())
                                      .with(PlayerManager())
                                      .with(MovementSystem(this))
@@ -202,7 +202,7 @@ class OreWorld
                                      .with(ServerNetworkSystem(this, server!!))
                                      .with(TileLightingSystem(this))
                                      .with(LiquidSimulationSystem(this))
-                                     .register(GameLoopSystemInvocationStrategy(25, true))
+                                     .register(GameLoopSystemInvocationStrategy(msPerTick = 25, isServer = true))
                                      .build())
         //inject the mappers into the world, before we start doing things
         artemisWorld.oreInject(this)

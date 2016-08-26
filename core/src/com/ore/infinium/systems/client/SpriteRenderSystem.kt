@@ -73,7 +73,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
     }
 
     override fun processSystem() {
-        //        batch.setProjectionMatrix(oreWorld.m_camera.combined);
+        //        batch.setProjectionMatrix(oreWorld.camera.combined);
         tweenManager.update(world.getDelta())
 
         batch.begin()

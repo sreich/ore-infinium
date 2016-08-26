@@ -29,7 +29,7 @@ import com.artemis.annotations.Wire
 import com.ore.infinium.OreWorld
 
 @Wire
-class GameTickSystem(private val m_world: OreWorld) : BaseSystem() {
+class GameTickSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     /**
      * increased by 1 every update()

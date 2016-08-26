@@ -31,7 +31,7 @@ import com.kotcrab.vis.ui.widget.VisTable
 
 class Hud(private val client: OreClient,
           private val ownStage: Stage,
-          m_rootTable: VisTable) : VisTable() {
+          rootTable: VisTable) : VisTable() {
 
     val airMeter = VisProgressBar(0f, 100f, 1f, false)
     val healthMeter = VisProgressBar(0f, 100f, 1f, false)
@@ -44,7 +44,7 @@ class Hud(private val client: OreClient,
         add(airMeter)
         row()
 
-        m_rootTable.add(this).expand().top().right().padBottom(5f).size(500f, 200f)
+        rootTable.add(this).expand().top().right().padBottom(5f).size(500f, 200f)
     }
 
     fun airChanged(air: Int) {

@@ -39,7 +39,7 @@ import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
-class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_client: OreClient) : BaseSystem() {
+class ClientBlockDiggingSystem(private val oreWorld: OreWorld, private val client: OreClient) : BaseSystem() {
     private val mPlayer by mapper<PlayerComponent>()
     private val mTool by mapper<ToolComponent>()
 
@@ -86,7 +86,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             return
         }
 
-        val mouse = m_world.mousePositionWorldCoords()
+        val mouse = oreWorld.mousePositionWorldCoords()
         //todo check if block is null
 
         val blockX = mouse.x.toInt()
@@ -151,7 +151,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
      * @return
      */
     fun ableToDigAtIndex(x: Int, y: Int): Boolean {
-        if (!m_client.leftMouseDown) {
+        if (!client.leftMouseDown) {
             return false
         }
 
@@ -171,7 +171,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
             return false
         }
 
-        val blockType = m_world.blockType(x, y)
+        val blockType = oreWorld.blockType(x, y)
         if (blockType == OreBlock.BlockType.Air.oreValue) {
             return false
         }
@@ -190,7 +190,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         val cPlayer = mPlayer.get(player)
         val itemEntity = cPlayer.equippedPrimaryItem
 
-        val mouse = m_world.mousePositionWorldCoords()
+        val mouse = oreWorld.mousePositionWorldCoords()
 
         //guaranteed to have a tool, we already check that in the method call before this
         val cTool = mTool.get(itemEntity)
@@ -198,7 +198,7 @@ class ClientBlockDiggingSystem(private val m_world: OreWorld, private val m_clie
         val blockX = mouse.x.toInt()
         val blockY = mouse.y.toInt()
 
-        val blockType = m_world.blockType(blockX, blockY)
+        val blockType = oreWorld.blockType(blockX, blockY)
 
         //if any of these blocks is what we're trying to dig
         //then we need to continue digging them

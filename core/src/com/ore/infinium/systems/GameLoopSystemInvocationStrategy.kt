@@ -42,20 +42,20 @@ class GameLoopSystemInvocationStrategy
  * *         Rendering is unbounded/probably bounded by libgdx's
  * *         DesktopLauncher
  */
-(msPerTick: Int, private val m_isServer: Boolean) : SystemInvocationStrategy() {
+(msPerTick: Int, private val isServer: Boolean) : SystemInvocationStrategy() {
 
     //systems marked as indicating to be run only during the logic section of the loop
-    private val m_renderSystems = mutableListOf<SystemAndProfiler>()
-    private val m_logicSystems = mutableListOf<SystemAndProfiler>()
+    private val renderSystems = mutableListOf<SystemAndProfiler>()
+    private val logicSystems = mutableListOf<SystemAndProfiler>()
 
     private inner class SystemAndProfiler(internal var system: BaseSystem, internal var profiler: SystemProfiler)
 
-    private var m_accumulatorNs: Long = 0
+    private var accumulatorNs: Long = 0
 
     //delta time
-    private val m_nsPerTick = TimeUtils.millisToNanos(msPerTick.toLong())
+    private val nsPerTick = TimeUtils.millisToNanos(msPerTick.toLong())
 
-    private var m_currentTimeNs = System.nanoTime()
+    private var currentTimeNs = System.nanoTime()
 
     //minimum tick to chug along as, when we get really slow.
     //this way we're still rendering even though logic is taking up
@@ -63,25 +63,23 @@ class GameLoopSystemInvocationStrategy
     private val minMsPerFrame: Long = 250
     private val minNsPerFrame = TimeUtils.millisToNanos(minMsPerFrame)
 
-    private var m_systemsSorted: Boolean = false
+    private var systemsSorted: Boolean = false
 
     private fun addSystems(systems: Bag<BaseSystem>) {
-        if (!m_systemsSorted) {
+        if (!systemsSorted) {
             val systemsData = systems.data
             for (system in systems) {
                 if (system is RenderSystemMarker) {
-                    //m_renderSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
-                    m_renderSystems.add(createSystemAndProfiler(system))
+                    renderSystems.add(createSystemAndProfiler(system))
                 } else {
-                    //m_logicSystems.add(SystemAndProfiler(system, createSystemProfiler(system)))
-                    m_logicSystems.add(createSystemAndProfiler(system))
+                    logicSystems.add(createSystemAndProfiler(system))
                 }
             }
         }
     }
 
     private fun createSystemAndProfiler(system: BaseSystem): SystemAndProfiler {
-        val prepender = if (m_isServer) {
+        val prepender = if (isServer) {
             "server"
         } else {
             "client"
@@ -94,7 +92,7 @@ class GameLoopSystemInvocationStrategy
 
         val perfStat = PerfStat(profilerName)
 
-        val hash = if (m_isServer) {
+        val hash = if (isServer) {
             serverPerfCounter
         } else {
             clientPerfCounter
@@ -125,7 +123,7 @@ class GameLoopSystemInvocationStrategy
 //    private fun createSystemProfiler(system: BaseSystem): SystemProfiler? {
 //        var old: SystemProfiler? = null
 //
-//        if (!m_isServer) {
+//        if (!isServer) {
 //            old = SystemProfiler.getFor(system)
 //            if (old == null) {
 //                old = SystemProfiler.createFor(system, world)
@@ -137,39 +135,39 @@ class GameLoopSystemInvocationStrategy
 //    */
 
     override fun process(systems: Bag<BaseSystem>) {
-        if (!m_isServer) {
+        if (!isServer) {
             //    frameProfiler.start()
         }
 
-        if (!m_systemsSorted) {
+        if (!systemsSorted) {
             addSystems(systems)
-            m_systemsSorted = true
+            systemsSorted = true
         }
 
         val newTimeNs = System.nanoTime()
         //nanoseconds
-        var frameTimeNs = newTimeNs - m_currentTimeNs
+        var frameTimeNs = newTimeNs - currentTimeNs
 
         if (frameTimeNs > minNsPerFrame) {
             frameTimeNs = minNsPerFrame    // Note: Avoid spiral of death
         }
 
-        m_currentTimeNs = newTimeNs
-        m_accumulatorNs += frameTimeNs
+        currentTimeNs = newTimeNs
+        accumulatorNs += frameTimeNs
 
         //convert from nanos to millis then to seconds, to get fractional second dt
-        world.setDelta(TimeUtils.nanosToMillis(m_nsPerTick) / 1000.0f)
+        world.setDelta(TimeUtils.nanosToMillis(nsPerTick) / 1000.0f)
 
-        while (m_accumulatorNs >= m_nsPerTick) {
+        while (accumulatorNs >= nsPerTick) {
             /** Process all entity systems inheriting from [RenderSystemMarker]  */
-            for (systemAndProfiler in m_logicSystems) {
+            for (systemAndProfiler in logicSystems) {
                 //TODO interpolate before this
                 //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
                 processProfileSystem(systemAndProfiler)
                 updateEntityStates()
             }
 
-            m_accumulatorNs -= m_nsPerTick
+            accumulatorNs -= nsPerTick
         }
 
         //Gdx.app.log("frametime", Double.toString(frameTime));
@@ -182,16 +180,16 @@ class GameLoopSystemInvocationStrategy
         //    e.printStackTrace();
         //}
 
-        //float alpha = (float) m_accumulator / m_nsPerTick;
+        //float alpha = (float) accumulator / nsPerTick;
 
         //only clear if we have something to render..aka this world is a rendering one (client)
         //else it's a server, and this will crash due to no gl context, obviously
-        if (!m_isServer) {
+        if (!isServer) {
             Gdx.gl.glClearColor(.1f, .1f, .1f, 1f)
             Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         }
 
-        for (systemAndProfiler in m_renderSystems) {
+        for (systemAndProfiler in renderSystems) {
             //TODO interpolate this rendering with the state from the logic run, above
             //State state = currentState * alpha +
             //previousState * ( 1.0 - alpha );
@@ -210,21 +208,21 @@ class GameLoopSystemInvocationStrategy
             // printProfilerStats()
         }
 
-        if (!m_isServer) {
+        if (!isServer) {
 //            f.rameProfiler.stop()
         }
     }
 
     private fun updateProfilers() {
-        if (m_isServer) {
+        if (isServer) {
             synchronized(serverPerfCounter) {
-                updateProfilerStatsForSystems(m_logicSystems, serverPerfCounter)
+                updateProfilerStatsForSystems(logicSystems, serverPerfCounter)
             }
             //obviously, no rendering systems here..
         } else {
             //client
-            updateProfilerStatsForSystems(m_renderSystems, clientPerfCounter)
-            updateProfilerStatsForSystems(m_logicSystems, clientPerfCounter)
+            updateProfilerStatsForSystems(renderSystems, clientPerfCounter)
+            updateProfilerStatsForSystems(logicSystems, clientPerfCounter)
         }
     }
 
@@ -258,7 +256,7 @@ class GameLoopSystemInvocationStrategy
 
     private fun printProfilerStats() {
 
-        if (m_isServer) {
+        if (isServer) {
             serverPerfCounter.forEach { baseSystem, perfStat ->
                 val s = """tmin: ${perfStat.timeMin.format()}
                     tmax: ${perfStat.timeMax.format()}

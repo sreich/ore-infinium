@@ -273,7 +273,7 @@ class HotbarInventoryView(private val stage: Stage,
             //grab item from source, copy it into dest
             hotbarInventory.setSlot(this.index, itemEntity)
 
-            //fixme?                    inventory.m_previousSelectedSlot = index;
+            //fixme?                    inventory.previousSelectedSlot = index;
 
             val clientNetworkSystem = inventoryView.world.artemisWorld.getSystem(ClientNetworkSystem::class.java)
             clientNetworkSystem.sendInventoryMove(sourceInventoryType = dragWrapper.sourceInventory.inventoryType,
