@@ -25,9 +25,9 @@ open class BaseInventoryView(val title: String,
                              val stage: Stage,
                              val inventory: Inventory,
                              val oreWorld: OreWorld) : Inventory.SlotListener {
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var mBlock: ComponentMapper<BlockComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
     protected val slots = mutableListOf<SlotElement>()
 
@@ -90,8 +90,8 @@ open class BaseInventoryView(val title: String,
 
     override fun slotItemCountChanged(index: Int, inventory: Inventory) {
         val itemEntity = inventory.itemEntity(index)
-        val itemComponent = itemMapper.get(itemEntity)
-        slots[index].itemName.setText(itemComponent.stackSize.toString())
+        val cItem = mItem.get(itemEntity)
+        slots[index].itemName.setText(cItem.stackSize.toString())
     }
 
     override fun slotItemRemoved(index: Int, inventory: Inventory) {
@@ -108,13 +108,13 @@ open class BaseInventoryView(val title: String,
             return
         }
 
-        val itemComponent = itemMapper.get(itemEntity)
+        val cItem = mItem.get(itemEntity)
         //HACK BELOW IS THE CRASH, itemcomponent null!!
-        slots[index].itemName.setText(itemComponent.stackSize.toString())
+        slots[index].itemName.setText(cItem.stackSize.toString())
 
-        val spriteComponent = spriteMapper.get(itemEntity)
+        val cSprite = mSprite.get(itemEntity)
 
-        val region = slotTextureForEntity(itemEntity, spriteComponent.textureName!!)
+        val region = slotTextureForEntity(itemEntity, cSprite.textureName!!)
 
         val slotImage = slot.itemImage
         slotImage.drawable = TextureRegionDrawable(region)
@@ -127,7 +127,7 @@ open class BaseInventoryView(val title: String,
 
     protected fun slotTextureForEntity(itemEntity: Int, textureName: String): TextureRegion {
         val region: TextureRegion?
-        if (blockMapper.opt(itemEntity) != null) {
+        if (mBlock.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = oreWorld.artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
                     "$textureName-00")
@@ -187,9 +187,9 @@ open class BaseInventoryView(val title: String,
             itemEntity = inventoryView.inventory.itemEntity(index)
 
             if (isValidEntity(itemEntity)) {
-                val itemComponent = inventoryView.itemMapper.get(itemEntity)
-                val spriteComponent = inventoryView.spriteMapper.get(itemEntity)
-                inventoryView.tooltipLabel.setText(itemComponent.name)
+                val cItem = inventoryView.mItem.get(itemEntity)
+                val cSprite = inventoryView.mSprite.get(itemEntity)
+                inventoryView.tooltipLabel.setText(cItem.name)
             }
 
             return super.mouseMoved(event, x, y)

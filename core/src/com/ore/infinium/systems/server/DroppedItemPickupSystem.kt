@@ -89,20 +89,20 @@ class DroppedItemPickupSystem(private val oreWorld: OreWorld) : IteratingSystem(
     /**
      * places a dropped item in the inventory of a player
      * @param itemComponentToPickup item that should be picked up and put into inventory
-     * @param playerComponent player who should be picking up this item
+     * @param cPlayer player who should be picking up this item
      * @param itemToPickupId entity id
      */
     private fun pickupItem(itemComponentToPickup: ItemComponent, itemToPickupId: Int, playerEntityId: Int) {
-        val playerComponent = mPlayer.get(playerEntityId)
+        val cPlayer = mPlayer.get(playerEntityId)
 
         var inventoryToAttempt: Inventory
 
-        inventoryToAttempt = playerComponent.hotbarInventory!!
+        inventoryToAttempt = cPlayer.hotbarInventory!!
         val hotbarResult = inventoryToAttempt.placeItemInNextFreeSlot(itemToPickupId)
 
         if (hotbarResult.resultType == ItemAddResult.TypeOfAdd.Failed) {
             //try for inventory instead, since hotbar is filled
-            inventoryToAttempt = playerComponent.inventory!!
+            inventoryToAttempt = cPlayer.inventory!!
             val inventoryResult = inventoryToAttempt.placeItemInNextFreeSlot(itemToPickupId)
             if (inventoryResult.resultType == ItemAddResult.TypeOfAdd.Failed) {
                 //abort, do not destroy. do not pickup, he has no room

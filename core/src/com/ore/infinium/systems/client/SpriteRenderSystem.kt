@@ -97,41 +97,41 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
         //fixme obviously this is very inefficient...but dunno if it'll ever be an issue.
         val entities = world.entities(allOf(SpriteComponent::class))
 
-        var itemComponent: ItemComponent?
+        var cItem: ItemComponent?
         for (i in entities.indices) {
-            itemComponent = mItem.opt(entities.get(i))
+            cItem = mItem.opt(entities.get(i))
             //don't draw in-inventory or not dropped items
-            if (itemComponent == null || itemComponent.state != ItemComponent.State.DroppedInWorld) {
+            if (cItem == null || cItem.state != ItemComponent.State.DroppedInWorld) {
                 continue
             }
 
-            val spriteComponent = mSprite.get(entities.get(i))
+            val cSprite = mSprite.get(entities.get(i))
 
-            glowDroppedSprite(spriteComponent.sprite)
+            glowDroppedSprite(cSprite.sprite)
 
             /*
-            batch.draw(spriteComponent.sprite,
-                         spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth() * 0.5f),
-                         spriteComponent.sprite.getY() + (spriteComponent.sprite.getHeight() * 0.5f),
-                         spriteComponent.sprite.getWidth(), -spriteComponent.sprite.getHeight());
+            batch.draw(cSprite.sprite,
+                         cSprite.sprite.getX() - (cSprite.sprite.getWidth() * 0.5f),
+                         cSprite.sprite.getY() + (cSprite.sprite.getHeight() * 0.5f),
+                         cSprite.sprite.getWidth(), -cSprite.sprite.getHeight());
             */
-            batch.color = spriteComponent.sprite.color
+            batch.color = cSprite.sprite.color
 
-            val x = spriteComponent.sprite.x - spriteComponent.sprite.width * 0.5f
-            val y = spriteComponent.sprite.y + spriteComponent.sprite.height * 0.5f
+            val x = cSprite.sprite.x - cSprite.sprite.width * 0.5f
+            val y = cSprite.sprite.y + cSprite.sprite.height * 0.5f
 
             //flip the sprite when drawn, by using negative height
-            val scaleX = spriteComponent.sprite.scaleX
-            val scaleY = spriteComponent.sprite.scaleY
+            val scaleX = cSprite.sprite.scaleX
+            val scaleY = cSprite.sprite.scaleY
 
-            val width = spriteComponent.sprite.width
-            val height = -spriteComponent.sprite.height
+            val width = cSprite.sprite.width
+            val height = -cSprite.sprite.height
 
             val originX = width * 0.5f
             val originY = height * 0.5f
-            //            spriteComponent.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
+            //            cSprite.sprite.setScale(Interpolation.bounce.apply(0.0f, 0.5f, scaleX));
 
-            batch.draw(spriteComponent.sprite, (x * 16.0f).floor() / 16.0f,
+            batch.draw(cSprite.sprite, (x * 16.0f).floor() / 16.0f,
                        (y * 16.0f).floor() / 16.0f, originX, originY, width, height, scaleX, scaleY,
                        rotation)
         }
@@ -174,7 +174,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
                 continue
             }
 
-            //assert(spriteComponent.sprite != null) { "sprite is null" }
+            //assert(cSprite.sprite != null) { "sprite is null" }
             assert(cSprite.sprite.texture != null) { "sprite has null texture" }
 
             var placementGhost = false
@@ -207,7 +207,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
             //this prevents some jiggling of static items when player is moving, when the objects pos is
             // not rounded to a reasonable flat number,
             //but for the player it means they jiggle on all movement.
-            //batch.draw(spriteComponent.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) /
+            //batch.draw(cSprite.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) /
             // 16.0f,
             //            originX, originY, width, height, scaleX, scaleY, rotation);
 

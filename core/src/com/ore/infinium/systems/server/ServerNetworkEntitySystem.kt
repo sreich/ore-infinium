@@ -128,7 +128,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
     }
 
     override fun process(entityId: Int) {
-        val spriteComponent = mSprite.get(entityId)
+        val cSprite = mSprite.get(entityId)
 
         //for each player, check their list of entities spawned in their viewport,
         //compare with our list of entities that actually exist (spatial query)

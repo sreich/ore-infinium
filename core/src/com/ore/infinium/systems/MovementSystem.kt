@@ -200,7 +200,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         //cheat
         if (OreSettings.speedRun) {
             // reset velocity each time, or it'll be too fast for bleed off
-            //velocityComponent.velocity.setZero()
+            //cVelocity.velocity.setZero()
             PlayerComponent.maxMovementSpeed = PlayerComponent.NORMAL_MOVEMENT_SPEED + 1f
             PlayerComponent.movementRampUpFactor = PlayerComponent.NORMAL_MOVEMENT_RAMP_UP_FACTOR * 1.5f
         } else {
@@ -211,28 +211,28 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
     private fun maybePerformJump(acceleration: Float, playerEntity: Int): Float {
         var newAcceleration = acceleration
-        val jumpComponent = mJump.get(playerEntity)
-        if (jumpComponent.canJump && jumpComponent.shouldJump) {
+        val cJump = mJump.get(playerEntity)
+        if (cJump.canJump && cJump.shouldJump) {
 
-            if (jumpComponent.jumpTimer.resetIfSurpassed(jumpComponent.jumpInterval)) {
+            if (cJump.jumpTimer.resetIfSurpassed(cJump.jumpInterval)) {
                 //good to jump, actually do it now.
                 newAcceleration = -PlayerComponent.jumpVelocity
             }
         }
 
-        jumpComponent.canJump = false
-        jumpComponent.shouldJump = false
+        cJump.canJump = false
+        cJump.shouldJump = false
 
         return newAcceleration
     }
 
     private fun simulateNoClip(entity: Int, delta: Float) {
-        val spriteComponent = mSprite.get(entity)
+        val cSprite = mSprite.get(entity)
         val desiredDirection = mControl.get(entity).desiredDirection
 
-        val x = spriteComponent.sprite.x
-        val y = spriteComponent.sprite.y
-        //       spriteComponent.sprite.setPosition(
+        val x = cSprite.sprite.x
+        val y = cSprite.sprite.y
+        //       cSprite.sprite.setPosition(
 //                x + desiredDirection.x * PlayerComponent.startingMovementSpeed * 6.0f * delta,
         //             y + desiredDirection.y * PlayerComponent.startingMovementSpeed * 6.0f * delta)
     }
@@ -527,10 +527,10 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         val entities = oreWorld.artemisWorld.entities(allOf(PlayerComponent::class))
 
         entities.forEach { player ->
-            val playerComponent = mPlayer.get(player)
+            val cPlayer = mPlayer.get(player)
 
-            //            if (playerComponent.loadedViewport.contains(new Vector2(spriteComponent.sprite.getX(),
-            // spriteComponent.sprite.getY()))) {
+            //            if (cPlayer.loadedViewport.contains(new Vector2(cSprite.sprite.getX(),
+            // cSprite.sprite.getY()))) {
 
             serverNetworkSystem.sendEntityMoved(player, entity)
 

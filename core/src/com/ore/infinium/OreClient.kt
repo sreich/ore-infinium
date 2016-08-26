@@ -173,8 +173,8 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val playerComp = mPlayer.get(player)
-        val equippedItem = playerComp.equippedPrimaryItem
+        val cPlayer = mPlayer.get(player)
+        val equippedItem = cPlayer.equippedPrimaryItem
 
         if (isInvalidEntity(equippedItem)) {
             return
@@ -202,12 +202,12 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         if (equippedToolComp != null) {
 
             //note, digging is handled by its own system, not anywhere near here.
-            attemptToolAttack(playerComp, equippedToolComp, mouseWorldCoords)
+            attemptToolAttack(cPlayer, equippedToolComp, mouseWorldCoords)
             return
         }
 
-        if (playerComp.placeableItemTimer.resetIfSurpassed(PlayerComponent.placeableItemDelay)) {
-            playerComp.placeableItemTimer.reset()
+        if (cPlayer.placeableItemTimer.resetIfSurpassed(PlayerComponent.placeableItemDelay)) {
+            cPlayer.placeableItemTimer.reset()
 
             attemptItemPlace()
         }
@@ -215,9 +215,9 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     fun handleSecondaryAttack() {
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComp = mPlayer.get(player)
+        val cPlayer = mPlayer.get(player)
 
-        if (playerComp.secondaryActionTimer.resetIfSurpassed(PlayerComponent.secondaryActionDelay)) {
+        if (cPlayer.secondaryActionTimer.resetIfSurpassed(PlayerComponent.secondaryActionDelay)) {
             //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
             //or do we want a separate key for that?
             val mouse = world!!.mousePositionWorldCoords()
@@ -270,10 +270,10 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         return true
     }
 
-    private fun attemptToolAttack(playerComp: PlayerComponent,
+    private fun attemptToolAttack(cPlayer: PlayerComponent,
                                   equippedToolComp: ToolComponent,
                                   mouseWorldCoords: Vector2) {
-        if (playerComp.primaryAttackTimer.resetIfSurpassed(equippedToolComp.attackIntervalMs)) {
+        if (cPlayer.primaryAttackTimer.resetIfSurpassed(equippedToolComp.attackIntervalMs)) {
             //fixme obviously, iterating over every entityId to find the one under position is beyond dumb, use a spatial hash/quadtree etc
 
             when (equippedToolComp.type) {
@@ -508,7 +508,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         }
 
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val controllableComponent = mControl.get(player)
+        val cControl = mControl.get(player)
 
         when (keycode) {
             Input.Keys.Q -> attemptItemDrop()
@@ -525,24 +525,24 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         }
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
-            controllableComponent.desiredDirection.x = -1f
+            cControl.desiredDirection.x = -1f
         }
 
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
-            controllableComponent.desiredDirection.x = 1f
+            cControl.desiredDirection.x = 1f
         }
 
         if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
-            controllableComponent.desiredDirection.y = -1f
+            cControl.desiredDirection.y = -1f
         }
 
         if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
-            controllableComponent.desiredDirection.y = 1f
+            cControl.desiredDirection.y = 1f
         }
 
         if (keycode == Input.Keys.SPACE) {
-            val jumpComponent = mJump.get(player)
-            jumpComponent.shouldJump = true
+            val cJump = mJump.get(player)
+            cJump.shouldJump = true
         }
 
         return true
@@ -550,29 +550,29 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     private fun attemptItemDrop() {
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComponent = mPlayer.get(player)
+        val cPlayer = mPlayer.get(player)
 
-        val itemEntity = playerComponent.equippedPrimaryItem
+        val itemEntity = cPlayer.equippedPrimaryItem
 
         if (itemEntity == INVALID_ENTITY_ID) {
             return
         }
 
-        val currentEquippedIndex = playerComponent.hotbarInventory!!.selectedSlot
+        val currentEquippedIndex = cPlayer.hotbarInventory!!.selectedSlot
         val dropItemRequestFromClient = Network.Client.InventoryDropItem(index = currentEquippedIndex.toByte(),
                                                                          inventoryType = Network.Shared.InventoryType.Hotbar)
 
         // decrement count, we assume it'll get spawned shortly when the server tells us to.
         // delete in-inventory entityId if necessary server assumes we already do so
-        val itemComponent = mItem.get(itemEntity)
-        if (itemComponent.stackSize > 1) {
+        val cItem = mItem.get(itemEntity)
+        if (cItem.stackSize > 1) {
             //decrement count, server has already done so. we assume here that it went through properly.
-            itemComponent.stackSize -= 1
-            hotbarInventory!!.setCount(currentEquippedIndex, itemComponent.stackSize)
+            cItem.stackSize -= 1
+            hotbarInventory!!.setCount(currentEquippedIndex, cItem.stackSize)
         } else {
             //delete it, server knows/assumes we already did, since there are no more left. so server doesn't have to
             //send another useless packet back to the our client
-            val item = playerComponent.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())
+            val item = cPlayer.hotbarInventory!!.takeItem(dropItemRequestFromClient.index.toInt())
             world!!.artemisWorld.delete(item)
         }
 
@@ -590,22 +590,22 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
 
-        val controllableComponent = mControl.get(player)
+        val cControl = mControl.get(player)
 
         if (keycode == Input.Keys.LEFT || keycode == Input.Keys.A) {
-            controllableComponent.desiredDirection.x = 0f
+            cControl.desiredDirection.x = 0f
         }
 
         if (keycode == Input.Keys.RIGHT || keycode == Input.Keys.D) {
-            controllableComponent.desiredDirection.x = 0f
+            cControl.desiredDirection.x = 0f
         }
 
         if (keycode == Input.Keys.UP || keycode == Input.Keys.W) {
-            controllableComponent.desiredDirection.y = 0f
+            cControl.desiredDirection.y = 0f
         }
 
         if (keycode == Input.Keys.DOWN || keycode == Input.Keys.S) {
-            controllableComponent.desiredDirection.y = 0f
+            cControl.desiredDirection.y = 0f
         }
 
         return false
@@ -682,18 +682,18 @@ class OreClient : OreApplicationListener, OreInputProcessor {
      */
     fun createPlayer(playerName: String, connectionId: Int, mainPlayer: Boolean): Int {
         val player = world!!.createPlayer(playerName, connectionId)
-        val controllableComponent = mControl.create(player)
+        val cControl = mControl.create(player)
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
-        val playerComponent = mPlayer.get(player)
+        val cPlayer = mPlayer.get(player)
 
         hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots)
-        playerComponent.hotbarInventory = hotbarInventory
+        cPlayer.hotbarInventory = hotbarInventory
 
         hotbarInventory!!.addListener(HotbarSlotListener())
 
         inventory = Inventory(slotCount = Inventory.maxSlots)
-        playerComponent.inventory = inventory
+        cPlayer.inventory = inventory
 
         hotbarView = HotbarInventoryView(stage = stage, inventory = hotbarInventory!!,
                                          dragAndDrop = dragAndDrop!!, world = world!!)
@@ -719,10 +719,10 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         //fixme push into the model and have view pull. or just in view init
         //select the first slot, so the inventory view highlights something
-        playerComponent.hotbarInventory!!.selectSlot(0)
+        cPlayer.hotbarInventory!!.selectSlot(0)
 
-        //          SpriteComponent spriteComponent = spriteMapper.get(player);
-        //        spriteComponent.sprite.setTexture();
+        //          SpriteComponent cSprite = mSprite.get(player);
+        //        cSprite.sprite.setTexture();
 
         return player
     }
@@ -735,7 +735,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
             clientNetworkSystem.sendHotbarEquipped(index.toByte())
 
-            val playerComponent = mPlayer.get(player)
+            val cPlayer = mPlayer.get(player)
         }
     }
 

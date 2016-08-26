@@ -73,9 +73,9 @@ class SpatialSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all
                 return@inserted
         }
 
-        val spriteComponent = mSprite.get(entityId)
-        quadTree.insert(entityId, spriteComponent.sprite.x, spriteComponent.sprite.y,
-                      spriteComponent.sprite.width, spriteComponent.sprite.height)
+        val cSprite = mSprite.get(entityId)
+        quadTree.insert(entityId, cSprite.sprite.x, cSprite.sprite.y,
+                      cSprite.sprite.width, cSprite.sprite.height)
     }
 
     override fun process(entityId: Int) {
@@ -86,8 +86,8 @@ class SpatialSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all
                 return@process
         }
 
-        val spriteComponent = mSprite.get(entityId)
-        quadTree.update(entityId, spriteComponent.sprite.x, spriteComponent.sprite.y,
-                      spriteComponent.sprite.width, spriteComponent.sprite.height)
+        val cSprite = mSprite.get(entityId)
+        quadTree.update(entityId, cSprite.sprite.x, cSprite.sprite.y,
+                      cSprite.sprite.width, cSprite.sprite.height)
     }
 }

@@ -74,12 +74,12 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         //should never ever, ever happen.
         assert(mSprite.has(entityId) && mPlayer.has(entityId))
 
-        val spriteComponent = mSprite.get(entityId)
-        val playerComponent = mPlayer.get(entityId)
+        val cSprite = mSprite.get(entityId)
+        val cPlayer = mPlayer.get(entityId)
 
-        val viewportRect = playerComponent.loadedViewport.rect
-        val x = spriteComponent.sprite.x
-        val y = spriteComponent.sprite.y
+        val viewportRect = cPlayer.loadedViewport.rect
+        val x = cSprite.sprite.x
+        val y = cSprite.sprite.y
 
         //fixme fixme, we'll fix this when we get to chunking and come up with a proper solution
         if (chunkTimer.resetIfSurpassed(600L)) {
@@ -88,12 +88,12 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
     }
 
     private fun calculateLoadedViewport(playerEntity: Int) {
-        val playerComponent = mPlayer.get(playerEntity)
-        val spriteComponent = mSprite.get(playerEntity)
+        val cPlayer = mPlayer.get(playerEntity)
+        val cSprite = mSprite.get(playerEntity)
 
-        val loadedViewport = playerComponent.loadedViewport
+        val loadedViewport = cPlayer.loadedViewport
 
-        val center = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
+        val center = Vector2(cSprite.sprite.x, cSprite.sprite.y)
         loadedViewport.centerOn(center)
 
         serverNetworkSystem.sendPlayerLoadedViewportMoved(playerEntity)
@@ -103,8 +103,8 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
     }
 
     fun sendPlayerBlockRegion(playerEntity: Int) {
-        val playerComponent = mPlayer.get(playerEntity)
-        val loadedViewport = playerComponent.loadedViewport
+        val cPlayer = mPlayer.get(playerEntity)
+        val loadedViewport = cPlayer.loadedViewport
 
         val region = loadedViewport.blockRegionInViewport()
 

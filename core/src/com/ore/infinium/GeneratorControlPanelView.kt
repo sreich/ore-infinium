@@ -57,9 +57,9 @@ class GeneratorControlPanelView(stage: Stage,
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tileRenderSystem: TileRenderSystem
 
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var mBlock: ComponentMapper<BlockComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
     private lateinit var mPowerDevice: ComponentMapper<PowerDeviceComponent>
 
     /**

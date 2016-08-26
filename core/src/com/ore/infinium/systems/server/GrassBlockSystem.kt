@@ -67,9 +67,9 @@ class GrassBlockSystem(private val oreWorld: OreWorld) : BaseSystem() {
         for (i in players.indices) {
             val playerEntity = players.get(i)
 
-            val playerComponent = mPlayer.get(playerEntity)
+            val cPlayer = mPlayer.get(playerEntity)
 
-            val region = playerComponent.loadedViewport.blockRegionInViewport()
+            val region = cPlayer.loadedViewport.blockRegionInViewport()
 
             //each tick, resample n or so blocks to see if grass can grow. this may need to be
             //reduced, but for debugging right now it's good.

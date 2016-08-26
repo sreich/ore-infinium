@@ -141,36 +141,7 @@ class OreWorld
         assert(isHotspotOptimizationEnabled) { "error, hotspot optimization (artemis-odb weaving) is not enabled" }
 
         if (worldInstanceType == WorldInstanceType.Client || worldInstanceType == WorldInstanceType.ClientHostingServer) {
-
-            initCamera()
-
-            atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
-
-            //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
-            // class dictates this.
-            artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
-                                         .with(TagManager())
-                                         .with(PlayerManager())
-                                         .with(MovementSystem(this))
-                                         .with(SoundSystem(this))
-                                         .with(ClientNetworkSystem(this))
-                                         .with(InputSystem(camera, this))
-                                         .with(EntityOverlaySystem(this))
-                                         .with(PlayerSystem(this))
-                                         .with(GameTickSystem(this))
-                                         .with(ClientBlockDiggingSystem(this, client!!))
-                                         .with(TileRenderSystem(camera, this))
-                                         .with(SpriteRenderSystem(this))
-                                         .with(DebugTextRenderSystem(camera, this))
-                                         .with(PowerOverlayRenderSystem(this, client!!.stage))
-                                         .with(TileTransitionSystem(camera, this))
-                                         .build())
-            //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
-
-            //inject the mappers into the world, before we start doing things
-            artemisWorld.inject(this, true)
-
-            entityFactory = OreEntityFactory(this)
+            initClient()
         } else if (isServer()) {
             initServer()
         }
@@ -180,6 +151,38 @@ class OreWorld
         //        assetManager.finishLoading();
 
         //        m_camera.position.set(m_camera.viewportWidth / 2f, m_camera.viewportHeight / 2f, 0);
+    }
+
+    fun initClient() {
+        initCamera()
+
+        atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
+
+        //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
+        // class dictates this.
+        artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(25, false))
+                                     .with(TagManager())
+                                     .with(PlayerManager())
+                                     .with(MovementSystem(this))
+                                     .with(SoundSystem(this))
+                                     .with(ClientNetworkSystem(this))
+                                     .with(InputSystem(camera, this))
+                                     .with(EntityOverlaySystem(this))
+                                     .with(PlayerSystem(this))
+                                     .with(GameTickSystem(this))
+                                     .with(ClientBlockDiggingSystem(this, client!!))
+                                     .with(TileRenderSystem(camera, this))
+                                     .with(SpriteRenderSystem(this))
+                                     .with(DebugTextRenderSystem(camera, this))
+                                     .with(PowerOverlayRenderSystem(this, client!!.stage))
+                                     .with(TileTransitionSystem(camera, this))
+                                     .build())
+        //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
+
+        //inject the mappers into the world, before we start doing things
+        artemisWorld.inject(this, true)
+
+        entityFactory = OreEntityFactory(this)
     }
 
     fun initServer() {
@@ -819,9 +822,9 @@ class OreWorld
      */
     fun isPlacementValid(entity: Int): Boolean {
         return true
-        val spriteComponent = mSprite.get(entity)
-        val pos = Vector2(spriteComponent.sprite.x, spriteComponent.sprite.y)
-        val size = Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height)
+        val cSprite = mSprite.get(entity)
+        val pos = Vector2(cSprite.sprite.x, cSprite.sprite.y)
+        val size = Vector2(cSprite.sprite.width, cSprite.sprite.height)
 
         val epsilon = 0.001f
         val startX = (pos.x - size.x * 0.5f + epsilon).toInt()
@@ -1098,11 +1101,11 @@ class OreWorld
      * @return the player entity
      */
     fun playerEntityForPlayerConnectionID(playerId: Int): Int {
-        var playerComponent: PlayerComponent
+        var cPlayer: PlayerComponent
         for (player in players()) {
-            playerComponent = mPlayer.get(player)
+            cPlayer = mPlayer.get(player)
 
-            if (playerComponent.connectionPlayerId == playerId) {
+            if (cPlayer.connectionPlayerId == playerId) {
                 return player
             }
         }
@@ -1200,11 +1203,11 @@ class OreWorld
         }
     }
 
-    private fun killTree(floraComp: FloraComponent, entityToKill: Int, entityKiller: Int?) {
+    private fun killTree(cFlora: FloraComponent, entityToKill: Int, entityKiller: Int?) {
         //this behavior is for exploding flora into a bunch of dropped items
         //for example, when destroying a tree in games like terraria, it gives
         //a satisfying exploding of dropped items
-        for (i in 0..floraComp.numberOfDropsWhenDestroyed) {
+        for (i in 0..cFlora.numberOfDropsWhenDestroyed) {
             //todo actually what we want is not to clone, but to drop wood.
             //same for rubber trees. but they may also drop a sapling
             val cloned = cloneEntity(entityToKill)
@@ -1216,7 +1219,7 @@ class OreWorld
             }
 
             val clonedItemComp = mItem.get(cloned).apply {
-                stackSize = floraComp.stackSizePerDrop
+                stackSize = cFlora.stackSizePerDrop
                 state = ItemComponent.State.DroppedInWorld
                 //half the size, it's a dropped tree
                 //hack

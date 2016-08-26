@@ -32,7 +32,7 @@ import com.ore.infinium.util.DoNotCopy
 class VelocityComponent : Component(), CopyableComponent<VelocityComponent> {
     @DoNotCopy var velocity = Vector2()
 
-    override fun copyFrom(velocityComponent: VelocityComponent) {
-        velocity.set(velocityComponent.velocity)
+    override fun copyFrom(cVelocity: VelocityComponent) {
+        velocity.set(cVelocity.velocity)
     }
 }

@@ -143,15 +143,15 @@ class OreServer : Runnable {
             sprite.setPosition(posX, posY)
         }
 
-        val playerComponent = mPlayer.get(player).apply {
+        val cPlayer = mPlayer.get(player).apply {
             hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
             hotbarInventory!!.addListener(HotbarInventorySlotListener())
 
             oreWorld.artemisWorld.inject(hotbarInventory!!)
         }
 
-        playerComponent.inventory = Inventory(Inventory.maxSlots)
-        oreWorld.artemisWorld.inject(playerComponent.inventory!!)
+        cPlayer.inventory = Inventory(Inventory.maxSlots)
+        oreWorld.artemisWorld.inject(cPlayer.inventory!!)
 
         //FIXME UNUSED, we use connectionid instead anyways        ++m_freePlayerId;
 
@@ -169,7 +169,7 @@ class OreServer : Runnable {
         loadInventory(player)
         loadHotbarInventory(player)
 
-        sendServerMessage("Player ${playerComponent.playerName} has joined the server")
+        sendServerMessage("Player ${cPlayer.playerName} has joined the server")
 
         return player
     }
@@ -189,8 +189,8 @@ class OreServer : Runnable {
         val stoneBlock = oreWorld.entityFactory.createBlockItem(OreBlock.BlockType.Stone.oreValue)
         hotbarInventory.placeItemInNextFreeSlot(stoneBlock)
 
-        val powerGen = oreWorld.entityFactory.createPowerGenerator()
-        hotbarInventory.placeItemInNextFreeSlot(powerGen)
+        val cPowerGenerator = oreWorld.entityFactory.createPowerGenerator()
+        hotbarInventory.placeItemInNextFreeSlot(cPowerGenerator)
 
         val door = oreWorld.entityFactory.createDoor()
         hotbarInventory.placeItemInNextFreeSlot(door)
@@ -260,9 +260,9 @@ class OreServer : Runnable {
         override fun slotItemChanged(index: Int, inventory: Inventory) {
             //todo think this through..drags make this situation very "hairy". possibly implement a move(),
             //or an overloaded method for dragging
-            //            PlayerComponent playerComponent = mPlayer.get(inventory.owningPlayer);
+            //            PlayerComponent cPlayer = mPlayer.get(inventory.owningPlayer);
             //
-            //            if (playerComponent.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
+            //            if (cPlayer.hotbarInventory.inventoryType == Inventory.InventoryType.Hotbar) {
             //                sendSpawnHotbarInventoryItem(inventory.item(index), index, inventory.owningPlayer);
             //            }
         }

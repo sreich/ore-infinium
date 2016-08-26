@@ -131,12 +131,12 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         }
 
         val playerid = tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComponent = mPlayer.get(playerid)
-        val controllableComponent = mControl.get(playerid)
+        val cPlayer = mPlayer.get(playerid)
+        val cControl = mControl.get(playerid)
         //debug for forcing constant movement
         if (OreSettings.lockRight) {
             OreSettings.lockRight = false
-            controllableComponent.desiredDirection.x = 1f
+            cControl.desiredDirection.x = 1f
         }
 
         render(world.getDelta())
@@ -164,12 +164,12 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             ImmutableArray<Entity> entities = m_server.oreWorld.engine.getEntitiesFor(Family.all(SpriteComponent
             .class).get());
             for (int i = 0; i < entities.size(); ++i) {
-                SpriteComponent spriteComponent = mSprite.get(entities.get(i));
+                SpriteComponent cSprite = mSprite.get(entities.get(i));
 
-                debugServerBatch.draw(junktexture, spriteComponent.sprite.getX() - (spriteComponent.sprite.getWidth
+                debugServerBatch.draw(junktexture, cSprite.sprite.getX() - (cSprite.sprite.getWidth
                 () * 0.5f),
-                        spriteComponent.sprite.getY() - (spriteComponent.sprite.getHeight() * 0.5f),
-                        spriteComponent.sprite.getWidth(), spriteComponent.sprite.getHeight());
+                        cSprite.sprite.getY() - (cSprite.sprite.getHeight() * 0.5f),
+                        cSprite.sprite.getWidth(), cSprite.sprite.getHeight());
             }
 
             debugServerBatch.end();
@@ -331,7 +331,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
         var entityUnderMouse = INVALID_ENTITY_ID
 
-        var spriteComponent: SpriteComponent?
+        var cSprite: SpriteComponent?
 
         var components = listOf<Component>()
         for (i in entities.indices) {
@@ -342,9 +342,9 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
                 continue
             }
 
-            spriteComponent = mSprite.get(currentEntity)
+            cSprite = mSprite.get(currentEntity)
 
-            val rectangle = spriteComponent!!.sprite.rect
+            val rectangle = cSprite!!.sprite.rect
 
             if (rectangle.contains(mousePos)) {
                 components = oreWorld.getComponentsForEntity(currentEntity).toList()

@@ -51,9 +51,9 @@ class InventoryView(stage: Stage,
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tileRenderSystem: TileRenderSystem
 
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private lateinit var mBlock: ComponentMapper<BlockComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
     init {
         oreWorld.artemisWorld.inject(this)

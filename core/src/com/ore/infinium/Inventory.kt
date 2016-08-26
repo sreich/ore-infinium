@@ -42,13 +42,13 @@ open class Inventory
     var inventoryType: Network.Shared.InventoryType
         protected set
 
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var toolMapper: ComponentMapper<ToolComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var floraMapper: ComponentMapper<FloraComponent>
-    private lateinit var powerConsumerMapper: ComponentMapper<PowerConsumerComponent>
-    private lateinit var powerDeviceMapper: ComponentMapper<PowerDeviceComponent>
-    private lateinit var powerGeneratorMapper: ComponentMapper<PowerGeneratorComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private lateinit var mTool: ComponentMapper<ToolComponent>
+    private lateinit var mBlock: ComponentMapper<BlockComponent>
+    private lateinit var mFlora: ComponentMapper<FloraComponent>
+    private lateinit var mPowerConsumer: ComponentMapper<PowerConsumerComponent>
+    private lateinit var mPowerDevice: ComponentMapper<PowerDeviceComponent>
+    private lateinit var mPowerGenerator: ComponentMapper<PowerGeneratorComponent>
 
     enum class InventorySlotType {
         Slot,
@@ -98,7 +98,7 @@ open class Inventory
     fun setCount(index: Int, newCount: Int) {
         val item = slots[index].entityId
         if (isValidEntity(item)) {
-            itemMapper.get(item).stackSize = newCount
+            mItem.get(item).stackSize = newCount
 
             listeners.forEach { it.slotItemCountChanged(index, this) }
         }
@@ -157,7 +157,7 @@ open class Inventory
      * helper function which takes care of setting inventory state on the item component
      */
     private fun updateItemInventoryStatus(slotIndexToInsert: Int, itemEntityId: Int) {
-        itemMapper.get(itemEntityId).apply {
+        mItem.get(itemEntityId).apply {
             state = ItemComponent.State.InInventoryState
             inventoryIndex = slotIndexToInsert
         }
@@ -174,12 +174,12 @@ open class Inventory
      * merged with.
      */
     private fun mergeItemIntoSecond(itemIdToObsolete: Int, itemIdToMerge: Int) {
-        assert(itemMapper.has(itemIdToMerge)) { "item is lacking itemcomponent for some strange reason!!" }
-        assert(itemMapper.has(itemIdToObsolete)) { "item is lacking itemcomponent for some strange reason!!" }
+        assert(mItem.has(itemIdToMerge)) { "item is lacking itemcomponent for some strange reason!!" }
+        assert(mItem.has(itemIdToObsolete)) { "item is lacking itemcomponent for some strange reason!!" }
 
-        val itemToObsoleteComp = itemMapper.get(itemIdToObsolete)
+        val itemToObsoleteComp = mItem.get(itemIdToObsolete)
 
-        val itemToMergeComp = itemMapper.get(itemIdToMerge)
+        val itemToMergeComp = mItem.get(itemIdToMerge)
 
         itemToMergeComp.apply {
             //merge in the other one, combining items but don't exceed the max these types of items can hold
@@ -195,55 +195,55 @@ open class Inventory
     }
 
     private fun canCombineItems(itemId: Int, itemInSlotId: Int): Boolean {
-        val itemComp1 = itemMapper.get(itemId)
-        val itemComp2 = itemMapper.get(itemInSlotId)
+        val itemComp1 = mItem.get(itemId)
+        val itemComp2 = mItem.get(itemInSlotId)
         if (!itemComp1.canCombineWith(itemComp2)) {
             return false
         }
 
-        if (toolMapper.has(itemId)) {
-            val comp1 = toolMapper.get(itemId)
-            val comp2 = toolMapper.get(itemInSlotId)
+        if (mTool.has(itemId)) {
+            val comp1 = mTool.get(itemId)
+            val comp2 = mTool.get(itemInSlotId)
             if (!comp1.canCombineWith(comp2)) {
                 return false
             }
         }
 
-        if (powerDeviceMapper.has(itemId)) {
-            val comp1 = powerDeviceMapper.get(itemId)
-            val comp2 = powerDeviceMapper.get(itemInSlotId)
+        if (mPowerDevice.has(itemId)) {
+            val comp1 = mPowerDevice.get(itemId)
+            val comp2 = mPowerDevice.get(itemInSlotId)
             if (!comp1.canCombineWith(comp2)) {
                 return false
             }
         }
 
-        if (powerConsumerMapper.has(itemId)) {
-            val comp1 = powerConsumerMapper.get(itemId)
-            val comp2 = powerConsumerMapper.get(itemInSlotId)
+        if (mPowerConsumer.has(itemId)) {
+            val comp1 = mPowerConsumer.get(itemId)
+            val comp2 = mPowerConsumer.get(itemInSlotId)
             if (!comp1.canCombineWith(comp2)) {
                 return false
             }
         }
 
-        if (powerGeneratorMapper.has(itemId)) {
-            val comp1 = powerGeneratorMapper.get(itemId)
-            val comp2 = powerGeneratorMapper.get(itemInSlotId)
+        if (mPowerGenerator.has(itemId)) {
+            val comp1 = mPowerGenerator.get(itemId)
+            val comp2 = mPowerGenerator.get(itemInSlotId)
             if (!comp1.canCombineWith(comp2)) {
                 return false
             }
         }
 
-        if (blockMapper.has(itemId)) {
-            val comp1 = blockMapper.get(itemId)
-            val comp2 = blockMapper.get(itemInSlotId)
+        if (mBlock.has(itemId)) {
+            val comp1 = mBlock.get(itemId)
+            val comp2 = mBlock.get(itemInSlotId)
             if (!comp1.canCombineWith(comp2)) {
                 return false
             }
         }
 
-        if (floraMapper.has(itemId)) {
-            val comp1 = floraMapper.get(itemId)
-            val comp2 = floraMapper.get(itemInSlotId)
+        if (mFlora.has(itemId)) {
+            val comp1 = mFlora.get(itemId)
+            val comp2 = mFlora.get(itemInSlotId)
             if (!comp1.canCombineWith(comp2)) {
                 return false
             }

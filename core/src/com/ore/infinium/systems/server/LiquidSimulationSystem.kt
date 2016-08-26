@@ -53,8 +53,8 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     override fun processSystem() {
         for (player in oreWorld.players()) {
-            val playerComp = mPlayer.get(player)
-            val rect = playerComp.loadedViewport.rect
+            val cPlayer = mPlayer.get(player)
+            val rect = cPlayer.loadedViewport.rect
             simulateFluidsInRegion(rect, player)
         }
     }

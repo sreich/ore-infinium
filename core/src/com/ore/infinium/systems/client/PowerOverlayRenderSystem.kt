@@ -163,7 +163,7 @@ class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage
         //todo global stats
         val dropEntity = entityAtPosition(Vector2(mouse.x, mouse.y))
         if (dropEntity != null) {
-            val powerDeviceComponent = powerDeviceMapper.getNullable(dropEntity)
+            val powerDeviceComponent = mPowerDevice.getNullable(dropEntity)
             if (powerDeviceComponent == null || powerDeviceComponent.owningCircuit == null) {
                 return
             }

@@ -45,7 +45,7 @@ import kotlin.concurrent.thread
 
 @Wire
 class WorldGenerator(private val world: OreWorld) {
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
     init {
         world.artemisWorld.oreInject(this)
@@ -119,16 +119,16 @@ class WorldGenerator(private val world: OreWorld) {
                 tree = world.entityFactory.createWoodenTree(FloraComponent.TreeSize.Large)
             }
 
-            val spriteComponent = spriteMapper.get(tree!!)
-            val halfTreeHeight = spriteComponent.sprite.height
+            val cSprite = mSprite.get(tree!!)
+            val halfTreeHeight = cSprite.sprite.height
 
             treeY@ for (y in 0..OreWorld.WORLD_SIZE_Y - 50) {
                 val treeX = x.toFloat()
                 val treeY = y.toFloat()
 
                 when (world.isEntityFullyGrounded(entityX = treeX, entityY = treeY,
-                                                  entityWidth = spriteComponent.sprite.width,
-                                                  entityHeight = spriteComponent.sprite.height)) {
+                                                  entityWidth = cSprite.sprite.width,
+                                                  entityHeight = cSprite.sprite.height)) {
                     OreWorld.EntitySolidGroundStatus.FullyEmpty -> {
                     }
 
@@ -138,7 +138,7 @@ class WorldGenerator(private val world: OreWorld) {
                     }
 
                     OreWorld.EntitySolidGroundStatus.FullySolid -> {
-                        spriteComponent.sprite.setPosition(treeX, treeY)
+                        cSprite.sprite.setPosition(treeX, treeY)
                         treePlanted = true
                         //found our tree, already planted at this y value. skip
                         break@treeY

@@ -343,24 +343,24 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             entityEdit.add(c)
         }
 
-        val spriteComponent = mSprite.create(spawnedItemEntityId)
-        spriteComponent.textureName = entitySpawn.textureName
-        spriteComponent.sprite.setSize(entitySpawn.size.x, entitySpawn.size.y)
+        val cSprite = mSprite.create(spawnedItemEntityId)
+        cSprite.textureName = entitySpawn.textureName
+        cSprite.sprite.setSize(entitySpawn.size.x, entitySpawn.size.y)
 
         //fixme uhhhhh this isn't used at all??
         val textureRegion: TextureRegion
         if (!mBlock.has(spawnedItemEntityId)) {
-            textureRegion = oreWorld.atlas.findRegion(spriteComponent.textureName)
+            textureRegion = oreWorld.atlas.findRegion(cSprite.textureName)
         } else {
-            textureRegion = tileRenderer.blockAtlas.findRegion(spriteComponent.textureName)
+            textureRegion = tileRenderer.blockAtlas.findRegion(cSprite.textureName)
         }
 
-        val toolComponent = mTool.opt(spawnedItemEntityId)
+        val cTool = mTool.opt(spawnedItemEntityId)
 
-        val itemComponent = mItem.get(spawnedItemEntityId)
+        val cItem = mItem.get(spawnedItemEntityId)
 
         //fixme this indirection isn't so hot...
-        inventory.setSlot(itemComponent.inventoryIndex, spawnedItemEntityId)
+        inventory.setSlot(cItem.inventoryIndex, spawnedItemEntityId)
     }
 
     private fun receiveChatMessage(chat: Network.Server.ChatMessage) {
@@ -370,8 +370,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private fun receiveEntityMoved(entityMove: Network.Server.EntityMoved) {
         val entity = entityForNetworkId[entityMove.id]
 
-        val spriteComponent = mSprite.get(entity!!)
-        spriteComponent.sprite.setPosition(entityMove.position.x, entityMove.position.y)
+        val cSprite = mSprite.get(entity!!)
+        cSprite.sprite.setPosition(entityMove.position.x, entityMove.position.y)
     }
 
     /*
@@ -386,19 +386,19 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         //fixme id..see above.
-        SpriteComponent spriteComponent = mSprite.create(e);
-        spriteComponent.textureName = spawn.textureName;
-        spriteComponent.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
-        spriteComponent.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
+        SpriteComponent cSprite = mSprite.create(e);
+        cSprite.textureName = spawn.textureName;
+        cSprite.sprite.setSize(spawn.size.size.x, spawn.size.size.y);
+        cSprite.sprite.setPosition(spawn.pos.pos.x, spawn.pos.pos.y);
 
         TextureRegion textureRegion;
         if (!mBlock.has(e)) {
-            textureRegion = oreWorld.m_atlas.findRegion(spriteComponent.textureName);
+            textureRegion = oreWorld.m_atlas.findRegion(cSprite.textureName);
         } else {
-            textureRegion = tileRenderer.m_blockAtlas.findRegion(spriteComponent.textureName);
+            textureRegion = tileRenderer.m_blockAtlas.findRegion(cSprite.textureName);
         }
 
-        spriteComponent.sprite.setRegion(textureRegion);
+        cSprite.sprite.setRegion(textureRegion);
 
         networkIdForEntityId.put(e, spawn.id);
         entityForNetworkId.put(spawn.id, e);

@@ -61,9 +61,9 @@ class HotbarInventoryView(private val stage: Stage,
 
     private lateinit var tileRenderSystem: TileRenderSystem
 
-    private lateinit var itemMapper: ComponentMapper<ItemComponent>
-    private lateinit var blockMapper: ComponentMapper<BlockComponent>
-    private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private lateinit var mBlock: ComponentMapper<BlockComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
     private val tooltip: Tooltip<VisTable>
     private val tooltipLabel: VisLabel
@@ -115,8 +115,8 @@ class HotbarInventoryView(private val stage: Stage,
     }
 
     override fun slotItemCountChanged(index: Int, inventory: Inventory) {
-        val itemComponent = itemMapper.get(inventory.itemEntity(index))
-        slots[index].itemCount.setText(itemComponent.stackSize.toString())
+        val cItem = mItem.get(inventory.itemEntity(index))
+        slots[index].itemCount.setText(cItem.stackSize.toString())
     }
 
     override fun slotItemChanged(index: Int, inventory: Inventory) {
@@ -128,12 +128,12 @@ class HotbarInventoryView(private val stage: Stage,
             return
         }
 
-        val itemComponent = itemMapper.get(itemEntity)
-        slots[index].itemCount.setText(itemComponent.stackSize.toString())
+        val cItem = mItem.get(itemEntity)
+        slots[index].itemCount.setText(cItem.stackSize.toString())
 
-        val spriteComponent = spriteMapper.get(itemEntity)
+        val cSprite = mSprite.get(itemEntity)
 
-        val region = textureForInventoryItem(itemEntity, spriteComponent.textureName!!)
+        val region = textureForInventoryItem(itemEntity, cSprite.textureName!!)
 
         val slotImage = slot.itemImage
 
@@ -150,7 +150,7 @@ class HotbarInventoryView(private val stage: Stage,
     //fixme this is also duped in the InventoryView, but not sure where else to put it...the current way is a hack anyway
     fun textureForInventoryItem(itemEntity: Int, textureName: String): TextureRegion {
         var region: TextureRegion?
-        if (blockMapper.opt(itemEntity) != null) {
+        if (mBlock.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
             region = tileRenderSystem.tilesAtlas.findRegion("$textureName-00")
 
@@ -306,9 +306,9 @@ class HotbarInventoryView(private val stage: Stage,
             val itemEntity = inventory.inventory.itemEntity(index)
 
             if (isValidEntity(itemEntity)) {
-                val itemComponent = inventory.itemMapper.get(itemEntity)
-                val spriteComponent = inventory.spriteMapper.get(itemEntity)
-                inventory.tooltipLabel.setText(itemComponent.name)
+                val cItem = inventory.mItem.get(itemEntity)
+                val cSprite = inventory.mSprite.get(itemEntity)
+                inventory.tooltipLabel.setText(cItem.name)
             }
 
             return super.mouseMoved(event, x, y)

@@ -56,7 +56,7 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         val crosshair = getWorld().create()
         tagManager.register(OreWorld.s_crosshair, crosshair)
 
-        val spriteComponent = mSprite.create(crosshair).apply {
+        val cSprite = mSprite.create(crosshair).apply {
             sprite.setSize(1f, 1f)
             sprite.setRegion(oreWorld.atlas.findRegion("crosshair-blockpicking"))
             noClip = true
@@ -71,8 +71,8 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private fun slotSelected(index: Int, inventory: Inventory) {
         val mainPlayer = tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComponent = mPlayer.get(mainPlayer)
-        val equippedPrimaryItem = playerComponent.equippedPrimaryItem
+        val cPlayer = mPlayer.get(mainPlayer)
+        val equippedPrimaryItem = cPlayer.equippedPrimaryItem
 
         //we hide/delete it either way, because we'll either (a) respawn it if it when it needs it
         //or (b) it doesn't want to be shown
@@ -99,12 +99,12 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         //this item is placeable, show an overlay of it so we can see where we're going to place it (by cloning its
         // entity)
         val newPlacementOverlay = oreWorld.cloneEntity(equippedPrimaryItem)
-        val itemComponent = mItem.get(newPlacementOverlay).apply {
+        val cItem = mItem.get(newPlacementOverlay).apply {
             //transition to the in world state, since the cloned source item was in the inventory state, so to would this
             state = ItemComponent.State.InWorldState
         }
 
-        val spriteComponent = mSprite.get(newPlacementOverlay).apply {
+        val cSprite = mSprite.get(newPlacementOverlay).apply {
             noClip = true
         }
 
@@ -183,22 +183,22 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun updateCrosshair() {
-        val spriteComponent = mSprite.get(tagManager.getEntity(OreWorld.s_crosshair).id)
+        val cSprite = mSprite.get(tagManager.getEntity(OreWorld.s_crosshair).id)
 
         val mouse = oreWorld.mousePositionWorldCoords()
         //                                      OreWorld.BLOCK_SIZE * (mouse.y / OreWorld.BLOCK_SIZE).floor());
         val crosshairPosition = Vector2(mouse)
 
         //fixme this might not work..remove above dead code too
-        oreWorld.alignPositionToBlocks(crosshairPosition, Vector2(spriteComponent.sprite.width,
-                                                                  spriteComponent.sprite.height))
+        oreWorld.alignPositionToBlocks(crosshairPosition, Vector2(cSprite.sprite.width,
+                                                                  cSprite.sprite.height))
 
-        val crosshairOriginOffset = Vector2(spriteComponent.sprite.width, spriteComponent.sprite.height)
-        //new Vector2(spriteComponent.sprite.getWidth() * 0.5f, spriteComponent.sprite.getHeight() * 0.5f);
+        val crosshairOriginOffset = Vector2(cSprite.sprite.width, cSprite.sprite.height)
+        //new Vector2(cSprite.sprite.getWidth() * 0.5f, cSprite.sprite.getHeight() * 0.5f);
 
         val crosshairFinalPosition = crosshairPosition.add(crosshairOriginOffset)
 
-        spriteComponent.sprite.setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y)
+        cSprite.sprite.setPosition(crosshairFinalPosition.x, crosshairFinalPosition.y)
     }
 
     private fun updateItemOverlay() {
@@ -206,17 +206,17 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val itemPlacementOverlayEntity = entity.id
 
-        val spriteComponent = mSprite.get(itemPlacementOverlayEntity)
+        val cSprite = mSprite.get(itemPlacementOverlayEntity)
 
         val mouse = oreWorld.mousePositionWorldCoords()
-        oreWorld.alignPositionToBlocks(mouse, Vector2(spriteComponent.sprite.width,
-                                                      spriteComponent.sprite.height))
+        oreWorld.alignPositionToBlocks(mouse, Vector2(cSprite.sprite.width,
+                                                      cSprite.sprite.height))
 
-        val halfWidth = 0.0f//spriteComponent.sprite.getWidth() * 0.5f;
-        val halfHeight = 0.0f//spriteComponent.sprite.getHeight() * 0.5f;
+        val halfWidth = 0.0f//cSprite.sprite.getWidth() * 0.5f;
+        val halfHeight = 0.0f//cSprite.sprite.getHeight() * 0.5f;
 
-        spriteComponent.sprite.setPosition(mouse.x + halfWidth, mouse.y + halfHeight)
-        spriteComponent.placementValid = oreWorld.isPlacementValid(itemPlacementOverlayEntity)
+        cSprite.sprite.setPosition(mouse.x + halfWidth, mouse.y + halfHeight)
+        cSprite.placementValid = oreWorld.isPlacementValid(itemPlacementOverlayEntity)
     }
 
     /**

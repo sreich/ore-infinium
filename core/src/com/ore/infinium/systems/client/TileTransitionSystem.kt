@@ -99,8 +99,8 @@ class TileTransitionSystem(private val camera: OrthographicCamera, private val o
         }
 
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
-        val playerComponent = mPlayer.get(player)
-        val blockRegion = playerComponent.loadedViewport.blockRegionInViewport()
+        val cPlayer = mPlayer.get(player)
+        val blockRegion = cPlayer.loadedViewport.blockRegionInViewport()
 
         transitionTiles(blockRegion)
         //fixme, disable for now
