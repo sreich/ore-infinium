@@ -6,7 +6,7 @@ sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = ["src/"]
-sourceSets.main.kotlin.srcDirs = ["src/"]
+sourceSets.main.kotlin.srcDirs = ["src/", "build/generated/source/proto/main/java"]
 sourceSets.main.resources.srcDirs = ["assets/"]
 sourceSets.test.java.srcDirs = ["test/"]
 sourceSets.test.kotlin.srcDirs = ["test/"]

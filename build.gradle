@@ -166,7 +166,12 @@ project(":core") {
             proto {
                 srcDir 'src/com/ore/infinium/proto'
             }
+            //NOTE this is also added to source set in core/build.gradle
         }
+    }
+
+    compileJava {
+        dependsOn(':core:generateProto')
     }
 
     dependencies {
