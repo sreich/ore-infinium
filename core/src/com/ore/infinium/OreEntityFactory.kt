@@ -24,6 +24,10 @@ class OreEntityFactory(val oreWorld: OreWorld) {
 
     val artemisWorld = oreWorld.artemisWorld
 
+    init {
+        oreWorld.artemisWorld.inject(this, true)
+    }
+
     /**
      * @param blockType
      */

@@ -34,7 +34,6 @@ import java.io.StringWriter
 import javax.swing.*
 import javax.swing.text.DefaultEditorKit
 
-// @SuppressWarnings("serial")
 class ErrorDialog(private val exception: Throwable, private val thread: Thread) : JDialog() {
     //    JDialog(null as Dialog)
     //was working before, but kotlin broke this. java just did super((Dialog)null)
@@ -74,6 +73,8 @@ class ErrorDialog(private val exception: Throwable, private val thread: Thread) 
         val errors = StringWriter()
         exception.printStackTrace(PrintWriter(errors))
         stackTrace = errors.toString()
+
+        println(stackTrace)
 
         showDetails.addActionListener {
             if (this.showDetails) {
@@ -139,7 +140,7 @@ class ErrorDialog(private val exception: Throwable, private val thread: Thread) 
      * Creates a non-editable widget to display the error message.
      */
     internal fun createErrorMessage(t: Throwable): JEditorPane {
-        var message = "${t.message} \n Thread name:  ${thread.name}"
+        val message = "${t.message} \n Thread name:  ${thread.name}"
 
         val messagePane = JEditorPane().apply {
             contentType = "text/plain"
@@ -163,8 +164,5 @@ class ErrorDialog(private val exception: Throwable, private val thread: Thread) 
         private val MESSAGE_SIZE = Dimension(600, 200)
         private val STACKTRACE_SIZE = Dimension(600, 300)
         private val TOTAL_SIZE = Dimension(600, 500)
-
-        internal var NEWLINE = "\r\n"
-        internal var INDENT = "    "
     }
 }

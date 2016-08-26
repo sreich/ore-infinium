@@ -70,6 +70,8 @@ class GeneratorControlPanelView(stage: Stage,
     private val fuelRemainingProgressBar: VisProgressBar
 
     init {
+        oreWorld.artemisWorld.inject(this)
+
         val slotsPerRow = 5
 
         //attach to the inventory model

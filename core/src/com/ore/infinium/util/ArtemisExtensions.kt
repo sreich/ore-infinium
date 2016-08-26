@@ -45,6 +45,10 @@ inline fun isInvalidEntity(entityId: Int) = entityId == INVALID_ENTITY_ID
 
 typealias OreEntityId = Int
 
+fun World.oreInject(obj: Any) {
+    this.inject(obj)
+}
+
 interface OreEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
     override fun inserted(entities: IntBag) = Unit
     override fun removed(entities: IntBag) = Unit

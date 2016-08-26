@@ -56,6 +56,8 @@ class InventoryView(stage: Stage,
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
 
     init {
+        oreWorld.artemisWorld.inject(this)
+
         //attach to the inventory model
         inventory.addListener(this)
 

@@ -70,6 +70,7 @@ class HotbarInventoryView(private val stage: Stage,
 
     init {
         world.artemisWorld.inject(this)
+
         //attach to the inventory model
         inventory.addListener(this)
 

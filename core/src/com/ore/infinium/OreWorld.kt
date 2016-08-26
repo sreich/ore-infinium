@@ -171,7 +171,6 @@ class OreWorld
             artemisWorld.inject(this, true)
 
             entityFactory = OreEntityFactory(this)
-            artemisWorld.inject(entityFactory, true)
         } else if (isServer()) {
             initServer()
         }
@@ -203,13 +202,11 @@ class OreWorld
                                      .register(GameLoopSystemInvocationStrategy(25, true))
                                      .build())
         //inject the mappers into the world, before we start doing things
-        artemisWorld.inject(this, true)
+        artemisWorld.oreInject(this)
 
         worldGenerator = WorldGenerator(this)
-        artemisWorld.inject(worldGenerator, true)
 
         entityFactory = OreEntityFactory(this)
-        artemisWorld.inject(entityFactory, true)
 
         //else {
         if (OreSettings.flatWorld) {
@@ -1278,5 +1275,6 @@ class OreWorld
         return Vector2(cSprite.sprite.x, cSprite.sprite.y)
     }
 }
+
 
 

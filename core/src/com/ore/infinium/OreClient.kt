@@ -709,12 +709,9 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         debugProfilerView = DebugProfilerView(stage = stage, world = world!!)
 
-        world!!.artemisWorld.inject(hotbarInventory, true)
-        world!!.artemisWorld.inject(inventory, true)
-        world!!.artemisWorld.inject(inventoryView, true)
-        world!!.artemisWorld.inject(hotbarView, true)
-        world!!.artemisWorld.inject(generatorControlPanelView, true)
-        world!!.artemisWorld.inject(generatorInventory, true)
+        world!!.artemisWorld.oreInject(hotbarInventory!!)
+        world!!.artemisWorld.oreInject(inventory!!)
+        world!!.artemisWorld.oreInject(generatorInventory!!)
 
         if (mainPlayer) {
             tagManager.register(OreWorld.s_mainPlayer, player)

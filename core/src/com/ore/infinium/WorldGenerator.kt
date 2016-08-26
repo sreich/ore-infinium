@@ -32,6 +32,7 @@ import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.LiquidSimulationSystem
+import com.ore.infinium.util.oreInject
 import com.sudoplay.joise.module.*
 import java.awt.Color
 import java.awt.Font
@@ -45,6 +46,10 @@ import kotlin.concurrent.thread
 @Wire
 class WorldGenerator(private val world: OreWorld) {
     private lateinit var spriteMapper: ComponentMapper<SpriteComponent>
+
+    init {
+        world.artemisWorld.oreInject(this)
+    }
 
     fun generateWorld() {
 
