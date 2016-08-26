@@ -28,6 +28,8 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisProgressBar
 import com.kotcrab.vis.ui.widget.VisTable
+import com.ore.infinium.components.AirComponent
+import com.ore.infinium.util.format
 
 class Hud(private val client: OreClient,
           private val ownStage: Stage,
@@ -36,18 +38,24 @@ class Hud(private val client: OreClient,
     val airMeter = VisProgressBar(0f, 100f, 1f, false)
     val healthMeter = VisProgressBar(0f, 100f, 1f, false)
 
+    val airAmountLabel = VisLabel()
     init {
         airMeter.value = 50f
 
         val airLabel = VisLabel("Air")
-        add(airLabel)
+        add(airLabel).padRight(1f)
         add(airMeter)
+        add(airAmountLabel)
         row()
 
         rootTable.add(this).expand().top().right().padBottom(5f).size(500f, 200f)
     }
 
-    fun airChanged(air: Int) {
+    fun airChanged(cAir: AirComponent, air: Int) {
+        val airPercent = air.toFloat() / cAir.maxAir.toFloat() * 100f
+
+        airAmountLabel.setText(airPercent.format("%.2f"))
+
         airMeter.value = air.toFloat()
     }
 

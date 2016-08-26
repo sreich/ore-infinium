@@ -65,9 +65,8 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
         if (mPlayer.has(entityId)) {
             if (cAir.air < cAir.maxAir) {
                 cAir.air += 1
+                serverNetworkSystem.sendPlayerAirChanged(playerEntity = entityId)
             }
-
-            serverNetworkSystem.sendPlayerAirChanged(playerEntity = entityId)
         } else {
             TODO("don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
         }

@@ -283,7 +283,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             air = airChanged.air
         }
 
-        oreWorld.client!!.hud.airChanged(air = cAir.air)
+        oreWorld.client!!.hud.airChanged(cAir, air = cAir.air)
     }
 
     private fun receiveUpdateGeneratorControlPanelStats(stats: Network.Server.UpdateGeneratorControlPanelStats) {
