@@ -144,109 +144,110 @@ project(":desktop") {
     //   }
 
 
-project(":core") {
-    apply plugin: "java"
-    apply plugin: "idea"
-    apply plugin: "com.google.protobuf"
+    project(":core") {
+        apply plugin: "java"
+        apply plugin: "idea"
+        apply plugin: "com.google.protobuf"
 
-    configurations {
-        provided
-    }
-
-    idea {
-        module {
-            sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+        configurations {
+            provided
         }
-    }
 
-    sourceSets {
-        // run the annotation processor compile time.
-        main {
-            //compileClasspath = files(configurations.provided)
-            proto {
-                srcDir 'src/com/ore/infinium/proto'
+        idea {
+            module {
+                sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
             }
-            //NOTE this is also added to source set in core/build.gradle
+        }
+
+        sourceSets {
+            // run the annotation processor compile time.
+            main {
+                //compileClasspath = files(configurations.provided)
+                proto {
+                    srcDir 'src/com/ore/infinium/proto'
+                }
+                //NOTE this is also added to source set in core/build.gradle
+            }
+        }
+
+        compileKotlin {
+            dependsOn(':core:generateProto')
+        }
+
+        dependencies {
+            // kotlin
+            //compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
+            compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+
+            compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+            compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+
+            // libgdx core
+            compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+            //libgdx addons
+            compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+            compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+
+            compile "com.kotcrab.vis:vis-ui:$visUiVersion"
+
+            //junit
+            testCompile "junit:junit:$junitVersion"
+            testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
+            // kryonet
+            compile "com.esotericsoftware:kryonet:$kryonetVersion"
+
+            //artemis-odb
+            compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
+
+            // Artemis-odb annotation processor (see https://github.com/junkdog/artemis-odb/wiki/EntityFactory)
+            provided "net.onedaybeard.artemis:artemis-odb-processor:$artemisVersion"
+
+            // Artemis-odb bonus functionality (systems, events, components).
+            compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
+            compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
+            compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
+            compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
+
+            // jcommander for command line parsing
+            compile "com.beust:jcommander:$jcommanderVersion"
+
+            //junit
+            testCompile "junit:junit:$junitVersion"
+
+            //universal tween engine
+            compile "com.aurelienribon:tween-engine-api:$tweenEngineVersion"
+
+            compile "com.sudoplay.joise:joise:$joiseVersion"
+
+            compile "com.google.protobuf:protobuf-java:3.0.0"
+        }
+
+        protobuf {
+            protoc {
+                // download the artifact spec for the Protobuf Compiler
+                artifact = "com.google.protobuf:protoc:3.0.0"
+            }
+
+            //generatedFilesBaseDir = "$buildDir/generated/source/proto"
         }
     }
 
-    compileKotlin {
-        dependsOn(':core:generateProto')
-    }
+    project(":matrix") {
+        apply plugin: "java"
 
-    dependencies {
-        // kotlin
-        //compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlinVersion"
-        compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-
-        compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-        compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
-
-        // libgdx core
-        compile "com.badlogicgames.gdx:gdx:$gdxVersion"
-
-        //libgdx addons
-        compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
-        compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-
-        compile "com.kotcrab.vis:vis-ui:$visUiVersion"
-
-        //junit
-        testCompile "junit:junit:$junitVersion"
-        testCompile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-
-        // kryonet
-        compile "com.esotericsoftware:kryonet:$kryonetVersion"
-
-        //artemis-odb
-        compile "net.onedaybeard.artemis:artemis-odb:$artemisVersion"
-
-        // Artemis-odb annotation processor (see https://github.com/junkdog/artemis-odb/wiki/EntityFactory)
-        provided "net.onedaybeard.artemis:artemis-odb-processor:$artemisVersion"
-
-        // Artemis-odb bonus functionality (systems, events, components).
-        compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
-        compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
-        compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
-        compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
-
-        // jcommander for command line parsing
-        compile "com.beust:jcommander:$jcommanderVersion"
-
-        //junit
-        testCompile "junit:junit:$junitVersion"
-
-        //universal tween engine
-        compile "com.aurelienribon:tween-engine-api:$tweenEngineVersion"
-
-        compile "com.sudoplay.joise:joise:$joiseVersion"
-
-        compile "com.google.protobuf:protobuf-java:3.0.0"
-    }
-
-    protobuf {
-        protoc {
-            // download the artifact spec for the Protobuf Compiler
-            artifact = "com.google.protobuf:protoc:3.0.0"
+        dependencies {
+            compile project(":core")
+            compile "net.onedaybeard.ecs:matrix-cli:$matrixCliVersion"
         }
 
-        //generatedFilesBaseDir = "$buildDir/generated/source/proto"
+        task generateMatrix(type: JavaExec) {
+            classpath = sourceSets.main.runtimeClasspath
+            main = 'com.artemis.cli.CliApplication'
+            args '-c', "$rootProject.projectDir/core/build/classes/main/", '-l', "$rootProject.ext.appName"
+        }
+        build.finalizedBy generateMatrix
     }
-}
-
-project(":matrix") {
-    apply plugin: "java"
-
-    dependencies {
-        compile project(":core")
-        compile "net.onedaybeard.ecs:matrix-cli:$matrixCliVersion"
-    }
-
-    task generateMatrix(type: JavaExec) {
-        classpath = sourceSets.main.runtimeClasspath
-        main = 'com.artemis.cli.CliApplication'
-        args '-c', "$rootProject.projectDir/core/build/classes/main/", '-l', "$rootProject.ext.appName"
-    }
-    build.finalizedBy generateMatrix
 }
 
