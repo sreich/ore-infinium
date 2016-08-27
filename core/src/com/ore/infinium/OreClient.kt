@@ -468,6 +468,11 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     override fun keyDown(keycode: Int): Boolean {
+        if (chatDialog.chatVisibilityState == ChatDialog.ChatVisibility.Normal) {
+            //chat is happening and consuming input
+            return false
+        }
+
         when (keycode) {
             Input.Keys.ESCAPE -> shutdown()
             Input.Keys.F6 -> {
