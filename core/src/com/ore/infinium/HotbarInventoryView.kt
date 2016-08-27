@@ -27,7 +27,10 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Image
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.Tooltip
@@ -45,9 +48,7 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.TileRenderSystem
-import com.ore.infinium.util.isInvalidEntity
-import com.ore.infinium.util.isValidEntity
-import com.ore.infinium.util.opt
+import com.ore.infinium.util.*
 
 class HotbarInventoryView(private val stage: Stage,
         //the model for this view
@@ -275,7 +276,7 @@ class HotbarInventoryView(private val stage: Stage,
 
             //fixme?                    inventory.previousSelectedSlot = index;
 
-            val clientNetworkSystem = inventoryView.world.artemisWorld.getSystem(ClientNetworkSystem::class.java)
+            val clientNetworkSystem = inventoryView.world.artemisWorld.system<ClientNetworkSystem>()
             clientNetworkSystem.sendInventoryMove(sourceInventoryType = dragWrapper.sourceInventory.inventoryType,
                                                   sourceIndex = dragWrapper.dragSourceIndex,
                                                   destInventoryType = inventoryView.inventory.inventoryType,
@@ -290,8 +291,13 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView, private val index: Int) : InputListener() {
-        override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+    private class test : OreInputListener() {
+    }
+
+    private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView,
+                                                         private val index: Int)
+    : OreInputListener() {
+        override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor) {
             val itemEntity = inventory.inventory.itemEntity(index)
             if (isValidEntity(itemEntity)) {
                 inventory.tooltip.enter(event, x, y, pointer, fromActor)
@@ -300,7 +306,7 @@ class HotbarInventoryView(private val stage: Stage,
             super.enter(event, x, y, pointer, fromActor)
         }
 
-        override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
+        override fun mouseMoved(event: InputEvent, x: Float, y: Float): Boolean {
             inventory.tooltip.mouseMoved(event, x, y)
 
             val itemEntity = inventory.inventory.itemEntity(index)
@@ -314,7 +320,7 @@ class HotbarInventoryView(private val stage: Stage,
             return super.mouseMoved(event, x, y)
         }
 
-        override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+        override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor) {
             inventory.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)

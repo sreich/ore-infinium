@@ -1174,7 +1174,7 @@ class OreWorld
 
         artemisWorld.delete(entityToKill)
 
-        artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToKill)
+        artemisWorld.system<ServerNetworkSystem>().sendEntityKilled(entityToKill)
     }
 
     /**
@@ -1186,7 +1186,7 @@ class OreWorld
     fun serverDestroyEntity(entityToDestroy: Int) {
         artemisWorld.delete(entityToDestroy)
 
-        artemisWorld.getSystem(ServerNetworkSystem::class.java).sendEntityKilled(entityToDestroy)
+        artemisWorld.system<ServerNetworkSystem>().sendEntityKilled(entityToDestroy)
     }
 
     /**

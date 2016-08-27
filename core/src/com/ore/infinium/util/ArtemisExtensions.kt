@@ -49,6 +49,9 @@ fun World.oreInject(obj: Any) {
     this.inject(obj)
 }
 
+inline fun <reified T : BaseSystem> World.system() =
+        getSystem(T::class.java)
+
 interface OreEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
     override fun inserted(entities: IntBag) = Unit
     override fun removed(entities: IntBag) = Unit
@@ -234,7 +237,6 @@ inline fun <reified T : BaseSystem> BaseSystem.system(): ReadOnlyProperty<BaseSy
  * @param type the system class.
  */
 fun <T : BaseSystem> BaseSystem.system(type: KClass<T>): ReadOnlyProperty<BaseSystem, T> = SystemProperty<T>(type.java)
-
 
 private val cacheByType = hashMapOf<Class<*>, PropertyCache>()
 

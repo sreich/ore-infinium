@@ -365,7 +365,9 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //ensure entity to collide with is up against our left side
             //and our other side is facing away from the colliding side
             // (or switching directions will teleport to the wrong side)
-            if (stopBottomCollision && !stopBottomCollision) {
+            if (pastLeft /*&& !stopBottomCollision*/) {
+                //if (entityToMoveRect.left <= collidingEntityRect.right + entityPadding
+                //       && entityToMoveRect.right >= collidingEntityRect.right) {
                 desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
                 velocity.x = 0f
             }
@@ -373,7 +375,9 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         if (velocity.y > 0f) {
             //trying to move down
-            if (pastBottom && true//entityToMoveRect.top <= collidingEntityRect.bottom
+            if (pastBottom && entityToMoveRect.top <= collidingEntityRect.bottom
+                    && !pastLeft
+//                    && (!pastRight || !pastLeft)
             ) {
                 desiredPosition.y = (collidingEntityRect.top - entityToMoveRect.halfWidth) - entityPadding
                 velocity.y = 0f

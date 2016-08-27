@@ -3,7 +3,10 @@ package com.ore.infinium
 import com.artemis.ComponentMapper
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.ui.Tooltip
 import com.badlogic.gdx.scenes.scene2d.utils.DragAndDrop
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
@@ -17,9 +20,7 @@ import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.TileRenderSystem
-import com.ore.infinium.util.isInvalidEntity
-import com.ore.infinium.util.isValidEntity
-import com.ore.infinium.util.opt
+import com.ore.infinium.util.*
 
 open class BaseInventoryView(val title: String,
                              val stage: Stage,
@@ -51,7 +52,7 @@ open class BaseInventoryView(val title: String,
         }
 
     init {
-        val region = oreWorld.artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion("dirt-00")
+        val region = oreWorld.artemisWorld.system<TileRenderSystem>().tilesAtlas.findRegion("dirt-00")
 
         dragImage = VisImage(region)
         dragImage.setSize(32f, 32f)
@@ -129,7 +130,7 @@ open class BaseInventoryView(val title: String,
         val region: TextureRegion?
         if (mBlock.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = oreWorld.artemisWorld.getSystem(TileRenderSystem::class.java).tilesAtlas.findRegion(
+            region = oreWorld.artemisWorld.system<TileRenderSystem>().tilesAtlas.findRegion(
                     "$textureName-00")
         } else {
             region = oreWorld.atlas.findRegion(textureName)
@@ -166,9 +167,9 @@ open class BaseInventoryView(val title: String,
             private val index: Int,
             private val slotType: GeneratorControlPanelView.SlotElementType =
             GeneratorControlPanelView.SlotElementType.FuelSource)
-    : InputListener() {
+    : OreInputListener() {
 
-        override fun enter(event: InputEvent?, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
+        override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor) {
             val itemEntity: Int
 
             itemEntity = inventoryView.inventory.itemEntity(index)
@@ -180,7 +181,7 @@ open class BaseInventoryView(val title: String,
             super.enter(event, x, y, pointer, fromActor)
         }
 
-        override fun mouseMoved(event: InputEvent?, x: Float, y: Float): Boolean {
+        override fun mouseMoved(event: InputEvent, x: Float, y: Float): Boolean {
             inventoryView.tooltip.mouseMoved(event, x, y)
 
             val itemEntity: Int
@@ -195,7 +196,7 @@ open class BaseInventoryView(val title: String,
             return super.mouseMoved(event, x, y)
         }
 
-        override fun exit(event: InputEvent?, x: Float, y: Float, pointer: Int, toActor: Actor?) {
+        override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor) {
             inventoryView.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)

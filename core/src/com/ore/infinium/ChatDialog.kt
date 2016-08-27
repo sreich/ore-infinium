@@ -25,13 +25,18 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.scenes.scene2d.*
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
 import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.util.OreInputListener
 import com.ore.infinium.util.enabledString
+import com.ore.infinium.util.system
 
 class ChatDialog(private val client: OreClient,
                  private val stage: Stage,
@@ -47,6 +52,9 @@ class ChatDialog(private val client: OreClient,
     private val sendButton: VisTextButton
 
     var chatVisibilityState = ChatVisibility.Normal
+
+    //last message client tried to send
+    var previousSentMessage = ""
 
     internal var notificationTimer: Timer
 
@@ -99,11 +107,17 @@ class ChatDialog(private val client: OreClient,
         //   showForNotification();
     }
 
-    class ChatInputListener(val chatDialog: ChatDialog) : InputListener() {
+    class ChatInputListener(val chatDialog: ChatDialog) : OreInputListener() {
         override //fixme override mouse as well, to ignroe those.
-        fun keyDown(event: InputEvent?, keycode: Int): Boolean {
-            when {
-                keycode == Input.Keys.ENTER -> {
+        fun keyDown(event: InputEvent, keycode: Int): Boolean {
+
+            //ignore all keys if we're in non-focused mode
+            if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
+                return false
+            }
+
+            when (keycode) {
+                Input.Keys.ENTER -> {
                     if (chatDialog.chatVisibilityState == ChatVisibility.Normal) {
                         chatDialog.closeChatDialog()
                         chatDialog.sendChat()
@@ -114,13 +128,11 @@ class ChatDialog(private val client: OreClient,
                     return true
                 }
 
-                keycode == Input.Keys.ESCAPE -> {
+                Input.Keys.ESCAPE -> {
                     chatDialog.closeChatDialog()
-
-                    return false
                 }
 
-                keycode == Input.Keys.SLASH -> {
+                Input.Keys.SLASH -> {
                     if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
                         chatDialog.openChatDialog()
 
@@ -129,16 +141,16 @@ class ChatDialog(private val client: OreClient,
 
                         return true
                     }
-
-                    return false
                 }
 
-            //ignore all keys if we're in non-focused mode
-                chatDialog.chatVisibilityState != ChatVisibility.Normal -> return false
+                Input.Keys.UP -> {
+                    chatDialog.messageField.text = chatDialog.previousSentMessage
+                }
 
                 else -> return super.keyDown(event, keycode)
             }
 
+            return false
         }
     }
 
@@ -175,7 +187,9 @@ class ChatDialog(private val client: OreClient,
         //        scroll.setScrollingDisabled(notification, notification);
 
         scrollToBottom()
+
         val touchable = if (notification) Touchable.disabled else Touchable.enabled
+
         //        scrollPaneTable.setTouchable(touchable);
         //        scroll.setTouchable(touchable);
         chatVisibilityState = chatVisibility
@@ -184,10 +198,12 @@ class ChatDialog(private val client: OreClient,
     private fun sendChat() {
         if (messageField.text.length > 0) {
             if (!processLocalChatCommands()) {
-                client.world!!.artemisWorld.getSystem(ClientNetworkSystem::class.java).sendChatMessage(
-                        messageField.text)
+
+                client.world!!.artemisWorld.system<ClientNetworkSystem>()
+                        .sendChatMessage(messageField.text)
             }
 
+            previousSentMessage = messageField.text
             messageField.text = ""
         }
     }
@@ -284,7 +300,6 @@ class ChatDialog(private val client: OreClient,
     override fun lineAdded(line: Chat.ChatLine) {
         scrollPaneTable.row().left()
 
-
         val timeStampLabel = VisLabel(line.timestamp)
         scrollPaneTable.add(timeStampLabel).top().left().fill().padRight(4f)//.expandX();
 
@@ -309,5 +324,5 @@ class ChatDialog(private val client: OreClient,
     override fun cleared() {
 
     }
-
 }
+
