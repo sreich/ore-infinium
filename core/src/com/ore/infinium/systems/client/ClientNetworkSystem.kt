@@ -273,6 +273,11 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //update region
             val textureRegion = oreWorld.atlas.findRegion(textureName)
             this.sprite.setRegion(textureRegion)
+
+            noClip = when (activated.state) {
+                DoorComponent.DoorState.Closed -> false
+                DoorComponent.DoorState.Open -> true
+            }
         }
     }
 

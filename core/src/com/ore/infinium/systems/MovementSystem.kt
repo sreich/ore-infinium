@@ -314,7 +314,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             val cSpriteOther = mSprite.get(it)
 
             if (oreWorld.isItemDroppedInWorldOpt(it) || oreWorld.shouldIgnoreClientEntityTag(it) ||
-                    cSprite.noClip) {
+                    cSpriteOther.noClip) {
                 //ignore collision with these
                 return@forEach
             }
