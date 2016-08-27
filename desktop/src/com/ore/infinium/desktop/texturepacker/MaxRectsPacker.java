@@ -26,7 +26,8 @@ import com.ore.infinium.desktop.texturepacker.TexturePacker.Settings;
 
 import java.util.Comparator;
 
-/** Packs pages of images using the maximal rectangles bin packing algorithm by Jukka Jylänki. A brute force binary search is
+/** Packs pages of images using the maximal rectangles bin packing algorithm by Jukka Jylanki. A brute force binary
+ * search is
  * used to pack into the smallest bin possible.
  * @author Nathan Sweet */
 public class MaxRectsPacker implements Packer {
@@ -251,7 +252,7 @@ public class MaxRectsPacker implements Packer {
 
 	/** Maximal rectangles bin packing algorithm. Adapted from this C++ public domain source:
 	 * http://clb.demon.fi/projects/even-more-rectangle-bin-packing
-	 * @author Jukka Jyl�nki
+	 * @author Jukka Jylanki
 	 * @author Nathan Sweet */
 	class MaxRects {
 		private int binWidth;
