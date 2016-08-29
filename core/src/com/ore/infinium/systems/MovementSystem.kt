@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium.systems
 
 import com.artemis.Aspect
-import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
@@ -60,10 +59,6 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         //max velocity that can be obtained via gravity
         val GRAVITY_VELOCITY_CLAMP = 0.6f
-    }
-
-    override fun setWorld(world: World) {
-        super.setWorld(world)
     }
 
     override fun process(entityId: Int) {
@@ -329,7 +324,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         return desiredPosition
     }
 
-    val entityPadding = 0.5f
+    val entityPadding = 0.1f
 
     /**
      * @param collidingEntity entity that the other one is colliding against
@@ -342,13 +337,13 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         val collidingEntityRect = cSpriteColliding.sprite.rect
 
         val velocity = mVelocity.get(entityToMove).velocity
-        val entityToMoveRect = desiredPosition.rectFromSize(cSprite.sprite.size.x, cSprite.sprite.size.y)
+        var entityToMoveRect = desiredPosition.rectFromSize(cSprite.sprite.size.x, cSprite.sprite.size.y)
 
         val rightSide = rightSideTouches(collidingEntityRect, entityToMoveRect)
 
         //true if past bottom of moving entity
         val pastBottom = entityToMoveRect.bottom >= collidingEntityRect.top - entityPadding
-        val pastLeft = entityToMoveRect.left <= collidingEntityRect.right + entityPadding
+        val pastLeft = entityToMoveRect.left >= collidingEntityRect.right //+ entityPadding
         val pastRight = entityToMoveRect.right >= collidingEntityRect.left - entityPadding
 
         //true if bottom collision is fully satisfied and velocity should be halted
@@ -359,6 +354,9 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             if (pastRight && entityToMoveRect.left <= collidingEntityRect.left && !stopBottomCollision) {
                 desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
+
+                //update our helper rect. fixme, this should probably be made more efficient..
+                entityToMoveRect = desiredPosition.rectFromSize(cSprite.sprite.size.x, cSprite.sprite.size.y)
             }
         } else if (velocity.x < 0f) {
             //trying to move left
@@ -368,18 +366,26 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             if (pastLeft /*&& !stopBottomCollision*/) {
                 //if (entityToMoveRect.left <= collidingEntityRect.right + entityPadding
                 //       && entityToMoveRect.right >= collidingEntityRect.right) {
-                desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
-                velocity.x = 0f
+                //              desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
+                //             velocity.x = 0f
             }
         }
 
         if (velocity.y > 0f) {
             //trying to move down
+            /*
             if (pastBottom && entityToMoveRect.top <= collidingEntityRect.bottom
-                    && !pastLeft
+                    && (pastLeft && pastRight) ||
+                    (entityToMoveRect.left <= collidingEntityRect.left &&
+                            entityToMoveRect.right >= collidingEntityRect.right)
 //                    && (!pastRight || !pastLeft)
             ) {
-                desiredPosition.y = (collidingEntityRect.top - entityToMoveRect.halfWidth) - entityPadding
+            */
+            if (entityToMoveRect.bottom > collidingEntityRect.top
+                    && (entityToMoveRect.right > collidingEntityRect.left + entityPadding
+                    && entityToMoveRect.left < collidingEntityRect.right)
+            ) {
+                desiredPosition.y = (collidingEntityRect.top - entityToMoveRect.halfHeight) - entityPadding
                 velocity.y = 0f
             }
         } else if (velocity.y < 0f) {
