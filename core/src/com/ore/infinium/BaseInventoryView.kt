@@ -169,7 +169,7 @@ open class BaseInventoryView(val title: String,
             GeneratorControlPanelView.SlotElementType.FuelSource)
     : OreInputListener() {
 
-        override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor) {
+        override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity: Int
 
             itemEntity = inventoryView.inventory.itemEntity(index)
@@ -196,7 +196,7 @@ open class BaseInventoryView(val title: String,
             return super.mouseMoved(event, x, y)
         }
 
-        override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor) {
+        override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor?) {
             inventoryView.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)

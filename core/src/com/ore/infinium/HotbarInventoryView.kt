@@ -297,7 +297,7 @@ class HotbarInventoryView(private val stage: Stage,
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView,
                                                          private val index: Int)
     : OreInputListener() {
-        override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor) {
+        override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventory.inventory.itemEntity(index)
             if (isValidEntity(itemEntity)) {
                 inventory.tooltip.enter(event, x, y, pointer, fromActor)
@@ -320,7 +320,7 @@ class HotbarInventoryView(private val stage: Stage,
             return super.mouseMoved(event, x, y)
         }
 
-        override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor) {
+        override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor?) {
             inventory.tooltip.exit(event, x, y, pointer, toActor)
 
             super.exit(event, x, y, pointer, toActor)
