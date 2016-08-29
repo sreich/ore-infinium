@@ -2,9 +2,9 @@ package com.ore.infinium.desktop
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
-import com.ore.infinium.desktop.texturepacker.TexturePacker
 import com.beust.jcommander.JCommander
 import com.ore.infinium.*
+import com.ore.infinium.desktop.texturepacker.TexturePacker
 import kotlin.system.measureTimeMillis
 
 class DesktopLauncher {
@@ -47,15 +47,15 @@ class DesktopLauncher {
     }
 
     private fun createLwjglConfig() =
-        Lwjgl3ApplicationConfiguration().apply {
-            //useOpenGL3(true, 3, 2)
-            setTitle("Ore Infinium")
-            setWindowedMode(OreSettings.width, OreSettings.height)
-            setResizable(OreSettings.resizable)
-            useVsync(OreSettings.vsyncEnabled)
-            //foregroundFPS = OreSettings.framerate
-            //backgroundFPS = OreSettings.framerate
-        }
+            Lwjgl3ApplicationConfiguration().apply {
+                //useOpenGL3(true, 3, 2)
+                setTitle("Ore Infinium")
+                setWindowedMode(OreSettings.width, OreSettings.height)
+                setResizable(OreSettings.resizable)
+                useVsync(OreSettings.vsyncEnabled)
+                //foregroundFPS = OreSettings.framerate
+                //backgroundFPS = OreSettings.framerate
+            }
 
     private fun generateWorld() {
         OreWorld.log("DesktopLauncher generateWorld", "creating server and world to generate the world and exit.")
@@ -70,10 +70,20 @@ class DesktopLauncher {
     }
 
     private fun packTextures() {
-        TexturePacker.process("blocks", "../assets/packed", "blocks")
-        TexturePacker.process("tiles", "../assets/packed", "tiles")
-        TexturePacker.process("ui", "../assets/packed", "ui")
-        TexturePacker.process("entities", "../assets/packed", "entities")
+        val settings = TexturePacker.Settings().apply {
+            this.fast = true
+            edgePadding = false
+        }
+            val settingsTiles = TexturePacker.Settings().apply {
+            this.fast = true
+            edgePadding = false
+            combineSubdirectories = true
+        }
+        //fixme overridden by file, it seems.
+        TexturePacker.process(settings, "blocks", "../assets/packed", "blocks")
+        TexturePacker.process(settingsTiles, "tiles", "../assets/packed", "tiles")
+        TexturePacker.process(settings, "ui", "../assets/packed", "ui")
+        TexturePacker.process(settings, "entities", "../assets/packed", "entities")
     }
 
     private fun printHelp(jCommander: JCommander) {

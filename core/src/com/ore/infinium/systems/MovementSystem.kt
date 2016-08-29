@@ -351,7 +351,9 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         if (velocity.x > 0f) {
             //trying to move right
-            if (pastRight && entityToMoveRect.left <= collidingEntityRect.left && !stopBottomCollision) {
+            if (pastRight && entityToMoveRect.left <= collidingEntityRect.left &&
+entityToMoveRect.bottom > collidingEntityRect.top
+            ) {
                 desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
 

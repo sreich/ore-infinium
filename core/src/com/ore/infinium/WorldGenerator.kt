@@ -352,18 +352,43 @@ class WorldGenerator(private val world: OreWorld) {
         //but it'd be more confusing to subtract the world height, and then
         //readd it back afterwards. so, minimas would be mountains..where
         //lava is and stuff
-        return//hack
         for ((x, y) in peakResult.minima) {
+            fillVolcano(x, y)
+        }
+
+        for ((x, y) in peakResult.maxima) {
+            fillLake(x, y)
+        }
+    }
+
+    private fun fillVolcano(x: Int, y: Int) {
+        var volcanoStartY = y
+        if (world.isBlockSolid(x, y)) {
+            //todo perhaps this should be a random chance. sometimes emerging from the top, sometimes not
+
+            //start looking upwards as much as we can, to find a nice entrance point. then we'll work our way back down.
+            for (y2 in y downTo 0) {
+                if (!world.isBlockSolid(x, y2)) {
+                    //here's where we begin our insert
+                    volcanoStartY = y2
+                    break
+                }
+            }
+        }
+
+        //proceed downward
+        for (y2 in y..OreWorld.WORLD_SIZE_Y) {
+            //todo, maybe check to keep doing this until we hit rock.
+            //or make it a random depth. but also branch outward
             world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
             world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
         }
 
-        for ((x, y) in peakResult.maxima) {
-            world.setBlockType(x, y, OreBlock.BlockType.Water.oreValue)
-            world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
-        }
+    }
 
-
+    private fun fillLake(x: Int, y: Int) {
+        world.setBlockType(x, y, OreBlock.BlockType.Water.oreValue)
+        world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
     }
 
 //public Font(@Nullable java.lang.String s,
@@ -1057,7 +1082,7 @@ class WorldGenerator(private val world: OreWorld) {
      *
      * right now only blocks are handled. in the future, more stuff will be done
      */
-    private fun writeWorldImage(worldGenInfo: WorldGenOutputInfo) {
+     fun writeWorldImage(worldGenInfo: WorldGenOutputInfo) {
 //hack         val xRatio = worldGenInfo.worldSize.width.toDouble() / worldSize.height.toDouble()
 
         val bufferedImage = BufferedImage(worldGenInfo.worldSize.width, worldGenInfo.worldSize.height,

@@ -22,7 +22,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
+import com.artemis.World
+import com.artemis.WorldConfigurationBuilder
 import com.badlogic.gdx.utils.GdxNativesLoader
+import com.ore.infinium.OreWorld
+import com.ore.infinium.WorldGenerator
 import org.junit.Ignore
 import org.junit.Test
 
@@ -34,7 +38,11 @@ class WorldGeneratorTest {
     @Throws(Exception::class)
     fun generateWorldAndOutputImage() {
         GdxNativesLoader.load()
-        //WorldGenerator.generateWorldAndOutputImage()
+        val world = OreWorld(client = null, server = null, worldInstanceType = OreWorld.WorldInstanceType.Server)
+        world.artemisWorld = World(WorldConfigurationBuilder().build())
+        val worldgen = WorldGenerator(world = world)
+
+        worldgen.generateWorld(OreWorld.WORLD_SIZE)
     }
 
     @Test
