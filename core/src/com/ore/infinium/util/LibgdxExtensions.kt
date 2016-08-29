@@ -31,7 +31,6 @@ import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.Event
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.utils.Align
@@ -64,12 +63,11 @@ interface OreApplicationListener : ApplicationListener {
 
 /**
  * deriving from InputListener for the sole purpose of getting
- * guarantees on nullability
+ * guarantees on nullability, easier to implement.
  */
 open class OreInputListener : InputListener() {
-    override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor) = Unit
-    override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor) = Unit
-    override fun handle(e: Event) = false
+    override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) = Unit
+    override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor?) = Unit
     override fun keyDown(event: InputEvent, keycode: Int) = false
     override fun keyTyped(event: InputEvent, character: Char) = false
     override fun keyUp(event: InputEvent, keycode: Int) = false
