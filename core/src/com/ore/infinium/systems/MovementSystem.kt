@@ -343,8 +343,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         //true if past bottom of moving entity
         val pastBottom = entityToMoveRect.bottom >= collidingEntityRect.top - entityPadding
-        val pastLeft = entityToMoveRect.left >= collidingEntityRect.right //+ entityPadding
-        val pastRight = entityToMoveRect.right >= collidingEntityRect.left - entityPadding
+        val pastLeft = entityToMoveRect.left <= collidingEntityRect.right //+ entityPadding
+        val pastRight = entityToMoveRect.right >= collidingEntityRect.left //- entityPadding
 
         //true if bottom collision is fully satisfied and velocity should be halted
         val stopBottomCollision = pastLeft && entityToMoveRect.right >= collidingEntityRect.right
@@ -357,7 +357,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
                 desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
 
-                //update our helper rect. fixme, this should probably be made more efficient..
+                //update our helper rect. fixme, this should probably be made more efficient..not making new
+                //rects all the time
                 entityToMoveRect = desiredPosition.rectFromSize(cSprite.sprite.size.x, cSprite.sprite.size.y)
             }
         } else if (velocity.x < 0f) {
@@ -365,11 +366,16 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //ensure entity to collide with is up against our left side
             //and our other side is facing away from the colliding side
             // (or switching directions will teleport to the wrong side)
-            if (pastLeft /*&& !stopBottomCollision*/) {
+            if (pastLeft
+                    && entityToMoveRect.right >= collidingEntityRect.right
+                    && entityToMoveRect.bottom > collidingEntityRect.top
+            ) {
                 //if (entityToMoveRect.left <= collidingEntityRect.right + entityPadding
                 //       && entityToMoveRect.right >= collidingEntityRect.right) {
-                //              desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
-                //             velocity.x = 0f
+                desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
+                velocity.x = 0f
+
+                entityToMoveRect = desiredPosition.rectFromSize(cSprite.sprite.size.x, cSprite.sprite.size.y)
             }
         }
 
@@ -385,7 +391,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             */
             if (entityToMoveRect.bottom > collidingEntityRect.top - entityPadding
                     && (entityToMoveRect.right > collidingEntityRect.left + entityPadding
-                    && entityToMoveRect.left < collidingEntityRect.right)
+                    && entityToMoveRect.left < collidingEntityRect.right - entityPadding)
             ) {
                 desiredPosition.y = (collidingEntityRect.top - entityToMoveRect.halfHeight) - entityPadding
                 velocity.y = 0f

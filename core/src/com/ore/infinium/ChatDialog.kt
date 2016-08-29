@@ -112,7 +112,8 @@ class ChatDialog(private val client: OreClient,
         fun keyDown(event: InputEvent, keycode: Int): Boolean {
 
             //ignore all keys if we're in non-focused mode
-            if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
+            if (chatDialog.chatVisibilityState != ChatVisibility.Normal
+                    && keycode != Input.Keys.SLASH) {
                 return false
             }
 
