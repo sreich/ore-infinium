@@ -91,7 +91,7 @@ interface CopyableComponent<T : CopyableComponent<T>> {
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER)
 annotation class DoNotPrint
 
-fun World.entities(aspect: Aspect.Builder) =
+fun World.entities(aspect: Aspect.Builder): IntBag =
         this.aspectSubscriptionManager.get(aspect).entities
 
 //object ArtemisExtensions {

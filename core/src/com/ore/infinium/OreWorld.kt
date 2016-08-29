@@ -1043,7 +1043,7 @@ class OreWorld
             val component = mSprite.create(clonedEntity)
             component.copyFrom(it)
 
-            if (worldInstanceType != WorldInstanceType.Server) {
+            if (!isServer()) {
                 log("client entity cloner, sprite", component.textureName.toString())
                 component.sprite.setRegion(atlas.findRegion(component.textureName))
             }
@@ -1144,10 +1144,9 @@ class OreWorld
     }
 
     @Suppress("unused")
-    inline fun <reified T : Component> getEntitiesWithComponent(): IntBag? {
+    inline fun <reified T : Component> getEntitiesWithComponent(): IntBag {
         return artemisWorld.entities(allOf(T::class))
     }
-
 
     /**
      * Killing of entity.
