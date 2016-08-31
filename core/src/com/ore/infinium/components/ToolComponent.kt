@@ -25,15 +25,31 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.OreTimer
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
-
 
 class ToolComponent : Component() {
 
     var type = ToolType.Drill
     var material = ToolMaterial.Wood
     var attackRadius = 10.0f
+
+    /**
+     * blocks to affect in a radius, apply damage to
+     */
+    var explosiveRadius = 0
+
+    /**
+     * seconds after throwing explosive before it...explodes
+     */
+    //hack!!!!!!!
+    @Transient @DoNotCopy @DoNotPrint var explosiveTimer = OreTimer()
+
+    //time before explosion, after arming
+    var explosiveTime = 5000L
+
+    var explosiveArmed = false
 
     /**
      * number of ticks that can pass since last attack
@@ -47,7 +63,8 @@ class ToolComponent : Component() {
     enum class ToolType {
         Drill,
         Axe,
-        Bucket
+        Bucket,
+        Explosive
     }
 
     enum class ToolMaterial {
@@ -66,6 +83,8 @@ class ToolComponent : Component() {
                 this.attackIntervalMs == otherComp.attackIntervalMs &&
                 this.blockDamage == otherComp.blockDamage &&
                 this.material == otherComp.material &&
-                this.type == otherComp.type
+                this.type == otherComp.type &&
+                this.explosiveRadius == otherComp.explosiveRadius &&
+                this.explosiveTimer == otherComp.explosiveTimer
     }
 }

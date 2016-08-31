@@ -198,6 +198,7 @@ class OreWorld
                                      .with(ServerNetworkEntitySystem(this))
                                      .with(ServerBlockDiggingSystem(this))
                                      .with(PlayerSystem(this))
+                                     .with(ExplosiveSystem(this))
                                      .with(AirSystem(this))
                                      .with(ServerNetworkSystem(this, server!!))
                                      .with(TileLightingSystem(this))
@@ -1191,6 +1192,7 @@ class OreWorld
     /**
      * usable by either client/server. destroys entity in the world
      * silently; no sound, no server -> client informing
+     * NOTE: ONLY FOR client, because it won't indicate that it was destroyed
      */
     fun destroyEntity(entityToDestroy: Int) {
         artemisWorld.delete(entityToDestroy)
@@ -1244,7 +1246,6 @@ class OreWorld
             //              }
             //todo give it some explody velocity
         }
-
     }
 
     /**

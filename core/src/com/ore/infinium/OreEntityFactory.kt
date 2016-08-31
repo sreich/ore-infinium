@@ -154,6 +154,31 @@ class OreEntityFactory(val oreWorld: OreWorld) {
         return entity
     }
 
+    fun createExplosive(): Int {
+        val entity = artemisWorld.create()
+        mVelocity.create(entity)
+
+        mTool.create(entity).apply {
+            type = ToolComponent.ToolType.Explosive
+            blockDamage = 400f
+            explosiveRadius = 100
+        }
+
+        mSprite.create(entity).apply {
+            textureName = "drill"
+            sprite.setSize(2f, 2f)
+        }
+
+        val newStackSize = 64000
+        mItem.create(entity).apply {
+            stackSize = newStackSize
+            maxStackSize = newStackSize
+            name = "Explosives"
+        }
+
+        return entity
+    }
+
     fun createDrill(): Int {
         val entity = artemisWorld.create()
         mVelocity.create(entity)

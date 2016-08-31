@@ -50,6 +50,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     private val mPlayer by mapper<PlayerComponent>()
     private val mSprite by mapper<SpriteComponent>()
     private val mItem by mapper<ItemComponent>()
+    private val mVelocity by mapper<VelocityComponent>()
     private val mDevice by mapper<PowerDeviceComponent>()
     private val mGenerator by mapper<PowerGeneratorComponent>()
     private val mBlock by mapper<BlockComponent>()
@@ -522,7 +523,49 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val tileX = receivedObject.attackPositionWorldCoords.x.toInt()
         val tileY = receivedObject.attackPositionWorldCoords.y.toInt()
 
-        attackLiquidGun(tileX, tileY)
+        val player = job.connection.playerEntityId
+        val cPlayer = mPlayer.get(player)
+        val equippedItem = cPlayer.equippedPrimaryItem
+
+        val cTool = mTool.get(equippedItem)
+        when (cTool.type) {
+            ToolComponent.ToolType.Bucket -> attackLiquidGun(tileX, tileY)
+            ToolComponent.ToolType.Explosive -> attackExplosive(pos = receivedObject.attackPositionWorldCoords,
+                                                                itemId = equippedItem, player = player)
+
+            else -> TODO("not sure, this isn't implemented i guess, or this was called incorrectly")
+        }
+    }
+
+    /**
+     * throw an explosive attack in direction
+     */
+    private fun attackExplosive(pos: Vector2,
+                                itemId: Int,
+                                player: Int) {
+        //drop & throw explosive from here towards the aiming vector
+        val cItem = mItem.get(itemId)
+        //todo decrease item stack size
+        val cSpritePlayer = mSprite.get(player)
+
+        val thrownExplosive = oreWorld.cloneEntity(itemId)
+
+        val cItemThrown = mItem.get(thrownExplosive)
+        cItemThrown.state = ItemComponent.State.InWorldState
+
+        val cToolThrown = mTool.get(thrownExplosive).apply {
+            type = ToolComponent.ToolType.Explosive
+            explosiveArmed = true
+        }
+
+        val cSpriteThrown = mSprite.get(thrownExplosive)
+
+        //match at same position
+        cSpriteThrown.sprite.setPosition(cSpritePlayer.sprite.x, cSpritePlayer.sprite.y)
+
+        val cVelocity = mVelocity.get(thrownExplosive)
+        cVelocity.velocity.x = 1f
+
     }
 
     private fun attackLiquidGun(tileX: Int, tileY: Int) {
@@ -570,7 +613,6 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             job.connection.close()
             return
         }
-
         //don't allow " " playername
         name = name.trim { it <= ' ' }
 

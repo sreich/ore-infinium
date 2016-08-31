@@ -278,12 +278,19 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
             when (equippedToolComp.type) {
                 ToolComponent.ToolType.Bucket -> liquidGunAttackAndSend(mouseWorldCoords)
+                ToolComponent.ToolType.Explosive -> explosiveAttackAndSend(mouseWorldCoords)
 
             //for attacking like trees and stuff. likely needs a much better system designed later on, as it evolves..
                 else ->
                     attemptToolAttackOnAnEntityAndSend(mouseWorldCoords)
             }
         }
+    }
+
+    private fun explosiveAttackAndSend(mouseWorldCoords: Vector2) {
+        clientNetworkSystem.sendEquippedItemAttack(
+                _attackType = Network.Client.PlayerEquippedItemAttack.ItemAttackType.Primary,
+                _attackPositionWorldCoords = mouseWorldCoords)
     }
 
     private fun liquidGunAttackAndSend(mouseWorldCoords: Vector2) {

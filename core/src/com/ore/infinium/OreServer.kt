@@ -186,9 +186,6 @@ class OreServer : Runnable {
         val dirtBlock = oreWorld.entityFactory.createBlockItem(OreBlock.BlockType.Dirt.oreValue)
         hotbarInventory.placeItemInNextFreeSlot(dirtBlock)
 
-        val stoneBlock = oreWorld.entityFactory.createBlockItem(OreBlock.BlockType.Stone.oreValue)
-        hotbarInventory.placeItemInNextFreeSlot(stoneBlock)
-
         val cPowerGenerator = oreWorld.entityFactory.createPowerGenerator()
         hotbarInventory.placeItemInNextFreeSlot(cPowerGenerator)
 
@@ -203,6 +200,9 @@ class OreServer : Runnable {
         }
 
         hotbarInventory.placeItemInNextFreeSlot(light)
+
+        val explosive = oreWorld.entityFactory.createExplosive()
+        hotbarInventory.placeItemInNextFreeSlot(explosive)
 
         val liquidGun = oreWorld.entityFactory.createLiquidGun()
         hotbarInventory.placeItemInNextFreeSlot(liquidGun)
