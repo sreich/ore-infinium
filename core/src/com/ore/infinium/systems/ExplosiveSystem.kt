@@ -40,7 +40,7 @@ import com.ore.infinium.util.system
 class ExplosiveSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf()) {
 
     private val mItem by require<ItemComponent>()
-    private val mTool by mapper<ToolComponent>()
+    private val mTool by require<ToolComponent>()
     private val mSprite by mapper<SpriteComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
@@ -72,7 +72,7 @@ class ExplosiveSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf())
             val bottom = (cSprite.sprite.y + halfRadius).toInt()
 
             for (x in left..right) {
-                for (y in bottom..top) {
+                for (y in top..bottom) {
                     //todo drop blocks! may wanna push that functinoality into the world
                     //as well as destroy a block range function
 

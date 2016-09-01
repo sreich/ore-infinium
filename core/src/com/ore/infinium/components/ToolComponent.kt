@@ -43,11 +43,10 @@ class ToolComponent : Component() {
     /**
      * seconds after throwing explosive before it...explodes
      */
-    //hack!!!!!!!
     @Transient @DoNotCopy @DoNotPrint var explosiveTimer = OreTimer()
 
     //time before explosion, after arming
-    var explosiveTime = 5000L
+    var explosiveTime = 2000L
 
     var explosiveArmed = false
 

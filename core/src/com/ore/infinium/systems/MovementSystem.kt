@@ -315,7 +315,6 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             }
 
             if (cSprite.sprite.rect.overlapsPadded(cSpriteOther.sprite.rect, entityPadding)) {
-                OreWorld.log("movement system", "overlaps!! entityId: $it")
                 return performEntityCollision(desiredPosition = desiredPosition, entityToMove = entity,
                                               collidingEntity = it)
             }

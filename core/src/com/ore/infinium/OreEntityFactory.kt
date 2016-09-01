@@ -161,7 +161,7 @@ class OreEntityFactory(val oreWorld: OreWorld) {
         mTool.create(entity).apply {
             type = ToolComponent.ToolType.Explosive
             blockDamage = 400f
-            explosiveRadius = 100
+            explosiveRadius = 5
         }
 
         mSprite.create(entity).apply {

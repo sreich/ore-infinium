@@ -45,8 +45,8 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private var initialized = false
 
     override fun initialize() {
-        val aspectSubscriptionManager = getWorld().aspectSubscriptionManager
-        val subscription = aspectSubscriptionManager.get(allOf())
+        val aspectSubscriptionManager = world.aspectSubscriptionManager
+        val subscription = aspectSubscriptionManager.get(allOf(LightComponent::class))
         subscription.addSubscriptionListener(LightingEntitySubscriptionListener())
     }
 
@@ -239,7 +239,6 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                     }
                 }
             }
-
             TODO("remove lighting in the area of this light/update that area")
         }
     }
