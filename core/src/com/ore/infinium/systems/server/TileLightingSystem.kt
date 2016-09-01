@@ -225,7 +225,8 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
         updateTileLighting(x, y, MAX_TILE_LIGHT_LEVEL)
-        serverNetworkSystem.sendBlockRegionInterestedPlayers(x - 20, y - 20, x + 20, y + 20)
+        serverNetworkSystem.sendBlockRegionInterestedPlayers(left = x - 20, right = x + 20, top = y - 20,
+                                                             bottom = y + 20)
     }
 
     inner class LightingEntitySubscriptionListener : OreEntitySubscriptionListener {

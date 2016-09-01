@@ -63,8 +63,25 @@ class ExplosiveSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf())
         }
 
         if (cTool.explosiveTimer.surpassed(cTool.explosiveTime)) {
+            val cSprite = mSprite.get(entityId)
             //explode!
+            val halfRadius = (cTool.explosiveRadius * 0.5f).toInt()
+            val left = (cSprite.sprite.x - halfRadius).toInt()
+            val right = (cSprite.sprite.x + halfRadius).toInt()
+            val top = (cSprite.sprite.y - halfRadius).toInt()
+            val bottom = (cSprite.sprite.y + halfRadius).toInt()
+
+            for (x in left..right) {
+                for (y in bottom..top) {
+                    //todo drop blocks! may wanna push that functinoality into the world
+                    //as well as destroy a block range function
+
+                    oreWorld.destroyBlock(x, y)
+                }
+            }
+
             oreWorld.serverDestroyEntity(entityId)
+            serverNetworkSystem.sendBlockRegionInterestedPlayers(left = left, right = right, top = top, bottom = bottom)
         }
     }
 }

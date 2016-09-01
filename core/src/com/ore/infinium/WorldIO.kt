@@ -13,8 +13,17 @@ class WorldIO(val oreWorld: OreWorld) {
             val blocks = PbBlocks.newBuilder()
             for (y in 0 until OreWorld.WORLD_SIZE_X) {
                 for (x in 0 until OreWorld.WORLD_SIZE_X) {
-                    val blockType = oreWorld.blockType(x,y)
-                    blocks.addBlockTypes(blockType.toInt())
+                    val blockType = oreWorld.blockType(x,y).toInt()
+                    blocks.addBlockTypes(blockType)
+
+                    val blockWallType = oreWorld.blockWallType(x,y).toInt()
+                    blocks.addBlockWallTypes(blockWallType)
+
+                    val blockFlags = oreWorld.blockFlags(x,y).toInt()
+                    blocks.addBlockFlags(blockFlags)
+
+                    val blockLightLevel = oreWorld.blockLightLevel(x,y).toInt()
+                    blocks.addBlockLightLevel(blockLightLevel)
                 }
             }
 

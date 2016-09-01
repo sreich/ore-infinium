@@ -556,6 +556,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cToolThrown = mTool.get(thrownExplosive).apply {
             type = ToolComponent.ToolType.Explosive
             explosiveArmed = true
+            explosiveTimer.reset()
         }
 
         val cSpriteThrown = mSprite.get(thrownExplosive)
@@ -565,7 +566,6 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val cVelocity = mVelocity.get(thrownExplosive)
         cVelocity.velocity.x = 1f
-
     }
 
     private fun attackLiquidGun(tileX: Int, tileY: Int) {
@@ -879,10 +879,10 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         serverKryo.sendToTCP(cPlayer.connectionPlayerId, sparseBlockUpdate)
     }
 
-    fun sendBlockRegionInterestedPlayers(x1: Int, y1: Int, x2: Int, y2: Int) {
+    fun sendBlockRegionInterestedPlayers(left: Int, right: Int, top: Int, bottom: Int) {
         oreWorld.players().forEach { player ->
             //todo check if they're interested
-            sendPlayerBlockRegion(player, x1, y1, x2, y2)
+            sendPlayerBlockRegion(playerEntityId = player, left = left, right = right, top = top, bottom = bottom)
         }
     }
 
@@ -898,15 +898,19 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      * *
      * @param y2
      */
-    fun sendPlayerBlockRegion(playerEntityId: Int, x: Int, y: Int, x2: Int, y2: Int) {
+    fun sendPlayerBlockRegion(playerEntityId: Int,
+                              left: Int,
+                              right: Int,
+                              top: Int,
+                              bottom: Int) {
         //FIXME: avoid array realloc, preferably
-        val blockRegion = Network.Shared.BlockRegion(x, y, x2, y2)
-        val count = (x2 - x + 1) * (y2 - y + 1)
+        val blockRegion = Network.Shared.BlockRegion(left, top, right, bottom)
+        val count = (right - left + 1) * (bottom - top + 1)
 
         blockRegion.blocks = ByteArray(count * Network.Shared.BlockRegion.BLOCK_FIELD_COUNT)
         var blockIndex = 0
-        for (blockY in y..y2) {
-            for (blockX in x..x2) {
+        for (blockY in top..bottom) {
+            for (blockX in left..right) {
 
                 //note we never send mesh type. that is not serialized to net, client side only
 

@@ -108,7 +108,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
 
         val region = loadedViewport.blockRegionInViewport()
 
-        serverNetworkSystem.sendPlayerBlockRegion(playerEntity, region.x, region.y, region.width,
-                                                    region.height)
+        serverNetworkSystem.sendPlayerBlockRegion(playerEntity, region.x, region.width, region.y,
+                                                  region.height)
     }
 }
