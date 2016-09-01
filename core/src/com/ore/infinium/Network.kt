@@ -136,6 +136,7 @@ object Network {
         kryo.registerClass<Server.ChatMessage>()
         kryo.registerClass<Server.UpdateGeneratorControlPanelStats>()
         kryo.registerClass<Server.DoorOpen>()
+        kryo.registerClass<Server.DeviceToggle>()
     }
 
     private fun registerClient(kryo: Kryo) {
@@ -155,6 +156,7 @@ object Network {
         kryo.registerClass<Client.OpenDeviceControlPanel>()
         kryo.registerClass<Client.CloseDeviceControlPanel>()
         kryo.registerClass<Client.DoorOpen>()
+        kryo.registerClass<Client.DeviceToggle>()
 
         kryo.registerClass<Client.PlayerEquippedItemAttack>()
         kryo.registerClass<Client.PlayerEquippedItemAttack.ItemAttackType>()
@@ -191,6 +193,11 @@ object Network {
                 var pos: Vector2 = Vector2()
                 //we don't need a size packet for player. we know how big one will be, always.
                            )
+
+        /**
+         * toggle running status of a device
+         */
+        class DeviceToggle(var entityId: Int = INVALID_ENTITY_ID)
 
         /**
          * sends to the client a list of inventory items to spawn
@@ -387,6 +394,11 @@ object Network {
          * without our interactions, too)
          */
         class DoorOpen(var entityId: Int = INVALID_ENTITY_ID)
+
+        /**
+         * toggle running status of a device
+         */
+        class DeviceToggle(var entityId: Int = INVALID_ENTITY_ID)
 
         /**
          * indicate that we are trying to attack whatever item is equipped,

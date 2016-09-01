@@ -663,6 +663,11 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         clientKryo.sendTCP(itemPlace)
     }
 
+    fun sendDeviceToggle(entityId: Int) {
+        val send = Network.Client.DeviceToggle(networkIdForEntityId[entityId]!!)
+        clientKryo.sendTCP(send)
+    }
+
     /**
      * used for example, for toggling a door from open/closed
      */

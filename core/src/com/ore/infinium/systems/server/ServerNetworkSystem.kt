@@ -440,6 +440,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             is Network.Client.OpenDeviceControlPanel -> receiveOpenDeviceControlPanel(job, receivedObject)
             is Network.Client.CloseDeviceControlPanel -> receiveCloseDeviceControlPanel(job, receivedObject)
             is Network.Client.DoorOpen -> receiveDoorOpen(job, receivedObject)
+            is Network.Client.DeviceToggle -> receiveDeviceToggle(job, receivedObject)
 
             is Network.Client.BlockDigBegin -> receiveBlockDigBegin(job, receivedObject)
             is Network.Client.BlockDigFinish -> receiveBlockDigFinish(job, receivedObject)
@@ -450,6 +451,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
             is Network.Client.PlayerEquippedItemAttack -> receivePlayerEquippedItemAttack(job, receivedObject)
             is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
+
 
             is FrameworkMessage.Ping -> if (receivedObject.isReply) {
 
@@ -462,6 +464,19 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 }
             }
         }
+    }
+
+    private fun receiveDeviceToggle(job: ServerNetworkSystem.NetworkJob, toggle: Network.Client.DeviceToggle) {
+        val entity = toggle.entityId
+        mDevice.ifPresent(entity) { device ->
+            device.running = !device.running
+        }
+
+        if (!mLight.has(entity)) {
+            TODO("toggling devices other than lights..not implemented")
+        }
+
+        tileLightingSystem.updateLightingForLight(entity)
     }
 
     private fun receiveDoorOpen(job: NetworkJob,

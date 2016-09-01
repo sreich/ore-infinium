@@ -65,7 +65,10 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     private lateinit var mJump: ComponentMapper<JumpComponent>
     private lateinit var mBlock: ComponentMapper<BlockComponent>
     private lateinit var mTool: ComponentMapper<ToolComponent>
+    private lateinit var mLight: ComponentMapper<LightComponent>
     private lateinit var mDevice: ComponentMapper<PowerDeviceComponent>
+    private lateinit var mPowerGenerator: ComponentMapper<PowerGeneratorComponent>
+    private lateinit var mPowerConsumer: ComponentMapper<PowerConsumerComponent>
     private lateinit var mDoor: ComponentMapper<DoorComponent>
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
@@ -231,7 +234,34 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             if (attemptActivateDoor(entity)) {
                 return
             }
+
+            if (attemptActivateLight(entity)) {
+                return
+            }
         }
+    }
+
+    //fixme, this and doors...and other devices, they could possible be combined and made more generic
+    //at least when it comes to packets sent
+    private fun attemptActivateLight(entity: Int): Boolean {
+        if (!mLight.has(entity)) {
+            return false
+        }
+
+        val cDevice = mDevice.get(entity)
+        when (cDevice.running) {
+            false -> {
+                cDevice.running = true
+            }
+
+            true -> {
+                cDevice.running = false
+            }
+        }
+
+        clientNetworkSystem.sendDeviceToggle(entity)
+
+        return true
     }
 
     private fun attemptActivateDoor(entity: Int): Boolean {
@@ -253,7 +283,13 @@ class OreClient : OreApplicationListener, OreInputProcessor {
      */
     private fun attemptActivateDeviceControlPanel(entityId: Int): Boolean {
         //todo request from server populating control panel (with items within it)
-        val deviceComp = mDevice.get(entityId) ?: return false
+        if (!mDevice.has(entityId)) {
+            return false
+        }
+
+        if (!mPowerGenerator.has(entityId)) {
+            return false
+        }
 
         if (generatorControlPanelView!!.visible) {
             if (generatorInventory!!.owningGeneratorEntityId == entityId) {
