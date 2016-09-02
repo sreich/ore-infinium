@@ -344,7 +344,7 @@ class WorldGenerator(private val world: OreWorld) {
             }
         }
 
-        val delta = 10//7
+        val delta = 7
         val peakResult = findPeaks(terrainContour, delta)
 
         //NOTE: we swap minima and maxima, because when we're going downward
@@ -1171,6 +1171,7 @@ class WorldGenerator(private val world: OreWorld) {
 
             if (lookForMax) {
                 if (value < maximum - delta) {
+                    //(x, y)
                     peakResult.maxima.put(maximumPos, value)
 
                     minimum = value
