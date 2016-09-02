@@ -38,14 +38,17 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
 import java.io.File
+import java.time.Instant
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
 import kotlin.concurrent.thread
+import kotlin.system.measureTimeMillis
 
 @Wire
 class WorldGenerator(private val world: OreWorld) {
     private lateinit var mSprite: ComponentMapper<SpriteComponent>
+    private lateinit var liquidSimulationSystem: LiquidSimulationSystem
 
     init {
         world.artemisWorld.oreInject(this)
@@ -337,14 +340,18 @@ class WorldGenerator(private val world: OreWorld) {
         for (x in 0 until worldSize.width) {
             for (y in 0 until worldSize.height) {
                 if (world.isBlockSolid(x, y)) {
-                    //x is implied via index
+                    //we create a n entire list of y values
+                    // x is implied via index.
+                    //this forms a contour (horizontal line following the terrain surface)
                     terrainContour.add(y)
                     break
                 }
             }
         }
 
-        val delta = 7
+        val delta = 4
+        //pass our contour so we can find the min/max, which will give us where our mountains
+        // and valley points are
         val peakResult = findPeaks(terrainContour, delta)
 
         //NOTE: we swap minima and maxima, because when we're going downward
@@ -353,22 +360,22 @@ class WorldGenerator(private val world: OreWorld) {
         //readd it back afterwards. so, minimas would be mountains..where
         //lava is and stuff
         for ((x, y) in peakResult.minima) {
-            fillVolcano(x, y)
+            //fillVolcano(x, y)
         }
 
-        for ((x, y) in peakResult.maxima) {
-            fillLake(x, y)
-        }
+        val lakeTime = measureTimeMillis { fillLakes(peakResult.maxima) }
+        OreWorld.log("world gen - lakes", "...lakes filled and settled. took $lakeTime ms")
+
     }
 
-    private fun fillVolcano(x: Int, y: Int) {
-        var volcanoStartY = y
-        if (world.isBlockSolid(x, y)) {
+    private fun fillVolcano(volcanoX: Int, volcanoY: Int) {
+        var volcanoStartY = volcanoY
+        if (world.isBlockSolid(volcanoX, volcanoY)) {
             //todo perhaps this should be a random chance. sometimes emerging from the top, sometimes not
 
             //start looking upwards as much as we can, to find a nice entrance point. then we'll work our way back down.
-            for (y2 in y downTo 0) {
-                if (!world.isBlockSolid(x, y2)) {
+            for (y2 in volcanoY downTo 0) {
+                if (!world.isBlockSolid(volcanoX, y2)) {
                     //here's where we begin our insert
                     volcanoStartY = y2
                     break
@@ -377,24 +384,109 @@ class WorldGenerator(private val world: OreWorld) {
         }
 
         //proceed downward
-        for (y2 in y..OreWorld.WORLD_SIZE_Y) {
+        for (y2 in volcanoY..OreWorld.WORLD_SIZE_Y) {
             //todo, maybe check to keep doing this until we hit rock.
             //or make it a random depth. but also branch outward
-            world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
-            world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+            //world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
+            //world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
         }
 
     }
 
-    private fun fillLake(x: Int, y: Int) {
-        world.setBlockType(x, y, OreBlock.BlockType.Water.oreValue)
-        world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+    private fun fillLakes(maxima: HashMap<Int, Int>) {
+        OreWorld.log("world gen - lakes", "filling lakes...")
+
+        var count = 1
+        for ((x, y) in maxima) {
+            OreWorld.log("world gen - lakes", "filling in lake $count of ${maxima.size}...")
+
+            fillLake(x, y)
+
+            OreWorld.log("world gen - lakes", "...finished filling in & settling a lake.")
+            count++
+        }
     }
 
-//public Font(@Nullable java.lang.String s,
-//            @org.intellij.lang.annotations.MagicConstant(flags={java.awt.Font.PLAIN, java.awt.Font.BOLD, java.awt.Font.ITALIC}) int i,
-//            int i1)
+    private fun fillLake(lakeX: Int, lakeY: Int) {
+        if (world.isBlockSolid(lakeX, lakeY)) {
+            error("world gen error, fill lake attempt, block solid ($lakeX, $lakeY)")
+        }
 
+        var lakeBottom = lakeY
+        for (y in lakeY..OreWorld.WORLD_SIZE_Y) {
+            //continue downward until we hit the bottom of the lake.
+            if (world.isBlockSolid(lakeX, lakeY)) {
+                lakeBottom = y
+                break
+            }
+        }
+        //hack (0..4).first {  }
+
+        val radius = 5
+        val leftMax = world.blockXSafe(lakeX - radius)
+        val rightMax = world.blockXSafe(lakeX + radius)
+
+        var lastLeft = lakeX
+        var lastRight = lakeX
+        var left = lakeX
+        var right = lakeX
+        var lakeFillY = lakeY
+
+        if (lakeX == 3) {
+            //hack for testing
+            //BREAKPOINT HERE
+            println("intersting lake!")
+        }
+
+        //now work our way up, walking from the left to right sides of this center point
+        //we will work our way up, filling stuff in, until we surpass our threshold for lake width
+        for (y in lakeBottom downTo 0) {
+            for (x in lakeX downTo leftMax) {
+                if (world.isBlockSolid(x, y)) {
+                    break
+                }
+
+                left = x
+            }
+
+            for (x in lakeX..rightMax) {
+                if (world.isBlockSolid(x, y)) {
+                    break
+                }
+
+                right = x
+            }
+
+            if (left <= leftMax || right >= rightMax) {
+                //surpassed threshold for width, stop moving up
+                break
+            }
+
+            lastLeft = left
+            lastRight = right
+            lakeFillY = y
+        }
+
+        //now we start from the left at where we want to fill (which is 100%, aka the top)
+        //moving to the right and fill downward until we hit the lake bottom
+        for (x in lastLeft..lastRight) {
+            if (world.isBlockLiquid(x, lakeFillY)) {
+                //abort! we're all filled up i think?
+                //todo we actually will want to vary on percentage of how much we get filled, so it's not all 100% filled lakes
+                break
+            }
+
+            world.setBlockType(x, lakeFillY, OreBlock.BlockType.Water.oreValue)
+            world.setLiquidLevel(x, lakeFillY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+
+            //hack, dunno...might be needed?
+            repeat(10) {
+                //hack i'm sure it needs settled out more than the exact range, but hardcoded extra range for now
+                liquidSimulationSystem.processLiquidRange(left = lastLeft - 5, right = lastRight + 5, top = lakeFillY,
+                                                          bottom = lakeBottom + 1)
+            }
+        }
+    }
 
     /**
      * threaded behind the scenes implementation of generating the world,
@@ -416,7 +508,7 @@ class WorldGenerator(private val world: OreWorld) {
         val finalOreModule: Module
 
         //hack, debug
-        val noCaves = false
+        val noCaves = true
         if (noCaves) {
             finalOreModule = generateOresThreaded(worldSize, seed, groundSelect)
         } else {
@@ -1082,7 +1174,7 @@ class WorldGenerator(private val world: OreWorld) {
      *
      * right now only blocks are handled. in the future, more stuff will be done
      */
-     fun writeWorldImage(worldGenInfo: WorldGenOutputInfo) {
+    fun writeWorldImage(worldGenInfo: WorldGenOutputInfo) {
 //hack         val xRatio = worldGenInfo.worldSize.width.toDouble() / worldSize.height.toDouble()
 
         val bufferedImage = BufferedImage(worldGenInfo.worldSize.width, worldGenInfo.worldSize.height,
@@ -1093,7 +1185,6 @@ class WorldGenerator(private val world: OreWorld) {
             for (y in 0 until worldGenInfo.worldSize.height) {
                 val blockType = world.blockType(x, y)
 
-                //if we fail to match a color, we just output its raw value, something's strange here.
                 val colorForOre = OreBlock.OreNoiseColorMap[blockType]!!
 
                 val final = colorForOre
@@ -1105,7 +1196,8 @@ class WorldGenerator(private val world: OreWorld) {
         graphics.drawLine(0, 200, worldGenInfo.worldSize.width, 200)
 
         graphics.font = Font("SansSerif", Font.PLAIN, 8)
-        graphics.drawString("inputSeed: ${worldGenInfo.seed}", 200, 10)
+        graphics.drawString("world seed: ${worldGenInfo.seed}", 200, 10)
+        graphics.drawString("date: ${Date.from(Instant.now()).toString()}", 200, 20)
 
         graphics.drawString("y=200", 10, 190)
 

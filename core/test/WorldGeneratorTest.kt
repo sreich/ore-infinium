@@ -27,6 +27,7 @@ import com.artemis.WorldConfigurationBuilder
 import com.badlogic.gdx.utils.GdxNativesLoader
 import com.ore.infinium.OreWorld
 import com.ore.infinium.WorldGenerator
+import com.ore.infinium.systems.server.LiquidSimulationSystem
 import org.junit.Ignore
 import org.junit.Test
 
@@ -39,7 +40,7 @@ class WorldGeneratorTest {
     fun generateWorldAndOutputImage() {
         GdxNativesLoader.load()
         val world = OreWorld(client = null, server = null, worldInstanceType = OreWorld.WorldInstanceType.Server)
-        world.artemisWorld = World(WorldConfigurationBuilder().build())
+        world.artemisWorld = World(WorldConfigurationBuilder().with(LiquidSimulationSystem(world)).build())
         val worldgen = WorldGenerator(world = world)
 
         worldgen.generateWorld(OreWorld.WORLD_SIZE)

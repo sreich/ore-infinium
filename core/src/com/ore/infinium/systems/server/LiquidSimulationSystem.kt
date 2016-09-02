@@ -88,6 +88,21 @@ class LiquidSimulationSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
+    fun processLiquidRange(left: Int, right: Int, top: Int, bottom: Int) {
+        val leftSafe = oreWorld.blockXSafe(left)
+        val rightSafe = oreWorld.blockXSafe(right)
+        val topSafe = oreWorld.blockYSafe(top)
+        val bottomSafe = oreWorld.blockYSafe(bottom)
+
+        for (y in bottomSafe downTo topSafe) {
+            for (x in leftSafe..rightSafe) {
+                if (oreWorld.isWater(x, y)) {
+                    processLiquidTile(x, y)
+                }
+            }
+        }
+    }
+
     private fun isLiquidFull(level: Byte) = level == MAX_LIQUID_LEVEL
 
     enum class LeftRight {
