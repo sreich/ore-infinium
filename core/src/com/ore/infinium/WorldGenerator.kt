@@ -263,7 +263,7 @@ class WorldGenerator(private val world: OreWorld) {
         val random = Random()
 
         var seed = random.nextLong()
-        seed = -789257892798191
+//        seed = -789257892798191
 
         //inputSeed = -1918956776030106261 //awesome volcanos, lakes
 
@@ -349,7 +349,7 @@ class WorldGenerator(private val world: OreWorld) {
             }
         }
 
-        val delta = 4
+        val delta = 6
         //pass our contour so we can find the min/max, which will give us where our mountains
         // and valley points are
         val peakResult = findPeaks(terrainContour, delta)
@@ -401,6 +401,9 @@ class WorldGenerator(private val world: OreWorld) {
             OreWorld.log("world gen - lakes", "filling in lake $count of ${maxima.size}...")
 
             fillLake(x, y)
+            //hack debug
+//            world.setBlockType(x, y, OreBlock.BlockType.Uranium.oreValue)
+//            world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
 
             OreWorld.log("world gen - lakes", "...finished filling in & settling a lake.")
             count++
@@ -422,7 +425,7 @@ class WorldGenerator(private val world: OreWorld) {
         }
         //hack (0..4).first {  }
 
-        val radius = 5
+        val radius = 10
         val leftMax = world.blockXSafe(lakeX - radius)
         val rightMax = world.blockXSafe(lakeX + radius)
 
@@ -431,12 +434,6 @@ class WorldGenerator(private val world: OreWorld) {
         var left = lakeX
         var right = lakeX
         var lakeFillY = lakeY
-
-        if (lakeX == 3) {
-            //hack for testing
-            //BREAKPOINT HERE
-            println("intersting lake!")
-        }
 
         //now work our way up, walking from the left to right sides of this center point
         //we will work our way up, filling stuff in, until we surpass our threshold for lake width
@@ -457,33 +454,41 @@ class WorldGenerator(private val world: OreWorld) {
                 right = x
             }
 
+            lastLeft = left
+            lastRight = right
+            lakeFillY = y
+
             if (left <= leftMax || right >= rightMax) {
                 //surpassed threshold for width, stop moving up
                 break
             }
 
-            lastLeft = left
-            lastRight = right
-            lakeFillY = y
         }
 
+        var n = 0
         //now we start from the left at where we want to fill (which is 100%, aka the top)
         //moving to the right and fill downward until we hit the lake bottom
         for (x in lastLeft..lastRight) {
-            if (world.isBlockLiquid(x, lakeFillY)) {
+//            if (world.isBlockLiquid(x, lakeFillY)) {
                 //abort! we're all filled up i think?
                 //todo we actually will want to vary on percentage of how much we get filled, so it's not all 100% filled lakes
+            //               break
+            //          }
+
+            if (n > 500) {
                 break
             }
-
+            n++
             world.setBlockType(x, lakeFillY, OreBlock.BlockType.Water.oreValue)
             world.setLiquidLevel(x, lakeFillY, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
 
             //hack, dunno...might be needed?
-            repeat(10) {
+            repeat(500) {
                 //hack i'm sure it needs settled out more than the exact range, but hardcoded extra range for now
-                liquidSimulationSystem.processLiquidRange(left = lastLeft - 5, right = lastRight + 5, top = lakeFillY,
-                                                          bottom = lakeBottom + 1)
+                val buffer = 150
+                liquidSimulationSystem.processLiquidRange(left = lastLeft - buffer, right = lastRight + buffer,
+                                                          top = lakeFillY - buffer,
+                                                          bottom = lakeBottom + buffer)
             }
         }
     }
