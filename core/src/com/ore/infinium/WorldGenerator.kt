@@ -263,6 +263,7 @@ class WorldGenerator(private val world: OreWorld) {
         val random = Random()
 
         var seed = random.nextLong()
+        seed = 413903351416513687
 //        seed = -789257892798191
 
         //inputSeed = -1918956776030106261 //awesome volcanos, lakes
@@ -359,12 +360,20 @@ class WorldGenerator(private val world: OreWorld) {
         //but it'd be more confusing to subtract the world height, and then
         //readd it back afterwards. so, minimas would be mountains..where
         //lava is and stuff
-        for ((x, y) in peakResult.minima) {
-            //fillVolcano(x, y)
-        }
+
+        val volcanoTime = measureTimeMillis { fillVolcanoes(peakResult.minima) }
+        OreWorld.log("world gen - volcanoes", "...volcanoes filled and settled. took $volcanoTime ms")
 
         val lakeTime = measureTimeMillis { fillLakes(peakResult.maxima) }
         OreWorld.log("world gen - lakes", "...lakes filled and settled. took $lakeTime ms")
+
+    }
+
+    private fun fillVolcanoes(minima: HashMap<Int, Int>) {
+        for ((x, y) in minima) {
+            //fillVolcano(x, y)
+            world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
+        }
 
     }
 
