@@ -118,8 +118,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     }
 
     fun render(elapsed: Float) {
-        //fixme the system should be disabled and enabled when this happens
-
         batch.projectionMatrix = camera.combined
         val sprite = mSprite.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
 
@@ -169,7 +167,13 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                     }
                 }
 
+
                 drawWall(lightValue, tileX, tileY, blockType, blockMeshType)
+
+                //liquid render system handles this
+                if (oreWorld.isBlockTypeLiquid(blockType)) {
+                    continue@loop
+                }
 
                 if (shouldDrawForegroundTile) {
                     drawForegroundTile(lightValue, tileX, tileY, blockType, x, y, blockMeshType)
@@ -219,24 +223,10 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         var resetColor = false
 
-        val textureName: String
-        if (oreWorld.isBlockTypeLiquid(blockType)) {
-            val liquidLevel = oreWorld.liquidLevel(x, y)
-
-            textureName = findTextureNameForLiquidBlock(x, y, blockType, blockMeshType, liquidLevel)
-
-            if (liquidLevel == 0.toByte()) {
-                //debug to show water blocks that didn't get unset
-                batch.setColor(.1f, 1f, 0f, 1f)
-                resetColor = true
-            }
-        } else {
-            textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
-        }
+        val textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
 
         val foregroundTileRegion = tileAtlasCache[textureName]
         assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
-
 
         //offset y to flip orientation around to normal
         batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
@@ -252,36 +242,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         } else {
             return TileLightingSystem.MAX_TILE_LIGHT_LEVEL
         }
-    }
-
-    fun findTextureNameForLiquidBlock(x: Int,
-                                      y: Int,
-                                      blockType: Byte,
-                                      blockMeshType: Byte,
-                                      liquidLevel: Byte): String {
-        var textureName: String ? = null
-        when (blockType) {
-            OreBlock.BlockType.Water.oreValue -> {
-                if (liquidLevel.toInt() == 0) {
-                    //for debug, for water blocks that are being bad
-                    textureName = "lava"
-                } else {
-                    textureName = "water-$liquidLevel"
-                }
-            }
-
-            OreBlock.BlockType.Lava.oreValue -> {
-                textureName = "lava"
-            }
-        }
-
-        if (textureName == null) {
-            error("tile renderer LIQUID block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
-                    blockType)}, liquidLevel: $liquidLevel")
-        }
-
-
-        return textureName
     }
 
     fun findTextureNameForBlock(x: Int, y: Int, blockType: Byte, blockMeshType: Byte): String {
