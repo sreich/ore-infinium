@@ -171,7 +171,8 @@ class OreWorld
                                      .with(PlayerSystem(this))
                                      .with(GameTickSystem(this))
                                      .with(ClientBlockDiggingSystem(this, client!!))
-                                     .with(TileRenderSystem(camera, this))
+                                     //                          .with(TileRenderSystem(camera, this))
+                                     .with(MultiRenderSystem(camera, this))
                                      .with(SpriteRenderSystem(this))
                                      .with(DebugTextRenderSystem(camera, this))
                                      .with(PowerOverlayRenderSystem(this, client!!.stage))
@@ -181,6 +182,9 @@ class OreWorld
 
         //inject the mappers into the world, before we start doing things
         artemisWorld.inject(this, true)
+
+        artemisWorld.oreInject(artemisWorld.system<MultiRenderSystem>().tileRenderSystem)
+//        artemisWorld.oreInject(liquidRenderSystem)
 
         entityFactory = OreEntityFactory(this)
     }

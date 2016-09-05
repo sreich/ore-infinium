@@ -24,104 +24,52 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
+import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.utils.IntMap
-import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
-import com.ore.infinium.systems.OreSubSystem
-import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
+import com.ore.infinium.util.RenderSystemMarker
 import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 
 @Wire
-class TileRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
-: OreSubSystem(oreWorld.artemisWorld) {
+class LiquidRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
+: BaseSystem(), RenderSystemMarker {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
     var debugRenderTileLighting = true
     var debugTilesInViewCount: Int = 0
 
-    var blockAtlas: TextureAtlas
-    var tilesAtlas: TextureAtlas
-
     private val batch: SpriteBatch
 
     private val mSprite by mapper<SpriteComponent>()
 
     private val clientNetworkSystem by system<ClientNetworkSystem>()
+    //    private val tileRenderSystem by system<TileRenderSystem>()
     private val tagManager by system<TagManager>()
 
-    // <byte mesh type, string texture name>
-    var dirtBlockMeshes: IntMap<String>
-    var stoneBlockMeshes: IntMap<String>
-    var grassBlockMeshes: IntMap<String>
-
-    val tileAtlasCache = mutableMapOf<String, TextureRegion>()
-
     init {
-
         batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
-
-        blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
-        tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
-
-        tilesAtlas.regions.forEach { tileAtlasCache[it.name] = it }
-
-        //todo obviously, we can replace this map and lookup with something cheaper, i bet.
-        //it's actually only used to fetch the string which then we will fetch from the texture atlas
-        //and we're actually not supposed to be calling the texture atlas get functions so often..
-        //since they are not cached.
-
-        //dirt 16 and beyond are transition things.
-        val dirtMax = 25
-        dirtBlockMeshes = IntMap<String>(dirtMax)
-        for (i in 0..dirtMax) {
-            val formatted = "dirt-%02d".format(i)
-            dirtBlockMeshes.put(i, formatted)
-        }
-
-        //18+ are transition helpers
-        val grassMax = 31
-        grassBlockMeshes = IntMap<String>(grassMax)
-        for (i in 0..grassMax) {
-            val formatted = "grass-%02d".format(i)
-            grassBlockMeshes.put(i, formatted)
-        }
-
-        val stoneMax = 30
-        stoneBlockMeshes = IntMap<String>(stoneMax)
-        for (i in 0..stoneMax) {
-            val formatted = "stone-%02d".format(i)
-            stoneBlockMeshes.put(i, formatted)
-        }
     }
 
     override fun processSystem() {
-        if (!clientNetworkSystem.connected) {
-            return
-        }
-
         if (!debugRenderTiles) {
             return
         }
 
-        render(world.getDelta())
+//        render(world.getDelta())
     }
-
+/*
     fun render(elapsed: Float) {
         //fixme the system should be disabled and enabled when this happens
 
         batch.projectionMatrix = camera.combined
-        val sprite = mSprite.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
+        val sprite = mSprite.get(tagManager.getEntityId(OreWorld.s_mainPlayer))
 
         val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
         //new Vector3(100, 200, 0);//positionComponent->position();
@@ -184,30 +132,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         batch.end()
     }
 
-    private fun drawWall(lightValue: Float,
-                         tileX: Float,
-                         tileY: Float,
-                         blockType: Byte,
-                         blockMeshType: Byte) {
-        if (oreWorld.isBlockTypeLiquid(blockType)) {
-            return
-        }
-
-        val wallTextureName = dirtBlockMeshes.get(0)
-        assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
-
-        //fixme of course, for wall drawing, walls should have their own textures
-        //batch.setColor(0.5f, 0.5f, 0.5f, 1f)
-        //batch.setColor(1.0f, 0f, 0f, 1f)
-        batch.setColor(lightValue, lightValue, lightValue, 1f)
-
-        //offset y to flip orientation around to normal
-        val regionWall = tileAtlasCache[wallTextureName]
-        batch.draw(regionWall, tileX, tileY + 1, 1f, -1f)
-
-        batch.setColor(1f, 1f, 1f, 1f)
-    }
-
     private fun drawForegroundTile(lightValue: Float,
                                    tileX: Float,
                                    tileY: Float,
@@ -248,14 +172,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         }
     }
 
-    private fun debugLightLevel(x: Int, y: Int): Byte {
-        if (debugRenderTileLighting) {
-            return oreWorld.blockLightLevel(x, y)
-        } else {
-            return TileLightingSystem.MAX_TILE_LIGHT_LEVEL
-        }
-    }
-
     fun findTextureNameForLiquidBlock(x: Int,
                                       y: Int,
                                       blockType: Byte,
@@ -285,85 +201,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         return textureName
     }
-
-    fun findTextureNameForBlock(x: Int, y: Int, blockType: Byte, blockMeshType: Byte): String {
-        val blockWallType = oreWorld.blockWallType(x, y)
-
-        val hasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
-
-        var textureName: String ? = null
-        when (blockType) {
-            OreBlock.BlockType.Dirt.oreValue -> {
-
-                if (hasGrass) {
-                    textureName = grassBlockMeshes.get(blockMeshType.toInt())
-                    assert(textureName != null) { "block mesh lookup failure" }
-                } else {
-                    textureName = dirtBlockMeshes.get(blockMeshType.toInt())
-                    assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
-                }
-            }
-
-            OreBlock.BlockType.Stone.oreValue -> {
-                textureName = stoneBlockMeshes.get(blockMeshType.toInt())
-                assert(textureName != null) { "block mesh lookup failure type: $blockMeshType" }
-
-            }
-
-            OreBlock.BlockType.Air.oreValue -> {
-                //not drawn/handled by this function at all
-                textureName = "(air) no texture"
-            }
-
-            OreBlock.BlockType.Coal.oreValue -> {
-                textureName = "coal"
-            }
-
-            OreBlock.BlockType.Copper.oreValue -> {
-                textureName = "copper-00"
-            }
-
-            OreBlock.BlockType.Uranium.oreValue -> {
-                textureName = "uranium"
-            }
-
-            OreBlock.BlockType.Diamond.oreValue -> {
-                textureName = "diamond"
-            }
-
-            OreBlock.BlockType.Iron.oreValue -> {
-                textureName = "iron"
-            }
-
-            OreBlock.BlockType.Sand.oreValue -> {
-                textureName = "sand"
-            }
-
-            OreBlock.BlockType.Bedrock.oreValue -> {
-                textureName = "bedrock"
-            }
-
-            OreBlock.BlockType.Silver.oreValue -> {
-                textureName = "silver"
-            }
-
-            OreBlock.BlockType.Gold.oreValue -> {
-                textureName = "gold"
-            }
-
-        //liquids not handled here, but other function
-
-            else
-            -> {
-                assert(false) { "unhandled block blockType: $blockType" }
-            }
-        }
-
-        if (textureName == null) {
-            error("tile renderer block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
-                    blockType)}")
-        }
-
-        return textureName
-    }
+    */
 }
+

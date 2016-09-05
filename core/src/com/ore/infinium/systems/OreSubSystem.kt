@@ -1,3 +1,7 @@
+package com.ore.infinium.systems
+
+import com.artemis.World
+
 /**
 MIT License
 
@@ -22,36 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-import com.ore.infinium.OreBlock
-import com.ore.infinium.OreWorld
-import org.junit.Ignore
-import org.junit.Test
-import kotlin.test.assertEquals
-
-class WorldIOTest {
-    internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server)
-
-    @Test
-    @Ignore
-    @Throws(Exception::class)
-    fun saveWorld() {
-        //setup
-        for (x in 0 until OreWorld.WORLD_SIZE_X) {
-            for (y in 0 until OreWorld.WORLD_SIZE_Y) {
-                world.setBlockType(x, y, OreBlock.BlockType.Diamond.oreValue)
-            }
-        }
-
-        world.worldIO.saveWorld()
-
-        //verify read back
-        for (x in 0 until OreWorld.WORLD_SIZE_X) {
-            for (y in 0 until OreWorld.WORLD_SIZE_Y) {
-                assertEquals(OreBlock.BlockType.Diamond.oreValue, world.blockType(x, y),
-                             "blocks array read back failed.")
-            }
-        }
-    }
-
-    //WorldGenerator.generateWorldAndOutputImage()
+abstract class OreSubSystem(val world: World) {
+    open fun process() = Unit
 }

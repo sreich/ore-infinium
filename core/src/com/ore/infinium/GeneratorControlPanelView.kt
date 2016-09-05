@@ -40,7 +40,6 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.PowerDeviceComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.isInvalidEntity
 import com.ore.infinium.util.isValidEntity
 
@@ -55,7 +54,6 @@ class GeneratorControlPanelView(stage: Stage,
                     oreWorld = world) {
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
-    private lateinit var tileRenderSystem: TileRenderSystem
 
     private lateinit var mBlock: ComponentMapper<BlockComponent>
     private lateinit var mItem: ComponentMapper<ItemComponent>

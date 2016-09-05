@@ -36,7 +36,6 @@ import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.systems.client.TileRenderSystem
 import com.ore.infinium.util.isInvalidEntity
 
 @Wire(injectInherited = true)
@@ -49,7 +48,6 @@ class InventoryView(stage: Stage,
                                                          oreWorld = world) {
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
-    private lateinit var tileRenderSystem: TileRenderSystem
 
     private lateinit var mItem: ComponentMapper<ItemComponent>
     private lateinit var mBlock: ComponentMapper<BlockComponent>

@@ -91,6 +91,10 @@ interface CopyableComponent<T : CopyableComponent<T>> {
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER)
 annotation class DoNotPrint
 
+fun TagManager.getEntityId(tag: String): Int {
+    return this.getEntity(tag).id
+}
+
 fun World.entities(aspect: Aspect.Builder): IntBag =
         this.aspectSubscriptionManager.get(aspect).entities
 

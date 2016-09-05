@@ -263,7 +263,8 @@ class WorldGenerator(private val world: OreWorld) {
         val random = Random()
 
         var seed = random.nextLong()
-        seed = 413903351416513687
+        seed = 4210630674902044763
+//////////////////        seed = 413903351416513687
 //        seed = -789257892798191
 
         //inputSeed = -1918956776030106261 //awesome volcanos, lakes
@@ -1085,27 +1086,27 @@ class WorldGenerator(private val world: OreWorld) {
             setFrequency(550.0)
         }
 
-        //limit this ore only part way down (vertically) the world, it's a slightly more rare tier
-        val mountainRestrictSelect = ModuleSelect().apply {
-            setLowSource(0.0)
-            setHighSource(1.0)
-            setControlSource(mainGradient)
-            setThreshold(0.5)
-            setFalloff(0.0)
-        }
-
         val silverRestrictMult = ModuleCombiner(ModuleCombiner.CombinerType.MULT).apply {
             setSource(0, silverFBM)
             setSource(1, silverRestrictSelect)
         }
         */
 
+        //compose mountains of some stone, but not entirely..generally
+        val mountainRestrictSelect = ModuleSelect().apply {
+            setLowSource(0.2)
+            setHighSource(mountain)
+            setControlSource(mainGradient)
+            setThreshold(0.10)
+            setFalloff(0.0)
+        }
+
         val mountainOreSelect = ModuleSelect().apply {
-            setControlSource(mountain)
+            setControlSource(mountainRestrictSelect)
             setLowSource(OreBlock.BlockType.Stone.oreValue.toDouble())
             setHighSource(dirtSelect)
             setThreshold(0.12)
-            setFalloff(0.00)
+            setFalloff(0.0)
             //setFalloff(0.8)
         }
 

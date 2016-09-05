@@ -19,7 +19,7 @@ import com.kotcrab.vis.ui.widget.VisWindow
 import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
-import com.ore.infinium.systems.client.TileRenderSystem
+import com.ore.infinium.systems.client.MultiRenderSystem
 import com.ore.infinium.util.*
 
 open class BaseInventoryView(val title: String,
@@ -52,7 +52,8 @@ open class BaseInventoryView(val title: String,
         }
 
     init {
-        val region = oreWorld.artemisWorld.system<TileRenderSystem>().tilesAtlas.findRegion("dirt-00")
+        val region = oreWorld.artemisWorld.system<MultiRenderSystem>()
+                .tileRenderSystem.tilesAtlas.findRegion("dirt-00")
 
         dragImage = VisImage(region)
         dragImage.setSize(32f, 32f)
@@ -130,8 +131,8 @@ open class BaseInventoryView(val title: String,
         val region: TextureRegion?
         if (mBlock.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = oreWorld.artemisWorld.system<TileRenderSystem>().tilesAtlas.findRegion(
-                    "$textureName-00")
+            region = oreWorld.artemisWorld.system<MultiRenderSystem>()
+                    .tileRenderSystem.tilesAtlas.findRegion("$textureName-00")
         } else {
             region = oreWorld.atlas.findRegion(textureName)
         }

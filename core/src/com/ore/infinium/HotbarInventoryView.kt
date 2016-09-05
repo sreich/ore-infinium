@@ -47,7 +47,7 @@ import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.systems.client.TileRenderSystem
+import com.ore.infinium.systems.client.MultiRenderSystem
 import com.ore.infinium.util.*
 
 class HotbarInventoryView(private val stage: Stage,
@@ -60,7 +60,8 @@ class HotbarInventoryView(private val stage: Stage,
     private val container: VisTable
     private val slots = mutableListOf<SlotElement>()
 
-    private lateinit var tileRenderSystem: TileRenderSystem
+    //    private lateinit var tileRenderSystem: TileRenderSystem
+    private lateinit var multiRenderSystem: MultiRenderSystem
 
     private lateinit var mItem: ComponentMapper<ItemComponent>
     private lateinit var mBlock: ComponentMapper<BlockComponent>
@@ -153,11 +154,11 @@ class HotbarInventoryView(private val stage: Stage,
         var region: TextureRegion?
         if (mBlock.opt(itemEntity) != null) {
             //fixme this concat is pretty...iffy
-            region = tileRenderSystem.tilesAtlas.findRegion("$textureName-00")
+            region = multiRenderSystem.tileRenderSystem.tilesAtlas.findRegion("$textureName-00")
 
             if (region == null) {
                 //try again but without -00
-                region = tileRenderSystem.tilesAtlas.findRegion(textureName)
+                region = multiRenderSystem.tileRenderSystem.tilesAtlas.findRegion(textureName)
             }
         } else {
             region = world.atlas.findRegion(textureName)

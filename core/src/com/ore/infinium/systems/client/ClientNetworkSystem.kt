@@ -72,7 +72,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     private val mDoor by mapper<DoorComponent>()
 
     private val tagManager by system<TagManager>()
-    private val tileRenderer by system<TileRenderSystem>()
+    private val multiRenderSystem by system<MultiRenderSystem>()
     private val soundSystem by system<SoundSystem>()
 
     private val netQueue = ConcurrentLinkedQueue<Any>()
@@ -357,7 +357,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         if (!mBlock.has(spawnedItemEntityId)) {
             textureRegion = oreWorld.atlas.findRegion(cSprite.textureName)
         } else {
-            textureRegion = tileRenderer.blockAtlas.findRegion(cSprite.textureName)
+            textureRegion = multiRenderSystem.tileRenderSystem.blockAtlas.findRegion(cSprite.textureName)
         }
 
         val cTool = mTool.opt(spawnedItemEntityId)
@@ -479,7 +479,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             if (!mBlock.has(localEntityId)) {
                 textureRegion = oreWorld.atlas.findRegion(cSprite.textureName)
             } else {
-                textureRegion = tileRenderer.blockAtlas.findRegion(cSprite.textureName)
+                textureRegion = multiRenderSystem.tileRenderSystem.blockAtlas.findRegion(cSprite.textureName)
             }
 
             assert(textureRegion != null) { "texture region is null on receiving entity spawn and reverse lookup of texture for this entity" }

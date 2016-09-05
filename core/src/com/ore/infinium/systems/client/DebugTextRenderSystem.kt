@@ -72,7 +72,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
     private val tagManager by system<TagManager>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()
-    private val tileRenderSystem by system<TileRenderSystem>()
+    private val multiRenderSystem by system<MultiRenderSystem>()
     private val clientBlockDiggingSystem by system<ClientBlockDiggingSystem>()
 
     //fixme this needs to be shared or something. having every damn system have its own is really dumb
@@ -213,7 +213,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         //extra spacing
         textYLeft -= TEXT_Y_SPACING
 
-        drawNextLeftString("tiles rendered: ${tileRenderSystem.debugTilesInViewCount}")
+        drawNextLeftString("tiles rendered: ${multiRenderSystem.tileRenderSystem.debugTilesInViewCount}")
 
         printBlockDebugInfo()
 
@@ -264,7 +264,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
         drawNextLeftString("blockHealth: $damagedBlockHealth / $totalBlockHealth")
 
         val texture = if (!oreWorld.isBlockTypeLiquid(blockType)) {
-            tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
+            multiRenderSystem.tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
         } else {
             ""
         }
@@ -297,7 +297,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(server.sharedFrameTime);
             debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
             debugStrings.add("F11 - gui render (${OreSettings.debugRenderGui.enabledString()})")
-            debugStrings.add("F10 - tile render (${tileRenderSystem.debugRenderTiles})")
+            debugStrings.add("F10 - tile render (${multiRenderSystem.tileRenderSystem.debugRenderTiles})")
 
             debugStrings.add("""
             |F9 - server sprite debug render.
@@ -307,7 +307,8 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
             debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabledString()})")
             debugStrings.add(
-                    "F7 - tile lighting renderer debug (${tileRenderSystem.debugRenderTileLighting.enabledString()})")
+                    "F7 - tile lighting renderer debug " +
+                            "(${multiRenderSystem.tileRenderSystem.debugRenderTileLighting.enabledString()})")
 
             debugStrings.add("F6 - system profiler toggle")
 
