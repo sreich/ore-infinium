@@ -38,13 +38,16 @@ class MultiRenderSystem(private val camera: OrthographicCamera, private val oreW
     private val clientNetworkSystem by system<ClientNetworkSystem>()
     private val tagManager by system<TagManager>()
 
-    val tileRenderSystem: TileRenderSystem
-    val liquidRenderSystem: LiquidRenderSystem
+    lateinit var tileRenderSystem: TileRenderSystem
+    lateinit var liquidRenderSystem: LiquidRenderSystem
 
     init {
+
+    }
+
+    override fun initialize() {
         tileRenderSystem = TileRenderSystem(camera, oreWorld)
         liquidRenderSystem = LiquidRenderSystem(camera, oreWorld)
-
     }
 
     override fun processSystem() {

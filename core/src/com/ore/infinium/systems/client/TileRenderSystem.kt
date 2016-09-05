@@ -24,6 +24,7 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
+import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
@@ -39,11 +40,10 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
-import com.ore.infinium.util.mapper
 
 @Wire
 class TileRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
-: OreSubSystem(oreWorld.artemisWorld) {
+: OreSubSystem() {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
@@ -55,10 +55,10 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
     private val batch: SpriteBatch
 
-    private val mSprite by mapper<SpriteComponent>()
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
-    private val clientNetworkSystem by system<ClientNetworkSystem>()
-    private val tagManager by system<TagManager>()
+    private lateinit var clientNetworkSystem: ClientNetworkSystem
+    private lateinit var tagManager: TagManager
 
     // <byte mesh type, string texture name>
     var dirtBlockMeshes: IntMap<String>
@@ -114,7 +114,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
             return
         }
 
-        render(world.getDelta())
+        render(oreWorld.artemisWorld.getDelta())
     }
 
     fun render(elapsed: Float) {

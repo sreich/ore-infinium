@@ -1,7 +1,5 @@
 package com.ore.infinium.systems
 
-import com.artemis.World
-
 /**
 MIT License
 
@@ -26,6 +24,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-abstract class OreSubSystem(val world: World) {
-    open fun process() = Unit
+abstract class OreSubSystem() {
+    open fun processSystem() = Unit
 }
