@@ -26,4 +26,8 @@ SOFTWARE.
 
 abstract class OreSubSystem() {
     open fun processSystem() = Unit
+    open fun initialize() = Unit
+    open fun begin() = Unit
+    open fun end() = Unit
+    open fun dispose() = Unit
 }

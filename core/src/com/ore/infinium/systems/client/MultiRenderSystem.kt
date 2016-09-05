@@ -39,19 +39,45 @@ class MultiRenderSystem(private val camera: OrthographicCamera, private val oreW
     private val clientNetworkSystem by system<ClientNetworkSystem>()
     private val tagManager by system<TagManager>()
 
+    lateinit var spriteRenderSystem: SpriteRenderSystem
     lateinit var tileRenderSystem: TileRenderSystem
     lateinit var liquidRenderSystem: LiquidRenderSystem
 
     init {
-
     }
 
     override fun initialize() {
+        spriteRenderSystem = SpriteRenderSystem(world = world, oreWorld = oreWorld, camera = camera)
         tileRenderSystem = TileRenderSystem(camera, oreWorld)
-        liquidRenderSystem = LiquidRenderSystem(camera, oreWorld, tileRenderSystem)
+        liquidRenderSystem = LiquidRenderSystem(camera, oreWorld, world = world,
+                                                tileRenderSystem = tileRenderSystem)
 
+        world.oreInject(spriteRenderSystem)
         world.oreInject(tileRenderSystem)
         world.oreInject(liquidRenderSystem)
+
+        spriteRenderSystem.initialize()
+        tileRenderSystem.initialize()
+        liquidRenderSystem.initialize()
+    }
+
+    //fixme god awful(prefer a list), but it works for now
+    override fun dispose() {
+        spriteRenderSystem.dispose()
+        tileRenderSystem.dispose()
+        liquidRenderSystem.dispose()
+    }
+
+    override fun begin() {
+        spriteRenderSystem.begin()
+        tileRenderSystem.begin()
+        liquidRenderSystem.begin()
+    }
+
+    override fun end() {
+        spriteRenderSystem.end()
+        tileRenderSystem.end()
+        liquidRenderSystem.end()
     }
 
     override fun processSystem() {
@@ -66,7 +92,8 @@ class MultiRenderSystem(private val camera: OrthographicCamera, private val oreW
         //hack this isn't going to like this if i call ::process i don't think
         //since that system isn't actually added to the world for processing, it's
         //just our own class. maybe not derive from it?
-        tileRenderSystem.render(elapsed)
-        liquidRenderSystem.render(elapsed)
+        spriteRenderSystem.processSystem()
+        tileRenderSystem.processSystem()
+        liquidRenderSystem.processSystem()
     }
 }

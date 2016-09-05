@@ -25,6 +25,7 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.ComponentMapper
+import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -39,7 +40,11 @@ import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
 import com.ore.infinium.util.getEntityId
 
 @Wire
-class LiquidRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld, val tileRenderSystem: TileRenderSystem)
+class LiquidRenderSystem(private val camera: OrthographicCamera,
+                         private val oreWorld: OreWorld,
+                         private val world: World,
+                         val tileRenderSystem: TileRenderSystem
+                        )
 : OreSubSystem() {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
@@ -63,7 +68,7 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
             return
         }
 
-//        render(world.getDelta())
+        render(world.getDelta())
     }
 
     fun render(elapsed: Float) {
@@ -92,7 +97,6 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
 
         debugTilesInViewCount = 0
 
-        var textureName: String? = ""
         for (y in startY until endY) {
             loop@ for (x in startX until endX) {
 

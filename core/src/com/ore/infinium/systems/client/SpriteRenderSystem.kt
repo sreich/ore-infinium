@@ -29,27 +29,34 @@ import aurelienribon.tweenengine.Tween
 import aurelienribon.tweenengine.TweenEquations
 import aurelienribon.tweenengine.TweenManager
 import aurelienribon.tweenengine.equations.Sine
-import com.artemis.BaseSystem
+import com.artemis.ComponentMapper
+import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.utils.IntBag
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.ore.infinium.OreWorld
 import com.ore.infinium.SpriteTween
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.util.*
 
 @Wire
-class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderSystemMarker {
+class SpriteRenderSystem(private val world: World,
+                         private val oreWorld: OreWorld,
+                         private val camera: OrthographicCamera)
+: OreSubSystem() {
+
     private lateinit var batch: SpriteBatch
 
-    private val mSprite by mapper<SpriteComponent>()
-    private val mItem by mapper<ItemComponent>()
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
+    private lateinit var mItem: ComponentMapper<ItemComponent>
 
-    private val tagManager by system<TagManager>()
+    private lateinit var tagManager: TagManager
     private lateinit var tweenManager: TweenManager
 
     override fun initialize() {
@@ -68,7 +75,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld) : BaseSystem(), RenderS
     }
 
     override fun begin() {
-        batch.projectionMatrix = oreWorld.camera.combined
+        batch.projectionMatrix = camera.combined
         //       batch.begin();
     }
 
