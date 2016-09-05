@@ -183,8 +183,6 @@ class OreWorld
         //inject the mappers into the world, before we start doing things
         artemisWorld.inject(this, true)
 
-        artemisWorld.oreInject(artemisWorld.system<MultiRenderSystem>().tileRenderSystem)
-//        artemisWorld.oreInject(liquidRenderSystem)
 
         entityFactory = OreEntityFactory(this)
     }

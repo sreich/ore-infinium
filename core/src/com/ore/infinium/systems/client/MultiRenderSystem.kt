@@ -30,6 +30,7 @@ import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.ore.infinium.OreWorld
 import com.ore.infinium.util.RenderSystemMarker
+import com.ore.infinium.util.oreInject
 import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
@@ -47,7 +48,10 @@ class MultiRenderSystem(private val camera: OrthographicCamera, private val oreW
 
     override fun initialize() {
         tileRenderSystem = TileRenderSystem(camera, oreWorld)
-        liquidRenderSystem = LiquidRenderSystem(camera, oreWorld)
+        liquidRenderSystem = LiquidRenderSystem(camera, oreWorld, tileRenderSystem)
+
+        world.oreInject(tileRenderSystem)
+        world.oreInject(liquidRenderSystem)
     }
 
     override fun processSystem() {
@@ -63,6 +67,6 @@ class MultiRenderSystem(private val camera: OrthographicCamera, private val oreW
         //since that system isn't actually added to the world for processing, it's
         //just our own class. maybe not derive from it?
         tileRenderSystem.render(elapsed)
-//        liquidRenderSystem.render(elapsed)
+        liquidRenderSystem.render(elapsed)
     }
 }

@@ -144,8 +144,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         debugTilesInViewCount = 0
 
         var textureName: String? = ""
-        //fixme all instances of findRegion need to be replaced with cached
-        //versions. they're allegedly quite slow
         for (y in startY until endY) {
             loop@ for (x in startX until endX) {
 
@@ -248,7 +246,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         }
     }
 
-    private fun debugLightLevel(x: Int, y: Int): Byte {
+    fun debugLightLevel(x: Int, y: Int): Byte {
         if (debugRenderTileLighting) {
             return oreWorld.blockLightLevel(x, y)
         } else {

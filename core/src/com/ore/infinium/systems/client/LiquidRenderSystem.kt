@@ -24,21 +24,23 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
-import com.artemis.BaseSystem
+import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Vector3
+import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.systems.OreSubSystem
+import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
-import com.ore.infinium.util.RenderSystemMarker
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
+import com.ore.infinium.util.getEntityId
 
 @Wire
-class LiquidRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
-: BaseSystem(), RenderSystemMarker {
+class LiquidRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld, val tileRenderSystem: TileRenderSystem)
+: OreSubSystem() {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
@@ -47,11 +49,10 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
 
     private val batch: SpriteBatch
 
-    private val mSprite by mapper<SpriteComponent>()
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
-    private val clientNetworkSystem by system<ClientNetworkSystem>()
-    //    private val tileRenderSystem by system<TileRenderSystem>()
-    private val tagManager by system<TagManager>()
+    private lateinit var clientNetworkSystem: ClientNetworkSystem
+    private lateinit var tagManager: TagManager
 
     init {
         batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
@@ -64,7 +65,7 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
 
 //        render(world.getDelta())
     }
-/*
+
     fun render(elapsed: Float) {
         //fixme the system should be disabled and enabled when this happens
 
@@ -92,8 +93,6 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
         debugTilesInViewCount = 0
 
         var textureName: String? = ""
-        //fixme all instances of findRegion need to be replaced with cached
-        //versions. they're allegedly quite slow
         for (y in startY until endY) {
             loop@ for (x in startX until endX) {
 
@@ -103,26 +102,15 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
 
                 //String textureName = World.blockAttributes.get(block.type).textureName;
 
-                val blockLightLevel = debugLightLevel(x, y)
+                val blockLightLevel = tileRenderSystem.debugLightLevel(x, y)
 
                 val tileX = x.toFloat()
                 val tileY = y.toFloat()
 
                 val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
 
-                var shouldDrawForegroundTile = true
-                if (blockType == OreBlock.BlockType.Air.oreValue) {
-                    shouldDrawForegroundTile = false
-                    if (blockWallType == OreBlock.WallType.Air.oreValue) {
-                        //can skip over entirely empty blocks
-                        continue@loop
-                    }
-                }
-
-                drawWall(lightValue, tileX, tileY, blockType, blockMeshType)
-
-                if (shouldDrawForegroundTile) {
-                    drawForegroundTile(lightValue, tileX, tileY, blockType, x, y, blockMeshType)
+                if (oreWorld.isBlockTypeLiquid(blockType)) {
+                    drawLiquidTile(lightValue, tileX, tileY, blockType, x, y, blockMeshType)
                 }
 
                 ++debugTilesInViewCount
@@ -132,11 +120,11 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
         batch.end()
     }
 
-    private fun drawForegroundTile(lightValue: Float,
-                                   tileX: Float,
-                                   tileY: Float,
-                                   blockType: Byte,
-                                   x: Int, y: Int, blockMeshType: Byte) {
+    private fun drawLiquidTile(lightValue: Float,
+                               tileX: Float,
+                               tileY: Float,
+                               blockType: Byte,
+                               x: Int, y: Int, blockMeshType: Byte) {
         //if (blockLightLevel != 0.toByte()) {
         batch.setColor(lightValue, lightValue, lightValue, 1f)
         //                   } else {
@@ -145,22 +133,17 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
 
         var resetColor = false
 
-        val textureName: String
-        if (oreWorld.isBlockTypeLiquid(blockType)) {
-            val liquidLevel = oreWorld.liquidLevel(x, y)
+        val liquidLevel = oreWorld.liquidLevel(x, y)
 
-            textureName = findTextureNameForLiquidBlock(x, y, blockType, blockMeshType, liquidLevel)
+        val textureName = findTextureNameForLiquidBlock(x, y, blockType, blockMeshType, liquidLevel)
 
-            if (liquidLevel == 0.toByte()) {
-                //debug to show water blocks that didn't get unset
-                batch.setColor(.1f, 1f, 0f, 1f)
-                resetColor = true
-            }
-        } else {
-            textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
+        if (liquidLevel == 0.toByte()) {
+            //debug to show water blocks that didn't get unset
+            batch.setColor(.1f, 1f, 0f, 1f)
+            resetColor = true
         }
 
-        val foregroundTileRegion = tileAtlasCache[textureName]
+        val foregroundTileRegion = tileRenderSystem.tileAtlasCache[textureName]
         assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
 
 
@@ -194,13 +177,12 @@ class LiquidRenderSystem(private val camera: OrthographicCamera, private val ore
         }
 
         if (textureName == null) {
-            error("tile renderer LIQUID block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
+            error("liquid renderer LIQUID block texture lookup failed. not found in mapping. blockTypeName: ${OreBlock.nameOfBlockType(
                     blockType)}, liquidLevel: $liquidLevel")
         }
 
 
         return textureName
     }
-    */
 }
 
