@@ -40,6 +40,7 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
+import com.ore.infinium.util.getEntityId
 
 @Wire
 class TileRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
@@ -117,12 +118,13 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         render(oreWorld.artemisWorld.getDelta())
     }
 
-    fun render(elapsed: Float) {
+    class TilesInView(val left: Int, val right: Int, val top: Int, val bottom: Int)
+
+    fun tilesInView(): TilesInView {
         batch.projectionMatrix = camera.combined
-        val sprite = mSprite.get(tagManager.getEntity(OreWorld.s_mainPlayer).id)
+        val sprite = mSprite.get(tagManager.getEntityId(OreWorld.s_mainPlayer))
 
         val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
-        //new Vector3(100, 200, 0);//positionComponent->position();
         val tilesBeforeX = playerPosition.x.toInt()
         val tilesBeforeY = playerPosition.y.toInt()
 
@@ -131,25 +133,27 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         tileSize.mul(camera.combined)
 
         val tilesInView = (camera.viewportHeight * camera.zoom).toInt()
-        //camera.project(tileSize);
-        val startX = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
-        val startY = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
-        val endX = (tilesBeforeX + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_X)
-        val endY = (tilesBeforeY + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_Y)
+        val left = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
+        val top = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
+        val right = (tilesBeforeX + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_X)
+        val bottom = (tilesBeforeY + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_Y)
+
+        return TilesInView(left = left, right = right, top = top, bottom = bottom)
+    }
+
+    fun render(elapsed: Float) {
+        val tilesInView = tilesInView()
 
         batch.begin()
 
         debugTilesInViewCount = 0
 
-        var textureName: String? = ""
-        for (y in startY until endY) {
-            loop@ for (x in startX until endX) {
+        for (y in tilesInView.top until tilesInView.bottom) {
+            loop@ for (x in tilesInView.left until tilesInView.right) {
 
                 val blockType = oreWorld.blockType(x, y)
                 val blockMeshType = oreWorld.blockMeshType(x, y)
                 val blockWallType = oreWorld.blockWallType(x, y)
-
-                //String textureName = World.blockAttributes.get(block.type).textureName;
 
                 val blockLightLevel = debugLightLevel(x, y)
 
@@ -170,7 +174,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
                 drawWall(lightValue, tileX, tileY, blockType, blockMeshType)
 
-                //liquid render system handles this
+                //liquid render system handles this, skip foreground tiles that are liquid
                 if (oreWorld.isBlockTypeLiquid(blockType)) {
                     continue@loop
                 }
@@ -247,6 +251,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     fun findTextureNameForBlock(x: Int, y: Int, blockType: Byte, blockMeshType: Byte): String {
         val blockWallType = oreWorld.blockWallType(x, y)
 
+        //String textureName = World.blockAttributes.get(block.type).textureName;
         val hasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
         var textureName: String ? = null

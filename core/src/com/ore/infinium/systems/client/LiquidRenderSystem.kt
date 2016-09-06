@@ -30,14 +30,12 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.math.Vector3
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
-import com.ore.infinium.util.getEntityId
 
 @Wire
 class LiquidRenderSystem(private val camera: OrthographicCamera,
@@ -72,33 +70,14 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
     }
 
     fun render(elapsed: Float) {
-        //fixme the system should be disabled and enabled when this happens
-
-        batch.projectionMatrix = camera.combined
-        val sprite = mSprite.get(tagManager.getEntityId(OreWorld.s_mainPlayer))
-
-        val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
-        //new Vector3(100, 200, 0);//positionComponent->position();
-        val tilesBeforeX = playerPosition.x.toInt()
-        val tilesBeforeY = playerPosition.y.toInt()
-
-        // determine what the size of the tiles are but convert that to our zoom level
-        val tileSize = Vector3(1f, 1f, 0f)
-        tileSize.mul(camera.combined)
-
-        val tilesInView = (camera.viewportHeight * camera.zoom).toInt()
-        //camera.project(tileSize);
-        val startX = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
-        val startY = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
-        val endX = (tilesBeforeX + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_X)
-        val endY = (tilesBeforeY + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_Y)
+        val tilesInView = tileRenderSystem.tilesInView()
 
         batch.begin()
 
         debugTilesInViewCount = 0
 
-        for (y in startY until endY) {
-            loop@ for (x in startX until endX) {
+        for (y in tilesInView.top until tilesInView.bottom) {
+            loop@ for (x in tilesInView.left until tilesInView.right) {
 
                 val blockType = oreWorld.blockType(x, y)
                 val blockMeshType = oreWorld.blockMeshType(x, y)
