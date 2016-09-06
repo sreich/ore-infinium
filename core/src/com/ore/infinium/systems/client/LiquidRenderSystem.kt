@@ -47,7 +47,6 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
-    var debugRenderTileLighting = true
     var debugTilesInViewCount: Int = 0
 
     private val batch: SpriteBatch
@@ -82,8 +81,6 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
                 val blockType = oreWorld.blockType(x, y)
                 val blockMeshType = oreWorld.blockMeshType(x, y)
                 val blockWallType = oreWorld.blockWallType(x, y)
-
-                //String textureName = World.blockAttributes.get(block.type).textureName;
 
                 val blockLightLevel = tileRenderSystem.debugLightLevel(x, y)
 
