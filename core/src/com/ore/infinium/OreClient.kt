@@ -436,7 +436,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     override fun dispose() {
-// hack,       world?.shutdown()
+        world?.shutdown()
     }
 
     override fun render() {

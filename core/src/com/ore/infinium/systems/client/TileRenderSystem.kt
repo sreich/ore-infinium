@@ -121,7 +121,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     class TilesInView(val left: Int, val right: Int, val top: Int, val bottom: Int)
 
     fun tilesInView(): TilesInView {
-        batch.projectionMatrix = camera.combined
         val sprite = mSprite.get(tagManager.getEntityId(OreWorld.s_mainPlayer))
 
         val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
@@ -142,6 +141,8 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     }
 
     fun render(elapsed: Float) {
+        batch.projectionMatrix = camera.combined
+
         val tilesInView = tilesInView()
 
         batch.begin()

@@ -69,6 +69,8 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
     }
 
     fun render(elapsed: Float) {
+        batch.projectionMatrix = camera.combined
+
         val tilesInView = tileRenderSystem.tilesInView()
 
         batch.begin()
@@ -123,6 +125,9 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
             resetColor = true
         }
 
+        batch.setColor(1f, 1f, 1f, .7f)
+        resetColor = true
+
         val foregroundTileRegion = tileRenderSystem.tileAtlasCache[textureName]
         assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
 
@@ -131,7 +136,7 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
         batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
 
         if (resetColor) {
-//            batch.setColor(1f, 1f, 1f, 1f)
+            batch.setColor(1f, 1f, 1f, 1f)
         }
     }
 
