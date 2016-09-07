@@ -67,7 +67,9 @@ import com.ore.infinium.util.*
 class OreWorld
 (var client: OreClient?,
  var server: OreServer?,
- var worldInstanceType: OreWorld.WorldInstanceType) {
+ var worldInstanceType: OreWorld.WorldInstanceType,
+ val worldSize: WorldSize) {
+
     private lateinit var tagManager: TagManager
 
     private lateinit var mPlayer: ComponentMapper<PlayerComponent>
@@ -133,8 +135,8 @@ class OreWorld
     init {
 
         //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
-        //        blocks = new OreBlock[WORLD_SIZE_Y * WORLD_SIZE_X];
-        blocks = ByteArray(WORLD_SIZE_Y * WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT)
+        //        blocks = new OreBlock[worldSize.height * worldSize.width];
+        blocks = ByteArray(worldSize.height * worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT)
     }
 
     fun init() {
@@ -214,7 +216,7 @@ class OreWorld
 
         //else {
         if (OreSettings.flatWorld) {
-            worldGenerator!!.flatWorld(WORLD_SIZE)
+            worldGenerator!!.flatWorld(worldSize)
         } else {
             generateWorld()
         }
@@ -259,16 +261,9 @@ class OreWorld
     companion object {
         const val BLOCK_SIZE_PIXELS = 16.0f
 
-
-        //TODO runtime configurable at world gen creation time,
-        //client and server obvs must agree on sizes!
-        val WORLD_SIZE = WorldSize.TestTiny
-
         /**
          * @see WorldGenerator
          */
-        val WORLD_SIZE_X = WORLD_SIZE.width
-        val WORLD_SIZE_Y = WORLD_SIZE.height
         val WORLD_SEA_LEVEL = 50
 
         const val s_itemPlacementOverlay = "itemPlacementOverlay"
@@ -300,7 +295,7 @@ class OreWorld
             connectionPlayerId = connectionId
             loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
                                             LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
-            loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y))
+            loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y), world = this@OreWorld)
         }
 
         cPlayer.playerName = playerName
@@ -326,7 +321,7 @@ class OreWorld
     }
 
     private fun generateWorld() {
-        worldGenerator!!.generateWorld(WORLD_SIZE)
+        worldGenerator!!.generateWorld(worldSize)
     }
 
     /**
@@ -351,7 +346,7 @@ class OreWorld
                               entityHeight: Float): EntitySolidGroundStatus {
         //fixme to round or truncate, that is the question
         val rightSide = (entityX + (entityWidth * 0.5f)).floor()
-        val leftSide = (entityX - (entityWidth * 0.5f)).floor().coerceIn(0, WORLD_SIZE_X - 10)
+        val leftSide = (entityX - (entityWidth * 0.5f)).floor().coerceIn(0, worldSize.width - 10)
         val bottomY = (entityY + (entityHeight * 0.5f)).floor()
 
         val solidBlocks = mutableListOf<Boolean>()
@@ -387,9 +382,9 @@ class OreWorld
      * @return
      */
     inline fun blockTypeSafely(x: Int, y: Int): Byte {
-        val safeX = x.coerceIn(0, WORLD_SIZE_X - 1)
-        val safeY = y.coerceIn(0, WORLD_SIZE_Y - 1)
-        return blocks[(safeX * WORLD_SIZE_Y + safeY) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
+        val safeX = x.coerceIn(0, worldSize.width - 1)
+        val safeY = y.coerceIn(0, worldSize.height - 1)
+        return blocks[(safeX * worldSize.height + safeY) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
     }
 
     /**
@@ -402,7 +397,7 @@ class OreWorld
      * @return
      */
     inline fun blockXSafe(x: Int): Int {
-        return x.coerceIn(0, WORLD_SIZE_X - 1)
+        return x.coerceIn(0, worldSize.width - 1)
     }
 
     /**
@@ -415,15 +410,15 @@ class OreWorld
      * @return
      */
     inline fun blockYSafe(y: Int): Int {
-        return y.coerceIn(0, WORLD_SIZE_Y - 1)
+        return y.coerceIn(0, worldSize.height - 1)
     }
 
     inline fun posXSafe(x: Int): Float {
-        return x.coerceIn(0, WORLD_SIZE_X - 1).toFloat()
+        return x.coerceIn(0, worldSize.width - 1).toFloat()
     }
 
     inline fun posYSafe(y: Int): Float {
-        return y.coerceIn(0, WORLD_SIZE_Y - 1).toFloat()
+        return y.coerceIn(0, worldSize.height - 1).toFloat()
     }
 
     inline fun isWater(x: Int, y: Int): Boolean {
@@ -434,8 +429,8 @@ class OreWorld
     inline fun blockType(x: Int, y: Int): Byte {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE) {
             "blockType index out of range. x: $x, y: $y"
         }
         */
@@ -443,35 +438,35 @@ class OreWorld
         //todo can change it to bitshift if we want to...the jvm should already know to do this though..but idk if it
         // will do it
         //blocks[(x * 2400 + y) << 2 + i] where i = 0, 1, 2 or 3
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
+        return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
     }
 
     inline fun blockWallType(x: Int, y: Int): Byte {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE) {
             "blockWallType index out of range. x: $x, y: $y"
         }
         */
 
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALL_TYPE]
+        return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALL_TYPE]
     }
 
     inline fun blockLightLevel(x: Int, y: Int): Byte {
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_LIGHT_LEVEL]
+        return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_LIGHT_LEVEL]
     }
 
     inline fun blockMeshType(x: Int, y: Int): Byte {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE) {
             "blockMeshType index out of range. x: $x, y: $y"
         }
         */
 
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE]
+        return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE]
     }
 
     /**
@@ -482,7 +477,7 @@ class OreWorld
     inline fun liquidLevel(x: Int, y: Int): Byte {
         //hack
         //val level = OreBlock.MAX_LIQUID_LEVEL.toInt().and(0b00001111)
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
+        return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
 
     }
 
@@ -511,36 +506,36 @@ class OreWorld
     //fixme we can mess with using adding bit flags and stuff to them. right now i just have
     inline fun setLiquidLevel(x: Int, y: Int, level: Byte) {
         //val level = OreBlock.MAX_LIQUID_LEVEL.toInt().and(0b00001111)
-        //val current = blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt()
+        //val current = blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt()
 
         //the flags to not wipe
         //val upper4Bits = current
         //hack
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = level
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = level
     }
 
     inline fun blockFlags(x: Int, y: Int): Byte {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "blockFlags index out of range. x: $x, y: $y"
         }
         */
 
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
+        return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS]
     }
 
     inline fun blockHasFlag(x: Int, y: Int, flag: Byte): Boolean {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "blockHasFlag index out of range. x: $x, y: $y"
         }
         */
 
-        return blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().and(
+        return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().and(
                 flag.toInt()) != 0
     }
 
@@ -551,41 +546,41 @@ class OreWorld
     inline fun setBlockType(x: Int, y: Int, type: Byte) {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE) {
             "setBlockType index out of range. x: $x, y: $y"
         }
         */
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE] = type
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE] = type
     }
 
     inline fun setBlockWallType(x: Int, y: Int, wallType: Byte) {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALLTYPE) {
             "setBlockWallType index out of range. x: $x, y: $y"
         }
         */
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALL_TYPE] = wallType
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_WALL_TYPE] = wallType
     }
 
     inline fun setBlockMeshType(x: Int, y: Int, meshType: Byte) {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE) {
             "setBlockMeshType index out of range. x: $x, y: $y"
         }
         */
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE] = meshType
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_MESHTYPE] = meshType
     }
 
     inline fun setBlockLightLevel(x: Int, y: Int, lightLevel: Byte) {
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_LIGHT_LEVEL] = lightLevel
     }
 
     /**
@@ -600,13 +595,13 @@ class OreWorld
     inline fun setBlockFlags(x: Int, y: Int, flags: Byte) {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "setBlockFlags index out of range. x: $x, y: $y"
         }
         */
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = flags
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] = flags
     }
 
     /**
@@ -621,14 +616,14 @@ class OreWorld
     inline fun unsetBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "enableBlockFlags index out of range. x: $x, y: $y"
         }
         */
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] =
-                blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().and(
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] =
+                blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().and(
                         flagToEnable.toInt()).inv().toByte()
     }
 
@@ -644,14 +639,14 @@ class OreWorld
     inline fun setBlockFlag(x: Int, y: Int, flagToEnable: Byte) {
         /*
         assert(x >= 0 && y >= 0 &&
-                       x <= WORLD_SIZE_X * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
-                       y <= WORLD_SIZE_Y * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
+                       x <= worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS &&
+                       y <= worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS) {
             "enableBlockFlags index out of range. x: $x, y: $y"
         }
         */
 
-        blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] =
-                blocks[(x * WORLD_SIZE_Y + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().or(
+        blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS] =
+                blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_FLAGS].toInt().or(
                         flagToEnable.toInt()).toByte()
     }
 
@@ -662,7 +657,7 @@ class OreWorld
     inline fun destroyBlock(x: Int, y: Int) {
         setBlockType(x, y, OreBlock.BlockType.Air.oreValue)
         setBlockMeshType(x, y, 0)
-        //wall type doesn't get nulled out. i think that's what we want
+        //wall type doesn't get nulled out. i think that's what we want, to preserve underground wall tiles
         setBlockFlags(x, y, 0)
     }
 

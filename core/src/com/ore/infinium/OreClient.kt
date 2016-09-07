@@ -391,7 +391,9 @@ class OreClient : OreApplicationListener, OreInputProcessor {
      * immediately hops into hosting and joining its own local server
      */
     private fun hostAndJoin() {
-        server = OreServer()
+        val worldSize = OreWorld.WorldSize.TestTiny
+
+        server = OreServer(worldSize)
         serverThread = Thread(server, "main server thread")
         serverThread!!.start()
 
@@ -404,7 +406,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         }
 
         //call system, if returns false, fail and show:
-        world = OreWorld(this, server, OreWorld.WorldInstanceType.ClientHostingServer)
+        world = OreWorld(this, server, OreWorld.WorldInstanceType.ClientHostingServer, worldSize)
         world!!.init()
         world!!.artemisWorld.inject(this)
 

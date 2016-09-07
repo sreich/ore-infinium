@@ -81,9 +81,9 @@ class WorldGenerator(private val world: OreWorld) {
     private fun generateTrees() {
         /*
         var bottomY = (pos.y + (size.y * 0.5f)).toInt()
-        val leftX = (pos.x - (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_X)
-        val rightX = (pos.x + (size.x * 0.5f)).toInt().coerceIn(0, WORLD_SIZE_Y)
-        for (y in bottomY..WORLD_SIZE_Y)
+        val leftX = (pos.x - (size.x * 0.5f)).toInt().coerceIn(0, worldSize.width)
+        val rightX = (pos.x + (size.x * 0.5f)).toInt().coerceIn(0, worldSize.height)
+        for (y in bottomY..worldSize.height)
         {
             for (x in leftX..rightX) {
 
@@ -101,7 +101,7 @@ class WorldGenerator(private val world: OreWorld) {
         */
 
         val rand = RandomXS128()
-        //        for (int y = 0; y < WORLD_SIZE_Y; ++y) {
+        //        for (int y = 0; y < worldSize.height; ++y) {
         //       }
         //randomRange(, 20, rand)
 
@@ -112,7 +112,7 @@ class WorldGenerator(private val world: OreWorld) {
 
         var treePlanted = true
         var tree: Int? = null
-        for (x in 0..OreWorld.WORLD_SIZE_X - 50 step 4) {
+        for (x in 0..world.worldSize.width - 50 step 4) {
 
             //we reuse the previous tree, if not planted, since we have to spawn them to know how big they
             //may end up being. but we have to know the size to know where to place them,
@@ -125,7 +125,7 @@ class WorldGenerator(private val world: OreWorld) {
             val cSprite = mSprite.get(tree!!)
             val halfTreeHeight = cSprite.sprite.height
 
-            treeY@ for (y in 0..OreWorld.WORLD_SIZE_Y - 50) {
+            treeY@ for (y in 0..world.worldSize.height - 50) {
                 val treeX = x.toFloat()
                 val treeY = y.toFloat()
 
@@ -161,9 +161,9 @@ class WorldGenerator(private val world: OreWorld) {
      * world gen, generates the initial grass of the world
      */
     private fun generateGrassTiles() {
-        for (x in 0 until OreWorld.WORLD_SIZE_X) {
+        for (x in 0 until world.worldSize.width) {
             var y = 0
-            while (y < OreWorld.WORLD_SIZE_Y) {
+            while (y < world.worldSize.height) {
                 val blockType = world.blockType(x, y)
 
                 //fixme check biomes and their ranges
@@ -174,15 +174,15 @@ class WorldGenerator(private val world: OreWorld) {
                     if (topBlockType == OreBlock.BlockType.Air.oreValue) {
                         world.setBlockFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
-                        y = OreWorld.WORLD_SIZE_Y
+                        y = world.worldSize.height
                     }
                 }
                 ++y
             }
         }
 
-        for (x in 0 until OreWorld.WORLD_SIZE_X) {
-            for (y in 0 until OreWorld.WORLD_SIZE_Y) {
+        for (x in 0 until world.worldSize.width) {
+            for (y in 0 until world.worldSize.height) {
                 val blockType = world.blockType(x, y)
 
                 if (blockType == OreBlock.BlockType.Dirt.oreValue && world.blockHasFlag(x, y,
@@ -394,7 +394,7 @@ class WorldGenerator(private val world: OreWorld) {
         }
 
         //proceed downward
-        for (y2 in volcanoY..OreWorld.WORLD_SIZE_Y) {
+        for (y2 in volcanoY..world.worldSize.height) {
             //todo, maybe check to keep doing this until we hit rock.
             //or make it a random depth. but also branch outward
             //world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
@@ -426,7 +426,7 @@ class WorldGenerator(private val world: OreWorld) {
         }
 
         var lakeBottom = lakeY
-        for (y in lakeY..OreWorld.WORLD_SIZE_Y) {
+        for (y in lakeY..world.worldSize.height) {
             //continue downward until we hit the bottom of the lake.
             if (world.isBlockSolid(lakeX, lakeY)) {
                 lakeBottom = y

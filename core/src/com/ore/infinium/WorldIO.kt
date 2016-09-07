@@ -19,8 +19,8 @@ class WorldIO(val oreWorld: OreWorld) {
 
     private fun writeWorldHeader(fs: FileOutputStream) {
         val header = PbWorldHeader.newBuilder().apply {
-            sizeX = OreWorld.WORLD_SIZE_X
-            sizeY = OreWorld.WORLD_SIZE_Y
+            sizeX = oreWorld.worldSize.width
+            sizeY = oreWorld.worldSize.height
             worldName = "TEST WORLD NAME"
             worldSeed = 123456789L
         }.build()
@@ -30,8 +30,8 @@ class WorldIO(val oreWorld: OreWorld) {
 
     private fun writeWorldData(fs: FileOutputStream) {
         val blocks = PbBlocks.newBuilder()
-        for (y in 0 until OreWorld.WORLD_SIZE_X) {
-            for (x in 0 until OreWorld.WORLD_SIZE_X) {
+        for (y in 0 until oreWorld.worldSize.width) {
+            for (x in 0 until oreWorld.worldSize.width) {
                 val blockType = oreWorld.blockType(x, y).toInt()
                 blocks.addBlockTypes(blockType)
 

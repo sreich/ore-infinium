@@ -134,8 +134,8 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         val tilesInView = (camera.viewportHeight * camera.zoom).toInt()
         val left = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
         val top = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
-        val right = (tilesBeforeX + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_X)
-        val bottom = (tilesBeforeY + tilesInView + 2).coerceAtMost(OreWorld.WORLD_SIZE_Y)
+        val right = (tilesBeforeX + tilesInView + 2).coerceAtMost(oreWorld.worldSize.width)
+        val bottom = (tilesBeforeY + tilesInView + 2).coerceAtMost(oreWorld.worldSize.height)
 
         return TilesInView(left = left, right = right, top = top, bottom = bottom)
     }
@@ -167,7 +167,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                 if (blockType == OreBlock.BlockType.Air.oreValue) {
                     shouldDrawForegroundTile = false
                     if (blockWallType == OreBlock.WallType.Air.oreValue) {
-                        //can skip over entirely empty blocks
+                        //we can skip over entirely empty blocks
                         continue@loop
                     }
                 }

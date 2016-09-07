@@ -28,13 +28,14 @@ import com.artemis.Aspect
 import com.artemis.annotations.Wire
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.ServerNetworkSystem
-import net.mostlyoriginal.api.utils.QuadTree
-import com.ore.infinium.util.require
-import com.ore.infinium.util.mapper
-import com.ore.infinium.util.system
 import com.ore.infinium.util.ifPresent
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.require
+import com.ore.infinium.util.system
+import net.mostlyoriginal.api.utils.QuadTree
 
 @Wire(failOnNull = false)
 /**
@@ -58,7 +59,7 @@ class SpatialSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all
 
     init {
 
-        quadTree = QuadTree(0f, 0f, OreWorld.WORLD_SIZE_X.toFloat(), OreWorld.WORLD_SIZE_Y.toFloat())
+        quadTree = QuadTree(0f, 0f, oreWorld.worldSize.width.toFloat(), oreWorld.worldSize.height.toFloat())
     }
 
     override fun removed(entityId: Int) {

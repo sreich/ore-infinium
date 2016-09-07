@@ -31,7 +31,7 @@ import com.ore.infinium.util.isNegative
 /**
  * Entities and tiles within this region should be assumed loaded (within reason)
  */
-class LoadedViewport {
+class LoadedViewport() {
 
     //x, y, top left. in # of blocks (index units)
     var rect: Rectangle = Rectangle()
@@ -40,18 +40,18 @@ class LoadedViewport {
      * @param pos
      * *         center point
      */
-    fun centerOn(pos: Vector2) {
+    fun centerOn(pos: Vector2, world: OreWorld) {
         val halfWidth = (MAX_VIEWPORT_WIDTH / 2).toFloat()
         val halfHeight = (MAX_VIEWPORT_HEIGHT / 2).toFloat()
 
-        rect.x = (pos.x - halfWidth).coerceIn(0f, OreWorld.WORLD_SIZE_X - 1f)
-        rect.y = (pos.y - halfHeight).coerceIn(0f, OreWorld.WORLD_SIZE_Y - 1f)
+        rect.x = (pos.x - halfWidth).coerceIn(0f, world.worldSize.width - 1f)
+        rect.y = (pos.y - halfHeight).coerceIn(0f, world.worldSize.height - 1f)
 
-        rect.width = (pos.x + halfWidth).coerceIn(0f, OreWorld.WORLD_SIZE_X - 1f)
-        rect.height = (pos.y + halfHeight).coerceIn(0f, OreWorld.WORLD_SIZE_Y - 1f)
+        rect.width = (pos.x + halfWidth).coerceIn(0f, world.worldSize.width - 1f)
+        rect.height = (pos.y + halfHeight).coerceIn(0f, world.worldSize.height - 1f)
 
-        assert (!rect.height.isNegative() && !rect.width.isNegative()
-                        && !rect.x.isNegative() && !rect.y.isNegative()) {
+        assert(!rect.height.isNegative() && !rect.width.isNegative()
+                       && !rect.x.isNegative() && !rect.y.isNegative()) {
             "viewport is either negative (unlikely) or nan"
         }
     }

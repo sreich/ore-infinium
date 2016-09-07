@@ -30,7 +30,7 @@ import org.junit.Ignore
 import org.junit.Test
 
 class WorldLiquidSimulationTest {
-    internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server)
+    internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server, worldSize = OreWorld.WorldSize.TestTiny)
 
     @Test
     @Ignore

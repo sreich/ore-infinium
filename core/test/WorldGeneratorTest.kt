@@ -39,11 +39,17 @@ class WorldGeneratorTest {
     @Throws(Exception::class)
     fun generateWorldAndOutputImage() {
         GdxNativesLoader.load()
-        val world = OreWorld(client = null, server = null, worldInstanceType = OreWorld.WorldInstanceType.Server)
+
+        val worldSize = OreWorld.WorldSize.TestTiny
+
+        val world = OreWorld(client = null, server = null, worldInstanceType = OreWorld.WorldInstanceType.Server,
+                             worldSize = worldSize)
+
         world.artemisWorld = World(WorldConfigurationBuilder().with(LiquidSimulationSystem(world)).build())
+
         val worldgen = WorldGenerator(world = world)
 
-        worldgen.generateWorld(OreWorld.WORLD_SIZE)
+        worldgen.generateWorld(worldSize)
     }
 
     @Test

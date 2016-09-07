@@ -59,9 +59,10 @@ class DesktopLauncher {
 
     private fun generateWorld() {
         OreWorld.log("DesktopLauncher generateWorld", "creating server and world to generate the world and exit.")
-        val server = OreServer()
+        val worldSize = OreWorld.WorldSize.TestTiny
+        val server = OreServer(worldSize)
         val world = OreWorld(client = null, server = server,
-                             worldInstanceType = OreWorld.WorldInstanceType.Server)
+                             worldInstanceType = OreWorld.WorldInstanceType.Server, worldSize = worldSize)
 
         world.init()
 

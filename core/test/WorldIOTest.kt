@@ -29,15 +29,16 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class WorldIOTest {
-    internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server)
+    internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server, OreWorld.WorldSize.TestTiny)
 
     @Test
     @Ignore
     @Throws(Exception::class)
     fun saveWorld() {
+        val worldSize = OreWorld.WorldSize.TestTiny
         //setup
-        for (x in 0 until OreWorld.WORLD_SIZE_X) {
-            for (y in 0 until OreWorld.WORLD_SIZE_Y) {
+        for (x in 0 until worldSize.width) {
+            for (y in 0 until worldSize.height) {
                 world.setBlockType(x, y, OreBlock.BlockType.Diamond.oreValue)
             }
         }
@@ -45,8 +46,8 @@ class WorldIOTest {
         world.worldIO.saveWorld()
 
         //verify read back
-        for (x in 0 until OreWorld.WORLD_SIZE_X) {
-            for (y in 0 until OreWorld.WORLD_SIZE_Y) {
+        for (x in 0 until worldSize.width) {
+            for (y in 0 until worldSize.height) {
                 assertEquals(OreBlock.BlockType.Diamond.oreValue, world.blockType(x, y),
                              "blocks array read back failed.")
             }

@@ -79,7 +79,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         //todo max y should be a reasonable base level, not far below ground
         for (y in 0 until 200) {
-            for (x in 0 until OreWorld.WORLD_SIZE_X) {
+            for (x in 0 until oreWorld.worldSize.width) {
                 if (!oreWorld.isBlockSolid(x, y) && oreWorld.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
                     oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
                 }
@@ -87,7 +87,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         for (y in 0 until 200) {
-            for (x in 0 until OreWorld.WORLD_SIZE_X) {
+            for (x in 0 until oreWorld.worldSize.width) {
                 if (!oreWorld.isBlockSolid(x, y) && oreWorld.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
                     val lightLevel = oreWorld.blockLightLevel(x, y)
 

@@ -243,8 +243,8 @@ class TileTransitionSystem(private val camera: OrthographicCamera, private val o
     /*
     private boolean shouldGrassMesh(int sourceTileX, int sourceTileY, int nearbyTileX, int nearbyTileY) {
         boolean isMatched = false;
-        int srcIndex = MathUtils.clamp(sourceTileX * WORLD_SIZE_Y + sourceTileY, 0, WORLD_SIZE_Y * WORLD_SIZE_X - 1);
-        int nearbyIndex = MathUtils.clamp(nearbyTileX * WORLD_SIZE_Y + nearbyTileY, 0, WORLD_SIZE_Y * WORLD_SIZE_X - 1);
+        int srcIndex = MathUtils.clamp(sourceTileX * worldSize.height + sourceTileY, 0, worldSize.height * worldSize.width - 1);
+        int nearbyIndex = MathUtils.clamp(nearbyTileX * worldSize.height + nearbyTileY, 0, worldSize.height * worldSize.width - 1);
 
         if (blocks[srcIndex].type == blocks[nearbyIndex].type) {
             //todo in the future look up if it blends or not based on various thingies. not jsut "is tile same"

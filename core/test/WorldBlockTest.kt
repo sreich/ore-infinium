@@ -29,7 +29,7 @@ import org.junit.Before
 import org.junit.Test
 
 class WorldBlockTest {
-    internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server)
+    internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server, OreWorld.WorldSize.TestTiny)
 
     @Before
     fun createWorldAndInitializeBlocksArray() {

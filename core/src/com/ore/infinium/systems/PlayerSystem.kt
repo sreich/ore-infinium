@@ -94,7 +94,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         val loadedViewport = cPlayer.loadedViewport
 
         val center = Vector2(cSprite.sprite.x, cSprite.sprite.y)
-        loadedViewport.centerOn(center)
+        loadedViewport.centerOn(center, oreWorld)
 
         serverNetworkSystem.sendPlayerLoadedViewportMoved(playerEntity)
 

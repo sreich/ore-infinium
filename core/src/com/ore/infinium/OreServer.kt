@@ -32,7 +32,7 @@ import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.isValidEntity
 import java.util.concurrent.CountDownLatch
 
-class OreServer : Runnable {
+class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
     var connectHostLatch = CountDownLatch(1)
     var shutdownLatch = CountDownLatch(1)
 
@@ -66,7 +66,8 @@ class OreServer : Runnable {
     override fun run() {
         Thread.currentThread().name = "server thread (main)"
 
-        oreWorld = OreWorld(client = null, server = this, worldInstanceType = OreWorld.WorldInstanceType.Server)
+        oreWorld = OreWorld(client = null, server = this, worldInstanceType = OreWorld.WorldInstanceType.Server,
+                            worldSize = worldSize)
         oreWorld.init()
         oreWorld.artemisWorld.inject(this, true)
 
@@ -115,7 +116,7 @@ class OreServer : Runnable {
 
         //TODO:make better server player first-spawning code(in new world), find a nice spot to spawn in
         //and then TODO: (much later) make it try to load the player position from previous world data, if any.
-        val posX = OreWorld.WORLD_SIZE.width * 0.5f
+        val posX = worldSize.width * 0.5f
         var posY = 0f //start at the overground
         val tilex = posX.toInt()
         val tiley = posY.toInt()
