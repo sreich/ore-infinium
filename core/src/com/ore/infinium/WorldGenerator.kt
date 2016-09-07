@@ -76,6 +76,14 @@ class WorldGenerator(private val world: OreWorld) {
                 }
             }
         }
+
+        for (y in 0 until worldSize.height) {
+            for (x in 0 until worldSize.width) {
+                if (world.blockType(x, y) != OreBlock.BlockType.Air.oreValue) {
+                    world.setBlockWallType(x, y, OreBlock.WallType.DirtUnderground.oreValue)
+                }
+            }
+        }
     }
 
     private fun generateTrees() {
