@@ -196,10 +196,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                          tileY: Float,
                          blockType: Byte,
                          blockMeshType: Byte) {
-        if (oreWorld.isBlockTypeLiquid(blockType)) {
-            return
-        }
-
         val wallTextureName = dirtBlockMeshes.get(0)
         assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
 
