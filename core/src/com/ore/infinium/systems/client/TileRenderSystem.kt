@@ -172,8 +172,9 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                     }
                 }
 
-
-                drawWall(lightValue, tileX, tileY, blockType, blockMeshType)
+                if (blockWallType != OreBlock.WallType.Air.oreValue) {
+                    drawWall(lightValue, tileX, tileY, blockType, blockMeshType, blockWallType)
+                }
 
                 //liquid render system handles this, skip foreground tiles that are liquid
                 if (oreWorld.isBlockTypeLiquid(blockType)) {
@@ -195,10 +196,9 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                          tileX: Float,
                          tileY: Float,
                          blockType: Byte,
-                         blockMeshType: Byte) {
+                         blockMeshType: Byte, blockWallType: Byte) {
         val wallTextureName = dirtBlockMeshes.get(0)
         assert(wallTextureName != null) { "block mesh lookup failure type: $blockMeshType" }
-
         //fixme of course, for wall drawing, walls should have their own textures
         //batch.setColor(0.5f, 0.5f, 0.5f, 1f)
         //batch.setColor(1.0f, 0f, 0f, 1f)
