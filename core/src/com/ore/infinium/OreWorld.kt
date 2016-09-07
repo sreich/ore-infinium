@@ -1277,6 +1277,22 @@ class OreWorld
         val cSprite = mSprite.get(players().first())
         return Vector2(cSprite.sprite.x, cSprite.sprite.y)
     }
+
+    /**
+     * @return true if the entityId is able to be attacked.
+     *
+     * e.g. items dropped in the world are not attackable
+     */
+    fun canAttackEntity(entityId: Int): Boolean {
+        mItem.ifPresent(entityId) { cItem ->
+            if (cItem.state == ItemComponent.State.DroppedInWorld) {
+                return false
+            }
+        }
+        //don't let them attack dropped items, makes no sense
+
+        return true
+    }
 }
 
 

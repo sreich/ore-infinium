@@ -158,8 +158,6 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         parameter.size = 13
         bitmapFont_8pt = fontGenerator.generateFont(parameter)
 
-        parameter.size = 9
-
         fontGenerator.dispose()
 
         chatDialog = ChatDialog(this, stage, rootTable)
@@ -343,30 +341,19 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     private fun attemptToolAttackOnAnEntityAndSend(mouse: Vector2) {
         val entities = world!!.artemisWorld.entities(allOf()).toMutableList()
 
+        /*
         val entityToAttack = entities.filter { e ->
             val spriteComp = mSprite.get(e)
             //ignore players, we don't attack them
             !mPlayer.has(e) && !world!!.shouldIgnoreClientEntityTag(e) &&
-                    spriteComp.sprite.rect.contains(mouse) && canAttackEntity(e)
-        }.forEach { e ->
-            clientNetworkSystem.sendEntityAttack(e)
+                    spriteComp.sprite.rect.contains(mouse) && world!!.canAttackEntity(e)
         }
-    }
+        */
+        //hack, above does nothing..we should verify beforehand there's something to attack before asking the server
 
-    /**
-     * @return true if the entityId is able to be attacked.
-     *
-     * e.g. items dropped in the world are not attackable
-     */
-    private fun canAttackEntity(entityId: Int): Boolean {
-        mItem.ifPresent(entityId) { cItem ->
-            if (cItem.state == ItemComponent.State.DroppedInWorld) {
-                return false
-            }
-        }
-        //don't let them attack dropped items, makes no sense
-
-        return true
+        clientNetworkSystem.sendEquippedItemAttack(
+                _attackType = Network.Client.PlayerEquippedItemAttack.ItemAttackType.Primary,
+                _attackPositionWorldCoords = mouse)
     }
 
     /**

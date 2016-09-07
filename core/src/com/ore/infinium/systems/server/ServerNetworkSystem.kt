@@ -448,7 +448,6 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
             is Network.Client.PlayerEquipHotbarIndex -> receivePlayerEquipHotbarIndex(job, receivedObject)
             is Network.Client.InventoryDropItem -> receiveInventoryDropItem(job, receivedObject)
-            is Network.Client.EntityAttack -> receiveEntityAttack(job, receivedObject)
             is Network.Client.PlayerEquippedItemAttack -> receivePlayerEquippedItemAttack(job, receivedObject)
             is Network.Client.ItemPlace -> receiveItemPlace(job, receivedObject)
 
@@ -534,9 +533,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     }
 
     private fun receivePlayerEquippedItemAttack(job: NetworkJob,
-                                                receivedObject: Network.Client.PlayerEquippedItemAttack) {
-        val tileX = receivedObject.attackPositionWorldCoords.x.toInt()
-        val tileY = receivedObject.attackPositionWorldCoords.y.toInt()
+                                                attack: Network.Client.PlayerEquippedItemAttack) {
+        val tileX = attack.attackPositionWorldCoords.x.toInt()
+        val tileY = attack.attackPositionWorldCoords.y.toInt()
 
         val player = job.connection.playerEntityId
         val cPlayer = mPlayer.get(player)
@@ -545,10 +544,59 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cTool = mTool.get(equippedItem)
         when (cTool.type) {
             ToolComponent.ToolType.Bucket -> attackLiquidGun(tileX, tileY)
-            ToolComponent.ToolType.Explosive -> attackExplosive(pos = receivedObject.attackPositionWorldCoords,
+            ToolComponent.ToolType.Explosive -> attackExplosive(pos = attack.attackPositionWorldCoords,
                                                                 itemId = equippedItem, player = player)
 
+        //attack things like tree and things
+            ToolComponent.ToolType.Drill -> attackPosition(attackPos = attack.attackPositionWorldCoords, playerEntity=job.connection.playerEntityId)
+
             else -> TODO("not sure, this isn't implemented i guess, or this was called incorrectly")
+        }
+    }
+
+    private fun attackPosition(attackPos: Vector2, playerEntity: Int) {
+        val entities = world.entities(allOf()).toMutableList()
+
+        val entitiesToAttack = entities.filter { e ->
+            val spriteComp = mSprite.get(e)
+            //ignore players, we don't attack them
+            !mPlayer.has(e) &&
+                    spriteComp.sprite.rect.contains(attackPos) && oreWorld.canAttackEntity(e)
+        }
+
+        //more than one shouldn't happen..because that means our filtering is wrong,
+        //instead we should assert when there's more than one able to be attacked,
+        //to fix the issue
+        assert(entitiesToAttack.size <= 1)
+
+        if (entitiesToAttack.size == 0) {
+            //nothing found, ignore them
+            OreWorld.log("server network system", "player told to attack empty area (no entities found to 'handle' attack")
+            return
+        }
+
+        val entityToAttack = entitiesToAttack.first()
+
+        //check if it is a placed item, thus we cannot attack it, but rather we would dismantle it (technically destroy the entity)
+        // and drop(clone) it in the world
+        if (oreWorld.isItemPlacedInWorldOpt(entityToAttack)) {
+            cloneAndDropItem(itemToDrop = entityToAttack, playerEntityId = playerEntity)
+
+            return
+        }
+
+        val cHealth = mHealth.get(entityToAttack)
+
+        val cPlayer = mPlayer.get(playerEntity)
+
+        val equippedWeapon = cPlayer.equippedPrimaryItem
+        val itemComp = mItem.get(equippedWeapon)
+        val cTool = mTool.get(equippedWeapon)
+
+        cHealth.health -= cTool.blockDamage
+        if (cHealth.health <= 0) {
+            //appropriately kill this entity, it has no health
+            oreWorld.killEntity(entityToAttack, playerEntity)
         }
     }
 
@@ -591,29 +639,6 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             for (player in oreWorld.players()) {
                 this.sendPlayerSingleBlock(player, tileX, tileY)
             }
-        }
-    }
-
-    private fun receiveEntityAttack(job: NetworkJob, attack: Network.Client.EntityAttack) {
-        val entityToAttack = getWorld().getEntity(attack.entityId)
-        if (entityToAttack.isActive) {
-            val cHealth = mHealth.get(entityToAttack.id)
-
-            val cPlayer = mPlayer.get(job.connection.playerEntityId)
-            val playerEntity = oreWorld.playerEntityForPlayerConnectionID(cPlayer.connectionPlayerId)
-
-            val equippedWeapon = cPlayer.equippedPrimaryItem
-            val itemComp = mItem.get(equippedWeapon)
-            val cTool = mTool.get(equippedWeapon)
-
-            cHealth.health -= cTool.blockDamage
-            if (cHealth.health <= 0) {
-                //appropriately kill this entity, it has no health
-                oreWorld.killEntity(entityToAttack.id, playerEntity)
-            }
-
-        } else {
-            assert(false) { "told to delete entity that is inactive. probably malicious, or sync error" }
         }
     }
 
@@ -707,7 +732,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             return
         }
 
-        cloneAndDropItem(itemToDrop, job, cPlayer)
+        cloneAndDropItem(itemToDrop, job.connection.playerEntityId)
         //we do not send anything, because later on the network system will figure out it needs to spawn that entity
         //also, the client already knows to delete the in-inventory thing, so we're good on that as well!
     }
@@ -717,10 +742,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      *
      * does not decrement the count of the original item
      */
-    private fun cloneAndDropItem(itemToDrop: Int, job: NetworkJob, cPlayer: PlayerComponent) {
+    private fun cloneAndDropItem(itemToDrop: Int, playerEntityId: Int) {
+        val cPlayer = mPlayer.get(playerEntityId)
         val droppedItem = oreWorld.cloneEntity(itemToDrop)
 
-        val playerSprite = mSprite.get(job.connection.playerEntityId)
+        val playerSprite = mSprite.get(playerEntityId)
         val droppedItemSprite = mSprite.get(droppedItem).apply {
             //shrink the size of all dropped items, but also store the original size first, so we can revert later
             sprite.setSize(sprite.width * 0.5f, sprite.height * 0.5f)
@@ -741,6 +767,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     /**
      * drops the item from an inventory if possible and decreases its count
+     * does not clone or mark the item as dropped @see cloneAndDropItem
      */
     private fun dropInventoryItem(itemToDropIndex: Int,
                                   cPlayer: PlayerComponent,
