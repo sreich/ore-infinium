@@ -113,7 +113,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 val chatMessage = Network.Server.ChatMessage(
                         message = connection.playerName + " disconnected.",
                         sender = Chat.ChatSender.Server
-                                                            )
+                )
 
                 serverKryo.sendToAllTCP(chatMessage)
             }
@@ -193,7 +193,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 connectionId = cPlayer.connectionPlayerId,
                 playerName = cPlayer.playerName,
                 pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-                                                )
+        )
 
         serverKryo.sendToAllTCP(spawn)
     }
@@ -215,7 +215,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 connectionId = cPlayer.connectionPlayerId,
                 playerName = cPlayer.playerName,
                 pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-                                                )
+        )
 
         serverKryo.sendToTCP(connectionId, spawn)
     }
@@ -525,9 +525,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
             if (fuelSources.count() > 0) {
                 sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
-                                        inventoryType = Network.Shared.InventoryType.Generator,
-                                        owningPlayerEntityId = playerEntityId
-                                       )
+                        inventoryType = Network.Shared.InventoryType.Generator,
+                        owningPlayerEntityId = playerEntityId
+                )
             }
         }
     }
@@ -545,10 +545,10 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         when (cTool.type) {
             ToolComponent.ToolType.Bucket -> attackLiquidGun(tileX, tileY)
             ToolComponent.ToolType.Explosive -> attackExplosive(pos = attack.attackPositionWorldCoords,
-                                                                itemId = equippedItem, player = player)
+                    itemId = equippedItem, player = player)
 
         //attack things like tree and things
-            ToolComponent.ToolType.Drill -> attackPosition(attackPos = attack.attackPositionWorldCoords, playerEntity=job.connection.playerEntityId)
+            ToolComponent.ToolType.Drill -> attackPosition(attackPos = attack.attackPositionWorldCoords, playerEntity = job.connection.playerEntityId)
 
             else -> TODO("not sure, this isn't implemented i guess, or this was called incorrectly")
         }
@@ -580,7 +580,14 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         //check if it is a placed item, thus we cannot attack it, but rather we would dismantle it (technically destroy the entity)
         // and drop(clone) it in the world
         if (oreWorld.isItemPlacedInWorldOpt(entityToAttack)) {
-            cloneAndDropItem(itemToDrop = entityToAttack, playerEntityId = playerEntity)
+            val clonedItem = cloneAndDropItem(itemToDrop = entityToAttack, playerEntityId = playerEntity)
+
+            val cSpriteOriginal = mSprite.get(entityToAttack)
+            //reset position back to the original entity, that's where it should be, since the other method
+            //adjusts the position
+            mSprite.get(clonedItem).apply {
+                sprite.setPosition(cSpriteOriginal.sprite.x, cSpriteOriginal.sprite.y)
+            }
 
             return
         }
@@ -698,7 +705,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val date = SimpleDateFormat("HH:mm:ss")
         oreServer.chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message,
-                                   Chat.ChatSender.Player)
+                Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {
@@ -725,7 +732,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cPlayer = mPlayer.get(job.connection.playerEntityId)
 
         val itemToDrop = dropInventoryItem(itemToDropIndex = itemDrop.index.toInt(), cPlayer = cPlayer,
-                                           inventoryType = itemDrop.inventoryType)
+                inventoryType = itemDrop.inventoryType)
 
         if (itemToDrop == INVALID_ENTITY_ID) {
             //safety first. malicious/buggy client.
@@ -738,11 +745,16 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     }
 
     /**
-     * clones the item and drops it.
+     * clones the item and drops it. Then sets the position to the position
+     * of the given player
      *
      * does not decrement the count of the original item
+     * does not do anything with original item
+     *
+     *
+     * @return the cloned item entity that was dropped
      */
-    private fun cloneAndDropItem(itemToDrop: Int, playerEntityId: Int) {
+    private fun cloneAndDropItem(itemToDrop: Int, playerEntityId: Int): Int {
         val cPlayer = mPlayer.get(playerEntityId)
         val droppedItem = oreWorld.cloneEntity(itemToDrop)
 
@@ -762,6 +774,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             //indicate when we dropped it, so pickup system knows not to pick it up for a while after
             timeOfDropMs = TimeUtils.millis()
         }
+
+        return droppedItem
     }
 
 
@@ -1014,8 +1028,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cGen = mGenerator.get(generatorEntityId)
 
         val stats = Network.Server.UpdateGeneratorControlPanelStats(generatorEntityId = generatorEntityId,
-                                                                    fuelHealth = cGen.fuelSources!!.fuelSourceHealth,
-                                                                    supply = -1)
+                fuelHealth = cGen.fuelSources!!.fuelSourceHealth,
+                supply = -1)
 
         serverKryo.sendToTCP(cPlayer.connectionPlayerId, stats)
     }

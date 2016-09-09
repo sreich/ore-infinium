@@ -92,8 +92,8 @@ class MultiRenderSystem(private val camera: OrthographicCamera, private val oreW
         //hack this isn't going to like this if i call ::process i don't think
         //since that system isn't actually added to the world for processing, it's
         //just our own class. maybe not derive from it?
-        spriteRenderSystem.processSystem()
         tileRenderSystem.processSystem()
+        spriteRenderSystem.processSystem()
         liquidRenderSystem.processSystem()
     }
 }
