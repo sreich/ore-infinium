@@ -130,8 +130,8 @@ class WorldGenerator(private val world: OreWorld) {
                 val treeY = y.toFloat()
 
                 when (world.isEntityFullyGrounded(entityX = treeX, entityY = treeY,
-                                                  entityWidth = cSprite.sprite.width,
-                                                  entityHeight = cSprite.sprite.height)) {
+                        entityWidth = cSprite.sprite.width,
+                        entityHeight = cSprite.sprite.height)) {
                     OreWorld.EntitySolidGroundStatus.FullyEmpty -> {
                     }
 
@@ -186,7 +186,7 @@ class WorldGenerator(private val world: OreWorld) {
                 val blockType = world.blockType(x, y)
 
                 if (blockType == OreBlock.BlockType.Dirt.oreValue && world.blockHasFlag(x, y,
-                                                                                        OreBlock.BlockFlags.GrassBlock)) {
+                        OreBlock.BlockFlags.GrassBlock)) {
 
                     val topBlockType = world.blockTypeSafely(x, y - 1)
                     //OreBlock bottomBlock = blockTypeSafely(x, y + 1);
@@ -393,14 +393,38 @@ class WorldGenerator(private val world: OreWorld) {
             }
         }
 
-        //proceed downward
-        for (y2 in volcanoY..world.worldSize.height) {
-            //todo, maybe check to keep doing this until we hit rock.
-            //or make it a random depth. but also branch outward
-            //world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
-            //world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
-        }
+        val maxY = volcanoStartY + 100
 
+        //todo, maybe check to keep doing this until we hit rock.
+        //or make it a random depth. or both. but also branch outward.
+
+        var count = 0
+        //proceed downward
+        for (y in volcanoY..maxY) {
+            val x = volcanoX
+
+            //decide to start some branch(es) here
+            if (count > 5) {
+                //left side branch
+                for (x2 in x downTo x - 5) {
+                    world.setBlockType(x2, y, OreBlock.BlockType.Lava.oreValue)
+                    world.setLiquidLevel(x2, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+                }
+
+                //right side branch
+                for (x2 in x..x + 5) {
+                    world.setBlockType(x2, y, OreBlock.BlockType.Lava.oreValue)
+                    world.setLiquidLevel(x2, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+                }
+
+                count = 0
+            }
+
+            world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
+            world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
+
+            ++count
+        }
     }
 
     private fun fillLakes(maxima: HashMap<Int, Int>) {
@@ -480,8 +504,8 @@ class WorldGenerator(private val world: OreWorld) {
         //moving to the right and fill downward until we hit the lake bottom
         for (x in lastLeft..lastRight) {
 //            if (world.isBlockLiquid(x, lakeFillY)) {
-                //abort! we're all filled up i think?
-                //todo we actually will want to vary on percentage of how much we get filled, so it's not all 100% filled lakes
+            //abort! we're all filled up i think?
+            //todo we actually will want to vary on percentage of how much we get filled, so it's not all 100% filled lakes
             //               break
             //          }
 
@@ -497,8 +521,8 @@ class WorldGenerator(private val world: OreWorld) {
                 //hack i'm sure it needs settled out more than the exact range, but hardcoded extra range for now
                 val buffer = 150
                 liquidSimulationSystem.processLiquidRange(left = lastLeft - buffer, right = lastRight + buffer,
-                                                          top = lakeFillY - buffer,
-                                                          bottom = lakeBottom + buffer)
+                        top = lakeFillY - buffer,
+                        bottom = lakeBottom + buffer)
             }
         }
     }
@@ -517,8 +541,8 @@ class WorldGenerator(private val world: OreWorld) {
         val (groundSelect, highlandLowlandSelectCache, mountain) = generateTerrain(seed)
 
         val cavesModule = generateCavesThreaded(worldSize, seed,
-                                                highlandLowlandSelectCache = highlandLowlandSelectCache,
-                                                groundSelect = groundSelect)
+                highlandLowlandSelectCache = highlandLowlandSelectCache,
+                groundSelect = groundSelect)
 
         val finalOreModule: Module
 
@@ -550,8 +574,8 @@ class WorldGenerator(private val world: OreWorld) {
         ////////////////////////// lowland
 
         val lowlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.BILLOW,
-                                                ModuleBasisFunction.BasisType.GRADIENT,
-                                                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.BasisType.GRADIENT,
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(8)
             setFrequency(8.85)
             seed = inputSeed
@@ -580,8 +604,8 @@ class WorldGenerator(private val world: OreWorld) {
 
         ////////////////////////// highland
         val highlandShapeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                                 ModuleBasisFunction.BasisType.GRADIENT,
-                                                 ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.BasisType.GRADIENT,
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(8)
             setFrequency(9.0)
             seed = inputSeed + 1
@@ -612,8 +636,8 @@ class WorldGenerator(private val world: OreWorld) {
         /////////////////// mountain 1
 
         val mountainShapeFractal1 = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
-                                                  ModuleBasisFunction.BasisType.GRADIENT,
-                                                  ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.BasisType.GRADIENT,
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(8)
             setFrequency(2.0)
             seed = inputSeed + 100
@@ -644,8 +668,8 @@ class WorldGenerator(private val world: OreWorld) {
         /////////////////// mountain 2
 
         val mountainShapeFractal2 = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI,
-                                                  ModuleBasisFunction.BasisType.GRADIENT,
-                                                  ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.BasisType.GRADIENT,
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(8)
             setFrequency(2.0)
             seed = inputSeed + 2
@@ -676,8 +700,8 @@ class WorldGenerator(private val world: OreWorld) {
         //////////////// terrain
 
         val terrainTypeFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                               ModuleBasisFunction.BasisType.GRADIENT,
-                                               ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.BasisType.GRADIENT,
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(9)
             setFrequency(1.825)
             seed = inputSeed + 3
@@ -701,8 +725,8 @@ class WorldGenerator(private val world: OreWorld) {
 
         /////////////// lakes
         val lakeFBM = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                    ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.BasisType.GRADIENT,
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(6)
             setFrequency(1.005)
             seed = inputSeed + 4
@@ -796,9 +820,9 @@ class WorldGenerator(private val world: OreWorld) {
         }
 
         return GenerateTerrainResult(groundSelect = groundSelect,
-                                     highlandLowlandSelectCache = highlandLowlandSelectCache,
-                                     mountain = mountainTerrain1
-                                    )
+                highlandLowlandSelectCache = highlandLowlandSelectCache,
+                mountain = mountainTerrain1
+        )
     }
 
     private fun generateCavesThreaded(worldSize: OreWorld.WorldSize,
@@ -806,7 +830,7 @@ class WorldGenerator(private val world: OreWorld) {
                                       highlandLowlandSelectCache: Module,
                                       groundSelect: Module): Module {
         val caveShape = ModuleFractal(ModuleFractal.FractalType.RIDGEMULTI, ModuleBasisFunction.BasisType.GRADIENT,
-                                      ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(1)
             setFrequency(8.0)
             seed = inputSeed
@@ -822,8 +846,8 @@ class WorldGenerator(private val world: OreWorld) {
         }
 
         val cavePerturbFractal = ModuleFractal(ModuleFractal.FractalType.FBM,
-                                               ModuleBasisFunction.BasisType.GRADIENT,
-                                               ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.BasisType.GRADIENT,
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             setNumOctaves(6)
             setFrequency(3.0)
             seed = inputSeed + 1
@@ -870,7 +894,7 @@ class WorldGenerator(private val world: OreWorld) {
         mainGradient.setGradient(0.0, 0.0, 0.0, 1.0)
 
         val copperFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                      ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             seed = inputSeed
             setNumOctaves(4)
             setFrequency(450.0)
@@ -896,7 +920,7 @@ class WorldGenerator(private val world: OreWorld) {
         //////////////////////////////////////////////// COAL
 
         val coalFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             seed = inputSeed + 1
             setNumOctaves(7)
             setFrequency(250.0)
@@ -912,7 +936,7 @@ class WorldGenerator(private val world: OreWorld) {
 
         /////////////////////////////////////////////// IRON
         val ironFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             seed = inputSeed + 2
             setNumOctaves(5)
             setFrequency(250.0)
@@ -931,7 +955,7 @@ class WorldGenerator(private val world: OreWorld) {
         ///////////////////////////////////////////////////////// SILVER
 
         val silverFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                      ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             seed = inputSeed + 3
             setNumOctaves(5)
             setFrequency(550.0)
@@ -961,7 +985,7 @@ class WorldGenerator(private val world: OreWorld) {
 
         ////////////////////////////////////////////////////////////
         val goldFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                    ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             seed = inputSeed + 4
             setNumOctaves(5)
             setFrequency(550.0)
@@ -992,7 +1016,7 @@ class WorldGenerator(private val world: OreWorld) {
         ////////////////////////////////////////////////////////////////////
 
         val uraniumFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                       ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             seed = inputSeed + 5
             setNumOctaves(5)
             setFrequency(950.0)
@@ -1023,7 +1047,7 @@ class WorldGenerator(private val world: OreWorld) {
         ///////////////////////////////////////////////////////////////////////
 
         val diamondFBM = ModuleFractal(ModuleFractal.FractalType.FBM, ModuleBasisFunction.BasisType.GRADIENT,
-                                       ModuleBasisFunction.InterpolationType.QUINTIC).apply {
+                ModuleBasisFunction.InterpolationType.QUINTIC).apply {
             seed = inputSeed + 6
             setNumOctaves(5)
             setFrequency(650.0)
@@ -1205,7 +1229,7 @@ class WorldGenerator(private val world: OreWorld) {
 
                 val xRatio = worldSize.width.toDouble() / worldSize.height.toDouble()
                 val value = finalModule.get(x.toDouble() / worldSize.width.toDouble() * xRatio,
-                                            y.toDouble() / worldSize.height.toDouble())
+                        y.toDouble() / worldSize.height.toDouble())
 
                 //NOTE: we truncate the double to a byte. we don't care if it's 3.0 or 3.1 for an ore value,
                 //but obviously we need it to be a flat number.
@@ -1236,7 +1260,7 @@ class WorldGenerator(private val world: OreWorld) {
 //hack         val xRatio = worldGenInfo.worldSize.width.toDouble() / worldSize.height.toDouble()
 
         val bufferedImage = BufferedImage(worldGenInfo.worldSize.width, worldGenInfo.worldSize.height,
-                                          BufferedImage.TYPE_INT_RGB)
+                BufferedImage.TYPE_INT_RGB)
         val graphics = bufferedImage.graphics
 
         for (x in 0 until worldGenInfo.worldSize.width) {
