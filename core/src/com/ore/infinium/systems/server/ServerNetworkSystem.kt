@@ -589,6 +589,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 sprite.setPosition(cSpriteOriginal.sprite.x, cSpriteOriginal.sprite.y)
             }
 
+            //destroy original
+            oreWorld.destroyEntity(entityToAttack)
+
             return
         }
 

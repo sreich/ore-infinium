@@ -238,8 +238,12 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                         return
                     }
                 }
+
+                updateLightingForLight(entity)
             }
-            TODO("remove lighting in the area of this light/update that area")
+
+            //fixme
+            //TODO("remove lighting in the area of this light/update that area")
         }
     }
 }
