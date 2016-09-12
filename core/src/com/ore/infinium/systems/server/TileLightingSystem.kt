@@ -136,6 +136,13 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         diamondSunlightFloodFill(x, y - 1, lightLevel)
     }
 
+    fun updateTileLightingRemove(x: Int, y: Int, lightLevel: Byte) {
+        diamondFloodFillLightRemove(x - 1, y, lightLevel)
+        diamondFloodFillLightRemove(x + 1, y, lightLevel)
+        diamondFloodFillLightRemove(x, y + 1, lightLevel)
+        diamondFloodFillLightRemove(x, y - 1, lightLevel)
+    }
+
     // todo find a good number, this is a complete guess.
     // this happens when the world is mostly air, stack overflow otherwise
     val MAX_LIGHTING_DEPTH = 20
@@ -157,7 +164,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val wallType = oreWorld.blockWallType(x, y)
 
         var lightAttenuation = when {
-            //fixme: this can't be right? 0? what if we change this to 1 too? how does this affect regular lights
+        //fixme: this can't be right? 0? what if we change this to 1 too? how does this affect regular lights
             blockType == OreBlock.BlockType.Air.oreValue && wallType == OreBlock.WallType.Air.oreValue -> 0
         //dug-out underground bleeds off, but not as quickly as a solid block
             blockType == OreBlock.BlockType.Air.oreValue && wallType != OreBlock.WallType.Air.oreValue -> 1
@@ -191,6 +198,37 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         diamondSunlightFloodFill(x, y + 1, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
     }
 
+    private fun diamondFloodFillLightRemove(x: Int,
+                                            y: Int,
+                                            lastLightLevel: Byte,
+                                            firstRun: Boolean = true,
+                                            depth: Int = 0) {
+        if (oreWorld.blockXSafe(x) != x || oreWorld.blockYSafe(y) != y) {
+            //out of world bounds, abort
+            return
+        }
+
+        val blockType = oreWorld.blockType(x, y)
+        val wallType = oreWorld.blockWallType(x, y)
+
+        //light bleed off value
+        val newLightLevel = 0.toByte()
+
+        val currentLightLevel = oreWorld.blockLightLevel(x, y)
+
+        oreWorld.setBlockLightLevel(x, y, newLightLevel)
+
+        if (depth == MAX_LIGHTING_DEPTH) {
+            return
+        }
+
+        val newDepth = depth + 1
+        diamondFloodFillLightRemove(x - 1, y, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
+        diamondFloodFillLightRemove(x + 1, y, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
+        diamondFloodFillLightRemove(x, y - 1, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
+        diamondFloodFillLightRemove(x, y + 1, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
+    }
+
     override fun processSystem() {
         if (!initialized) {
             computeWorldTileLighting()
@@ -218,14 +256,21 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     fun updateLightingForLight(entityId: Int) {
         //todo
         val cDevice = mDevice.get(entityId)
-        //if (device.running)
+        var lightLevel = MAX_TILE_LIGHT_LEVEL
+        if (!cDevice.running) {
+            lightLevel = 0
+        }
 
         val cSprite = mSprite.get(entityId)
         val x = cSprite.sprite.x.toInt()
         val y = cSprite.sprite.y.toInt()
 
-        oreWorld.setBlockLightLevel(x, y, MAX_TILE_LIGHT_LEVEL)
-        updateTileLighting(x, y, MAX_TILE_LIGHT_LEVEL)
+        oreWorld.setBlockLightLevel(x, y, lightLevel)
+        if (lightLevel == 0.toByte()) {
+//            updateTileLightingRemove(x, y, lightLevel)
+        } else {
+            updateTileLighting(x, y, lightLevel)
+        }
         serverNetworkSystem.sendBlockRegionInterestedPlayers(left = x - 20, right = x + 20, top = y - 20,
                                                              bottom = y + 20)
     }
@@ -240,7 +285,12 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                     }
                 }
 
-                updateLightingForLight(entity)
+                //turn it off before we update the lighting
+                mDevice.get(entity).running = false
+
+                val cSprite = mSprite.get(entity)
+                updateTileLightingRemove(cSprite.sprite.x.toInt(), cSprite.sprite.y.toInt(), 0)
+//                updateLightingForLight(entity)
             }
 
             //fixme
