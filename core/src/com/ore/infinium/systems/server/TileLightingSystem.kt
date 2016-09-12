@@ -157,6 +157,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         val wallType = oreWorld.blockWallType(x, y)
 
         var lightAttenuation = when {
+            //fixme: this can't be right? 0? what if we change this to 1 too? how does this affect regular lights
             blockType == OreBlock.BlockType.Air.oreValue && wallType == OreBlock.WallType.Air.oreValue -> 0
         //dug-out underground bleeds off, but not as quickly as a solid block
             blockType == OreBlock.BlockType.Air.oreValue && wallType != OreBlock.WallType.Air.oreValue -> 1
