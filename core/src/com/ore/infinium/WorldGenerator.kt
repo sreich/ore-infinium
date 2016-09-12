@@ -335,7 +335,7 @@ class WorldGenerator(private val world: OreWorld) {
             }
         }
 
-        //generateLakesAndVolcanoes(worldSize)
+        generateLakesAndVolcanoes(worldSize)
 
         counter.stop()
         val s = "total world generation finished after ${counter.current} seconds"
