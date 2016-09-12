@@ -380,7 +380,7 @@ class WorldGenerator(private val world: OreWorld) {
 
     private fun fillVolcanoes(minima: HashMap<Int, Int>) {
         for ((x, y) in minima) {
-            //fillVolcano(x, y)
+            fillVolcano(x, y)
             world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
         }
 
@@ -401,7 +401,7 @@ class WorldGenerator(private val world: OreWorld) {
             }
         }
 
-        val maxY = volcanoStartY + 100
+        val maxY = world.blockYSafe(volcanoStartY + 100)
 
         //todo, maybe check to keep doing this until we hit rock.
         //or make it a random depth. or both. but also branch outward.
