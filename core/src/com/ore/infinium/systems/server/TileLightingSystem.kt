@@ -44,11 +44,9 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private var initialized = false
 
-    override fun initialize() {
-        val aspectSubscriptionManager = world.aspectSubscriptionManager
-        val subscription = aspectSubscriptionManager.get(allOf(LightComponent::class))
-        subscription.addSubscriptionListener(LightingEntitySubscriptionListener())
-    }
+    // todo find a good number, this is a complete guess.
+    // this happens when the world is mostly air, stack overflow otherwise
+    val MAX_LIGHTING_DEPTH = 20
 
     companion object {
         /**
@@ -59,6 +57,12 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
          * haven't decided what for
          */
         const val MAX_TILE_LIGHT_LEVEL: Byte = 8
+    }
+
+    override fun initialize() {
+        val aspectSubscriptionManager = world.aspectSubscriptionManager
+        val subscription = aspectSubscriptionManager.get(allOf(LightComponent::class))
+        subscription.addSubscriptionListener(LightingEntitySubscriptionListener())
     }
 
     /**
@@ -143,10 +147,6 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         diamondFloodFillLightRemove(x, y - 1, lightLevel)
     }
 
-    // todo find a good number, this is a complete guess.
-    // this happens when the world is mostly air, stack overflow otherwise
-    val MAX_LIGHTING_DEPTH = 20
-    //fixme create a max depth so we don't stack overflow when there's too many air blocks
     /**
      * @param depth current depth the function is going to (so we blowing out the stack)
      */
@@ -207,6 +207,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //out of world bounds, abort
             return
         }
+        OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "begin, depth: $depth")
 
         val blockType = oreWorld.blockType(x, y)
         val wallType = oreWorld.blockWallType(x, y)
@@ -214,13 +215,13 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //light bleed off value
         val newLightLevel = 0.toByte()
 
-        val currentLightLevel = oreWorld.blockLightLevel(x, y)
-
         oreWorld.setBlockLightLevel(x, y, newLightLevel)
 
-        if (depth == MAX_LIGHTING_DEPTH) {
+        if (depth == 5 /*MAX_LIGHTING_DEPTH*/) {
             return
         }
+
+        OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "recursive calls being made, depth: $depth")
 
         val newDepth = depth + 1
         diamondFloodFillLightRemove(x - 1, y, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
@@ -289,6 +290,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 mDevice.get(entity).running = false
 
                 val cSprite = mSprite.get(entity)
+                OreWorld.log("tiles lighting system", "calculating light removal")
                 updateTileLightingRemove(cSprite.sprite.x.toInt(), cSprite.sprite.y.toInt(), 0)
 //                updateLightingForLight(entity)
             }
