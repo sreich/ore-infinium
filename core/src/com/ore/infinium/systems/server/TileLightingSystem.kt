@@ -81,7 +81,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //check if light is greater than sunlight and if so don't touch it..
         //sets the flag to indicate it is caused by sunlight
 
-        //todo max y should be a reasonable base level, not far below ground
+        //todo max y should be a reasonable base level, not far below ground, just as an optimization step
         for (y in 0 until 200) {
             for (x in 0 until oreWorld.worldSize.width) {
                 if (!oreWorld.isBlockSolid(x, y) && oreWorld.blockWallType(x, y) == OreBlock.WallType.Air.oreValue) {
@@ -148,7 +148,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     /**
-     * @param depth current depth the function is going to (so we blowing out the stack)
+     * @param depth current depth the function is going to (so we don't blow out the stack)
      */
     private fun diamondSunlightFloodFill(x: Int,
                                          y: Int,
@@ -291,8 +291,17 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
                 val cSprite = mSprite.get(entity)
                 OreWorld.log("tiles lighting system", "calculating light removal")
-                updateTileLightingRemove(cSprite.sprite.x.toInt(), cSprite.sprite.y.toInt(), 0)
+                val x = cSprite.sprite.x.toInt()
+                val y = cSprite.sprite.y.toInt()
+                updateTileLightingRemove(x, y, 0)
+                updateTileLightingRemove(x, y, 0)
+//                recomputeLighting(startX = x - 100, endX = x + 100, startY = y - 100, endY = y + 100)
+                computeWorldTileLighting()
+                computeWorldTileLighting()
+
 //                updateLightingForLight(entity)
+                serverNetworkSystem.sendBlockRegionInterestedPlayers(left = x - 100, right = x + 100, top = y - 100,
+                                                                     bottom = y + 100)
             }
 
             //fixme
