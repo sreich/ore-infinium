@@ -12,6 +12,9 @@ through using these things.
 
 # [Screenshots/Media/Reddit](https://www.reddit.com/r/oreinfinium)
 
+![World generation](http://i.imgur.com/uZRsqcG.png)
+![Player in game](https://i.imgur.com/EVhMT1w.png)
+
 Written in **[Kotlin](https://kotlinlang.org/)** (Java/JVM language)
 
 Libraries used:
