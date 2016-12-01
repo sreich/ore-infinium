@@ -73,15 +73,15 @@ object OreSettings {
     /////////////// server and client network related options
     @Parameter(names = arrayOf("--hostAndJoin"),
                description = "immediately jumps into hosting a server and joining it locally. Basically singleplayer," + " but with other people being able to join, technically.")
-    private val hostAndJoin: Boolean = false
+    private var hostAndJoin: Boolean = false
 
     @Parameter(names = arrayOf("--host"),
                description = "Hosts a server. Additional settings that must or can be set are: port")
-    private val host: Boolean = false
+    private var host: Boolean = false
 
     @Parameter(names = arrayOf("--join"),
                description = "joins a server. Additional settings that must or can be set are: ip(required), port")
-    private val join: Boolean = false
+    private var join: Boolean = false
 
     @Parameter(names = arrayOf("--playerName"), description = "applies only to the client")
     @JvmField
