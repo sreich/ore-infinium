@@ -4,15 +4,15 @@ buildscript {
         //use + for latest
         appName = 'Ore Infinium'
 
-        gdxVersion = '1.9.3'
+        gdxVersion = '1.9.4'
 
         aiVersion = '1.8.0'
 
         artemisVersion = '1.4.0'
-        artemisContribVersion = '1.1.0'
+        artemisContribVersion = '1.2.1'
         kryonetVersion = '2.22.0-RC1'
 
-        matrixCliVersion = "0.1.2"
+        matrixCliVersion = "0.2.0"
 
         jcommanderVersion = "1.48"
         tweenEngineVersion = "6.3.3"
@@ -23,7 +23,7 @@ buildscript {
 
         joiseVersion = '1.0.1'
 
-        visUiVersion = '1.1.1'
+        visUiVersion = '1.2.4'
 
         protobufGradlePlugin = '0.8.0'
     }
@@ -67,6 +67,8 @@ plugins {
     id "org.ajoberstar.grgit" version "1.4.2"
 
     //run :dependencyUpdates to get a list of updates needed
+
+    //gradle versions plugin
     id "com.github.ben-manes.versions" version "0.12.0"
 }
 
