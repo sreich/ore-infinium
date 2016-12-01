@@ -43,11 +43,11 @@ crazy, when it should be aiming for 20-30 packets/s each for client or server.
 
 #Platforms
 All desktop platforms (which can run the JVM) (Linux with OpenJDK,
-Windows, Mac OS X).
+Windows, macOS).
 
 # Requirements
 **You will need java 8 (jre 1.8) installed.**
-**OpenGL 3.0+** (shouldn't be difficult to meet, linux open source drivers meet that easily. Any integrated gpu in the past several years should support it).
+**OpenGL 3.0+** (shouldn't be difficult to meet, linux open source drivers usually meet that easily these days. Any integrated gpu in the past several years should support it).
 
 # Builds
 Regular builds (jar files) can be downloaded from [my dropbox builds](https://www.dropbox.com/sh/utrgredr6xx44jd/AACycdKZElceSHSrIFSvXPkXa?dl=0)
