@@ -6,16 +6,16 @@
 
 [![Build Status](https://travis-ci.org/sreich/ore-infinium.svg?branch=master)](https://travis-ci.org/sreich/ore-infinium)
 
-Ore Infinium, an **Open Source** multiplayer Terraria-inspired Sci-fi game with a special focus
+Ore Infinium, an open source multiplayer Terraria-inspired Sci-fi game with a special focus
 on in-game tech devices, energy generation/consumption, resources gathering and the survival
 through using these things. 
+
+Written in **[Kotlin](https://kotlinlang.org/)** (Java/JVM language)
 
 # [Screenshots/Media/Reddit](https://www.reddit.com/r/oreinfinium)
 
 ![World generation](http://i.imgur.com/uZRsqcG.png)
 ![Player in game](https://i.imgur.com/EVhMT1w.png)
-
-Written in **[Kotlin](https://kotlinlang.org/)** (Java/JVM language)
 
 Libraries used:
 * [LibGDX](https://libgdx.badlogicgames.com/)(base cross platform game framework)
@@ -66,7 +66,9 @@ To build locally, just check out the code. It uses a submodule currently, for th
 
 To build it with gradle, from the command line, run ./gradlew desktop:build (or just click that gradle task from your IDE.
 
-I'm using Kotlin, so you can use Intellij IDEA or eclipse(if you download the plugin)
+I'm using Kotlin, so you can use Intellij IDEA or eclipse(if you download the plugin).
+
+**Be sure to set the working directory to the assets directory**, or more easily, just invoke the desktop:run gradle task.
 
 # Command line arguments
 There are some command line arguments that can be passed to it. Find them by running java -jar ./ore-infinium-and-what-not --help. Some of these switches are used for development, some are used for gameplay, testing etc.
