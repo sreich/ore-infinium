@@ -13,7 +13,8 @@ through using these things.
 Written in **[Kotlin](https://kotlinlang.org/)** (Java/JVM language)
 
 # [Screenshots/Media/Reddit](https://www.reddit.com/r/oreinfinium)
-
+![World generation in the world](https://drive.google.com/open?id=0B5avKSO3DxNtR1dMY2t2QzNxVmc)
+![Underwater air meter](https://drive.google.com/open?id=0B5avKSO3DxNtaDlocTVUZ1owQW8)
 ![World generation](http://i.imgur.com/uZRsqcG.png)
 ![Player in game](https://i.imgur.com/EVhMT1w.png)
 
