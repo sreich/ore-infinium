@@ -64,7 +64,7 @@ plugins {
     id 'nebula.provided-base' version '3.1.0'
 
     //for extracting git sha at deploy time
-    id "org.ajoberstar.grgit" version "1.4.2"
+    id "org.ajoberstar.grgit" version "1.6.0"
 
     //run :dependencyUpdates to get a list of updates needed
 
