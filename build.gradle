@@ -26,6 +26,7 @@ buildscript {
         visUiVersion = '1.2.4'
 
         protobufGradlePlugin = '0.8.0'
+        protobufVersion = '3.0.0'
     }
 
     repositories {
@@ -223,13 +224,13 @@ project(":desktop") {
 
             compile "com.sudoplay.joise:joise:$joiseVersion"
 
-            compile "com.google.protobuf:protobuf-java:3.0.0"
+            compile "com.google.protobuf:protobuf-java:$protobufVersion"
         }
 
         protobuf {
             protoc {
                 // download the artifact spec for the Protobuf Compiler
-                artifact = "com.google.protobuf:protoc:3.0.0"
+                artifact = "com.google.protobuf:protoc:$protobufVersionn"
             }
 
             //generatedFilesBaseDir = "$buildDir/generated/source/proto"
