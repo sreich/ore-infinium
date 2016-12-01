@@ -207,7 +207,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //out of world bounds, abort
             return
         }
-        OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "begin, depth: $depth")
+        //OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "begin, depth: $depth")
 
         val blockType = oreWorld.blockType(x, y)
         val wallType = oreWorld.blockWallType(x, y)
@@ -217,11 +217,11 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         oreWorld.setBlockLightLevel(x, y, newLightLevel)
 
-        if (depth == 5 /*MAX_LIGHTING_DEPTH*/) {
+        if (depth == 5 + 3 /*MAX_LIGHTING_DEPTH*/) {
             return
         }
 
-        OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "recursive calls being made, depth: $depth")
+        //OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "recursive calls being made, depth: $depth")
 
         val newDepth = depth + 1
         diamondFloodFillLightRemove(x - 1, y, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
@@ -254,7 +254,12 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
      * the exception being if a light is removed (deleted from the world)
      * that is the case that will automatically be handled properly.
      */
-    fun updateLightingForLight(entityId: Int) {
+    fun updateLightingForLight(entityId: Int, sendUpdate: Boolean = true) {
+        val cItem = mItem.get(entityId)
+        if (cItem.state != ItemComponent.State.InWorldState) {
+            return
+        }
+
         //todo
         val cDevice = mDevice.get(entityId)
         var lightLevel = MAX_TILE_LIGHT_LEVEL
@@ -272,8 +277,11 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         } else {
             updateTileLighting(x, y, lightLevel)
         }
-        serverNetworkSystem.sendBlockRegionInterestedPlayers(left = x - 20, right = x + 20, top = y - 20,
-                                                             bottom = y + 20)
+
+        if (sendUpdate) {
+            serverNetworkSystem.sendBlockRegionInterestedPlayers(left = x - 20, right = x + 20, top = y - 20,
+                                                                 bottom = y + 20)
+        }
     }
 
     inner class LightingEntitySubscriptionListener : OreEntitySubscriptionListener {
@@ -293,11 +301,17 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 OreWorld.log("tiles lighting system", "calculating light removal")
                 val x = cSprite.sprite.x.toInt()
                 val y = cSprite.sprite.y.toInt()
-                updateTileLightingRemove(x, y, 0)
-                updateTileLightingRemove(x, y, 0)
+                //updateTileLightingRemove(x, y, 0)
+                for (x2 in 0 until oreWorld.worldSize.width) {
+                    for (y2 in 0 until oreWorld.worldSize.height) {
+                        oreWorld.setBlockLightLevel(x2, y2, 0)
+                    }
+                }
 //                recomputeLighting(startX = x - 100, endX = x + 100, startY = y - 100, endY = y + 100)
                 computeWorldTileLighting()
-                computeWorldTileLighting()
+
+                updateAllLightsWithoutSending()
+                //               computeWorldTileLighting()
 
 //                updateLightingForLight(entity)
                 serverNetworkSystem.sendBlockRegionInterestedPlayers(left = x - 100, right = x + 100, top = y - 100,
@@ -306,6 +320,12 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             //fixme
             //TODO("remove lighting in the area of this light/update that area")
+        }
+    }
+
+    private fun updateAllLightsWithoutSending() {
+        val lights = oreWorld.getEntitiesWithComponent<LightComponent>().forEach { light ->
+            updateLightingForLight(entityId = light, sendUpdate = false)
         }
     }
 }
