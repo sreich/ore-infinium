@@ -425,7 +425,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     override fun dispose() {
-        world?.shutdown()
+        shutdown()
     }
 
     override fun render() {
@@ -486,8 +486,9 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             } catch (e: InterruptedException) {
                 e.printStackTrace()
             }
-
         }
+
+        world?.shutdown()
 
         Gdx.app.exit()
     }
