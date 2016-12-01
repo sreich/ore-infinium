@@ -17,7 +17,7 @@ buildscript {
         jcommanderVersion = "1.48"
         tweenEngineVersion = "6.3.3"
 
-        kotlinVersion = '1.1-M01'
+        kotlinVersion = '1.1-M03'
 
         junitVersion = '4.12'
 
@@ -69,7 +69,7 @@ plugins {
     //run :dependencyUpdates to get a list of updates needed
 
     //gradle versions plugin
-    id "com.github.ben-manes.versions" version "0.12.0"
+    id "com.github.ben-manes.versions" version "0.13.0"
 }
 
 task wrapper(type: Wrapper) {
