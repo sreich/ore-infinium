@@ -424,8 +424,16 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         //showFailToConnectDialog();
     }
 
+    /**
+     * to avoid double-disposals, because dispose() gets called for window X button close
+     * as well as us calling shutdown() during exit key, which then eventually hits dispose() too
+     */
+    private var shutdownTriggeredByButton = false
+
     override fun dispose() {
-        shutdown()
+        if (!shutdownTriggeredByButton) {
+            shutdown(shutdownTriggeredByButton = false)
+        }
     }
 
     override fun render() {
@@ -475,7 +483,8 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     }
 
-    private fun shutdown() {
+    private fun shutdown(shutdownTriggeredByButton: Boolean) {
+        this.shutdownTriggeredByButton = shutdownTriggeredByButton
         //only have to shutdown the server if it's a client-hosted server
         if (server != null) {
             server!!.shutdownLatch.countDown()
@@ -510,7 +519,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         }
 
         when (keycode) {
-            Input.Keys.ESCAPE -> shutdown()
+            Input.Keys.ESCAPE -> shutdown(shutdownTriggeredByButton = true)
             Input.Keys.F6 -> {
                 if (clientNetworkSystem.connected) {
                     OreSettings.profilerEnabled = !OreSettings.profilerEnabled

@@ -715,6 +715,7 @@ class OreWorld
      * having to interface with other systems. Though some exceptions may apply
      */
     fun shutdown() {
+        log("world", "shutdown")
         artemisWorld.dispose()
     }
 
