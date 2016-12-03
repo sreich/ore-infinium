@@ -192,8 +192,12 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         batch.end()
     }
 
-    fun computeLightValueColor(blockLightLevel: Byte): Float =
-            blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat()
+    fun computeLightValueColor(blockLightLevel: Byte): Float {
+        val res = blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat()
+        assert(res <= 1f)
+
+        return res
+    }
 
     private fun drawWall(lightValue: Float,
                          tileX: Float,
