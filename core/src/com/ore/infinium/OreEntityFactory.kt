@@ -87,7 +87,9 @@ class OreEntityFactory(val oreWorld: OreWorld) {
             name = "Light"
         }
 
-        mLight.create(entity)
+        mLight.create(entity).apply {
+            radius = 3
+        }
 
         mPowerDevice.create(entity)
 

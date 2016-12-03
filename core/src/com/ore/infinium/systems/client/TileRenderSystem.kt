@@ -44,7 +44,7 @@ import com.ore.infinium.util.getEntityId
 
 @Wire
 class TileRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
-: OreSubSystem() {
+    : OreSubSystem() {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
@@ -161,7 +161,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                 val tileX = x.toFloat()
                 val tileY = y.toFloat()
 
-                val lightValue = (blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat())
+                val lightValue = computeLightValueColor(blockLightLevel)
 
                 var shouldDrawForegroundTile = true
                 if (blockType == OreBlock.BlockType.Air.oreValue) {
@@ -191,6 +191,9 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         batch.end()
     }
+
+    fun computeLightValueColor(blockLightLevel: Byte): Float =
+            blockLightLevel.toFloat() / TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toFloat()
 
     private fun drawWall(lightValue: Float,
                          tileX: Float,
@@ -251,7 +254,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         //String textureName = World.blockAttributes.get(block.type).textureName;
         val hasGrass = oreWorld.blockHasFlag(x, y, OreBlock.BlockFlags.GrassBlock)
 
-        var textureName: String ? = null
+        var textureName: String? = null
         when (blockType) {
             OreBlock.BlockType.Dirt.oreValue -> {
 

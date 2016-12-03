@@ -25,7 +25,15 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.systems.server.TileLightingSystem.Companion.MAX_TILE_LIGHT_LEVEL
 
 class LightComponent : Component() {
-    var radius = 10.0f
+    var radius = 0
+        set(value) {
+            assert(value <= MAX_TILE_LIGHT_LEVEL) {
+                "out of range light level ($value/$MAX_TILE_LIGHT_LEVEL) given for light component"
+            }
+
+            field = value
+        }
 }

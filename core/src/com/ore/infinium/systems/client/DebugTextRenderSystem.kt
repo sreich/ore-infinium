@@ -271,7 +271,11 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
         val lightLevel = oreWorld.blockLightLevel(x, y)
         val maxLight = TileLightingSystem.MAX_TILE_LIGHT_LEVEL
-        val s = "tile($x, $y), block type: $blockTypeName, mesh: $blockMeshType, walltype: $blockWallType texture: $texture , LightLevel: $lightLevel/$maxLight"
+        val computedLightLevel = multiRenderSystem.tileRenderSystem.computeLightValueColor(lightLevel)
+        val s = """tile($x, $y), block type: $blockTypeName,
+            |mesh: $blockMeshType, walltype: $blockWallType
+            |texture: $texture , LightLevel: $lightLevel/$maxLight,
+            |computed rgb: $computedLightLevel""".toSingleLine()
 
         drawNextLeftString(s)
 

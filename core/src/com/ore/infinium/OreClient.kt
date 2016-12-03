@@ -42,10 +42,7 @@ import com.kotcrab.vis.ui.widget.VisDialog
 import com.kotcrab.vis.ui.widget.VisTable
 import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
-import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.systems.client.DebugTextRenderSystem
-import com.ore.infinium.systems.client.PowerOverlayRenderSystem
-import com.ore.infinium.systems.client.SoundSystem
+import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.*
 import java.io.IOException
 
@@ -78,6 +75,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     private lateinit var tagManager: TagManager
     private lateinit var debugTextRenderSystem: DebugTextRenderSystem
     private lateinit var powerOverlayRenderSystem: PowerOverlayRenderSystem
+    private lateinit var multiRenderSystem: MultiRenderSystem
     //    private lateinit var tileRenderSystem: TileRenderSystem
     private lateinit var soundSystem: SoundSystem
 
@@ -527,9 +525,8 @@ class OreClient : OreApplicationListener, OreInputProcessor {
                 }
             }
             Input.Keys.F7 -> {
-                //tileRenderSystem.debugRenderTileLighting = !tileRenderSystem.debugRenderTileLighting
-                //hack
-                TODO()
+                multiRenderSystem.tileRenderSystem.debugRenderTileLighting =
+                        !multiRenderSystem.tileRenderSystem.debugRenderTileLighting
             }
             Input.Keys.F8 -> //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
                 // could derive from. so we could just call this, and await the return...all of the debug things could be
@@ -538,8 +535,8 @@ class OreClient : OreApplicationListener, OreInputProcessor {
                 debugTextRenderSystem.renderDebugClient = !debugTextRenderSystem.renderDebugClient
             Input.Keys.F9 -> debugTextRenderSystem.renderDebugServer = !debugTextRenderSystem.renderDebugServer
             Input.Keys.F10 -> {
-                TODO()
-                //        tileRenderSystem.debugRenderTiles = !tileRenderSystem.debugRenderTiles
+                multiRenderSystem.tileRenderSystem.debugRenderTiles =
+                        !multiRenderSystem.tileRenderSystem.debugRenderTiles
             }
             Input.Keys.F11 -> OreSettings.debugRenderGui = !OreSettings.debugRenderGui
             Input.Keys.F12 -> {

@@ -56,7 +56,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
          * we might want to use the rest of the byte for something else.
          * haven't decided what for
          */
-        const val MAX_TILE_LIGHT_LEVEL: Byte = 8
+        const val MAX_TILE_LIGHT_LEVEL: Byte = 18
     }
 
     override fun initialize() {
@@ -260,12 +260,10 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             return
         }
 
-        //todo
+        //todo this should get the radius of the light i think
         val cDevice = mDevice.get(entityId)
-        var lightLevel = MAX_TILE_LIGHT_LEVEL
-        if (!cDevice.running) {
-            lightLevel = 0
-        }
+        val cLight = mLight.get(entityId)
+        val lightLevel = lightLevelForLight(deviceRunning = cDevice.running, lightRadius = cLight.radius)
 
         val cSprite = mSprite.get(entityId)
         val x = cSprite.sprite.x.toInt()
@@ -284,6 +282,16 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
+    /**
+     * returns the proper light level for a light, depending on whether it is running or not
+     */
+    private fun lightLevelForLight(deviceRunning: Boolean, lightRadius: Int): Byte =
+            if (deviceRunning) {
+                lightRadius.toByte()
+            } else {
+                0.toByte()
+            }
+
     inner class LightingEntitySubscriptionListener : OreEntitySubscriptionListener {
         override fun removed(entities: IntBag) {
             entities.forEach { entity ->
@@ -298,10 +306,15 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 mDevice.get(entity).running = false
 
                 val cSprite = mSprite.get(entity)
+
                 OreWorld.log("tiles lighting system", "calculating light removal")
+
                 val x = cSprite.sprite.x.toInt()
                 val y = cSprite.sprite.y.toInt()
                 //updateTileLightingRemove(x, y, 0)
+
+                //wipe the lighting
+                //todo, only do it in sane region
                 for (x2 in 0 until oreWorld.worldSize.width) {
                     for (y2 in 0 until oreWorld.worldSize.height) {
                         oreWorld.setBlockLightLevel(x2, y2, 0)
