@@ -263,13 +263,24 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //todo this should get the radius of the light i think
         val cDevice = mDevice.get(entityId)
         val cLight = mLight.get(entityId)
-        val lightLevel = lightLevelForLight(deviceRunning = cDevice.running, lightRadius = cLight.radius)
+
 
         val cSprite = mSprite.get(entityId)
         val x = cSprite.sprite.x.toInt()
         val y = cSprite.sprite.y.toInt()
 
+        val currentLightLevel = oreWorld.blockLightLevel(x, y)
+
+        //hack: radius actually should be intensity...or something. we could have both?
+        //hack or is what we want to affect, actually attenuation? that would affect the radius..
+        //hack we need to be sure the lighting calculation functions (updateTileLighting) do not override
+        //hack light of a lower value!
+        //ensure tile where the light is, is at least this well lit up
+        val lightLevel = lightLevelForLight(deviceRunning = cDevice.running, lightRadius = cLight.radius)
+                .coerceAtLeast(currentLightLevel)
+
         oreWorld.setBlockLightLevel(x, y, lightLevel)
+
         if (lightLevel == 0.toByte()) {
 //            updateTileLightingRemove(x, y, lightLevel)
         } else {
