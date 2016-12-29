@@ -74,14 +74,42 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
     val tileLightMapFbo: FrameBuffer
 
-    private val tileLightMapShader: ShaderProgram
+    private val tileMapShader: ShaderProgram
 
-    private val tileLightMapVertex: String = """
+    private val tileMapFrag: String = """
+    #ifdef GL_ES
+    #define LOWP lowp
+        precision mediump float;
+    #else
+        #define LOWP
+    #endif
 
+    varying LOWP vec4 v_color;
+    varying vec2 v_texCoords;
+    uniform sampler2D u_texture;
+
+    void main()
+    {
+        //gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
+        gl_FragColor = v_color * texture2D(u_texture, v_texCoords) * vec4(1.0, 0.0, 0.0, 1.0);
+    };
     """
 
-    private val tileLightMapFrag: String = """
+    private val tileMapVertex: String = """
+    attribute vec4 ${ShaderProgram.POSITION_ATTRIBUTE};
+    attribute vec4 ${ShaderProgram.COLOR_ATTRIBUTE};
+    attribute vec2 ${ShaderProgram.TEXCOORD_ATTRIBUTE}0;
+    uniform mat4 u_projTrans;
+    varying vec4 v_color;
+    varying vec2 v_texCoords;
 
+    void main()
+    {
+        v_color = ${ShaderProgram.COLOR_ATTRIBUTE};
+        v_color.a = v_color.a * (255.0/254.0);
+        v_texCoords = ${ShaderProgram.TEXCOORD_ATTRIBUTE}0;
+        gl_Position =  u_projTrans * ${ShaderProgram.POSITION_ATTRIBUTE};
+    }
     """
 
     init {
@@ -125,7 +153,8 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                                       Gdx.graphics.backBufferWidth,
                                       Gdx.graphics.backBufferHeight, false)
 
-        tileLightMapShader = ShaderProgram(tileLightMapVertex, tileLightMapFrag)
+        tileMapShader = ShaderProgram(tileMapVertex, tileMapFrag)
+        assert(tileMapShader.isCompiled)
     }
 
     override fun processSystem() {
@@ -137,19 +166,42 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
             return
         }
 
-        renderToLightMap(oreWorld.artemisWorld.getDelta())
+        batch.projectionMatrix = camera.combined
+
+//        renderToLightMap(oreWorld.artemisWorld.getDelta())
         render(oreWorld.artemisWorld.getDelta())
     }
 
     private fun renderToLightMap(delta: Float) {
-        throw NotImplementedError("function not yet implemented")
-       
+
         tileLightMapFbo.begin()
+        batch.begin()
 
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT)
         Gdx.gl.glClearColor(0f, 0f, 0f, 0f)
 
+        val tilesInView = tilesInView()
+        for (y in tilesInView.top until tilesInView.bottom) {
+            loop@ for (x in tilesInView.left until tilesInView.right) {
+                val blockType = oreWorld.blockType(x, y)
+                val blockMeshType = oreWorld.blockMeshType(x, y)
+                val tileX = x.toFloat()
+                val tileY = y.toFloat()
 
+                val textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
+
+                val foregroundTileRegion = tileAtlasCache["dirt-00"]
+                assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
+
+                val lightValue = computeLightValueColor(debugLightLevel(x, y))
+                batch.setColor(lightValue, lightValue, lightValue, 1f)
+
+                batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
+
+            }
+        }
+
+        batch.end()
         tileLightMapFbo.end()
     }
 
@@ -176,7 +228,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     }
 
     fun render(elapsed: Float) {
-        batch.projectionMatrix = camera.combined
+        batch.shader = tileMapShader
 
         val tilesInView = tilesInView()
 
