@@ -92,7 +92,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     {
         //gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
         //gl_FragColor = v_color * texture2D(u_texture, v_texCoords) * vec4(1.0, 0.0, 0.0, 1.0);
-        gl_FragColor = (v_color * vec4(1.0000f)) * (texture2D(u_texture, v_texCoords) * 1.0000f) * texture2D(u_lightmap, v_texCoords);
+        gl_FragColor = (v_color * vec4(0.0001f)) + (texture2D(u_texture, v_texCoords) * 0.0001f) + texture2D(u_lightmap, v_texCoords);
     };
     """
 
@@ -165,6 +165,14 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         tileMapShader = ShaderProgram(tileMapVertex, tileMapFrag)
         assert(tileMapShader.isCompiled)
+
+        tileMapShader.begin()
+        tileMapShader.setUniformi("u_lightmap", 1)
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
+//        Gdx.gl20.glBindTexture(GL20.GL_TEXTURE0 + 1, tileLightMapFbo.colorBufferTexture.textureObjectHandle)
+        tileLightMapFbo.colorBufferTexture.bind(1)
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
+        tileMapShader.end()
     }
 
     override fun processSystem() {
@@ -247,9 +255,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         val tilesInView = tilesInView()
 
-        tileMapShader.setUniformi("u_lightmap", 1)
-        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
-        Gdx.gl20.glBindTexture(GL20.GL_TEXTURE0 + 1, tileLightMapFbo.colorBufferTexture.textureObjectHandle)
+
         batch.begin()
 
         debugTilesInViewCount = 0
