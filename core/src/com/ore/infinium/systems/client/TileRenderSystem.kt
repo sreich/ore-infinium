@@ -170,6 +170,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         tileMapShader.setUniformi("u_lightmap", 1)
         Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
 //        Gdx.gl20.glBindTexture(GL20.GL_TEXTURE0 + 1, tileLightMapFbo.colorBufferTexture.textureObjectHandle)
+        tileLightMapFbo.colorBufferTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge)
         tileLightMapFbo.colorBufferTexture.bind(1)
         Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
         tileMapShader.end()
@@ -189,7 +190,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         renderToLightMap(oreWorld.artemisWorld.getDelta())
         render(oreWorld.artemisWorld.getDelta())
     }
-
 
     private fun renderToLightMap(delta: Float) {
         tileLightMapFbo.begin()
@@ -301,7 +301,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         }
 
         batch.end()
-        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
         oreWorld.dumpFboAndExitAfterMs()
     }
 
