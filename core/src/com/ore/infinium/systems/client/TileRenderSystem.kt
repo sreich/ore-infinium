@@ -28,9 +28,7 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.GL30
-import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
@@ -75,6 +73,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     val tileLightMapFbo: FrameBuffer
 
     private val tileMapShader: ShaderProgram
+    private val emptyTexture: Texture
 
     private val tileMapFrag: String = """
     #ifdef GL_ES
@@ -87,11 +86,13 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     varying LOWP vec4 v_color;
     varying vec2 v_texCoords;
     uniform sampler2D u_texture;
+    uniform sampler2D u_lightmap;
 
     void main()
     {
         //gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
-        gl_FragColor = v_color * texture2D(u_texture, v_texCoords) * vec4(1.0, 0.0, 0.0, 1.0);
+        //gl_FragColor = v_color * texture2D(u_texture, v_texCoords) * vec4(1.0, 0.0, 0.0, 1.0);
+        gl_FragColor = (v_color * vec4(1.0000f)) * (texture2D(u_texture, v_texCoords) * 1.0000f) * texture2D(u_lightmap, v_texCoords);
     };
     """
 
@@ -112,6 +113,8 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     }
     """
 
+    private val defaultShader: ShaderProgram
+
     init {
 
         batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
@@ -120,6 +123,11 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
 
         tilesAtlas.regions.forEach { tileAtlasCache[it.name] = it }
+
+        val emptyPixmap = Pixmap(16, 16, Pixmap.Format.RGBA8888)
+        emptyPixmap.setColor(Color.WHITE)
+        emptyPixmap.fill()
+        emptyTexture = Texture(emptyPixmap)
 
         //todo obviously, we can replace this map and lookup with something cheaper, i bet.
         //it's actually only used to fetch the string which then we will fetch from the texture atlas
@@ -149,9 +157,11 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
             stoneBlockMeshes.put(i, formatted)
         }
 
+        defaultShader = batch.shader
+
         tileLightMapFbo = FrameBuffer(Pixmap.Format.RGBA8888,
-                                      Gdx.graphics.backBufferWidth,
-                                      Gdx.graphics.backBufferHeight, false)
+                Gdx.graphics.backBufferWidth,
+                Gdx.graphics.backBufferHeight, false)
 
         tileMapShader = ShaderProgram(tileMapVertex, tileMapFrag)
         assert(tileMapShader.isCompiled)
@@ -168,17 +178,18 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         batch.projectionMatrix = camera.combined
 
-//        renderToLightMap(oreWorld.artemisWorld.getDelta())
+        renderToLightMap(oreWorld.artemisWorld.getDelta())
         render(oreWorld.artemisWorld.getDelta())
     }
 
-    private fun renderToLightMap(delta: Float) {
 
+    private fun renderToLightMap(delta: Float) {
         tileLightMapFbo.begin()
+        batch.shader = defaultShader
         batch.begin()
 
-        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT)
-        Gdx.gl.glClearColor(0f, 0f, 0f, 0f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+        Gdx.gl.glClearColor(0f, 1f, 0f, 0f)
 
         val tilesInView = tilesInView()
         for (y in tilesInView.top until tilesInView.bottom) {
@@ -194,14 +205,18 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                 assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
 
                 val lightValue = computeLightValueColor(debugLightLevel(x, y))
-                batch.setColor(lightValue, lightValue, lightValue, 1f)
+                //batch.setColor(lightValue, lightValue, lightValue, 1f)
+                //hack
+                batch.setColor(lightValue, 1f, 0f, 1f)
 
-                batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
+                //batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
+                batch.draw(emptyTexture, tileX, tileY + 1, 1f, -1f)
 
             }
         }
 
         batch.end()
+        //oreWorld.dumpFboAndExitAfterMs()
         tileLightMapFbo.end()
     }
 
@@ -232,6 +247,9 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         val tilesInView = tilesInView()
 
+        tileMapShader.setUniformi("u_lightmap", 1)
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
+        Gdx.gl20.glBindTexture(GL20.GL_TEXTURE0 + 1, tileLightMapFbo.colorBufferTexture.textureObjectHandle)
         batch.begin()
 
         debugTilesInViewCount = 0
@@ -277,6 +295,8 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         }
 
         batch.end()
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
+        oreWorld.dumpFboAndExitAfterMs()
     }
 
     fun computeLightValueColor(blockLightLevel: Byte): Float {
@@ -296,7 +316,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         //fixme of course, for wall drawing, walls should have their own textures
         //batch.setColor(0.5f, 0.5f, 0.5f, 1f)
         //batch.setColor(1.0f, 0f, 0f, 1f)
-        batch.setColor(lightValue, lightValue, lightValue, 1f)
+//        batch.setColor(lightValue, lightValue, lightValue, 1f)
 
         //offset y to flip orientation around to normal
         val regionWall = tileAtlasCache[wallTextureName]
@@ -311,7 +331,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                                    blockType: Byte,
                                    x: Int, y: Int, blockMeshType: Byte) {
         //if (blockLightLevel != 0.toByte()) {
-        batch.setColor(lightValue, lightValue, lightValue, 1f)
+        //batch.setColor(lightValue, lightValue, lightValue, 1f)
         //                   } else {
         //                      batch.setColor(1f, 1f, 1f, 1f)
         //                 }

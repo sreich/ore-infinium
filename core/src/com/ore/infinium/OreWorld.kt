@@ -36,12 +36,15 @@ import com.artemis.utils.IntBag
 import com.artemis.utils.reflect.ClassReflection
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.files.FileHandle
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.ScreenUtils
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.*
@@ -162,22 +165,22 @@ class OreWorld
         //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
         // class dictates this.
         artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerTick = 25,
-                                                                                                   isServer = false))
-                                     .with(TagManager())
-                                     .with(PlayerManager())
-                                     .with(MovementSystem(this))
-                                     .with(SoundSystem(this))
-                                     .with(ClientNetworkSystem(this))
-                                     .with(InputSystem(camera, this))
-                                     .with(EntityOverlaySystem(this))
-                                     .with(PlayerSystem(this))
-                                     .with(GameTickSystem(this))
-                                     .with(ClientBlockDiggingSystem(this, client!!))
-                                     .with(MultiRenderSystem(camera, this))
-                                     .with(DebugTextRenderSystem(camera, this))
-                                     .with(PowerOverlayRenderSystem(this, client!!.stage))
-                                     .with(TileTransitionSystem(camera, this))
-                                     .build())
+                isServer = false))
+                .with(TagManager())
+                .with(PlayerManager())
+                .with(MovementSystem(this))
+                .with(SoundSystem(this))
+                .with(ClientNetworkSystem(this))
+                .with(InputSystem(camera, this))
+                .with(EntityOverlaySystem(this))
+                .with(PlayerSystem(this))
+                .with(GameTickSystem(this))
+                .with(ClientBlockDiggingSystem(this, client!!))
+                .with(MultiRenderSystem(camera, this))
+                .with(DebugTextRenderSystem(camera, this))
+                .with(PowerOverlayRenderSystem(this, client!!.stage))
+                .with(TileTransitionSystem(camera, this))
+                .build())
         //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
         //inject the mappers into the world, before we start doing things
@@ -189,24 +192,24 @@ class OreWorld
 
     fun initServer() {
         artemisWorld = World(WorldConfigurationBuilder()
-                                     .with(TagManager())
-                                     .with(SpatialSystem(this))
-                                     .with(PlayerManager())
-                                     .with(MovementSystem(this))
-                                     .with(ServerPowerSystem(this))
-                                     .with(GameTickSystem(this))
-                                     .with(DroppedItemPickupSystem(this))
-                                     .with(GrassBlockSystem(this))
-                                     .with(ServerNetworkEntitySystem(this))
-                                     .with(ServerBlockDiggingSystem(this))
-                                     .with(PlayerSystem(this))
-                                     .with(ExplosiveSystem(this))
-                                     .with(AirSystem(this))
-                                     .with(ServerNetworkSystem(this, server!!))
-                                     .with(TileLightingSystem(this))
-                                     .with(LiquidSimulationSystem(this))
-                                     .register(GameLoopSystemInvocationStrategy(msPerTick = 25, isServer = true))
-                                     .build())
+                .with(TagManager())
+                .with(SpatialSystem(this))
+                .with(PlayerManager())
+                .with(MovementSystem(this))
+                .with(ServerPowerSystem(this))
+                .with(GameTickSystem(this))
+                .with(DroppedItemPickupSystem(this))
+                .with(GrassBlockSystem(this))
+                .with(ServerNetworkEntitySystem(this))
+                .with(ServerBlockDiggingSystem(this))
+                .with(PlayerSystem(this))
+                .with(ExplosiveSystem(this))
+                .with(AirSystem(this))
+                .with(ServerNetworkSystem(this, server!!))
+                .with(TileLightingSystem(this))
+                .with(LiquidSimulationSystem(this))
+                .register(GameLoopSystemInvocationStrategy(msPerTick = 25, isServer = true))
+                .build())
         //inject the mappers into the world, before we start doing things
         artemisWorld.oreInject(this)
 
@@ -294,7 +297,7 @@ class OreWorld
         val cPlayer = mPlayer.create(entity).apply {
             connectionPlayerId = connectionId
             loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
-                                            LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
+                    LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
             loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y), world = this@OreWorld)
         }
 
@@ -1145,6 +1148,19 @@ class OreWorld
         return artemisWorld.entities(allOf(T::class))
     }
 
+    val fboDumpTimer = OreTimer().apply { reset() }
+    fun dumpFboAndExitAfterMs(ms: Long = 5000) {
+        if (fboDumpTimer.surpassed(ms)) {
+            dumpFbo()
+            System.exit(0)
+        }
+    }
+
+    fun dumpFbo() {
+        val pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.backBufferWidth, Gdx.graphics.backBufferHeight)
+        PixmapIO.writePNG(FileHandle("../saveData/debug/framebufferdump.png"), pixmap)
+    }
+
     /**
      * Killing of entity.
      *
@@ -1223,7 +1239,7 @@ class OreWorld
 
                 //fixme functionalize this, duplicated of/by networkserversystem drop request
                 sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
-                                         clonedSpriteComp.sprite.height)
+                        clonedSpriteComp.sprite.height)
                 timeOfDropMs = TimeUtils.millis()
             }
 
