@@ -43,6 +43,7 @@ import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
 import com.ore.infinium.util.getEntityId
+import com.ore.infinium.util.use
 
 @Wire
 class TileRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
@@ -166,14 +167,16 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         tileMapShader = ShaderProgram(tileMapVertex, tileMapFrag)
         assert(tileMapShader.isCompiled)
 
-        tileMapShader.begin()
-        tileMapShader.setUniformi("u_lightmap", 1)
-        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
-//        Gdx.gl20.glBindTexture(GL20.GL_TEXTURE0 + 1, tileLightMapFbo.colorBufferTexture.textureObjectHandle)
-        tileLightMapFbo.colorBufferTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge)
-        tileLightMapFbo.colorBufferTexture.bind(1)
-        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
-        tileMapShader.end()
+        tileMapShader.use {
+            tileMapShader.setUniformi("u_lightmap", 1)
+            Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
+
+            // Gdx.gl20.glBindTexture(GL20.GL_TEXTURE0 + 1, tileLightMapFbo.colorBufferTexture.textureObjectHandle)
+
+            tileLightMapFbo.colorBufferTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge)
+            tileLightMapFbo.colorBufferTexture.bind(1)
+            Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
+        }
     }
 
     override fun processSystem() {

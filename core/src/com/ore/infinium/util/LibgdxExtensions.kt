@@ -27,6 +27,7 @@ package com.ore.infinium.util
 import com.badlogic.gdx.ApplicationListener
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
@@ -87,6 +88,12 @@ interface OreInputProcessor : InputProcessor {
     override fun scrolled(amount: Int) = false
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
     override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
+}
+
+fun ShaderProgram.use(function: () -> Unit) {
+    begin()
+    function()
+    end()
 }
 
 /**
