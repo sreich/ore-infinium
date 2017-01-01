@@ -42,6 +42,7 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
+import com.ore.infinium.util.flipY
 import com.ore.infinium.util.getEntityId
 import com.ore.infinium.util.use
 
@@ -93,7 +94,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     {
         //gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
         //gl_FragColor = v_color * texture2D(u_texture, v_texCoords) * vec4(1.0, 0.0, 0.0, 1.0);
-        gl_FragColor = (v_color * vec4(0.0001f)) + (texture2D(u_texture, v_texCoords) * 0.0001f) + texture2D(u_lightmap, v_texCoords);
+        gl_FragColor = (v_color * vec4(0.0001)) + (texture2D(u_texture, v_texCoords) * 0.0001) + texture2D(u_lightmap, vec2(v_texCoords.s, 0.0 + v_texCoords.t));
     };
     """
 
@@ -115,6 +116,8 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     """
 
     private val defaultShader: ShaderProgram
+
+    private val tileLightMapFboRegion: TextureRegion
 
     init {
 
@@ -161,11 +164,15 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         defaultShader = batch.shader
 
         tileLightMapFbo = FrameBuffer(Pixmap.Format.RGBA8888,
-                Gdx.graphics.backBufferWidth,
-                Gdx.graphics.backBufferHeight, false)
+                                      Gdx.graphics.backBufferWidth,
+                                      Gdx.graphics.backBufferHeight, false)
 
         tileMapShader = ShaderProgram(tileMapVertex, tileMapFrag)
-        assert(tileMapShader.isCompiled)
+        assert(tileMapShader.isCompiled) { tileMapShader.log }
+
+        tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).apply {
+            flipY()
+        }
 
         tileMapShader.use {
             tileMapShader.setUniformi("u_lightmap", 1)
@@ -175,6 +182,8 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
             tileLightMapFbo.colorBufferTexture.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge)
             tileLightMapFbo.colorBufferTexture.bind(1)
+//            tileLightMapFboRegion.texture.bind(1)
+
             Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
         }
     }
@@ -195,12 +204,26 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
     }
 
     private fun renderToLightMap(delta: Float) {
+        fun setLightsRow(y: Int, lightLevel: Byte) {
+            for (x in 0 until oreWorld.worldSize.width) {
+                oreWorld.setBlockLightLevel(x, y, lightLevel)
+            }
+        }
+       
+        setLightsRow(50, 5)
+        setLightsRow(20, 2)
+        setLightsRow(60, 3)
+        setLightsRow(80, 4)
+        setLightsRow(90, 7)
+
         tileLightMapFbo.begin()
+
+        Gdx.gl.glClearColor(1f, 0f, 0f, 1f)
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+
         batch.shader = defaultShader
         batch.begin()
 
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        Gdx.gl.glClearColor(0f, 1f, 0f, 0f)
 
         val tilesInView = tilesInView()
         for (y in tilesInView.top until tilesInView.bottom) {
@@ -210,15 +233,16 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                 val tileX = x.toFloat()
                 val tileY = y.toFloat()
 
-                val textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
-
-                val foregroundTileRegion = tileAtlasCache["dirt-00"]
-                assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
+                //val foregroundTileRegion = tileAtlasCache["dirt-00"]
 
                 val lightValue = computeLightValueColor(debugLightLevel(x, y))
                 //batch.setColor(lightValue, lightValue, lightValue, 1f)
                 //hack
-                batch.setColor(lightValue, 1f, 0f, 1f)
+                batch.setColor(lightValue, lightValue, lightValue, 1f)
+                if (lightValue == 0f) {
+
+                    batch.setColor(lightValue, lightValue, 1f, 1f)
+                }
 
                 //batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
                 batch.draw(emptyTexture, tileX, tileY + 1, 1f, -1f)
@@ -227,7 +251,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         }
 
         batch.end()
-        //oreWorld.dumpFboAndExitAfterMs()
+        oreWorld.dumpFboAndExitAfterMs()
         tileLightMapFbo.end()
     }
 
@@ -258,7 +282,6 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         val tilesInView = tilesInView()
 
-
         batch.begin()
 
         debugTilesInViewCount = 0
@@ -279,10 +302,10 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
                 var shouldDrawForegroundTile = true
                 if (blockType == OreBlock.BlockType.Air.oreValue) {
-                    shouldDrawForegroundTile = false
+//hack                    shouldDrawForegroundTile = false
                     if (blockWallType == OreBlock.WallType.Air.oreValue) {
                         //we can skip over entirely empty blocks
-                        continue@loop
+//hack                        continue@loop
                     }
                 }
 
@@ -292,7 +315,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
                 //liquid render system handles this, skip foreground tiles that are liquid
                 if (oreWorld.isBlockTypeLiquid(blockType)) {
-                    continue@loop
+                    //continue@loop
                 }
 
                 if (shouldDrawForegroundTile) {
@@ -304,7 +327,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         }
 
         batch.end()
-        oreWorld.dumpFboAndExitAfterMs()
+        //oreWorld.dumpFboAndExitAfterMs()
     }
 
     fun computeLightValueColor(blockLightLevel: Byte): Float {
@@ -346,7 +369,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
         var resetColor = false
 
-        val textureName = findTextureNameForBlock(x, y, blockType, blockMeshType)
+        val textureName = "dirt-00" //hack findTextureNameForBlock(x, y, blockType, blockMeshType)
 
         val foregroundTileRegion = tileAtlasCache[textureName]
         assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
@@ -449,3 +472,4 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         return textureName
     }
 }
+

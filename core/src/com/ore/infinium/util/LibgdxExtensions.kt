@@ -27,6 +27,7 @@ package com.ore.infinium.util
 import com.badlogic.gdx.ApplicationListener
 import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
@@ -94,6 +95,14 @@ fun ShaderProgram.use(function: () -> Unit) {
     begin()
     function()
     end()
+}
+
+fun TextureRegion.flipY() {
+    flip(false, true)
+}
+
+fun TextureRegion.flipX() {
+    flip(true, false)
 }
 
 /**
