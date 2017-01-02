@@ -27,6 +27,7 @@ package com.ore.infinium.systems.client
 import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.ore.infinium.OreWorld
 import com.ore.infinium.util.RenderSystemMarker
@@ -34,8 +35,10 @@ import com.ore.infinium.util.oreInject
 import com.ore.infinium.util.system
 
 @Wire(failOnNull = false)
-class MultiRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
-: BaseSystem(), RenderSystemMarker {
+class MultiRenderSystem(private val camera: OrthographicCamera,
+                        private val fullscreenCamera: Camera,
+                        private val oreWorld: OreWorld)
+    : BaseSystem(), RenderSystemMarker {
     private val clientNetworkSystem by system<ClientNetworkSystem>()
     private val tagManager by system<TagManager>()
 
@@ -48,8 +51,8 @@ class MultiRenderSystem(private val camera: OrthographicCamera, private val oreW
 
     override fun initialize() {
         spriteRenderSystem = SpriteRenderSystem(world = world, oreWorld = oreWorld, camera = camera)
-        tileRenderSystem = TileRenderSystem(camera, oreWorld)
-        liquidRenderSystem = LiquidRenderSystem(camera, oreWorld, world = world,
+        tileRenderSystem = TileRenderSystem(camera = camera, fullscreenCamera = fullscreenCamera, oreWorld = oreWorld)
+        liquidRenderSystem = LiquidRenderSystem(camera = camera, oreWorld = oreWorld, world = world,
                                                 tileRenderSystem = tileRenderSystem)
 
         world.oreInject(spriteRenderSystem)

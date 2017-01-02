@@ -27,6 +27,7 @@ package com.ore.infinium.systems.client
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
+import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Label
@@ -42,8 +43,10 @@ import com.ore.infinium.util.mapper
 import com.ore.infinium.util.system
 
 @Wire
-class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage: Stage)
-        : IteratingSystem(allOf(PowerDeviceComponent::class)), RenderSystemMarker {
+class PowerOverlayRenderSystem(private val oreWorld: OreWorld,
+                               private val fullscreenCamera: Camera,
+                               private val stage: Stage)
+    : IteratingSystem(allOf(PowerDeviceComponent::class)), RenderSystemMarker {
 
     var overlayVisible = false
     private lateinit var batch: SpriteBatch
@@ -127,12 +130,12 @@ class PowerOverlayRenderSystem(private val oreWorld: OreWorld, private val stage
         batch.projectionMatrix = oreWorld.camera.combined
         batch.begin()
 
-       // renderEntities(this.getWorld().delta)
+        // renderEntities(this.getWorld().delta)
 
         batch.end()
 
         //screen space rendering
-        batch.projectionMatrix = oreWorld.client!!.viewport.camera.combined
+        batch.projectionMatrix = fullscreenCamera.combined
         batch.begin()
 
         //fixme replace this crap w/ scene2d stuff?

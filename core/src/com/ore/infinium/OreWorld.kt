@@ -162,8 +162,8 @@ class OreWorld
 
         atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
 
-        //note although it may look like it.. order for render/logic ones..actually doesn't matter, their base
-        // class dictates this.
+        //note although it may look like it.. order between render and logic ones..actually doesn't matter, their base
+        // class dictates this. order between ones of the same type, does though.
         artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerTick = 25,
                 isServer = false))
                 .with(TagManager())
@@ -176,9 +176,13 @@ class OreWorld
                 .with(PlayerSystem(this))
                 .with(GameTickSystem(this))
                 .with(ClientBlockDiggingSystem(this, client!!))
-                .with(MultiRenderSystem(camera, this))
+                                     .with(MultiRenderSystem(camera = camera,
+                                                             fullscreenCamera = client!!.viewport.camera,
+                                                             oreWorld = this))
                 .with(DebugTextRenderSystem(camera, this))
-                .with(PowerOverlayRenderSystem(this, client!!.stage))
+                                     .with(PowerOverlayRenderSystem(oreWorld = this,
+                                                                    fullscreenCamera = client!!.viewport.camera,
+                                                                    stage = client!!.stage))
                 .with(TileTransitionSystem(camera, this))
                 .build())
         //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
