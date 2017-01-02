@@ -25,7 +25,9 @@ SOFTWARE.
 package com.ore.infinium.util
 
 import com.badlogic.gdx.ApplicationListener
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
@@ -103,6 +105,11 @@ fun TextureRegion.flipY() {
 
 fun TextureRegion.flipX() {
     flip(true, false)
+}
+
+fun GL20.glClearColorTo(r: Float, g: Float, b: Float, a: Float) {
+    Gdx.gl.glClearColor(r, g, b, a)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 }
 
 /**

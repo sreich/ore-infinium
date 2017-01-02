@@ -1160,6 +1160,12 @@ class OreWorld
         }
     }
 
+    fun dumpFboAfterMs(ms: Long = 5000) {
+        if (fboDumpTimer.surpassed(ms)) {
+            dumpFbo()
+        }
+    }
+
     fun dumpFbo() {
         val pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.backBufferWidth, Gdx.graphics.backBufferHeight)
         PixmapIO.writePNG(FileHandle("../saveData/debug/framebufferdump.png"), pixmap)
