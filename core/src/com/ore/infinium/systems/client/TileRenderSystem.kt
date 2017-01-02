@@ -81,6 +81,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
     private val defaultShader: ShaderProgram
 
     private val tileLightMapFboRegion: TextureRegion
+    private val tileMapFboRegion: TextureRegion
 
     init {
 
@@ -139,6 +140,10 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         tileLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
         check(tileLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${tileLightMapBlendShader.log}" }
+
+        tileMapFboRegion = TextureRegion(tileMapFbo.colorBufferTexture).apply {
+            flipY()
+        }
 
         tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).apply {
             flipY()
@@ -232,14 +237,14 @@ class TileRenderSystem(private val camera: OrthographicCamera,
             }
         }
 
-        setLightsRow(50, 5)
-        setLightsRow(20, 2)
-        setLightsRow(60, 3)
+        //      setLightsRow(50, 5)
+        //       setLightsRow(20, 2)
+//        setLightsRow(60, 3)
         setLightsRow(80, 4)
-        setLightsRow(90, 7)
-        setLightsRow(10, 7)
-        setLightsRow(0, 7)
-        setLightsRow(100, 7)
+        //  setLightsRow(90, 7)
+        //   setLightsRow(10, 7)
+        //    setLightsRow(0, 7)
+        //     setLightsRow(100, 7)
 
         batch.shader = defaultShader
         tileLightMapFbo.begin()
@@ -259,8 +264,6 @@ class TileRenderSystem(private val camera: OrthographicCamera,
                 //val foregroundTileRegion = tileAtlasCache["dirt-00"]
 
                 val lightValue = computeLightValueColor(debugLightLevel(x, y))
-                //batch.setColor(lightValue, lightValue, lightValue, 1f)
-                //hack
                 batch.setColor(lightValue, lightValue, lightValue, 1f)
                 if (lightValue == 0f) {
 
@@ -293,7 +296,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.projectionMatrix = fullscreenCamera.combined
         batch.begin()
 
-        batch.draw(tileMapFbo.colorBufferTexture, 0f, 0f, OreSettings.width.toFloat(),
+        batch.draw(tileMapFboRegion, 0f, 0f, OreSettings.width.toFloat(),
                    OreSettings.height.toFloat())
         batch.end()
     }
