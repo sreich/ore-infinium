@@ -50,8 +50,9 @@ class MultiRenderSystem(private val camera: OrthographicCamera,
     }
 
     override fun initialize() {
-        spriteRenderSystem = SpriteRenderSystem(world = world, oreWorld = oreWorld, camera = camera)
         tileRenderSystem = TileRenderSystem(camera = camera, fullscreenCamera = fullscreenCamera, oreWorld = oreWorld)
+        spriteRenderSystem = SpriteRenderSystem(world = world, oreWorld = oreWorld, camera = camera,
+                                                tileLightMapFbo = tileRenderSystem.tileLightMapFbo)
         liquidRenderSystem = LiquidRenderSystem(camera = camera, oreWorld = oreWorld, world = world,
                                                 tileRenderSystem = tileRenderSystem)
 

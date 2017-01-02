@@ -34,10 +34,14 @@ import com.artemis.World
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.utils.IntBag
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.FrameBuffer
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.ore.infinium.OreWorld
 import com.ore.infinium.SpriteTween
 import com.ore.infinium.components.ItemComponent
@@ -48,7 +52,8 @@ import com.ore.infinium.util.*
 @Wire
 class SpriteRenderSystem(private val world: World,
                          private val oreWorld: OreWorld,
-                         private val camera: OrthographicCamera)
+                         private val camera: OrthographicCamera,
+                         private val tileLightMapFbo: FrameBuffer)
 : OreSubSystem() {
 
     private lateinit var batch: SpriteBatch
@@ -59,8 +64,25 @@ class SpriteRenderSystem(private val world: World,
     private lateinit var tagManager: TagManager
     private lateinit var tweenManager: TweenManager
 
+    private lateinit var defaultShader: ShaderProgram
+    private lateinit var spriteLightMapBlendShader: ShaderProgram
+
     override fun initialize() {
+        //fixme hack this should be in init i think and everything else changed from lateinit to val
         batch = SpriteBatch()
+        defaultShader = batch.shader
+
+        val tileLightMapBlendVertex = Gdx.files.internal("shaders/spriteLightMapBlend.vert").readString()
+        val tileLightMapBlendFrag = Gdx.files.internal("shaders/spriteLightMapBlend.frag").readString()
+
+        spriteLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
+        check(spriteLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${spriteLightMapBlendShader.log}" }
+        spriteLightMapBlendShader.setUniformi("u_lightmap", 1)
+
+        spriteLightMapBlendShader.use {
+            spriteLightMapBlendShader.setUniformi("u_lightmap", 1)
+        }
+
         tweenManager = TweenManager()
         Tween.registerAccessor(Sprite::class.java, SpriteTween())
         //default is 3, but color requires 4 (rgba)
@@ -83,9 +105,17 @@ class SpriteRenderSystem(private val world: World,
         //        batch.setProjectionMatrix(oreWorld.camera.combined);
         tweenManager.update(world.getDelta())
 
+        batch.shader = spriteLightMapBlendShader
+
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
+        tileLightMapFbo.colorBufferTexture.bind(1)
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
+
         batch.begin()
         renderEntities(world.getDelta())
         batch.end()
+
+        batch.shader = defaultShader
 
         batch.begin()
         renderDroppedEntities(world.getDelta())

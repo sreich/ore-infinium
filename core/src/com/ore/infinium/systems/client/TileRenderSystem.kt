@@ -80,7 +80,8 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
     private val defaultShader: ShaderProgram
 
-    private val tileLightMapFboRegion: TextureRegion
+    // grabbed by other renderers to mask lighting for them too
+    val tileLightMapFboRegion: TextureRegion
     private val tileMapFboRegion: TextureRegion
 
     init {
@@ -141,18 +142,16 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         tileLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
         check(tileLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${tileLightMapBlendShader.log}" }
 
+        tileLightMapBlendShader.use {
+            tileLightMapBlendShader.setUniformi("u_lightmap", 1)
+        }
+
         tileMapFboRegion = TextureRegion(tileMapFbo.colorBufferTexture).apply {
             flipY()
         }
 
         tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).apply {
             flipY()
-        }
-
-        tileLightMapBlendShader.use {
-            tileLightMapBlendShader.setUniformi("u_lightmap", 1)
-
-            // Gdx.gl20.glBindTexture(GL20.GL_TEXTURE0 + 1, tileLightMapFbo.colorBufferTexture.textureObjectHandle)
         }
     }
 
@@ -265,18 +264,13 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
                 val lightValue = computeLightValueColor(debugLightLevel(x, y))
                 batch.setColor(lightValue, lightValue, lightValue, 1f)
-                if (lightValue == 0f) {
 
-                    batch.setColor(lightValue, lightValue, lightValue, 1f)
-                }
-
-                //batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
                 batch.draw(emptyTexture, tileX, tileY + 1, 1f, -1f)
 
             }
         }
 
-//        oreWorld.dumpFboAndExitAfterMs()
+        //oreWorld.dumpFboAndExitAfterMs(15000)
         batch.end()
         tileLightMapFbo.end()
     }
