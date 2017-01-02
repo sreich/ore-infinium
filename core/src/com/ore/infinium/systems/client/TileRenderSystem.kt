@@ -178,7 +178,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileMapFbo.begin()
 
-        Gdx.gl.glClearColorTo(1f, 1f, 1f, 1f)
+        Gdx.gl.glClearColorTo(.15f, .15f, .15f, 1f)
 
         batch.begin()
 
@@ -225,8 +225,8 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         }
 
         batch.end()
-        tileMapFbo.end()
         //oreWorld.dumpFboAndExitAfterMs()
+        tileMapFbo.end()
     }
 
     private fun renderLightMap() {
@@ -249,7 +249,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileLightMapFbo.begin()
 
-        Gdx.gl.glClearColorTo(1f, 1f, 1f, 1f)
+        Gdx.gl.glClearColorTo(0f, 0f, 0f, 1f)
 
         batch.begin()
 
