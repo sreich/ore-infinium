@@ -17,13 +17,13 @@ buildscript {
         jcommanderVersion = "1.58"
         tweenEngineVersion = "6.3.3"
 
-        kotlinVersion = '1.1-M03'
+        kotlinVersion = '1.1-M04'
 
         junitVersion = '4.12'
 
         joiseVersion = '1.0.1'
 
-        visUiVersion = '1.2.4'
+        visUiVersion = '1.2.5'
 
         protobufGradlePlugin = '0.8.0'
     }

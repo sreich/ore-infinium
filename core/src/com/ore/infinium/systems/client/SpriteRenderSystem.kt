@@ -92,7 +92,6 @@ class SpriteRenderSystem(private val world: World,
         batch.end()
         //restore color
         batch.color = Color.WHITE
-
     }
 
     override fun end() {

@@ -193,7 +193,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         renderTiles()
         renderLightMap()
-        renderBlendLightMapOnTop()
+        //  renderBlendLightMapOnTop()
     }
 
     private fun renderLightMap() {
