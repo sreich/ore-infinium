@@ -216,7 +216,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileLightMapFbo.begin()
 
-        Gdx.gl.glClearColor(1f, 0.8f, 0f, .7f)
+        Gdx.gl.glClearColor(1f, 1f, 1f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         batch.begin()
@@ -237,7 +237,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
                 batch.setColor(lightValue, lightValue, lightValue, 1f)
                 if (lightValue == 0f) {
 
-                    batch.setColor(lightValue, lightValue, 1f, 1f)
+                    batch.setColor(lightValue, lightValue, lightValue, 1f)
                 }
 
                 //batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)
@@ -262,7 +262,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.projectionMatrix = fullscreenCamera.combined
         batch.begin()
 
-        batch.draw(tileLightMapFbo.colorBufferTexture, 0f, 0f, OreSettings.width.toFloat(),
+        batch.draw(tileLightMapFboRegion, 0f, 0f, OreSettings.width.toFloat(),
                    OreSettings.height.toFloat())
         batch.end()
     }
