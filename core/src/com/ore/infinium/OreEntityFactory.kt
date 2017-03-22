@@ -2,6 +2,7 @@ package com.ore.infinium
 
 import com.artemis.ComponentMapper
 import com.ore.infinium.components.*
+import com.ore.infinium.systems.server.TileLightingSystem
 import java.util.*
 
 class OreEntityFactory(val oreWorld: OreWorld) {
@@ -88,7 +89,7 @@ class OreEntityFactory(val oreWorld: OreWorld) {
         }
 
         mLight.create(entity).apply {
-            radius = 3
+            radius = TileLightingSystem.MAX_TILE_LIGHT_LEVEL.toInt()
         }
 
         mPowerDevice.create(entity)

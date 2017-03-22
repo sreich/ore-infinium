@@ -168,6 +168,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             blockType == OreBlock.BlockType.Air.oreValue && wallType == OreBlock.WallType.Air.oreValue -> 0
         //dug-out underground bleeds off, but not as quickly as a solid block
             blockType == OreBlock.BlockType.Air.oreValue && wallType != OreBlock.WallType.Air.oreValue -> 1
+            //solid block underground
             else -> 2
         }
 
