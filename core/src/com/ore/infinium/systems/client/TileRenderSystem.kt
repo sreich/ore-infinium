@@ -236,10 +236,17 @@ class TileRenderSystem(private val camera: OrthographicCamera,
             }
         }
 
+        fun setLightsColumn(x: Int, lightLevel: Byte) {
+            for (y in 0 until oreWorld.worldSize.height) {
+                oreWorld.setBlockLightLevel(x, y, lightLevel)
+            }
+        }
+
         //      setLightsRow(50, 5)
         //       setLightsRow(20, 2)
 //        setLightsRow(60, 3)
         setLightsRow(80, 4)
+        setLightsColumn(500, 4)
         //  setLightsRow(90, 7)
         //   setLightsRow(10, 7)
         //    setLightsRow(0, 7)
@@ -266,9 +273,9 @@ class TileRenderSystem(private val camera: OrthographicCamera,
                 batch.setColor(lightValue, lightValue, lightValue, 1f)
 
                 //hack magenta overriide for debug
-//                if (lightLevel != TileLightingSystem.MAX_TILE_LIGHT_LEVEL) {
-                //batch.setColor(lightValue, 0f, lightValue, 1f)
-//                }
+                //if (lightLevel != TileLightingSystem.MAX_TILE_LIGHT_LEVEL) {
+                //batch.setColor(0f, lightValue, 0f, 1f)
+                //}
 
                 batch.draw(emptyTexture, tileX, tileY + 1, 1f, -1f)
 
