@@ -261,16 +261,21 @@ class TileRenderSystem(private val camera: OrthographicCamera,
                 val tileY = y.toFloat()
 
                 //val foregroundTileRegion = tileAtlasCache["dirt-00"]
-
-                val lightValue = computeLightValueColor(debugLightLevel(x, y))
+                val lightLevel = debugLightLevel(x, y)
+                val lightValue = computeLightValueColor(lightLevel)
                 batch.setColor(lightValue, lightValue, lightValue, 1f)
+
+                //hack magenta overriide for debug
+//                if (lightLevel != TileLightingSystem.MAX_TILE_LIGHT_LEVEL) {
+                //batch.setColor(lightValue, 0f, lightValue, 1f)
+//                }
 
                 batch.draw(emptyTexture, tileX, tileY + 1, 1f, -1f)
 
             }
         }
 
-        //oreWorld.dumpFboAndExitAfterMs(15000)
+//        oreWorld.dumpFboAndExitAfterMs(15000)
         batch.end()
         tileLightMapFbo.end()
     }

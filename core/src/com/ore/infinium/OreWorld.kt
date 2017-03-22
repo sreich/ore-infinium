@@ -1168,7 +1168,12 @@ class OreWorld
 
     fun dumpFbo() {
         val pixmap = ScreenUtils.getFrameBufferPixmap(0, 0, Gdx.graphics.backBufferWidth, Gdx.graphics.backBufferHeight)
-        PixmapIO.writePNG(FileHandle("../saveData/debug/framebufferdump.png"), pixmap)
+        val file = FileHandle("../saveData/debug/framebufferdump.png")
+        val png = PixmapIO.PNG().apply {
+            setFlipY(true)
+        }
+
+        png.write(file, pixmap)
     }
 
     /**

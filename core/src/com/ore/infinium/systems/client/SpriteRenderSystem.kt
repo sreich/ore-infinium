@@ -54,7 +54,7 @@ class SpriteRenderSystem(private val world: World,
                          private val oreWorld: OreWorld,
                          private val camera: OrthographicCamera,
                          private val tileLightMapFbo: FrameBuffer)
-: OreSubSystem() {
+    : OreSubSystem() {
 
     private lateinit var batch: SpriteBatch
 
@@ -102,7 +102,7 @@ class SpriteRenderSystem(private val world: World,
     }
 
     override fun processSystem() {
-        //        batch.setProjectionMatrix(oreWorld.camera.combined);
+//        batch.setProjectionMatrix(oreWorld.camera.combined);
         tweenManager.update(world.getDelta())
 
         batch.shader = spriteLightMapBlendShader
@@ -262,7 +262,7 @@ class SpriteRenderSystem(private val world: World,
 
             entities.toMutableList().forEach {
                 mSprite.get(it).sprite.apply {
-//                    color = Color.WHITE
+                    //                    color = Color.WHITE
                     //fixme for some reason seems sprites get an alpha of like 0.9967 or so...
                     //which is weird, because i'm not aware of changing that *anywhere*
                 }
