@@ -4,9 +4,9 @@ buildscript {
         //use + for latest
         appName = 'Ore Infinium'
 
-        gdxVersion = '1.9.5'
+        gdxVersion = '1.9.6'
 
-        aiVersion = '1.8.0'
+        aiVersion = '1.8.1'
 
         artemisVersion = '1.4.0'
         artemisContribVersion = '1.2.1'
@@ -14,10 +14,10 @@ buildscript {
 
         matrixCliVersion = "0.2.0"
 
-        jcommanderVersion = "1.58"
+        jcommanderVersion = "1.64"
         tweenEngineVersion = "6.3.3"
 
-        kotlinVersion = '1.1.0'
+        kotlinVersion = '1.1.1'
 
         junitVersion = '4.12'
 
@@ -26,6 +26,8 @@ buildscript {
         visUiVersion = '1.2.5'
 
         protobufGradlePlugin = '0.8.0'
+
+        protobufVersion = '3.1.0'
     }
 
     repositories {
@@ -69,7 +71,7 @@ plugins {
     //run :dependencyUpdates to get a list of updates needed
 
     //gradle versions plugin
-    id "com.github.ben-manes.versions" version "0.13.0"
+    id "com.github.ben-manes.versions" version "0.14.0"
 }
 
 task wrapper(type: Wrapper) {
@@ -223,7 +225,7 @@ project(":desktop") {
 
             compile "com.sudoplay.joise:joise:$joiseVersion"
 
-            compile "com.google.protobuf:protobuf-java:3.1.0"
+            compile "com.google.protobuf:protobuf-java:$protobufVersion"
         }
 
         protobuf {
