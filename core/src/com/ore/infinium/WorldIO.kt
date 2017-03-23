@@ -10,6 +10,7 @@ class WorldIO(val oreWorld: OreWorld) {
 
     fun saveWorld() {
         val saveFilePath = FILESAVE_BASE_PATH + "worldsave.save"
+
         val fs = FileOutputStream(saveFilePath).use { fs ->
 
             //writeWorldHeader(fs)

@@ -84,6 +84,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     inner class NetworkJob internal constructor(internal var connection: PlayerConnection, internal var receivedObject: Any)
 
+    //hack this needs fixed badly, none of this is thread safe for connect/disconnect
     internal inner class ServerListener : Listener() {
         //FIXME: do sanity checking (null etc) on both client, server
         override fun received(c: Connection?, obj: Any?) {
@@ -113,7 +114,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 val chatMessage = Network.Server.ChatMessage(
                         message = connection.playerName + " disconnected.",
                         sender = Chat.ChatSender.Server
-                )
+                                                            )
 
                 serverKryo.sendToAllTCP(chatMessage)
             }

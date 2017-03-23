@@ -28,22 +28,26 @@ import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.graphics.glutils.FrameBuffer
+import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.IntMap
 import com.ore.infinium.OreBlock
+import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
-import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
-import com.ore.infinium.util.getEntityId
+import com.ore.infinium.util.*
 
 @Wire
-class TileRenderSystem(private val camera: OrthographicCamera, private val oreWorld: OreWorld)
+class TileRenderSystem(private val camera: OrthographicCamera,
+                       private val fullscreenCamera: Camera,
+                       private val oreWorld: OreWorld)
     : OreSubSystem() {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
@@ -68,6 +72,18 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
 
     val tileAtlasCache = mutableMapOf<String, TextureRegion>()
 
+    val tileLightMapFbo: FrameBuffer
+    val tileMapFbo: FrameBuffer
+
+    private val tileLightMapBlendShader: ShaderProgram
+    private val emptyTexture: Texture
+
+    private val defaultShader: ShaderProgram
+
+    // grabbed by other renderers to mask lighting for them too
+    val tileLightMapFboRegion: TextureRegion
+    private val tileMapFboRegion: TextureRegion
+
     init {
 
         batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
@@ -76,6 +92,11 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
 
         tilesAtlas.regions.forEach { tileAtlasCache[it.name] = it }
+
+        val emptyPixmap = Pixmap(16, 16, Pixmap.Format.RGBA8888)
+        emptyPixmap.setColor(Color.WHITE)
+        emptyPixmap.fill()
+        emptyTexture = Texture(emptyPixmap)
 
         //todo obviously, we can replace this map and lookup with something cheaper, i bet.
         //it's actually only used to fetch the string which then we will fetch from the texture atlas
@@ -104,6 +125,34 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
             val formatted = "stone-%02d".format(i)
             stoneBlockMeshes.put(i, formatted)
         }
+
+        defaultShader = batch.shader
+
+        tileMapFbo = FrameBuffer(Pixmap.Format.RGBA8888,
+                                 OreSettings.width,
+                                 OreSettings.height, false)
+
+        tileLightMapFbo = FrameBuffer(Pixmap.Format.RGBA8888,
+                                      Gdx.graphics.backBufferWidth,
+                                      Gdx.graphics.backBufferHeight, false)
+
+        val tileLightMapBlendVertex = Gdx.files.internal("shaders/tileLightMapBlend.vert").readString()
+        val tileLightMapBlendFrag = Gdx.files.internal("shaders/tileLightMapBlend.frag").readString()
+
+        tileLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
+        check(tileLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${tileLightMapBlendShader.log}" }
+
+        tileLightMapBlendShader.use {
+            tileLightMapBlendShader.setUniformi("u_lightmap", 1)
+        }
+
+        tileMapFboRegion = TextureRegion(tileMapFbo.colorBufferTexture).apply {
+            flipY()
+        }
+
+        tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).apply {
+            flipY()
+        }
     }
 
     override fun processSystem() {
@@ -115,35 +164,20 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
             return
         }
 
-        render(oreWorld.artemisWorld.getDelta())
-    }
-
-    class TilesInView(val left: Int, val right: Int, val top: Int, val bottom: Int)
-
-    fun tilesInView(): TilesInView {
-        val sprite = mSprite.get(tagManager.getEntityId(OreWorld.s_mainPlayer))
-
-        val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
-        val tilesBeforeX = playerPosition.x.toInt()
-        val tilesBeforeY = playerPosition.y.toInt()
-
-        // determine what the size of the tiles are but convert that to our zoom level
-        val tileSize = Vector3(1f, 1f, 0f)
-        tileSize.mul(camera.combined)
-
-        val tilesInView = (camera.viewportHeight * camera.zoom).toInt()
-        val left = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
-        val top = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
-        val right = (tilesBeforeX + tilesInView + 2).coerceAtMost(oreWorld.worldSize.width)
-        val bottom = (tilesBeforeY + tilesInView + 2).coerceAtMost(oreWorld.worldSize.height)
-
-        return TilesInView(left = left, right = right, top = top, bottom = bottom)
-    }
-
-    fun render(elapsed: Float) {
         batch.projectionMatrix = camera.combined
 
+        renderTiles()
+        renderLightMap()
+        renderBlendLightMapOnTop()
+    }
+
+    fun renderTiles() {
         val tilesInView = tilesInView()
+
+        batch.shader = defaultShader
+        tileMapFbo.begin()
+
+        Gdx.gl.glClearColorTo(.15f, .15f, .15f, 1f)
 
         batch.begin()
 
@@ -190,6 +224,109 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         }
 
         batch.end()
+        //oreWorld.dumpFboAndExitAfterMs()
+        tileMapFbo.end()
+    }
+
+    private fun renderLightMap() {
+        //hack
+        fun setLightsRow(y: Int, lightLevel: Byte) {
+            for (x in 0 until oreWorld.worldSize.width) {
+                oreWorld.setBlockLightLevel(x, y, lightLevel)
+            }
+        }
+
+        fun setLightsColumn(x: Int, lightLevel: Byte) {
+            for (y in 0 until oreWorld.worldSize.height) {
+                oreWorld.setBlockLightLevel(x, y, lightLevel)
+            }
+        }
+
+        //      setLightsRow(50, 5)
+        //       setLightsRow(20, 2)
+//        setLightsRow(60, 3)
+        //setLightsRow(80, 4)
+        //setLightsColumn(500, 4)
+        //  setLightsRow(90, 7)
+        //   setLightsRow(10, 7)
+        //    setLightsRow(0, 7)
+        //     setLightsRow(100, 7)
+
+        batch.shader = defaultShader
+        tileLightMapFbo.begin()
+
+        Gdx.gl.glClearColorTo(0f, 0f, 0f, 1f)
+
+        batch.begin()
+
+        val tilesInView = tilesInView()
+        for (y in tilesInView.top until tilesInView.bottom) {
+            loop@ for (x in tilesInView.left until tilesInView.right) {
+                val blockType = oreWorld.blockType(x, y)
+                val blockMeshType = oreWorld.blockMeshType(x, y)
+                val tileX = x.toFloat()
+                val tileY = y.toFloat()
+
+                //val foregroundTileRegion = tileAtlasCache["dirt-00"]
+                val lightLevel = debugLightLevel(x, y)
+                val lightValue = computeLightValueColor(lightLevel)
+                batch.setColor(lightValue, lightValue, lightValue, 1f)
+
+                //hack magenta overriide for debug
+                //if (lightLevel != TileLightingSystem.MAX_TILE_LIGHT_LEVEL) {
+                //batch.setColor(0f, lightValue, 0f, 1f)
+                //}
+
+                batch.draw(emptyTexture, tileX, tileY + 1, 1f, -1f)
+
+            }
+        }
+
+//        oreWorld.dumpFboAndExitAfterMs(15000)
+        batch.end()
+        tileLightMapFbo.end()
+    }
+
+    private fun renderBlendLightMapOnTop() {
+
+        batch.shader = tileLightMapBlendShader
+
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
+        tileLightMapFbo.colorBufferTexture.bind(1)
+        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
+
+        batch.setColor(1f, 1f, 1f, 1f)
+
+        //tileLightMapFbo.colorBufferTexture.bind()
+
+        batch.projectionMatrix = fullscreenCamera.combined
+        batch.begin()
+
+        batch.draw(tileMapFboRegion, 0f, 0f, OreSettings.width.toFloat(),
+                   OreSettings.height.toFloat())
+        batch.end()
+    }
+
+    class TilesInView(val left: Int, val right: Int, val top: Int, val bottom: Int)
+
+    fun tilesInView(): TilesInView {
+        val sprite = mSprite.get(tagManager.getEntityId(OreWorld.s_mainPlayer))
+
+        val playerPosition = Vector3(sprite.sprite.x, sprite.sprite.y, 0f)
+        val tilesBeforeX = playerPosition.x.toInt()
+        val tilesBeforeY = playerPosition.y.toInt()
+
+        // determine what the size of the tiles are but convert that to our zoom level
+        val tileSize = Vector3(1f, 1f, 0f)
+        tileSize.mul(camera.combined)
+
+        val tilesInView = (camera.viewportHeight * camera.zoom).toInt()
+        val left = (tilesBeforeX - tilesInView - 2).coerceAtLeast(0)
+        val top = (tilesBeforeY - tilesInView - 2).coerceAtLeast(0)
+        val right = (tilesBeforeX + tilesInView + 2).coerceAtMost(oreWorld.worldSize.width)
+        val bottom = (tilesBeforeY + tilesInView + 2).coerceAtMost(oreWorld.worldSize.height)
+
+        return TilesInView(left = left, right = right, top = top, bottom = bottom)
     }
 
     fun computeLightValueColor(blockLightLevel: Byte): Float {
@@ -209,7 +346,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         //fixme of course, for wall drawing, walls should have their own textures
         //batch.setColor(0.5f, 0.5f, 0.5f, 1f)
         //batch.setColor(1.0f, 0f, 0f, 1f)
-        batch.setColor(lightValue, lightValue, lightValue, 1f)
+//        batch.setColor(lightValue, lightValue, lightValue, 1f)
 
         //offset y to flip orientation around to normal
         val regionWall = tileAtlasCache[wallTextureName]
@@ -224,7 +361,7 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
                                    blockType: Byte,
                                    x: Int, y: Int, blockMeshType: Byte) {
         //if (blockLightLevel != 0.toByte()) {
-        batch.setColor(lightValue, lightValue, lightValue, 1f)
+        //batch.setColor(lightValue, lightValue, lightValue, 1f)
         //                   } else {
         //                      batch.setColor(1f, 1f, 1f, 1f)
         //                 }
@@ -334,3 +471,5 @@ class TileRenderSystem(private val camera: OrthographicCamera, private val oreWo
         return textureName
     }
 }
+
+

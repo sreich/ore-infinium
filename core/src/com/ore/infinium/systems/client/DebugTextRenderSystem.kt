@@ -195,8 +195,8 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
             debugServerBatch.end()
         }
-
         GLProfiler.reset()
+        GLProfiler.enable()
 
     }
 
@@ -291,13 +291,15 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
     }
 
     private fun updateStandardDebugInfo() {
-        if (frameTimer.resetIfSurpassed(300)) {
+//        if (frameTimer.resetIfSurpassed(300)) {
             debugStrings.clear()
             debugStrings.add("Client frame time: ") //fixme + decimalFormat.format(frameTime);
             debugStrings.add("FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)")
             debugStrings.add("Texture switches: ${GLProfiler.textureBindings}")
             debugStrings.add("Shader switches: ${GLProfiler.shaderSwitches}")
             debugStrings.add("Draw calls: ${GLProfiler.drawCalls}")
+        debugStrings.add("Vertex count (avg): ${GLProfiler.vertexCount.average}")
+        debugStrings.add("GL calls: ${GLProfiler.calls}")
             debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(server.sharedFrameTime);
             debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
             debugStrings.add("F11 - gui render (${OreSettings.debugRenderGui.enabledString()})")
@@ -320,7 +322,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
             debugStrings.add("1-8 or mouse wheel for inventory selection")
 
             debugStrings.add("World size: (${oreWorld.worldSize.width}, ${oreWorld.worldSize.height})")
-        }
+        //       }
     }
 
     private fun drawDebugInfoForEntityAtMouse(textY: Int) {

@@ -6,3 +6,5 @@ packed*
 *.iml
 matrix/*
 saveData/
+classes/
+out/
