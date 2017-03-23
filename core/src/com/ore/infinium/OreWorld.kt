@@ -51,6 +51,7 @@ import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.*
+import kotlin.concurrent.thread
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -164,26 +165,26 @@ class OreWorld
         //note although it may look like it.. order between render and logic ones..actually doesn't matter, their base
         // class dictates this. order between ones of the same type, does though.
         artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerTick = 25,
-                isServer = false))
-                .with(TagManager())
-                .with(PlayerManager())
-                .with(MovementSystem(this))
-                .with(SoundSystem(this))
-                .with(ClientNetworkSystem(this))
-                .with(InputSystem(camera, this))
-                .with(EntityOverlaySystem(this))
-                .with(PlayerSystem(this))
-                .with(GameTickSystem(this))
-                .with(ClientBlockDiggingSystem(this, client!!))
+                                                                                                   isServer = false))
+                                     .with(TagManager())
+                                     .with(PlayerManager())
+                                     .with(MovementSystem(this))
+                                     .with(SoundSystem(this))
+                                     .with(ClientNetworkSystem(this))
+                                     .with(InputSystem(camera, this))
+                                     .with(EntityOverlaySystem(this))
+                                     .with(PlayerSystem(this))
+                                     .with(GameTickSystem(this))
+                                     .with(ClientBlockDiggingSystem(this, client!!))
                                      .with(MultiRenderSystem(camera = camera,
                                                              fullscreenCamera = client!!.viewport.camera,
                                                              oreWorld = this))
-                .with(DebugTextRenderSystem(camera, this))
+                                     .with(DebugTextRenderSystem(camera, this))
                                      .with(PowerOverlayRenderSystem(oreWorld = this,
                                                                     fullscreenCamera = client!!.viewport.camera,
                                                                     stage = client!!.stage))
-                .with(TileTransitionSystem(camera, this))
-                .build())
+                                     .with(TileTransitionSystem(camera, this))
+                                     .build())
         //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
         //inject the mappers into the world, before we start doing things
@@ -195,24 +196,24 @@ class OreWorld
 
     fun initServer() {
         artemisWorld = World(WorldConfigurationBuilder()
-                .with(TagManager())
-                .with(SpatialSystem(this))
-                .with(PlayerManager())
-                .with(MovementSystem(this))
-                .with(ServerPowerSystem(this))
-                .with(GameTickSystem(this))
-                .with(DroppedItemPickupSystem(this))
-                .with(GrassBlockSystem(this))
-                .with(ServerNetworkEntitySystem(this))
-                .with(ServerBlockDiggingSystem(this))
-                .with(PlayerSystem(this))
-                .with(ExplosiveSystem(this))
-                .with(AirSystem(this))
-                .with(ServerNetworkSystem(this, server!!))
-                .with(TileLightingSystem(this))
-                .with(LiquidSimulationSystem(this))
-                .register(GameLoopSystemInvocationStrategy(msPerTick = 25, isServer = true))
-                .build())
+                                     .with(TagManager())
+                                     .with(SpatialSystem(this))
+                                     .with(PlayerManager())
+                                     .with(MovementSystem(this))
+                                     .with(ServerPowerSystem(this))
+                                     .with(GameTickSystem(this))
+                                     .with(DroppedItemPickupSystem(this))
+                                     .with(GrassBlockSystem(this))
+                                     .with(ServerNetworkEntitySystem(this))
+                                     .with(ServerBlockDiggingSystem(this))
+                                     .with(PlayerSystem(this))
+                                     .with(ExplosiveSystem(this))
+                                     .with(AirSystem(this))
+                                     .with(ServerNetworkSystem(this, server!!))
+                                     .with(TileLightingSystem(this))
+                                     .with(LiquidSimulationSystem(this))
+                                     .register(GameLoopSystemInvocationStrategy(msPerTick = 25, isServer = true))
+                                     .build())
         //inject the mappers into the world, before we start doing things
         artemisWorld.oreInject(this)
 
@@ -223,9 +224,10 @@ class OreWorld
         if (OreSettings.flatWorld) {
             worldGenerator!!.flatWorld(worldSize)
         } else {
-            generateWorld()
+            thread(name = "world generator jumpstarter thread") { generateWorld() }
         }
 
+        //severe: obviously...we don't want to do this right after..we can't save the world while we're still generating it
         if (OreSettings.saveLoadWorld) {
             worldIO.saveWorld()
         }
@@ -296,7 +298,7 @@ class OreWorld
         val cPlayer = mPlayer.create(entity).apply {
             connectionPlayerId = connectionId
             loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
-                    LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
+                                            LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
             loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y), world = this@OreWorld)
         }
 
@@ -1249,7 +1251,7 @@ class OreWorld
 
                 //fixme functionalize this, duplicated of/by networkserversystem drop request
                 sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
-                        clonedSpriteComp.sprite.height)
+                                         clonedSpriteComp.sprite.height)
                 timeOfDropMs = TimeUtils.millis()
             }
 
