@@ -356,17 +356,17 @@ class OreWorld
         (leftSide..rightSide).forEach { tileX -> solidBlocks.add(isBlockSolid(tileX, bottomY)) }
 
         //all solid,
-        if (solidBlocks.all { blockSolid -> blockSolid == true }) {
+        if (solidBlocks.all { blockSolid -> blockSolid }) {
             return EntitySolidGroundStatus.FullySolid
         }
 
         //all empty
-        if (solidBlocks.all { blockSolid -> blockSolid == false }) {
+        if (solidBlocks.all { blockSolid -> !blockSolid }) {
             return EntitySolidGroundStatus.FullyEmpty
         }
 
         //some empty
-        if (solidBlocks.any { blockSolid -> blockSolid == false }) {
+        if (solidBlocks.any { blockSolid -> !blockSolid }) {
             return EntitySolidGroundStatus.PartiallyGrounded
         }
 
@@ -717,7 +717,7 @@ class OreWorld
      * having to interface with other systems. Though some exceptions may apply
      */
     fun shutdown() {
-        log("world", "shutdown")
+        log("world", "shutdown...")
         artemisWorld.dispose()
     }
 

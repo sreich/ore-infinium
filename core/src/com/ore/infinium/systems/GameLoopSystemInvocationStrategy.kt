@@ -38,9 +38,9 @@ import java.util.*
 class GameLoopSystemInvocationStrategy
 /**
  * @param msPerTick
- * *         desired ms per tick you want the logic systems to run at.
- * *         Rendering is unbounded/probably bounded by libgdx's
- * *         DesktopLauncher
+ *         desired ms per tick you want the logic systems to run at.
+ *         this doesn't affect rendering as that is unbounded/probably
+ *         bounded by libgdx's DesktopLauncher
  */
 (msPerTick: Int, private val isServer: Boolean) : SystemInvocationStrategy() {
 
@@ -67,7 +67,6 @@ class GameLoopSystemInvocationStrategy
 
     private fun addSystems(systems: Bag<BaseSystem>) {
         if (!systemsSorted) {
-            val systemsData = systems.data
             for (system in systems) {
                 if (system is RenderSystemMarker) {
                     renderSystems.add(createSystemAndProfiler(system))
@@ -244,7 +243,6 @@ class GameLoopSystemInvocationStrategy
                    var loadMin: Float = 0f, var loadMax: Float = 0f,
                    var loadAverage: Float = 0f) {
     }
-
 
     //separated to reduce theoretical thread lock-stepping/stuttering
     //since client will want to reach in and grab server perf stats,
