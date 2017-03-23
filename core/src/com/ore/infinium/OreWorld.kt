@@ -102,7 +102,6 @@ class OreWorld
             = !ClassReflection.isAssignableFrom(EntityProcessingSystem::class.java, ClientNetworkSystem::class.java)
 
     //each unit is 1 block(16x16 px), in the game world
-    //public OreBlock[] blocks;
     var blocks: ByteArray
     lateinit var assetManager: AssetManager
     lateinit var camera: OrthographicCamera
@@ -221,13 +220,11 @@ class OreWorld
 
         entityFactory = OreEntityFactory(this)
 
-        //else {
         if (OreSettings.flatWorld) {
             worldGenerator!!.flatWorld(worldSize)
         } else {
             generateWorld()
         }
-//            }
 
         if (OreSettings.saveLoadWorld) {
             worldIO.saveWorld()
@@ -235,8 +232,6 @@ class OreWorld
     }
 
     private fun initCamera() {
-        //val w = Gdx.graphics.width.toFloat()
-        //val h = Gdx.graphics.height.toFloat()
         val width = OreSettings.width / BLOCK_SIZE_PIXELS
         val height = OreSettings.height / BLOCK_SIZE_PIXELS
         camera = OrthographicCamera(width, height)//30, 30 * (h / w));

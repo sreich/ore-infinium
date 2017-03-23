@@ -34,18 +34,17 @@ class OreBlock private constructor() {
      * Which mesh sprite to use, aka subsprite.
      * This is utilized to cleanly decide which exact sprite(e.g. full block, corner pieces, etc.) to show for whatever
      * tile (e.g. dirt, grass) this is.
-     * 0-15.
+     *
      * For example, @sa primitiveType
      * which does not generally depend on the surroundings.
      *
      *
-     * meshType however, is determined by calculating the surrounding tiles and if they are of a simlar type or similar
+     * meshType however, is determined by calculating the surrounding tiles and if they are of a similar type or similar
      * blendType, then it will change the overall look of it.
      *
      *
      * Bottom line: use meshType ONLY for rendering, use primitiveType for everything else. meshType is only a
-     * displaying
-     * niche of a detail, not a gameplay mechanic
+     * displaying niche of a detail, not a gameplay mechanic
      */
     //public byte meshType;
 
@@ -116,7 +115,7 @@ class OreBlock private constructor() {
 
     companion object {
         /**
-         * map ores to a color so we can output the image
+         * map ores to a color so we can output the world as a pixmap
          */
         val OreNoiseColorMap = mapOf(BlockType.Dirt.oreValue to Color2.BROWN,
                                      BlockType.Sand.oreValue to Color.ORANGE,
@@ -231,9 +230,10 @@ class OreBlock private constructor() {
          * because they're all stored in one array, as primitives.
          * each is a byte..obviously
          *
+         * some of these fields are client-side only
          *
-         * As follows are:
-         * -meshType
+         * As follows are(in no particular order):
+         * -meshType (todo in the future this should be client only)
          * -type
          * -wallType
          * -flags
