@@ -1,7 +1,6 @@
 buildscript {
 
     ext {
-        //use + for latest
         appName = 'Ore Infinium'
 
         gdxVersion = '1.9.6'
@@ -18,6 +17,7 @@ buildscript {
         tweenEngineVersion = "6.3.3"
 
         kotlinVersion = '1.1.1'
+        kotlinCoroutinesVersion = '0.14'
 
         junitVersion = '4.12'
 
@@ -41,6 +41,10 @@ buildscript {
 
         //maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
 
+        repositories {
+            maven { url "https://kotlin.bintray.com/kotlinx/" }
+        }
+
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1/" }
 
         maven { url "https://dl.bintray.com/heri/frostcode" }
@@ -58,7 +62,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufGradlePlugin"
-
     }
 }
 
@@ -82,6 +85,12 @@ subprojects {
 
     apply plugin: "java"
     apply plugin: "kotlin"
+
+    kotlin {
+        experimental {
+            coroutines "enable"
+        }
+    }
 
     compileJava {
         sourceCompatibility = '1.8'
@@ -226,6 +235,8 @@ project(":desktop") {
             compile "com.sudoplay.joise:joise:$joiseVersion"
 
             compile "com.google.protobuf:protobuf-java:$protobufVersion"
+
+            compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
         }
 
         protobuf {

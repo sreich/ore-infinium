@@ -51,6 +51,8 @@ import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.*
+import kotlinx.coroutines.experimental.channels.ProducerJob
+import kotlinx.coroutines.experimental.runBlocking
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -91,6 +93,8 @@ class OreWorld
     private lateinit var mPowerDevice: ComponentMapper<PowerDeviceComponent>
     private lateinit var mPowerConsumer: ComponentMapper<PowerConsumerComponent>
     private lateinit var mPowerGenerator: ComponentMapper<PowerGeneratorComponent>
+
+    lateinit var worldGenJob: ProducerJob<String>
 
     /**
      * hotspot optimization replaces (amongst other steps) references to entityprocessingsystem with entitysystem.
@@ -223,6 +227,7 @@ class OreWorld
         if (OreSettings.flatWorld) {
             worldGenerator!!.flatWorld(worldSize)
         } else {
+            worldGenJob = worldGenerator!!.asyncGenerateWorld(worldSize)
             generateWorld()
         }
 
@@ -324,7 +329,20 @@ class OreWorld
     }
 
     private fun generateWorld() {
-        worldGenerator!!.generateWorld(worldSize)
+        //worldGenerator!!.generateWorld(worldSize)
+        runBlocking {
+            worldGenJob.join()
+        }
+        println("ret")
+
+//        runBlocking {
+//            while (true) {
+//
+//                if (!worldGenJob.isEmpty) {
+//                    println("received thing: ${worldGenJob.receive()}")
+//                }
+//            }
+//        }
     }
 
     /**

@@ -35,6 +35,10 @@ import com.ore.infinium.systems.server.LiquidSimulationSystem
 import com.ore.infinium.util.completed
 import com.ore.infinium.util.oreInject
 import com.sudoplay.joise.module.*
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.channels.produce
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -231,13 +235,21 @@ class WorldGenerator(private val world: OreWorld) {
     class WorldGenOutputInfo(val worldSize: OreWorld.WorldSize, val seed: Long, val useUniqueImageName: Boolean) {
     }
 
+    fun asyncGenerateWorld(worldSize: OreWorld.WorldSize) = produce<String>(CommonPool, Channel.UNLIMITED) {
+        //        while(true) {
+//            this.send("here's a progress msg ${System.nanoTime()}")
+//            delay(1000)
+//        }
+
+        generateWorld(worldSize, channel)
+    }
+
     /**
      * Performs all world generation according to parameters
      * Multithreaded to the number of cpus (logical) the system has, automatically
      */
-    fun generateWorld(worldSize: OreWorld.WorldSize) {
-        Gdx.app.log("server world gen", "generate world start....")
-
+    suspend fun generateWorld(worldSize: OreWorld.WorldSize, channel: SendChannel<String>) {
+        channel.send("generate world start....")
         val threadCount = Runtime.getRuntime().availableProcessors()
 
         workerThreadsRemainingLatch = CountDownLatch(threadCount)
@@ -253,7 +265,7 @@ class WorldGenerator(private val world: OreWorld) {
 
         //inputSeed = 5731577342163850638 at least 3 sizeable possible lakes
         /*
-               */
+           */
 
         // inputSeed = -7198005506662559321 //HACK come back tot his one
 
@@ -283,11 +295,15 @@ class WorldGenerator(private val world: OreWorld) {
         OreWorld.log("world gen",
                      "worldgen detected $threadCount processors, starting worldgen on $threadCount threads")
 
+        channel.send("starting worldgen on $threadCount threads")
+
         val counter = PerformanceCounter("world gen")
         counter.start()
 
         for (thread in 1..threadCount) {
-            thread(name = "world gen thread $thread") { generateWorldThreaded(worldSize, thread, threadCount, seed) }
+            thread(name = "world gen thread $thread") {
+                generateWorldThreaded(worldSize, thread, threadCount, seed)
+            }
         }
 
         //halt until all threads come back up. remember, for client-hosted server,
@@ -300,6 +316,7 @@ class WorldGenerator(private val world: OreWorld) {
         //ui values
         workerThreadsRemainingLatch!!.await()
 
+        channel.send("setting block wall types")
         //hack, set block wall type for each part that's underground!
         //obviously will need replaced with something less stupid
         for (y in 0 until worldSize.height) {
@@ -310,9 +327,13 @@ class WorldGenerator(private val world: OreWorld) {
             }
         }
 
+        channel.send("generating lakes & volcanoes")
         generateLakesAndVolcanoes(worldSize)
 
         counter.stop()
+
+        channel.send("world generation finished after ${counter.current} seconds")
+
         OreWorld.log("world gen", "world generation finished after ${counter.current} seconds")
 
         val worldGenInfo = WorldGenOutputInfo(worldSize, seed, useUniqueImageName = false)

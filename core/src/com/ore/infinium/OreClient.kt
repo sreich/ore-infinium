@@ -403,7 +403,6 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             e.printStackTrace()
         }
 
-//severe coroutines here!
         world = OreWorld(this, server, OreWorld.WorldInstanceType.ClientHostingServer, worldSize)
         world!!.init()
         world!!.artemisWorld.inject(this)
@@ -436,13 +435,20 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun render() {
         if (world != null) {
+            //severe
             //it's our hosted server, but it's still trying to generate the world...keep waiting
-            if (server != null && server!!.oreWorld.worldGenerator!!.finished) {
-
-            } else {
-                //we're just a dumb client
-                world!!.process()
+            if (server != null) {
+                val progress = server!!.oreWorld.worldGenJob.poll()
+                if (progress != null) {
+                    println("CLIENT RECEIVED worldgen PROGRESS: $progress")
+                }
             }
+//            if (server != null && server!!.oreWorld.worldGenerator!!.finished) {
+
+            //           } else {
+            //we're just a dumb client
+            world!!.process()
+            //          }
         }
 
         if (OreSettings.debugRenderGui) {
