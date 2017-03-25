@@ -50,7 +50,7 @@ Windows, macOS).
 **You will need java 8 (jre 1.8) installed.**
 **OpenGL 3.0+** (shouldn't be difficult to meet, linux open source drivers usually meet that easily these days. Any integrated gpu in the past several years should support it).
 
-# Builds
+# Downloads/Builds
 Regular builds (jar files) can be downloaded from [my dropbox builds](https://www.dropbox.com/sh/utrgredr6xx44jd/AACycdKZElceSHSrIFSvXPkXa?dl=0)
 
 Simply execute it by 'java -jar pathtojar'
