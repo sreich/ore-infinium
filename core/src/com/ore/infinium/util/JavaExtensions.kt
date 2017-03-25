@@ -1,6 +1,7 @@
 package com.ore.infinium.util
 
 import java.awt.Color
+import java.util.concurrent.CountDownLatch
 
 /**
 MIT License
@@ -41,3 +42,10 @@ object Color2 {
     val WATER_BLUE = Color(15, 60, 157)
     val SKY_BLUE = Color(155, 209, 255)
 }
+
+val CountDownLatch.completed: Boolean
+    get() {
+        return this.count == 0L
+    }
+
+

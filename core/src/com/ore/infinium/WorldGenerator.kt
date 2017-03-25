@@ -32,6 +32,7 @@ import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.LiquidSimulationSystem
+import com.ore.infinium.util.completed
 import com.ore.infinium.util.oreInject
 import com.sudoplay.joise.module.*
 import java.awt.Color
@@ -49,6 +50,22 @@ import kotlin.system.measureTimeMillis
 class WorldGenerator(private val world: OreWorld) {
     private lateinit var mSprite: ComponentMapper<SpriteComponent>
     private lateinit var liquidSimulationSystem: LiquidSimulationSystem
+
+    /**
+     * how many worker threads are running write now.
+     * 0 indicates we are all done, after each one finishes,
+     * we countdown (decrement) their latch..
+     *
+     * once it hits 0 you'll know world gen is complete.
+     */
+    var workerThreadsRemainingLatch: CountDownLatch? = null
+
+    /**
+     * @return true if worldgen has completed successfully
+     */
+    val finished: Boolean get() {
+        return workerThreadsRemainingLatch!!.completed
+    }
 
     init {
         world.artemisWorld.oreInject(this)
@@ -213,15 +230,6 @@ class WorldGenerator(private val world: OreWorld) {
 
     class WorldGenOutputInfo(val worldSize: OreWorld.WorldSize, val seed: Long, val useUniqueImageName: Boolean) {
     }
-
-    /**
-     * how many worker threads are running write now.
-     * 0 indicates we are all done, after each one finishes,
-     * we countdown (decrement) their latch..
-     *
-     * once it hits 0 you'll know world gen is complete.
-     */
-    var workerThreadsRemainingLatch: CountDownLatch? = null
 
     /**
      * Performs all world generation according to parameters
@@ -1344,5 +1352,4 @@ class WorldGenerator(private val world: OreWorld) {
         return peakResult
     }
 }
-
 

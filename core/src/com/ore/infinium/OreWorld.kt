@@ -51,7 +51,6 @@ import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.*
-import kotlin.concurrent.thread
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -110,7 +109,7 @@ class OreWorld
     //fixme remove in favor of the render system
     lateinit var atlas: TextureAtlas
 
-    private var worldGenerator: WorldGenerator? = null
+    var worldGenerator: WorldGenerator? = null
 
     lateinit var artemisWorld: World
     val worldIO = WorldIO(this)
@@ -224,7 +223,7 @@ class OreWorld
         if (OreSettings.flatWorld) {
             worldGenerator!!.flatWorld(worldSize)
         } else {
-            thread(name = "world generator jumpstarter thread") { generateWorld() }
+            generateWorld()
         }
 
         //severe: obviously...we don't want to do this right after..we can't save the world while we're still generating it

@@ -66,7 +66,8 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
     override fun run() {
         Thread.currentThread().name = "server thread (main)"
 
-        oreWorld = OreWorld(client = null, server = this, worldInstanceType = OreWorld.WorldInstanceType.Server,
+        oreWorld = OreWorld(client = null, server = this,
+                            worldInstanceType = OreWorld.WorldInstanceType.Server,
                             worldSize = worldSize)
         oreWorld.init()
         oreWorld.artemisWorld.inject(this, true)
@@ -91,6 +92,7 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
             oreWorld.process()
         }
 
+        //shutdown saving
         if (OreSettings.saveLoadWorld) {
             oreWorld.worldIO.saveWorld()
         }

@@ -167,7 +167,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         sidebar = Sidebar(stage, this)
 
-        hostAndJoin()
+        startClientHostedServerAndJoin()
     }
 
     fun handlePrimaryAttack() {
@@ -388,7 +388,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     /**
      * immediately hops into hosting and joining its own local server
      */
-    private fun hostAndJoin() {
+    private fun startClientHostedServerAndJoin() {
         val worldSize = OreWorld.WorldSize.TestTiny
 
         server = OreServer(worldSize)
@@ -403,7 +403,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             e.printStackTrace()
         }
 
-        //call system, if returns false, fail and show:
+//severe coroutines here!
         world = OreWorld(this, server, OreWorld.WorldInstanceType.ClientHostingServer, worldSize)
         world!!.init()
         world!!.artemisWorld.inject(this)
@@ -436,7 +436,13 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun render() {
         if (world != null) {
-            world!!.process()
+            //it's our hosted server, but it's still trying to generate the world...keep waiting
+            if (server != null && server!!.oreWorld.worldGenerator!!.finished) {
+
+            } else {
+                //we're just a dumb client
+                world!!.process()
+            }
         }
 
         if (OreSettings.debugRenderGui) {
@@ -444,7 +450,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             stage.draw()
         }
 
-        //fixme: minus isn't working?? but plus(equals) is
+        //fixme: minus wasn't working?? but plus(equals) is, had to resort to left bracket for now
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
             if (zoomTimer.resetIfSurpassed(zoomInterval)) {
                 //zoom out

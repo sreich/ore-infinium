@@ -159,10 +159,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         serverKryo.bind(Network.PORT)
 
-
         //notify the local client we've started hosting our server, so he can connect now.
         oreWorld.server!!.connectHostLatch.countDown()
-
     }
 
     fun addConnectionListener(listener: NetworkServerConnectionListener) = connectionListeners.add(listener)
