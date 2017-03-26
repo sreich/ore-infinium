@@ -67,6 +67,6 @@ class Sidebar(stage: Stage, client: OreClient) {
             }
         })
 
-        stage.addActor(container)
+        //severe stage.addActor(container)
     }
 }

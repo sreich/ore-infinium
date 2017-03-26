@@ -48,8 +48,7 @@ class Hud(private val client: OreClient,
         add(airAmountLabel)
         row()
 
-        rootTable.add(this).expand().top().right().padBottom(5f).size(500f, 200f)
-        isVisible = false
+        //rootTable.add(this).expand().top().right().padBottom(5f).size(500f, 200f)
     }
 
     fun airChanged(cAir: AirComponent, air: Int) {

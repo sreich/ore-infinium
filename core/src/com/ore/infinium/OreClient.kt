@@ -126,14 +126,13 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         MainMenu
     }
 
+
     class StateMachineStack {
 
         private val stack = ArrayDeque<State>()
         fun pop(): State? {
             val s = stack.pop()
-            if (s != null) {
-                s.exit()
-            }
+            s?.exit?.invoke()
             return s
         }
 
@@ -203,12 +202,16 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         sidebar = Sidebar(stage, this)
 
         hudState = State(type = GuiState.LoadingScreen,
-                         enter = { loadingScreen.isVisible = true },
-                         exit = { loadingScreen.isVisible = false })
+                         enter = { hud.isVisible = true },
+                         exit = { rootTable.clear() })
 
         loadingScreenState = State(type = GuiState.LoadingScreen,
-                                   enter = { loadingScreen.isVisible = true },
-                                   exit = { loadingScreen.isVisible = false })
+                                   enter = {
+                                       /*severe hack*/
+                                       rootTable.clear()
+                                       rootTable.add(loadingScreen).fill().expand()
+                                   },
+                                   exit = { rootTable.clear() })
         guiStates.push(loadingScreenState)
 
         startClientHostedServerAndJoin()

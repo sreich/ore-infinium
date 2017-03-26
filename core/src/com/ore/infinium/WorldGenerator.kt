@@ -251,17 +251,13 @@ class WorldGenerator(private val world: OreWorld) {
      */
     suspend fun generateWorld(worldSize: OreWorld.WorldSize, channel: SendChannel<String>) {
         channel.send("generate world start....")
-        delay(1000)
-        channel.send("more progress")
-
-        delay(1000)
-        channel.send("more progress2")
-
-        delay(1000)
-        channel.send("more progress3")
-
-        delay(1000)
-        channel.send("more progress4")
+        //hack obvs
+        repeat(200) {
+            //delay(900)
+            delay(90)
+            channel.send("more progress $it")
+        }
+        delay(999999)
 
         val threadCount = Runtime.getRuntime().availableProcessors()
 

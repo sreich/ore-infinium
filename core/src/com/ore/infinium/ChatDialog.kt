@@ -93,7 +93,7 @@ class ChatDialog(private val client: OreClient,
 
         stage.keyboardFocus = sendButton
         //        container.background("default-window");
-        rootTable.add(container).expand().bottom().left().padBottom(5f).size(500f, 200f)
+        //severe rootTable.add(container).expand().bottom().left().padBottom(5f).size(500f, 200f)
 
         container.layout()
         scrollPaneTable.layout()

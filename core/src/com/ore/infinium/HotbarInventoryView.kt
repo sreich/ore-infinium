@@ -192,7 +192,10 @@ class HotbarInventoryView(private val stage: Stage,
         slots[index].itemImage.isVisible = visible
     }
 
-    private class HotbarDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val hotbarInventoryView: HotbarInventoryView) : DragAndDrop.Source(
+    private class HotbarDragSource(slotTable: Table,
+                                   private val index: Int,
+                                   private val dragImage: Image,
+                                   private val hotbarInventoryView: HotbarInventoryView) : DragAndDrop.Source(
             slotTable) {
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
@@ -215,7 +218,9 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class HotbarDragTarget(slotTable: VisTable, private val index: Int, private val inventoryView: HotbarInventoryView) : DragAndDrop.Target(
+    private class HotbarDragTarget(slotTable: VisTable,
+                                   private val index: Int,
+                                   private val inventoryView: HotbarInventoryView) : DragAndDrop.Target(
             slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
@@ -297,7 +302,7 @@ class HotbarInventoryView(private val stage: Stage,
 
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView,
                                                          private val index: Int)
-    : OreInputListener() {
+        : OreInputListener() {
         override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventory.inventory.itemEntity(index)
             if (isValidEntity(itemEntity)) {
@@ -328,7 +333,8 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class SlotClickListener(private val inventory: HotbarInventoryView, private val index: Int) : ClickListener() {
+    private class SlotClickListener(private val inventory: HotbarInventoryView,
+                                    private val index: Int) : ClickListener() {
 
         override fun clicked(event: InputEvent?, x: Float, y: Float) {
             inventory.deselectPreviousSlot()

@@ -46,6 +46,8 @@ class LoadingScreen(private val client: OreClient,
 
     val progressElements = mutableListOf<VisLabel>()
 
+    val fixedCenterTable: VisTable
+
     init {
         loadingMeter.value = 10f
 
@@ -55,14 +57,22 @@ class LoadingScreen(private val client: OreClient,
         progressScrollTable = VisTable()
         progressScroll = VisScrollPane(progressScrollTable)
 
-        add(loadingLabel).padRight(1f)
-        row()
-        add(loadingMeter)
-//        add(progressScroll).expand().fill().colspan(1)
-        row()
-        add(progressScrollTable).expand().fill()
+        fixedCenterTable = VisTable().apply {
+            add(loadingLabel).padRight(1f)
+            row()
+            add(loadingMeter)
+        }
 
-        rootTable.add(this).expand() //.padBottom(5f)//.size(500f, 200f)
+        add(fixedCenterTable).center()
+//hack        add(progressScroll).expand().fill().colspan(1)
+        row()
+        add(progressScroll).fill().size(600f, 300f)
+        //progressScroll.setScrollingDisabled(true, true)
+        progressScroll.setFadeScrollBars(false)
+        progressScroll.setScrollBarPositions(true,true)
+
+        progressScroll.scrollPercentY = 100f
+//        rootTable.add(this).expand().fill() //.padBottom(5f)//.size(500f, 200f)
 
 //
 //        TextArea textArea = new TextArea("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec iaculis odio.",
@@ -87,21 +97,24 @@ class LoadingScreen(private val client: OreClient,
 
 //        progressText.layout()
         progressScroll.layout()
-        progressScroll.scrollToBottom()
-
-        isVisible = false
+        //progressScroll.scrollToBottom()
+        this.layout()
     }
 
     fun addNewProgressLine(text: String) {
         val element = VisLabel(text)
         progressElements.add(element)
 
+        progressScrollTable.row().left()//.pad(1f)
+
         progressScrollTable.apply {
-            add(element).expand().fill().row()
+            add(element).expandX().fill()
         }
 
+        element.layout()
         progressScrollTable.layout()
         progressScroll.scrollToBottom()
+        this.layout()
     }
 
     fun progressReceived(progress: String, worldGenJob: ProducerJob<String>) {
