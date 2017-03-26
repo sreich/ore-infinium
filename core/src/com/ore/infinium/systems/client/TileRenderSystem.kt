@@ -42,7 +42,11 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
-import com.ore.infinium.util.*
+import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
+import com.ore.infinium.util.flipY
+import com.ore.infinium.util.getEntityId
+import com.ore.infinium.util.use
+import ktx.app.clearScreen
 
 @Wire
 class TileRenderSystem(private val camera: OrthographicCamera,
@@ -177,7 +181,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileMapFbo.begin()
 
-        Gdx.gl.glClearColorTo(.15f, .15f, .15f, 1f)
+        clearScreen(.15f, .15f, .15f)
 
         batch.begin()
 
@@ -255,7 +259,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileLightMapFbo.begin()
 
-        Gdx.gl.glClearColorTo(0f, 0f, 0f, 1f)
+        clearScreen(0f, 0f, 0f)
 
         batch.begin()
 

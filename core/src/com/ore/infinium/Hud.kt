@@ -49,12 +49,13 @@ class Hud(private val client: OreClient,
         row()
 
         rootTable.add(this).expand().top().right().padBottom(5f).size(500f, 200f)
+        isVisible = false
     }
 
     fun airChanged(cAir: AirComponent, air: Int) {
         val airPercent = air.toFloat() / cAir.maxAir.toFloat() * 100f
 
-        airAmountLabel.setText(airPercent.format("%.2f"))
+        airAmountLabel.setText(airPercent.format())
 
         airMeter.value = airPercent
     }

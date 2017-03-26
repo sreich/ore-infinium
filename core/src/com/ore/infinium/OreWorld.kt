@@ -167,7 +167,7 @@ class OreWorld
 
         //note although it may look like it.. order between render and logic ones..actually doesn't matter, their base
         // class dictates this. order between ones of the same type, does though.
-        artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerTick = 25,
+        artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerLogicTick = 25,
                                                                                                    isServer = false))
                                      .with(TagManager())
                                      .with(PlayerManager())
@@ -215,7 +215,7 @@ class OreWorld
                                      .with(ServerNetworkSystem(this, server!!))
                                      .with(TileLightingSystem(this))
                                      .with(LiquidSimulationSystem(this))
-                                     .register(GameLoopSystemInvocationStrategy(msPerTick = 25, isServer = true))
+                                     .register(GameLoopSystemInvocationStrategy(msPerLogicTick = 25, isServer = true))
                                      .build())
         //inject the mappers into the world, before we start doing things
         artemisWorld.oreInject(this)
@@ -228,6 +228,7 @@ class OreWorld
             worldGenerator!!.flatWorld(worldSize)
         } else {
             worldGenJob = worldGenerator!!.asyncGenerateWorld(worldSize)
+            //severe hack for now..
             generateWorld()
         }
 

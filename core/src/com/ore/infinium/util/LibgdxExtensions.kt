@@ -25,9 +25,7 @@ SOFTWARE.
 package com.ore.infinium.util
 
 import com.badlogic.gdx.ApplicationListener
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputProcessor
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
@@ -38,6 +36,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.utils.Align
+import com.kotcrab.vis.ui.widget.VisScrollPane
 
 
 /**
@@ -63,6 +62,11 @@ interface OreApplicationListener : ApplicationListener {
     override fun resume() = Unit
     override fun dispose() = Unit
     override fun pause() = Unit
+}
+
+fun VisScrollPane.scrollToBottom() {
+    this.layout()
+    this.scrollPercentY = 100f
 }
 
 /**
@@ -105,11 +109,6 @@ fun TextureRegion.flipY() {
 
 fun TextureRegion.flipX() {
     flip(true, false)
-}
-
-fun GL20.glClearColorTo(r: Float, g: Float, b: Float, a: Float) {
-    Gdx.gl.glClearColor(r, g, b, a)
-    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 }
 
 /**

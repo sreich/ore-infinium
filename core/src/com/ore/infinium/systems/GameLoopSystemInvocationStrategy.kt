@@ -27,22 +27,21 @@ package com.ore.infinium.systems
 import com.artemis.BaseSystem
 import com.artemis.SystemInvocationStrategy
 import com.artemis.utils.Bag
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreSettings
 import com.ore.infinium.util.RenderSystemMarker
 import com.ore.infinium.util.format
+import ktx.app.clearScreen
 import java.util.*
 
 class GameLoopSystemInvocationStrategy
 /**
- * @param msPerTick
+ * @param msPerLogicTick
  *         desired ms per tick you want the logic systems to run at.
  *         this doesn't affect rendering as that is unbounded/probably
  *         bounded by libgdx's DesktopLauncher
  */
-(msPerTick: Int, private val isServer: Boolean) : SystemInvocationStrategy() {
+(msPerLogicTick: Int, private val isServer: Boolean) : SystemInvocationStrategy() {
 
     //systems marked as indicating to be run only during the logic section of the loop
     private val renderSystems = mutableListOf<SystemAndProfiler>()
@@ -53,7 +52,7 @@ class GameLoopSystemInvocationStrategy
     private var accumulatorNs: Long = 0
 
     //delta time
-    private val nsPerTick = TimeUtils.millisToNanos(msPerTick.toLong())
+    private val nsPerTick = TimeUtils.millisToNanos(msPerLogicTick.toLong())
 
     private var currentTimeNs = System.nanoTime()
 
@@ -184,8 +183,7 @@ class GameLoopSystemInvocationStrategy
         //only clear if we have something to render..aka this world is a rendering one (client)
         //else it's a server, and this will crash due to no gl context, obviously
         if (!isServer) {
-            Gdx.gl.glClearColor(.1f, .1f, .1f, 1f)
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
+            clearScreen(.1f, .1f, .1f)
         }
 
         for (systemAndProfiler in renderSystems) {

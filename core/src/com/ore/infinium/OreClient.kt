@@ -45,6 +45,7 @@ import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.*
 import java.io.IOException
+import java.util.*
 
 class OreClient : OreApplicationListener, OreInputProcessor {
 
@@ -87,6 +88,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     lateinit var chat: Chat
     private var sidebar: Sidebar? = null
     lateinit var hud: Hud
+    lateinit var loadingScreen: LoadingScreen
 
     private var dragAndDrop: DragAndDrop? = null
 
@@ -112,6 +114,38 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     init {
     }
+
+    class State(val type: GuiState,
+                val enter: () -> Unit,
+                val exit: () -> Unit)
+
+    enum class GuiState {
+        LoadingScreen,
+        ///in-game
+        Hud,
+        MainMenu
+    }
+
+    class StateMachineStack {
+
+        private val stack = ArrayDeque<State>()
+        fun pop(): State? {
+            val s = stack.pop()
+            if (s != null) {
+                s.exit()
+            }
+            return s
+        }
+
+        fun push(s: State) {
+            s.enter()
+            stack.push(s)
+        }
+    }
+
+    val guiStates = StateMachineStack()
+    lateinit var hudState: State
+    lateinit var loadingScreenState: State
 
     override fun create() {
         // for debugging kryonet
@@ -164,8 +198,18 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         chat.addListener(chatDialog)
 
         hud = Hud(this, stage, rootTable)
+        loadingScreen = LoadingScreen(this, stage, rootTable)
 
         sidebar = Sidebar(stage, this)
+
+        hudState = State(type = GuiState.LoadingScreen,
+                         enter = { loadingScreen.isVisible = true },
+                         exit = { loadingScreen.isVisible = false })
+
+        loadingScreenState = State(type = GuiState.LoadingScreen,
+                                   enter = { loadingScreen.isVisible = true },
+                                   exit = { loadingScreen.isVisible = false })
+        guiStates.push(loadingScreenState)
 
         startClientHostedServerAndJoin()
     }
@@ -438,9 +482,13 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             //severe
             //it's our hosted server, but it's still trying to generate the world...keep waiting
             if (server != null) {
-                val progress = server!!.oreWorld.worldGenJob.poll()
-                if (progress != null) {
-                    println("CLIENT RECEIVED worldgen PROGRESS: $progress")
+                if (server!!.oreWorld.worldGenJob.isActive) {
+
+                    val progress = server!!.oreWorld.worldGenJob.poll()
+                    if (progress != null) {
+                        loadingScreen.progressReceived(progress, server!!.oreWorld.worldGenJob)
+                        println("CLIENT RECEIVED worldgen PROGRESS: $progress")
+                    }
                 }
             }
 //            if (server != null && server!!.oreWorld.worldGenerator!!.finished) {

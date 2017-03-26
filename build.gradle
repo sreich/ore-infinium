@@ -25,13 +25,14 @@ buildscript {
 
         visUiVersion = '1.2.5'
 
+        ktxVersion = '1.9.6-b1'
+
         protobufGradlePlugin = '0.8.0'
 
         protobufVersion = '3.1.0'
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
 
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -106,7 +107,6 @@ subprojects {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
 
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
@@ -120,16 +120,14 @@ subprojects {
 
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1/" }
     }
-    /*
-    apply plugin: "idea"
+
+    apply plugin: 'idea'
     idea {
-    project {
-              jdkName = '1.8'
-                downloadSources = true
+        module {
+            downloadJavadoc = true
+            downloadSources = true
+        }
     }
-               downloadJavadoc = true
-    }
-    */
 }
 
 project(":desktop") {
@@ -169,6 +167,8 @@ project(":desktop") {
         idea {
             module {
                 sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+                downloadJavadoc = true
+                downloadSources = true
             }
         }
 
@@ -237,6 +237,17 @@ project(":desktop") {
             compile "com.google.protobuf:protobuf-java:$protobufVersion"
 
             compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+
+            compile "com.github.czyzby:ktx-vis:$ktxVersion"
+            compile "com.github.czyzby:ktx-vis-style:$ktxVersion"
+            compile "com.github.czyzby:ktx-style:$ktxVersion"
+            compile "com.github.czyzby:ktx-scene2d:$ktxVersion"
+            compile "com.github.czyzby:ktx-math:$ktxVersion"
+            compile "com.github.czyzby:ktx-log:$ktxVersion"
+            compile "com.github.czyzby:ktx-i18n:$ktxVersion"
+            compile "com.github.czyzby:ktx-assets:$ktxVersion"
+            compile "com.github.czyzby:ktx-app:$ktxVersion"
+            compile "com.github.czyzby:ktx-actors:$ktxVersion"
         }
 
         protobuf {

@@ -36,6 +36,7 @@ import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.OreInputListener
 import com.ore.infinium.util.enabledString
+import com.ore.infinium.util.scrollToBottom
 import com.ore.infinium.util.system
 
 class ChatDialog(private val client: OreClient,
@@ -187,7 +188,7 @@ class ChatDialog(private val client: OreClient,
         sendButton.isVisible = !notification
         //        scroll.setScrollingDisabled(notification, notification);
 
-        scrollToBottom()
+        scrollPane.scrollToBottom()
 
         val touchable = if (notification) Touchable.disabled else Touchable.enabled
 
@@ -272,11 +273,6 @@ class ChatDialog(private val client: OreClient,
         client.chat.addLocalChatLine(Chat.timestamp(), message)
     }
 
-    private fun scrollToBottom() {
-        scrollPane.layout()
-        scrollPane.scrollPercentY = 100f
-    }
-
     fun openChatDialog() {
         container.isVisible = true
         messageField.isDisabled = false
@@ -286,14 +282,14 @@ class ChatDialog(private val client: OreClient,
         //note: here be dragons. here and there and over there.
         //scroll pane seems to not want to scroll until it gets layout() called and some other voodoo stuff
         //after scrolling has been disabled and re-enabled..very odd indeed.
-        scrollToBottom()
+        scrollPane.scrollToBottom()
         scrollPane.setScrollingDisabled(false, false)
         switchInteractionMode(ChatVisibility.Normal)
     }
 
     fun closeChatDialog() {
         switchInteractionMode(ChatVisibility.Hidden)
-        scrollToBottom()
+        scrollPane.scrollToBottom()
         container.isVisible = false
         messageField.isDisabled = true
     }
@@ -317,7 +313,7 @@ class ChatDialog(private val client: OreClient,
 
         container.layout()
         scrollPaneTable.layout()
-        scrollToBottom()
+        scrollPane.scrollToBottom()
 
         showForNotification()
     }

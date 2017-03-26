@@ -39,6 +39,7 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.delay
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -250,6 +251,18 @@ class WorldGenerator(private val world: OreWorld) {
      */
     suspend fun generateWorld(worldSize: OreWorld.WorldSize, channel: SendChannel<String>) {
         channel.send("generate world start....")
+        delay(1000)
+        channel.send("more progress")
+
+        delay(1000)
+        channel.send("more progress2")
+
+        delay(1000)
+        channel.send("more progress3")
+
+        delay(1000)
+        channel.send("more progress4")
+
         val threadCount = Runtime.getRuntime().availableProcessors()
 
         workerThreadsRemainingLatch = CountDownLatch(threadCount)
