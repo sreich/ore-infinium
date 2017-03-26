@@ -240,7 +240,7 @@ project(":desktop") {
 
             compile "com.github.czyzby:ktx-vis:$ktxVersion"
             compile "com.github.czyzby:ktx-vis-style:$ktxVersion"
-            compile "com.github.czyzby:ktx-style:$ktxVersion"
+            //compile "com.github.czyzby:ktx-style:$ktxVersion"
             compile "com.github.czyzby:ktx-scene2d:$ktxVersion"
             compile "com.github.czyzby:ktx-math:$ktxVersion"
             compile "com.github.czyzby:ktx-log:$ktxVersion"
