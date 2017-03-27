@@ -49,7 +49,7 @@ class LoadingScreen(private val client: OreClient,
     val fixedCenterTable: VisTable
 
     init {
-        loadingMeter.value = 10f
+        loadingMeter.value = 0f
 
         val loadingLabel = VisLabel("LOADING SCREEN")
 //        progressText = VisTextArea("progress12345")
@@ -69,7 +69,7 @@ class LoadingScreen(private val client: OreClient,
         add(progressScroll).fill().size(600f, 300f)
         //progressScroll.setScrollingDisabled(true, true)
         progressScroll.setFadeScrollBars(false)
-        progressScroll.setScrollBarPositions(true,true)
+        progressScroll.setScrollBarPositions(true, true)
 
         progressScroll.scrollPercentY = 100f
 //        rootTable.add(this).expand().fill() //.padBottom(5f)//.size(500f, 200f)
@@ -98,6 +98,7 @@ class LoadingScreen(private val client: OreClient,
 //        progressText.layout()
         progressScroll.layout()
         //progressScroll.scrollToBottom()
+        setBackground("grey-panel")
         this.layout()
     }
 
@@ -118,6 +119,11 @@ class LoadingScreen(private val client: OreClient,
     }
 
     fun progressReceived(progress: String, worldGenJob: ProducerJob<String>) {
+        loadingMeter.value += 1
+        if (loadingMeter.value >= 100) {
+            loadingMeter.value -= 100
+        }
+
         addNewProgressLine(progress)
 
         if (worldGenJob.isCompleted) {

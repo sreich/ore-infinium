@@ -252,7 +252,7 @@ class WorldGenerator(private val world: OreWorld) {
     suspend fun generateWorld(worldSize: OreWorld.WorldSize, channel: SendChannel<String>) {
         channel.send("generate world start....")
         //hack obvs
-        repeat(200) {
+        repeat(200000000) {
             //delay(900)
             delay(90)
             channel.send("more progress $it")
