@@ -39,7 +39,6 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.delay
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -89,7 +88,8 @@ class WorldGenerator(private val world: OreWorld) {
         Gdx.app.log("", s)
     }
 
-    fun flatWorld(worldSize: OreWorld.WorldSize) {
+    suspend fun generateFlatWorld(worldSize: OreWorld.WorldSize,
+                                  channel: SendChannel<String>) {
         for (y in 0 until worldSize.height) {
             for (x in 0 until worldSize.width) {
                 if (y > 60) {
@@ -233,7 +233,10 @@ class WorldGenerator(private val world: OreWorld) {
         }
     }
 
-    class WorldGenOutputInfo(val worldSize: OreWorld.WorldSize, val seed: Long, val useUniqueImageName: Boolean) {
+    class WorldGenOutputInfo(val worldSize: OreWorld.WorldSize, val seed: Long, val useUniqueImageName: Boolean)
+
+    fun asyncGenerateFlatWorld(worldSize: OreWorld.WorldSize) = produce<String>(CommonPool, Channel.UNLIMITED) {
+        generateFlatWorld(worldSize, channel)
     }
 
     fun asyncGenerateWorld(worldSize: OreWorld.WorldSize) = produce<String>(CommonPool, Channel.UNLIMITED) {
@@ -251,13 +254,6 @@ class WorldGenerator(private val world: OreWorld) {
      */
     suspend fun generateWorld(worldSize: OreWorld.WorldSize, channel: SendChannel<String>) {
         channel.send("generate world start....")
-        //hack obvs
-        repeat(200000000) {
-            //delay(900)
-            delay(90)
-            channel.send("more progress $it")
-        }
-        delay(999999)
 
         val threadCount = Runtime.getRuntime().availableProcessors()
 

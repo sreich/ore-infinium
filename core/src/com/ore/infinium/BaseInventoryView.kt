@@ -34,7 +34,7 @@ open class BaseInventoryView(val title: String,
 
     protected val container = VisTable()
 
-    protected val window = VisWindow(title)
+    protected val window = VisWindow(title, "default")
 
     protected val dragImage: VisImage
 
@@ -154,7 +154,7 @@ open class BaseInventoryView(val title: String,
                 touchable = Touchable.enabled
                 add(itemImage)
                 addListener(SlotInputListener(inventoryView, index))
-                background("default-pane")
+                background("grey-panel")
 
                 row()
 

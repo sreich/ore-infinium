@@ -6,10 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import ktx.assets.file
 import ktx.log.debug
-import ktx.style.label
-import ktx.style.progressBar
-import ktx.style.scrollPane
-import ktx.style.skin
+import ktx.style.*
 
 /**
 MIT License
@@ -65,5 +62,24 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
     label("default") {
         font = bitmapFont
         fontColor = Color.BLACK
+    }
+
+    visTooltip {
+
+    }
+
+    window("default") {
+        titleFont = bitmapFont
+    }
+
+    sizes("default") {
+    }
+
+    visTextField("default") {
+        font = bitmapFont
+    }
+
+    visTextButton {
+        font = bitmapFont
     }
 }

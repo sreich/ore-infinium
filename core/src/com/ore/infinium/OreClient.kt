@@ -113,9 +113,6 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     internal lateinit var fontGenerator: FreeTypeFontGenerator
 
-    init {
-    }
-
     class State(val type: GuiState,
                 val enter: () -> Unit,
                 val exit: () -> Unit)
@@ -126,7 +123,6 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         Hud,
         MainMenu
     }
-
 
     class StateMachineStack {
 
@@ -147,7 +143,6 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     lateinit var hudState: State
     lateinit var loadingScreenState: State
 
-
     override fun create() {
         // for debugging kryonet
 
@@ -166,8 +161,6 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         viewport = StretchViewport(OreSettings.width.toFloat(), OreSettings.height.toFloat())
 
         //load before stage
-        //VisUI.load(VisUI.SkinScale.X1)
-        //VisUI.load(file("ui/ui.json"))
         VisUI.load(oreSkin)
         TooltipManager.getInstance().apply {
             initialTime = 0f
@@ -192,15 +185,15 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         fontGenerator.dispose()
 
-//      hack  chatDialog = ChatDialog(this, stage, rootTable)
+        chatDialog = ChatDialog(this, stage, rootTable)
 
-//        chat = Chat()
-        //       chat.addListener(chatDialog)
+        chat = Chat()
+        chat.addListener(chatDialog)
 
         hud = Hud(this, stage, rootTable)
         loadingScreen = LoadingScreen(this, stage, rootTable)
 
-        //sidebar = Sidebar(stage, this)
+        sidebar = Sidebar(stage, this)
 
         hudState = State(type = GuiState.LoadingScreen,
                          enter = { hud.isVisible = true },

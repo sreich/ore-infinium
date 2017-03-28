@@ -226,7 +226,9 @@ class OreWorld
         entityFactory = OreEntityFactory(this)
 
         if (OreSettings.flatWorld) {
-            worldGenerator!!.flatWorld(worldSize)
+            worldGenJob = worldGenerator!!.asyncGenerateFlatWorld(worldSize)
+            //severe hack for now..
+            generateWorld()
         } else {
             worldGenJob = worldGenerator!!.asyncGenerateWorld(worldSize)
             //severe hack for now..

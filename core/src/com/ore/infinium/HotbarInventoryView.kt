@@ -355,7 +355,7 @@ class HotbarInventoryView(private val stage: Stage,
                 addListener(SlotClickListener(inventoryView, index))
                 addListener(SlotInputListener(inventoryView, index))
 
-                background("default-pane")
+                background("grey-panel")
 
                 row()
 
