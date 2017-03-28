@@ -44,6 +44,7 @@ import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.LiquidSimulationSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
+import ktx.assets.file
 import java.text.DecimalFormat
 
 /**
@@ -109,10 +110,10 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
         decimalFormat.maximumFractionDigits = 4
 
-        junkTexture = Texture(Gdx.files.internal("entities/debug.png"))
+        junkTexture = Texture(file("entities/debug.png"))
         debugServerBatch = SpriteBatch()
 
-        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
+        fontGenerator = FreeTypeFontGenerator(file("fonts/Ubuntu-L.ttf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.borderColor = Color.ORANGE
         parameter.borderWidth = 0.2f

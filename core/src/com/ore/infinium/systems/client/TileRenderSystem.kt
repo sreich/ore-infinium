@@ -47,6 +47,7 @@ import com.ore.infinium.util.flipY
 import com.ore.infinium.util.getEntityId
 import com.ore.infinium.util.use
 import ktx.app.clearScreen
+import ktx.assets.file
 
 @Wire
 class TileRenderSystem(private val camera: OrthographicCamera,
@@ -92,8 +93,8 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
 
-        blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
-        tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
+        blockAtlas = TextureAtlas(file("packed/blocks.atlas"))
+        tilesAtlas = TextureAtlas(file("packed/tiles.atlas"))
 
         tilesAtlas.regions.forEach { tileAtlasCache[it.name] = it }
 
@@ -140,8 +141,8 @@ class TileRenderSystem(private val camera: OrthographicCamera,
                                       Gdx.graphics.backBufferWidth,
                                       Gdx.graphics.backBufferHeight, false)
 
-        val tileLightMapBlendVertex = Gdx.files.internal("shaders/tileLightMapBlend.vert").readString()
-        val tileLightMapBlendFrag = Gdx.files.internal("shaders/tileLightMapBlend.frag").readString()
+        val tileLightMapBlendVertex = file("shaders/tileLightMapBlend.vert").readString()
+        val tileLightMapBlendFrag = file("shaders/tileLightMapBlend.frag").readString()
 
         tileLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
         check(tileLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${tileLightMapBlendShader.log}" }

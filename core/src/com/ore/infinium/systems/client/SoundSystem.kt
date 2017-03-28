@@ -25,15 +25,13 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import com.artemis.BaseSystem
-import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
-import com.artemis.managers.TagManager
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.utils.GdxRuntimeException
 import com.badlogic.gdx.utils.TimeUtils
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.*
+import ktx.assets.file
 
 @Wire
 class SoundSystem(private val oreWorld: OreWorld) : BaseSystem() {
@@ -53,16 +51,16 @@ class SoundSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     override fun initialize() {
         try {
-            itemPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPlace.ogg"))
-            itemPickupSound = Gdx.audio.newSound(Gdx.files.internal("sounds/itemPickup.wav"))
+            itemPlaceSound = Gdx.audio.newSound(file("sounds/itemPlace.ogg"))
+            itemPickupSound = Gdx.audio.newSound(file("sounds/itemPickup.wav"))
 
-            drillAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/drillAttack.ogg"))
+            drillAttackSound = Gdx.audio.newSound(file("sounds/drillAttack.ogg"))
 
-            dirtAttackSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttack.ogg"))
-            dirtPlaceSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtPlace.ogg"))
-            dirtAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/dirtAttackFinish.ogg"))
+            dirtAttackSound = Gdx.audio.newSound(file("sounds/dirtAttack.ogg"))
+            dirtPlaceSound = Gdx.audio.newSound(file("sounds/dirtPlace.ogg"))
+            dirtAttackFinishSound = Gdx.audio.newSound(file("sounds/dirtAttackFinish.ogg"))
 
-            stoneAttackFinishSound = Gdx.audio.newSound(Gdx.files.internal("sounds/stoneAttackFinish.ogg"))
+            stoneAttackFinishSound = Gdx.audio.newSound(file("sounds/stoneAttackFinish.ogg"))
         } catch (e:GdxRuntimeException) {
             error("sounds failed to load" )
         }

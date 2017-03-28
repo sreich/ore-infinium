@@ -53,6 +53,7 @@ import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.*
 import kotlinx.coroutines.experimental.channels.ProducerJob
 import kotlinx.coroutines.experimental.runBlocking
+import ktx.assets.file
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -163,7 +164,7 @@ class OreWorld
     fun initClient() {
         initCamera()
 
-        atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
+        atlas = TextureAtlas(file("packed/entities.atlas"))
 
         //note although it may look like it.. order between render and logic ones..actually doesn't matter, their base
         // class dictates this. order between ones of the same type, does though.

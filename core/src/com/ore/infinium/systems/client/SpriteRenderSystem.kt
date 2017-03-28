@@ -48,6 +48,7 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.util.*
+import ktx.assets.file
 
 @Wire
 class SpriteRenderSystem(private val world: World,
@@ -72,8 +73,8 @@ class SpriteRenderSystem(private val world: World,
         batch = SpriteBatch()
         defaultShader = batch.shader
 
-        val tileLightMapBlendVertex = Gdx.files.internal("shaders/spriteLightMapBlend.vert").readString()
-        val tileLightMapBlendFrag = Gdx.files.internal("shaders/spriteLightMapBlend.frag").readString()
+        val tileLightMapBlendVertex = file("shaders/spriteLightMapBlend.vert").readString()
+        val tileLightMapBlendFrag = file("shaders/spriteLightMapBlend.frag").readString()
 
         spriteLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
         check(spriteLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${spriteLightMapBlendShader.log}" }

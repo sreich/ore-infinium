@@ -44,6 +44,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.*
+import ktx.assets.file
 import java.io.IOException
 import java.util.*
 
@@ -166,7 +167,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         //load before stage
         //VisUI.load(VisUI.SkinScale.X1)
-        //VisUI.load(Gdx.files.internal("ui/ui.json"))
+        //VisUI.load(file("ui/ui.json"))
         VisUI.load(oreSkin)
         TooltipManager.getInstance().apply {
             initialTime = 0f
@@ -184,7 +185,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         //fixme: this really needs to be stripped out of the client, put in a proper
         //system or something
-        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
+        fontGenerator = FreeTypeFontGenerator(file("fonts/Ubuntu-L.ttf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.size = 13
         bitmapFont_8pt = fontGenerator.generateFont(parameter)
