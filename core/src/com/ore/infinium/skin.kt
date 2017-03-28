@@ -1,10 +1,10 @@
 package com.ore.infinium
 
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import ktx.assets.file
 import ktx.log.debug
 import ktx.style.label
 import ktx.style.progressBar
@@ -36,8 +36,7 @@ SOFTWARE.
  */
 
 fun createFont(): BitmapFont {
-    //val fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
-    val fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/kenvector-future-thin.ttf"))
+    val fontGenerator = FreeTypeFontGenerator(file("fonts/kenvector-future-thin.ttf"))
     val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
     parameter.size = 13
 
@@ -48,10 +47,14 @@ fun createFont(): BitmapFont {
 
 var bitmapFont = createFont()
 
-val oreSkin = skin(TextureAtlas(Gdx.files.internal("packed/ui.atlas"))) {
+val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
 
     scrollPane("list") {
-        background = getDrawable("metal-panel-plate")
+        background = getDrawable("grey-panel")
+    }
+
+    scrollPane("default") {
+        background = getDrawable("grey-panel")
     }
 
     progressBar("default-horizontal") {

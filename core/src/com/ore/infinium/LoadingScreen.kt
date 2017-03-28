@@ -31,6 +31,8 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
 import com.kotcrab.vis.ui.widget.VisTable
 import com.ore.infinium.util.scrollToBottom
 import kotlinx.coroutines.experimental.channels.ProducerJob
+import ktx.vis.table
+
 
 class LoadingScreen(private val client: OreClient,
                     private val ownStage: Stage,
@@ -49,55 +51,38 @@ class LoadingScreen(private val client: OreClient,
     val fixedCenterTable: VisTable
 
     init {
-        loadingMeter.value = 0f
-
         val loadingLabel = VisLabel("LOADING SCREEN")
+
 //        progressText = VisTextArea("progress12345")
 
         progressScrollTable = VisTable()
-        progressScroll = VisScrollPane(progressScrollTable)
 
-        fixedCenterTable = VisTable().apply {
-            add(loadingLabel).padRight(1f)
-            row()
-            add(loadingMeter)
-        }
+        fixedCenterTable =
+                table {
+                    add(loadingLabel).padRight(1f)
+                    row()
+                    add(loadingMeter)
+                }
 
         add(fixedCenterTable).center()
 //hack        add(progressScroll).expand().fill().colspan(1)
         row()
+
+        progressScroll = VisScrollPane(progressScrollTable)
+//        progressScroll = scroll {
+//            add(progressScrollTable)
+//            setFadeScrollBars(false)
+//            setScrollBarPositions(true, true)
+//            scrollPercentY = 100f
+//        }
+        //scrollPane {  }
         add(progressScroll).fill().size(600f, 300f)
         //progressScroll.setScrollingDisabled(true, true)
-        progressScroll.setFadeScrollBars(false)
-        progressScroll.setScrollBarPositions(true, true)
 
-        progressScroll.scrollPercentY = 100f
 //        rootTable.add(this).expand().fill() //.padBottom(5f)//.size(500f, 200f)
-
-//
-//        TextArea textArea = new TextArea("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec iaculis odio.",
-//                                         skin);
-//        textArea.setPrefRows(5);
-//
-//        // ---
-//
-//        VisTable table = new VisTable();
-//
-//        for (int i = 0; i < 20; i++)
-//        table.add(new Label ("Label #" + (i + 1), skin)).expand().fill().row();
-//
-//        ScrollPane scrollPane = new ScrollPane(table, skin, "list");
-//        scrollPane.setFlickScroll(false);
-//        scrollPane.setFadeScrollBars(false);
-//
-//        // ---
-//`
-//        add(textArea).row();
-//        add(scrollPane).spaceTop(8).fillX().expandX().row();
-
-//        progressText.layout()
         progressScroll.layout()
         //progressScroll.scrollToBottom()
+
         setBackground("grey-panel")
         this.layout()
     }
