@@ -65,10 +65,11 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
     }
 
     visTooltip {
-
+        background = getDrawable("grey-panel")
     }
 
     window("default") {
+        background = getDrawable("grey-panel")
         titleFont = bitmapFont
     }
 
@@ -76,11 +77,13 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
     }
 
     visTextField("default") {
+        background = getDrawable("glass-panel")
         font = bitmapFont
         fontColor = Color.BLACK
     }
 
     visTextButton {
+
         font = bitmapFont
         fontColor = Color.BLACK
     }

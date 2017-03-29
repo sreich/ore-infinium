@@ -25,7 +25,7 @@ buildscript {
 
         visUiVersion = '1.2.5'
 
-        ktxVersion = '1.9.6-b1'
+        ktxVersion = '1.9.6-SNAPSHOT'
 
         protobufGradlePlugin = '0.8.0'
 

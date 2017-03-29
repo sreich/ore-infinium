@@ -175,7 +175,7 @@ class HotbarInventoryView(private val stage: Stage,
 
     override fun slotItemSelected(index: Int, inventory: Inventory) {
         deselectPreviousSlot()
-        slots[index].slotTable.setColor(0f, 0f, 1f, 1f)
+        slots[index].slotTable.color = Color.TAN
     }
 
     //FIXME: do the same for InventoryView
@@ -231,7 +231,7 @@ class HotbarInventoryView(private val stage: Stage,
             payload ?: return false
 
             if (isValidDrop(payload)) {
-                BaseInventoryView.setSlotColor(payload, actor, Color.GREEN)
+                BaseInventoryView.setSlotColor(payload, actor, Color.LIME)
                 return true
             } else {
                 BaseInventoryView.setSlotColor(payload, actor, Color.RED)

@@ -490,6 +490,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
                         println("CLIENT RECEIVED worldgen PROGRESS: $progress")
                     }
                 } else if (worldGenJob.isCompleted) {
+                    //severe this gets run everytime after it gets completed, trashing my framerate ;-)
                     loadingScreen.progressComplete()
                     guiStates.pop()
                     guiStates.push(inGameState)
