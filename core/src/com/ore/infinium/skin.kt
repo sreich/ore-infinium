@@ -82,9 +82,15 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
         fontColor = Color.BLACK
     }
 
-    visTextButton {
+    visTextButton("default") {
+        up = getDrawable("grey-panel")
+        down = getDrawable("grey-panel")
+        over = getDrawable("grey-panel")
+        disabled = getDrawable("glass-panel")
+        focusBorder = getDrawable("glass-panel")
 
         font = bitmapFont
         fontColor = Color.BLACK
+        disabledFontColor = Color.GRAY
     }
 }

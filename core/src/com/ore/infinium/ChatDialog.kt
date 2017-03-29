@@ -185,7 +185,7 @@ class ChatDialog(private val client: OreClient,
 
         //        messageField.setVisible(!notification);
         messageField.isDisabled = notification
-        sendButton.isVisible = !notification
+        sendButton.isDisabled = notification
         //        scroll.setScrollingDisabled(notification, notification);
 
         scrollPane.scrollToBottom()
