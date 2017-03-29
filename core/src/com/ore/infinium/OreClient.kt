@@ -132,6 +132,8 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             return s
         }
 
+        fun peek(): State? = stack.peek()
+
         fun push(s: State) {
             s.enter()
             stack.push(s)
@@ -491,9 +493,12 @@ class OreClient : OreApplicationListener, OreInputProcessor {
                     }
                 } else if (worldGenJob.isCompleted) {
                     //severe this gets run everytime after it gets completed, trashing my framerate ;-)
-                    loadingScreen.progressComplete()
-                    guiStates.pop()
-                    guiStates.push(inGameState)
+                    //need a better solution..
+                    if (guiStates.peek() != inGameState) {
+                        loadingScreen.progressComplete()
+                        guiStates.pop()
+                        guiStates.push(inGameState)
+                    }
                 }
             }
 //            if (server != null && server!!.oreWorld.worldGenerator!!.finished) {
