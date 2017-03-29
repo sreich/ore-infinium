@@ -199,7 +199,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         inGameState = State(type = GuiState.LoadingScreen,
                             enter = {
                                 rootTable.add(chatDialog.container)
-                                        .bottom().left()
+                                        .expand().bottom().left()
                                         .padBottom(5f).size(600f, 300f)
                             },
                             exit = { rootTable.clear() })
@@ -481,7 +481,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun render() {
         if (world != null) {
-            //severe
+            //severe gotta be a better solution w/ coroutines
             //it's our hosted server, but it's still trying to generate the world...keep waiting
             if (server != null) {
                 val worldGenJob = server!!.oreWorld.worldGenJob
