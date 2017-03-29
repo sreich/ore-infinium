@@ -119,8 +119,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     enum class GuiState {
         LoadingScreen,
-        ///in-game
-        Hud,
+        InGame,
         MainMenu
     }
 
@@ -140,7 +139,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     }
 
     val guiStates = StateMachineStack()
-    lateinit var hudState: State
+    lateinit var inGameState: State
     lateinit var loadingScreenState: State
 
     override fun create() {
@@ -195,9 +194,13 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
         sidebar = Sidebar(stage, this)
 
-        hudState = State(type = GuiState.LoadingScreen,
-                         enter = { hud.isVisible = true },
-                         exit = { rootTable.clear() })
+        inGameState = State(type = GuiState.LoadingScreen,
+                            enter = {
+                                rootTable.add(chatDialog.container)
+                                        .bottom().left()
+                                        .padBottom(5f).size(600f, 300f)
+                            },
+                            exit = { rootTable.clear() })
 
         loadingScreenState = State(type = GuiState.LoadingScreen,
                                    enter = {
@@ -479,13 +482,17 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             //severe
             //it's our hosted server, but it's still trying to generate the world...keep waiting
             if (server != null) {
-                if (server!!.oreWorld.worldGenJob.isActive) {
-
-                    val progress = server!!.oreWorld.worldGenJob.poll()
+                val worldGenJob = server!!.oreWorld.worldGenJob
+                if (worldGenJob.isActive) {
+                    val progress = worldGenJob.poll()
                     if (progress != null) {
-                        loadingScreen.progressReceived(progress, server!!.oreWorld.worldGenJob)
+                        loadingScreen.progressReceived(progress, worldGenJob)
                         println("CLIENT RECEIVED worldgen PROGRESS: $progress")
                     }
+                } else if (worldGenJob.isCompleted) {
+                    loadingScreen.progressComplete()
+                    guiStates.pop()
+                    guiStates.push(inGameState)
                 }
             }
 //            if (server != null && server!!.oreWorld.worldGenerator!!.finished) {

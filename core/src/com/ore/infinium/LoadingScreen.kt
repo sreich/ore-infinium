@@ -110,11 +110,10 @@ class LoadingScreen(private val client: OreClient,
         }
 
         addNewProgressLine(progress)
+    }
 
-        if (worldGenJob.isCompleted) {
-            addNewProgressLine("finished!")
-        }
-
+    fun progressComplete() {
+        addNewProgressLine("finished!")
     }
 }
 

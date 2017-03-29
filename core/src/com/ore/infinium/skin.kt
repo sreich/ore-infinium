@@ -77,9 +77,11 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
 
     visTextField("default") {
         font = bitmapFont
+        fontColor = Color.BLACK
     }
 
     visTextButton {
         font = bitmapFont
+        fontColor = Color.BLACK
     }
 }

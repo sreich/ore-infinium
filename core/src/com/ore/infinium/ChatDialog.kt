@@ -43,7 +43,7 @@ class ChatDialog(private val client: OreClient,
                  private val stage: Stage,
                  rootTable: VisTable) : Chat.ChatListener {
 
-    private val container: VisTable
+    val container: VisTable
 
     private val elements = Array<ChatElement>()
 
