@@ -25,10 +25,7 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.badlogic.gdx.scenes.scene2d.Stage
-import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisProgressBar
-import com.kotcrab.vis.ui.widget.VisScrollPane
-import com.kotcrab.vis.ui.widget.VisTable
+import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.util.scrollToBottom
 import kotlinx.coroutines.experimental.channels.ProducerJob
 import ktx.vis.table
@@ -77,6 +74,12 @@ class LoadingScreen(private val client: OreClient,
 //        }
         //scrollPane {  }
         add(progressScroll).fill().size(600f, 300f)
+
+        row()
+
+        val cancelButton = VisTextButton("Cancel")
+        add(cancelButton)
+
         //progressScroll.setScrollingDisabled(true, true)
 
 //        rootTable.add(this).expand().fill() //.padBottom(5f)//.size(500f, 200f)

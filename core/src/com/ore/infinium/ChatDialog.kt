@@ -79,7 +79,7 @@ class ChatDialog(private val client: OreClient,
         container.row().space(2f)
 
         messageField = VisTextField()
-        container.add(messageField).expandX().fill()
+        container.add(messageField).expandX().fillX()//.minHeight(5f)
 
         sendButton = VisTextButton("send")
 
@@ -89,7 +89,7 @@ class ChatDialog(private val client: OreClient,
             }
         })
 
-        container.add(sendButton).right()
+        container.add(sendButton).right()//.minHeight(50f).minWidth(50f)
 
         stage.keyboardFocus = sendButton
         //        container.background("default-window");

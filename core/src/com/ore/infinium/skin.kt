@@ -55,7 +55,7 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
     }
 
     progressBar("default-horizontal") {
-        background = getDrawable("bar-horizontal-white-mid")
+        background = getDrawable("bar-horizontal-white-combined")
         knobBefore = getDrawable("bar-horizontal-blue-combined")
     }
 
@@ -74,18 +74,60 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
     }
 
     sizes("default") {
+        scaleFactor = 2f
+
+//spacingLeft
+        spacingBottom = 18f
+        spacingRight = 26f
+        this.spacingLeft = 100f
+        buttonBarSpacing = 20f
+        menuItemIconSize = 22f
+        borderSize = 20f
+        spinnerButtonHeight = 12f
+        spinnerFieldSize = 40f
     }
 
+
+    /*
+        //---  from visui
+	x2: {scaleFactor: 2, menuItemIconSize: 44, spinnerButtonHeight: 24,
+    spinnerFieldSize: 80,
+    spacingBottom: 8, spacingRight: 6, buttonBarSpacing: 10, borderSize: 1,
+    fileChooserViewModeBigIconsSize: 200,
+    fileChooserViewModeMediumIconsSize: 128, fileChooserViewModeSmallIconsSize: 64,
+    fileChooserViewModeListWidthSize: 155 }
+
+    com.kotcrab.vis.ui.widget.VisTextField$VisTextFieldStyle: {
+	default: {focusBorder: border, errorBorder: border-error, font: default-font, fontColor: white,
+	 disabledFontColor: grey, selection: selection, background: textfield,
+	 backgroundOver: textfield-over, cursor: cursor },
+	textArea: {errorBorder: border-error, font: default-font, fontColor: white, disabledFontColor: grey,
+	 selection: selection, background: textfield, cursor: cursor },
+	small: {focusBorder: border, errorBorder: border-error, font: small-font, f
+	ontColor: white, disabledFontColor: grey,
+	selection: selection, background: textfield, backgroundOver: textfield-over, cursor: cursor },
+	label: {selection: selection, errorBorder: border-error, font: default-font,
+	fontColor: white, disabledFontColor: grey }
+	 ------------------------
+
+     */
     visTextField("default") {
-        background = getDrawable("glass-panel")
+
+        background = getDrawable("bar-horizontal-white-combined")
+
         font = bitmapFont
         fontColor = Color.BLACK
     }
 
     visTextButton("default") {
-        up = getDrawable("grey-panel")
-        down = getDrawable("grey-panel")
-        over = getDrawable("grey-panel")
+        up = getDrawable("button-blue-up").apply {
+//            up = getDrawable("grey-panel").apply {
+      //      minHeight = 35f
+       //     minWidth = 50f
+        }
+
+        down = getDrawable("button-blue-down")
+        over = getDrawable("button-blue-over")
         disabled = getDrawable("glass-panel")
         focusBorder = getDrawable("glass-panel")
 
