@@ -48,7 +48,11 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.MultiRenderSystem
-import com.ore.infinium.util.*
+import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
+import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
+import ktx.scene2d.KtxInputListener
 
 class HotbarInventoryView(private val stage: Stage,
         //the model for this view
@@ -297,12 +301,9 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class test : OreInputListener() {
-    }
-
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView,
                                                          private val index: Int)
-        : OreInputListener() {
+        : KtxInputListener() {
         override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventory.inventory.itemEntity(index)
             if (isValidEntity(itemEntity)) {

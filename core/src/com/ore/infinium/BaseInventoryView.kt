@@ -20,7 +20,11 @@ import com.ore.infinium.components.BlockComponent
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.MultiRenderSystem
-import com.ore.infinium.util.*
+import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
+import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
+import ktx.scene2d.KtxInputListener
 
 open class BaseInventoryView(val title: String,
                              val stage: Stage,
@@ -168,7 +172,7 @@ open class BaseInventoryView(val title: String,
             private val index: Int,
             private val slotType: GeneratorControlPanelView.SlotElementType =
             GeneratorControlPanelView.SlotElementType.FuelSource)
-    : OreInputListener() {
+        : KtxInputListener() {
 
         override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity: Int

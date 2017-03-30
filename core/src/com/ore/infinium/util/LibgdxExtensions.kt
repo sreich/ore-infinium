@@ -24,17 +24,12 @@ SOFTWARE.
 
 package com.ore.infinium.util
 
-import com.badlogic.gdx.ApplicationListener
-import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
-import com.badlogic.gdx.scenes.scene2d.InputListener
 import com.badlogic.gdx.utils.Align
 import com.kotcrab.vis.ui.widget.VisScrollPane
 
@@ -51,51 +46,11 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
  */
 fun timeMsSurpassed(currentMs: Long, lastMs: Long, intervalMs: Int) = (currentMs - lastMs) > intervalMs
 
-/**
- * wrapper class around interface to avoid having to
- * implement each member
- */
-interface OreApplicationListener : ApplicationListener {
-    override fun resize(width: Int, height: Int) = Unit
-    override fun create() = Unit
-    override fun render() = Unit
-    override fun resume() = Unit
-    override fun dispose() = Unit
-    override fun pause() = Unit
-}
-
 fun VisScrollPane.scrollToBottom() {
     this.layout()
     this.scrollPercentY = 100f
 }
 
-/**
- * deriving from InputListener for the sole purpose of getting
- * guarantees on nullability, easier to implement.
- */
-open class OreInputListener : InputListener() {
-    override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) = Unit
-    override fun exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Actor?) = Unit
-    override fun keyDown(event: InputEvent, keycode: Int) = false
-    override fun keyTyped(event: InputEvent, character: Char) = false
-    override fun keyUp(event: InputEvent, keycode: Int) = false
-    override fun mouseMoved(event: InputEvent, x: Float, y: Float) = false
-    override fun scrolled(event: InputEvent, x: Float, y: Float, amount: Int) = false
-    override fun touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) = false
-    override fun touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int) = Unit
-    override fun touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int) = Unit
-}
-
-interface OreInputProcessor : InputProcessor {
-    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-    override fun keyDown(keycode: Int) = false
-    override fun keyTyped(character: Char) = false
-    override fun keyUp(keycode: Int) = false
-    override fun mouseMoved(screenX: Int, screenY: Int) = false
-    override fun scrolled(amount: Int) = false
-    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int) = false
-    override fun touchDragged(screenX: Int, screenY: Int, pointer: Int) = false
-}
 
 fun ShaderProgram.use(function: () -> Unit) {
     begin()

@@ -25,19 +25,18 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
 import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.util.OreInputListener
 import com.ore.infinium.util.enabledString
 import com.ore.infinium.util.scrollToBottom
 import com.ore.infinium.util.system
+import ktx.actors.onChange
+import ktx.scene2d.KtxInputListener
 
 class ChatDialog(private val client: OreClient,
                  private val stage: Stage,
@@ -83,17 +82,12 @@ class ChatDialog(private val client: OreClient,
 
         sendButton = VisTextButton("send")
 
-        sendButton.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                sendChat()
-            }
-        })
+        sendButton.onChange { _, _ -> sendChat() }
 
         container.add(sendButton).right()//.minHeight(50f).minWidth(50f)
 
         stage.keyboardFocus = sendButton
-        //        container.background("default-window");
-        //severe rootTable.add(container).expand().bottom().left().padBottom(5f).size(500f, 200f)
+        container.background("grey-panel")
 
         container.layout()
         scrollPaneTable.layout()
@@ -108,7 +102,7 @@ class ChatDialog(private val client: OreClient,
         //   showForNotification();
     }
 
-    class ChatInputListener(val chatDialog: ChatDialog) : OreInputListener() {
+    class ChatInputListener(val chatDialog: ChatDialog) : KtxInputListener() {
         override //fixme override mouse as well, to ignroe those.
         fun keyDown(event: InputEvent, keycode: Int): Boolean {
 

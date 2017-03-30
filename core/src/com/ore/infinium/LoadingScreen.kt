@@ -79,6 +79,10 @@ class LoadingScreen(private val client: OreClient,
 
         row()
 
+        val mainTable = table {
+            add(fixedCenterTable)
+
+        }
         val cancelButton = VisTextButton("Cancel")
         cancelButton.onClick { _, _ -> cancelClicked() }
         add(cancelButton)
