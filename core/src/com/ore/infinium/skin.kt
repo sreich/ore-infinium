@@ -55,8 +55,8 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
     }
 
     progressBar("default-horizontal") {
-        background = getDrawable("bar-horizontal-white-combined")
-        knobBefore = getDrawable("bar-horizontal-blue-combined")
+        background = getDrawable("bar-horizontal-white")
+        knobBefore = getDrawable("bar-horizontal-blue")
     }
 
     label("default") {
@@ -113,7 +113,7 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
      */
     visTextField("default") {
 
-        background = getDrawable("bar-horizontal-white-combined")
+        background = getDrawable("bar-horizontal-white")
 
         font = bitmapFont
         fontColor = Color.BLACK

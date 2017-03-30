@@ -25,6 +25,7 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.badlogic.gdx.scenes.scene2d.Stage
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.util.scrollToBottom
 import kotlinx.coroutines.experimental.channels.ProducerJob
@@ -46,9 +47,11 @@ class LoadingScreen(private val client: OreClient,
     val progressElements = mutableListOf<VisLabel>()
 
     val fixedCenterTable: VisTable
+    val progressLabelPercent: VisLabel
 
     init {
         val loadingLabel = VisLabel("LOADING SCREEN")
+        progressLabelPercent = VisLabel("percent")
 
 //        progressText = VisTextArea("progress12345")
 
@@ -58,7 +61,9 @@ class LoadingScreen(private val client: OreClient,
                 table {
                     add(loadingLabel).padRight(1f)
                     row()
-                    add(loadingMeter)
+                    add(loadingMeter).padBottom(8f)
+                    row()
+                    add(progressLabelPercent).padBottom(8f)
                 }
 
         add(fixedCenterTable).center()
@@ -73,7 +78,7 @@ class LoadingScreen(private val client: OreClient,
 //            scrollPercentY = 100f
 //        }
         //scrollPane {  }
-        add(progressScroll).fill().size(600f, 300f)
+        add(progressScroll).fill().size(600f, 300f).padBottom(8f)
 
         row()
 
@@ -111,6 +116,7 @@ class LoadingScreen(private val client: OreClient,
         if (loadingMeter.value >= 100) {
             loadingMeter.value -= 100
         }
+        progressLabelPercent.label = "${loadingMeter.value}%"
 
         addNewProgressLine(progress)
     }
@@ -119,4 +125,8 @@ class LoadingScreen(private val client: OreClient,
         addNewProgressLine("finished!")
     }
 }
+
+private var Label.label: String
+    get() = text.toString()
+    set(str) = setText(str)
 

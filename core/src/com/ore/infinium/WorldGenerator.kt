@@ -39,6 +39,7 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.delay
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -244,6 +245,10 @@ class WorldGenerator(private val world: OreWorld) {
 //            this.send("here's a progress msg ${System.nanoTime()}")
 //            delay(1000)
 //        }
+        repeat(100000) {
+            delay(200)
+            channel.send("progress $it")
+        }
 
         generateWorld(worldSize, channel)
     }
