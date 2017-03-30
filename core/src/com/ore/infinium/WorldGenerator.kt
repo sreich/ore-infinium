@@ -245,10 +245,6 @@ class WorldGenerator(private val world: OreWorld) {
 //            this.send("here's a progress msg ${System.nanoTime()}")
 //            delay(1000)
 //        }
-        repeat(100000) {
-            delay(200)
-            channel.send("progress $it")
-        }
 
         generateWorld(worldSize, channel)
     }
@@ -268,6 +264,12 @@ class WorldGenerator(private val world: OreWorld) {
 
         var seed = random.nextLong()
         seed = 4210630674902044763
+
+        repeat(100000) {
+            delay(200)
+            channel.send("progress $it")
+        }
+
 //////////////////        seed = 413903351416513687
 //        seed = -789257892798191
 

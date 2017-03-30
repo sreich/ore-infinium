@@ -29,6 +29,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.util.scrollToBottom
 import kotlinx.coroutines.experimental.channels.ProducerJob
+import ktx.actors.onClick
 import ktx.vis.table
 
 
@@ -42,20 +43,15 @@ class LoadingScreen(private val client: OreClient,
 
     //   val progressText: VisTextArea
     val progressScroll: VisScrollPane
-    val progressScrollTable: VisTable
+    val progressScrollTable: VisTable = VisTable()
 
     val progressElements = mutableListOf<VisLabel>()
 
     val fixedCenterTable: VisTable
-    val progressLabelPercent: VisLabel
+    val progressLabelPercent = VisLabel("percent")
+    val loadingLabel = VisLabel("Creating World...")
 
     init {
-        val loadingLabel = VisLabel("LOADING SCREEN")
-        progressLabelPercent = VisLabel("percent")
-
-//        progressText = VisTextArea("progress12345")
-
-        progressScrollTable = VisTable()
 
         fixedCenterTable =
                 table {
@@ -78,21 +74,25 @@ class LoadingScreen(private val client: OreClient,
 //            scrollPercentY = 100f
 //        }
         //scrollPane {  }
+
         add(progressScroll).fill().size(600f, 300f).padBottom(8f)
 
         row()
 
         val cancelButton = VisTextButton("Cancel")
+        cancelButton.onClick { _, _ -> cancelClicked() }
         add(cancelButton)
 
         //progressScroll.setScrollingDisabled(true, true)
 
 //        rootTable.add(this).expand().fill() //.padBottom(5f)//.size(500f, 200f)
-        progressScroll.layout()
-        //progressScroll.scrollToBottom()
 
         setBackground("grey-panel")
         this.layout()
+    }
+
+    private fun cancelClicked() {
+        throw NotImplementedError("function not yet implemented")
     }
 
     fun addNewProgressLine(text: String) {
