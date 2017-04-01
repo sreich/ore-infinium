@@ -265,8 +265,8 @@ class WorldGenerator(private val world: OreWorld) {
         var seed = random.nextLong()
         seed = 4210630674902044763
 
-        repeat(100000) {
-            delay(200)
+        repeat(999999999) {
+            delay(20)
             channel.send("progress $it")
         }
 

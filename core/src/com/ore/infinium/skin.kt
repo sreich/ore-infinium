@@ -33,7 +33,7 @@ SOFTWARE.
  */
 
 fun createFont(): BitmapFont {
-    val fontGenerator = FreeTypeFontGenerator(file("fonts/kenvector-future-thin.ttf"))
+    val fontGenerator = FreeTypeFontGenerator(file("fonts/Ubuntu-L.ttf"))
     val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
     parameter.size = 13
 
@@ -48,10 +48,14 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
 
     scrollPane("list") {
         background = getDrawable("grey-panel")
+        vScroll = getDrawable("button-blue-up")
+        vScrollKnob = getDrawable("bar-horizontal-white")
     }
 
     scrollPane("default") {
         background = getDrawable("grey-panel")
+        vScroll = getDrawable("button-blue-up")
+        vScrollKnob = getDrawable("bar-horizontal-white")
     }
 
     progressBar("default-horizontal") {
@@ -76,17 +80,16 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
     sizes("default") {
         scaleFactor = 2f
 
-//spacingLeft
+        //spacingLeft
         spacingBottom = 18f
         spacingRight = 26f
-        this.spacingLeft = 100f
+        spacingLeft = 100f
         buttonBarSpacing = 20f
         menuItemIconSize = 22f
         borderSize = 20f
         spinnerButtonHeight = 12f
         spinnerFieldSize = 40f
     }
-
 
     /*
         //---  from visui
@@ -112,7 +115,6 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
 
      */
     visTextField("default") {
-
         background = getDrawable("bar-horizontal-white")
 
         font = bitmapFont
@@ -121,9 +123,9 @@ val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
 
     visTextButton("default") {
         up = getDrawable("button-blue-up").apply {
-//            up = getDrawable("grey-panel").apply {
-      //      minHeight = 35f
-       //     minWidth = 50f
+            //            up = getDrawable("grey-panel").apply {
+            //      minHeight = 35f
+            //     minWidth = 50f
         }
 
         down = getDrawable("button-blue-down")

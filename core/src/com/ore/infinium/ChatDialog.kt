@@ -56,23 +56,21 @@ class ChatDialog(private val client: OreClient,
     //last message client tried to send
     var previousSentMessage = ""
 
-    internal var notificationTimer: Timer
+    internal var notificationTimer = Timer()
 
     private inner class ChatElement(internal var timestampLabel: VisLabel,
                                     internal var playerNameLabel: VisLabel,
                                     internal var chatTextLabel: VisLabel)
 
     init {
-        notificationTimer = Timer()
 
         container = VisTable()
 
         scrollPaneTable = VisTable()
 
-        scrollPane = VisScrollPane(scrollPaneTable)
-
-//        stage.addActor(container)
-        //       container.bottom().left().padBottom(5f).setSize(600f, 300f)
+        scrollPane = VisScrollPane(scrollPaneTable).apply {
+            setFadeScrollBars(false)
+        }
 
         container.add(scrollPane).expand().fill().colspan(4)
         container.row().space(2f)
@@ -103,8 +101,8 @@ class ChatDialog(private val client: OreClient,
     }
 
     class ChatInputListener(val chatDialog: ChatDialog) : KtxInputListener() {
-        override //fixme override mouse as well, to ignroe those.
-        fun keyDown(event: InputEvent, keycode: Int): Boolean {
+        //fixme override mouse as well, to ignroe those.
+        override fun keyDown(event: InputEvent, keycode: Int): Boolean {
 
             //ignore all keys if we're in non-focused mode
             if (chatDialog.chatVisibilityState != ChatVisibility.Normal

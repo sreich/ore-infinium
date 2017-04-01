@@ -202,7 +202,7 @@ class OreClient : KtxApplicationListener, KtxInputProcessor {
                             enter = {
                                 rootTable.add(chatDialog.container)
                                         .expand().bottom().left()
-                                        .padBottom(5f).size(600f, 300f)
+                                        .padBottom(5f).size(400f, 200f)
                             },
                             exit = { rootTable.clear() })
 

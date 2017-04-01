@@ -67,6 +67,10 @@ class LoadingScreen(private val client: OreClient,
         row()
 
         progressScroll = VisScrollPane(progressScrollTable)
+                .apply {
+                    setFadeScrollBars(false)
+                    setScrollBarPositions(true, true)
+                }
 //        progressScroll = scroll {
 //            add(progressScrollTable)
 //            setFadeScrollBars(false)

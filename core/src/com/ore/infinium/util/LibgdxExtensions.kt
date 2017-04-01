@@ -51,7 +51,6 @@ fun VisScrollPane.scrollToBottom() {
     this.scrollPercentY = 100f
 }
 
-
 fun ShaderProgram.use(function: () -> Unit) {
     begin()
     function()
