@@ -52,7 +52,8 @@ import java.text.DecimalFormat
  * of the game. Things like how many tiles are rendered, connections, entities, etc.
  */
 @Wire
-class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: OreWorld) : BaseSystem(), RenderSystemMarker {
+class DebugTextRenderSystem(camera: OrthographicCamera,
+                            private val oreWorld: OreWorld) : BaseSystem(), RenderSystemMarker {
 
     private val mAir by mapper<AirComponent>()
     private val mBlock by mapper<BlockComponent>()
@@ -293,36 +294,37 @@ class DebugTextRenderSystem(camera: OrthographicCamera, private val oreWorld: Or
 
     private fun updateStandardDebugInfo() {
 //        if (frameTimer.resetIfSurpassed(300)) {
-            debugStrings.clear()
-            debugStrings.add("Client frame time: ") //fixme + decimalFormat.format(frameTime);
-            debugStrings.add("FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)")
-            debugStrings.add("Texture switches: ${GLProfiler.textureBindings}")
-            debugStrings.add("Shader switches: ${GLProfiler.shaderSwitches}")
-            debugStrings.add("Draw calls: ${GLProfiler.drawCalls}")
+        debugStrings.clear()
+        debugStrings.add("Client frame time: ") //fixme + decimalFormat.format(frameTime);
+        debugStrings.add("FPS: ${Gdx.graphics.framesPerSecond} (${1000.0f / Gdx.graphics.framesPerSecond} ms)")
+        debugStrings.add("Texture switches: ${GLProfiler.textureBindings}")
+        debugStrings.add("Shader switches: ${GLProfiler.shaderSwitches}")
+        debugStrings.add("Draw calls: ${GLProfiler.drawCalls}")
         debugStrings.add("Vertex count (avg): ${GLProfiler.vertexCount.average}")
         debugStrings.add("GL calls: ${GLProfiler.calls}")
-            debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(server.sharedFrameTime);
-            debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
-            debugStrings.add("F11 - gui render (${OreSettings.debugRenderGui.enabledString()})")
-            debugStrings.add("F10 - tile render (${multiRenderSystem.tileRenderSystem.debugRenderTiles})")
+        debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(server.sharedFrameTime);
+        debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
+        debugStrings.add("F11 - gui render (${OreSettings.debugRenderGui.enabledString()})")
+        debugStrings.add("F10 - tile render (${multiRenderSystem.tileRenderSystem.debugRenderTiles})")
 
-            debugStrings.add("""
+        debugStrings.add("""
             |F9 - server sprite debug render.
             |Client (${renderDebugClient.enabledString()})
             |Server: (${renderDebugServer.enabledString()})
             """.toSingleLine())
 
-            debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabledString()})")
-            debugStrings.add(
-                    "F7 - tile lighting renderer debug " +
-                            "(${multiRenderSystem.tileRenderSystem.debugRenderTileLighting.enabledString()})")
+        debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabledString()})")
+        debugStrings.add(
+                "F7 - tile lighting renderer debug " +
+                        "(${multiRenderSystem.tileRenderSystem.debugRenderTileLighting.enabledString()})")
 
-            debugStrings.add("F6 - system profiler toggle")
+        debugStrings.add("F6 - system profiler toggle")
 
-            debugStrings.add("E - power overlay. Q - drop item")
-            debugStrings.add("1-8 or mouse wheel for inventory selection")
+        debugStrings.add("E - power overlay. Q - drop item")
+        debugStrings.add("1-8 or mouse wheel for inventory selection")
+        debugStrings.add("T for chat")
 
-            debugStrings.add("World size: (${oreWorld.worldSize.width}, ${oreWorld.worldSize.height})")
+        debugStrings.add("World size: (${oreWorld.worldSize.width}, ${oreWorld.worldSize.height})")
         //       }
     }
 

@@ -176,7 +176,6 @@ class OreClient : KtxApplicationListener, KtxInputProcessor {
         stage.addActor(rootTable)
 
         multiplexer = InputMultiplexer(stage, this)
-
         Gdx.input.inputProcessor = multiplexer
 
         //fixme: this really needs to be stripped out of the client, put in a proper
@@ -189,6 +188,7 @@ class OreClient : KtxApplicationListener, KtxInputProcessor {
         fontGenerator.dispose()
 
         chatDialog = ChatDialog(this, stage, rootTable)
+        multiplexer.addProcessor(chatDialog.inputListener)
 
         chat = Chat()
         chat.addListener(chatDialog)
@@ -667,7 +667,7 @@ class OreClient : KtxApplicationListener, KtxInputProcessor {
             cJump.shouldJump = true
         }
 
-        return true
+        return false
     }
 
     private fun attemptItemDrop() {
@@ -769,14 +769,12 @@ class OreClient : KtxApplicationListener, KtxInputProcessor {
 
     override fun scrolled(amount: Int): Boolean {
         when {
-            world == null ->
-                return false
+            world == null -> return false
 
-            !clientNetworkSystem.connected ->
-                return false
-            powerOverlayRenderSystem.overlayVisible ->
-                //don't allow item/inventory selection during this
-                return false
+            !clientNetworkSystem.connected -> return false
+
+        //don't allow item/inventory selection during this
+            powerOverlayRenderSystem.overlayVisible -> return false
         }
 
         val index = hotbarInventory!!.selectedSlot

@@ -24,7 +24,7 @@ import com.ore.infinium.util.isInvalidEntity
 import com.ore.infinium.util.isValidEntity
 import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
-import ktx.scene2d.KtxInputListener
+import ktx.actors.KtxInputListener
 
 open class BaseInventoryView(val title: String,
                              val stage: Stage,

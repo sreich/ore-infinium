@@ -25,7 +25,6 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.utils.Array
@@ -36,18 +35,18 @@ import com.ore.infinium.util.enabledString
 import com.ore.infinium.util.scrollToBottom
 import com.ore.infinium.util.system
 import ktx.actors.onChange
-import ktx.scene2d.KtxInputListener
+import ktx.app.KtxInputProcessor
 
 class ChatDialog(private val client: OreClient,
                  private val stage: Stage,
                  rootTable: VisTable) : Chat.ChatListener {
 
-    val container: VisTable
+    val container = VisTable()
 
     private val elements = Array<ChatElement>()
 
     private val scrollPane: VisScrollPane
-    private val scrollPaneTable: VisTable
+    private val scrollPaneTable = VisTable()
     private val messageField: VisTextField
     private val sendButton: VisTextButton
 
@@ -62,11 +61,9 @@ class ChatDialog(private val client: OreClient,
                                     internal var playerNameLabel: VisLabel,
                                     internal var chatTextLabel: VisLabel)
 
+    val inputListener = ChatInputListener(this)
+
     init {
-
-        container = VisTable()
-
-        scrollPaneTable = VisTable()
 
         scrollPane = VisScrollPane(scrollPaneTable).apply {
             setFadeScrollBars(false)
@@ -92,59 +89,51 @@ class ChatDialog(private val client: OreClient,
         scrollPane.layout()
         scrollPane.scrollPercentY = 100f
 
-        stage.addListener(ChatInputListener(this))
-
         closeChatDialog()
         closeChatDialog()
         closeChatDialog()
         //   showForNotification();
     }
 
-    class ChatInputListener(val chatDialog: ChatDialog) : KtxInputListener() {
-        //fixme override mouse as well, to ignroe those.
-        override fun keyDown(event: InputEvent, keycode: Int): Boolean {
-
-            //ignore all keys if we're in non-focused mode
-            if (chatDialog.chatVisibilityState != ChatVisibility.Normal
-                    && keycode != Input.Keys.SLASH) {
-                return false
+    class ChatInputListener(val chatDialog: ChatDialog) : KtxInputProcessor {
+        override fun keyDown(keycode: Int) = when (keycode) {
+            Input.Keys.T -> {
+                chatDialog.openChatDialog()
+                true
             }
 
-            when (keycode) {
-                Input.Keys.ENTER -> {
-                    if (chatDialog.chatVisibilityState == ChatVisibility.Normal) {
-                        chatDialog.closeChatDialog()
-                        chatDialog.sendChat()
-                    } else {
-                        chatDialog.openChatDialog()
-                    }
-
-                    return true
-                }
-
-                Input.Keys.ESCAPE -> {
+            Input.Keys.ENTER -> {
+                if (chatDialog.chatVisibilityState == ChatVisibility.Normal) {
                     chatDialog.closeChatDialog()
+                    chatDialog.sendChat()
+                    true
+                } else {
+                    false
                 }
-
-                Input.Keys.SLASH -> {
-                    if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
-                        chatDialog.openChatDialog()
-
-                        //focus the end of it, otherwise it'd be at the beginning
-                        chatDialog.messageField.cursorPosition = chatDialog.messageField.text!!.length
-
-                        return true
-                    }
-                }
-
-                Input.Keys.UP -> {
-                    chatDialog.messageField.text = chatDialog.previousSentMessage
-                }
-
-                else -> return super.keyDown(event, keycode)
             }
 
-            return false
+            Input.Keys.ESCAPE -> {
+                chatDialog.closeChatDialog()
+                false
+            }
+
+            Input.Keys.SLASH ->
+                if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
+                    chatDialog.openChatDialog()
+
+                    //focus the end of it because of the slash, otherwise it'd be at the beginning
+                    chatDialog.messageField.cursorPosition = chatDialog.messageField.text!!.length
+
+                    true
+                } else {
+                    false
+                }
+
+            Input.Keys.UP -> {
+                chatDialog.messageField.text = chatDialog.previousSentMessage
+                true
+            }
+            else -> false
         }
     }
 
@@ -190,7 +179,7 @@ class ChatDialog(private val client: OreClient,
     }
 
     private fun sendChat() {
-        if (messageField.text.length > 0) {
+        if (messageField.text.isNotEmpty()) {
             if (!processLocalChatCommands()) {
 
                 client.world!!.artemisWorld.system<ClientNetworkSystem>()
@@ -311,7 +300,7 @@ class ChatDialog(private val client: OreClient,
     }
 
     override fun cleared() {
-
+        throw NotImplementedError()
     }
 }
 
