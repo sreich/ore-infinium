@@ -44,13 +44,13 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.*
-import ktx.app.KtxApplicationListener
-import ktx.app.KtxInputProcessor
+import ktx.app.KtxApplicationAdapter
+import ktx.app.KtxInputAdapter
 import ktx.assets.file
 import java.io.IOException
 import java.util.*
 
-class OreClient : KtxApplicationListener, KtxInputProcessor {
+class OreClient : KtxApplicationAdapter, KtxInputAdapter {
 
     var leftMouseDown: Boolean = false
     var rightMouseDown: Boolean = false

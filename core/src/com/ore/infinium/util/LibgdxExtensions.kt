@@ -57,12 +57,14 @@ fun ShaderProgram.use(function: () -> Unit) {
     end()
 }
 
-fun TextureRegion.flipY() {
+fun TextureRegion.flipY(): TextureRegion {
     flip(false, true)
+    return this
 }
 
-fun TextureRegion.flipX() {
+fun TextureRegion.flipX(): TextureRegion {
     flip(true, false)
+    return this
 }
 
 /**

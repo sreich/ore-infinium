@@ -64,6 +64,10 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufGradlePlugin"
+
+        classpath "com.github.czyzby:ktx-tools:$ktxVersion"
+
+        classpath "se.thinkcode.gradle:demoPlugin:1.0.0-SNAPSHOT"
     }
 }
 
@@ -79,6 +83,12 @@ plugins {
     id "com.github.ben-manes.versions" version "0.14.0"
 }
 
+//hack this is required for kotlin asset source generator or gradle daemon will crash
+// https://youtrack.jetbrains.com/issue/KT-17031
+// https://github.com/fusesource/jansi/issues/66
+// https://github.com/gradle/gradle/issues/778
+System.setProperty("kotlin.colors.enabled", "false")
+
 task wrapper(type: Wrapper) {
     gradleVersion = "3.2.1"
 }
@@ -87,6 +97,16 @@ subprojects {
 
     apply plugin: "java"
     apply plugin: "kotlin"
+
+//    apply plugin: 'ktx.tools.plugin'
+
+       apply plugin: 'ktx.tools.demo.plugin'
+
+//    apply plugin: 'se.thinkcode.demo.plugin'
+
+//demoSetting {
+//    message = "Hi from an extension"
+//}
 
     kotlin {
         experimental {
@@ -168,7 +188,7 @@ project(":desktop") {
 
         idea {
             module {
-                sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+                sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
                 downloadJavadoc = true
                 downloadSources = true
             }
@@ -250,6 +270,7 @@ project(":desktop") {
             compile "com.github.czyzby:ktx-assets:$ktxVersion"
             compile "com.github.czyzby:ktx-app:$ktxVersion"
             compile "com.github.czyzby:ktx-actors:$ktxVersion"
+            compile "com.github.czyzby:ktx-tools:$ktxVersion"
         }
 
         protobuf {

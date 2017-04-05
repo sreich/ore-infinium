@@ -75,7 +75,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
     var stoneBlockMeshes: IntMap<String>
     var grassBlockMeshes: IntMap<String>
 
-    val tileAtlasCache = mutableMapOf<String, TextureRegion>()
+    val tileAtlasCache = hashMapOf<String, TextureRegion>()
 
     val tileLightMapFbo: FrameBuffer
     val tileMapFbo: FrameBuffer
@@ -110,7 +110,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         //dirt 16 and beyond are transition things.
         val dirtMax = 25
-        dirtBlockMeshes = IntMap<String>(dirtMax)
+        dirtBlockMeshes = IntMap<String>(dirtMax + 1)
         for (i in 0..dirtMax) {
             val formatted = "dirt-%02d".format(i)
             dirtBlockMeshes.put(i, formatted)
@@ -118,14 +118,14 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         //18+ are transition helpers
         val grassMax = 31
-        grassBlockMeshes = IntMap<String>(grassMax)
+        grassBlockMeshes = IntMap<String>(grassMax + 1)
         for (i in 0..grassMax) {
             val formatted = "grass-%02d".format(i)
             grassBlockMeshes.put(i, formatted)
         }
 
         val stoneMax = 30
-        stoneBlockMeshes = IntMap<String>(stoneMax)
+        stoneBlockMeshes = IntMap<String>(stoneMax + 1)
         for (i in 0..stoneMax) {
             val formatted = "stone-%02d".format(i)
             stoneBlockMeshes.put(i, formatted)
@@ -151,13 +151,9 @@ class TileRenderSystem(private val camera: OrthographicCamera,
             tileLightMapBlendShader.setUniformi("u_lightmap", 1)
         }
 
-        tileMapFboRegion = TextureRegion(tileMapFbo.colorBufferTexture).apply {
-            flipY()
-        }
+        tileMapFboRegion = TextureRegion(tileMapFbo.colorBufferTexture).flipY()
 
-        tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).apply {
-            flipY()
-        }
+        tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).flipY()
     }
 
     override fun processSystem() {

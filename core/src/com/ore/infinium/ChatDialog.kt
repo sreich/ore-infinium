@@ -35,7 +35,7 @@ import com.ore.infinium.util.enabledString
 import com.ore.infinium.util.scrollToBottom
 import com.ore.infinium.util.system
 import ktx.actors.onChange
-import ktx.app.KtxInputProcessor
+import ktx.app.KtxInputAdapter
 
 class ChatDialog(private val client: OreClient,
                  private val stage: Stage,
@@ -95,7 +95,7 @@ class ChatDialog(private val client: OreClient,
         //   showForNotification();
     }
 
-    class ChatInputListener(val chatDialog: ChatDialog) : KtxInputProcessor {
+    class ChatInputListener(val chatDialog: ChatDialog) : KtxInputAdapter {
         override fun keyDown(keycode: Int) = when (keycode) {
             Input.Keys.T -> {
                 chatDialog.openChatDialog()

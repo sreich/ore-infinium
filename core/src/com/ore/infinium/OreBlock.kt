@@ -117,7 +117,7 @@ class OreBlock private constructor() {
         /**
          * map ores to a color so we can output the world as a pixmap
          */
-        val OreNoiseColorMap = mapOf(BlockType.Dirt.oreValue to Color2.BROWN,
+        val OreNoiseColorMap = hashMapOf(BlockType.Dirt.oreValue to Color2.BROWN,
                                      BlockType.Sand.oreValue to Color.ORANGE,
                                      BlockType.Stone.oreValue to Color.GRAY,
                                      BlockType.Copper.oreValue to Color2.NEON_CARROT,
@@ -137,7 +137,7 @@ class OreBlock private constructor() {
         /**
          * looks up the texture prefix name for each block type. e.g. Dirt -> "dirt", etc.
          */
-        val blockAttributes = HashMap<Byte, BlockAttributes>()
+        val blockAttributes = HashMap<Byte, BlockAttributes>(BlockType.values().size)
 
         init {
             blockAttributes.put(OreBlock.BlockType.Air.oreValue,

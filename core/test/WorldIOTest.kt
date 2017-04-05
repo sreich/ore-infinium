@@ -22,11 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import org.junit.Ignore
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class WorldIOTest {
     internal var world = OreWorld(null, null, OreWorld.WorldInstanceType.Server, OreWorld.WorldSize.TestTiny)
@@ -35,23 +33,23 @@ class WorldIOTest {
     @Ignore
     @Throws(Exception::class)
     fun saveWorld() {
-        val worldSize = OreWorld.WorldSize.TestTiny
-        //setup
-        for (x in 0 until worldSize.width) {
-            for (y in 0 until worldSize.height) {
-                world.setBlockType(x, y, OreBlock.BlockType.Diamond.oreValue)
-            }
-        }
-
-        world.worldIO.saveWorld()
-
-        //verify read back
-        for (x in 0 until worldSize.width) {
-            for (y in 0 until worldSize.height) {
-                assertEquals(OreBlock.BlockType.Diamond.oreValue, world.blockType(x, y),
-                             "blocks array read back failed.")
-            }
-        }
+//        val worldSize = OreWorld.WorldSize.TestTiny
+//        //setup
+//        for (x in 0 until worldSize.width) {
+//            for (y in 0 until worldSize.height) {
+//                world.setBlockType(x, y, OreBlock.BlockType.Diamond.oreValue)
+//            }
+//        }
+//
+//        world.worldIO.saveWorld()
+//
+//        //verify read back
+//        for (x in 0 until worldSize.width) {
+//            for (y in 0 until worldSize.height) {
+//                assertEquals(OreBlock.BlockType.Diamond.oreValue, world.blockType(x, y),
+//                             "blocks array read back failed.")
+//            }
+//        }
     }
 
     //WorldGenerator.generateWorldAndOutputImage()
