@@ -39,7 +39,6 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.delay
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -264,11 +263,6 @@ class WorldGenerator(private val world: OreWorld) {
 
         var seed = random.nextLong()
         seed = 4210630674902044763
-
-        repeat(999999999) {
-            delay(20)
-            channel.send("progress $it")
-        }
 
 //////////////////        seed = 413903351416513687
 //        seed = -789257892798191
