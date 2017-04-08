@@ -26,7 +26,6 @@ package com.ore.infinium
 
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
@@ -41,6 +40,7 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import mu.KLogging
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
@@ -55,6 +55,8 @@ class WorldGenerator(private val world: OreWorld) {
     private lateinit var mSprite: ComponentMapper<SpriteComponent>
     private lateinit var liquidSimulationSystem: LiquidSimulationSystem
 
+    companion object : KLogging()
+
     init {
         world.artemisWorld.oreInject(this)
     }
@@ -68,8 +70,7 @@ class WorldGenerator(private val world: OreWorld) {
         generateTrees()
 
         counter.stop()
-        val s = "total world gen took (incl transitioning, etc): $counter.current seconds"
-        Gdx.app.log("", s)
+        logger.debug { "total world gen took (incl transitioning, etc): $counter.current seconds" }
     }
 
     suspend fun generateFlatWorld(worldSize: OreWorld.WorldSize,
@@ -251,6 +252,7 @@ class WorldGenerator(private val world: OreWorld) {
         var seed = random.nextLong()
         seed = 4210630674902044763
 
+
 //////////////////        seed = 413903351416513687
 //        seed = -789257892798191
 
@@ -283,8 +285,8 @@ class WorldGenerator(private val world: OreWorld) {
         //inputSeed = -4058144727897976167 //problematic caves, caves are too..long and..pipey/flat
         //inputSeed = 5243159850199723543
 
-        OreWorld.log("world gen", "inputSeed was $seed")
 
+        logger.debug { "inputSeed was $seed" }
 
         val counter = PerformanceCounter("world gen")
         counter.start()
@@ -294,32 +296,21 @@ class WorldGenerator(private val world: OreWorld) {
 
         channel.send("starting worldgen on $threadCount threads")
         var threads: Array<Job>? = null
- //       runBlocking(CommonPool) {
+        //       runBlocking(CommonPool) {
 
 
 //            val job = produce<String>(threadContext, Channel.UNLIMITED) {
-                threads = Array(threadCount) { threadId ->
-                    async(threadContext) {
-                        asyncGenerateWorldMap(worldSize, threadId, threadCount, seed, channel)
-                    }
- //               }
+        threads = Array(threadCount) { threadId ->
+            async(threadContext) {
+                asyncGenerateWorldMap(worldSize, threadId, threadCount, seed, channel)
             }
+            //               }
+        }
 
-               threads.forEach { it.join() }
+        threads.forEach { it.join() }
 
         channel.send("worldgen threads finished")
-        OreWorld.log("world gen",
-                     "worldgen detected $threadCount processors, starting worldgen on $threadCount threads")
-
-
-        //halt until all threads come back up. remember, for client-hosted server,
-        //user clicks button on client thread, client thread calls into server code, drops off
-        // (not network) params for world gen, server eventually picks it up,
-        // calls into this main generation method,
-        //passes parameters the client gave it. client then wants to know the status, for loading bars etc.
-        //it'll want to know how many threads are going on. it can probably just call right into the
-        //server code, then into the world generator, and find that information, and set appropriate
-        //ui values
+        logger.debug { "worldgen detected $threadCount processors, starting worldgen on $threadCount threads" }
 
         channel.send("setting block wall types")
         //hack, set block wall type for each part that's underground!
@@ -339,7 +330,7 @@ class WorldGenerator(private val world: OreWorld) {
 
         channel.send("world generation finished after ${counter.current} seconds")
 
-        OreWorld.log("world gen", "world generation finished after ${counter.current} seconds")
+        logger.debug { "world generation finished after ${counter.current} seconds" }
 
         val worldGenInfo = WorldGenOutputInfo(worldSize, seed, useUniqueImageName = false)
         writeWorldImage(worldGenInfo)
@@ -348,7 +339,7 @@ class WorldGenerator(private val world: OreWorld) {
     }
 
     private fun generateLakesAndVolcanoes(worldSize: OreWorld.WorldSize) {
-        OreWorld.log("world gen - lakes & volcanoes", "finding spots for lakes & volcanoes")
+        logger.debug { "world gen - lakes & volcanoes finding spots for lakes & volcanoes" }
         val terrainContour = ArrayList <Int>()
         for (x in 0 until worldSize.width) {
             for (y in 0 until worldSize.height) {
@@ -374,10 +365,10 @@ class WorldGenerator(private val world: OreWorld) {
         //lava is and stuff, maxima are lakes and valleys
 
         val volcanoTime = measureTimeMillis { fillVolcanoes(peakResult.minima) }
-        OreWorld.log("world gen - volcanoes", "...volcanoes filled and settled. took $volcanoTime ms")
+        logger.debug { "world gen - volcanoes...volcanoes filled and settled. took $volcanoTime ms" }
 
         val lakeTime = measureTimeMillis { fillLakes(peakResult.maxima) }
-        OreWorld.log("world gen - lakes", "...lakes filled and settled. took $lakeTime ms")
+        logger.debug { "world gen - lakes...lakes filled and settled. took $lakeTime ms" }
 
     }
 
@@ -439,18 +430,18 @@ class WorldGenerator(private val world: OreWorld) {
     }
 
     private fun fillLakes(maxima: HashMap<Int, Int>) {
-        OreWorld.log("world gen - lakes", "filling lakes...")
+        logger.debug { "world gen - lakes filling lakes..." }
 
         var count = 1
         for ((x, y) in maxima) {
-            OreWorld.log("world gen - lakes", "filling in lake $count of ${maxima.size}...")
+            logger.debug { "world gen - lakes filling in lake $count of ${maxima.size}..." }
 
             fillLake(x, y)
             //hack debug
 //            world.setBlockType(x, y, OreBlock.BlockType.Uranium.oreValue)
 //            world.setLiquidLevel(x, y, LiquidSimulationSystem.MAX_LIQUID_LEVEL)
 
-            OreWorld.log("world gen - lakes", "...finished filling in & settling a lake.")
+            logger.debug { "world gen - lakes ...finished filling in & settling a lake." }
             count++
         }
     }
@@ -1258,7 +1249,7 @@ class WorldGenerator(private val world: OreWorld) {
                 world.setBlockType(x, y, value.toByte())
             }
         }
-        OreWorld.log("", "WORLDGEN one thread output finished")
+        logger.debug { "WORLDGEN one thread output finished" }
     }
 
     //fixme don't use relative upward, fix game so it doesn't require working dir

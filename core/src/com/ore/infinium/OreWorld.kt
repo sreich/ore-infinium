@@ -54,6 +54,7 @@ import com.ore.infinium.util.*
 import kotlinx.coroutines.experimental.channels.ProducerJob
 import kotlinx.coroutines.experimental.runBlocking
 import ktx.assets.file
+import mu.KLogging
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -75,6 +76,19 @@ class OreWorld
  var server: OreServer?,
  var worldInstanceType: OreWorld.WorldInstanceType,
  val worldSize: WorldSize) {
+
+    companion object : KLogging() {
+        const val BLOCK_SIZE_PIXELS = 16.0f
+
+        /**
+         * @see WorldGenerator
+         */
+        val WORLD_SEA_LEVEL = 50
+
+        const val s_itemPlacementOverlay = "itemPlacementOverlay"
+        const val s_crosshair = "crosshair"
+        const val s_mainPlayer = "mainPlayer"
+    }
 
     private lateinit var tagManager: TagManager
 
@@ -268,26 +282,6 @@ class OreWorld
         Medium(6400, 1800),
         Large(8400, 2400),
         Huge(8400, 8400)
-    }
-
-    companion object {
-        const val BLOCK_SIZE_PIXELS = 16.0f
-
-        /**
-         * @see WorldGenerator
-         */
-        val WORLD_SEA_LEVEL = 50
-
-        const val s_itemPlacementOverlay = "itemPlacementOverlay"
-        const val s_crosshair = "crosshair"
-        const val s_mainPlayer = "mainPlayer"
-
-        fun log(tag: String, message: String) {
-            val datetime = java.time.LocalDateTime.now()
-            val time = datetime.format(java.time.format.DateTimeFormatter.ofPattern("HH:m:s:S"))
-
-            println("[$tag] [$time] $message")
-        }
     }
 
     /**
@@ -739,7 +733,7 @@ class OreWorld
      * having to interface with other systems. Though some exceptions may apply
      */
     fun shutdown() {
-        log("world", "shutdown...")
+        logger.debug { "shutdown..." }
         artemisWorld.dispose()
     }
 
@@ -1065,7 +1059,7 @@ class OreWorld
             component.copyFrom(it)
 
             if (!isServer()) {
-                log("client entity cloner, sprite", component.textureName.toString())
+                logger.debug { "client entity cloner, sprite textturename: ${component.textureName.toString()}" }
                 component.sprite.setRegion(atlas.findRegion(component.textureName))
             }
         }

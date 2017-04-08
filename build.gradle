@@ -20,6 +20,8 @@ buildscript {
         kotlinCoroutinesVersion = '0.14'
         kotlinxJdk8Version = '0.3'
 
+        kotlinLoggingVersion = '1.4.4'
+
         junitVersion = '4.12'
 
         joiseVersion = '1.0.1'
@@ -177,7 +179,6 @@ project(":desktop") {
     //        }
     //   }
 
-
     project(":core") {
         apply plugin: "java"
         apply plugin: "idea"
@@ -219,6 +220,9 @@ project(":desktop") {
             compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
 
             compile "org.jetbrains.kotlinx:kotlinx-support-jdk8:$kotlinxJdk8Version"
+
+            compile "io.github.microutils:kotlin-logging:$kotlinLoggingVersion"
+            compile "org.slf4j:slf4j-log4j12:1.7.25"
 
             // libgdx core
             compile "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -268,7 +272,6 @@ project(":desktop") {
             compile "com.github.czyzby:ktx-style:$ktxVersion"
             compile "com.github.czyzby:ktx-scene2d:$ktxVersion"
             compile "com.github.czyzby:ktx-math:$ktxVersion"
-            compile "com.github.czyzby:ktx-log:$ktxVersion"
             compile "com.github.czyzby:ktx-i18n:$ktxVersion"
             compile "com.github.czyzby:ktx-assets:$ktxVersion"
             compile "com.github.czyzby:ktx-app:$ktxVersion"

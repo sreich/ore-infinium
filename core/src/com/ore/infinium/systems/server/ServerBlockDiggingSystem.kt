@@ -38,9 +38,11 @@ import com.ore.infinium.systems.GameTickSystem
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
+import mu.KLogging
 
 @Wire(failOnNull = false)
 class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
+    companion object : KLogging()
 
     private val mPlayer by mapper<PlayerComponent>()
     private val mSprite by mapper<SpriteComponent>()
@@ -117,8 +119,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
         //we assume this request times out
         if (gameTickSystem.ticks > expectedTickEnd + 10) {
 
-            OreWorld.log("server, block digging system",
-                         "processSystem block digging request timed out. this could be normal.")
+            logger.debug { "processSystem block digging request timed out. this could be normal." }
             return true
         }
 
@@ -127,7 +128,7 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private fun blockDiggingFinished(blockToDig: BlockToDig, blockType: Byte,
                                      playerEntityId: Int) {
-        OreWorld.log("server, block digging system", "processSystem block succeeded. sending")
+        logger.debug { "processSystem block succeeded. sending" }
         val x = blockToDig.x
         val y = blockToDig.y
 
@@ -176,38 +177,35 @@ class ServerBlockDiggingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             if (blockToDig.x == x && blockToDig.y == y) {
                 //this is our block, mark it as the client thinking/saying(or lying) it finished
                 blockToDig.clientSaysItFinished = true
-                OreWorld.log("server, block digging system",
-                             "blockDiggingFinished - client said so it finished")
+                logger.debug { "blockDiggingFinished - client said so it finished"}
 
-                return
+                    return
+                }
             }
-        }
 
-        //if it was never found, forget about it.
-        OreWorld.log("server, block digging system",
-                     "blockDiggingFinished message received from a client, but this block dig queued " +
-                             "request " +
-                             "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)")
-    }
+            //if it was never found, forget about it.
+            logger.debug {
+                "blockDiggingFinished message received from a client, but this block dig queued request " +
+                        "doesn't exist. either the player is trying to cheat, or it expired (arrived too late)"}
+            }
 
-    /**
-     * network end, from client
-     */
-    fun receiveBlockDiggingBegin(x: Int, y: Int, playerEntity: Int) {
-        if (oreWorld.blockType(x, y) == OreBlock.BlockType.Air.oreValue) {
-            //odd. they sent us a block pick request, but it is already null on our end.
-            //perhaps just a harmless latency thing. ignore.
-            OreWorld.log("server, block digging system",
-                         "blockDiggingBegin we got the request to dig a block that is already null/dug. " +
-                                 "this is " +
-                                 "likely just a latency issue ")
-            return
-        }
+            /**
+             * network end, from client
+             */
+            fun receiveBlockDiggingBegin(x: Int, y: Int, playerEntity: Int) {
+                if (oreWorld.blockType(x, y) == OreBlock.BlockType.Air.oreValue) {
+                    //odd. they sent us a block pick request, but it is already null on our end.
+                    //perhaps just a harmless latency thing. ignore.
+                    logger.debug {
+                        "blockDiggingBegin we got the request to dig a block that is already null/dug. " +
+                                "this is likely just a latency issue "}
+                        return
+                    }
 
-        val blockToDig = BlockToDig(x = x, y = y,
-                                    playerConnectionId = mPlayer.get(playerEntity).connectionPlayerId,
-                                    digStartTick = gameTickSystem.ticks)
+                    val blockToDig = BlockToDig(x = x, y = y,
+                                                playerConnectionId = mPlayer.get(playerEntity).connectionPlayerId,
+                                                digStartTick = gameTickSystem.ticks)
 
-        blocksToDig.add(blockToDig)
-    }
-}
+                    blocksToDig.add(blockToDig)
+                }
+            }

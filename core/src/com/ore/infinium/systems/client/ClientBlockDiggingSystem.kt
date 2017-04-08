@@ -37,9 +37,12 @@ import com.ore.infinium.util.isInvalidEntity
 import com.ore.infinium.util.mapper
 import com.ore.infinium.util.opt
 import com.ore.infinium.util.system
+import mu.KLogging
 
 @Wire(failOnNull = false)
 class ClientBlockDiggingSystem(private val oreWorld: OreWorld, private val client: OreClient) : BaseSystem() {
+    companion object : KLogging()
+
     private val mPlayer by mapper<PlayerComponent>()
     private val mTool by mapper<ToolComponent>()
 
@@ -227,8 +230,7 @@ class ClientBlockDiggingSystem(private val oreWorld: OreWorld, private val clien
 
                 playBlockDugSound(blockType)
 
-                OreWorld.log("client, block digging system",
-                             "processSystem finish! tick taken:  " + blockToDig.ticksTook)
+                logger.debug { "processSystem finish! tick taken:  ${blockToDig.ticksTook}"}
                 return
             }
 

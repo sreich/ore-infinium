@@ -5,10 +5,10 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.beust.jcommander.JCommander
 import com.ore.infinium.*
 import com.ore.infinium.desktop.texturepacker.TexturePacker
+import mu.KLogging
 import kotlin.system.measureTimeMillis
 
 class DesktopLauncher {
-
     private fun runGame(arg: Array<String>) {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             //            ExceptionDialog dialog = new ExceptionDialog("Ore Infinium Exception Handler", s, throwable);
@@ -40,7 +40,7 @@ class DesktopLauncher {
 
         if (OreSettings.pack) {
             val ms = measureTimeMillis { packTextures() }
-            OreWorld.log("startup texture packing", "texture packing took $ms ms")
+            logger.debug { "startup texture packing texture packing took $ms ms" }
         }
 
         Lwjgl3Application(OreClient(), createLwjglConfig())
@@ -58,7 +58,7 @@ class DesktopLauncher {
             }
 
     private fun generateWorld() {
-        OreWorld.log("DesktopLauncher generateWorld", "creating server and world to generate the world and exit.")
+        logger.debug { "DesktopLauncher generateWorld. creating server and world to generate the world and exit." }
         val worldSize = OreWorld.WorldSize.TestTiny
         val server = OreServer(worldSize)
         val world = OreWorld(client = null, server = server,
@@ -66,7 +66,7 @@ class DesktopLauncher {
 
         world.init()
 
-        OreWorld.log("DesktopLauncher generateWorld", "shutting down world. exiting.")
+        logger.debug { "told to gen world and exit, shutting down world. exiting." }
         world.shutdown()
     }
 
@@ -75,7 +75,7 @@ class DesktopLauncher {
             this.fast = true
             edgePadding = false
         }
-            val settingsTiles = TexturePacker.Settings().apply {
+        val settingsTiles = TexturePacker.Settings().apply {
             this.fast = true
             edgePadding = false
             combineSubdirectories = true
@@ -88,12 +88,13 @@ class DesktopLauncher {
     }
 
     private fun printHelp(jCommander: JCommander) {
-        println("Ore Infinium - an open source block building survival game.\n" + "To enable assertions, you may want to pass to the Java VM, -ea")
+        println("Ore Infinium - an open source block building survival game.\n" +
+                        "To enable assertions, you may want to pass to the Java VM, -ea")
         //print how to use
         jCommander.usage()
     }
 
-    companion object {
+    companion object : KLogging() {
         @JvmStatic fun main(arg: Array<String>) {
             DesktopLauncher().runGame(arg)
         }

@@ -1,13 +1,3 @@
-package com.ore.infinium
-
-import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
-import ktx.assets.file
-import ktx.log.debug
-import ktx.style.*
-
 /**
 MIT License
 
@@ -32,12 +22,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
+package com.ore.infinium
+
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import ktx.assets.file
+import ktx.style.*
+
 fun createFont(): BitmapFont {
     val fontGenerator = FreeTypeFontGenerator(file("fonts/Ubuntu-L.ttf"))
     val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
     parameter.size = 13
-
-    debug { "created font for skin." }
 
     return fontGenerator.generateFont(parameter)
 }

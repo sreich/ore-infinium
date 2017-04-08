@@ -33,6 +33,7 @@ import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.SpatialSystem
 import com.ore.infinium.util.*
+import mu.KLogging
 
 @Wire(failOnNull = false)
 /**
@@ -49,6 +50,7 @@ import com.ore.infinium.util.*
 
  */
 class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
+    companion object : KLogging()
 
     private val mSprite by require<SpriteComponent>()
     private val mPlayer by mapper<PlayerComponent>()
@@ -170,9 +172,8 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
     }
 
     private fun maybeSendDestroy(entitiesToDestroy: List<Int>, connectionPlayerId: Int) {
-        if (entitiesToDestroy.size > 0) {
-            OreWorld.log("servernetworkentitysystem",
-                         "sending DestroyMultipleEntities (contents): ${entitiesToDestroy.toString()}")
+        if (entitiesToDestroy.isNotEmpty()) {
+            logger.debug { "sending DestroyMultipleEntities (contents): $entitiesToDestroy"}
             serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
                                                             connectionPlayerId)
         }
@@ -180,9 +181,8 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
     }
 
     private fun maybeSendSpawn(entitiesToSpawn: List<Int>, connectionPlayerId: Int) {
-        if (entitiesToSpawn.size > 0) {
-            OreWorld.log("servernetworkentitysystem",
-                         "sending SpawnMultipleEntities (contents): ${entitiesToSpawn.toString()}")
+        if (entitiesToSpawn.isNotEmpty()) {
+            logger.debug { "sending SpawnMultipleEntities (contents): $entitiesToSpawn"}
             //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
             serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
                                                           connectionPlayerId)

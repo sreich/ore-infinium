@@ -39,6 +39,7 @@ import com.esotericsoftware.kryonet.Listener
 import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.*
+import mu.KLogging
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -48,6 +49,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @Wire
 class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
+    companion object : KLogging()
+
     /**
      * whether or not we're connected to the server (either local or mp).
      *
@@ -200,7 +203,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
 
         if (OreSettings.debugPacketTypeStatistics) {
-            OreWorld.log("client", "--- packet type stats ${debugPacketFrequencyByType.toString()}")
+            logger.debug { "--- packet type stats $debugPacketFrequencyByType" }
         }
     }
 
@@ -424,7 +427,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 assert(networkId != null) { "network id null on remove/destroy, but localid wasn't" }
             } else {
                 //debug += "networkid:$networkEntityId localid: $localId, "
-                //OreWorld.log("networkclientsystem", debug)
+                //logger.debug {"networkclientsystem", debug)
 
                 assert(false) { "told to delete entity on client, but it doesn't exist. desynced. network id: " + networkEntityId }
 
@@ -442,12 +445,12 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         debug += ']'
 
-        //OreWorld.log("networkclientsystem", debug)
+        //logger.debug {"networkclientsystem", debug)
     }
 
     private fun receiveEntitySpawnMultiple(entitySpawn: Network.Server.EntitySpawnMultiple) {
         //fixme this and hotbar code needs consolidation
-        //OreWorld.log("client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
+        //logger.debug {"client receiveMultipleEntitySpawn", "entities: " + spawnFromServer.entitySpawn);
 
         //var debug = "receiveMultipleEntitySpawn [ "
         for (spawn in entitySpawn.entitySpawn) {
@@ -504,7 +507,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
             assert(entityForNetworkId.size == networkIdForEntityId.size) { "spawn, network id and entity id maps are out of sync(size mismatch)" }
         }
 
-        //OreWorld.log("networkclientsystem", debug)
+        //logger.debug {"networkclientsystem", debug)
     }
 
     private fun receiveLoadedViewportMoved(viewportMove: Network.Server.LoadedViewportMoved) {
@@ -707,7 +710,9 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         }
     }
 
-    internal inner class ClientStupidListener(lagMillisMin: Int, lagMillisMax: Int, listener: Listener) : Listener.LagListener(
+    internal inner class ClientStupidListener(lagMillisMin: Int,
+                                              lagMillisMax: Int,
+                                              listener: Listener) : Listener.LagListener(
             lagMillisMin, lagMillisMax, listener)
 
     private inner class ClientEntitySubscriptionListener : OreEntitySubscriptionListener {

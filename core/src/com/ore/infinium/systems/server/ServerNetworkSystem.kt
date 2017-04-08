@@ -38,6 +38,7 @@ import com.esotericsoftware.kryonet.Server
 import com.ore.infinium.*
 import com.ore.infinium.components.*
 import com.ore.infinium.util.*
+import mu.KLogging
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -47,6 +48,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @Wire
 class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer: OreServer) : BaseSystem() {
+    companion object : KLogging()
+
     private val mPlayer by mapper<PlayerComponent>()
     private val mSprite by mapper<SpriteComponent>()
     private val mItem by mapper<ItemComponent>()
@@ -82,7 +85,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         var playerName: String = ""
     }
 
-    inner class NetworkJob internal constructor(internal var connection: PlayerConnection, internal var receivedObject: Any)
+    inner class NetworkJob internal constructor(internal var connection: PlayerConnection,
+                                                internal var receivedObject: Any)
 
     //hack this needs fixed badly, none of this is thread safe for connect/disconnect
     internal inner class ServerListener : Listener() {
@@ -192,7 +196,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 connectionId = cPlayer.connectionPlayerId,
                 playerName = cPlayer.playerName,
                 pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-        )
+                                                )
 
         serverKryo.sendToAllTCP(spawn)
     }
@@ -208,13 +212,13 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cPlayer = mPlayer.get(entityId)
         val spriteComp = mSprite.get(entityId)
 
-        OreWorld.log("server", "sending spawn player command")
+        logger.debug { "sending spawn player command" }
 
         val spawn = Network.Server.PlayerSpawned(
                 connectionId = cPlayer.connectionPlayerId,
                 playerName = cPlayer.playerName,
                 pos = Vector2(spriteComp.sprite.x, spriteComp.sprite.y)
-        )
+                                                )
 
         serverKryo.sendToTCP(connectionId, spawn)
     }
@@ -253,7 +257,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      * @param connectionPlayerId
      */
     fun sendSpawnMultipleEntities(entitiesToSpawn: List<Int>, connectionPlayerId: Int) {
-        assert(entitiesToSpawn.size > 0) { "server told to spawn 0 entities, this is impossible" }
+        assert(entitiesToSpawn.isNotEmpty()) { "server told to spawn 0 entities, this is impossible" }
 
         val spawnMultiple = Network.Server.EntitySpawnMultiple()
 
@@ -292,18 +296,18 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             spawnMultiple.entitySpawn.add(spawn)
         }
 
-        //OreWorld.log("networkserversystem",
+        //logger.debug {"networkserversystem",
         //            "sending spawn multiple for ${spawnMultiple.entitySpawn!!.size} entities")
         serverKryo.sendToTCP(connectionPlayerId, spawnMultiple)
     }
 
     fun sendDestroyMultipleEntities(entitiesToDestroy: List<Int>, connectionPlayerId: Int) {
-        assert(entitiesToDestroy.size > 0) { "server told to destroy 0 entities, this is impossible" }
+        assert(entitiesToDestroy.isNotEmpty()) { "server told to destroy 0 entities, this is impossible" }
 
         val destroyMultiple = Network.Server.EntityDestroyMultiple()
         destroyMultiple.entitiesToDestroy = entitiesToDestroy
 
-        //OreWorld.log("networkserversystem",
+        //logger.debug {"networkserversystem",
         //            "sending destroy multiple for ${destroyMultiple.entitiesToDestroy!!.size} entities")
         serverKryo.sendToTCP(connectionPlayerId, destroyMultiple)
     }
@@ -425,7 +429,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         }
 
         if (OreSettings.debugPacketTypeStatistics) {
-            OreWorld.log("server", "--- packet type stats ${debugPacketFrequencyByType.toString()}")
+            logger.debug { "--- packet type stats $debugPacketFrequencyByType" }
         }
     }
 
@@ -458,7 +462,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 assert(false) {
                     """Server network system, object was received but there's no
                         method calls to handle it, please add them.
-                        Object: ${receivedObject.toString()}"""
+                        Object: $receivedObject"""
                 }
             }
         }
@@ -524,9 +528,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
             if (fuelSources.count() > 0) {
                 sendSpawnInventoryItems(entityIdsToSpawn = fuelSources,
-                        inventoryType = Network.Shared.InventoryType.Generator,
-                        owningPlayerEntityId = playerEntityId
-                )
+                                        inventoryType = Network.Shared.InventoryType.Generator,
+                                        owningPlayerEntityId = playerEntityId
+                                       )
             }
         }
     }
@@ -544,10 +548,11 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         when (cTool.type) {
             ToolComponent.ToolType.Bucket -> attackLiquidGun(tileX, tileY)
             ToolComponent.ToolType.Explosive -> attackExplosive(pos = attack.attackPositionWorldCoords,
-                    itemId = equippedItem, player = player)
+                                                                itemId = equippedItem, player = player)
 
         //attack things like tree and things
-            ToolComponent.ToolType.Drill -> attackPosition(attackPos = attack.attackPositionWorldCoords, playerEntity = job.connection.playerEntityId)
+            ToolComponent.ToolType.Drill -> attackPosition(attackPos = attack.attackPositionWorldCoords,
+                                                           playerEntity = job.connection.playerEntityId)
 
             else -> TODO("not sure, this isn't implemented i guess, or this was called incorrectly")
         }
@@ -568,9 +573,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         //to fix the issue
         assert(entitiesToAttack.size <= 1)
 
-        if (entitiesToAttack.size == 0) {
+        if (entitiesToAttack.isEmpty()) {
             //nothing found, ignore them
-            OreWorld.log("server network system", "player told to attack empty area (no entities found to 'handle' attack")
+            logger.debug { "player told to attack empty area (no entities found to 'handle' attack" }
             return
         }
 
@@ -665,7 +670,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         //don't allow " " playername
         name = name.trim { it <= ' ' }
 
-        if (name.length == 0) {
+        if (name.isEmpty()) {
             //we don't bother sending a disconnection event. they'd know if something was a bad name or not (hacked client)
             job.connection.close()
             return
@@ -707,7 +712,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
         val date = SimpleDateFormat("HH:mm:ss")
         oreServer.chat.addChatLine(date.format(Date()), job.connection.playerName, chatMessage.message,
-                Chat.ChatSender.Player)
+                                   Chat.ChatSender.Player)
     }
 
     private fun receiveItemPlace(job: NetworkJob, itemPlace: Network.Client.ItemPlace) {
@@ -734,7 +739,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cPlayer = mPlayer.get(job.connection.playerEntityId)
 
         val itemToDrop = dropInventoryItem(itemToDropIndex = itemDrop.index.toInt(), cPlayer = cPlayer,
-                inventoryType = itemDrop.inventoryType)
+                                           inventoryType = itemDrop.inventoryType)
 
         if (itemToDrop == INVALID_ENTITY_ID) {
             //safety first. malicious/buggy client.
@@ -985,7 +990,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                 ++blockIndex
             }
         }
-        //OreWorld.log("networkserversystem", "sendplayerblockregion blockcount: " + blockIndex);
+        //logger.debug {"networkserversystem", "sendplayerblockregion blockcount: " + blockIndex);
 
         val cPlayer = mPlayer.get(playerEntityId)
         serverKryo.sendToTCP(cPlayer.connectionPlayerId, blockRegion)
@@ -1030,8 +1035,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
         val cGen = mGenerator.get(generatorEntityId)
 
         val stats = Network.Server.UpdateGeneratorControlPanelStats(generatorEntityId = generatorEntityId,
-                fuelHealth = cGen.fuelSources!!.fuelSourceHealth,
-                supply = -1)
+                                                                    fuelHealth = cGen.fuelSources!!.fuelSourceHealth,
+                                                                    supply = -1)
 
         serverKryo.sendToTCP(cPlayer.connectionPlayerId, stats)
     }

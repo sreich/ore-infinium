@@ -31,9 +31,11 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.util.*
+import mu.KLogging
 
 @Wire
 class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
+
     private val mPlayer by mapper<PlayerComponent>()
     private val mLight by mapper<LightComponent>()
     private val mItem by mapper<ItemComponent>()
@@ -48,7 +50,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
     // this happens when the world is mostly air, stack overflow otherwise
     val MAX_LIGHTING_DEPTH = 20
 
-    companion object {
+    companion object : KLogging() {
         /**
          * the max number of light levels we have for each tile.
          * we could do way more, but it'd probably cost more a lot
@@ -168,7 +170,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             blockType == OreBlock.BlockType.Air.oreValue && wallType == OreBlock.WallType.Air.oreValue -> 0
         //dug-out underground bleeds off, but not as quickly as a solid block
             blockType == OreBlock.BlockType.Air.oreValue && wallType != OreBlock.WallType.Air.oreValue -> 1
-            //solid block underground
+        //solid block underground
             else -> 2
         }
 
@@ -208,7 +210,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             //out of world bounds, abort
             return
         }
-        //OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "begin, depth: $depth")
+        //logger.debug {"tiles lighting system - diamondFloodFillLightRemove", "begin, depth: $depth")
 
         val blockType = oreWorld.blockType(x, y)
         val wallType = oreWorld.blockWallType(x, y)
@@ -222,7 +224,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
             return
         }
 
-        //OreWorld.log("tiles lighting system - diamondFloodFillLightRemove", "recursive calls being made, depth: $depth")
+        //logger.debug {"tiles lighting system - diamondFloodFillLightRemove", "recursive calls being made, depth: $depth")
 
         val newDepth = depth + 1
         diamondFloodFillLightRemove(x - 1, y, lastLightLevel = newLightLevel, firstRun = false, depth = newDepth)
@@ -319,7 +321,7 @@ class TileLightingSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
                 val cSprite = mSprite.get(entity)
 
-                OreWorld.log("tiles lighting system", "calculating light removal")
+                logger.debug { "calculating light removal" }
 
                 val x = cSprite.sprite.x.toInt()
                 val y = cSprite.sprite.y.toInt()
