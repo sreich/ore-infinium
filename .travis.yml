@@ -4,7 +4,7 @@ jdk:
   - oraclejdk8
 
 notifications:
-#  email: false
+  email: false
   webhooks:
     urls:
       - https://webhooks.gitter.im/e/2b6ca8a3a024f0847bb6
