@@ -32,44 +32,28 @@ import com.badlogic.gdx.utils.PerformanceCounter
 import com.ore.infinium.components.FloraComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.LiquidSimulationSystem
-import com.ore.infinium.util.completed
 import com.ore.infinium.util.oreInject
 import com.sudoplay.joise.module.*
 import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import java.awt.Color
 import java.awt.Font
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.CountDownLatch
 import javax.imageio.ImageIO
-import kotlin.concurrent.thread
 import kotlin.system.measureTimeMillis
 
 @Wire
 class WorldGenerator(private val world: OreWorld) {
     private lateinit var mSprite: ComponentMapper<SpriteComponent>
     private lateinit var liquidSimulationSystem: LiquidSimulationSystem
-
-    /**
-     * how many worker threads are running write now.
-     * 0 indicates we are all done, after each one finishes,
-     * we countdown (decrement) their latch..
-     *
-     * once it hits 0 you'll know world gen is complete.
-     */
-    var workerThreadsRemainingLatch: CountDownLatch? = null
-
-    /**
-     * @return true if worldgen has completed successfully
-     */
-    val finished: Boolean get() {
-        return workerThreadsRemainingLatch!!.completed
-    }
 
     init {
         world.artemisWorld.oreInject(this)
@@ -248,16 +232,19 @@ class WorldGenerator(private val world: OreWorld) {
         generateWorld(worldSize, channel)
     }
 
+    fun foo() {
+        while (true) {
+            //println("context ${Thread.currentThread().id}")
+        }
+
+    }
+
     /**
      * Performs all world generation according to parameters
      * Multithreaded to the number of cpus (logical) the system has, automatically
      */
     suspend fun generateWorld(worldSize: OreWorld.WorldSize, channel: SendChannel<String>) {
         channel.send("generate world start....")
-
-        val threadCount = Runtime.getRuntime().availableProcessors()
-
-        workerThreadsRemainingLatch = CountDownLatch(threadCount)
 
         val random = Random()
 
@@ -298,19 +285,32 @@ class WorldGenerator(private val world: OreWorld) {
 
         OreWorld.log("world gen", "inputSeed was $seed")
 
-        OreWorld.log("world gen",
-                     "worldgen detected $threadCount processors, starting worldgen on $threadCount threads")
-
-        channel.send("starting worldgen on $threadCount threads")
 
         val counter = PerformanceCounter("world gen")
         counter.start()
 
-        for (thread in 1..threadCount) {
-            thread(name = "world gen thread $thread") {
-                generateWorldThreaded(worldSize, thread, threadCount, seed)
+        val threadCount = Runtime.getRuntime().availableProcessors()
+        val threadContext = newFixedThreadPoolContext(threadCount, "world gen threads")
+
+        channel.send("starting worldgen on $threadCount threads")
+        var threads: Array<Job>? = null
+ //       runBlocking(CommonPool) {
+
+
+//            val job = produce<String>(threadContext, Channel.UNLIMITED) {
+                threads = Array(threadCount) { threadId ->
+                    async(threadContext) {
+                        asyncGenerateWorldMap(worldSize, threadId, threadCount, seed, channel)
+                    }
+ //               }
             }
-        }
+
+               threads.forEach { it.join() }
+
+        channel.send("worldgen threads finished")
+        OreWorld.log("world gen",
+                     "worldgen detected $threadCount processors, starting worldgen on $threadCount threads")
+
 
         //halt until all threads come back up. remember, for client-hosted server,
         //user clicks button on client thread, client thread calls into server code, drops off
@@ -320,7 +320,6 @@ class WorldGenerator(private val world: OreWorld) {
         //it'll want to know how many threads are going on. it can probably just call right into the
         //server code, then into the world generator, and find that information, and set appropriate
         //ui values
-        workerThreadsRemainingLatch!!.await()
 
         channel.send("setting block wall types")
         //hack, set block wall type for each part that's underground!
@@ -344,6 +343,8 @@ class WorldGenerator(private val world: OreWorld) {
 
         val worldGenInfo = WorldGenOutputInfo(worldSize, seed, useUniqueImageName = false)
         writeWorldImage(worldGenInfo)
+
+        channel.close()
     }
 
     private fun generateLakesAndVolcanoes(worldSize: OreWorld.WorldSize) {
@@ -541,10 +542,11 @@ class WorldGenerator(private val world: OreWorld) {
      * threaded behind the scenes implementation of generating the world,
      * nobody outside of us should need to know that detail
      */
-    private fun generateWorldThreaded(worldSize: OreWorld.WorldSize,
-                                      threadNumber: Int,
-                                      threadCount: Int,
-                                      seed: Long) {
+    private suspend fun asyncGenerateWorldMap(worldSize: OreWorld.WorldSize,
+                                              threadNumber: Int,
+                                              threadCount: Int,
+                                              seed: Long,
+                                              channel: SendChannel<String>) {
         val counter = PerformanceCounter("world gen thread $threadNumber")
         counter.start()
 
@@ -570,7 +572,7 @@ class WorldGenerator(private val world: OreWorld) {
 
         counter.stop()
 
-        workerThreadsRemainingLatch!!.countDown()
+        channel.send("thread $threadNumber finished after ${counter.current}")
     }
 
     data class GenerateTerrainResult(val groundSelect: Module,
@@ -1256,6 +1258,7 @@ class WorldGenerator(private val world: OreWorld) {
                 world.setBlockType(x, y, value.toByte())
             }
         }
+        OreWorld.log("", "WORLDGEN one thread output finished")
     }
 
     //fixme don't use relative upward, fix game so it doesn't require working dir

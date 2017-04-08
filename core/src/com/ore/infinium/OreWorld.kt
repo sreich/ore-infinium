@@ -337,7 +337,6 @@ class OreWorld
         runBlocking {
             worldGenJob.join()
         }
-        println("ret")
 
 //        runBlocking {
 //            while (true) {
