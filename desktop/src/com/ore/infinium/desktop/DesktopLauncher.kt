@@ -81,10 +81,10 @@ class DesktopLauncher {
             combineSubdirectories = true
         }
         //fixme overridden by file, it seems.
-        TexturePacker.process(settings, "blocks", "../assets/packed", "blocks")
-        TexturePacker.process(settingsTiles, "tiles", "../assets/packed", "tiles")
-        TexturePacker.process(settings, "ui", "../assets/packed", "ui")
-        TexturePacker.process(settings, "entities", "../assets/packed", "entities")
+        TexturePacker.processIfModified(settings, "blocks", "../assets/packed", "blocks")
+        TexturePacker.processIfModified(settingsTiles, "tiles", "../assets/packed", "tiles")
+        TexturePacker.processIfModified(settings, "ui", "../assets/packed", "ui")
+        TexturePacker.processIfModified(settings, "entities", "../assets/packed", "entities")
     }
 
     private fun printHelp(jCommander: JCommander) {
