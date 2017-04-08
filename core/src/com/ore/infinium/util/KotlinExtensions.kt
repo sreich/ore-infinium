@@ -123,7 +123,6 @@ fun Boolean.onOffString() = if (this) {
     "Off"
 }
 
-
 /**
  * @return true if negative
  * @author sreich

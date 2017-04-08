@@ -44,9 +44,13 @@ import com.kotcrab.vis.ui.widget.VisTextButton
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.util.*
+import ktx.app.KtxApplicationAdapter
+import ktx.app.KtxInputAdapter
+import ktx.assets.file
 import java.io.IOException
+import java.util.*
 
-class OreClient : OreApplicationListener, OreInputProcessor {
+class OreClient : KtxApplicationAdapter, KtxInputAdapter {
 
     var leftMouseDown: Boolean = false
     var rightMouseDown: Boolean = false
@@ -87,6 +91,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     lateinit var chat: Chat
     private var sidebar: Sidebar? = null
     lateinit var hud: Hud
+    lateinit var loadingScreen: LoadingScreen
 
     private var dragAndDrop: DragAndDrop? = null
 
@@ -110,8 +115,36 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     internal lateinit var fontGenerator: FreeTypeFontGenerator
 
-    init {
+    class State(val type: GuiState,
+                val enter: () -> Unit,
+                val exit: () -> Unit)
+
+    enum class GuiState {
+        LoadingScreen,
+        InGame,
+        MainMenu
     }
+
+    class StateMachineStack {
+
+        private val stack = ArrayDeque<State>()
+        fun pop(): State? {
+            val s = stack.pop()
+            s?.exit?.invoke()
+            return s
+        }
+
+        fun peek(): State? = stack.peek()
+
+        fun push(s: State) {
+            s.enter()
+            stack.push(s)
+        }
+    }
+
+    val guiStates = StateMachineStack()
+    lateinit var inGameState: State
+    lateinit var loadingScreenState: State
 
     override fun create() {
         // for debugging kryonet
@@ -131,14 +164,11 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         viewport = StretchViewport(OreSettings.width.toFloat(), OreSettings.height.toFloat())
 
         //load before stage
-        VisUI.load(VisUI.SkinScale.X1)
+        VisUI.load(oreSkin)
         TooltipManager.getInstance().apply {
             initialTime = 0f
             hideAll()
         }
-
-        //todo custom skin
-        //VisUI.load(Gdx.files.internal("ui/ui.json"))
 
         stage = Stage(viewport)
         rootTable = VisTable()
@@ -146,12 +176,11 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         stage.addActor(rootTable)
 
         multiplexer = InputMultiplexer(stage, this)
-
         Gdx.input.inputProcessor = multiplexer
 
         //fixme: this really needs to be stripped out of the client, put in a proper
         //system or something
-        fontGenerator = FreeTypeFontGenerator(Gdx.files.internal("fonts/Ubuntu-L.ttf"))
+        fontGenerator = FreeTypeFontGenerator(file("fonts/Ubuntu-L.ttf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
         parameter.size = 13
         bitmapFont_8pt = fontGenerator.generateFont(parameter)
@@ -159,15 +188,34 @@ class OreClient : OreApplicationListener, OreInputProcessor {
         fontGenerator.dispose()
 
         chatDialog = ChatDialog(this, stage, rootTable)
+        multiplexer.addProcessor(chatDialog.inputListener)
 
         chat = Chat()
         chat.addListener(chatDialog)
 
         hud = Hud(this, stage, rootTable)
+        loadingScreen = LoadingScreen(this, stage, rootTable)
 
         sidebar = Sidebar(stage, this)
 
-        hostAndJoin()
+        inGameState = State(type = GuiState.LoadingScreen,
+                            enter = {
+                                rootTable.add(chatDialog.container)
+                                        .expand().bottom().left()
+                                        .padBottom(5f).size(400f, 200f)
+                            },
+                            exit = { rootTable.clear() })
+
+        loadingScreenState = State(type = GuiState.LoadingScreen,
+                                   enter = {
+                                       /*severe hack*/
+                                       rootTable.clear()
+                                       rootTable.add(loadingScreen).fill().expand()
+                                   },
+                                   exit = { rootTable.clear() })
+        guiStates.push(loadingScreenState)
+
+        startClientHostedServerAndJoin()
     }
 
     fun handlePrimaryAttack() {
@@ -388,7 +436,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
     /**
      * immediately hops into hosting and joining its own local server
      */
-    private fun hostAndJoin() {
+    private fun startClientHostedServerAndJoin() {
         val worldSize = OreWorld.WorldSize.TestTiny
 
         server = OreServer(worldSize)
@@ -403,7 +451,6 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             e.printStackTrace()
         }
 
-        //call system, if returns false, fail and show:
         world = OreWorld(this, server, OreWorld.WorldInstanceType.ClientHostingServer, worldSize)
         world!!.init()
         world!!.artemisWorld.inject(this)
@@ -436,7 +483,32 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun render() {
         if (world != null) {
+            //severe gotta be a better solution w/ coroutines
+            //it's our hosted server, but it's still trying to generate the world...keep waiting
+            if (server != null) {
+                val worldGenJob = server!!.oreWorld.worldGenJob
+                if (worldGenJob.isActive) {
+                    val progress = worldGenJob.poll()
+                    if (progress != null) {
+                        loadingScreen.progressReceived(progress, worldGenJob)
+                        println("CLIENT RECEIVED worldgen PROGRESS: $progress")
+                    }
+                } else if (worldGenJob.isCompleted) {
+                    //severe this gets run everytime after it gets completed, trashing my framerate ;-)
+                    //need a better solution..
+                    if (guiStates.peek() != inGameState) {
+                        loadingScreen.progressComplete()
+                        guiStates.pop()
+                        guiStates.push(inGameState)
+                    }
+                }
+            }
+//            if (server != null && server!!.oreWorld.worldGenerator!!.finished) {
+
+            //           } else {
+            //we're just a dumb client
             world!!.process()
+            //          }
         }
 
         if (OreSettings.debugRenderGui) {
@@ -444,7 +516,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             stage.draw()
         }
 
-        //fixme: minus isn't working?? but plus(equals) is
+        //fixme: minus wasn't working?? but plus(equals) is, had to resort to left bracket for now
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
             if (zoomTimer.resetIfSurpassed(zoomInterval)) {
                 //zoom out
@@ -595,7 +667,7 @@ class OreClient : OreApplicationListener, OreInputProcessor {
             cJump.shouldJump = true
         }
 
-        return true
+        return false
     }
 
     private fun attemptItemDrop() {
@@ -697,14 +769,12 @@ class OreClient : OreApplicationListener, OreInputProcessor {
 
     override fun scrolled(amount: Int): Boolean {
         when {
-            world == null ->
-                return false
+            world == null -> return false
 
-            !clientNetworkSystem.connected ->
-                return false
-            powerOverlayRenderSystem.overlayVisible ->
-                //don't allow item/inventory selection during this
-                return false
+            !clientNetworkSystem.connected -> return false
+
+        //don't allow item/inventory selection during this
+            powerOverlayRenderSystem.overlayVisible -> return false
         }
 
         val index = hotbarInventory!!.selectedSlot

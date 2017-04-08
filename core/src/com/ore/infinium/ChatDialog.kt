@@ -25,29 +25,28 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.Touchable
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
 import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.util.OreInputListener
 import com.ore.infinium.util.enabledString
+import com.ore.infinium.util.scrollToBottom
 import com.ore.infinium.util.system
+import ktx.actors.onChange
+import ktx.app.KtxInputAdapter
 
 class ChatDialog(private val client: OreClient,
                  private val stage: Stage,
                  rootTable: VisTable) : Chat.ChatListener {
 
-    private val container: VisTable
+    val container = VisTable()
 
     private val elements = Array<ChatElement>()
 
     private val scrollPane: VisScrollPane
-    private val scrollPaneTable: VisTable
+    private val scrollPaneTable = VisTable()
     private val messageField: VisTextField
     private val sendButton: VisTextButton
 
@@ -56,50 +55,39 @@ class ChatDialog(private val client: OreClient,
     //last message client tried to send
     var previousSentMessage = ""
 
-    internal var notificationTimer: Timer
+    internal var notificationTimer = Timer()
 
     private inner class ChatElement(internal var timestampLabel: VisLabel,
                                     internal var playerNameLabel: VisLabel,
                                     internal var chatTextLabel: VisLabel)
 
+    val inputListener = ChatInputListener(this)
+
     init {
-        notificationTimer = Timer()
 
-        container = VisTable()
-
-        scrollPaneTable = VisTable()
-
-        scrollPane = VisScrollPane(scrollPaneTable)
-
-//        stage.addActor(container)
-        //       container.bottom().left().padBottom(5f).setSize(600f, 300f)
+        scrollPane = VisScrollPane(scrollPaneTable).apply {
+            setFadeScrollBars(false)
+        }
 
         container.add(scrollPane).expand().fill().colspan(4)
         container.row().space(2f)
 
         messageField = VisTextField()
-        container.add(messageField).expandX().fill()
+        container.add(messageField).expandX().fillX()//.minHeight(5f)
 
         sendButton = VisTextButton("send")
 
-        sendButton.addListener(object : ChangeListener() {
-            override fun changed(event: ChangeListener.ChangeEvent, actor: Actor) {
-                sendChat()
-            }
-        })
+        sendButton.onChange { _, _ -> sendChat() }
 
-        container.add(sendButton).right()
+        container.add(sendButton).right()//.minHeight(50f).minWidth(50f)
 
         stage.keyboardFocus = sendButton
-        //        container.background("default-window");
-        rootTable.add(container).expand().bottom().left().padBottom(5f).size(500f, 200f)
+        container.background("grey-panel")
 
         container.layout()
         scrollPaneTable.layout()
         scrollPane.layout()
         scrollPane.scrollPercentY = 100f
-
-        stage.addListener(ChatInputListener(this))
 
         closeChatDialog()
         closeChatDialog()
@@ -107,51 +95,45 @@ class ChatDialog(private val client: OreClient,
         //   showForNotification();
     }
 
-    class ChatInputListener(val chatDialog: ChatDialog) : OreInputListener() {
-        override //fixme override mouse as well, to ignroe those.
-        fun keyDown(event: InputEvent, keycode: Int): Boolean {
-
-            //ignore all keys if we're in non-focused mode
-            if (chatDialog.chatVisibilityState != ChatVisibility.Normal
-                    && keycode != Input.Keys.SLASH) {
-                return false
+    class ChatInputListener(val chatDialog: ChatDialog) : KtxInputAdapter {
+        override fun keyDown(keycode: Int) = when (keycode) {
+            Input.Keys.T -> {
+                chatDialog.openChatDialog()
+                true
             }
 
-            when (keycode) {
-                Input.Keys.ENTER -> {
-                    if (chatDialog.chatVisibilityState == ChatVisibility.Normal) {
-                        chatDialog.closeChatDialog()
-                        chatDialog.sendChat()
-                    } else {
-                        chatDialog.openChatDialog()
-                    }
-
-                    return true
-                }
-
-                Input.Keys.ESCAPE -> {
+            Input.Keys.ENTER -> {
+                if (chatDialog.chatVisibilityState == ChatVisibility.Normal) {
                     chatDialog.closeChatDialog()
+                    chatDialog.sendChat()
+                    true
+                } else {
+                    false
                 }
-
-                Input.Keys.SLASH -> {
-                    if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
-                        chatDialog.openChatDialog()
-
-                        //focus the end of it, otherwise it'd be at the beginning
-                        chatDialog.messageField.cursorPosition = chatDialog.messageField.text!!.length
-
-                        return true
-                    }
-                }
-
-                Input.Keys.UP -> {
-                    chatDialog.messageField.text = chatDialog.previousSentMessage
-                }
-
-                else -> return super.keyDown(event, keycode)
             }
 
-            return false
+            Input.Keys.ESCAPE -> {
+                chatDialog.closeChatDialog()
+                false
+            }
+
+            Input.Keys.SLASH ->
+                if (chatDialog.chatVisibilityState != ChatVisibility.Normal) {
+                    chatDialog.openChatDialog()
+
+                    //focus the end of it because of the slash, otherwise it'd be at the beginning
+                    chatDialog.messageField.cursorPosition = chatDialog.messageField.text!!.length
+
+                    true
+                } else {
+                    false
+                }
+
+            Input.Keys.UP -> {
+                chatDialog.messageField.text = chatDialog.previousSentMessage
+                true
+            }
+            else -> false
         }
     }
 
@@ -184,10 +166,10 @@ class ChatDialog(private val client: OreClient,
 
         //        messageField.setVisible(!notification);
         messageField.isDisabled = notification
-        sendButton.isVisible = !notification
+        sendButton.isDisabled = notification
         //        scroll.setScrollingDisabled(notification, notification);
 
-        scrollToBottom()
+        scrollPane.scrollToBottom()
 
         val touchable = if (notification) Touchable.disabled else Touchable.enabled
 
@@ -197,7 +179,7 @@ class ChatDialog(private val client: OreClient,
     }
 
     private fun sendChat() {
-        if (messageField.text.length > 0) {
+        if (messageField.text.isNotEmpty()) {
             if (!processLocalChatCommands()) {
 
                 client.world!!.artemisWorld.system<ClientNetworkSystem>()
@@ -272,11 +254,6 @@ class ChatDialog(private val client: OreClient,
         client.chat.addLocalChatLine(Chat.timestamp(), message)
     }
 
-    private fun scrollToBottom() {
-        scrollPane.layout()
-        scrollPane.scrollPercentY = 100f
-    }
-
     fun openChatDialog() {
         container.isVisible = true
         messageField.isDisabled = false
@@ -286,14 +263,14 @@ class ChatDialog(private val client: OreClient,
         //note: here be dragons. here and there and over there.
         //scroll pane seems to not want to scroll until it gets layout() called and some other voodoo stuff
         //after scrolling has been disabled and re-enabled..very odd indeed.
-        scrollToBottom()
+        scrollPane.scrollToBottom()
         scrollPane.setScrollingDisabled(false, false)
         switchInteractionMode(ChatVisibility.Normal)
     }
 
     fun closeChatDialog() {
         switchInteractionMode(ChatVisibility.Hidden)
-        scrollToBottom()
+        scrollPane.scrollToBottom()
         container.isVisible = false
         messageField.isDisabled = true
     }
@@ -317,13 +294,13 @@ class ChatDialog(private val client: OreClient,
 
         container.layout()
         scrollPaneTable.layout()
-        scrollToBottom()
+        scrollPane.scrollToBottom()
 
         showForNotification()
     }
 
     override fun cleared() {
-
+        throw NotImplementedError()
     }
 }
 

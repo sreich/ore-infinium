@@ -83,7 +83,7 @@ class PowerOverlayRenderSystem(private val oreWorld: OreWorld,
 
         totalStatsTable = VisTable()
         totalStatsTable.top().left().pad(0f, 6f, 0f, 0f)
-        totalStatsTable.setBackground("default-pane")
+        totalStatsTable.setBackground("grey-panel")
 
         val headerLabel = VisLabel("Electricity Resources")
         totalStatsTable.add(headerLabel).left()

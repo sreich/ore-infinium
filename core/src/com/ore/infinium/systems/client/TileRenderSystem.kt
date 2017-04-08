@@ -42,7 +42,12 @@ import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
-import com.ore.infinium.util.*
+import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
+import com.ore.infinium.util.flipY
+import com.ore.infinium.util.getEntityId
+import com.ore.infinium.util.use
+import ktx.app.clearScreen
+import ktx.assets.file
 
 @Wire
 class TileRenderSystem(private val camera: OrthographicCamera,
@@ -70,7 +75,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
     var stoneBlockMeshes: IntMap<String>
     var grassBlockMeshes: IntMap<String>
 
-    val tileAtlasCache = mutableMapOf<String, TextureRegion>()
+    val tileAtlasCache = hashMapOf<String, TextureRegion>()
 
     val tileLightMapFbo: FrameBuffer
     val tileMapFbo: FrameBuffer
@@ -88,8 +93,8 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
 
-        blockAtlas = TextureAtlas(Gdx.files.internal("packed/blocks.atlas"))
-        tilesAtlas = TextureAtlas(Gdx.files.internal("packed/tiles.atlas"))
+        blockAtlas = TextureAtlas(file("packed/blocks.atlas"))
+        tilesAtlas = TextureAtlas(file("packed/tiles.atlas"))
 
         tilesAtlas.regions.forEach { tileAtlasCache[it.name] = it }
 
@@ -105,7 +110,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         //dirt 16 and beyond are transition things.
         val dirtMax = 25
-        dirtBlockMeshes = IntMap<String>(dirtMax)
+        dirtBlockMeshes = IntMap<String>(dirtMax + 1)
         for (i in 0..dirtMax) {
             val formatted = "dirt-%02d".format(i)
             dirtBlockMeshes.put(i, formatted)
@@ -113,14 +118,14 @@ class TileRenderSystem(private val camera: OrthographicCamera,
 
         //18+ are transition helpers
         val grassMax = 31
-        grassBlockMeshes = IntMap<String>(grassMax)
+        grassBlockMeshes = IntMap<String>(grassMax + 1)
         for (i in 0..grassMax) {
             val formatted = "grass-%02d".format(i)
             grassBlockMeshes.put(i, formatted)
         }
 
         val stoneMax = 30
-        stoneBlockMeshes = IntMap<String>(stoneMax)
+        stoneBlockMeshes = IntMap<String>(stoneMax + 1)
         for (i in 0..stoneMax) {
             val formatted = "stone-%02d".format(i)
             stoneBlockMeshes.put(i, formatted)
@@ -136,8 +141,8 @@ class TileRenderSystem(private val camera: OrthographicCamera,
                                       Gdx.graphics.backBufferWidth,
                                       Gdx.graphics.backBufferHeight, false)
 
-        val tileLightMapBlendVertex = Gdx.files.internal("shaders/tileLightMapBlend.vert").readString()
-        val tileLightMapBlendFrag = Gdx.files.internal("shaders/tileLightMapBlend.frag").readString()
+        val tileLightMapBlendVertex = file("shaders/tileLightMapBlend.vert").readString()
+        val tileLightMapBlendFrag = file("shaders/tileLightMapBlend.frag").readString()
 
         tileLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
         check(tileLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${tileLightMapBlendShader.log}" }
@@ -146,13 +151,9 @@ class TileRenderSystem(private val camera: OrthographicCamera,
             tileLightMapBlendShader.setUniformi("u_lightmap", 1)
         }
 
-        tileMapFboRegion = TextureRegion(tileMapFbo.colorBufferTexture).apply {
-            flipY()
-        }
+        tileMapFboRegion = TextureRegion(tileMapFbo.colorBufferTexture).flipY()
 
-        tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).apply {
-            flipY()
-        }
+        tileLightMapFboRegion = TextureRegion(tileLightMapFbo.colorBufferTexture).flipY()
     }
 
     override fun processSystem() {
@@ -177,7 +178,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileMapFbo.begin()
 
-        Gdx.gl.glClearColorTo(.15f, .15f, .15f, 1f)
+        clearScreen(.15f, .15f, .15f)
 
         batch.begin()
 
@@ -255,7 +256,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileLightMapFbo.begin()
 
-        Gdx.gl.glClearColorTo(0f, 0f, 0f, 1f)
+        clearScreen(0f, 0f, 0f)
 
         batch.begin()
 

@@ -51,6 +51,9 @@ import com.ore.infinium.systems.*
 import com.ore.infinium.systems.client.*
 import com.ore.infinium.systems.server.*
 import com.ore.infinium.util.*
+import kotlinx.coroutines.experimental.channels.ProducerJob
+import kotlinx.coroutines.experimental.runBlocking
+import ktx.assets.file
 
 @Suppress("NOTHING_TO_INLINE")
 
@@ -92,6 +95,8 @@ class OreWorld
     private lateinit var mPowerConsumer: ComponentMapper<PowerConsumerComponent>
     private lateinit var mPowerGenerator: ComponentMapper<PowerGeneratorComponent>
 
+    lateinit var worldGenJob: ProducerJob<String>
+
     /**
      * hotspot optimization replaces (amongst other steps) references to entityprocessingsystem with entitysystem.
      * so we can determine this optimization by EntityProcessingSystem missing from our system's hierarchy.
@@ -109,7 +114,7 @@ class OreWorld
     //fixme remove in favor of the render system
     lateinit var atlas: TextureAtlas
 
-    private var worldGenerator: WorldGenerator? = null
+    var worldGenerator: WorldGenerator? = null
 
     lateinit var artemisWorld: World
     val worldIO = WorldIO(this)
@@ -159,31 +164,31 @@ class OreWorld
     fun initClient() {
         initCamera()
 
-        atlas = TextureAtlas(Gdx.files.internal("packed/entities.atlas"))
+        atlas = TextureAtlas(file("packed/entities.atlas"))
 
         //note although it may look like it.. order between render and logic ones..actually doesn't matter, their base
         // class dictates this. order between ones of the same type, does though.
-        artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerTick = 25,
-                isServer = false))
-                .with(TagManager())
-                .with(PlayerManager())
-                .with(MovementSystem(this))
-                .with(SoundSystem(this))
-                .with(ClientNetworkSystem(this))
-                .with(InputSystem(camera, this))
-                .with(EntityOverlaySystem(this))
-                .with(PlayerSystem(this))
-                .with(GameTickSystem(this))
-                .with(ClientBlockDiggingSystem(this, client!!))
+        artemisWorld = World(WorldConfigurationBuilder().register(GameLoopSystemInvocationStrategy(msPerLogicTick = 25,
+                                                                                                   isServer = false))
+                                     .with(TagManager())
+                                     .with(PlayerManager())
+                                     .with(MovementSystem(this))
+                                     .with(SoundSystem(this))
+                                     .with(ClientNetworkSystem(this))
+                                     .with(InputSystem(camera, this))
+                                     .with(EntityOverlaySystem(this))
+                                     .with(PlayerSystem(this))
+                                     .with(GameTickSystem(this))
+                                     .with(ClientBlockDiggingSystem(this, client!!))
                                      .with(MultiRenderSystem(camera = camera,
                                                              fullscreenCamera = client!!.viewport.camera,
                                                              oreWorld = this))
-                .with(DebugTextRenderSystem(camera, this))
+                                     .with(DebugTextRenderSystem(camera, this))
                                      .with(PowerOverlayRenderSystem(oreWorld = this,
                                                                     fullscreenCamera = client!!.viewport.camera,
                                                                     stage = client!!.stage))
-                .with(TileTransitionSystem(camera, this))
-                .build())
+                                     .with(TileTransitionSystem(camera, this))
+                                     .build())
         //b.dependsOn(WorldConfigurationBuilder.Priority.LOWEST + 1000,ProfilerSystem.class);
 
         //inject the mappers into the world, before we start doing things
@@ -195,24 +200,24 @@ class OreWorld
 
     fun initServer() {
         artemisWorld = World(WorldConfigurationBuilder()
-                .with(TagManager())
-                .with(SpatialSystem(this))
-                .with(PlayerManager())
-                .with(MovementSystem(this))
-                .with(ServerPowerSystem(this))
-                .with(GameTickSystem(this))
-                .with(DroppedItemPickupSystem(this))
-                .with(GrassBlockSystem(this))
-                .with(ServerNetworkEntitySystem(this))
-                .with(ServerBlockDiggingSystem(this))
-                .with(PlayerSystem(this))
-                .with(ExplosiveSystem(this))
-                .with(AirSystem(this))
-                .with(ServerNetworkSystem(this, server!!))
-                .with(TileLightingSystem(this))
-                .with(LiquidSimulationSystem(this))
-                .register(GameLoopSystemInvocationStrategy(msPerTick = 25, isServer = true))
-                .build())
+                                     .with(TagManager())
+                                     .with(SpatialSystem(this))
+                                     .with(PlayerManager())
+                                     .with(MovementSystem(this))
+                                     .with(ServerPowerSystem(this))
+                                     .with(GameTickSystem(this))
+                                     .with(DroppedItemPickupSystem(this))
+                                     .with(GrassBlockSystem(this))
+                                     .with(ServerNetworkEntitySystem(this))
+                                     .with(ServerBlockDiggingSystem(this))
+                                     .with(PlayerSystem(this))
+                                     .with(ExplosiveSystem(this))
+                                     .with(AirSystem(this))
+                                     .with(ServerNetworkSystem(this, server!!))
+                                     .with(TileLightingSystem(this))
+                                     .with(LiquidSimulationSystem(this))
+                                     .register(GameLoopSystemInvocationStrategy(msPerLogicTick = 25, isServer = true))
+                                     .build())
         //inject the mappers into the world, before we start doing things
         artemisWorld.oreInject(this)
 
@@ -221,11 +226,16 @@ class OreWorld
         entityFactory = OreEntityFactory(this)
 
         if (OreSettings.flatWorld) {
-            worldGenerator!!.flatWorld(worldSize)
+            worldGenJob = worldGenerator!!.asyncGenerateFlatWorld(worldSize)
+            //severe hack for now..
+            generateWorld()
         } else {
+            worldGenJob = worldGenerator!!.asyncGenerateWorld(worldSize)
+            //severe hack for now..
             generateWorld()
         }
 
+        //severe: obviously...we don't want to do this right after..we can't save the world while we're still generating it
         if (OreSettings.saveLoadWorld) {
             worldIO.saveWorld()
         }
@@ -296,7 +306,7 @@ class OreWorld
         val cPlayer = mPlayer.create(entity).apply {
             connectionPlayerId = connectionId
             loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
-                    LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
+                                            LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
             loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y), world = this@OreWorld)
         }
 
@@ -323,7 +333,19 @@ class OreWorld
     }
 
     private fun generateWorld() {
-        worldGenerator!!.generateWorld(worldSize)
+        //worldGenerator!!.generateWorld(worldSize)
+        runBlocking {
+            worldGenJob.join()
+        }
+
+//        runBlocking {
+//            while (true) {
+//
+//                if (!worldGenJob.isEmpty) {
+//                    println("received thing: ${worldGenJob.receive()}")
+//                }
+//            }
+//        }
     }
 
     /**
@@ -1249,7 +1271,7 @@ class OreWorld
 
                 //fixme functionalize this, duplicated of/by networkserversystem drop request
                 sizeBeforeDrop = Vector2(clonedSpriteComp.sprite.width,
-                        clonedSpriteComp.sprite.height)
+                                         clonedSpriteComp.sprite.height)
                 timeOfDropMs = TimeUtils.millis()
             }
 

@@ -28,6 +28,8 @@ import com.badlogic.gdx.utils.GdxNativesLoader
 import com.ore.infinium.OreWorld
 import com.ore.infinium.WorldGenerator
 import com.ore.infinium.systems.server.LiquidSimulationSystem
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Ignore
 import org.junit.Test
 
@@ -49,7 +51,9 @@ class WorldGeneratorTest {
 
         val worldgen = WorldGenerator(world = world)
 
-        worldgen.generateWorld(worldSize)
+        runBlocking {
+            worldgen.generateWorld(worldSize, Channel<String>())
+        }
     }
 
     @Test

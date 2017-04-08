@@ -48,7 +48,11 @@ import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.client.MultiRenderSystem
-import com.ore.infinium.util.*
+import com.ore.infinium.util.isInvalidEntity
+import com.ore.infinium.util.isValidEntity
+import com.ore.infinium.util.opt
+import com.ore.infinium.util.system
+import ktx.actors.KtxInputListener
 
 class HotbarInventoryView(private val stage: Stage,
         //the model for this view
@@ -175,7 +179,7 @@ class HotbarInventoryView(private val stage: Stage,
 
     override fun slotItemSelected(index: Int, inventory: Inventory) {
         deselectPreviousSlot()
-        slots[index].slotTable.setColor(0f, 0f, 1f, 1f)
+        slots[index].slotTable.color = Color.TAN
     }
 
     //FIXME: do the same for InventoryView
@@ -192,7 +196,10 @@ class HotbarInventoryView(private val stage: Stage,
         slots[index].itemImage.isVisible = visible
     }
 
-    private class HotbarDragSource(slotTable: Table, private val index: Int, private val dragImage: Image, private val hotbarInventoryView: HotbarInventoryView) : DragAndDrop.Source(
+    private class HotbarDragSource(slotTable: Table,
+                                   private val index: Int,
+                                   private val dragImage: Image,
+                                   private val hotbarInventoryView: HotbarInventoryView) : DragAndDrop.Source(
             slotTable) {
 
         override fun dragStart(event: InputEvent, x: Float, y: Float, pointer: Int): DragAndDrop.Payload? {
@@ -215,7 +222,9 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class HotbarDragTarget(slotTable: VisTable, private val index: Int, private val inventoryView: HotbarInventoryView) : DragAndDrop.Target(
+    private class HotbarDragTarget(slotTable: VisTable,
+                                   private val index: Int,
+                                   private val inventoryView: HotbarInventoryView) : DragAndDrop.Target(
             slotTable) {
 
         override fun drag(source: DragAndDrop.Source,
@@ -226,7 +235,7 @@ class HotbarInventoryView(private val stage: Stage,
             payload ?: return false
 
             if (isValidDrop(payload)) {
-                BaseInventoryView.setSlotColor(payload, actor, Color.GREEN)
+                BaseInventoryView.setSlotColor(payload, actor, Color.LIME)
                 return true
             } else {
                 BaseInventoryView.setSlotColor(payload, actor, Color.RED)
@@ -292,12 +301,9 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class test : OreInputListener() {
-    }
-
     private class SlotInputListener internal constructor(private val inventory: HotbarInventoryView,
                                                          private val index: Int)
-    : OreInputListener() {
+        : KtxInputListener() {
         override fun enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Actor?) {
             val itemEntity = inventory.inventory.itemEntity(index)
             if (isValidEntity(itemEntity)) {
@@ -328,7 +334,8 @@ class HotbarInventoryView(private val stage: Stage,
         }
     }
 
-    private class SlotClickListener(private val inventory: HotbarInventoryView, private val index: Int) : ClickListener() {
+    private class SlotClickListener(private val inventory: HotbarInventoryView,
+                                    private val index: Int) : ClickListener() {
 
         override fun clicked(event: InputEvent?, x: Float, y: Float) {
             inventory.deselectPreviousSlot()
@@ -349,7 +356,7 @@ class HotbarInventoryView(private val stage: Stage,
                 addListener(SlotClickListener(inventoryView, index))
                 addListener(SlotInputListener(inventoryView, index))
 
-                background("default-pane")
+                background("grey-panel")
 
                 row()
 

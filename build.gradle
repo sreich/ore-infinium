@@ -1,7 +1,6 @@
 buildscript {
 
     ext {
-        //use + for latest
         appName = 'Ore Infinium'
 
         gdxVersion = '1.9.6'
@@ -18,6 +17,8 @@ buildscript {
         tweenEngineVersion = "6.3.3"
 
         kotlinVersion = '1.1.1'
+        kotlinCoroutinesVersion = '0.14'
+        kotlinxJdk8Version = '0.3'
 
         junitVersion = '4.12'
 
@@ -25,8 +26,9 @@ buildscript {
 
         visUiVersion = '1.2.5'
 
-        protobufGradlePlugin = '0.8.0'
+        ktxVersion = '1.9.6-SNAPSHOT'
 
+        protobufGradlePlugin = '0.8.0'
         protobufVersion = '3.1.0'
     }
 
@@ -40,6 +42,10 @@ buildscript {
         jcenter()
 
         //maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
+
+        repositories {
+            maven { url "https://kotlin.bintray.com/kotlinx/" }
+        }
 
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1/" }
 
@@ -59,6 +65,9 @@ buildscript {
 
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufGradlePlugin"
 
+        classpath "com.github.czyzby:ktx-tools:$ktxVersion"
+
+        classpath "se.thinkcode.gradle:demoPlugin:1.0.0-SNAPSHOT"
     }
 }
 
@@ -74,6 +83,12 @@ plugins {
     id "com.github.ben-manes.versions" version "0.14.0"
 }
 
+//hack this is required for kotlin asset source generator or gradle daemon will crash
+// https://youtrack.jetbrains.com/issue/KT-17031
+// https://github.com/fusesource/jansi/issues/66
+// https://github.com/gradle/gradle/issues/778
+System.setProperty("kotlin.colors.enabled", "false")
+
 task wrapper(type: Wrapper) {
     gradleVersion = "3.2.1"
 }
@@ -82,6 +97,22 @@ subprojects {
 
     apply plugin: "java"
     apply plugin: "kotlin"
+
+    //    apply plugin: 'ktx.tools.plugin'
+
+    apply plugin: 'ktx.tools.demo.plugin'
+
+    //    apply plugin: 'se.thinkcode.demo.plugin'
+
+    //demoSetting {
+    //    message = "Hi from an extension"
+    //}
+
+    kotlin {
+        experimental {
+            coroutines "enable"
+        }
+    }
 
     compileJava {
         sourceCompatibility = '1.8'
@@ -99,6 +130,7 @@ subprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        jcenter()
 
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
@@ -111,16 +143,14 @@ subprojects {
 
         maven { url "https://dl.bintray.com/kotlin/kotlin-eap-1.1/" }
     }
-    /*
-    apply plugin: "idea"
+
+    apply plugin: 'idea'
     idea {
-    project {
-              jdkName = '1.8'
-                downloadSources = true
+        module {
+            downloadJavadoc = true
+            downloadSources = true
+        }
     }
-               downloadJavadoc = true
-    }
-    */
 }
 
 project(":desktop") {
@@ -159,7 +189,9 @@ project(":desktop") {
 
         idea {
             module {
-                sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java");
+                sourceDirs += file("${protobuf.generatedFilesBaseDir}/main/java")
+                downloadJavadoc = true
+                downloadSources = true
             }
         }
 
@@ -185,6 +217,8 @@ project(":desktop") {
 
             compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
             compile "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
+
+            compile "org.jetbrains.kotlinx:kotlinx-support-jdk8:$kotlinxJdk8Version"
 
             // libgdx core
             compile "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -226,6 +260,20 @@ project(":desktop") {
             compile "com.sudoplay.joise:joise:$joiseVersion"
 
             compile "com.google.protobuf:protobuf-java:$protobufVersion"
+
+            compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
+
+            compile "com.github.czyzby:ktx-vis:$ktxVersion"
+            compile "com.github.czyzby:ktx-vis-style:$ktxVersion"
+            compile "com.github.czyzby:ktx-style:$ktxVersion"
+            compile "com.github.czyzby:ktx-scene2d:$ktxVersion"
+            compile "com.github.czyzby:ktx-math:$ktxVersion"
+            compile "com.github.czyzby:ktx-log:$ktxVersion"
+            compile "com.github.czyzby:ktx-i18n:$ktxVersion"
+            compile "com.github.czyzby:ktx-assets:$ktxVersion"
+            compile "com.github.czyzby:ktx-app:$ktxVersion"
+            compile "com.github.czyzby:ktx-actors:$ktxVersion"
+            compile "com.github.czyzby:ktx-tools:$ktxVersion"
         }
 
         protobuf {
