@@ -218,7 +218,9 @@ class WorldGenerator(private val world: OreWorld) {
     class WorldGenOutputInfo(val worldSize: OreWorld.WorldSize, val seed: Long, val useUniqueImageName: Boolean)
 
     fun asyncGenerateFlatWorld(worldSize: OreWorld.WorldSize) = produce<String>(CommonPool, Channel.UNLIMITED) {
-        generateFlatWorld(worldSize, channel)
+        logger.debug { "generating flatworld" }
+        val ms = measureTimeMillis { generateFlatWorld(worldSize, channel) }
+        logger.debug { "worldgen flatworld took $ms ms" }
     }
 
     fun asyncGenerateWorld(worldSize: OreWorld.WorldSize) = produce<String>(CommonPool, Channel.UNLIMITED) {
@@ -439,14 +441,14 @@ class WorldGenerator(private val world: OreWorld) {
     }
 
     private suspend fun fillLakes(maxima: HashMap<Int, Int>,
-                          channel: SendChannel<String>) {
+                                  channel: SendChannel<String>) {
         logger.debug { "world gen - lakes filling lakes..." }
 
         var count = 1
         for ((x, y) in maxima) {
             logger.debug { "world gen - lakes filling in lake $count of ${maxima.size}..." }
 
-            channel.send ( "world gen - lakes filling in lake $count of ${maxima.size}..." )
+            channel.send("world gen - lakes filling in lake $count of ${maxima.size}...")
 
             fillLake(x, y)
             //hack debug

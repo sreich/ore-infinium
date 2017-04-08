@@ -520,9 +520,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     }
 
     private fun receiveDisconnectReason(disconnectReason: Network.Shared.DisconnectReason) {
-        for (listener in networkStatusListeners) {
-            listener.disconnected(disconnectReason)
-        }
+        networkStatusListeners.forEach { listener -> listener.disconnected(disconnectReason) }
     }
 
     private fun receivePlayerSpawn(spawn: Network.Server.PlayerSpawned) {
@@ -698,7 +696,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         override fun connected(connection: Connection?) {
             connection!!.setTimeout(999999999)
-            Gdx.app.log("NetworkClientSystem", "our client connected!")
+            logger.debug { "our client connected!" }
         }
 
         //FIXME: do sanity checking (null etc) on both client, server

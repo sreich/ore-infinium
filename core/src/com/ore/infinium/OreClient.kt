@@ -50,6 +50,7 @@ import ktx.app.KtxInputAdapter
 import ktx.assets.file
 import java.io.IOException
 import java.util.*
+import kotlin.concurrent.thread
 
 class OreClient : KtxApplicationAdapter, KtxInputAdapter {
 
@@ -439,8 +440,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
         val worldSize = OreWorld.WorldSize.TestTiny
 
         server = OreServer(worldSize)
-        serverThread = Thread(server, "main server thread")
-        serverThread!!.start()
+        serverThread = thread(name = "main server thread") { server!!.run() }
 
         try {
             //wait for the local server thread to report that it is live and running, before we attempt

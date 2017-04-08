@@ -241,11 +241,9 @@ class OreWorld
 
         if (OreSettings.flatWorld) {
             worldGenJob = worldGenerator!!.asyncGenerateFlatWorld(worldSize)
-            //severe hack for now..
             generateWorld()
         } else {
             worldGenJob = worldGenerator!!.asyncGenerateWorld(worldSize)
-            //severe hack for now..
             generateWorld()
         }
 

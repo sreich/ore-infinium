@@ -173,7 +173,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
 
     private fun maybeSendDestroy(entitiesToDestroy: List<Int>, connectionPlayerId: Int) {
         if (entitiesToDestroy.isNotEmpty()) {
-            logger.debug { "sending DestroyMultipleEntities (contents): $entitiesToDestroy"}
+            logger.debug { "sending DestroyMultipleEntities - list of entity id's: $entitiesToDestroy"}
             serverNetworkSystem.sendDestroyMultipleEntities(entitiesToDestroy,
                                                             connectionPlayerId)
         }
@@ -182,7 +182,7 @@ class ServerNetworkEntitySystem(private val oreWorld: OreWorld) : IteratingSyste
 
     private fun maybeSendSpawn(entitiesToSpawn: List<Int>, connectionPlayerId: Int) {
         if (entitiesToSpawn.isNotEmpty()) {
-            logger.debug { "sending SpawnMultipleEntities (contents): $entitiesToSpawn"}
+            logger.debug { "sending SpawnMultipleEntities - list of entity id's: $entitiesToSpawn"}
             //send what is remaining...these are entities the client doesn't yet have, we send them in a batch
             serverNetworkSystem.sendSpawnMultipleEntities(entitiesToSpawn,
                                                           connectionPlayerId)
