@@ -33,13 +33,10 @@ import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.server.LiquidSimulationSystem
 import com.ore.infinium.util.oreInject
 import com.sudoplay.joise.module.*
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import mu.KLogging
 import java.awt.Color
 import java.awt.Font
@@ -246,6 +243,7 @@ class WorldGenerator(private val world: OreWorld) {
      */
     suspend fun generateWorld(worldSize: OreWorld.WorldSize, channel: SendChannel<String>) {
         channel.send("generate world start....")
+        channel.send("generating world size of $worldSize ${worldSize.width}x${worldSize.height}")
 
         val random = Random()
 
@@ -324,7 +322,7 @@ class WorldGenerator(private val world: OreWorld) {
         }
 
         channel.send("generating lakes & volcanoes")
-        generateLakesAndVolcanoes(worldSize)
+        generateLakesAndVolcanoes(worldSize, channel)
 
         counter.stop()
 
@@ -335,11 +333,17 @@ class WorldGenerator(private val world: OreWorld) {
         val worldGenInfo = WorldGenOutputInfo(worldSize, seed, useUniqueImageName = false)
         writeWorldImage(worldGenInfo)
 
+        //pause for effect :)
+        delay(2000)
+
         channel.close()
     }
 
-    private fun generateLakesAndVolcanoes(worldSize: OreWorld.WorldSize) {
+    private suspend fun generateLakesAndVolcanoes(worldSize: OreWorld.WorldSize,
+                                                  channel: SendChannel<String>) {
         logger.debug { "world gen - lakes & volcanoes finding spots for lakes & volcanoes" }
+
+        channel.send("world gen - lakes & volcanoes finding spots for lakes & volcanoes")
         val terrainContour = ArrayList <Int>()
         for (x in 0 until worldSize.width) {
             for (y in 0 until worldSize.height) {
@@ -364,20 +368,25 @@ class WorldGenerator(private val world: OreWorld) {
         //read it back afterwards. so, minimas would be mountains..where
         //lava is and stuff, maxima are lakes and valleys
 
-        val volcanoTime = measureTimeMillis { fillVolcanoes(peakResult.minima) }
+        val volcanoTime = measureTimeMillis { fillVolcanoes(peakResult.minima, channel) }
+        channel.send("world gen - volcanoes...volcanoes filled and settled. took $volcanoTime ms")
         logger.debug { "world gen - volcanoes...volcanoes filled and settled. took $volcanoTime ms" }
 
-        val lakeTime = measureTimeMillis { fillLakes(peakResult.maxima) }
+        val lakeTime = measureTimeMillis { fillLakes(peakResult.maxima, channel) }
         logger.debug { "world gen - lakes...lakes filled and settled. took $lakeTime ms" }
+        channel.send("world gen - lakes...lakes filled and settled. took $lakeTime ms")
 
     }
 
-    private fun fillVolcanoes(minima: HashMap<Int, Int>) {
+    private suspend fun fillVolcanoes(minima: HashMap<Int, Int>,
+                                      channel: SendChannel<String>) {
+        var count = 0
         for ((x, y) in minima) {
+            channel.send("filling in volcano $count of ${minima.size}")
             fillVolcano(x, y)
             world.setBlockType(x, y, OreBlock.BlockType.Lava.oreValue)
+            ++count
         }
-
     }
 
     private fun fillVolcano(volcanoX: Int, volcanoY: Int) {
@@ -429,12 +438,15 @@ class WorldGenerator(private val world: OreWorld) {
         }
     }
 
-    private fun fillLakes(maxima: HashMap<Int, Int>) {
+    private suspend fun fillLakes(maxima: HashMap<Int, Int>,
+                          channel: SendChannel<String>) {
         logger.debug { "world gen - lakes filling lakes..." }
 
         var count = 1
         for ((x, y) in maxima) {
             logger.debug { "world gen - lakes filling in lake $count of ${maxima.size}..." }
+
+            channel.send ( "world gen - lakes filling in lake $count of ${maxima.size}..." )
 
             fillLake(x, y)
             //hack debug

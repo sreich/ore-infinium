@@ -79,7 +79,7 @@ class LoadingScreen(private val client: OreClient,
 //        }
         //scrollPane {  }
 
-        add(progressScroll).fill().size(600f, 300f).padBottom(8f)
+        add(progressScroll).fill().size(700f, 600f).padBottom(8f)
 
         row()
 
