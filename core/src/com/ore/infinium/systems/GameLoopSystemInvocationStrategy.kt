@@ -168,11 +168,8 @@ class GameLoopSystemInvocationStrategy
             accumulatorNs -= nsPerTick
         }
 
-        //Gdx.app.log("frametime", Double.toString(frameTime));
-        //Gdx.app.log("alpha", Double.toString(alpha));
         //try {
         //    int sleep = (int)Math.max(newTime + CLIENT_FIXED_TIMESTEP - TimeUtils.millis()/1000.0, 0.0);
-        //    Gdx.app.log("", "sleep amnt: " + sleep);
         //    Thread.sleep(sleep);
         //} catch (InterruptedException e) {
         //    e.printStackTrace();

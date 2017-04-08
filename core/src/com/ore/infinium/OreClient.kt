@@ -26,7 +26,6 @@ package com.ore.infinium
 
 import com.artemis.ComponentMapper
 import com.artemis.managers.TagManager
-import com.badlogic.gdx.Application.LOG_DEBUG
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
@@ -154,8 +153,6 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
         if (OreSettings.networkLog) {
             Log.set(Log.LEVEL_DEBUG)
         }
-
-        Gdx.app.logLevel = LOG_DEBUG
 
         Thread.currentThread().name = "client render thread (GL)"
 

@@ -28,7 +28,6 @@ import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.utils.IntBag
-import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
@@ -154,7 +153,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         object : Thread("kryonet connection client thread") {
             override fun run() {
                 try {
-                    Gdx.app.log("NetworkClientSystem", "client attempting to connect to server")
+                    logger.debug { "client attempting to connect to server" }
                     clientKryo.connect(99999999 /*fixme, debug*/, ip, port)
                     // Server communication after connection can go here, or in Listener#connected().
 
