@@ -26,7 +26,7 @@ buildscript {
 
         visUiVersion = '1.2.5'
 
-        ktxVersion = '1.9.6-b1'
+        ktxVersion = '1.9.6-SNAPSHOT'
 
         protobufGradlePlugin = '0.8.0'
         protobufVersion = '3.1.0'
@@ -65,7 +65,7 @@ buildscript {
 
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufGradlePlugin"
 
-        classpath "com.github.czyzby:ktx-tools:$ktxVersion"
+        //classpath "com.github.czyzby:ktx-tools:$ktxVersion"
     }
 }
 
@@ -277,7 +277,7 @@ project(":desktop") {
             compile "com.github.czyzby:ktx-assets:$ktxVersion"
             compile "com.github.czyzby:ktx-app:$ktxVersion"
             compile "com.github.czyzby:ktx-actors:$ktxVersion"
-            compile "com.github.czyzby:ktx-tools:$ktxVersion"
+            //compile "com.github.czyzby:ktx-tools:$ktxVersion"
         }
 
         protobuf {
