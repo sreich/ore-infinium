@@ -41,8 +41,6 @@ buildscript {
 
         jcenter()
 
-        //maven { url "http://sreich.net:8081/nexus/content/repositories/thirdparty/" }
-
         repositories {
             maven { url "https://kotlin.bintray.com/kotlinx/" }
         }
