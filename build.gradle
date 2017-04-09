@@ -11,8 +11,6 @@ buildscript {
         artemisContribVersion = '1.2.1'
         kryonetVersion = '2.22.0-RC1'
 
-        matrixCliVersion = "0.2.0"
-
         jcommanderVersion = "1.64"
         tweenEngineVersion = "6.3.3"
 
@@ -69,7 +67,7 @@ buildscript {
 
         classpath "com.github.czyzby:ktx-tools:$ktxVersion"
 
-        classpath "se.thinkcode.gradle:demoPlugin:1.0.0-SNAPSHOT"
+        //classpath "se.thinkcode.gradle:demoPlugin:1.0.0-SNAPSHOT"
     }
 }
 
@@ -222,7 +220,13 @@ project(":desktop") {
             compile "org.jetbrains.kotlinx:kotlinx-support-jdk8:$kotlinxJdk8Version"
 
             compile "io.github.microutils:kotlin-logging:$kotlinLoggingVersion"
-            compile "org.slf4j:slf4j-log4j12:1.7.25"
+//            compile "org.slf4j:slf4j-log4j12:1.7.25"
+
+  compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.8.2'
+
+            compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
+            compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+
 
             // libgdx core
             compile "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -267,6 +271,8 @@ project(":desktop") {
 
             compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
+            compile "com.esotericsoftware.minlog:minlog:1.2-slf4j-jdanbrown-0"
+
             compile "com.github.czyzby:ktx-vis:$ktxVersion"
             compile "com.github.czyzby:ktx-vis-style:$ktxVersion"
             compile "com.github.czyzby:ktx-style:$ktxVersion"
@@ -287,22 +293,6 @@ project(":desktop") {
 
             //generatedFilesBaseDir = "$buildDir/generated/source/proto"
         }
-    }
-
-    project(":matrix") {
-        apply plugin: "java"
-
-        dependencies {
-            compile project(":core")
-            compile "net.onedaybeard.ecs:matrix-cli:$matrixCliVersion"
-        }
-
-        task generateMatrix(type: JavaExec) {
-            classpath = sourceSets.main.runtimeClasspath
-            main = 'com.artemis.cli.CliApplication'
-            args '-c', "$rootProject.projectDir/core/build/classes/main/", '-l', "$rootProject.ext.appName"
-        }
-        build.finalizedBy generateMatrix
     }
 }
 

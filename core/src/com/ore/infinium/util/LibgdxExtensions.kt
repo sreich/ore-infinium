@@ -31,6 +31,7 @@ import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Align
+import com.esotericsoftware.kryo.Kryo
 import com.kotcrab.vis.ui.widget.VisScrollPane
 
 
@@ -45,6 +46,13 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
  * @param lastMs
  */
 fun timeMsSurpassed(currentMs: Long, lastMs: Long, intervalMs: Int) = (currentMs - lastMs) > intervalMs
+
+/**
+ * kryonet register classes, much more idiomatic way
+ */
+inline fun <reified T : Any> Kryo.registerClass() {
+    this.register(T::class.java)
+}
 
 fun VisScrollPane.scrollToBottom() {
     this.layout()

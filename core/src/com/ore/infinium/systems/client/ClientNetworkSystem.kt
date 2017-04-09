@@ -470,7 +470,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 sprite.setPosition(spawn.pos.x, spawn.pos.y)
             }
 
-            val cGenerator = mGenerator.get(localEntityId)?.let {
+            val cGenerator = mGenerator.getSafe(localEntityId)?.let {
                 //recreate this on our end. since it is transient
                 it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
             }

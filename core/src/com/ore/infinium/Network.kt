@@ -33,6 +33,7 @@ import com.esotericsoftware.kryonet.EndPoint
 import com.ore.infinium.components.*
 import com.ore.infinium.util.EnumSetSerializer
 import com.ore.infinium.util.INVALID_ENTITY_ID
+import com.ore.infinium.util.registerClass
 import java.util.*
 
 object Network {
@@ -68,8 +69,8 @@ object Network {
         kryo.registerClass<PowerConsumerComponent>()
         kryo.registerClass<PowerDeviceComponent>()
         kryo.registerClass<BlockComponent>()
-        kryo.registerClass  <FloraComponent>()
-        kryo.registerClass <HealthComponent>()
+        kryo.registerClass<FloraComponent>()
+        kryo.registerClass<HealthComponent>()
         kryo.registerClass<ItemComponent>()
         kryo.registerClass<JumpComponent>()
         //playercomponent is not sent. big and pointless.
@@ -106,17 +107,17 @@ object Network {
         kryo.registerClass<Shared.InventoryType>()
 
         // primitives/builtin
-        kryo.registerClass <ByteArray>()
-        kryo.registerClass <IntArray>()
+        kryo.registerClass<ByteArray>()
+        kryo.registerClass<IntArray>()
 
 //        kryo.register(ArrayList::class.java)
         kryo.registerClass<ArrayList<Any>>()
 
-        kryo.registerClass         <kotlin    .    Array       <Any>>()
-        kryo.registerClass <kotlin.Array<Any>>()
-        kryo.registerClass <Vector2>()
-        kryo.registerClass <IntArray>()
-        kryo.registerClass <Rectangle>()
+        kryo.registerClass<kotlin.Array<Any>>()
+        kryo.registerClass<kotlin.Array<Any>>()
+        kryo.registerClass<Vector2>()
+        kryo.registerClass<IntArray>()
+        kryo.registerClass<Rectangle>()
         kryo.register(EnumSet::class.java, EnumSetSerializer())
     }
 
@@ -477,7 +478,7 @@ object Network {
          * Usually used for when out-of-line blocks are modified and changes need to be sent. They are queued on the server
          * so there is not one packet per tiny block update.
          */
-        class SparseBlockUpdate() {
+        class SparseBlockUpdate {
             var blocks = mutableListOf<SingleSparseBlock>()
         }
 
@@ -525,14 +526,6 @@ object Network {
 
     }
 }
-
-inline fun <reified T : Any> Kryo.registerClass() {
-    this.register(T::class.java)
-}
-
-//fun Kryo.registerClass(kClass: KClass<Any>) {
-//}
-
 
 object NetworkHelper {
     fun debugPacketFrequencies(receivedObject: Any,
