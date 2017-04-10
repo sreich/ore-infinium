@@ -165,7 +165,7 @@ def getDate() {
     def date = new Date()
 
     def formattedDate = date.format("yyyyMMdd-HHmmss-");
-    formattedDate += Grgit.open(project.file('../')).head().getAbbreviatedId()
+    formattedDate += Grgit.open(project.file('.')).head().getAbbreviatedId()
 
     return formattedDate
 }
@@ -176,7 +176,7 @@ project(":desktop") {
     github {
         owner = 'sreich'
         repo = 'ore-infinium'
-        token = System.getenv("GITHUB_TOKEN")
+        token = System.getenv("GITHUB_TOKEN") ?: "xxxxxxxxx"
         tagName = 'jenkins-' + getDate()
         targetCommitish = 'master'
         name = version
