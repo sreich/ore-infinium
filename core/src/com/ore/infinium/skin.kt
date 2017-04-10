@@ -41,7 +41,7 @@ fun createFont(): BitmapFont {
 
 var bitmapFont = createFont()
 
-val oreSkin = skin(TextureAtlas(file("packed/ui.atlas"))) {
+val oreSkin = skin(TextureAtlas(("packed/ui.atlas"))) {
 
     scrollPane("list") {
         background = getDrawable("grey-panel")

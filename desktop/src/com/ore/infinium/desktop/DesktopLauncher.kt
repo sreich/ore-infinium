@@ -4,9 +4,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 import com.beust.jcommander.JCommander
 import com.ore.infinium.*
-import com.ore.infinium.desktop.texturepacker.TexturePacker
 import mu.KLogging
-import kotlin.system.measureTimeMillis
 
 class DesktopLauncher {
     private fun runGame(arg: Array<String>) {
@@ -38,10 +36,10 @@ class DesktopLauncher {
             return
         }
 
-        if (OreSettings.pack) {
-            val ms = measureTimeMillis { packTextures() }
-            logger.debug { "startup texture packing texture packing took $ms ms" }
-        }
+ //       if (OreSettings.pack) {
+  //          val ms = measureTimeMillis { packTextures() }
+   //         logger.debug { "startup texture packing texture packing took $ms ms" }
+//        }
 
         Lwjgl3Application(OreClient(), createLwjglConfig())
     }
@@ -68,23 +66,6 @@ class DesktopLauncher {
 
         logger.debug { "told to gen world and exit, shutting down world. exiting." }
         world.shutdown()
-    }
-
-    private fun packTextures() {
-        val settings = TexturePacker.Settings().apply {
-            this.fast = true
-            edgePadding = false
-        }
-        val settingsTiles = TexturePacker.Settings().apply {
-            this.fast = true
-            edgePadding = false
-            combineSubdirectories = true
-        }
-        //fixme overridden by file, it seems.
-        TexturePacker.processIfModified(settings, "blocks", "../assets/packed", "blocks")
-        TexturePacker.processIfModified(settingsTiles, "tiles", "../assets/packed", "tiles")
-        TexturePacker.processIfModified(settings, "ui", "../assets/packed", "ui")
-        TexturePacker.processIfModified(settings, "entities", "../assets/packed", "entities")
     }
 
     private fun printHelp(jCommander: JCommander) {

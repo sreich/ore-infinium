@@ -149,7 +149,6 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
 
     override fun create() {
         // for debugging kryonet
-
         if (OreSettings.networkLog) {
             Log.set(Log.LEVEL_DEBUG)
         }

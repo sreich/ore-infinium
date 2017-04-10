@@ -63,6 +63,10 @@ buildscript {
 
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufGradlePlugin"
         classpath 'co.riiid:gradle-github-plugin:0.4.2'
+
+        classpath 'com.eowise:packer:0.7.2'
+        classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+
         //classpath "com.github.czyzby:ktx-tools:$ktxVersion"
     }
 }
@@ -80,6 +84,8 @@ plugins {
 
     id "co.riiid.gradle" version "0.4.2"
 }
+
+project.ext.assetsDir = new File("core/assets")
 
 //hack this is required for kotlin asset source generator or gradle daemon will crash
 // https://youtrack.jetbrains.com/issue/KT-17031
@@ -148,7 +154,10 @@ subprojects {
         }
     }
 }
+import com.badlogic.gdx.tools.texturepacker.TexturePacker
+import org.ajoberstar.grgit.Grgit
 
+// Import the texture packer
 //todo duped in desktop gradle
 def getVersion = '0.1'
 
@@ -164,8 +173,6 @@ def getJarFile = { ->
     println(tree.first().path)
     return tree.first().path
 }
-
-import org.ajoberstar.grgit.Grgit
 
 def getSha() {
     return Grgit.open(project.file('.')).head().getAbbreviatedId()
@@ -226,6 +233,18 @@ project(":desktop") {
         apply plugin: "idea"
         apply plugin: "com.google.protobuf"
 
+        // Add a new task that packs the textures for you
+        task("packTextures") {
+            logger.info "Calling TexturePacker" //+ texturePacker
+            println("SREICH ${project.assetsDir}")
+            println("SREICH ${projectDir}")
+
+            TexturePacker.process("${projectDir}/assets/tiles", "${projectDir}/assets/packed", "tiles")
+            TexturePacker.process("${projectDir}/assets/blocks", "${projectDir}/assets/packed", "blocks")
+            TexturePacker.process("${projectDir}/assets/ui", "${projectDir}/assets/packed", "ui")
+            TexturePacker.process("${projectDir}/assets/entities", "${projectDir}/assets/packed", "entities")
+        }
+
         configurations {
             provided
         }
@@ -269,7 +288,6 @@ project(":desktop") {
             compile group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: '2.8.2'
             compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
             compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
-
 
             // libgdx core
             compile "com.badlogicgames.gdx:gdx:$gdxVersion"
@@ -326,6 +344,8 @@ project(":desktop") {
             compile "com.github.czyzby:ktx-app:$ktxVersion"
             compile "com.github.czyzby:ktx-actors:$ktxVersion"
             //compile "com.github.czyzby:ktx-tools:$ktxVersion"
+
+            //compile project(":core:packTextures")
         }
 
         protobuf {
