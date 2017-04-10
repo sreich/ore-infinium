@@ -189,7 +189,7 @@ project(":desktop") {
         repo = 'ore-infinium'
         token = System.getenv("GITHUB_TOKEN") ?: "xxxxxxxxx"
         tagName = "jenkins-${getDate()}"
-        targetCommitish = getSha()
+        targetCommitish = 'master'
         name = version + '-' + getDate()
         prerelease = true
         body = """# Ore Infinium
