@@ -58,6 +58,7 @@ def moveOldFiles() {
     //todo Files.createSymbolicLink() create symlink to LATEST?
 }
 
+
 task dist(type: Jar) {
     moveOldFiles();
 
