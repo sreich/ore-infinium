@@ -158,8 +158,8 @@ def getJarFile = { ->
         return ""
     }
 
-    println(tree.path)
-    return tree.path
+    println(tree.first().path)
+    return tree.first().path
 }
 
 import org.ajoberstar.grgit.Grgit
