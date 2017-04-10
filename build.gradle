@@ -153,9 +153,13 @@ def date = new Date()
 def formattedDate = date.format("yyyyMMdd-HHmmss-")
 
 def getJarFile = { ->
-    def tree = fileTree('desktop/build/libs/old') { include '**/*.jar' }.singleFile.path
-    println(tree)
-    return tree
+    def tree = fileTree('desktop/build/libs/') { include '**/*.jar' }
+    if (tree.files.empty) {
+        return ""
+    }
+
+    println(tree.path)
+    return tree.path
 }
 
 import org.ajoberstar.grgit.Grgit
