@@ -150,7 +150,7 @@ subprojects {
 }
 
 //todo duped in desktop gradle
-version = '0.1'
+def getVersion = '0.1'
 
 def date = new Date()
 def formattedDate = date.format("yyyyMMdd-HHmmss-")
@@ -190,7 +190,7 @@ project(":desktop") {
         token = System.getenv("GITHUB_TOKEN") ?: "xxxxxxxxx"
         tagName = "jenkins-${getDate()}"
         targetCommitish = 'master'
-        name = version + '-' + getDate()
+        name = getVersion + '-' + getDate()
         prerelease = true
         body = """# Ore Infinium
 #### Automatic snapshot build
