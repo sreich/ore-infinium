@@ -44,9 +44,10 @@ Windows, macOS).
 
 # Downloads/Builds
 
-Regular releases are made (runnable jars) after every commit. See [github releases](https://github.com/sreich/ore-infinium/releases)
+**Regular releases are made (runnable jars) after every commit.**
+**See [github releases](https://github.com/sreich/ore-infinium/releases)**
 
-Simply execute it by clicking, or by command line with 'java -jar pathtojar'
+Simply execute it by clicking, or by command line with `java -jar pathtojar`
 
 Notable Libraries used:
 * [LibGDX](https://libgdx.badlogicgames.com/)(base cross platform game framework)
@@ -63,7 +64,7 @@ Notable Libraries used:
 
 If you wish to test and such, you'll probably want to enable assertions, as I use
 them all over the place to ensure consistent game state, and sane behavior. You
-must pass '-ea' ("enable assertions") to VM Options.
+must pass `-ea` ("enable assertions") to VM Options.
 
 Should work with every IDE just fine. For IDEA, see: http://www.jetbrains.com/idea/help/setting-configuration-options.html
 
@@ -84,7 +85,3 @@ See assets dir for more detailed license info.
 
 # Contributing and Contact
 Feel free to talk to me on gitter, ask questions, get help, create issues, make patches!
-
-Chat with me on gitter(github messenging):
-[![Join the chat at https://gitter.im/sreich/ore-infinium](https://badges.gitter.im/sreich/ore-infinium.svg)](https://gitter.im/sreich/ore-infinium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
