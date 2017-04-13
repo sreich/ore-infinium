@@ -60,10 +60,10 @@ class TileRenderSystem(private val camera: OrthographicCamera,
     var debugRenderTileLighting = true
     var debugTilesInViewCount: Int = 0
 
-    var blockAtlas: TextureAtlas
-    var tilesAtlas: TextureAtlas
+    var blockAtlas: TextureAtlas = TextureAtlas(file("packed/blocks.atlas"))
+    var tilesAtlas: TextureAtlas = TextureAtlas(file("packed/tiles.atlas"))
 
-    private val batch: SpriteBatch
+    private val batch: SpriteBatch = SpriteBatch(MAX_SPRITES_PER_BATCH)
 
     private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
@@ -90,11 +90,6 @@ class TileRenderSystem(private val camera: OrthographicCamera,
     private val tileMapFboRegion: TextureRegion
 
     init {
-
-        batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
-
-        blockAtlas = TextureAtlas(file("packed/blocks.atlas"))
-        tilesAtlas = TextureAtlas(file("packed/tiles.atlas"))
 
         tilesAtlas.regions.forEach { tileAtlasCache[it.name] = it }
 

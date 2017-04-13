@@ -85,8 +85,6 @@ plugins {
     id "co.riiid.gradle" version "0.4.2"
 }
 
-project.ext.assetsDir = new File("core/assets")
-
 //hack this is required for kotlin asset source generator or gradle daemon will crash
 // https://youtrack.jetbrains.com/issue/KT-17031
 // https://github.com/fusesource/jansi/issues/66
@@ -235,14 +233,13 @@ project(":desktop") {
 
         // Add a new task that packs the textures for you
         task("packTextures") {
-            logger.info "Calling TexturePacker" //+ texturePacker
-            println("SREICH ${project.assetsDir}")
-            println("SREICH ${projectDir}")
+            logger.info "Calling TexturePacker root outputdir ${projectDir}"
 
             TexturePacker.process("${projectDir}/assets/tiles", "${projectDir}/assets/packed", "tiles")
             TexturePacker.process("${projectDir}/assets/blocks", "${projectDir}/assets/packed", "blocks")
             TexturePacker.process("${projectDir}/assets/ui", "${projectDir}/assets/packed", "ui")
             TexturePacker.process("${projectDir}/assets/entities", "${projectDir}/assets/packed", "entities")
+            TexturePacker.process("${projectDir}/assets/backgrounds", "${projectDir}/assets/packed", "backgrounds")
         }
 
         configurations {

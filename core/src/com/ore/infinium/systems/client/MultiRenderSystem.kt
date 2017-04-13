@@ -45,21 +45,25 @@ class MultiRenderSystem(private val camera: OrthographicCamera,
     lateinit var spriteRenderSystem: SpriteRenderSystem
     lateinit var tileRenderSystem: TileRenderSystem
     lateinit var liquidRenderSystem: LiquidRenderSystem
+    lateinit var backgroundRenderSystem: BackgroundRenderSystem
 
     init {
     }
 
     override fun initialize() {
+        backgroundRenderSystem = BackgroundRenderSystem(camera = fullscreenCamera, oreWorld = oreWorld, world = world)
         tileRenderSystem = TileRenderSystem(camera = camera, fullscreenCamera = fullscreenCamera, oreWorld = oreWorld)
         spriteRenderSystem = SpriteRenderSystem(world = world, oreWorld = oreWorld, camera = camera,
                                                 tileLightMapFbo = tileRenderSystem.tileLightMapFbo)
         liquidRenderSystem = LiquidRenderSystem(camera = camera, oreWorld = oreWorld, world = world,
                                                 tileRenderSystem = tileRenderSystem)
 
+        world.oreInject(backgroundRenderSystem)
         world.oreInject(spriteRenderSystem)
         world.oreInject(tileRenderSystem)
         world.oreInject(liquidRenderSystem)
 
+        backgroundRenderSystem.initialize()
         spriteRenderSystem.initialize()
         tileRenderSystem.initialize()
         liquidRenderSystem.initialize()
@@ -67,18 +71,21 @@ class MultiRenderSystem(private val camera: OrthographicCamera,
 
     //fixme god awful(prefer a list), but it works for now
     override fun dispose() {
+        backgroundRenderSystem.dispose()
         spriteRenderSystem.dispose()
         tileRenderSystem.dispose()
         liquidRenderSystem.dispose()
     }
 
     override fun begin() {
+        backgroundRenderSystem.begin()
         spriteRenderSystem.begin()
         tileRenderSystem.begin()
         liquidRenderSystem.begin()
     }
 
     override fun end() {
+        backgroundRenderSystem.end()
         spriteRenderSystem.end()
         tileRenderSystem.end()
         liquidRenderSystem.end()
@@ -96,6 +103,7 @@ class MultiRenderSystem(private val camera: OrthographicCamera,
         //hack this isn't going to like this if i call ::process i don't think
         //since that system isn't actually added to the world for processing, it's
         //just our own class. maybe not derive from it?
+        backgroundRenderSystem.processSystem()
         tileRenderSystem.processSystem()
         spriteRenderSystem.processSystem()
         liquidRenderSystem.processSystem()

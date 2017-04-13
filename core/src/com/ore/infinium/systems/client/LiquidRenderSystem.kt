@@ -49,16 +49,12 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
     //false if lighting should be disabled/ignored
     var debugTilesInViewCount: Int = 0
 
-    private val batch: SpriteBatch
+    private val batch: SpriteBatch = SpriteBatch(MAX_SPRITES_PER_BATCH)
 
     private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
     private lateinit var clientNetworkSystem: ClientNetworkSystem
     private lateinit var tagManager: TagManager
-
-    init {
-        batch = SpriteBatch(MAX_SPRITES_PER_BATCH)
-    }
 
     override fun processSystem() {
         if (!debugRenderTiles) {
