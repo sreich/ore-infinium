@@ -92,7 +92,7 @@ interface CopyableComponent<T : CopyableComponent<T>> {
 annotation class DoNotPrint
 
 fun TagManager.getEntityId(tag: String): Int {
-    return this.getEntity(tag).id
+    return this.getEntity(tag)!!.id
 }
 
 fun World.entities(aspect: Aspect.Builder): IntBag =
