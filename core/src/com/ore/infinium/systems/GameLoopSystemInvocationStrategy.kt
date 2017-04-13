@@ -101,13 +101,6 @@ class GameLoopSystemInvocationStrategy
         return SystemAndProfiler(system, profiler)
     }
 
-    /*
-    private fun createFrameProfiler() {
-        frameProfiler = SystemProfiler.create("Frame Profiler")
-        frameProfiler.setColor(1f, 1f, 1f, 1f)
-    }
-    */
-
     private fun processProfileSystem(systemAndProfiler: SystemAndProfiler) =
             systemAndProfiler.apply {
                 profiler.start()
@@ -116,21 +109,6 @@ class GameLoopSystemInvocationStrategy
 
                 profiler.counter.tick()
             }
-
-//
-//    private fun createSystemProfiler(system: BaseSystem): SystemProfiler? {
-//        var old: SystemProfiler? = null
-//
-//        if (!isServer) {
-//            old = SystemProfiler.getFor(system)
-//            if (old == null) {
-//                old = SystemProfiler.createFor(system, world)
-//            }
-//        }
-//
-//        return old
-//    }
-//    */
 
     override fun process(systems: Bag<BaseSystem>) {
         if (!isServer) {
@@ -203,7 +181,7 @@ class GameLoopSystemInvocationStrategy
         }
 
         if (!isServer) {
-//            f.rameProfiler.stop()
+            //frameProfiler.stop()
         }
     }
 
@@ -236,13 +214,14 @@ class GameLoopSystemInvocationStrategy
     class PerfStat(val systemName: String, var timeMin: Float = 0f, var timeMax: Float = 0f,
                    var timeAverage: Float = 0f, var timeCurrent: Float = 0f,
                    var loadMin: Float = 0f, var loadMax: Float = 0f,
-                   var loadAverage: Float = 0f) {
-    }
+                   var loadAverage: Float = 0f)
 
     //separated to reduce theoretical thread lock-stepping/stuttering
     //since client will want to reach in and grab server perf stats,
     //which will require synchronization to do so reliably (or you could
     //be grabbing half stats from prior frames)
+
+    //todo should be replaced with concurrent hashmap?
     val serverPerfCounter = hashMapOf<BaseSystem, PerfStat>()
 
     val clientPerfCounter = hashMapOf<BaseSystem, PerfStat>()
