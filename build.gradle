@@ -11,7 +11,7 @@ buildscript {
         artemisContribVersion = '1.2.1'
         kryonetVersion = '2.22.0-RC1'
 
-        jcommanderVersion = "1.64"
+        jcommanderVersion = "1.68"
         tweenEngineVersion = "6.3.3"
 
         kotlinVersion = '1.1.1'
@@ -28,8 +28,8 @@ buildscript {
 
         ktxVersion = '1.9.6-SNAPSHOT'
 
-        protobufGradlePlugin = '0.8.0'
-        protobufVersion = '3.1.0'
+        protobufGradlePlugin = '0.8.1'
+        protobufVersion = '3.2.0'
     }
 
     repositories {
@@ -64,7 +64,6 @@ buildscript {
         classpath "com.google.protobuf:protobuf-gradle-plugin:$protobufGradlePlugin"
         classpath 'co.riiid:gradle-github-plugin:0.4.2'
 
-        classpath 'com.eowise:packer:0.7.2'
         classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
 
         //classpath "com.github.czyzby:ktx-tools:$ktxVersion"
@@ -75,7 +74,7 @@ plugins {
     id 'nebula.provided-base' version '3.1.0'
 
     //for extracting git sha at deploy time
-    id "org.ajoberstar.grgit" version "1.6.0"
+    id "org.ajoberstar.grgit" version "1.7.1"
 
     //run :dependencyUpdates to get a list of updates needed
 
