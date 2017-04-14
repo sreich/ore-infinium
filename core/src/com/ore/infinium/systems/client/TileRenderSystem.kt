@@ -24,6 +24,7 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
+import com.artemis.BaseSystem
 import com.artemis.ComponentMapper
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
@@ -40,12 +41,8 @@ import com.ore.infinium.OreBlock
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
-import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
-import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
-import com.ore.infinium.util.flipY
-import com.ore.infinium.util.getEntityId
-import com.ore.infinium.util.use
+import com.ore.infinium.util.*
 import ktx.app.clearScreen
 import ktx.assets.file
 
@@ -53,7 +50,7 @@ import ktx.assets.file
 class TileRenderSystem(private val camera: OrthographicCamera,
                        private val fullscreenCamera: Camera,
                        private val oreWorld: OreWorld)
-    : OreSubSystem() {
+    : BaseSystem(), RenderSystemMarker {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
@@ -284,7 +281,6 @@ class TileRenderSystem(private val camera: OrthographicCamera,
     }
 
     private fun renderBlendLightMapOnTop() {
-
         batch.shader = tileLightMapBlendShader
 
         Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)

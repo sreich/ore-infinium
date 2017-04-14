@@ -80,8 +80,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
     private lateinit var tagManager: TagManager
     private lateinit var debugTextRenderSystem: DebugTextRenderSystem
     private lateinit var powerOverlayRenderSystem: PowerOverlayRenderSystem
-    private lateinit var multiRenderSystem: MultiRenderSystem
-    //    private lateinit var tileRenderSystem: TileRenderSystem
+    private lateinit var tileRenderSystem: TileRenderSystem
     private lateinit var soundSystem: SoundSystem
 
     lateinit private var multiplexer: InputMultiplexer
@@ -506,7 +505,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
             //          }
         }
 
-        if (OreSettings.debugRenderGui) {
+        if (!OreSettings.debugDisableGui) {
             stage.act(Gdx.graphics.deltaTime.coerceAtLeast(1f / 30f))
             stage.draw()
         }
@@ -592,8 +591,8 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
                 }
             }
             Input.Keys.F7 -> {
-                multiRenderSystem.tileRenderSystem.debugRenderTileLighting =
-                        !multiRenderSystem.tileRenderSystem.debugRenderTileLighting
+                tileRenderSystem.debugRenderTileLighting =
+                        !tileRenderSystem.debugRenderTileLighting
             }
             Input.Keys.F8 -> //fixme; this kind of stuff could be maybe put into a base interface which systems interested in input
                 // could derive from. so we could just call this, and await the return...all of the debug things could be
@@ -602,10 +601,10 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
                 debugTextRenderSystem.renderDebugClient = !debugTextRenderSystem.renderDebugClient
             Input.Keys.F9 -> debugTextRenderSystem.renderDebugServer = !debugTextRenderSystem.renderDebugServer
             Input.Keys.F10 -> {
-                multiRenderSystem.tileRenderSystem.debugRenderTiles =
-                        !multiRenderSystem.tileRenderSystem.debugRenderTiles
+                tileRenderSystem.debugRenderTiles =
+                        !tileRenderSystem.debugRenderTiles
             }
-            Input.Keys.F11 -> OreSettings.debugRenderGui = !OreSettings.debugRenderGui
+            Input.Keys.F11 -> OreSettings.debugDisableGui = !OreSettings.debugDisableGui
             Input.Keys.F12 -> {
                 debugTextRenderSystem.guiDebug = !debugTextRenderSystem.guiDebug
                 stage.setDebugAll(debugTextRenderSystem.guiDebug)

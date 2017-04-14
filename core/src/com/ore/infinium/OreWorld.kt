@@ -194,9 +194,9 @@ class OreWorld
                                      .with(PlayerSystem(this))
                                      .with(GameTickSystem(this))
                                      .with(ClientBlockDiggingSystem(this, client!!))
-                                     .with(MultiRenderSystem(camera = camera,
-                                                             fullscreenCamera = client!!.viewport.camera,
-                                                             oreWorld = this))
+                                     .with(TileRenderSystem(camera = camera,
+                                                            fullscreenCamera = client!!.viewport.camera,
+                                                            oreWorld = this))
                                      .with(DebugTextRenderSystem(camera, this))
                                      .with(PowerOverlayRenderSystem(oreWorld = this,
                                                                     fullscreenCamera = client!!.viewport.camera,

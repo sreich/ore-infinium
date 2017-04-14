@@ -74,7 +74,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
 
     private val tagManager by system<TagManager>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()
-    private val multiRenderSystem by system<MultiRenderSystem>()
+    private val tileRenderSystem by system<TileRenderSystem>()
     private val clientBlockDiggingSystem by system<ClientBlockDiggingSystem>()
 
     //fixme this needs to be shared or something. having every damn system have its own is really dumb
@@ -215,7 +215,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         //extra spacing
         textYLeft -= TEXT_Y_SPACING
 
-        drawNextLeftString("tiles rendered: ${multiRenderSystem.tileRenderSystem.debugTilesInViewCount}")
+        drawNextLeftString("tiles rendered: ${tileRenderSystem.debugTilesInViewCount}")
 
         printBlockDebugInfo()
 
@@ -266,14 +266,14 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         drawNextLeftString("blockHealth: $damagedBlockHealth / $totalBlockHealth")
 
         val texture = if (!oreWorld.isBlockTypeLiquid(blockType)) {
-            multiRenderSystem.tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
+            tileRenderSystem.findTextureNameForBlock(x, y, blockType, blockMeshType)
         } else {
             ""
         }
 
         val lightLevel = oreWorld.blockLightLevel(x, y)
         val maxLight = TileLightingSystem.MAX_TILE_LIGHT_LEVEL
-        val computedLightLevel = multiRenderSystem.tileRenderSystem.computeLightValueColor(lightLevel)
+        val computedLightLevel = tileRenderSystem.computeLightValueColor(lightLevel)
         val s = """tile($x, $y), block type: $blockTypeName,
             |mesh: $blockMeshType, walltype: $blockWallType
             |texture: $texture , LightLevel: $lightLevel/$maxLight,
@@ -304,8 +304,8 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         debugStrings.add("GL calls: ${GLProfiler.calls}")
         debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(server.sharedFrameTime);
         debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
-        debugStrings.add("F11 - gui render (${OreSettings.debugRenderGui.enabledString()})")
-        debugStrings.add("F10 - tile render (${multiRenderSystem.tileRenderSystem.debugRenderTiles})")
+        debugStrings.add("F11 - gui render disabled (${OreSettings.debugDisableGui.enabledString()})")
+        debugStrings.add("F10 - tile render (${tileRenderSystem.debugRenderTiles})")
 
         debugStrings.add("""
             |F9 - server sprite debug render.
@@ -316,7 +316,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabledString()})")
         debugStrings.add(
                 "F7 - tile lighting renderer debug " +
-                        "(${multiRenderSystem.tileRenderSystem.debugRenderTileLighting.enabledString()})")
+                        "(${tileRenderSystem.debugRenderTileLighting.enabledString()})")
 
         debugStrings.add("F6 - system profiler toggle")
 

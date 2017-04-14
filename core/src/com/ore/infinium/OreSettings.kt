@@ -147,7 +147,10 @@ object OreSettings {
     @JvmField
     var flatWorld: Boolean = false
 
-    var debugRenderGui: Boolean = true
+    @Parameter(names = arrayOf("--disable-gui"),
+               description = "disable the gui renderer, for debugging the gl more easily")
+    @JvmField
+    var debugDisableGui: Boolean = false
 
     var profilerEnabled = false
 
