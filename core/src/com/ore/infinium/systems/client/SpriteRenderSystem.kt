@@ -29,8 +29,7 @@ import aurelienribon.tweenengine.Tween
 import aurelienribon.tweenengine.TweenEquations
 import aurelienribon.tweenengine.TweenManager
 import aurelienribon.tweenengine.equations.Sine
-import com.artemis.ComponentMapper
-import com.artemis.World
+import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.utils.IntBag
@@ -40,29 +39,26 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
 import com.ore.infinium.OreWorld
 import com.ore.infinium.SpriteTween
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
-import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.util.*
 import ktx.assets.file
 
 @Wire
-class SpriteRenderSystem(private val world: World,
-                         private val oreWorld: OreWorld,
-                         private val camera: OrthographicCamera,
-                         private val tileLightMapFbo: FrameBuffer)
-    : OreSubSystem() {
+class SpriteRenderSystem(private val oreWorld: OreWorld,
+                         private val camera: OrthographicCamera)
+    : BaseSystem(), RenderSystemMarker {
 
     private lateinit var batch: SpriteBatch
 
-    private lateinit var mSprite: ComponentMapper<SpriteComponent>
-    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
 
-    private lateinit var tagManager: TagManager
+    private val tagManager by system<TagManager>()
+    private val tileRenderSystem by system<TileRenderSystem>()
     private lateinit var tweenManager: TweenManager
 
     private lateinit var defaultShader: ShaderProgram
@@ -109,7 +105,7 @@ class SpriteRenderSystem(private val world: World,
         batch.shader = spriteLightMapBlendShader
 
         Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0 + 1)
-        tileLightMapFbo.colorBufferTexture.bind(1)
+        tileRenderSystem.tileLightMapFbo.colorBufferTexture.bind(1)
         Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
 
         batch.begin()

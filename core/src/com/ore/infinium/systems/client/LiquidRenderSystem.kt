@@ -24,8 +24,7 @@ SOFTWARE.
 
 package com.ore.infinium.systems.client
 
-import com.artemis.ComponentMapper
-import com.artemis.World
+import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -33,17 +32,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.ore.infinium.OreBlock
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.SpriteComponent
-import com.ore.infinium.systems.OreSubSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.MAX_SPRITES_PER_BATCH
+import com.ore.infinium.util.RenderSystemMarker
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.system
 
 @Wire
 class LiquidRenderSystem(private val camera: OrthographicCamera,
-                         private val oreWorld: OreWorld,
-                         private val world: World,
-                         val tileRenderSystem: TileRenderSystem
-                        )
-: OreSubSystem() {
+                         private val oreWorld: OreWorld)
+    : BaseSystem(), RenderSystemMarker {
     //indicates if tiles should be drawn, is a debug flag.
     var debugRenderTiles = true
     //false if lighting should be disabled/ignored
@@ -51,13 +49,14 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
 
     private val batch: SpriteBatch = SpriteBatch(MAX_SPRITES_PER_BATCH)
 
-    private lateinit var mSprite: ComponentMapper<SpriteComponent>
+    private val mSprite by mapper<SpriteComponent>()
 
-    private lateinit var clientNetworkSystem: ClientNetworkSystem
-    private lateinit var tagManager: TagManager
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
+    private val tileRenderSystem by system<TileRenderSystem>()
+    private val tagManager by system<TagManager>()
 
     override fun processSystem() {
-        if (!debugRenderTiles) {
+        if (!debugRenderTiles || !clientNetworkSystem.connected) {
             return
         }
 
@@ -141,7 +140,7 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
                                       blockType: Byte,
                                       blockMeshType: Byte,
                                       liquidLevel: Byte): String {
-        var textureName: String ? = null
+        var textureName: String? = null
         when (blockType) {
             OreBlock.BlockType.Water.oreValue -> {
                 if (liquidLevel.toInt() == 0) {

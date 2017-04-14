@@ -197,6 +197,10 @@ class OreWorld
                                      .with(TileRenderSystem(camera = camera,
                                                             fullscreenCamera = client!!.viewport.camera,
                                                             oreWorld = this))
+
+                                     .with(SpriteRenderSystem(camera = camera,
+                                                                   oreWorld = this))
+                                     .with(LiquidRenderSystem(camera=camera,oreWorld=this))
                                      .with(DebugTextRenderSystem(camera, this))
                                      .with(PowerOverlayRenderSystem(oreWorld = this,
                                                                     fullscreenCamera = client!!.viewport.camera,

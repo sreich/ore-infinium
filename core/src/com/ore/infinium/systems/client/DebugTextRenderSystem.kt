@@ -124,7 +124,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         font.color = Color.ORANGE
 
         fontGenerator.dispose()
-
     }
 
     override fun processSystem() {
