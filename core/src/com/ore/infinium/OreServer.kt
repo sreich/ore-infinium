@@ -147,13 +147,13 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
         }
 
         val cPlayer = mPlayer.get(player).apply {
-            hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots)
+            hotbarInventory = HotbarInventory(Inventory.maxHotbarSlots, oreWorld.artemisWorld)
             hotbarInventory!!.addListener(HotbarInventorySlotListener())
 
             oreWorld.artemisWorld.inject(hotbarInventory!!)
         }
 
-        cPlayer.inventory = Inventory(Inventory.maxSlots)
+        cPlayer.inventory = Inventory(Inventory.maxSlots, oreWorld.artemisWorld)
         oreWorld.artemisWorld.inject(cPlayer.inventory!!)
 
         //FIXME UNUSED, we use connectionid instead anyways        ++freePlayerId;

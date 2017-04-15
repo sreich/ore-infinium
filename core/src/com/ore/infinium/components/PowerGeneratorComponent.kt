@@ -66,7 +66,7 @@ class PowerGeneratorComponent : Component(), CopyableComponent<PowerGeneratorCom
              * only valid for certain types of generators.
              * e.g. solar doesn't have anything in it
              */
-    var fuelSources: GeneratorInventory ? = null
+    var fuelSources: GeneratorInventory? = null
 
     /**
      * determines if the item component is the same, in other words,
@@ -76,16 +76,7 @@ class PowerGeneratorComponent : Component(), CopyableComponent<PowerGeneratorCom
         return this.supplyRateEU == otherComp.supplyRateEU
     }
 
-    /**
-     * copy a component (similar to copy constructor)
-     *
-     * @param component
-     *         component to copy from, into this instance
-     */
     override fun copyFrom(component: PowerGeneratorComponent) {
         this.defaultCopyFrom(component)
-
-        fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
     }
-
 }

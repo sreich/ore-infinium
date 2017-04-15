@@ -474,7 +474,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             val cGenerator = mGenerator.opt(localEntityId)?.let {
                 //recreate this on our end. since it is transient
-                it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+                it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS, world)
             }
 
             assert(cSprite.textureName != null)

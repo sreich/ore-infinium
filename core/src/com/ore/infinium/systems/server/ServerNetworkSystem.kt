@@ -361,7 +361,7 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
      * @param causedByPickedUpItem true if this was spawned because the player picked
      * up an item that was dropped on the ground
      *
-     * the index is handled client side, with the ItemComponent.inventoryIndex,
+     * the index is handled client side by looking at the ItemComponent.inventoryIndex,
      * so it will know which item in the list goes to which index
      */
     fun sendSpawnInventoryItems(entityIdsToSpawn: List<Int>,
@@ -383,7 +383,8 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             spawn.entitiesToSpawn.add(entitySpawn)
         }
 
-        serverKryo.sendToTCP(mPlayer.get(owningPlayerEntityId).connectionPlayerId, spawn)
+        val cPlayer = mPlayer.get(owningPlayerEntityId)
+        serverKryo.sendToTCP(cPlayer.connectionPlayerId, spawn)
     }
 
     //todo not sure if this can be consolidated with regular entity spawns?

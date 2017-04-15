@@ -801,12 +801,12 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
         val cPlayer = mPlayer.get(player)
 
-        hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots)
+        hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots,artemisWorld = world!!.artemisWorld)
         cPlayer.hotbarInventory = hotbarInventory
 
         hotbarInventory!!.addListener(HotbarSlotListener())
 
-        inventory = Inventory(slotCount = Inventory.maxSlots)
+        inventory = Inventory(slotCount = Inventory.maxSlots, artemisWorld = world!!.artemisWorld)
         cPlayer.inventory = inventory
 
         hotbarView = HotbarInventoryView(stage = stage, inventory = hotbarInventory!!,
@@ -815,7 +815,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
         inventoryView = InventoryView(stage = stage, inventory = inventory!!,
                                       dragAndDrop = dragAndDrop!!, world = world!!)
 
-        generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+        generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS,world!!.artemisWorld)
         generatorControlPanelView = GeneratorControlPanelView(stage = stage,
                                                               generatorControlPanelInventory = generatorInventory!!,
                                                               dragAndDrop = dragAndDrop!!,

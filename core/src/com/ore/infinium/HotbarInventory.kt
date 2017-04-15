@@ -1,4 +1,7 @@
 package com.ore.infinium
+
+import com.artemis.World
+
 /**
 MIT License
 
@@ -23,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-class HotbarInventory(slotCount:Int) : Inventory(slotCount) {
+class HotbarInventory(slotCount:Int,artemisWorld: World) : Inventory(slotCount, artemisWorld) {
     //hotbar selection
     var selectedSlot: Int = 0
     var previousSelectedSlot: Int = 0

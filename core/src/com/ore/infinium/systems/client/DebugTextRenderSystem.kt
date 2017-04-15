@@ -350,7 +350,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
             val rectangle = cSprite!!.sprite.rect
 
             if (rectangle.contains(mousePos)) {
-                components = oreWorld.getComponentsForEntity(currentEntity).toList()
+                components = world.getComponentsForEntity(currentEntity).toList()
 
                 entityUnderMouse = currentEntity
                 break

@@ -1,5 +1,6 @@
 package com.ore.infinium
 
+import com.artemis.World
 import com.ore.infinium.util.INVALID_ENTITY_ID
 
 /**
@@ -26,7 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-class GeneratorInventory(slotCount: Int) : Inventory(slotCount) {
+class GeneratorInventory(slotCount: Int, artemisWorld: World) : Inventory(slotCount, artemisWorld) {
     //when a fuel source is initially burned, it is set to 100
     //over time it will decrease until 0, at which point the fuel
     //source is consumed

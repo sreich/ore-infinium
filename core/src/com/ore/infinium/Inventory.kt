@@ -25,18 +25,17 @@ SOFTWARE.
 package com.ore.infinium
 
 import com.artemis.ComponentMapper
+import com.artemis.World
 import com.artemis.annotations.Wire
 import com.ore.infinium.components.*
-import com.ore.infinium.util.INVALID_ENTITY_ID
-import com.ore.infinium.util.isInvalidEntity
-import com.ore.infinium.util.isValidEntity
+import com.ore.infinium.util.*
 
 /**
  * @param slotCount max number of slots to have
  */
 @Wire
 open class Inventory
-(val slotCount: Int) {
+(val slotCount: Int, val artemisWorld: World) {
     internal var listeners = mutableListOf<SlotListener>()
 
     var inventoryType: Network.Shared.InventoryType
@@ -76,7 +75,7 @@ open class Inventory
         slots.forEach { it.entityId = INVALID_ENTITY_ID }
 
         listeners.forEach { listener ->
-            slots.forEachIndexed { i, slot ->
+            slots.forEachIndexed { i, _ ->
                 listener.slotItemChanged(i, this)
             }
         }
@@ -116,12 +115,12 @@ open class Inventory
      *
      * WARNING: if a merge happens, you then gain ownership of the entity
      * that got passed in(and * merged). It will not be deleted from
-     * the world for you.
+     * the world for you. In most cases you will want to do that.
      *
      * If there is no free slots, it will fail (return TypeOfAdd.Failed)
      *
      * Also handles reassociating the item component's inventory association.
-     * (which inventory it is in, which index) and which type
+     * (which inventory it is in, which index and which type).
      */
     fun placeItemInNextFreeSlot(itemEntityId: Int): ItemAddResult {
         val slotIndexToMerge = slots.filter { isValidEntity(it.entityId) }.indexOfFirst { itemInSlotId ->
@@ -167,7 +166,8 @@ open class Inventory
      * they get picked up and are the same item)
      *
      * @param itemIdToObsolete item that will be defunct now because it got
-     * merged into the other one.
+     * merged into the other one. this one should get deleted (it gets
+     * its inventory index set to invalid value to ensure you do delete it)
      *
      * @param itemIdToMerge the itemid that will remain, that the other one gets
      * merged with.

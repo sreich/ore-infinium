@@ -50,7 +50,7 @@ fun World.oreInject(obj: Any) {
 }
 
 inline fun <reified T : BaseSystem> World.system() =
-        getSystem(T::class.java)
+        getSystem(T::class.java)!!
 
 interface OreEntitySubscriptionListener : EntitySubscription.SubscriptionListener {
     override fun inserted(entities: IntBag) = Unit
@@ -64,7 +64,6 @@ interface OreEntitySubscriptionListener : EntitySubscription.SubscriptionListene
  * many ms per frame, etc)
  */
 interface RenderSystemMarker
-
 
 /**
  * Denotes that a component property should not be copied
@@ -90,6 +89,12 @@ interface CopyableComponent<T : CopyableComponent<T>> {
 @Retention
 @Target(AnnotationTarget.PROPERTY, AnnotationTarget.PROPERTY_GETTER)
 annotation class DoNotPrint
+
+fun World.getComponentsForEntity(entity: Int): Bag<Component> {
+    val bag = Bag<Component>()
+    componentManager.getComponentsFor(entity, bag)
+    return bag
+}
 
 fun World.entities(aspect: Aspect.Builder): IntBag =
         this.aspectSubscriptionManager.get(aspect).entities
@@ -243,7 +248,6 @@ private val cacheByType = hashMapOf<Class<*>, PropertyCache>()
 private fun getCache(clazz: Class<*>): PropertyCache =
         cacheByType.getOrPut(clazz, { PropertyCache(clazz.kotlin) })
 
-
 /**
  * Cache that stores properties of component implementations.
  */
@@ -302,5 +306,3 @@ fun <T : Component> T.printString(): String {
 fun <T : Component> T.defaultPrintString(): String =
         getCache(javaClass).printProperties.map { "${javaClass.simpleName}.${it.name} = ${it.getter.call(this)}" }
                 .joinToString(separator = "\n", postfix = "\n")
-
-//}

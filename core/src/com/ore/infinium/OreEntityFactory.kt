@@ -150,7 +150,7 @@ class OreEntityFactory(val oreWorld: OreWorld) {
 
         mPowerGenerator.create(entity).apply {
             supplyRateEU = 100
-            fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
+            fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS, artemisWorld)
             artemisWorld.inject(fuelSources, true)
         }
 

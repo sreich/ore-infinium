@@ -31,7 +31,6 @@ import com.artemis.WorldConfigurationBuilder
 import com.artemis.managers.PlayerManager
 import com.artemis.managers.TagManager
 import com.artemis.systems.EntityProcessingSystem
-import com.artemis.utils.Bag
 import com.artemis.utils.IntBag
 import com.artemis.utils.reflect.ClassReflection
 import com.badlogic.gdx.Gdx
@@ -1099,6 +1098,7 @@ class OreWorld
         mPowerGenerator.ifPresent(sourceEntity) {
             val component = mPowerGenerator.create(clonedEntity)
             component.copyFrom(it)
+            component.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS,artemisWorld)
 
             //hack until we come up with a better way, possibly pass world in
             //as copy param, to get these injected well
@@ -1142,22 +1142,6 @@ class OreWorld
 
     fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         return false
-    }
-
-    @Suppress("unused")
-            /**
-             * gets a list of components this entity has. Mostly for debug
-
-             * @param entity
-             * *
-             * *
-             * @return
-             */
-    fun getComponentsForEntity(entity: Int): Bag<Component> {
-        val bag = Bag<Component>()
-        artemisWorld.getEntity(entity).getComponents(bag)
-
-        return bag
     }
 
     @Suppress("unused")
@@ -1334,6 +1318,7 @@ class OreWorld
         return true
     }
 }
+
 
 
 
