@@ -110,7 +110,7 @@ class GameLoopSystemInvocationStrategy
                 profiler.counter.tick()
             }
 
-    override fun process(systems: Bag<BaseSystem>) {
+    override fun process() {
         if (!isServer) {
             //    frameProfiler.start()
         }

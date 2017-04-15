@@ -368,13 +368,16 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
                                 owningPlayerEntityId: Int,
                                 inventoryType: Network.Shared.InventoryType,
                                 causedByPickedUpItem: Boolean = false) {
-        //assert(entityIdsToSpawn.size > 0) { "entities to spawn in inventory should be non 0" }
+        require(entityIdsToSpawn.isNotEmpty()) { "entities to spawn in inventory should be non 0" }
 
         val spawn = Network.Server.SpawnInventoryItems()
         spawn.causedByPickedUpItem = causedByPickedUpItem
         spawn.typeOfInventory = inventoryType
 
         for (entityId in entityIdsToSpawn) {
+            val cItem = mItem.get(entityId)
+            require(cItem.inventoryIndex != -1) { "attempting to send invalid inventory index item spawn" }
+
             val entitySpawn = serializeInventoryEntitySpawn(entityId)
 
             spawn.entitiesToSpawn.add(entitySpawn)

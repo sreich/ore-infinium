@@ -7,7 +7,7 @@ buildscript {
 
         aiVersion = '1.8.1'
 
-        artemisVersion = '1.4.0'
+        artemisVersion = '2.1.0'
         artemisContribVersion = '1.2.1'
         kryonetVersion = '2.22.0-RC1'
 
@@ -309,9 +309,6 @@ project(":desktop") {
 
             // Artemis-odb bonus functionality (systems, events, components).
             compile "net.mostlyoriginal.artemis-odb:contrib-core:$artemisContribVersion"
-            compile "net.mostlyoriginal.artemis-odb:contrib-jam:$artemisContribVersion"
-            compile "net.mostlyoriginal.artemis-odb:contrib-eventbus:$artemisContribVersion"
-            compile "net.mostlyoriginal.artemis-odb:contrib-plugin-operations:$artemisContribVersion"
 
             // jcommander for command line parsing
             compile "com.beust:jcommander:$jcommanderVersion"

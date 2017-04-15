@@ -366,6 +366,8 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
         val cItem = mItem.get(spawnedItemEntityId)
 
+        require(cItem.inventoryIndex != -1) { "told to spawn item at invalid index" }
+
         //fixme this indirection isn't so hot...
         inventory.setSlot(cItem.inventoryIndex, spawnedItemEntityId)
     }
@@ -470,7 +472,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 sprite.setPosition(spawn.pos.x, spawn.pos.y)
             }
 
-            val cGenerator = mGenerator.getSafe(localEntityId)?.let {
+            val cGenerator = mGenerator.opt(localEntityId)?.let {
                 //recreate this on our end. since it is transient
                 it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS)
             }

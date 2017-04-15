@@ -63,8 +63,7 @@ open class Inventory
     }
 
     class InventorySlot(var entityId: Int,
-                        val slotType: InventorySlotType) {
-    }
+                        val slotType: InventorySlotType)
 
     var slots = mutableListOf<InventorySlot>()
         private set
@@ -197,6 +196,9 @@ open class Inventory
     private fun canCombineItems(itemId: Int, itemInSlotId: Int): Boolean {
         val itemComp1 = mItem.get(itemId)
         val itemComp2 = mItem.get(itemInSlotId)
+        if (itemComp2 == null) {
+            println()
+        }
         if (!itemComp1.canCombineWith(itemComp2)) {
             return false
         }

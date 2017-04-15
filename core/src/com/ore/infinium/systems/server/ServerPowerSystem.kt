@@ -96,7 +96,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     }
 
     private fun updateDevice(entityId: Int) {
-        val cGen = mPowerGenerator.getSafe(entityId)
+        val cGen = mPowerGenerator.opt(entityId)
 
         cGen?.let {
             when (cGen.type) {

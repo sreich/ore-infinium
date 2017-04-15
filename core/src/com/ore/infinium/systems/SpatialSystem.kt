@@ -58,7 +58,6 @@ class SpatialSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all
     var quadTree: QuadTree
 
     init {
-
         quadTree = QuadTree(0f, 0f, oreWorld.worldSize.width.toFloat(), oreWorld.worldSize.height.toFloat())
     }
 
