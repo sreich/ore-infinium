@@ -182,14 +182,16 @@ open class Inventory
 
         itemToMergeComp.apply {
             //merge in the other one, combining items but don't exceed the max these types of items can hold
+            //fixme whoops this actually drops the extraneous items.
+            // in other words, the guy gets screwed out of his items
             stackSize = (this.stackSize + itemToObsoleteComp.stackSize).coerceAtMost(this.maxStackSize)
             //all the other state is fine, because it's already been and still remains in the same spot.
             //just count changes
         }
 
         itemToObsoleteComp.apply {
-            stackSize = -1
-            inventoryIndex = -1
+            stackSize = -52
+            inventoryIndex = -52
         }
     }
 
