@@ -48,6 +48,8 @@ open class Inventory
     private lateinit var mPowerConsumer: ComponentMapper<PowerConsumerComponent>
     private lateinit var mPowerDevice: ComponentMapper<PowerDeviceComponent>
     private lateinit var mPowerGenerator: ComponentMapper<PowerGeneratorComponent>
+    private lateinit var mVelocity: ComponentMapper<VelocityComponent>
+    private lateinit var mSprite: ComponentMapper<SpriteComponent>
 
     enum class InventorySlotType {
         Slot,
@@ -195,12 +197,58 @@ open class Inventory
         }
     }
 
+    fun createDrill(): Int {
+        val entity = artemisWorld.create()
+        mVelocity.create(entity)
+
+        mTool.create(entity).apply {
+            type = ToolComponent.ToolType.Drill
+            blockDamage = 400f
+        }
+
+        mSprite.create(entity).apply {
+            textureName = "drill"
+            sprite.setSize(2f, 2f)
+        }
+
+        val newStackSize = 64000
+        mItem.create(entity).apply {
+            stackSize = newStackSize
+            maxStackSize = newStackSize
+            name = "Drill"
+        }
+
+        return entity
+    }
+
     private fun canCombineItems(itemId: Int, itemInSlotId: Int): Boolean {
         val itemComp1 = mItem.get(itemId)
         val itemComp2 = mItem.get(itemInSlotId)
-        if (itemComp2 == null) {
-            println()
+
+        val components = artemisWorld.getComponentsForEntity(itemId)
+
+        for (entityAComp in components) {
+            val mapper = artemisWorld.getMapper(entityAComp::class.java)
+            val entityBComp = mapper.opt(itemInSlotId)
+
+            if (entityBComp != null) {
+                entityAComp.canCombineWith(entityBComp)
+            } else {
+                //component doesn't even exist in other item...not the same...
+                return false
+            }
         }
+
+//        artemisWorld.componentManager.typeFactory.
+//        a.canCombineWith(a)
+//        artemisWorld.getMapper(VelocityComponent::class.java).
+//        val type = artemisWorld.componentManager.
+
+        val drill = createDrill()
+
+        //        a.canCombineWith(itemComp2)
+//        a.copyFrom()
+        //   a.canCombineWith(itemComp2)
         if (!itemComp1.canCombineWith(itemComp2)) {
             return false
         }

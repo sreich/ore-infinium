@@ -72,7 +72,7 @@ interface RenderSystemMarker
 @Target(AnnotationTarget.PROPERTY)
 annotation class DoNotCopy
 
-interface CopyableComponent<T : CopyableComponent<T>> {
+interface ExtendedComponent<T : ExtendedComponent<T>> {
 
     /**
      * copy a component (similar to copy constructor)
@@ -81,6 +81,11 @@ interface CopyableComponent<T : CopyableComponent<T>> {
      *         component to copy from, into this instance
      */
     fun copyFrom(component: T): Unit
+
+    // todo: we may actually want to instead have a combine function,
+    //whose result is the combination of both
+    // (otherwise how do we know how to combine them properly?)
+    fun canCombineWith(component: T): Boolean
 }
 
 /**
@@ -269,10 +274,16 @@ private class PropertyCache(clazz: KClass<*>) {
  *         component to copy from, into this instance
  */
 fun <T : Component> T.copyFrom(component: T) {
-    if (this is CopyableComponent<*>) {
-        this.internalCopyFrom<InternalCopyableComponent>(component)
+    if (this is ExtendedComponent<*>) {
+        this.internalCopyFrom<InternalExtendedComponent>(component)
     } else {
         this.defaultCopyFrom(component)
+    }
+}
+
+fun <T : Component> T.canCombineWith(component: T) {
+    if (this is ExtendedComponent<*>) {
+        this.internalCanCombineWith<InternalExtendedComponent>(component)
     }
 }
 
@@ -288,14 +299,20 @@ fun <T : Component> T.defaultCopyFrom(component: T): Unit {
 
 // Just hacking around Kotlin generics...
 @Suppress("UNCHECKED_CAST")
-private fun <T : CopyableComponent<T>> Any.internalCopyFrom(component: Any) {
+private fun <T : ExtendedComponent<T>> Any.internalCopyFrom(component: Any) {
     (this as T).copyFrom(component as T)
 }
 
-private class InternalCopyableComponent : CopyableComponent<InternalCopyableComponent> {
-    override fun copyFrom(component: InternalCopyableComponent) {
-        assert(false)
-    }
+@Suppress("UNCHECKED_CAST")
+private fun <T : ExtendedComponent<T>> Any.internalCanCombineWith(component: Any) =
+        (this as T).canCombineWith(component as T)
+
+private class InternalExtendedComponent : ExtendedComponent<InternalExtendedComponent> {
+    override fun canCombineWith(component: InternalExtendedComponent): Boolean =
+            throw TODO("function not yet implemented")
+
+    override fun copyFrom(component: InternalExtendedComponent) =
+            throw TODO("function not yet implemented")
 }
 
 // TODO: Might want to introduce PrintableComponent interface

@@ -26,13 +26,12 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.graphics.g2d.Sprite
-import com.ore.infinium.util.CopyableComponent
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
+import com.ore.infinium.util.ExtendedComponent
 import com.ore.infinium.util.defaultCopyFrom
 
-class SpriteComponent : Component(), CopyableComponent<SpriteComponent> {
-
+class SpriteComponent : Component(), ExtendedComponent<SpriteComponent> {
     @DoNotCopy @DoNotPrint @Transient var sprite = Sprite()
 
     var category: EntityCategory = EntityCategory.Character
@@ -53,6 +52,9 @@ class SpriteComponent : Component(), CopyableComponent<SpriteComponent> {
         Character,
         Entity
     }
+
+    override fun canCombineWith(component: SpriteComponent) =
+            throw TODO("function not yet implemented")
 
     override fun copyFrom(component: SpriteComponent) {
         this.defaultCopyFrom(component)

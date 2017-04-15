@@ -25,8 +25,9 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.util.ExtendedComponent
 
-class FloraComponent : Component() {
+class FloraComponent : Component(), ExtendedComponent<FloraComponent> {
     /**
      * Number of separate flora objects dropped,
      * when this flora entity is destroyed.
@@ -52,7 +53,11 @@ class FloraComponent : Component() {
      * determines if the item component is the same, in other words,
      * if it is the same kind of item. to determine if it can merge/combine
      */
-    fun canCombineWith(otherComp: FloraComponent): Boolean {
-        return this.numberOfDropsWhenDestroyed == otherComp.numberOfDropsWhenDestroyed
+    override fun canCombineWith(component: FloraComponent) =
+            this.numberOfDropsWhenDestroyed == component.numberOfDropsWhenDestroyed &&
+                    this.stackSizePerDrop == component.stackSizePerDrop
+
+    override fun copyFrom(component: FloraComponent) {
+        throw TODO("function not yet implemented")
     }
 }

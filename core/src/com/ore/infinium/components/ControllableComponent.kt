@@ -26,13 +26,8 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.math.Vector2
-import com.ore.infinium.util.CopyableComponent
 import com.ore.infinium.util.DoNotCopy
 
-class ControllableComponent : Component(), CopyableComponent<ControllableComponent> {
+class ControllableComponent : Component() {
     @DoNotCopy var desiredDirection = Vector2()
-
-    override fun copyFrom(component: ControllableComponent) {
-        desiredDirection.set(component.desiredDirection)
-    }
 }

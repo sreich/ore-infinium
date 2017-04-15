@@ -25,13 +25,21 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.util.ExtendedComponent
 
-class DoorComponent : Component() {
-
+class DoorComponent : Component(), ExtendedComponent<DoorComponent> {
     var state = DoorState.Closed
 
     enum class DoorState {
         Open,
         Closed
+    }
+
+    override fun copyFrom(component: DoorComponent) {
+        throw TODO("function not yet implemented")
+    }
+
+    override fun canCombineWith(component: DoorComponent): Boolean {
+        throw TODO("function not yet implemented")
     }
 }

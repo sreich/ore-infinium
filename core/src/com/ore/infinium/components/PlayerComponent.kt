@@ -32,10 +32,10 @@ import com.ore.infinium.OreTimer
 import com.ore.infinium.systems.MovementSystem
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
+import com.ore.infinium.util.ExtendedComponent
 import com.ore.infinium.util.INVALID_ENTITY_ID
 
-class PlayerComponent : Component() {
-
+class PlayerComponent : Component(), ExtendedComponent<PlayerComponent> {
     var playerName: String = ""
 
     /**
@@ -98,4 +98,11 @@ class PlayerComponent : Component() {
          */
         val secondaryActionDelay = 300L
     }
+
+    override fun copyFrom(component: PlayerComponent) {
+        throw TODO("function not yet implemented")
+    }
+
+    override fun canCombineWith(component: PlayerComponent) =
+            throw TODO("function not yet implemented")
 }

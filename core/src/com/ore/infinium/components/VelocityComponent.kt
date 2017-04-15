@@ -26,13 +26,16 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.math.Vector2
-import com.ore.infinium.util.CopyableComponent
 import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.ExtendedComponent
 
-class VelocityComponent : Component(), CopyableComponent<VelocityComponent> {
+class VelocityComponent : Component(), ExtendedComponent<VelocityComponent> {
+
     @DoNotCopy var velocity = Vector2()
 
-    override fun copyFrom(cVelocity: VelocityComponent) {
-        velocity.set(cVelocity.velocity)
+    override fun copyFrom(component: VelocityComponent) {
+        velocity.set(component.velocity)
     }
+
+    override fun canCombineWith(component: VelocityComponent) = true
 }

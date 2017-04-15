@@ -28,9 +28,9 @@ import com.artemis.Component
 import com.ore.infinium.OreTimer
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
+import com.ore.infinium.util.ExtendedComponent
 
-class ToolComponent : Component() {
-
+class ToolComponent : Component(), ExtendedComponent<ToolComponent> {
     var type = ToolType.Drill
     var material = ToolMaterial.Wood
     var attackRadius = 10.0f
@@ -73,17 +73,20 @@ class ToolComponent : Component() {
         Diamond
     }
 
+    override fun copyFrom(component: ToolComponent) {
+        throw TODO("function not yet implemented")
+    }
+
     /**
      * determines if the item component is the same, in other words,
      * if it is the same kind of item. to determine if it can merge/combine
      */
-    fun canCombineWith(otherComp: ToolComponent): Boolean {
-        return this.attackRadius == otherComp.attackRadius &&
-                this.attackIntervalMs == otherComp.attackIntervalMs &&
-                this.blockDamage == otherComp.blockDamage &&
-                this.material == otherComp.material &&
-                this.type == otherComp.type &&
-                this.explosiveRadius == otherComp.explosiveRadius &&
-                this.explosiveTimer == otherComp.explosiveTimer
+    override fun canCombineWith(component: ToolComponent): Boolean {
+        return this.attackRadius == component.attackRadius &&
+                this.attackIntervalMs == component.attackIntervalMs &&
+                this.blockDamage == component.blockDamage &&
+                this.material == component.material &&
+                this.type == component.type &&
+                this.explosiveRadius == component.explosiveRadius
     }
 }

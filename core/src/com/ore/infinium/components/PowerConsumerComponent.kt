@@ -25,19 +25,18 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.util.ExtendedComponent
 
 /**
  * Any device on a circuit that can consume some amount of power
  */
-class PowerConsumerComponent : Component() {
-
+class PowerConsumerComponent : Component(), ExtendedComponent<PowerConsumerComponent> {
     var powerDemandRate: Int = 0
 
-    /**
-     * determines if the item component is the same, in other words,
-     * if it is the same kind of item. to determine if it can merge/combine
-     */
-    fun canCombineWith(otherComp: PowerConsumerComponent): Boolean {
-        return this.powerDemandRate == otherComp.powerDemandRate
+    override fun canCombineWith(component: PowerConsumerComponent) =
+            this.powerDemandRate == component.powerDemandRate
+
+    override fun copyFrom(component: PowerConsumerComponent) {
+        this.powerDemandRate = component.powerDemandRate
     }
 }

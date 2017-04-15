@@ -26,11 +26,11 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.badlogic.gdx.math.Vector2
-import com.ore.infinium.util.CopyableComponent
+import com.ore.infinium.util.ExtendedComponent
 import com.ore.infinium.util.defaultCopyFrom
 import java.util.*
 
-class ItemComponent : Component(), CopyableComponent<ItemComponent> {
+class ItemComponent : Component(), ExtendedComponent<ItemComponent> {
     //number of items this item has. e.g. 35 wood..things
     var stackSize: Int = 0
     //the max a single item stack can hold
@@ -121,23 +121,18 @@ class ItemComponent : Component(), CopyableComponent<ItemComponent> {
      * determines what is required to satisfy placement attempts
      * for this item. if blocks must be solid on certain sides.
      */
-    var placementAdjacencyHints = EnumSet.noneOf(PlacementAdjacencyHints::class.java)
+    var placementAdjacencyHints = EnumSet.noneOf(PlacementAdjacencyHints::class.java)!!
 
-    enum class PlacementAdjacencyHints() {
+    enum class PlacementAdjacencyHints {
         TopSolid,
         BottomSolid,
         LeftSolid,
         RightSolid
     }
 
-    /**
-     * determines if the item component is the same, in other words,
-     * if it is the same kind of item. to determine if it can merge/combine
-     */
-    fun canCombineWith(otherComp: ItemComponent): Boolean {
-        return this.name == otherComp.name &&
-                this.maxStackSize == otherComp.maxStackSize
-    }
+    override fun canCombineWith(component: ItemComponent) =
+            this.name == component.name &&
+                    this.maxStackSize == component.maxStackSize
 
     override fun copyFrom(component: ItemComponent) {
         this.defaultCopyFrom(component)

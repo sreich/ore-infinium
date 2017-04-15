@@ -25,20 +25,21 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.util.ExtendedComponent
 
 /**
  * used for blocks when they are held in the inventory or dropped in the world.
  * they're not used for sending tile regions of course, that would be expensive.
  * only arrays are used there.
  */
-class BlockComponent : Component() {
+class BlockComponent : Component(), ExtendedComponent<BlockComponent> {
+
     var blockType: Byte = 0
 
-    /**
-     * determines if the item component is the same, in other words,
-     * if it is the same kind of item. to determine if it can merge/combine
-     */
-    fun canCombineWith(otherComp: BlockComponent): Boolean {
-        return this.blockType == otherComp.blockType
+    override fun canCombineWith(component: BlockComponent) =
+            this.blockType == component.blockType
+
+    override fun copyFrom(component: BlockComponent) {
+        throw TODO("function not yet implemented")
     }
 }

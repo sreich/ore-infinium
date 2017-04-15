@@ -26,8 +26,9 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.ore.infinium.systems.server.TileLightingSystem.Companion.MAX_TILE_LIGHT_LEVEL
+import com.ore.infinium.util.ExtendedComponent
 
-class LightComponent : Component() {
+class LightComponent : Component(), ExtendedComponent<LightComponent> {
     var radius = 0
         set(value) {
             assert(value <= MAX_TILE_LIGHT_LEVEL) {
@@ -36,4 +37,11 @@ class LightComponent : Component() {
 
             field = value
         }
+
+    override fun copyFrom(component: LightComponent) {
+        this.radius = component.radius
+    }
+
+    override fun canCombineWith(component: LightComponent) =
+         radius == component.radius
 }

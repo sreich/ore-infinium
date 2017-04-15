@@ -26,20 +26,22 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.ExtendedComponent
 
 /**
  * A power device is anything that can reside on a circuit. Whether a consumer
  * or a generator.
  */
-class PowerDeviceComponent : Component() {
+class PowerDeviceComponent : Component(), ExtendedComponent<PowerDeviceComponent> {
+
     //todo..or do we want an enum that has a couple states (on/off, disabled/broken?)
     @DoNotCopy var running = true
 
-    /**
-     * determines if the item component is the same, in other words,
-     * if it is the same kind of item. to determine if it can merge/combine
-     */
-    fun canCombineWith(otherComp: PowerDeviceComponent): Boolean {
-        return true //this.name == otherComp.name
+    override fun copyFrom(component: PowerDeviceComponent) {
+        throw TODO("function not yet implemented")
+    }
+
+    override fun canCombineWith(component: PowerDeviceComponent): Boolean {
+        throw TODO("function not yet implemented")
     }
 }
