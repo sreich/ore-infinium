@@ -37,11 +37,10 @@ class PowerDeviceComponent : Component(), ExtendedComponent<PowerDeviceComponent
     //todo..or do we want an enum that has a couple states (on/off, disabled/broken?)
     @DoNotCopy var running = true
 
-    override fun copyFrom(component: PowerDeviceComponent) {
-        throw TODO("function not yet implemented")
+    override fun copyFrom(other: PowerDeviceComponent) {
     }
 
-    override fun canCombineWith(component: PowerDeviceComponent): Boolean {
-        throw TODO("function not yet implemented")
-    }
+    override fun canCombineWith(other: PowerDeviceComponent) =
+            true
 }
+

@@ -38,10 +38,10 @@ class LightComponent : Component(), ExtendedComponent<LightComponent> {
             field = value
         }
 
-    override fun copyFrom(component: LightComponent) {
-        this.radius = component.radius
+    override fun copyFrom(other: LightComponent) {
+        this.radius = other.radius
     }
 
-    override fun canCombineWith(component: LightComponent) =
-         radius == component.radius
+    override fun canCombineWith(other: LightComponent) =
+         radius == other.radius
 }

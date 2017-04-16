@@ -35,11 +35,9 @@ class DoorComponent : Component(), ExtendedComponent<DoorComponent> {
         Closed
     }
 
-    override fun copyFrom(component: DoorComponent) {
-        throw TODO("function not yet implemented")
+    override fun copyFrom(other: DoorComponent) {
+        this.state = other.state
     }
 
-    override fun canCombineWith(component: DoorComponent): Boolean {
-        throw TODO("function not yet implemented")
-    }
+    override fun canCombineWith(other: DoorComponent) = true
 }

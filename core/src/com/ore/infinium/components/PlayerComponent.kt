@@ -99,10 +99,10 @@ class PlayerComponent : Component(), ExtendedComponent<PlayerComponent> {
         val secondaryActionDelay = 300L
     }
 
-    override fun copyFrom(component: PlayerComponent) {
+    override fun copyFrom(other: PlayerComponent) {
         throw TODO("function not yet implemented")
     }
 
-    override fun canCombineWith(component: PlayerComponent) =
+    override fun canCombineWith(other: PlayerComponent) =
             throw TODO("function not yet implemented")
 }

@@ -130,12 +130,12 @@ class ItemComponent : Component(), ExtendedComponent<ItemComponent> {
         RightSolid
     }
 
-    override fun canCombineWith(component: ItemComponent) =
-            this.name == component.name &&
-                    this.maxStackSize == component.maxStackSize
+    override fun canCombineWith(other: ItemComponent) =
+            this.name == other.name &&
+                    this.maxStackSize == other.maxStackSize
 
-    override fun copyFrom(component: ItemComponent) {
-        this.defaultCopyFrom(component)
+    override fun copyFrom(other: ItemComponent) {
+        this.defaultCopyFrom(other)
         justDropped = false
     }
 }

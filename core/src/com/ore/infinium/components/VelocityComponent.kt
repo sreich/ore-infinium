@@ -33,9 +33,9 @@ class VelocityComponent : Component(), ExtendedComponent<VelocityComponent> {
 
     @DoNotCopy var velocity = Vector2()
 
-    override fun copyFrom(component: VelocityComponent) {
-        velocity.set(component.velocity)
+    override fun copyFrom(other: VelocityComponent) {
+        velocity.set(other.velocity)
     }
 
-    override fun canCombineWith(component: VelocityComponent) = true
+    override fun canCombineWith(other: VelocityComponent) = true
 }

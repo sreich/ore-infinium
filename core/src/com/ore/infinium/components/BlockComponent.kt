@@ -36,10 +36,10 @@ class BlockComponent : Component(), ExtendedComponent<BlockComponent> {
 
     var blockType: Byte = 0
 
-    override fun canCombineWith(component: BlockComponent) =
-            this.blockType == component.blockType
+    override fun canCombineWith(other: BlockComponent) =
+            this.blockType == other.blockType
 
-    override fun copyFrom(component: BlockComponent) {
-        throw TODO("function not yet implemented")
+    override fun copyFrom(other: BlockComponent) {
+        this.blockType = other.blockType
     }
 }

@@ -77,15 +77,15 @@ interface ExtendedComponent<T : ExtendedComponent<T>> {
     /**
      * copy a component (similar to copy constructor)
      *
-     * @param component
+     * @param other
      *         component to copy from, into this instance
      */
-    fun copyFrom(component: T): Unit
+    fun copyFrom(other: T): Unit
 
     // todo: we may actually want to instead have a combine function,
     //whose result is the combination of both
     // (otherwise how do we know how to combine them properly?)
-    fun canCombineWith(component: T): Boolean
+    fun canCombineWith(other: T): Boolean
 }
 
 /**
@@ -270,48 +270,48 @@ private class PropertyCache(clazz: KClass<*>) {
 /**
  * copy a component (similar to copy constructor)
  *
- * @param component
+ * @param other
  *         component to copy from, into this instance
  */
-fun <T : Component> T.copyFrom(component: T) {
+fun <T : Component> T.copyFrom(other: T) {
     if (this is ExtendedComponent<*>) {
-        this.internalCopyFrom<InternalExtendedComponent>(component)
+        this.internalCopyFrom<InternalExtendedComponent>(other)
     } else {
-        this.defaultCopyFrom(component)
+        this.defaultCopyFrom(other)
     }
 }
 
-fun <T : Component> T.canCombineWith(component: T) {
+fun <T : Component> T.canCombineWith(other: T) {
     if (this is ExtendedComponent<*>) {
-        this.internalCanCombineWith<InternalExtendedComponent>(component)
+        this.internalCanCombineWith<InternalExtendedComponent>(other)
     }
 }
 
 /**
  * copy a component (similar to copy constructor)
  *
- * @param component
+ * @param other
  *         component to copy from, into this instance
  */
-fun <T : Component> T.defaultCopyFrom(component: T): Unit {
-    getCache(javaClass).copyProperties.forEach { it.setter.call(this, it.getter.call(component)) }
+fun <T : Component> T.defaultCopyFrom(other: T): Unit {
+    getCache(javaClass).copyProperties.forEach { it.setter.call(this, it.getter.call(other)) }
 }
 
 // Just hacking around Kotlin generics...
 @Suppress("UNCHECKED_CAST")
-private fun <T : ExtendedComponent<T>> Any.internalCopyFrom(component: Any) {
-    (this as T).copyFrom(component as T)
+private fun <T : ExtendedComponent<T>> Any.internalCopyFrom(other: Any) {
+    (this as T).copyFrom(other as T)
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun <T : ExtendedComponent<T>> Any.internalCanCombineWith(component: Any) =
-        (this as T).canCombineWith(component as T)
+private fun <T : ExtendedComponent<T>> Any.internalCanCombineWith(other: Any) =
+        (this as T).canCombineWith(other as T)
 
 private class InternalExtendedComponent : ExtendedComponent<InternalExtendedComponent> {
-    override fun canCombineWith(component: InternalExtendedComponent): Boolean =
+    override fun canCombineWith(other: InternalExtendedComponent): Boolean =
             throw TODO("function not yet implemented")
 
-    override fun copyFrom(component: InternalExtendedComponent) =
+    override fun copyFrom(other: InternalExtendedComponent) =
             throw TODO("function not yet implemented")
 }
 

@@ -53,13 +53,13 @@ class SpriteComponent : Component(), ExtendedComponent<SpriteComponent> {
         Entity
     }
 
-    override fun canCombineWith(component: SpriteComponent) =
-            throw TODO("function not yet implemented")
+    override fun canCombineWith(other: SpriteComponent) =
+            this.category == other.category
 
-    override fun copyFrom(component: SpriteComponent) {
-        this.defaultCopyFrom(component)
-        sprite = Sprite(component.sprite).apply {
-            setPosition(component.sprite.x, component.sprite.y)
+    override fun copyFrom(other: SpriteComponent) {
+        this.defaultCopyFrom(other)
+        sprite = Sprite(other.sprite).apply {
+            setPosition(other.sprite.x, other.sprite.y)
         }
     }
 }

@@ -67,11 +67,10 @@ class PowerGeneratorComponent : Component(), ExtendedComponent<PowerGeneratorCom
              */
     var fuelSources: GeneratorInventory? = null
 
-    override fun canCombineWith(component: PowerGeneratorComponent) =
-            this.supplyRateEU == component.supplyRateEU &&
-                    this.type == component.type
+    override fun canCombineWith(other: PowerGeneratorComponent) =
+            this.type == other.type
 
-    override fun copyFrom(component: PowerGeneratorComponent) {
-        this.defaultCopyFrom(component)
+    override fun copyFrom(other: PowerGeneratorComponent) {
+        this.defaultCopyFrom(other)
     }
 }

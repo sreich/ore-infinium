@@ -73,20 +73,29 @@ class ToolComponent : Component(), ExtendedComponent<ToolComponent> {
         Diamond
     }
 
-    override fun copyFrom(component: ToolComponent) {
-        throw TODO("function not yet implemented")
+    override fun copyFrom(other: ToolComponent) {
+        apply {
+            attackRadius = other.attackRadius
+            attackIntervalMs = other.attackIntervalMs
+            blockDamage = other.blockDamage
+            explosiveArmed = other.explosiveArmed
+            explosiveRadius = other.explosiveRadius
+            explosiveTime = other.explosiveTime
+            material = other.material
+            type = other.type
+        }
     }
 
     /**
      * determines if the item component is the same, in other words,
      * if it is the same kind of item. to determine if it can merge/combine
      */
-    override fun canCombineWith(component: ToolComponent): Boolean {
-        return this.attackRadius == component.attackRadius &&
-                this.attackIntervalMs == component.attackIntervalMs &&
-                this.blockDamage == component.blockDamage &&
-                this.material == component.material &&
-                this.type == component.type &&
-                this.explosiveRadius == component.explosiveRadius
+    override fun canCombineWith(other: ToolComponent): Boolean {
+        return this.attackRadius == other.attackRadius &&
+                this.attackIntervalMs == other.attackIntervalMs &&
+                this.blockDamage == other.blockDamage &&
+                this.material == other.material &&
+                this.type == other.type &&
+                this.explosiveRadius == other.explosiveRadius
     }
 }

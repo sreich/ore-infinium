@@ -33,10 +33,10 @@ import com.ore.infinium.util.ExtendedComponent
 class PowerConsumerComponent : Component(), ExtendedComponent<PowerConsumerComponent> {
     var powerDemandRate: Int = 0
 
-    override fun canCombineWith(component: PowerConsumerComponent) =
-            this.powerDemandRate == component.powerDemandRate
+    override fun canCombineWith(other: PowerConsumerComponent) =
+            true
 
-    override fun copyFrom(component: PowerConsumerComponent) {
-        this.powerDemandRate = component.powerDemandRate
+    override fun copyFrom(other: PowerConsumerComponent) {
+        this.powerDemandRate = other.powerDemandRate
     }
 }

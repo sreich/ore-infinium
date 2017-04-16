@@ -53,11 +53,9 @@ class FloraComponent : Component(), ExtendedComponent<FloraComponent> {
      * determines if the item component is the same, in other words,
      * if it is the same kind of item. to determine if it can merge/combine
      */
-    override fun canCombineWith(component: FloraComponent) =
-            this.numberOfDropsWhenDestroyed == component.numberOfDropsWhenDestroyed &&
-                    this.stackSizePerDrop == component.stackSizePerDrop
+    override fun canCombineWith(other: FloraComponent) = true
 
-    override fun copyFrom(component: FloraComponent) {
+    override fun copyFrom(other: FloraComponent) {
         throw TODO("function not yet implemented")
     }
 }
