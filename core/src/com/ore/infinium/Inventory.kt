@@ -197,106 +197,22 @@ open class Inventory
         }
     }
 
-    fun createDrill(): Int {
-        val entity = artemisWorld.create()
-        mVelocity.create(entity)
-
-        mTool.create(entity).apply {
-            type = ToolComponent.ToolType.Drill
-            blockDamage = 400f
-        }
-
-        mSprite.create(entity).apply {
-            textureName = "drill"
-            sprite.setSize(2f, 2f)
-        }
-
-        val newStackSize = 64000
-        mItem.create(entity).apply {
-            stackSize = newStackSize
-            maxStackSize = newStackSize
-            name = "Drill"
-        }
-
-        return entity
-    }
-
     private fun canCombineItems(itemId: Int, itemInSlotId: Int): Boolean {
-        val itemComp1 = mItem.get(itemId)
-        val itemComp2 = mItem.get(itemInSlotId)
-
         val components = artemisWorld.getComponentsForEntity(itemId)
 
-        for (entityAComp in components) {
+        components.forEach { entityAComp ->
+            //find whatever mapper belongs to this component
             val mapper = artemisWorld.getMapper(entityAComp::class.java)
             val entityBComp = mapper.opt(itemInSlotId)
 
             if (entityBComp != null) {
-                entityAComp.canCombineWith(entityBComp)
+                //it has the same component, check if they can be combined
+                val combined = entityAComp.canCombineWith(entityBComp)
+                if (!combined) {
+                    return false
+                }
             } else {
                 //component doesn't even exist in other item...not the same...
-                return false
-            }
-        }
-
-//        artemisWorld.componentManager.typeFactory.
-//        a.canCombineWith(a)
-//        artemisWorld.getMapper(VelocityComponent::class.java).
-//        val type = artemisWorld.componentManager.
-
-        val drill = createDrill()
-
-        //        a.canCombineWith(itemComp2)
-//        a.copyFrom()
-        //   a.canCombineWith(itemComp2)
-        if (!itemComp1.canCombineWith(itemComp2)) {
-            return false
-        }
-
-        if (mTool.has(itemId)) {
-            val comp1 = mTool.get(itemId)
-            val comp2 = mTool.get(itemInSlotId)
-            if (!comp1.canCombineWith(comp2)) {
-                return false
-            }
-        }
-
-        if (mPowerDevice.has(itemId)) {
-            val comp1 = mPowerDevice.get(itemId)
-            val comp2 = mPowerDevice.get(itemInSlotId)
-            if (!comp1.canCombineWith(comp2)) {
-                return false
-            }
-        }
-
-        if (mPowerConsumer.has(itemId)) {
-            val comp1 = mPowerConsumer.get(itemId)
-            val comp2 = mPowerConsumer.get(itemInSlotId)
-            if (!comp1.canCombineWith(comp2)) {
-                return false
-            }
-        }
-
-        if (mPowerGenerator.has(itemId)) {
-            val comp1 = mPowerGenerator.get(itemId)
-            val comp2 = mPowerGenerator.get(itemInSlotId)
-            if (!comp1.canCombineWith(comp2)) {
-                return false
-            }
-        }
-
-        if (mBlock.has(itemId)) {
-            val comp1 = mBlock.get(itemId)
-            val comp2 = mBlock.get(itemInSlotId)
-            if (!comp1.canCombineWith(comp2)) {
-                return false
-            }
-        }
-
-        if (mFlora.has(itemId)) {
-            val comp1 = mFlora.get(itemId)
-            val comp2 = mFlora.get(itemInSlotId)
-            if (!comp1.canCombineWith(comp2)) {
                 return false
             }
         }

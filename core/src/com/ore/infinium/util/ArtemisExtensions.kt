@@ -281,10 +281,11 @@ fun <T : Component> T.copyFrom(other: T) {
     }
 }
 
-fun <T : Component> T.canCombineWith(other: T) {
+fun <T : Component> T.canCombineWith(other: T): Boolean {
     if (this is ExtendedComponent<*>) {
-        this.internalCanCombineWith<InternalExtendedComponent>(other)
+        return this.internalCanCombineWith<InternalExtendedComponent>(other)
     }
+    return false
 }
 
 /**
