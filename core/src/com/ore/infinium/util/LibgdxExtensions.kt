@@ -43,7 +43,7 @@ import com.kotcrab.vis.ui.widget.VisScrollPane
  * @return true if the given milliseconds time is past
  * the given last milliseconds time, by the specified
  * threshold/interval
- * @param currentMillis
+ * @param currentMs
  * @param intervalMs
  * @param lastMs
  */

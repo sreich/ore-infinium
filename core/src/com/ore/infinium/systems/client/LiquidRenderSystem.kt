@@ -124,8 +124,7 @@ class LiquidRenderSystem(private val camera: OrthographicCamera,
         resetColor = true
 
         val foregroundTileRegion = tileRenderSystem.tileAtlasCache[textureName]
-        assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: ${textureName}" }
-
+        assert(foregroundTileRegion != null) { "texture region for tile was null. textureName: $textureName" }
 
         //offset y to flip orientation around to normal
         batch.draw(foregroundTileRegion, tileX, tileY + 1, 1f, -1f)

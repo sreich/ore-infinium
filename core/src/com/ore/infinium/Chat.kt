@@ -43,7 +43,7 @@ class Chat {
         Local
     }
 
-    class ChatLine(var chatSender: ChatSender, var timestamp: String, var playerName: String, var chatText: String) {}
+    class ChatLine(var chatSender: ChatSender, var timestamp: String, var playerName: String, var chatText: String)
 
     fun addLocalChatLine(timestamp: String, line: String) {
         val chatLine = ChatLine(chatSender = ChatSender.Local, timestamp = timestamp, chatText = line, playerName = "")
