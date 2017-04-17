@@ -25,56 +25,35 @@ SOFTWARE.
 package com.ore.infinium.systems.client
 
 import aurelienribon.tweenengine.TweenManager
-import com.artemis.ComponentMapper
-import com.artemis.World
+import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
-import com.artemis.managers.TagManager
 import com.badlogic.gdx.graphics.Camera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.graphics.glutils.FrameBuffer
 import com.ore.infinium.OreSettings
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.ItemComponent
 import com.ore.infinium.components.SpriteComponent
-import com.ore.infinium.systems.OreSubSystem
+import com.ore.infinium.util.RenderSystemMarker
+import com.ore.infinium.util.mapper
 import ktx.assets.file
 
 @Wire
-class BackgroundRenderSystem(world: World,
-                             private val oreWorld: OreWorld,
+class BackgroundRenderSystem(private val oreWorld: OreWorld,
                              private val camera: Camera)
-    : OreSubSystem() {
+    : BaseSystem(), RenderSystemMarker {
 
     val backgroundAtlas: TextureAtlas = TextureAtlas(file("packed/backgrounds.atlas"))
 
-    private lateinit var batch: SpriteBatch
+    private val batch = SpriteBatch()
 
-    private lateinit var mSprite: ComponentMapper<SpriteComponent>
-    private lateinit var mItem: ComponentMapper<ItemComponent>
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
 
-    private lateinit var tagManager: TagManager
+    //    private lateinit var tagManager: TagManager
     private lateinit var tweenManager: TweenManager
 
-//    private lateinit var defaultShader: ShaderProgram
-//    private lateinit var spriteLightMapBlendShader: ShaderProgram
-
     override fun initialize() {
-        //fixme hack this should be in init i think and everything else changed from lateinit to val
-        batch = SpriteBatch()
-//        defaultShader = batch.shader
-//
-//        val tileLightMapBlendVertex = file("shaders/spriteLightMapBlend.vert").readString()
-//        val tileLightMapBlendFrag = file("shaders/spriteLightMapBlend.frag").readString()
-//
-//        spriteLightMapBlendShader = ShaderProgram(tileLightMapBlendVertex, tileLightMapBlendFrag)
-//        check(spriteLightMapBlendShader.isCompiled) { "tileLightMapBlendShader compile failed: ${spriteLightMapBlendShader.log}" }
-//        spriteLightMapBlendShader.setUniformi("u_lightmap", 1)
-//
-//        spriteLightMapBlendShader.use {
-//            spriteLightMapBlendShader.setUniformi("u_lightmap", 1)
-//        }
-
     }
 
     override fun dispose() {
@@ -82,101 +61,26 @@ class BackgroundRenderSystem(world: World,
     }
 
     override fun begin() {
-//        batch.projectionMatrix = camera.combined
-//        batch.color = Color.RED
     }
 
     override fun processSystem() {
-//        batch.setProjectionMatrix(oreWorld.camera.combined);
-        //tweenManager.update(world.getDelta())
+        batch.projectionMatrix = camera.combined
 
         renderBackground()
-        //restore color
     }
 
     override fun end() {
     }
 
     private fun renderBackground() {
-
-        val region = oreWorld.atlas.findRegion("player-32x64")
+        val region = backgroundAtlas.findRegion("background-sky")
 
         batch.begin()
-//        Gdx.gl20.glActiveTexture(GL20.GL_TEXTURE0)
-//        FrameBuffer.unbind()
 
         batch.draw(region, 0f, 0f, OreSettings.width.toFloat(),
                    OreSettings.height.toFloat())
 
         batch.end()
-    }
-
-    private fun renderEntities(delta: Float) {
-        //todo need to exclude blocks?
-//        val entities = world.entities(allOf(SpriteComponent::class))
-//
-//        var cSprite: SpriteComponent
-//
-//        for (i in entities.indices) {
-//            val entity = entities.get(i)
-//
-//            val cItem = mItem.opt(entity)
-//            //don't draw in-inventory or dropped items
-//            if (cItem != null && cItem.state != ItemComponent.State.InWorldState) {
-//                //hack
-//                continue
-//            }
-//
-//            cSprite = mSprite.get(entity)
-//
-//            if (!cSprite.visible) {
-//                continue
-//            }
-//
-//            //assert(cSprite.sprite != null) { "sprite is null" }
-//            assert(cSprite.sprite.texture != null) { "sprite has null texture" }
-//
-//            var placementGhost = false
-//
-//            val tag = tagManager.getTagNullable(world.getEntity(entity))
-//            if (tag != null && tag == "itemPlacementOverlay") {
-//
-//                placementGhost = true
-//
-//                if (cSprite.placementValid) {
-//                    batch.setColor(0f, 1f, 0f, 0.6f)
-//                } else {
-//                    batch.setColor(1f, 0f, 0f, 0.6f)
-//                }
-//            }
-//
-//            val x = cSprite.sprite.rect.x
-//            val y = cSprite.sprite.y + cSprite.sprite.height * 0.5f
-//
-//            //flip the sprite when drawn, by using negative height
-//            val scaleX = 1f
-//            val scaleY = 1f
-//
-//            val width = cSprite.sprite.width
-//            val height = -cSprite.sprite.height
-//
-//            val originX = width * 0.5f
-//            val originY = height * 0.5f
-//
-//            //this prevents some jiggling of static items when player is moving, when the objects pos is
-//            // not rounded to a reasonable flat number,
-//            //but for the player it means they jiggle on all movement.
-//            //batch.draw(cSprite.sprite, MathUtils.floor(x * 16.0f) / 16.0f, MathUtils.floor(y * 16.0f) /
-//            // 16.0f,
-//            //            originX, originY, width, height, scaleX, scaleY, rotation);
-//
-//            batch.draw(cSprite.sprite, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
-//
-//            //reset color for next run
-//            if (placementGhost) {
-//                batch.setColor(1f, 1f, 1f, 1f)
-//            }
-//        }
     }
 }
 

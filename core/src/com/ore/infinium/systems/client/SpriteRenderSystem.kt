@@ -212,7 +212,7 @@ class SpriteRenderSystem(private val oreWorld: OreWorld,
 
             var placementGhost = false
 
-            val tag = tagManager.getTagNullable(world.getEntity(entity))
+            val tag = tagManager.opt(entity)
             if (tag != null && tag == "itemPlacementOverlay") {
 
                 placementGhost = true

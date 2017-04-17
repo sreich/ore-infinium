@@ -193,13 +193,13 @@ class OreWorld
                                      .with(PlayerSystem(this))
                                      .with(GameTickSystem(this))
                                      .with(ClientBlockDiggingSystem(this, client!!))
+                                     .with(BackgroundRenderSystem(oreWorld = this, camera = client!!.viewport.camera))
                                      .with(TileRenderSystem(camera = camera,
                                                             fullscreenCamera = client!!.viewport.camera,
                                                             oreWorld = this))
-
                                      .with(SpriteRenderSystem(camera = camera,
-                                                                   oreWorld = this))
-                                     .with(LiquidRenderSystem(camera=camera,oreWorld=this))
+                                                              oreWorld = this))
+                                     .with(LiquidRenderSystem(camera = camera, oreWorld = this))
                                      .with(DebugTextRenderSystem(camera, this))
                                      .with(PowerOverlayRenderSystem(oreWorld = this,
                                                                     fullscreenCamera = client!!.viewport.camera,
@@ -718,12 +718,12 @@ class OreWorld
      * excludes stuff like main player, item overlays, crosshairs, for the client...
      */
     fun shouldIgnoreClientEntityTag(entity: Int, ignoreOwnPlayer: Boolean = true): Boolean {
-        val tag = tagManager.getTag(artemisWorld.getEntity(entity)) ?: return false
+        val tag = tagManager.opt(entity) ?: return false
 
         when {
             tag == OreWorld.s_itemPlacementOverlay -> return true
             tag == OreWorld.s_crosshair -> return true
-            tag == OreWorld.s_mainPlayer && ignoreOwnPlayer == true -> return true
+            tag == OreWorld.s_mainPlayer && ignoreOwnPlayer -> return true
             else -> return false
         }
     }
@@ -1098,7 +1098,7 @@ class OreWorld
         mPowerGenerator.ifPresent(sourceEntity) {
             val component = mPowerGenerator.create(clonedEntity)
             component.copyFrom(it)
-            component.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS,artemisWorld)
+            component.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS, artemisWorld)
 
             //hack until we come up with a better way, possibly pass world in
             //as copy param, to get these injected well

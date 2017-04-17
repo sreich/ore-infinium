@@ -57,8 +57,8 @@ class TileRenderSystem(private val camera: OrthographicCamera,
     var debugRenderTileLighting = true
     var debugTilesInViewCount: Int = 0
 
-    var blockAtlas: TextureAtlas = TextureAtlas(file("packed/blocks.atlas"))
-    var tilesAtlas: TextureAtlas = TextureAtlas(file("packed/tiles.atlas"))
+    var blockAtlas: TextureAtlas = TextureAtlas("packed/blocks.atlas")
+    var tilesAtlas: TextureAtlas = TextureAtlas("packed/tiles.atlas")
 
     private val batch: SpriteBatch = SpriteBatch(MAX_SPRITES_PER_BATCH)
 
@@ -170,7 +170,7 @@ class TileRenderSystem(private val camera: OrthographicCamera,
         batch.shader = defaultShader
         tileMapFbo.begin()
 
-        clearScreen(.15f, .15f, .15f)
+        clearScreen2(.15f, .15f, .15f, 0f)
 
         batch.begin()
 

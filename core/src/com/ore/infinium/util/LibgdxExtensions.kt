@@ -24,6 +24,8 @@ SOFTWARE.
 
 package com.ore.infinium.util
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
@@ -52,6 +54,11 @@ fun timeMsSurpassed(currentMs: Long, lastMs: Long, intervalMs: Int) = (currentMs
  */
 inline fun <reified T : Any> Kryo.registerClass() {
     this.register(T::class.java)
+}
+
+fun clearScreen2(red: Float, green: Float, blue: Float, alpha: Float) {
+    Gdx.gl.glClearColor(red, green, blue, alpha)
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 }
 
 fun VisScrollPane.scrollToBottom() {

@@ -121,7 +121,7 @@ inline fun <T : Component> ComponentMapper<T>.ifPresent(entityId: Int, function:
         function(get(entityId))
 }
 
-fun TagManager.getTagNullable(entityId: Entity): String? {
+fun TagManager.opt(entityId: Int): String? {
     return this.getTag(entityId) ?: null
 }
 
