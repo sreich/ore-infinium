@@ -139,9 +139,10 @@ class GameLoopSystemInvocationStrategy
             for (systemAndProfiler in logicSystems) {
                 //TODO interpolate before this
                 //        processProfileSystem(systemAndProfiler.profiler, systemAndProfiler.system)
-                processProfileSystem(systemAndProfiler)
                 updateEntityStates()
+                processProfileSystem(systemAndProfiler)
             }
+            updateEntityStates()
 
             accumulatorNs -= nsPerTick
         }
