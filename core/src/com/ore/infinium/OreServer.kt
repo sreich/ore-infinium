@@ -109,7 +109,7 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
      * @return entity id
      */
     fun createPlayer(playerName: String, connectionId: Int): Int {
-        val player = oreWorld.createPlayer(playerName, connectionId)
+        val player = oreWorld.entityFactory.createPlayer(playerName, connectionId)
 
         //the first player in the world, if server is hosted by the client (same machine & process)
         if (hostingPlayer == null) {
@@ -119,11 +119,9 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
         //TODO:make better server player first-spawning code(in new world), find a nice spot to spawn in
         //and then TODO: (much later) make it try to load the player position from previous world data, if any.
         val posX = worldSize.width * 0.5f
-        var posY = 0f //start at the overground
+        var posY = oreWorld.findSolidGround(posX.toInt()).toFloat() - 2f
         val tilex = posX.toInt()
         val tiley = posY.toInt()
-
-        posY = 20f
 
         val seaLevel = oreWorld.seaLevel()
 
@@ -161,7 +159,7 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
         //tell all players including himself, that he joined
         serverNetworkSystem.sendSpawnPlayerBroadcast(player)
 
-        //tell this player all the current players that are on the server right now
+        //give this player the list of other players who are connected
         oreWorld.players().filter { playerEntity -> playerEntity != player }.forEach { playerEntity ->
             //exclude himself, though. he already knows.
             serverNetworkSystem.sendSpawnPlayer(playerEntity, connectionId)
@@ -173,6 +171,15 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
         loadHotbarInventory(player)
 
         sendServerMessage("Player ${cPlayer.playerName} has joined the server")
+
+        val bunny = oreWorld.entityFactory.createBunny()
+
+        val bunnyX = playerSprite.sprite.x
+        val bunnyY = oreWorld.findSolidGround(bunnyX.toInt())
+        val cBunnySprite = mSprite.get(bunny).apply {
+            //this.sprite.setPosition()
+            this.sprite.setPosition(bunnyX, bunnyY.toFloat() -1f)
+        }
 
         return player
     }
@@ -272,3 +279,4 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
     }
 
 }
+

@@ -40,7 +40,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.PixmapIO
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.RandomXS128
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.ScreenUtils
@@ -283,48 +282,6 @@ class OreWorld
         Medium(6400, 1800),
         Large(8400, 2400),
         Huge(8400, 8400)
-    }
-
-    /**
-     * @param playerName
-     * *
-     * @param connectionId
-     * *
-     * *
-     * @return
-     */
-    fun createPlayer(playerName: String, connectionId: Int): Int {
-        val entity = artemisWorld.create()
-        val cSprite = mSprite.create(entity)
-        mVelocity.create(entity)
-
-        val cPlayer = mPlayer.create(entity).apply {
-            connectionPlayerId = connectionId
-            loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
-                                            LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
-            loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y), world = this@OreWorld)
-        }
-
-        cPlayer.playerName = playerName
-
-        cSprite.apply {
-            sprite.setSize(2f, 3f)
-            textureName = "player1Standing1"
-            category = SpriteComponent.EntityCategory.Character
-        }
-
-        mControl.create(entity)
-        mJump.create(entity)
-
-        mHealth.create(entity).apply {
-            health = maxHealth
-        }
-
-        mAir.create(entity).apply {
-            air = maxAir
-        }
-
-        return entity
     }
 
     private fun generateWorld() {
@@ -827,6 +784,22 @@ class OreWorld
 
     fun seaLevel(): Int {
         return WORLD_SEA_LEVEL
+    }
+
+    /**
+     * finds nearest y point to spawn at, for
+     * e.g. player spawning on the ground without falling to his death
+     * @return y position that is just before the solid (above)
+     */
+    fun findSolidGround(x: Int): Int {
+        for (y in 0 until worldSize.height) {
+            if (isBlockSolid(x, y)) {
+                //return first solid ground we find
+                return y - 1
+            }
+        }
+
+        error("couldn't find a place to spawn this?")
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.ore.infinium
 
 import com.artemis.ComponentMapper
+import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.TileLightingSystem
 import java.util.*
@@ -177,6 +179,73 @@ class OreEntityFactory(val oreWorld: OreWorld) {
             stackSize = newStackSize
             maxStackSize = newStackSize
             name = "Explosives"
+        }
+
+        return entity
+    }
+
+    fun createBunny(): Int {
+        val entity = artemisWorld.create()
+        val cSprite = mSprite.create(entity)
+        mVelocity.create(entity)
+
+        cSprite.apply {
+            sprite.setSize(2f, 3f)
+            textureName = "bunny1-stand"
+            category = SpriteComponent.EntityCategory.Character
+        }
+
+        mControl.create(entity)
+        mJump.create(entity)
+
+        mHealth.create(entity).apply {
+            health = maxHealth
+        }
+
+        mAir.create(entity).apply {
+            air = maxAir
+        }
+
+        return entity
+    }
+
+    /**
+     * @param playerName
+     * *
+     * @param connectionId
+     * *
+     * *
+     * @return
+     */
+    fun createPlayer(playerName: String, connectionId: Int): Int {
+        val entity = artemisWorld.create()
+        val cSprite = mSprite.create(entity)
+        mVelocity.create(entity)
+
+        val cPlayer = mPlayer.create(entity).apply {
+            connectionPlayerId = connectionId
+            loadedViewport.rect = Rectangle(0f, 0f, LoadedViewport.MAX_VIEWPORT_WIDTH.toFloat(),
+                                            LoadedViewport.MAX_VIEWPORT_HEIGHT.toFloat())
+            loadedViewport.centerOn(Vector2(cSprite.sprite.x, cSprite.sprite.y), world = oreWorld)
+        }
+
+        cPlayer.playerName = playerName
+
+        cSprite.apply {
+            sprite.setSize(2f, 3f)
+            textureName = "player1Standing1"
+            category = SpriteComponent.EntityCategory.Character
+        }
+
+        mControl.create(entity)
+        mJump.create(entity)
+
+        mHealth.create(entity).apply {
+            health = maxHealth
+        }
+
+        mAir.create(entity).apply {
+            air = maxAir
         }
 
         return entity

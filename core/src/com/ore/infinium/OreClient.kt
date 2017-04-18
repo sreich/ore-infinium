@@ -795,7 +795,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
      * @return
      */
     fun createPlayer(playerName: String, connectionId: Int, mainPlayer: Boolean): Int {
-        val player = world!!.createPlayer(playerName, connectionId)
+        val player = world!!.entityFactory.createPlayer(playerName, connectionId)
         val cControl = mControl.create(player)
 
         //only do this for the main player! each other player that gets spawned will not need this information, ever.

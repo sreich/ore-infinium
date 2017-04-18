@@ -25,22 +25,18 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
-import com.ore.infinium.OreTimer
+import com.ore.infinium.util.ExtendedComponent
 
-class HealthComponent : Component() {
+class AIComponent : Component(), ExtendedComponent<AIComponent> {
 
-    var maxHealth = 25000.0f
-    //current air level
-    var health = maxHealth
+    override fun canCombineWith(other: AIComponent) =
+        TODO()
+//            this.name == other.name &&
+ //                   this.maxStackSize == other.maxStackSize
 
-    @Transient
-    val regenTimer = OreTimer()
-
-    companion object {
-        const val suffocationDecreaseIntervalMs = 1200L
-        const val suffocationDecreaseAmount = 1
-
-        const val regenIntervalMs = 50L
-        const val regenAmount = 1f
+    override fun copyFrom(other: AIComponent) {
     }
+       // this.defaultCopyFrom(other)
+        //justDropped = false
+//    }
 }

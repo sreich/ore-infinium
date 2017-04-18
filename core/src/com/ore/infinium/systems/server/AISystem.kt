@@ -22,25 +22,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
 
-package com.ore.infinium.components
+package com.ore.infinium.systems.server
 
-import com.artemis.Component
-import com.ore.infinium.OreTimer
+import com.artemis.annotations.Wire
+import com.artemis.managers.TagManager
+import com.artemis.systems.IteratingSystem
+import com.ore.infinium.OreWorld
+import com.ore.infinium.components.AIComponent
+import com.ore.infinium.components.ItemComponent
+import com.ore.infinium.components.PlayerComponent
+import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.systems.client.ClientNetworkSystem
+import com.ore.infinium.util.*
 
-class HealthComponent : Component() {
+@Wire(failOnNull = false)
+class AISystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AIComponent::class)) {
 
-    var maxHealth = 25000.0f
-    //current air level
-    var health = maxHealth
+    private val mPlayer by require<PlayerComponent>()
+    private val mSprite by mapper<SpriteComponent>()
+    private val mItem by mapper<ItemComponent>()
 
-    @Transient
-    val regenTimer = OreTimer()
+    private val serverNetworkSystem by system<ServerNetworkSystem>()
+    private val clientNetworkSystem by system<ClientNetworkSystem>()
+    private val tagManager by system<TagManager>()
 
-    companion object {
-        const val suffocationDecreaseIntervalMs = 1200L
-        const val suffocationDecreaseAmount = 1
+    override fun process(playerEntityId: Int) {
 
-        const val regenIntervalMs = 50L
-        const val regenAmount = 1f
     }
 }
+

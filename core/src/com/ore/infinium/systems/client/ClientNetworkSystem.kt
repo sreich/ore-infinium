@@ -425,24 +425,29 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 //debug += "networkid:" + networkEntityId + " localid: " + localId.toInt() + ", "
 
                 val networkId = networkIdForEntityId.remove(localId)
-                assert(networkId != null) { "network id null on remove/destroy, but localid wasn't" }
+                require(networkId != null) { "network id null on remove/destroy, but localid wasn't" }
             } else {
                 //debug += "networkid:$networkEntityId localid: $localId, "
                 //logger.debug {"networkclientsystem", debug)
 
-                assert(false) { "told to delete entity on client, but it doesn't exist. desynced. network id: " + networkEntityId }
+                require(false) { "told to delete entity on client, but it doesn't exist. desynced. network id: $networkEntityId" }
 
             }
 
-            assert(oreWorld.artemisWorld.getEntity(
-                    localId!!) != null) { "entity doesn't exist locally, but we tried to delete it from the map" }
+            assert(oreWorld.artemisWorld.getEntity(localId!!) != null) {
+                "entity doesn't exist locally, but we tried to delete it from the map"
+            }
             oreWorld.artemisWorld.delete(localId)
         }
 
-        assert(entityForNetworkId.size == networkIdForEntityId.size) { "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch" }
+        assert(entityForNetworkId.size == networkIdForEntityId.size) {
+            "networkclientsystem, networkentityId for entity id, and vice versa map size mismatch"
+        }
 
         //no need to remove the entity maps, we're subscribed to do that already.
-        assert(entityForNetworkId.size == networkIdForEntityId.size) { "destroy, network id and entity id maps are out of sync(size mismatch)" }
+        assert(entityForNetworkId.size == networkIdForEntityId.size) {
+            "destroy, network id and entity id maps are out of sync(size mismatch)"
+        }
 
         debug += ']'
 
@@ -477,16 +482,19 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
                 it.fuelSources = GeneratorInventory(GeneratorInventory.MAX_SLOTS, world)
             }
 
-            assert(cSprite.textureName != null)
+            require(cSprite.textureName != null)
 
             val textureRegion: TextureRegion?
-            if (!mBlock.has(localEntityId)) {
-                textureRegion = oreWorld.atlas.findRegion(cSprite.textureName)
-            } else {
+            if (mBlock.has(localEntityId)) {
                 textureRegion = tileRenderSystem.blockAtlas.findRegion(cSprite.textureName)
+            } else {
+                textureRegion = oreWorld.atlas.findRegion(cSprite.textureName)
             }
 
-            assert(textureRegion != null) { "texture region is null on receiving entity spawn and reverse lookup of texture for this entity" }
+            require(textureRegion != null) {
+                "texture region is null on receiving entity spawn and reverse lookup of texture for" +
+                        " this entity, texturename: ${cSprite.textureName} category: ${cSprite.category}"
+            }
 
             cSprite.sprite.setRegion(textureRegion)
 
@@ -498,14 +506,16 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
             if (result1 != null) {
                 assert(false) {
-                    "put failed for spawning, into entity bidirectional map, value already existed id: " + localEntityId +
-                            " networkid: " + spawn.id
+                    """put failed for spawning, into entity bidirectional map, value already existed id: $localEntityId
+                    networkid: ${spawn.id}"""
                 }
             }
 
-            assert(result2 == null) { "put failed for spawning, into entity bidirectional map, value already existed" }
+            require(result2 == null) { "put failed for spawning, into entity bidirectional map, value already existed" }
 
-            assert(entityForNetworkId.size == networkIdForEntityId.size) { "spawn, network id and entity id maps are out of sync(size mismatch)" }
+            require(entityForNetworkId.size == networkIdForEntityId.size) {
+                "spawn, network id and entity id maps are out of sync(size mismatch)"
+            }
         }
 
         //logger.debug {"networkclientsystem", debug)

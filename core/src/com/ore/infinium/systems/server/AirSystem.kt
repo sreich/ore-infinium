@@ -68,7 +68,8 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
                 serverNetworkSystem.sendPlayerAirChanged(playerEntity = entityId)
             }
         } else {
-            TODO("don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
+            //else, it's an NPC probably
+            //TODO("don't yet have npc's that have air, handled. do we need to communicate over the network any of this?")
         }
     }
 

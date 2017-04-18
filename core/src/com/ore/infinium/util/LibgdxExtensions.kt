@@ -56,6 +56,17 @@ inline fun <reified T : Any> Kryo.registerClass() {
     this.register(T::class.java)
 }
 
+/*
+var Sprite.position: Vector2
+    get() {
+        return Vector2(this.x, this.y)
+    }
+    set(pos: Vector2) {
+        this.x = pos.x
+        this.y = pos.y
+    }
+    */
+
 fun clearScreen2(red: Float, green: Float, blue: Float, alpha: Float) {
     Gdx.gl.glClearColor(red, green, blue, alpha)
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
