@@ -8,6 +8,7 @@ import com.ore.infinium.systems.server.TileLightingSystem
 import java.util.*
 
 class OreEntityFactory(val oreWorld: OreWorld) {
+    private lateinit var mAi: ComponentMapper<AIComponent>
     private lateinit var mPlayer: ComponentMapper<PlayerComponent>
     private lateinit var mDoor: ComponentMapper<DoorComponent>
     private lateinit var mSprite: ComponentMapper<SpriteComponent>
@@ -205,6 +206,8 @@ class OreEntityFactory(val oreWorld: OreWorld) {
         mAir.create(entity).apply {
             air = maxAir
         }
+
+        mAi.create(entity)
 
         return entity
     }

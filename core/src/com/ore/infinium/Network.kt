@@ -63,6 +63,7 @@ object Network {
         kryo.registerClass<ItemComponent.State>()
         kryo.registerClass<ItemComponent.PlacementAdjacencyHints>()
 
+        kryo.registerClass<AIComponent>()
         kryo.registerClass<AirComponent>()
         kryo.registerClass<PowerGeneratorComponent>()
         kryo.registerClass<PowerGeneratorComponent.GeneratorType>()

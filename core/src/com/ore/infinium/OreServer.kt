@@ -119,7 +119,7 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
         //TODO:make better server player first-spawning code(in new world), find a nice spot to spawn in
         //and then TODO: (much later) make it try to load the player position from previous world data, if any.
         val posX = worldSize.width * 0.5f
-        var posY = oreWorld.findSolidGround(posX.toInt()).toFloat() - 2f
+        var posY = oreWorld.findSolidGround(posX) - 2f
         val tilex = posX.toInt()
         val tiley = posY.toInt()
 
@@ -175,7 +175,7 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
         val bunny = oreWorld.entityFactory.createBunny()
 
         val bunnyX = playerSprite.sprite.x
-        val bunnyY = oreWorld.findSolidGround(bunnyX.toInt())
+        val bunnyY = oreWorld.findSolidGround(bunnyX)
         val cBunnySprite = mSprite.get(bunny).apply {
             //this.sprite.setPosition()
             this.sprite.setPosition(bunnyX, bunnyY.toFloat() -1f)

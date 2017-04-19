@@ -29,25 +29,34 @@ import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.AIComponent
+import com.ore.infinium.components.ControllableComponent
 import com.ore.infinium.components.ItemComponent
-import com.ore.infinium.components.PlayerComponent
 import com.ore.infinium.components.SpriteComponent
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.util.*
+import com.ore.infinium.util.anyOf
+import com.ore.infinium.util.mapper
+import com.ore.infinium.util.require
+import com.ore.infinium.util.system
+import mu.KLogging
 
 @Wire(failOnNull = false)
-class AISystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AIComponent::class)) {
+class AISystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(AIComponent::class)) {
+    companion object : KLogging()
 
-    private val mPlayer by require<PlayerComponent>()
+    private val mAi by require<AIComponent>()
     private val mSprite by mapper<SpriteComponent>()
+    private val mControl by mapper<ControllableComponent>()
     private val mItem by mapper<ItemComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
     private val clientNetworkSystem by system<ClientNetworkSystem>()
     private val tagManager by system<TagManager>()
 
-    override fun process(playerEntityId: Int) {
+    override fun process(entityId: Int) {
+        val cControl = mControl.get(entityId)
+        cControl.desiredDirection.x = -1f
 
+        val cSprite = mSprite.get(entityId)
+        logger.debug { "bunny pos ${cSprite.sprite.x},${cSprite.sprite.y}" }
     }
 }
-

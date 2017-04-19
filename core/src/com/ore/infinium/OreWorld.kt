@@ -219,6 +219,7 @@ class OreWorld
                                      .with(TagManager())
                                      .with(SpatialSystem(this))
                                      .with(PlayerManager())
+                                     .with(AISystem(this))
                                      .with(MovementSystem(this))
                                      .with(ServerPowerSystem(this))
                                      .with(GameTickSystem(this))
@@ -791,11 +792,11 @@ class OreWorld
      * e.g. player spawning on the ground without falling to his death
      * @return y position that is just before the solid (above)
      */
-    fun findSolidGround(x: Int): Int {
+    fun findSolidGround(x: Float): Float {
         for (y in 0 until worldSize.height) {
-            if (isBlockSolid(x, y)) {
+            if (isBlockSolid(x.toInt(), y)) {
                 //return first solid ground we find
-                return y - 1
+                return y - 1f
             }
         }
 
