@@ -59,18 +59,20 @@ class GameLoopSystemInvocationStrategy
     //minimum tick to chug along as, when we get really slow.
     //this way we're still rendering even though logic is taking up
     //an overbearing portion of our frame time
-    private val minMsPerFrame: Long = 250
+
+    // (1/15)fps * 1000ms
+    private val minMsPerFrame: Long = 67
     private val minNsPerFrame = TimeUtils.millisToNanos(minMsPerFrame)
 
     private fun addSystems(systems: Bag<BaseSystem>) {
-            for (system in systems) {
-                if (system is RenderSystemMarker) {
-                    renderSystems.add(createSystemAndProfiler(system))
-                } else {
-                    logicSystems.add(createSystemAndProfiler(system))
-                }
+        for (system in systems) {
+            if (system is RenderSystemMarker) {
+                renderSystems.add(createSystemAndProfiler(system))
+            } else {
+                logicSystems.add(createSystemAndProfiler(system))
             }
         }
+    }
 
     private fun createSystemAndProfiler(system: BaseSystem): SystemAndProfiler {
         val prepender = if (isServer) {
@@ -205,7 +207,6 @@ class GameLoopSystemInvocationStrategy
                 timeAverage = counter.time.average * 1000f
             }
         }
-
     }
 
     class PerfStat(val systemName: String, var timeMin: Float = 0f, var timeMax: Float = 0f,
@@ -224,16 +225,17 @@ class GameLoopSystemInvocationStrategy
     val clientPerfCounter = hashMapOf<BaseSystem, PerfStat>()
 
     private fun printProfilerStats() {
-
         if (isServer) {
             serverPerfCounter.forEach { baseSystem, perfStat ->
-                val s = """tmin: ${perfStat.timeMin.format()}
-                    tmax: ${perfStat.timeMax.format()}
-                    tavg: ${perfStat.timeAverage.format()}
-                    lmin: ${perfStat.loadMin.format()}
-                    lmin: ${perfStat.loadMax.format()}
-                    lmin: ${perfStat.loadAverage.format()}
+                val s = with(perfStat) {
+                    """tmin: ${timeMin.format()}
+                    tmax: ${timeMax.format()}
+                    tavg: ${timeAverage.format()}
+                    lmin: ${loadMin.format()}
+                    lmin: ${loadMax.format()}
+                    lmin: ${loadAverage.format()}
                     """
+                }
                 println(s)
             }
         } else {
