@@ -62,10 +62,7 @@ class GameLoopSystemInvocationStrategy
     private val minMsPerFrame: Long = 250
     private val minNsPerFrame = TimeUtils.millisToNanos(minMsPerFrame)
 
-    private var systemsSorted: Boolean = false
-
     private fun addSystems(systems: Bag<BaseSystem>) {
-        if (!systemsSorted) {
             for (system in systems) {
                 if (system is RenderSystemMarker) {
                     renderSystems.add(createSystemAndProfiler(system))
@@ -74,7 +71,6 @@ class GameLoopSystemInvocationStrategy
                 }
             }
         }
-    }
 
     private fun createSystemAndProfiler(system: BaseSystem): SystemAndProfiler {
         val prepender = if (isServer) {
@@ -110,14 +106,16 @@ class GameLoopSystemInvocationStrategy
                 profiler.counter.tick()
             }
 
+    override fun initialize() {
+        //convert from nanos to millis then to seconds, to get fractional second dt
+        world.setDelta(TimeUtils.nanosToMillis(nsPerTick) / 1000.0f)
+
+        addSystems(systems)
+    }
+
     override fun process() {
         if (!isServer) {
             //    frameProfiler.start()
-        }
-
-        if (!systemsSorted) {
-            addSystems(systems)
-            systemsSorted = true
         }
 
         val newTimeNs = System.nanoTime()
@@ -130,9 +128,6 @@ class GameLoopSystemInvocationStrategy
 
         currentTimeNs = newTimeNs
         accumulatorNs += frameTimeNs
-
-        //convert from nanos to millis then to seconds, to get fractional second dt
-        world.setDelta(TimeUtils.nanosToMillis(nsPerTick) / 1000.0f)
 
         while (accumulatorNs >= nsPerTick) {
             /** Process all entity systems inheriting from [RenderSystemMarker]  */
@@ -203,11 +198,12 @@ class GameLoopSystemInvocationStrategy
         for (systemAndProfiler in systems) {
             val counter = systemAndProfiler.profiler.counter
 
-            val perfStat = hash[systemAndProfiler.system]!!
-            perfStat.timeMin = counter.time.min * 1000f
-            perfStat.timeMax = counter.time.max * 1000f
-            perfStat.timeCurrent = counter.time.latest * 1000f
-            perfStat.timeAverage = counter.time.average * 1000f
+            hash[systemAndProfiler.system]!!.apply {
+                timeMin = counter.time.min * 1000f
+                timeMax = counter.time.max * 1000f
+                timeCurrent = counter.time.latest * 1000f
+                timeAverage = counter.time.average * 1000f
+            }
         }
 
     }
