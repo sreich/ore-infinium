@@ -28,6 +28,7 @@ import aurelienribon.tweenengine.TweenManager
 import com.artemis.BaseSystem
 import com.artemis.annotations.Wire
 import com.badlogic.gdx.graphics.Camera
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.ore.infinium.OreSettings
@@ -73,11 +74,17 @@ class BackgroundRenderSystem(private val oreWorld: OreWorld,
     }
 
     private fun renderBackground() {
-        val region = backgroundAtlas.findRegion("background-sky")
+        val skyBackground = backgroundAtlas.findRegion("background-sky")
+        val debug = backgroundAtlas.findRegion("debug")
 
         batch.begin()
+        batch.color = Color.SKY
+        batch.draw(debug, 0f, 0f, OreSettings.width.toFloat(),
+                   OreSettings.height.toFloat())
 
-        batch.draw(region, 0f, 0f, OreSettings.width.toFloat(),
+        batch.color = Color.WHITE
+
+        batch.draw(skyBackground, 0f, 0f, OreSettings.width.toFloat(),
                    OreSettings.height.toFloat())
 
         batch.end()

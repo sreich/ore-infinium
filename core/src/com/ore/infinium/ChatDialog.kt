@@ -235,12 +235,17 @@ class ChatDialog(private val client: OreClient,
                 return true
             }
 
+            chat == "/debugpackettypestatistics" -> {
+                OreSettings.debugPacketTypeStatistics = !OreSettings.debugPacketTypeStatistics
+            }
+
             chat == "/help" -> {
                 val response = """
                 |type /help for this message. (commands case insensitive)
                 |/noclip if authorized, ignores collisions for your player
                 |/speedrun increases max speed of player
                 |/lockright keeps moving right until disabled
+                |/debugpackettypestatistics
                 """.trimMargin()
 
                 sendLocalChat(response)
