@@ -70,6 +70,10 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
     val serverKryo: Server
     private val netQueue = ConcurrentLinkedQueue<NetworkJob>()
 
+    var packetsPerSecondTimer = OreTimer().apply { start() }
+    var packetsReceivedPerSecond = 0
+    var packetsReceivedPerSecondLast = 0
+
     /**
      * keeps a tally of each packet type received and their frequency
      */
@@ -430,10 +434,17 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
             NetworkHelper.debugPacketFrequencies(job.receivedObject, debugPacketFrequencyByType)
 
             receiveNetworkObject(job, job.receivedObject)
-        }
 
-        if (OreSettings.debugPacketTypeStatistics) {
-            logger.debug { "--- packet type stats $debugPacketFrequencyByType" }
+            packetsPerSecondTimer.resetIfExpired(1000) {
+                packetsReceivedPerSecondLast = packetsReceivedPerSecond
+                packetsReceivedPerSecond = 0
+            }
+
+            packetsReceivedPerSecond += 1
+
+            if (OreSettings.debugPacketTypeStatistics) {
+                logger.debug { "--- packet type stats $debugPacketFrequencyByType" }
+            }
         }
     }
 

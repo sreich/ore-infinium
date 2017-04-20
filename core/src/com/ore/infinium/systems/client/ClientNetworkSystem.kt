@@ -79,6 +79,10 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
 
     private val netQueue = ConcurrentLinkedQueue<Any>()
 
+    var packetsPerSecondTimer = OreTimer().apply { start() }
+    var packetsReceivedPerSecond = 0
+    var packetsReceivedPerSecondLast = 0
+
     lateinit var clientKryo: Client
 
     /**
@@ -188,7 +192,7 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
     override fun processSystem() {
         processNetworkQueue()
 
-        if (pingTimer.resetIfSurpassed(1000)) {
+        if (pingTimer.resetIfExpired(1000)) {
             clientKryo.updateReturnTripTime()
             val time = clientKryo.returnTripTime
         }
@@ -198,6 +202,14 @@ class ClientNetworkSystem(private val oreWorld: OreWorld) : BaseSystem() {
         while (netQueue.peek() != null) {
             val receivedObject = netQueue.poll()
             receiveNetworkObject(receivedObject)
+
+            packetsPerSecondTimer.resetIfExpired(1000) {
+                packetsReceivedPerSecondLast = packetsReceivedPerSecond
+                packetsReceivedPerSecond = 0
+            }
+
+            packetsReceivedPerSecond += 1
+
             NetworkHelper.debugPacketFrequencies(receivedObject, debugPacketFrequencyByType)
         }
 

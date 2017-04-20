@@ -251,7 +251,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
             return
         }
 
-        if (cPlayer.placeableItemTimer.resetIfSurpassed(PlayerComponent.placeableItemDelay)) {
+        if (cPlayer.placeableItemTimer.resetIfExpired(PlayerComponent.placeableItemDelay)) {
             cPlayer.placeableItemTimer.reset()
 
             attemptItemPlace()
@@ -262,7 +262,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
         val player = tagManager.getEntity(OreWorld.s_mainPlayer).id
         val cPlayer = mPlayer.get(player)
 
-        if (cPlayer.secondaryActionTimer.resetIfSurpassed(PlayerComponent.secondaryActionDelay)) {
+        if (cPlayer.secondaryActionTimer.resetIfExpired(PlayerComponent.secondaryActionDelay)) {
             //todo do we want right click to be activating stuff? toggling doors, opening up machinery control panels?
             //or do we want a separate key for that?
             val mouse = world!!.mousePositionWorldCoords()
@@ -351,7 +351,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
     private fun attemptToolAttack(cPlayer: PlayerComponent,
                                   equippedToolComp: ToolComponent,
                                   mouseWorldCoords: Vector2) {
-        if (cPlayer.primaryAttackTimer.resetIfSurpassed(equippedToolComp.attackIntervalMs)) {
+        if (cPlayer.primaryAttackTimer.resetIfExpired(equippedToolComp.attackIntervalMs)) {
             //fixme obviously, iterating over every entityId to find the one under position is beyond dumb, use a spatial hash/quadtree etc
 
             when (equippedToolComp.type) {
@@ -512,14 +512,14 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
 
         //fixme: minus wasn't working?? but plus(equals) is, had to resort to left bracket for now
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
-            if (zoomTimer.resetIfSurpassed(zoomInterval)) {
+            if (zoomTimer.resetIfExpired(zoomInterval)) {
                 //zoom out
                 zoom(1.0f + OreSettings.zoomAmount)
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.EQUALS)) {
-            if (zoomTimer.resetIfSurpassed(zoomInterval)) {
+            if (zoomTimer.resetIfExpired(zoomInterval)) {
                 zoom(1.0f - OreSettings.zoomAmount)
             }
         }

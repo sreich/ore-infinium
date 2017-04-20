@@ -60,7 +60,7 @@ class ServerPowerSystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(
     }
 
     override fun end() {
-        fuelBurnDelayTimer.resetIfSurpassed(globalFuelBurnRateDelay)
+        fuelBurnDelayTimer.resetIfExpired(globalFuelBurnRateDelay)
     }
 
     override fun process(entityId: Int) {

@@ -106,7 +106,7 @@ fun String.toSingleLine(): String {
  * based on true/false
  * @author sreich
  */
-fun Boolean.enabledString() = if (this) {
+fun Boolean.enabled() = if (this) {
     "enabled"
 } else {
     "disabled"

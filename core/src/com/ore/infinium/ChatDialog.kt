@@ -31,7 +31,7 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.Timer
 import com.kotcrab.vis.ui.widget.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
-import com.ore.infinium.util.enabledString
+import com.ore.infinium.util.enabled
 import com.ore.infinium.util.scrollToBottom
 import com.ore.infinium.util.system
 import ktx.actors.onChange
@@ -214,7 +214,7 @@ class ChatDialog(private val client: OreClient,
             chat == "/noclip" -> {
                 OreSettings.noClip = !OreSettings.noClip
 
-                val response = "noclip is now ${OreSettings.noClip.enabledString()}"
+                val response = "noclip is now ${OreSettings.noClip.enabled()}"
                 sendLocalChat(response)
                 return true
             }
@@ -222,7 +222,7 @@ class ChatDialog(private val client: OreClient,
             chat == "/speedrun" -> {
                 OreSettings.speedRun = !OreSettings.speedRun
 
-                val response = "speedrun is now ${OreSettings.speedRun.enabledString()}"
+                val response = "speedrun is now ${OreSettings.speedRun.enabled()}"
                 sendLocalChat(response)
                 return true
             }
@@ -230,7 +230,7 @@ class ChatDialog(private val client: OreClient,
             chat == "/lockright" -> {
                 OreSettings.lockRight = !OreSettings.lockRight
 
-                val response = "lockRight is ${OreSettings.lockRight.enabledString()}"
+                val response = "lockRight is ${OreSettings.lockRight.enabled()}"
                 sendLocalChat(response)
                 return true
             }

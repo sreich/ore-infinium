@@ -42,6 +42,7 @@ import com.ore.infinium.OreTimer
 import com.ore.infinium.OreWorld
 import com.ore.infinium.components.*
 import com.ore.infinium.systems.server.LiquidSimulationSystem
+import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
 import ktx.assets.file
@@ -85,7 +86,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
     //private BitmapFont bitmapFont_8pt;
     private val font: BitmapFont
 
-    private val batch: SpriteBatch
+    private val batch: SpriteBatch = SpriteBatch()
     private val debugServerBatch: SpriteBatch
 
     private val junkTexture: Texture
@@ -105,8 +106,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
     private var debugStrings = mutableListOf<String>()
 
     init {
-        batch = SpriteBatch()
-
         GLProfiler.enable()
 
         decimalFormat.maximumFractionDigits = 4
@@ -302,26 +301,34 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         debugStrings.add("Vertex count (avg): ${GLProfiler.vertexCount.average}")
         debugStrings.add("GL calls: ${GLProfiler.calls}")
         debugStrings.add("Server frame time: n/a") //+ decimalFormat.format(server.sharedFrameTime);
-        debugStrings.add("F12 - gui debug (${guiDebug.enabledString()})")
-        debugStrings.add("F11 - gui render disabled (${OreSettings.debugDisableGui.enabledString()})")
+        debugStrings.add("F12 - gui debug (${guiDebug.enabled()})")
+        debugStrings.add("F11 - gui render disabled (${OreSettings.debugDisableGui.enabled()})")
         debugStrings.add("F10 - tile render (${tileRenderSystem.debugRenderTiles})")
 
         debugStrings.add("""
             |F9 - server sprite debug render.
-            |Client (${renderDebugClient.enabledString()})
-            |Server: (${renderDebugServer.enabledString()})
+            |Client (${renderDebugClient.enabled()})
+            |Server: (${renderDebugServer.enabled()})
             """.toSingleLine())
 
-        debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabledString()})")
+        debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabled()})")
         debugStrings.add(
                 "F7 - tile lighting renderer debug " +
-                        "(${tileRenderSystem.debugRenderTileLighting.enabledString()})")
+                        "(${tileRenderSystem.debugRenderTileLighting.enabled()})")
 
         debugStrings.add("F6 - system profiler toggle")
 
         debugStrings.add("E - power overlay. Q - drop item")
-        debugStrings.add("1-8 or mouse wheel for inventory selection")
-        debugStrings.add("T for chat")
+        debugStrings.add("1-8 or mouse wheel for equipped selection")
+        debugStrings.add("T for chat, I for inventory, [ and ] for zoom")
+
+        val debugServerPacketCount = if (oreWorld.server != null) {
+            oreWorld.server!!.oreWorld.artemisWorld.system<ServerNetworkSystem>().packetsReceivedPerSecondLast
+        } else {
+            0
+        }
+        debugStrings.add("server received packets $debugServerPacketCount/s")
+        debugStrings.add("client received packets ${clientNetworkSystem.packetsReceivedPerSecondLast}/s")
 
         debugStrings.add("World size: (${oreWorld.worldSize.width}, ${oreWorld.worldSize.height})")
         //       }

@@ -147,8 +147,8 @@ class OreWorld
         ClientHostingServer
     }
 
-    fun isServer() = worldInstanceType == WorldInstanceType.Server
-    fun isClient() = worldInstanceType == WorldInstanceType.Client ||
+    val isServer = worldInstanceType == WorldInstanceType.Server
+    val isClient = worldInstanceType == WorldInstanceType.Client ||
             worldInstanceType == WorldInstanceType.ClientHostingServer
 
     init {
@@ -163,7 +163,7 @@ class OreWorld
 
         if (worldInstanceType == WorldInstanceType.Client || worldInstanceType == WorldInstanceType.ClientHostingServer) {
             initClient()
-        } else if (isServer()) {
+        } else if (isServer) {
             initServer()
         }
 
@@ -1033,7 +1033,7 @@ class OreWorld
             val component = mSprite.create(clonedEntity)
             component.copyFrom(it)
 
-            if (!isServer()) {
+            if (!isServer) {
                 logger.debug { "client entity cloner, sprite textturename: ${component.textureName.toString()}" }
                 component.sprite.setRegion(atlas.findRegion(component.textureName))
             }

@@ -51,7 +51,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         super.inserted(entityId)
 
         //client does nothing as of yet, with this
-        if (oreWorld.isClient()) {
+        if (oreWorld.isClient) {
             return
         }
 
@@ -61,7 +61,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
     }
 
     override fun process(entityId: Int) {
-        if (oreWorld.isClient()) {
+        if (oreWorld.isClient) {
             return
         }
 
@@ -82,7 +82,7 @@ class PlayerSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all(
         val y = cSprite.sprite.y
 
         //fixme fixme, we'll fix this when we get to chunking and come up with a proper solution
-        if (chunkTimer.resetIfSurpassed(600L)) {
+        if (chunkTimer.resetIfExpired(600L)) {
             calculateLoadedViewport(entityId)
         }
     }

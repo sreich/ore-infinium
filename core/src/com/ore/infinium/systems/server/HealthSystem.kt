@@ -51,7 +51,7 @@ class HealthSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(Healt
     override fun process(entityId: Int) {
         val cHealth = mHealth.get(entityId)
 
-        if (cHealth.regenTimer.resetIfSurpassed(HealthComponent.regenIntervalMs)) {
+        if (cHealth.regenTimer.resetIfExpired(HealthComponent.regenIntervalMs)) {
             increaseHealth(entityId, HealthComponent.regenAmount)
         }
     }

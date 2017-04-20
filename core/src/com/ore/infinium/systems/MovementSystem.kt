@@ -69,13 +69,13 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         //server will simulate everything else(except players), and broadcast positions
 
         //fixme maybe make a dropped component?
-        if (oreWorld.isServer()) {
+        if (oreWorld.isServer) {
             if (oreWorld.isItemDroppedInWorldOpt(entityId)) {
                 simulateDroppedItem(entityId, getWorld().delta)
             }
         }
 
-        if (!oreWorld.isServer()) {
+        if (!oreWorld.isServer) {
             //server doesn't process this(physics). client tells us where they are.
             //fixme, though we do need to eventually at least half-ass verify it, which
             //means doing it on server as well. and only players and stuff should get simulated
@@ -209,7 +209,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         val cJump = mJump.get(playerEntity)
         if (cJump.canJump && cJump.shouldJump) {
 
-            if (cJump.jumpTimer.resetIfSurpassed(cJump.jumpInterval)) {
+            if (cJump.jumpTimer.resetIfExpired(cJump.jumpInterval)) {
                 //good to jump, actually do it now.
                 newAcceleration = -PlayerComponent.jumpVelocity
             }

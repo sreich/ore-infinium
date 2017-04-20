@@ -30,8 +30,14 @@ class OreTimer {
 
     private var lastMs: Long = 0
 
+    //fixme this shouldn't need to get called first, but i've seen things want different behavior
+    //e.g. some want to run it right away, others want to wait until it goes by...
     fun reset() {
         lastMs = TimeUtils.millis()
+    }
+
+    fun start() {
+        reset()
     }
 
     val currentMs: Long
@@ -44,10 +50,13 @@ class OreTimer {
      *
      * If it is, true is returned and the timer is reset
      * to the current time. False otherwise.
+     *
+     * @param f executes the optional param if it was surpassed
      */
-    fun resetIfSurpassed(intervalMs: Long): Boolean {
+    fun resetIfExpired(intervalMs: Long, f: (() -> Unit)? = null): Boolean {
         if (currentMs - lastMs > intervalMs) {
             lastMs = currentMs
+            f?.invoke()
             return true
         }
 

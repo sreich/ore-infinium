@@ -53,7 +53,7 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
         //throttling
         if (isEntitySubmerged(entityId)) {
 
-            if (airIntervalTimer.resetIfSurpassed(AirComponent.decreaseIntervalMs)) {
+            if (airIntervalTimer.resetIfExpired(AirComponent.decreaseIntervalMs)) {
                 decreaseAir(entityId, cAir)
             }
         } else {
