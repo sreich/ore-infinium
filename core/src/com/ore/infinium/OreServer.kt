@@ -172,14 +172,14 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
 
         sendServerMessage("Player ${cPlayer.playerName} has joined the server")
 
-//        val bunny = oreWorld.entityFactory.createBunny()
-//
-//        val bunnyX = playerSprite.sprite.x
-//        val bunnyY = oreWorld.findSolidGround(bunnyX)
-//        val cBunnySprite = mSprite.get(bunny).apply {
-//            //this.sprite.setPosition()
-//            this.sprite.setPosition(bunnyX, bunnyY -1f)
-//        }
+        val bunny = oreWorld.entityFactory.createBunny()
+
+        val bunnyX = playerSprite.sprite.x
+        val bunnyY = oreWorld.findSolidGround(bunnyX)
+        val cBunnySprite = mSprite.get(bunny).apply {
+            //this.sprite.setPosition()
+            this.sprite.setPosition(bunnyX, bunnyY -1f)
+        }
 
         return player
     }

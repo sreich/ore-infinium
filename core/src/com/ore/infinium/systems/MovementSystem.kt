@@ -469,6 +469,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         } else if (velocity.x < 0.0f) {
             //try moving left, only loop over tiles on the left side
             for (y in topY until bottomY) {
+
                 if (oreWorld.isBlockSolid(leftX, y)) {
 
                     val tileLeft = (leftX + 1).toFloat()
