@@ -152,7 +152,7 @@ object OreSettings {
     @Parameter(names = arrayOf("--renderDebugServer"),
                description = "render debug server overlay for entity debugging")
     @JvmField
-    var renderDebugServer = true
+    var renderDebugServer = false
 
     @Parameter(names = arrayOf("--renderDebugClient"),
                description = "render debug client overlay for entity debugging")

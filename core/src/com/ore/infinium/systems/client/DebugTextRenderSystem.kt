@@ -158,10 +158,12 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
             debugServerBatch.begin()
             debugServerBatch.color = Color.RED
 
-            val entities = oreWorld.server!!.oreWorld.getEntitiesWithComponent<SpriteComponent>()
+            val serverWorld = oreWorld.server!!.oreWorld
+            val entities = serverWorld.getEntitiesWithComponent<SpriteComponent>()
 
             entities.forEach {
-                val cSprite = mSprite.get(it)
+                val serverMSprite = serverWorld.artemisWorld.getMapper(SpriteComponent::class.java)
+                val cSprite = serverMSprite.get(it)
 
                 debugServerBatch.draw(junkTexture, cSprite.sprite.x - (cSprite.sprite.width * 0.5f),
                                       cSprite.sprite.y - (cSprite.sprite.height * 0.5f),
@@ -301,12 +303,11 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         debugStrings.add("F10 - tile render (${tileRenderSystem.debugRenderTiles})")
 
         debugStrings.add("""
-            |F9 - server sprite debug render.
-            |Client (${OreSettings.renderDebugClient.enabled()})
+            |F9 - server sprite debug render(red).
             |Server: (${OreSettings.renderDebugServer.enabled()})
             """.toSingleLine())
 
-        debugStrings.add("F8 - client sprite debug render (${OreSettings.renderDebugClient.enabled()})")
+        debugStrings.add("F8 - client sprite debug render (blue) (${OreSettings.renderDebugClient.enabled()})")
         debugStrings.add(
                 "F7 - tile lighting renderer debug " +
                         "(${tileRenderSystem.debugRenderTileLighting.enabled()})")

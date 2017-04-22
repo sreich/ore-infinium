@@ -59,6 +59,7 @@ class EntityOverlaySystem(private val oreWorld: OreWorld) : BaseSystem() {
         val cSprite = mSprite.create(crosshair).apply {
             sprite.setSize(1f, 1f)
             sprite.setRegion(oreWorld.atlas.findRegion("crosshair-blockpicking"))
+            textureName = "crosshair-blockpicking"
             noClip = true
         }
     }
