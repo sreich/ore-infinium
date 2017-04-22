@@ -36,6 +36,7 @@ import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.util.*
+import mu.KLogging
 
 @Wire(failOnNull = false)
 class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.all()) {
@@ -54,7 +55,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
     //lowest value we want to represent before killing velocity
     private val VELOCITY_MINIMUM_CUTOFF = 0.008f
 
-    companion object {
+    companion object : KLogging() {
         val GRAVITY_ACCEL = 1.2f
 
         //max velocity that can be obtained via gravity
@@ -168,10 +169,6 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         // newVelocity is now invalid, note (vector reference modification).
         val desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)))
 
-        if (oreWorld.isServer && entity == 0) {
-            val a = 2
-        }
-
         val finalPosition = if (noClip) {
             //just set where we expect we should be/want to be (ignore collision)
             desiredPosition
@@ -180,20 +177,8 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             performBlockCollision(entityCollisionPosition, entity)
         }
 
-        if (oreWorld.isServer && entity == 0) {
-            val a = 2
-        }
-
         cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
-
-        if (oreWorld.isServer && entity == 0) {
-            //severe, player going negative y
-            val a = 2
-            if (cSprite.sprite.y < 0.0f) {
-                val b=3
-            }
-        }
     }
 
     /**
@@ -319,19 +304,19 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
      */
     private fun performEntitiesCollision(desiredPosition: Vector2, entity: Int): Vector2 {
         //check every other entity to collide with
-        world.entities(allOf(SpriteComponent::class)).forEach {
+        world.entities(allOf(SpriteComponent::class)).forEach { otherEntity ->
             val cSprite = mSprite.get(entity)
-            val cSpriteOther = mSprite.get(it)
+            val cSpriteOther = mSprite.get(otherEntity)
 
-            if (oreWorld.isItemDroppedInWorldOpt(it) || oreWorld.shouldIgnoreClientEntityTag(it) ||
-                    cSpriteOther.noClip) {
-                //ignore collision with these
+            if (oreWorld.isItemDroppedInWorldOpt(otherEntity) || oreWorld.shouldIgnoreClientEntityTag(otherEntity) ||
+                    cSpriteOther.noClip || otherEntity == entity) {
+                //ignore collision with these (eg same entity, or non-colliding ones)
                 return@forEach
             }
 
             if (cSprite.sprite.rect.overlapsPadded(cSpriteOther.sprite.rect, entityPadding)) {
                 return performEntityCollision(desiredPosition = desiredPosition, entityToMove = entity,
-                                              collidingEntity = it)
+                                              collidingEntity = otherEntity)
             }
         }
 

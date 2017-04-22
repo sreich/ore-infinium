@@ -57,6 +57,6 @@ class AISystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(AICompone
         cControl.desiredDirection.x = -1f
 
         val cSprite = mSprite.get(entityId)
-        logger.debug { "bunny pos ${cSprite.sprite.x},${cSprite.sprite.y}" }
+//        logger.debug { "bunny pos ${cSprite.sprite.x},${cSprite.sprite.y}" }
     }
 }
