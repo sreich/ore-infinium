@@ -27,7 +27,14 @@ package com.ore.infinium.components
 import com.artemis.Component
 import com.badlogic.gdx.math.Vector2
 import com.ore.infinium.util.DoNotCopy
+import com.ore.infinium.util.ExtendedComponent
 
-class ControllableComponent : Component() {
+class ControllableComponent : Component(), ExtendedComponent<ControllableComponent> {
     @DoNotCopy var desiredDirection = Vector2()
+
+    override fun copyFrom(other: ControllableComponent) =
+        throw TODO("function not yet implemented")
+
+    override fun canCombineWith(other: ControllableComponent) =
+        throw TODO("function not yet implemented")
 }

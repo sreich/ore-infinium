@@ -28,8 +28,10 @@ import com.artemis.Component
 import com.ore.infinium.OreTimer
 import com.ore.infinium.util.DoNotCopy
 import com.ore.infinium.util.DoNotPrint
+import com.ore.infinium.util.ExtendedComponent
 
-class JumpComponent : Component() {
+class JumpComponent : Component(), ExtendedComponent<JumpComponent> {
+
     //for physics jumping abilities..
     var canJump: Boolean = false
     var shouldJump: Boolean = false
@@ -41,4 +43,10 @@ class JumpComponent : Component() {
     var jumpInterval = 400L
 
     @DoNotCopy @DoNotPrint @Transient var jumpTimer = OreTimer()
+
+    override fun copyFrom(other: JumpComponent) =
+        throw TODO("function not yet implemented")
+
+    override fun canCombineWith(other: JumpComponent) =
+        throw TODO("function not yet implemented")
 }

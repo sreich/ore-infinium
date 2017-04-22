@@ -418,6 +418,22 @@ class OreWorld
         return blocks[(x * worldSize.height + y) * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE]
     }
 
+    fun dumpEntity(entityId: Int) {
+        val components = artemisWorld.getComponentsForEntity(entityId)
+        val t = components.map { it.printString() }.reduce { acc, s -> acc + "\n$s" }
+
+        val dump = """---- dumping entity... [ entityId: $entityId
+$t
+]
+"""
+        println(dump)
+    }
+
+    inline fun isInWorldBounds(x: Int, y: Int): Boolean {
+        return x >= 0 && y >= 0 && x <= (worldSize.width * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE)
+                && y <= (worldSize.height * OreBlock.BLOCK_BYTE_FIELD_COUNT + OreBlock.BLOCK_BYTE_FIELD_INDEX_TYPE)
+    }
+
     inline fun blockWallType(x: Int, y: Int): Byte {
         /*
         assert(x >= 0 && y >= 0 &&

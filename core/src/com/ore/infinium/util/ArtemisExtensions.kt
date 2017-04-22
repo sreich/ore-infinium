@@ -86,6 +86,20 @@ interface ExtendedComponent<T : ExtendedComponent<T>> {
     //whose result is the combination of both
     // (otherwise how do we know how to combine them properly?)
     fun canCombineWith(other: T): Boolean
+
+    fun printString(): String {
+        return getCache(javaClass).printProperties.map {
+            "${javaClass.simpleName}.${it.name} = ${it.getter.call(this)}"
+        }
+                .joinToString(separator = "\n", postfix = "\n")
+    }
+
+    fun defaultPrintString(): String {
+        return getCache(javaClass).printProperties.map {
+            "${javaClass.simpleName}.${it.name} = ${it.getter.call(this)}"
+        }
+                .joinToString(separator = "\n", postfix = "\n")
+    }
 }
 
 /**
@@ -117,6 +131,7 @@ fun noneOf(vararg types: KClass<out Component>): Aspect.Builder =
 fun <T : Component> ComponentMapper<T>.opt(entityId: Int): T? = if (has(entityId)) get(entityId) else null
 
 inline fun <T : Component> ComponentMapper<T>.ifPresent(entityId: Int, function: (T) -> Unit): Unit {
+    //fixme change has to just 1 get, since has calls get anyway
     if (has(entityId))
         function(get(entityId))
 }
@@ -288,6 +303,14 @@ fun <T : Component> T.canCombineWith(other: T): Boolean {
     return false
 }
 
+fun <T : Component> T.printString(): String {
+    if (this is ExtendedComponent<*>) {
+        return this.internalPrintString<InternalExtendedComponent>()
+    }
+    return "ERROR! can't print string of this component. It is not an ExtendedComponent. " +
+            "Please derive this component (${this.javaClass}) from ExtendedComponent\n"
+}
+
 /**
  * copy a component (similar to copy constructor)
  *
@@ -308,19 +331,27 @@ private fun <T : ExtendedComponent<T>> Any.internalCopyFrom(other: Any) {
 private fun <T : ExtendedComponent<T>> Any.internalCanCombineWith(other: Any) =
         (this as T).canCombineWith(other as T)
 
+@Suppress("UNCHECKED_CAST")
+private fun <T : ExtendedComponent<T>> Any.internalPrintString() =
+        (this as T).printString()
+
 private class InternalExtendedComponent : ExtendedComponent<InternalExtendedComponent> {
     override fun canCombineWith(other: InternalExtendedComponent): Boolean =
             throw TODO("function not yet implemented")
 
     override fun copyFrom(other: InternalExtendedComponent) =
             throw TODO("function not yet implemented")
+
+    override fun printString() =
+            throw TODO("function not yet implemented")
 }
 
 // TODO: Might want to introduce PrintableComponent interface
-fun <T : Component> T.printString(): String {
-    return this.defaultPrintString()
-}
+//fun <T : Component> T.printString(): String {
+//    this
+//    return this.defaultPrintString()
+//}
 
-fun <T : Component> T.defaultPrintString(): String =
-        getCache(javaClass).printProperties.map { "${javaClass.simpleName}.${it.name} = ${it.getter.call(this)}" }
-                .joinToString(separator = "\n", postfix = "\n")
+//fun <T : ExtendedComponent> T.defaultPrintString(): String =
+//        getCache(javaClass).printProperties.map { "${javaClass.simpleName}.${it.name} = ${it.getter.call(this)}" }
+//                .joinToString(separator = "\n", postfix = "\n")

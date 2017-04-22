@@ -106,6 +106,7 @@ class AirSystem(private val oreWorld: OreWorld) : IteratingSystem(allOf(AirCompo
 
         for (y in top..bottom) {
             for (x in left..right) {
+                require(oreWorld.isInWorldBounds(x, y)) { oreWorld.dumpEntity(entityId); "$x, $y" }
                 val blockType = oreWorld.blockType(x, y)
 
                 if (blockType == OreBlock.BlockType.Water.oreValue) {

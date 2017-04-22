@@ -26,9 +26,9 @@ package com.ore.infinium.components
 
 import com.artemis.Component
 import com.ore.infinium.OreTimer
+import com.ore.infinium.util.ExtendedComponent
 
-class HealthComponent : Component() {
-
+class HealthComponent : Component(), ExtendedComponent<HealthComponent> {
     var maxHealth = 25000.0f
     //current air level
     var health = maxHealth
@@ -43,4 +43,10 @@ class HealthComponent : Component() {
         const val regenIntervalMs = 50L
         const val regenAmount = 1f
     }
+
+    override fun copyFrom(other: HealthComponent) =
+        throw TODO("function not yet implemented")
+
+    override fun canCombineWith(other: HealthComponent) =
+        throw TODO("function not yet implemented")
 }

@@ -25,8 +25,10 @@ SOFTWARE.
 package com.ore.infinium.components
 
 import com.artemis.Component
+import com.ore.infinium.util.ExtendedComponent
 
-class AirComponent : Component() {
+class AirComponent : Component(), ExtendedComponent<AirComponent> {
+
     companion object {
         const val decreaseIntervalMs = 50L
     }
@@ -35,5 +37,9 @@ class AirComponent : Component() {
 
     //current air level
     var air = maxAir
+
+    override fun copyFrom(other: AirComponent) = throw TODO("function not yet implemented")
+
+    override fun canCombineWith(other: AirComponent) = throw TODO("function not yet implemented")
 }
 

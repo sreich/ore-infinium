@@ -75,15 +75,14 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             }
         }
 
+        //server doesn't process this(physics). client tells us where they are.
+        //fixme, though we do need to eventually at least half-ass verify it, which
+        //means doing it on server as well. and only players and stuff should get simulated
+        //by the client. the rest has to be the server
+        simulate(entityId, getWorld().delta)
+
         if (!oreWorld.isServer) {
-            //server doesn't process this(physics). client tells us where they are.
-            //fixme, though we do need to eventually at least half-ass verify it, which
-            //means doing it on server as well. and only players and stuff should get simulated
-            //by the client. the rest has to be the server
-            simulate(entityId, getWorld().delta)
-
             recenterCameraOnPlayer()
-
             clientNetworkSystem.sendPlayerMoved()
         }
     }
@@ -352,7 +351,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //trying to move right
             if (pastRight && entityToMoveRect.left <= collidingEntityRect.left &&
                     entityToMoveRect.bottom > collidingEntityRect.top //+ entityPadding
-            ) {
+                    ) {
                 desiredPosition.x = (collidingEntityRect.left - entityToMoveRect.halfWidth) - entityPadding
                 velocity.x = 0f
 
@@ -368,7 +367,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             if (pastLeft
                     && entityToMoveRect.right >= collidingEntityRect.right
                     && entityToMoveRect.bottom > collidingEntityRect.top
-            ) {
+                    ) {
                 //if (entityToMoveRect.left <= collidingEntityRect.right + entityPadding
                 //       && entityToMoveRect.right >= collidingEntityRect.right) {
                 desiredPosition.x = (collidingEntityRect.right + entityToMoveRect.halfWidth) + entityPadding
@@ -391,7 +390,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             if (entityToMoveRect.bottom > collidingEntityRect.top - entityPadding
                     && (entityToMoveRect.right > collidingEntityRect.left + entityPadding
                     && entityToMoveRect.left < collidingEntityRect.right - entityPadding)
-            ) {
+                    ) {
                 desiredPosition.y = (collidingEntityRect.top - entityToMoveRect.halfHeight) - entityPadding
                 velocity.y = 0f
             }

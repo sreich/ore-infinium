@@ -55,7 +55,5 @@ class FloraComponent : Component(), ExtendedComponent<FloraComponent> {
      */
     override fun canCombineWith(other: FloraComponent) = true
 
-    override fun copyFrom(other: FloraComponent) {
-        throw TODO("function not yet implemented")
-    }
+    override fun copyFrom(other: FloraComponent) = throw TODO("function not yet implemented")
 }

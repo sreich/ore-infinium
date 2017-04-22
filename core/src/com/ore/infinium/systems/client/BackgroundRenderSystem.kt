@@ -78,7 +78,7 @@ class BackgroundRenderSystem(private val oreWorld: OreWorld,
         val debug = backgroundAtlas.findRegion("debug")
 
         batch.begin()
-        batch.color = Color.SKY
+        batch.setColori(90, 142, 251, 255)
         batch.draw(debug, 0f, 0f, OreSettings.width.toFloat(),
                    OreSettings.height.toFloat())
 
@@ -89,6 +89,10 @@ class BackgroundRenderSystem(private val oreWorld: OreWorld,
 
         batch.end()
     }
+}
+
+private fun SpriteBatch.setColori(r: Int, g: Int, b: Int, a: Int) {
+    this.setColor(r / 255f, g / 255f, b / 255f, a / 255f)
 }
 
 

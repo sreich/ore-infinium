@@ -62,4 +62,11 @@ class SpriteComponent : Component(), ExtendedComponent<SpriteComponent> {
             setPosition(other.sprite.x, other.sprite.y)
         }
     }
+
+    override fun printString(): String {
+        var s = this.defaultPrintString() + """x:${sprite.x}, y:${sprite.y}
+width:${sprite.width}, height:${sprite.height}
+"""
+        return s
+    }
 }

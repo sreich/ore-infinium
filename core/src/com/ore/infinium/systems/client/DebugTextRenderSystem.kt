@@ -156,24 +156,22 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
 
         batch.end()
 
-        if (renderDebugServer && false) {
-            /*
-            debugServerBatch.setProjectionMatrix(oreWorld.camera.combined);
-            debugServerBatch.begin();
-            debugServerBatch.setColor(1, 0, 0, 0.5f);
-            ImmutableArray<Entity> entities = server.oreWorld.engine.getEntitiesFor(Family.all(SpriteComponent
-            .class).get());
-            for (int i = 0; i < entities.size(); ++i) {
-                SpriteComponent cSprite = mSprite.get(entities.get(i));
+        if (renderDebugServer) {
+            debugServerBatch.projectionMatrix = oreWorld.camera.combined
+            debugServerBatch.begin()
+            debugServerBatch.color = Color.RED
 
-                debugServerBatch.draw(junktexture, cSprite.sprite.getX() - (cSprite.sprite.getWidth
-                () * 0.5f),
-                        cSprite.sprite.getY() - (cSprite.sprite.getHeight() * 0.5f),
-                        cSprite.sprite.getWidth(), cSprite.sprite.getHeight());
+            val entities = oreWorld.server!!.oreWorld.getEntitiesWithComponent<SpriteComponent>()
+
+            entities.forEach {
+                val cSprite = mSprite.get(it)
+
+                debugServerBatch.draw(junkTexture, cSprite.sprite.x - (cSprite.sprite.width * 0.5f),
+                                      cSprite.sprite.y - (cSprite.sprite.height * 0.5f),
+                                      cSprite.sprite.width, cSprite.sprite.height)
             }
 
-            debugServerBatch.end();
-            */
+            debugServerBatch.end()
         }
 
         if (renderDebugClient) {

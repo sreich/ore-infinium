@@ -70,7 +70,5 @@ class PowerGeneratorComponent : Component(), ExtendedComponent<PowerGeneratorCom
     override fun canCombineWith(other: PowerGeneratorComponent) =
             this.type == other.type
 
-    override fun copyFrom(other: PowerGeneratorComponent) {
-        this.defaultCopyFrom(other)
-    }
+    override fun copyFrom(other: PowerGeneratorComponent) = this.defaultCopyFrom(other)
 }
