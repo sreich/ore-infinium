@@ -43,11 +43,6 @@ object OreSettings {
     var help: Boolean = false
 
     //client options//////
-    @Parameter(names = arrayOf("--pack"),
-               description = "Pack the images on ../assets, into ../assets/packed, and into their corresponding " + "texture atlases. Only images from the packed atlases will be used, so if changes are " + "made to the assets, this must be run")
-    @JvmField
-    var pack: Boolean = false
-
     @Parameter(names = arrayOf("--framerate"), description = "the framerate value to limit the game to. 0 is unlimited")
     @JvmField
     var framerate = 60
@@ -153,6 +148,16 @@ object OreSettings {
     var debugDisableGui: Boolean = false
 
     var profilerEnabled = false
+
+    @Parameter(names = arrayOf("--renderDebugServer"),
+               description = "render debug server overlay for entity debugging")
+    @JvmField
+    var renderDebugServer = true
+
+    @Parameter(names = arrayOf("--renderDebugClient"),
+               description = "render debug client overlay for entity debugging")
+    @JvmField
+    var renderDebugClient = false
 
     val zoomAmount = 0.004f
 }

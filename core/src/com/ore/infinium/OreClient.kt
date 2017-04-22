@@ -598,8 +598,8 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
                 // could derive from. so we could just call this, and await the return...all of the debug things could be
                 // handled
                 //directly in there. but the question is, what to do for everything else.
-                debugTextRenderSystem.renderDebugClient = !debugTextRenderSystem.renderDebugClient
-            Input.Keys.F9 -> debugTextRenderSystem.renderDebugServer = !debugTextRenderSystem.renderDebugServer
+                OreSettings.renderDebugClient = !OreSettings.renderDebugClient
+            Input.Keys.F9 -> OreSettings.renderDebugServer = !OreSettings.renderDebugServer
             Input.Keys.F10 -> {
                 tileRenderSystem.debugRenderTiles =
                         !tileRenderSystem.debugRenderTiles
@@ -801,7 +801,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
         //only do this for the main player! each other player that gets spawned will not need this information, ever.
         val cPlayer = mPlayer.get(player)
 
-        hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots,artemisWorld = world!!.artemisWorld)
+        hotbarInventory = HotbarInventory(slotCount = Inventory.maxHotbarSlots, artemisWorld = world!!.artemisWorld)
         cPlayer.hotbarInventory = hotbarInventory
 
         hotbarInventory!!.addListener(HotbarSlotListener())
@@ -815,7 +815,7 @@ class OreClient : KtxApplicationAdapter, KtxInputAdapter {
         inventoryView = InventoryView(stage = stage, inventory = inventory!!,
                                       dragAndDrop = dragAndDrop!!, world = world!!)
 
-        generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS,world!!.artemisWorld)
+        generatorInventory = GeneratorInventory(GeneratorInventory.MAX_SLOTS, world!!.artemisWorld)
         generatorControlPanelView = GeneratorControlPanelView(stage = stage,
                                                               generatorControlPanelInventory = generatorInventory!!,
                                                               dragAndDrop = dragAndDrop!!,

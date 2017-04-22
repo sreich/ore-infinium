@@ -168,6 +168,10 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         // newVelocity is now invalid, note (vector reference modification).
         val desiredPosition = origPosition.add(oldVelocity.add(newVelocity.scl(0.5f * delta)))
 
+        if (oreWorld.isServer && entity == 0) {
+            val a = 2
+        }
+
         val finalPosition = if (noClip) {
             //just set where we expect we should be/want to be (ignore collision)
             desiredPosition
@@ -176,8 +180,20 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             performBlockCollision(entityCollisionPosition, entity)
         }
 
+        if (oreWorld.isServer && entity == 0) {
+            val a = 2
+        }
+
         cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
+
+        if (oreWorld.isServer && entity == 0) {
+            //severe, player going negative y
+            val a = 2
+            if (cSprite.sprite.y < 0.0f) {
+                val b=3
+            }
+        }
     }
 
     /**

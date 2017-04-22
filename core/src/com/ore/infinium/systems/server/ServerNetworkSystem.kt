@@ -719,7 +719,9 @@ class ServerNetworkSystem(private val oreWorld: OreWorld, private val oreServer:
 
     private fun receivePlayerMove(job: NetworkJob, playerMove: Network.Client.PlayerMove) {
         val sprite = mSprite.get(job.connection.playerEntityId)
-        sprite.sprite.setPosition(playerMove.position!!.x, playerMove.position!!.y)
+        val pos = playerMove.position!!
+        sprite.sprite.setPosition(pos.x, pos.y)
+        logger.debug { "received player move, x:${pos.x},y: ${pos.y}" }
     }
 
     private fun receiveChatMessage(job: NetworkJob, chatMessage: Network.Client.ChatMessage) {

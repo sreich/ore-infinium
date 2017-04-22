@@ -93,9 +93,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
 
     var guiDebug: Boolean = false
 
-    var renderDebugServer = false
-    var renderDebugClient = false
-
     private val TEXT_Y_SPACING = 10
     private val TEXT_X_RIGHT = OreSettings.width - 600
     private val TEXT_X_LEFT = 6
@@ -110,7 +107,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
 
         decimalFormat.maximumFractionDigits = 4
 
-        junkTexture = Texture(file("entities/debug.png"))
+        junkTexture = Texture("entities/debug.png")
         debugServerBatch = SpriteBatch()
 
         fontGenerator = FreeTypeFontGenerator(file("fonts/Ubuntu-L.ttf"))
@@ -156,7 +153,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
 
         batch.end()
 
-        if (renderDebugServer) {
+        if (OreSettings.renderDebugServer) {
             debugServerBatch.projectionMatrix = oreWorld.camera.combined
             debugServerBatch.begin()
             debugServerBatch.color = Color.RED
@@ -174,7 +171,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
             debugServerBatch.end()
         }
 
-        if (renderDebugClient) {
+        if (OreSettings.renderDebugClient) {
             debugServerBatch.projectionMatrix = oreWorld.camera.combined
             debugServerBatch.begin()
 
@@ -305,11 +302,11 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
 
         debugStrings.add("""
             |F9 - server sprite debug render.
-            |Client (${renderDebugClient.enabled()})
-            |Server: (${renderDebugServer.enabled()})
+            |Client (${OreSettings.renderDebugClient.enabled()})
+            |Server: (${OreSettings.renderDebugServer.enabled()})
             """.toSingleLine())
 
-        debugStrings.add("F8 - client sprite debug render (${renderDebugClient.enabled()})")
+        debugStrings.add("F8 - client sprite debug render (${OreSettings.renderDebugClient.enabled()})")
         debugStrings.add(
                 "F7 - tile lighting renderer debug " +
                         "(${tileRenderSystem.debugRenderTileLighting.enabled()})")
