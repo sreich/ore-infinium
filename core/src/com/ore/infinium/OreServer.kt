@@ -174,11 +174,11 @@ class OreServer(val worldSize: OreWorld.WorldSize) : Runnable {
 
         val bunny = oreWorld.entityFactory.createBunny()
 
-        val bunnyX = playerSprite.sprite.x
+        val bunnyX = playerSprite.sprite.x - 5f
         val bunnyY = oreWorld.findSolidGround(bunnyX)
         val cBunnySprite = mSprite.get(bunny).apply {
             //this.sprite.setPosition()
-            this.sprite.setPosition(bunnyX, bunnyY -1f)
+            this.sprite.setPosition(bunnyX, bunnyY - 5f)
         }
 
         return player

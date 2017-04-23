@@ -28,10 +28,7 @@ import com.artemis.annotations.Wire
 import com.artemis.managers.TagManager
 import com.artemis.systems.IteratingSystem
 import com.ore.infinium.OreWorld
-import com.ore.infinium.components.AIComponent
-import com.ore.infinium.components.ControllableComponent
-import com.ore.infinium.components.ItemComponent
-import com.ore.infinium.components.SpriteComponent
+import com.ore.infinium.components.*
 import com.ore.infinium.systems.client.ClientNetworkSystem
 import com.ore.infinium.util.anyOf
 import com.ore.infinium.util.mapper
@@ -46,6 +43,7 @@ class AISystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(AICompone
     private val mAi by require<AIComponent>()
     private val mSprite by mapper<SpriteComponent>()
     private val mControl by mapper<ControllableComponent>()
+    private val mJump by mapper<JumpComponent>()
     private val mItem by mapper<ItemComponent>()
 
     private val serverNetworkSystem by system<ServerNetworkSystem>()
@@ -54,7 +52,10 @@ class AISystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(AICompone
 
     override fun process(entityId: Int) {
         val cControl = mControl.get(entityId)
-        //cControl.desiredDirection.x = -1f
+//        cControl.desiredDirection.x = -1f
+        cControl.desiredDirection.y = -1f
+       val cJump = mJump.get(entityId)
+        cJump.shouldJump=true
 
         val cSprite = mSprite.get(entityId)
 //        logger.debug { "bunny pos ${cSprite.sprite.x},${cSprite.sprite.y}" }

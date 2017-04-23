@@ -173,11 +173,23 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             //just set where we expect we should be/want to be (ignore collision)
             desiredPosition
         } else {
+            if (oreWorld.isServer && !mPlayer.has(entity)) {
+//                logger.debug { "(server) player final pos (after entity collision: $finalPosition" }
+            }
             val entityCollisionPosition = performEntitiesCollision(desiredPosition, entity)
             performBlockCollision(entityCollisionPosition, entity)
         }
 
+        if (oreWorld.isServer && !mPlayer.has(entity)) {
+//            logger.debug { "(server) bunny final pos (after entity collision: $finalPosition" }
+        }
+
         cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
+
+        if (oreWorld.isServer) {
+            //todo if posiionn not different, do nothing
+            sendEntityMovedIfInViewport(entity)
+        }
         //FIXME: do half-ass friction, to feel better than this. and then when movement is close to 0, 0 it.
     }
 
@@ -291,7 +303,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
             val finalPosition = performBlockCollision(desiredPosition, item)
 
             cSprite.sprite.setPosition(finalPosition.x, finalPosition.y)
-            maybeSendEntityMoved(item)
+            sendEntityMovedIfInViewport(item)
         }
     }
 
@@ -307,6 +319,10 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         world.entities(allOf(SpriteComponent::class)).forEach { otherEntity ->
             val cSprite = mSprite.get(entity)
             val cSpriteOther = mSprite.get(otherEntity)
+
+            if (oreWorld.isServer && !mPlayer.has(entity)) {
+//                logger.debug { "(server) bunny INSIDE ENTITY COLLISION pos (after entity collision: ${cSprite.sprite.x}, ${cSprite.sprite.y}" }
+            }
 
             if (oreWorld.isItemDroppedInWorldOpt(otherEntity) || oreWorld.shouldIgnoreClientEntityTag(otherEntity) ||
                     cSpriteOther.noClip || otherEntity == entity) {
@@ -347,6 +363,10 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
 
         //true if bottom collision is fully satisfied and velocity should be halted
         val stopBottomCollision = pastLeft && entityToMoveRect.right >= collidingEntityRect.right
+
+        if (oreWorld.isServer && !mPlayer.has(entityToMove)) {
+//            logger.debug { "(server) PERFORMENTITYTCOLLISION bunny INSIDE ENTITY COLLISION pos (after entity collision: ${cSprite.sprite.x}, ${cSprite.sprite.y}" }
+        }
 
         if (velocity.x > 0f) {
             //trying to move right
@@ -541,7 +561,7 @@ class MovementSystem(private val oreWorld: OreWorld) : IteratingSystem(Aspect.al
         return desiredPosition
     }
 
-    private fun maybeSendEntityMoved(entity: Int) {
+    private fun sendEntityMovedIfInViewport(entity: Int) {
         val entities = oreWorld.artemisWorld.entities(allOf(PlayerComponent::class))
 
         entities.forEach { player ->

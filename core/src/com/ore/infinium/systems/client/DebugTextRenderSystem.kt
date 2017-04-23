@@ -46,7 +46,6 @@ import com.ore.infinium.systems.server.ServerNetworkSystem
 import com.ore.infinium.systems.server.TileLightingSystem
 import com.ore.infinium.util.*
 import ktx.assets.file
-import java.text.DecimalFormat
 
 /**
  * Handles many debug text renders, so one can easily see current state
@@ -105,19 +104,15 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
     init {
         GLProfiler.enable()
 
-        decimalFormat.maximumFractionDigits = 4
-
         junkTexture = Texture("entities/debug.png")
         debugServerBatch = SpriteBatch()
 
         fontGenerator = FreeTypeFontGenerator(file("fonts/Ubuntu-L.ttf"))
         val parameter = FreeTypeFontGenerator.FreeTypeFontParameter()
-        parameter.borderColor = Color.ORANGE
-        parameter.borderWidth = 0.2f
 
         parameter.size = 9
         font = fontGenerator.generateFont(parameter)
-        font.color = Color.ORANGE
+        font.color = Color.WHITE
 
         fontGenerator.dispose()
     }
@@ -156,7 +151,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         if (OreSettings.renderDebugServer) {
             debugServerBatch.projectionMatrix = oreWorld.camera.combined
             debugServerBatch.begin()
-            debugServerBatch.color = Color.RED
+            debugServerBatch.setColor(1f, 0f, 0f, 0.7f)
 
             val serverWorld = oreWorld.server!!.oreWorld
             val entities = serverWorld.getEntitiesWithComponent<SpriteComponent>()
@@ -182,7 +177,7 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
             entities.forEach {
                 val cSprite = mSprite.get(it)
 
-                debugServerBatch.color = Color.BLUE
+                debugServerBatch.setColor(0f, 0f, 1f, 0.7f)
 
                 debugServerBatch.draw(junkTexture, cSprite.sprite.rect.x,
                                       cSprite.sprite.rect.y,
@@ -371,7 +366,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
 
     companion object {
         internal var frameTimer = OreTimer()
-        internal var decimalFormat = DecimalFormat("#.")
     }
 
 }

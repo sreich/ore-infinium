@@ -500,11 +500,11 @@ object Network {
             constructor() {
             }
 
-            constructor(_x: Int, _y: Int, _x2: Int, _y2: Int) {
-                x = _x
-                y = _y
-                x2 = _x2
-                y2 = _y2
+            constructor(x: Int, y: Int, x2: Int, y2: Int) {
+                this.x = x
+                this.y = y
+                this.x2 = x2
+                this.y2 = y2
             }
 
             companion object {
