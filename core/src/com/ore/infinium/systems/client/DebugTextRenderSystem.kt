@@ -189,7 +189,6 @@ class DebugTextRenderSystem(camera: OrthographicCamera,
         }
         GLProfiler.reset()
         GLProfiler.enable()
-
     }
 
     private fun drawNextLeftString(string: String) {

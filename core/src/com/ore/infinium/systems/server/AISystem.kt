@@ -53,9 +53,8 @@ class AISystem(private val oreWorld: OreWorld) : IteratingSystem(anyOf(AICompone
     override fun process(entityId: Int) {
         val cControl = mControl.get(entityId)
 //        cControl.desiredDirection.x = -1f
-        cControl.desiredDirection.y = -1f
-       val cJump = mJump.get(entityId)
-        cJump.shouldJump=true
+        val cJump = mJump.get(entityId)
+        cJump.shouldJump = true
 
         val cSprite = mSprite.get(entityId)
 //        logger.debug { "bunny pos ${cSprite.sprite.x},${cSprite.sprite.y}" }
