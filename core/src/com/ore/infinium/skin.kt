@@ -44,20 +44,20 @@ var bitmapFont = createFont()
 val oreSkin = skin(TextureAtlas("packed/ui.atlas")) {
 
     scrollPane("list") {
-        background = getDrawable("grey-panel")
-        vScroll = getDrawable("button-blue-up")
-        vScrollKnob = getDrawable("bar-horizontal-white")
+        background = this@skin.getDrawable("grey-panel")
+        vScroll = this@skin.getDrawable("button-blue-up")
+        vScrollKnob = this@skin.getDrawable("bar-horizontal-white")
     }
 
     scrollPane("default") {
-        background = getDrawable("grey-panel")
-        vScroll = getDrawable("button-blue-up")
-        vScrollKnob = getDrawable("bar-horizontal-white")
+        background = this@skin.getDrawable("grey-panel")
+        vScroll = this@skin.getDrawable("button-blue-up")
+        vScrollKnob = this@skin.getDrawable("bar-horizontal-white")
     }
 
     progressBar("default-horizontal") {
-        background = getDrawable("bar-horizontal-white")
-        knobBefore = getDrawable("bar-horizontal-blue")
+        background = this@skin.getDrawable("bar-horizontal-white")
+        knobBefore = this@skin.getDrawable("bar-horizontal-blue")
     }
 
     label("default") {
@@ -66,11 +66,11 @@ val oreSkin = skin(TextureAtlas("packed/ui.atlas")) {
     }
 
     visTooltip {
-        background = getDrawable("grey-panel")
+        background = this@skin.getDrawable("grey-panel")
     }
 
     window("default") {
-        background = getDrawable("grey-panel")
+        background = this@skin.getDrawable("grey-panel")
         titleFont = bitmapFont
     }
 
@@ -112,23 +112,23 @@ val oreSkin = skin(TextureAtlas("packed/ui.atlas")) {
 
      */
     visTextField("default") {
-        background = getDrawable("bar-horizontal-white")
+        background = this@skin.getDrawable("bar-horizontal-white")
 
         font = bitmapFont
         fontColor = Color.BLACK
     }
 
     visTextButton("default") {
-        up = getDrawable("button-blue-up").apply {
+        up = this@skin.getDrawable("button-blue-up").apply {
             //            up = getDrawable("grey-panel").apply {
             //      minHeight = 35f
             //     minWidth = 50f
         }
 
-        down = getDrawable("button-blue-down")
-        over = getDrawable("button-blue-over")
-        disabled = getDrawable("glass-panel")
-        focusBorder = getDrawable("glass-panel")
+        down = this@skin.getDrawable("button-blue-down")
+        over = this@skin.getDrawable("button-blue-over")
+        disabled = this@skin.getDrawable("glass-panel")
+        focusBorder = this@skin.getDrawable("glass-panel")
 
         font = bitmapFont
         fontColor = Color.BLACK
