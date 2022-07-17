@@ -8,6 +8,8 @@
 Ore Infinium, an open source multiplayer Terraria-inspired Sci-fi game written in [Kotlin](https://kotlinlang.org/), with a special focus on in-game tech devices, energy generation/consumption, resources gathering and the survival
 through using these things. 
 
+**This is inactive**. Lot of life mortality related things happened and now I'm more of an artist in the free time I have (photographer, musician)
+
 ![World generation in the world](http://i.imgur.com/6A8fxdz.png)
 ![Underwater air meter](http://i.imgur.com/bAhDtkF.png)
 ![World generation](http://i.imgur.com/uZRsqcG.png)
@@ -80,6 +82,3 @@ There are some command line arguments that can be passed to it. Find them by run
 # License
 Code is licensed as MIT, assets are(will be) licensed under permissive asset licenses. (CC0 mostly).
 See assets dir for more detailed license info.
-
-# Contributing and Contact
-Feel free to talk to me on gitter, ask questions, get help, create issues, make patches!
