@@ -8,7 +8,7 @@
 Ore Infinium, an open source multiplayer Terraria-inspired Sci-fi game written in [Kotlin](https://kotlinlang.org/), with a special focus on in-game tech devices, energy generation/consumption, resources gathering and the survival
 through using these things. 
 
-**This is inactive**. Lot of life mortality related things happened and now I'm more of an artist in the free time I have (photographer, musician)
+**This is inactive**. Lot of life mortality related things happened, especially when I turned 30. These days I'm more of an artist in the free time I have (photographer, musician)
 
 ![World generation in the world](http://i.imgur.com/6A8fxdz.png)
 ![Underwater air meter](http://i.imgur.com/bAhDtkF.png)
