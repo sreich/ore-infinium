@@ -2,14 +2,12 @@
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000?style=plastic)]()[![LibGDX](https://img.shields.io/badge/libgdx-1.9.6-red.svg)](https://libgdx.badlogicgames.com/)[![Kotlin](https://img.shields.io/badge/kotlin-1.1.1-orange.svg)](http://kotlinlang.org/)
 
-[![Join the chat at https://gitter.im/sreich/ore-infinium](https://badges.gitter.im/sreich/ore-infinium.svg)](https://gitter.im/sreich/ore-infinium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://travis-ci.org/sreich/ore-infinium.svg?branch=master)](https://travis-ci.org/sreich/ore-infinium)
 
 Ore Infinium, an open source multiplayer Terraria-inspired Sci-fi game written in [Kotlin](https://kotlinlang.org/), with a special focus on in-game tech devices, energy generation/consumption, resources gathering and the survival
 through using these things. 
 
-# [Screenshots/Media/Reddit](https://www.reddit.com/r/oreinfinium)
 ![World generation in the world](http://i.imgur.com/6A8fxdz.png)
 ![Underwater air meter](http://i.imgur.com/bAhDtkF.png)
 ![World generation](http://i.imgur.com/uZRsqcG.png)
